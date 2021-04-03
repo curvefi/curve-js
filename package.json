@@ -1,0 +1,24 @@
+{
+  "name": "curve",
+  "version": "1.0.0",
+  "description": "JavaScript library for curve.fi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Macket",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^14.14.37",
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.23.0",
+    "vue-eslint-parser": "^7.6.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "ethers": "^5.1.0",
+    "ethers-multicall": "^0.1.6"
+  }
+}

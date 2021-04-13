@@ -1,5 +1,9 @@
 import axios from 'axios';
+import { ethers, BigNumber } from 'ethers';
+import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
 import { ObjectInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
+import {Contract as MulticallContract} from "ethers-multicall/dist/contract";
+import ERC20Abi from "./abis/ERC20.json";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
@@ -33,6 +37,24 @@ export {
     getPoolData,
 }
 
+export const getBalances = async (address: string, ...coins: string[] | string[][]): Promise<BigNumber[]> => {
+    if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
+    coins = coins as string[];
+
+    // TODO move to init function
+    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
+    const multicallProvider = new MulticallProvider(provider);
+    await multicallProvider.init();
+
+    const contractCalls = [];
+    for (const coin of coins) {
+        const coinContract = new MulticallContract(coin, ERC20Abi);
+        contractCalls.push(coinContract.balanceOf(address))
+    }
+
+    return await multicallProvider.all(contractCalls);
+}
+
 export const ALIASES = {
     "token": "0xD533a949740bb3306d119CC777fa900bA034cd52",
     "pool_proxy": "0xeCb456EA5365865EbAb8a2661B0c503410e9B347",
@@ -47,3 +69,4 @@ export const ALIASES = {
 // get_pools_data().then((poolsData: ObjectInterface<PoolDataInterface>): void => {
 //
 // })
+

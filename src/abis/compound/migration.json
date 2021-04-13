@@ -34,7 +34,7 @@
     "constant":false,
     "payable":false,
     "type":"function",
-    "gas":106812
+    "gas":"106812"
   },
   {
     "name":"coins",
@@ -53,6 +53,6 @@
     "constant":true,
     "payable":false,
     "type":"function",
-    "gas":1380
+    "gas":"1380"
   }
 ]

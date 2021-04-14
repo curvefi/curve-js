@@ -3,10 +3,10 @@ import { Provider as MulticallProvider, Contract as MulticallContract } from 'et
 import ERC20Abi from './abis/ERC20.json';
 import gaugeABI from './abis/gauge.json';
 import tripoolSwapABI from './abis/3pool/swap.json';
-import usdtZapAbi from './abis/usdt/deposit.json';
-import { getPoolData, ALIASES } from './utils';
-import { CoinInterface, PoolDataInterface, ObjectInterface } from './interfaces';
+import { getPoolData, approve, ALIASES } from './utils';
+import { CoinInterface, PoolDataInterface } from './interfaces';
 
+// TODO move to init function
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
 const multicallProvider = new MulticallProvider(provider);
 const signer = provider.getSigner();
@@ -15,114 +15,100 @@ const MAX_ALLOWANCE = BigNumber.from(2).pow(BigNumber.from(256)).sub(BigNumber.f
 
 export class Pool {
     name: string;
-    swap: ethers.Contract | null;
-    zap: ethers.Contract | null;
-    token: MulticallContract | null;
-    gauge: MulticallContract | null;
-    coins: CoinInterface[] | null;
+    swapAddress: string;
+    zapAddress: string | null;
+    lpTokenAddress: string;
+    gaugeAddress: string;
+    coins: CoinInterface[];
 
     constructor(name: string) {
         this.name = name;
-        this.swap = null;
-        this.zap = null;
-        this.token = null;
-        this.gauge = null;
-        this.coins = null;
+        this.swapAddress = "";
+        this.zapAddress = null;
+        this.lpTokenAddress = "";
+        this.gaugeAddress = "";
+        this.coins = [];
     }
 
-    async init(callback: () => void) {
+    async init(callback: () => void): Promise<void> {
         await multicallProvider.init();
         const poolData: PoolDataInterface = await getPoolData(this.name);
-        this.swap = new ethers.Contract(poolData['swap_address'] as string, tripoolSwapABI, provider);
-        this.zap = Object.prototype.hasOwnProperty.call(poolData, 'zap_address') ?
-            new ethers.Contract(poolData['zap_address'] as string, usdtZapAbi, provider) : null;
-        this.token = new MulticallContract(poolData['lp_token_address'], ERC20Abi);
-        this.gauge = new MulticallContract(poolData['gauge_addresses'][0], ERC20Abi);
+        this.swapAddress = poolData['swap_address'] as string;
+        this.zapAddress = poolData['zap_address'] || null;
+        this.lpTokenAddress = poolData['lp_token_address'];
+        this.gaugeAddress = poolData['gauge_addresses'][0];
         this.coins = poolData['coins'];
         callback.bind(this)();
     }
 
-    decimals = async (addr: string): Promise<any> => {
-        const ERC20Contract = new ethers.Contract(addr, ERC20Abi, provider);
-        return await ERC20Contract.decimals()
-    }
-
-    // TODO: generalize to any pool
-    allowance = async (): Promise<ethers.BigNumber[]> => {
+    // TODO: change for lending and meta pools
+    liquidityAllowance = async (): Promise<ethers.BigNumber[]> => {
         const address: string = await signer.getAddress();
 
         const contractCalls = []
-        const spender_address = '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7';
         for (const coin of (this.coins as CoinInterface[])) {
             const coinContract = new MulticallContract(coin.underlying_address, ERC20Abi);
-            contractCalls.push(coinContract.allowance(address, spender_address));
+            contractCalls.push(coinContract.allowance(address, this.swapAddress));
         }
 
         return await multicallProvider.all(contractCalls);
     }
 
-    gaugeAllowance = async (): Promise<ethers.BigNumber> => {
-        const address: string = await signer.getAddress();
-        const gauge_address = '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A';
-        const lpTokenAddress = '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490';
-        const lpTokenContract = new ethers.Contract(lpTokenAddress, ERC20Abi, provider);
-        return await lpTokenContract.allowance(address, gauge_address);
-    }
-
-    approve = async (coinAddress: string, spenderAddress: string, value: BigNumber): Promise<any> => {
-        const coinContract = new ethers.Contract(coinAddress, ERC20Abi, signer);
-        return await coinContract.approve(spenderAddress, value);
-    }
-
-    ensureAllowance = async (amounts: BigNumber[]): Promise<void> => {
-        const allowance: BigNumber[] = await this.allowance();
-        const spender_address = '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7';
+    // TODO: change for lending and meta pools
+    ensureLiquidityAllowance = async (amounts: BigNumber[]): Promise<void> => {
+        const allowance: BigNumber[] = await this.liquidityAllowance();
 
         for (let i = 0; i < allowance.length; i++) {
             if (allowance[i].lt(amounts[i])) {
                 if (allowance[i].gt(BigNumber.from(0))) {
-                    await this.approve(this.coins[i].underlying_address, spender_address, BigNumber.from(0))
+                    await approve(this.coins[i].underlying_address, this.swapAddress, BigNumber.from(0))
                 }
-                await this.approve(this.coins[i].underlying_address, spender_address, MAX_ALLOWANCE)
+                await approve(this.coins[i].underlying_address, this.swapAddress, MAX_ALLOWANCE)
             }
-        }
-    }
-
-    ensureGaugeAllowance = async (amount: BigNumber): Promise<void> => {
-        const allowance: BigNumber = await this.gaugeAllowance();
-        const gauge_address = '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A';
-        const lpTokenAddress = '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490';
-
-        if (allowance.lt(amount)) {
-            if (allowance.gt(BigNumber.from(0))) {
-                await this.approve(lpTokenAddress, gauge_address, BigNumber.from(0))
-            }
-            await this.approve(lpTokenAddress, gauge_address, MAX_ALLOWANCE)
         }
     }
 
     calcTokenAmount = async (amounts: ethers.BigNumber[]): Promise<ethers.BigNumber> => {
-        return await (this.swap as ethers.Contract).calc_token_amount(amounts, true);
+        const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, provider);
+        return await swapContract.calc_token_amount(amounts, true);
     }
 
     addLiquidity = async (amounts: BigNumber[], minMintAmount: BigNumber): Promise<any> => {
-        const swapWithSigner = (this.swap as ethers.Contract).connect(signer);
-        return await swapWithSigner.add_liquidity(amounts, minMintAmount);
+        const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, signer);
+        return await swapContract.add_liquidity(amounts, minMintAmount);
+    }
+
+    gaugeAllowance = async (): Promise<ethers.BigNumber> => {
+        const address: string = await signer.getAddress();
+        const lpTokenContract = new ethers.Contract(this.lpTokenAddress, ERC20Abi, provider);
+        return await lpTokenContract.allowance(address, this.gaugeAddress);
+    }
+
+    ensureGaugeAllowance = async (amount: BigNumber): Promise<void> => {
+        const allowance: BigNumber = await this.gaugeAllowance();
+
+        if (allowance.lt(amount)) {
+            if (allowance.gt(BigNumber.from(0))) {
+                await approve(this.lpTokenAddress, this.gaugeAddress, BigNumber.from(0))
+            }
+            await approve(this.lpTokenAddress, this.gaugeAddress, MAX_ALLOWANCE)
+        }
     }
 
     gaugeDeposit = async (amount: BigNumber): Promise<any> => {
-        const gauge_address = '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A';
-        const gaugeContract = new ethers.Contract(gauge_address, gaugeABI, signer);
+        const gaugeContract = new ethers.Contract(this.gaugeAddress, gaugeABI, signer);
         return await gaugeContract.deposit(amount);
     }
 
-    // TODO: return number
     balances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber[] }> =>  {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
         accounts = accounts as string[];
 
-        const contractCalls = accounts.map((account: string) => (this.token as MulticallContract).balanceOf(account))
-            .concat(accounts.map((account: string) => (this.gauge as MulticallContract).balanceOf(account)));
+        const lpTokenContract = new MulticallContract(this.lpTokenAddress, ERC20Abi);
+        const gaugeContract = new MulticallContract(this.gaugeAddress, ERC20Abi);
+
+        const contractCalls = accounts.map((account: string) => lpTokenContract.balanceOf(account))
+            .concat(accounts.map((account: string) => gaugeContract.balanceOf(account)));
         const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
 
         const result: { [index: string]: ethers.BigNumber[] }  = {};
@@ -133,12 +119,13 @@ export class Pool {
         return result;
     }
 
-    // TODO: return number
-    tokenBalances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber }> =>  {
+    lpTokenBalances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber }> =>  {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
         accounts = accounts as string[];
 
-        const contractCalls = accounts.map((account: string) => (this.token as MulticallContract).balanceOf(account));
+        const lpTokenContract = new MulticallContract(this.lpTokenAddress, ERC20Abi);
+
+        const contractCalls = accounts.map((account: string) => lpTokenContract.balanceOf(account));
         const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
 
         const result: { [index: string]: ethers.BigNumber }  = {};
@@ -149,12 +136,13 @@ export class Pool {
         return result;
     }
 
-    // TODO: return number
     gaugeBalances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber }> =>  {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
         accounts = accounts as string[];
 
-        const contractCalls = accounts.map((account: string) => (this.gauge as MulticallContract).balanceOf(account));
+        const gaugeContract = new MulticallContract(this.gaugeAddress, ERC20Abi);
+
+        const contractCalls = accounts.map((account: string) => gaugeContract.balanceOf(account));
         const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
 
         const result: { [index: string]: ethers.BigNumber }  = {};
@@ -170,8 +158,10 @@ export class Pool {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
         const votingEscrowContract = new MulticallContract(ALIASES.voting_escrow, ERC20Abi);
 
+        const gaugeContract = new MulticallContract(this.gaugeAddress, ERC20Abi);
+
         const contractCalls = accounts.map((account: string) => votingEscrowContract.balanceOf(account))
-        contractCalls.push(votingEscrowContract.totalSupply(), (this.gauge as MulticallContract).totalSupply())
+        contractCalls.push(votingEscrowContract.totalSupply(), gaugeContract.totalSupply())
         const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
 
         const [votingEscrowTotalSupply, gaugeTotalSupply] = response.splice(-2);
@@ -189,12 +179,15 @@ export class Pool {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
         const votingEscrowContract = new MulticallContract(ALIASES.voting_escrow, ERC20Abi);
 
-        const contractCalls = [votingEscrowContract.totalSupply(), (this.gauge as MulticallContract).totalSupply()]
+        const lpTokenContract = new MulticallContract(this.lpTokenAddress, ERC20Abi);
+        const gaugeContract = new MulticallContract(this.gaugeAddress, ERC20Abi);
+
+        const contractCalls = [votingEscrowContract.totalSupply(), gaugeContract.totalSupply()]
         accounts.forEach((account: string) => {
             contractCalls.push(
                 votingEscrowContract.balanceOf(account),
-                (this.token as MulticallContract).balanceOf(account),
-                (this.gauge as MulticallContract).balanceOf(account),
+                lpTokenContract.balanceOf(account),
+                gaugeContract.balanceOf(account)
             )
         });
         const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
@@ -209,43 +202,3 @@ export class Pool {
         return result
     }
 }
-
-// GAUGE DEPOSIT
-// const myPool = new Pool('3pool');
-// myPool.init(async function() {
-//     const address = await signer.getAddress();
-//     const amounts: { [index: string]: BigNumber } = await myPool.tokenBalances(address);
-//     const amount: BigNumber = amounts[address];
-//
-//     await myPool.ensureGaugeAllowance(amount);
-//     const res = await myPool.gaugeDeposit(amount)
-//
-//     console.log(res);
-// }).then(null, (e) => console.log(e));
-
-// const myPool = new Pool('3pool');
-// myPool.init(async function() {
-//     const amounts: BigNumber[] = [];
-//     for (const coin of myPool.coins) {
-//         amounts.push(ethers.utils.parseUnits("100.0", coin.decimals));
-//     }
-//     await myPool.ensureAllowance(amounts);
-// });
-
-// const myPool = new Pool('3pool');
-// myPool.init(async function() {
-//     console.log(await myPool.gaugeAllowance())
-// }).then(null, (e) => console.log(e));
-
-// const myPool = new Pool('3pool');
-// myPool.init(async function() {
-//     const address = await signer.getAddress();
-//     const res = await myPool.balances(address);
-//
-//     console.log(res);
-// }).then(null, (e) => console.log(e));
-
-
-// const daiAmount = ethers.utils.parseUnits("100.0", 18)
-// console.log(daiAmount);
-// console.log(ethers.utils.formatUnits(daiAmount, 1))

@@ -30,7 +30,7 @@ myPool.init(async function() {
     for (const coin of myPool.coins) {
         amounts.push(ethers.utils.parseUnits("100.0", coin.decimals));
     }
-    await myPool.ensureAllowance(amounts);
+    await myPool.ensureLiquidityAllowance(amounts);
     let minMintAmount = await myPool.calcTokenAmount(amounts)
     minMintAmount = minMintAmount.div(100).mul(99);
     console.log("Min mint amount: ", ethers.utils.formatUnits(minMintAmount, 18));
@@ -39,7 +39,7 @@ myPool.init(async function() {
     await showBalances(address, myPool);
 
     console.log('\nGAUGE DEPOSIT\n');
-    const tokenBalance: { [index: string]: BigNumber } = await myPool.tokenBalances(address);
+    const tokenBalance: { [index: string]: BigNumber } = await myPool.lpTokenBalances(address);
     const depositAmount: BigNumber = tokenBalance[address];
 
     await myPool.ensureGaugeAllowance(depositAmount);

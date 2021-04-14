@@ -2,13 +2,12 @@ import axios from 'axios';
 import { ethers, BigNumber } from 'ethers';
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
 import { ObjectInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
-import {Contract as MulticallContract} from "ethers-multicall/dist/contract";
 import ERC20Abi from "./abis/ERC20.json";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
 
-async function getPoolData(name: string): Promise<PoolDataInterface> {
+export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
     const poolResponse = await axios.get(GITHUB_POOL.replace("<poolname>", name));
     return poolResponse.data;
 }
@@ -32,11 +31,6 @@ async function get_pools_data(): Promise<ObjectInterface<PoolDataInterface>> {
     return pools_data;
 }
 
-
-export {
-    getPoolData,
-}
-
 export const getBalances = async (address: string, ...coins: string[] | string[][]): Promise<BigNumber[]> => {
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
     coins = coins as string[];
@@ -53,6 +47,23 @@ export const getBalances = async (address: string, ...coins: string[] | string[]
     }
 
     return await multicallProvider.all(contractCalls);
+}
+
+export const getDecimals = async (coin: string): Promise<number> => {
+    // TODO move to init function
+    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
+
+    const ERC20Contract = new ethers.Contract(coin, ERC20Abi, provider);
+    return await ERC20Contract.decimals()
+}
+
+export const approve = async (coinAddress: string, spenderAddress: string, value: BigNumber): Promise<any> => {
+    // TODO move to init function
+    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
+    const signer = provider.getSigner();
+
+    const coinContract = new ethers.Contract(coinAddress, ERC20Abi, signer);
+    return await coinContract.approve(spenderAddress, value);
 }
 
 export const ALIASES = {

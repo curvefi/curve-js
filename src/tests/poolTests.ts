@@ -1,6 +1,6 @@
 import {BigNumber, ethers} from "ethers";
 import { Pool } from "../pools";
-import { CoinInterface } from "../interfaces"
+import {CoinInterface, ObjectInterface} from "../interfaces"
 import { getBalances } from "../utils";
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
@@ -9,9 +9,10 @@ const signer = provider.getSigner();
 const showBalances = async (address: string, pool: Pool): Promise<void> => {
     console.log("Checking balances");
     const coinAddresses = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.underlying_address);
-    const underlyingBalances = await getBalances(address, ...coinAddresses);
+    const underlyingBalances: ObjectInterface<BigNumber[]> = await getBalances([address], coinAddresses);
+    const userUnderlyingBalances: BigNumber[] = underlyingBalances[address];
     for (let i = 0; i < pool.coins.length; i++) {
-        console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(underlyingBalances[i], pool.coins[i].decimals));
+        console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(userUnderlyingBalances[i], pool.coins[i].decimals));
     }
     const lpBalances = await pool.balances(address);
     console.log("Pool tokens: ", ethers.utils.formatUnits(lpBalances[address][0], 18)); // TODO get decimals
@@ -43,7 +44,7 @@ myPool.init(async function() {
     const depositAmount: BigNumber = tokenBalance[address];
 
     await myPool.ensureGaugeAllowance(depositAmount);
-    await myPool.gaugeDeposit(depositAmount)
+    await myPool.gaugeDeposit(depositAmount);
 
     await showBalances(address, myPool);
 

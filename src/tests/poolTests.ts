@@ -46,4 +46,9 @@ myPool.init(async function() {
     await myPool.gaugeDeposit(depositAmount)
 
     await showBalances(address, myPool);
+
+    console.log('\nGAUGE WITHDRAW\n');
+    await myPool.gaugeWithdraw(depositAmount);
+
+    await showBalances(address, myPool);
 }).then(null, (e) => console.log(e));

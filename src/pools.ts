@@ -100,6 +100,11 @@ export class Pool {
         return await gaugeContract.deposit(amount);
     }
 
+    gaugeWithdraw = async (amount: BigNumber): Promise<any> => {
+        const gaugeContract = new ethers.Contract(this.gaugeAddress, gaugeABI, signer);
+        return await gaugeContract.withdraw(amount);
+    }
+
     balances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber[] }> =>  {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
         accounts = accounts as string[];

@@ -32,7 +32,7 @@ myPool.init(async function() {
         amounts.push(ethers.utils.parseUnits("100.0", coin.decimals));
     }
     await myPool.ensureLiquidityAllowance(amounts);
-    let minMintAmount = await myPool.calcTokenAmount(amounts)
+    let minMintAmount = await myPool.calcLpTokenAmount(amounts);
     minMintAmount = minMintAmount.div(100).mul(99);
     console.log("Min mint amount: ", ethers.utils.formatUnits(minMintAmount, 18));
     await myPool.addLiquidity(amounts, minMintAmount);
@@ -40,7 +40,7 @@ myPool.init(async function() {
     await showBalances(address, myPool);
 
     console.log('\nGAUGE DEPOSIT\n');
-    const tokenBalance: { [index: string]: BigNumber } = await myPool.lpTokenBalances(address);
+    const tokenBalance: ObjectInterface<BigNumber> = await myPool.lpTokenBalances(address);
     const depositAmount: BigNumber = tokenBalance[address];
 
     await myPool.ensureGaugeAllowance(depositAmount);
@@ -50,6 +50,12 @@ myPool.init(async function() {
 
     console.log('\nGAUGE WITHDRAW\n');
     await myPool.gaugeWithdraw(depositAmount);
+
+    await showBalances(address, myPool);
+
+    console.log('\nREMOVE LIQUIDITY\n');
+    const minAmounts = await myPool.calcUnderlyingCoinsAmount(depositAmount);
+    await myPool.removeLiquidity(depositAmount, minAmounts);
 
     await showBalances(address, myPool);
 }).then(null, (e) => console.log(e));

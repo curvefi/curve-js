@@ -3,7 +3,7 @@ import { Provider as MulticallProvider, Contract as MulticallContract } from 'et
 import ERC20Abi from './abis/ERC20.json';
 import gaugeABI from './abis/gauge.json';
 import tripoolSwapABI from './abis/3pool/swap.json';
-import { getPoolData, approve, ALIASES } from './utils';
+import { getPoolData, approve, getBalances, ALIASES } from './utils';
 import { CoinInterface, PoolDataInterface } from './interfaces';
 
 // TODO move to init function
@@ -68,7 +68,7 @@ export class Pool {
         }
     }
 
-    calcTokenAmount = async (amounts: ethers.BigNumber[]): Promise<ethers.BigNumber> => {
+    calcLpTokenAmount = async (amounts: ethers.BigNumber[]): Promise<ethers.BigNumber> => {
         const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, provider);
         return await swapContract.calc_token_amount(amounts, true);
     }
@@ -103,6 +103,26 @@ export class Pool {
     gaugeWithdraw = async (amount: BigNumber): Promise<any> => {
         const gaugeContract = new ethers.Contract(this.gaugeAddress, gaugeABI, signer);
         return await gaugeContract.withdraw(amount);
+    }
+
+    calcUnderlyingCoinsAmount = async (amount: BigNumber): Promise<BigNumber[]> => {
+        const underlyingCoinAddresses = this.coins.map((c: CoinInterface) => c.underlying_address);
+        const underlyingCoinBalances = await getBalances([this.swapAddress], underlyingCoinAddresses);
+
+        const lpTokenContract = new ethers.Contract(this.lpTokenAddress, ERC20Abi, provider);
+        const totalSupply: BigNumber = await lpTokenContract.totalSupply();
+
+        const minAmounts: BigNumber[] = [];
+        for (const underlyingCoinBalance of underlyingCoinBalances[this.swapAddress]) {
+            minAmounts.push(underlyingCoinBalance.mul(amount).div(totalSupply).div(BigNumber.from(100)).mul(BigNumber.from(99)));
+        }
+
+        return minAmounts
+    }
+
+    removeLiquidity = async (lpTokenAmount: BigNumber, minAmounts: BigNumber[]): Promise<any> => {
+        const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, signer);
+        return await swapContract.remove_liquidity(lpTokenAmount, minAmounts);
     }
 
     balances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber[] }> =>  {

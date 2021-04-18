@@ -26,7 +26,7 @@ myPool.init(async function() {
 
     await showBalances(address, myPool);
 
-    console.log('\nADD LIQUIDITY (100 100 100)\n');
+    // console.log('\nADD LIQUIDITY (100 100 100)\n');
     const amounts: BigNumber[] = [];
     for (const coin of myPool.coins) {
         amounts.push(ethers.utils.parseUnits("100.0", coin.decimals));
@@ -53,9 +53,20 @@ myPool.init(async function() {
 
     await showBalances(address, myPool);
 
-    console.log('\nREMOVE LIQUIDITY\n');
-    const minAmounts = await myPool.calcUnderlyingCoinsAmount(depositAmount);
-    await myPool.removeLiquidity(depositAmount, minAmounts);
+    // console.log('\nREMOVE LIQUIDITY\n');
+    // const minAmounts = await myPool.calcUnderlyingCoinsAmount(depositAmount);
+    // await myPool.removeLiquidity(depositAmount, minAmounts);
+
+    console.log('\nREMOVE LIQUIDITY IMBALANCE (100 100 100)\n');
+    const removeAmounts: BigNumber[] = [];
+    for (const coin of myPool.coins) {
+        removeAmounts.push(ethers.utils.parseUnits("90", coin.decimals));
+    }
+
+    let maxBurnAmount = await myPool.calcLpTokenAmount(removeAmounts, false)
+    maxBurnAmount = maxBurnAmount.div(100).mul(101);
+    console.log("Max burn amount: ", ethers.utils.formatUnits(maxBurnAmount, 18));
+    await myPool.removeLiquidityImbalance(removeAmounts, maxBurnAmount);
 
     await showBalances(address, myPool);
 }).then(null, (e) => console.log(e));

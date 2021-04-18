@@ -26,7 +26,7 @@ myPool.init(async function() {
 
     await showBalances(address, myPool);
 
-    // console.log('\nADD LIQUIDITY (100 100 100)\n');
+    console.log('\nADD LIQUIDITY (100 100 100)\n');
     const amounts: BigNumber[] = [];
     for (const coin of myPool.coins) {
         amounts.push(ethers.utils.parseUnits("100.0", coin.decimals));
@@ -57,16 +57,25 @@ myPool.init(async function() {
     // const minAmounts = await myPool.calcUnderlyingCoinsAmount(depositAmount);
     // await myPool.removeLiquidity(depositAmount, minAmounts);
 
-    console.log('\nREMOVE LIQUIDITY IMBALANCE (100 100 100)\n');
-    const removeAmounts: BigNumber[] = [];
-    for (const coin of myPool.coins) {
-        removeAmounts.push(ethers.utils.parseUnits("90", coin.decimals));
-    }
+    // console.log('\nREMOVE LIQUIDITY IMBALANCE (100 100 100)\n');
+    // const removeAmounts: BigNumber[] = [];
+    // for (const coin of myPool.coins) {
+    //     removeAmounts.push(ethers.utils.parseUnits("90", coin.decimals));
+    // }
+    //
+    // let maxBurnAmount = await myPool.calcLpTokenAmount(removeAmounts, false)
+    // maxBurnAmount = maxBurnAmount.div(100).mul(101);
+    // console.log("Max burn amount: ", ethers.utils.formatUnits(maxBurnAmount, 18));
+    // await myPool.removeLiquidityImbalance(removeAmounts, maxBurnAmount);
 
-    let maxBurnAmount = await myPool.calcLpTokenAmount(removeAmounts, false)
-    maxBurnAmount = maxBurnAmount.div(100).mul(101);
-    console.log("Max burn amount: ", ethers.utils.formatUnits(maxBurnAmount, 18));
-    await myPool.removeLiquidityImbalance(removeAmounts, maxBurnAmount);
+    console.log('\nREMOVE LIQUIDITY ONE COIN (DAI for 20 LP tokens)\n');
+    const lpTokenAmount = ethers.utils.parseUnits("20");
+    const i = 0;
+    let minAmount = await myPool.calcWithdrawOneCoin(lpTokenAmount, i);
+    minAmount = minAmount.div(100).mul(99);
+    console.log("Min amount to remove: ", ethers.utils.formatUnits(minAmount, myPool.coins[i].decimals));
+    await myPool.removeLiquidityOneCoin(lpTokenAmount, i, minAmount)
+
 
     await showBalances(address, myPool);
 }).then(null, (e) => console.log(e));

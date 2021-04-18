@@ -68,9 +68,14 @@ export class Pool {
         }
     }
 
-    calcLpTokenAmount = async (amounts: BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
+    calcLpTokenAmount = async (amounts: BigNumber[], isDeposit = true): Promise<BigNumber> => {
         const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, provider);
         return await swapContract.calc_token_amount(amounts, isDeposit);
+    }
+
+    calcWithdrawOneCoin = async (tokenAmount: BigNumber, i: number): Promise<BigNumber> => {
+        const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, provider);
+        return await swapContract.calc_withdraw_one_coin(tokenAmount, i);
     }
 
     addLiquidity = async (amounts: BigNumber[], minMintAmount: BigNumber): Promise<any> => {
@@ -128,6 +133,11 @@ export class Pool {
     removeLiquidityImbalance = async (amounts: BigNumber[], maxBurnAmount: BigNumber): Promise<any> => {
         const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, signer);
         return await swapContract.remove_liquidity_imbalance(amounts, maxBurnAmount);
+    }
+
+    removeLiquidityOneCoin = async (tokenAmount: BigNumber, i: number, minAmount: BigNumber): Promise<any> => {
+        const swapContract = new ethers.Contract(this.swapAddress, tripoolSwapABI, signer);
+        return await swapContract.remove_liquidity_one_coin(tokenAmount, i, minAmount);
     }
 
     balances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber[] }> =>  {

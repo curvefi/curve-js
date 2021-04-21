@@ -44,7 +44,7 @@ export const getBalances = async (addresses: string[], coins: string[]): Promise
     }
     const response = await multicallProvider.all(contractCalls)
 
-    const result: { [index: string]: ethers.BigNumber[] }  = {};
+    const result: ObjectInterface<BigNumber[]>  = {};
     addresses.forEach((account: string, i: number) => {
         result[account] = coins.map((_, j: number ) => response[i + (j * addresses.length)])
     });

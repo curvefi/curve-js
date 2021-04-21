@@ -4,7 +4,7 @@ import ERC20Abi from './abis/ERC20.json';
 import gaugeABI from './abis/gauge.json';
 import tripoolSwapABI from './abis/3pool/swap.json';
 import { getPoolData, approve, getBalances, ALIASES } from './utils';
-import { CoinInterface, PoolDataInterface } from './interfaces';
+import {CoinInterface, ObjectInterface, PoolDataInterface} from './interfaces';
 
 // TODO move to init function
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
@@ -140,57 +140,39 @@ export class Pool {
         return await swapContract.remove_liquidity_one_coin(tokenAmount, i, minAmount);
     }
 
-    balances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber[] }> =>  {
-        if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
-        accounts = accounts as string[];
+    balances = async (...addresses: string[] | string[][]): Promise<ObjectInterface<BigNumber[]>> =>  {
+        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+        addresses = addresses as string[];
 
-        const lpTokenContract = new MulticallContract(this.lpTokenAddress, ERC20Abi);
-        const gaugeContract = new MulticallContract(this.gaugeAddress, ERC20Abi);
-
-        const contractCalls = accounts.map((account: string) => lpTokenContract.balanceOf(account))
-            .concat(accounts.map((account: string) => gaugeContract.balanceOf(account)));
-        const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
-
-        const result: { [index: string]: ethers.BigNumber[] }  = {};
-        accounts.forEach((account: string, i: number) => {
-            result[account] = [response[i], response[accounts.length + i]]
-        });
-
-        return result;
+        return await getBalances(addresses, [this.lpTokenAddress, this.gaugeAddress]);
     }
 
-    lpTokenBalances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber }> =>  {
-        if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
-        accounts = accounts as string[];
+    lpTokenBalances = async (...addresses: string[] | string[][]): Promise<ObjectInterface<BigNumber>> =>  {
+        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+        addresses = addresses as string[];
 
-        const lpTokenContract = new MulticallContract(this.lpTokenAddress, ERC20Abi);
+        const rawBalances: ObjectInterface<BigNumber[]> = await getBalances(addresses, [this.lpTokenAddress])
 
-        const contractCalls = accounts.map((account: string) => lpTokenContract.balanceOf(account));
-        const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
+        const balances: ObjectInterface<BigNumber> = {};
+        Object.keys(rawBalances).forEach((key: string) => {
+            balances[key] = rawBalances[key][0]
+        })
 
-        const result: { [index: string]: ethers.BigNumber }  = {};
-        accounts.forEach((account: string, i: number) => {
-            result[account] = response[i]
-        });
-
-        return result;
+        return balances;
     }
 
-    gaugeBalances = async (...accounts: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber }> =>  {
-        if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
-        accounts = accounts as string[];
+    gaugeBalances = async (...addresses: string[] | string[][]): Promise<{ [index: string]: ethers.BigNumber }> =>  {
+        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+        addresses = addresses as string[];
 
-        const gaugeContract = new MulticallContract(this.gaugeAddress, ERC20Abi);
+        const rawBalances: ObjectInterface<BigNumber[]> = await getBalances(addresses, [this.gaugeAddress])
 
-        const contractCalls = accounts.map((account: string) => gaugeContract.balanceOf(account));
-        const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
+        const balances: ObjectInterface<BigNumber> = {};
+        Object.keys(rawBalances).forEach((key: string) => {
+            balances[key] = rawBalances[key][0]
+        })
 
-        const result: { [index: string]: ethers.BigNumber }  = {};
-        accounts.forEach((account: string, i: number) => {
-            result[account] = response[i]
-        });
-
-        return result;
+        return balances
     }
 
     // TODO: return int((response.pop() / ve_total_supply) * gauge_total_supply)

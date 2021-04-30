@@ -1,3 +1,6 @@
+import { Contract } from "ethers";
+import { Contract as MulticallContract } from 'ethers-multicall';
+
 export interface ObjectInterface<T> {
     [index: string]: T,
 }
@@ -12,8 +15,12 @@ export interface CoinInterface {
     decimals: number,
     tethered: boolean,
     underlying_address: string,
+    contract: Contract,
+    multicall_contract: MulticallContract,
     wrapped_address?: string,
     wrapped_decimals?: number,
+    wrapped_contract?: Contract,
+    wrapped_multicall_contract?: MulticallContract,
 }
 
 export interface PoolDataInterface {

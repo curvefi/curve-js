@@ -8,8 +8,8 @@ const signer = provider.getSigner();
 
 const showBalances = async (address: string, pool: Pool): Promise<void> => {
     console.log("Checking balances");
-    const coinAddresses = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.underlying_address);
-    const underlyingBalances: ObjectInterface<BigNumber[]> = await getBalances([address], coinAddresses);
+    const coinMulticallContracts = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.multicall_contract);
+    const underlyingBalances: ObjectInterface<BigNumber[]> = await getBalances([address], coinMulticallContracts);
     const userUnderlyingBalances: BigNumber[] = underlyingBalances[address];
     for (let i = 0; i < pool.coins.length; i++) {
         console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(userUnderlyingBalances[i], pool.coins[i].decimals));

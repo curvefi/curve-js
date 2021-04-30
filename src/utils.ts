@@ -31,22 +31,21 @@ async function get_pools_data(): Promise<ObjectInterface<PoolDataInterface>> {
     return pools_data;
 }
 
-export const getBalances = async (addresses: string[], coins: string[]): Promise<ObjectInterface<BigNumber[]>> => {
+export const getBalances = async (addresses: string[], coinMulticallContracts: MulticallContract[]): Promise<ObjectInterface<BigNumber[]>> => {
     // TODO move to init function
     const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
     const multicallProvider = new MulticallProvider(provider);
     await multicallProvider.init();
 
     const contractCalls = [];
-    for (const coin of coins) {
-        const coinContract = new MulticallContract(coin, ERC20Abi);
+    for (const coinContract of coinMulticallContracts) {
         contractCalls.push(...addresses.map((address: string) => coinContract.balanceOf(address)));
     }
     const response = await multicallProvider.all(contractCalls)
 
     const result: ObjectInterface<BigNumber[]>  = {};
-    addresses.forEach((account: string, i: number) => {
-        result[account] = coins.map((_, j: number ) => response[i + (j * addresses.length)])
+    addresses.forEach((address: string, i: number) => {
+        result[address] = coinMulticallContracts.map((_, j: number ) => response[i + (j * addresses.length)])
     });
 
     return result;
@@ -58,15 +57,6 @@ export const getDecimals = async (coin: string): Promise<number> => {
 
     const ERC20Contract = new ethers.Contract(coin, ERC20Abi, provider);
     return await ERC20Contract.decimals()
-}
-
-export const approve = async (coinAddress: string, spenderAddress: string, value: BigNumber): Promise<any> => {
-    // TODO move to init function
-    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-    const signer = provider.getSigner();
-
-    const coinContract = new ethers.Contract(coinAddress, ERC20Abi, signer);
-    return await coinContract.approve(spenderAddress, value);
 }
 
 export const ALIASES = {

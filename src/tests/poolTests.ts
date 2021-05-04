@@ -12,16 +12,16 @@ const showBalances = async (address: string, pool: Pool): Promise<void> => {
     const underlyingBalances: ObjectInterface<BigNumber[]> = await getBalances([address], coinMulticallContracts);
     const userUnderlyingBalances: BigNumber[] = underlyingBalances[address];
     for (let i = 0; i < pool.coins.length; i++) {
-        console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(userUnderlyingBalances[i], pool.coins[i].decimals));
+        console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(userUnderlyingBalances[i], pool.coins[i].decimals || pool.coins[i].wrapped_decimals));
     }
     const lpBalances = await pool.balances(address);
     console.log("Pool tokens: ", ethers.utils.formatUnits(lpBalances[address][0], 18)); // TODO get decimals
     console.log("Gauge tokens: ", ethers.utils.formatUnits(lpBalances[address][1], 18)); // TODO get decimals
 }
 
-const myPool = new Pool('3pool');
+const myPool = new Pool('ren');
 myPool.init(async function() {
-    console.log('--- 3pool ---');
+    console.log(`--- ${myPool.name} ---`);
     const address = await signer.getAddress();
 
     await showBalances(address, myPool);
@@ -29,7 +29,7 @@ myPool.init(async function() {
     console.log('\nADD LIQUIDITY (100 100 100)\n');
     const amounts: BigNumber[] = [];
     for (const coin of myPool.coins) {
-        amounts.push(ethers.utils.parseUnits("100.0", coin.decimals));
+        amounts.push(ethers.utils.parseUnits("100.0", coin.decimals || coin.wrapped_decimals));
     }
     await myPool.ensureLiquidityAllowance(amounts);
     let minMintAmount = await myPool.calcLpTokenAmount(amounts);
@@ -60,7 +60,7 @@ myPool.init(async function() {
     // console.log('\nREMOVE LIQUIDITY IMBALANCE (100 100 100)\n');
     // const removeAmounts: BigNumber[] = [];
     // for (const coin of myPool.coins) {
-    //     removeAmounts.push(ethers.utils.parseUnits("90", coin.decimals));
+    //     removeAmounts.push(ethers.utils.parseUnits("90", coin.decimals || coin.wrapped_decimals));
     // }
     //
     // let maxBurnAmount = await myPool.calcLpTokenAmount(removeAmounts, false)
@@ -70,12 +70,11 @@ myPool.init(async function() {
 
     console.log('\nREMOVE LIQUIDITY ONE COIN (DAI for 20 LP tokens)\n');
     const lpTokenAmount = ethers.utils.parseUnits("20");
-    const i = 0;
+    const i = 1;
     let minAmount = await myPool.calcWithdrawOneCoin(lpTokenAmount, i);
     minAmount = minAmount.div(100).mul(99);
-    console.log("Min amount to remove: ", ethers.utils.formatUnits(minAmount, myPool.coins[i].decimals));
+    console.log("Min amount to remove: ", ethers.utils.formatUnits(minAmount, myPool.coins[i].decimals || myPool.coins[i].wrapped_decimals));
     await myPool.removeLiquidityOneCoin(lpTokenAmount, i, minAmount)
-
 
     await showBalances(address, myPool);
 }).then(null, (e) => console.log(e));

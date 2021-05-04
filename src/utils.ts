@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ethers, BigNumber } from 'ethers';
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
 import { ObjectInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
-import ERC20Abi from "./abis/ERC20.json";
+import ERC20Abi from "./constants/abis/json/ERC20.json";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
@@ -73,4 +73,3 @@ export const ALIASES = {
 // get_pools_data().then((poolsData: ObjectInterface<PoolDataInterface>): void => {
 //
 // })
-

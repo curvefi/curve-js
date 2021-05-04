@@ -1,10 +1,9 @@
 import { ethers, Contract, BigNumber } from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
-import ERC20Abi from './abis/ERC20.json';
-import cERC20Abi from './abis/cERC20.json';
-import gaugeABI from './abis/gauge.json';
-import swapABI from './abis/3pool/swap.json';
-import zapABI from './abis/usdt/deposit.json';
+import ERC20Abi from './constants/abis/json/ERC20.json';
+import cERC20Abi from './constants/abis/json/cERC20.json';
+import gaugeABI from './constants/abis/json/gauge.json';
+import { poolsData } from './constants/abis/abis-ethereum';
 import { getPoolData, getBalances, ALIASES } from './utils';
 import {CoinInterface, ObjectInterface, PoolDataInterface} from './interfaces';
 
@@ -47,6 +46,8 @@ export class Pool {
     async init(callback: () => void): Promise<void> {
         await multicallProvider.init();
         const poolData: PoolDataInterface = await getPoolData(this.name);
+        const swapABI = poolsData[this.name].swap_abi;
+        const zapABI = poolsData[this.name].deposit_abi;
 
         this.swap = new Contract(poolData['swap_address'] as string, swapABI, signer);
         this.zap = poolData['zap_address'] ? new Contract(poolData['zap_address'] as string, zapABI, signer) : null;

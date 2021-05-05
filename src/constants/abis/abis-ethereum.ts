@@ -86,7 +86,7 @@ const infura_url = '<infura_url>';
 //rinkeby multicall 0x0ae6578785868f88478B6bCe8227d6F85703092b
 const multicall_address = '0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441';
 
-const poolsData = {
+const poolsData: { [index: string]: { swap_abi: string, deposit_abi: string } } = {
     compound: {
         N_COINS: 2,
         coin_precisions: [1e18, 1e6],

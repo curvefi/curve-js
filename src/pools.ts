@@ -73,6 +73,36 @@ export class Pool {
     }
 
     // TODO: change for lending and meta pools
+    coinsAllowance = async (coinIndexes: number[]): Promise<ethers.BigNumber[]> => {
+        const address: string = await signer.getAddress();
+
+        if (coinIndexes.length === 1) {
+            return [await this.coins[coinIndexes[0]].contract.allowance(address, this.swap?.address)]
+        }
+
+        const contractCalls = []
+        for (const i of coinIndexes) {
+            contractCalls.push(this.coins[i].multicall_contract.allowance(address, this.swap?.address));
+        }
+
+        return await multicallProvider.all(contractCalls);
+    }
+
+    // TODO: change for lending and meta pools
+    ensureCoinsAllowance = async (coinIndexes: number[], amounts: BigNumber[]): Promise<void> => {
+        const allowance: BigNumber[] = await this.coinsAllowance(coinIndexes);
+
+        for (let i = 0; i < allowance.length; i++) {
+            if (allowance[i].lt(amounts[i])) {
+                if (allowance[i].gt(BigNumber.from(0))) {
+                    await this.coins[coinIndexes[i]].contract.approve(this.swap?.address as string, BigNumber.from(0))
+                }
+                await this.coins[coinIndexes[i]].contract.approve(this.swap?.address as string, MAX_ALLOWANCE)
+            }
+        }
+    }
+
+    // TODO: change for lending and meta pools
     liquidityAllowance = async (): Promise<ethers.BigNumber[]> => {
         const address: string = await signer.getAddress();
 
@@ -194,6 +224,13 @@ export class Pool {
         })
 
         return balances
+    }
+
+    exchange = async (i: number, j: number, amount: BigNumber, max_slippage = 0.01): Promise<void> => {
+        const expected: BigNumber = await this.swap?.get_dy(i, j, amount);
+        const minRecvAmount = expected.mul((1 - max_slippage) * 100).div(100);
+        await this.ensureCoinsAllowance([i], [amount]);
+        await this.swap?.exchange(i, j, amount, minRecvAmount);
     }
 
     // // TODO: return int((response.pop() / ve_total_supply) * gauge_total_supply)

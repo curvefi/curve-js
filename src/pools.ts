@@ -110,8 +110,14 @@ export class Pool {
         return await this.swap?.calc_withdraw_one_coin(tokenAmount, i);
     }
 
-    addLiquidity = async (amounts: BigNumber[], minMintAmount: BigNumber): Promise<any> => {
-        return await this.swap?.add_liquidity(amounts, minMintAmount);
+    addLiquidity = async (amounts: BigNumber[]): Promise<string> => {
+        const coinIndexes: number[] = this.coins.map((_, i) => i)
+        await this.ensureCoinsAllowance(coinIndexes, amounts);
+
+        let minMintAmount = await this.calcLpTokenAmount(amounts);
+        minMintAmount = minMintAmount.div(100).mul(99);
+
+        return (await this.swap?.add_liquidity(amounts, minMintAmount)).hash;
     }
 
     gaugeAllowance = async (): Promise<ethers.BigNumber> => {

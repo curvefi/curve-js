@@ -137,6 +137,8 @@ export class Pool {
     }
 
     gaugeDeposit = async (amount: BigNumber): Promise<any> => {
+        await this.ensureGaugeAllowance(amount);
+
         return await this.gauge?.deposit(amount);
     }
 

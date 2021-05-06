@@ -31,16 +31,12 @@ myPool.init(async function() {
     for (const coin of myPool.coins) {
         amounts.push(ethers.utils.parseUnits("100.0", coin.decimals || coin.wrapped_decimals));
     }
-
     await myPool.addLiquidity(amounts);
 
     await showBalances(address, myPool);
 
     console.log('\nGAUGE DEPOSIT\n');
-    const tokenBalance: DictInterface<BigNumber> = await myPool.lpTokenBalances(address);
-    const depositAmount: BigNumber = tokenBalance[address];
-
-    await myPool.ensureGaugeAllowance(depositAmount);
+    const depositAmount: BigNumber = (await myPool.lpTokenBalances(address))[address];
     await myPool.gaugeDeposit(depositAmount);
 
     await showBalances(address, myPool);

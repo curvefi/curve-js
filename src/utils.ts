@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ethers, BigNumber } from 'ethers';
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
-import { ObjectInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
+import { DictInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
 import ERC20Abi from "./constants/abis/json/ERC20.json";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
@@ -12,11 +12,11 @@ export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
     return poolResponse.data;
 }
 
-async function get_pools_data(): Promise<ObjectInterface<PoolDataInterface>> {
+async function get_pools_data(): Promise<DictInterface<PoolDataInterface>> {
     const pools_resp = await axios.get(GITHUB_POOLS);
     const pool_names: string[] = pools_resp.data.filter((item: PoolListItemInterface) => item.type === "dir").map((item: PoolListItemInterface) => item.name);
 
-    const pools_data: ObjectInterface<PoolDataInterface> = {};
+    const pools_data: DictInterface<PoolDataInterface> = {};
 
     for (const pool_name of pool_names) {
         const pool_resp = await axios.get(GITHUB_POOL.replace("<poolname>", pool_name));
@@ -31,7 +31,7 @@ async function get_pools_data(): Promise<ObjectInterface<PoolDataInterface>> {
     return pools_data;
 }
 
-export const getBalances = async (addresses: string[], coinMulticallContracts: MulticallContract[]): Promise<ObjectInterface<BigNumber[]>> => {
+export const getBalances = async (addresses: string[], coinMulticallContracts: MulticallContract[]): Promise<DictInterface<BigNumber[]>> => {
     // TODO move to init function
     const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
     const multicallProvider = new MulticallProvider(provider);
@@ -43,7 +43,7 @@ export const getBalances = async (addresses: string[], coinMulticallContracts: M
     }
     const response = await multicallProvider.all(contractCalls)
 
-    const result: ObjectInterface<BigNumber[]>  = {};
+    const result: DictInterface<BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
         result[address] = coinMulticallContracts.map((_, j: number ) => response[i + (j * addresses.length)])
     });
@@ -70,6 +70,6 @@ export const ALIASES = {
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
 }
 //
-// get_pools_data().then((poolsData: ObjectInterface<PoolDataInterface>): void => {
+// get_pools_data().then((poolsData: DictInterface<PoolDataInterface>): void => {
 //
 // })

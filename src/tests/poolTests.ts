@@ -1,6 +1,6 @@
 import {BigNumber, ethers} from "ethers";
 import { Pool } from "../pools";
-import {CoinInterface, ObjectInterface} from "../interfaces"
+import {CoinInterface, DictInterface} from "../interfaces"
 import { getBalances } from "../utils";
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
@@ -9,7 +9,7 @@ const signer = provider.getSigner();
 const showBalances = async (address: string, pool: Pool): Promise<void> => {
     console.log("Checking balances");
     const coinMulticallContracts = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.multicall_contract);
-    const underlyingBalances: ObjectInterface<BigNumber[]> = await getBalances([address], coinMulticallContracts);
+    const underlyingBalances: DictInterface<BigNumber[]> = await getBalances([address], coinMulticallContracts);
     const userUnderlyingBalances: BigNumber[] = underlyingBalances[address];
     for (let i = 0; i < pool.coins.length; i++) {
         console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(userUnderlyingBalances[i], pool.coins[i].decimals || pool.coins[i].wrapped_decimals));
@@ -40,7 +40,7 @@ myPool.init(async function() {
     await showBalances(address, myPool);
 
     console.log('\nGAUGE DEPOSIT\n');
-    const tokenBalance: ObjectInterface<BigNumber> = await myPool.lpTokenBalances(address);
+    const tokenBalance: DictInterface<BigNumber> = await myPool.lpTokenBalances(address);
     const depositAmount: BigNumber = tokenBalance[address];
 
     await myPool.ensureGaugeAllowance(depositAmount);

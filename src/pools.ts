@@ -5,7 +5,7 @@ import cERC20Abi from './constants/abis/json/cERC20.json';
 import gaugeABI from './constants/abis/json/gauge.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 import { getPoolData, getBalances, ALIASES } from './utils';
-import {CoinInterface, ObjectInterface, PoolDataInterface} from './interfaces';
+import {CoinInterface, DictInterface, PoolDataInterface} from './interfaces';
 
 // TODO move to init function
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
@@ -191,20 +191,20 @@ export class Pool {
         return await this.swap?.remove_liquidity_one_coin(tokenAmount, i, minAmount);
     }
 
-    balances = async (...addresses: string[] | string[][]): Promise<ObjectInterface<BigNumber[]>> =>  {
+    balances = async (...addresses: string[] | string[][]): Promise<DictInterface<BigNumber[]>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
         return await getBalances(addresses, [this.lpTokenMulticall as MulticallContract, this.gaugeMulticall as MulticallContract]);
     }
 
-    lpTokenBalances = async (...addresses: string[] | string[][]): Promise<ObjectInterface<BigNumber>> =>  {
+    lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<BigNumber>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
-        const rawBalances: ObjectInterface<BigNumber[]> = await getBalances(addresses, [this.lpTokenMulticall as MulticallContract]);
+        const rawBalances: DictInterface<BigNumber[]> = await getBalances(addresses, [this.lpTokenMulticall as MulticallContract]);
 
-        const balances: ObjectInterface<BigNumber> = {};
+        const balances: DictInterface<BigNumber> = {};
         Object.keys(rawBalances).forEach((key: string) => {
             balances[key] = rawBalances[key][0]
         })
@@ -216,9 +216,9 @@ export class Pool {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
-        const rawBalances: ObjectInterface<BigNumber[]> = await getBalances(addresses, [this.gaugeMulticall as MulticallContract])
+        const rawBalances: DictInterface<BigNumber[]> = await getBalances(addresses, [this.gaugeMulticall as MulticallContract])
 
-        const balances: ObjectInterface<BigNumber> = {};
+        const balances: DictInterface<BigNumber> = {};
         Object.keys(rawBalances).forEach((key: string) => {
             balances[key] = rawBalances[key][0]
         })

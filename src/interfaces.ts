@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 import { Contract as MulticallContract } from 'ethers-multicall';
 
-export interface ObjectInterface<T> {
+export interface DictInterface<T> {
     [index: string]: T,
 }
 
@@ -32,7 +32,7 @@ export interface PoolDataInterface {
     base_pool?: string,
     pool_types?: string[],
     zap_address?: string,
-    lp_constructor?: ObjectInterface<unknown>,
-    swap_constructor?: ObjectInterface<unknown>,
-    testing?: ObjectInterface<unknown>,
+    lp_constructor?: DictInterface<unknown>,
+    swap_constructor?: DictInterface<unknown>,
+    testing?: DictInterface<unknown>,
 }

@@ -166,8 +166,11 @@ export class Pool {
         return (await this.swap?.remove_liquidity(lpTokenAmount, minAmounts)).hash;
     }
 
-    removeLiquidityImbalance = async (amounts: BigNumber[], maxBurnAmount: BigNumber): Promise<any> => {
-        return await this.swap?.remove_liquidity_imbalance(amounts, maxBurnAmount);
+    removeLiquidityImbalance = async (amounts: BigNumber[]): Promise<string> => {
+        let maxBurnAmount = await this.calcLpTokenAmount(amounts, false)
+        maxBurnAmount = maxBurnAmount.div(100).mul(101);
+
+        return (await this.swap?.remove_liquidity_imbalance(amounts, maxBurnAmount)).hash;
     }
 
     removeLiquidityOneCoin = async (tokenAmount: BigNumber, i: number, minAmount: BigNumber): Promise<any> => {

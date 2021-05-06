@@ -102,32 +102,6 @@ export class Pool {
         }
     }
 
-    // TODO: change for lending and meta pools
-    liquidityAllowance = async (): Promise<ethers.BigNumber[]> => {
-        const address: string = await signer.getAddress();
-
-        const contractCalls = []
-        for (const coin of (this.coins as CoinInterface[])) {
-            contractCalls.push(coin.multicall_contract.allowance(address, this.swap?.address));
-        }
-
-        return await multicallProvider.all(contractCalls);
-    }
-
-    // TODO: change for lending and meta pools
-    ensureLiquidityAllowance = async (amounts: BigNumber[]): Promise<void> => {
-        const allowance: BigNumber[] = await this.liquidityAllowance();
-
-        for (let i = 0; i < allowance.length; i++) {
-            if (allowance[i].lt(amounts[i])) {
-                if (allowance[i].gt(BigNumber.from(0))) {
-                    await this.coins[i].contract.approve(this.swap?.address as string, BigNumber.from(0))
-                }
-                await this.coins[i].contract.approve(this.swap?.address as string, MAX_ALLOWANCE)
-            }
-        }
-    }
-
     calcLpTokenAmount = async (amounts: BigNumber[], isDeposit = true): Promise<BigNumber> => {
         return await this.swap?.calc_token_amount(amounts, isDeposit);
     }
@@ -165,7 +139,6 @@ export class Pool {
     }
 
     calcUnderlyingCoinsAmount = async (amount: BigNumber): Promise<BigNumber[]> => {
-        console.log('TEST');
         const coinMulticallContracts = this.coins.map((c: CoinInterface) => c.multicall_contract);
         const underlyingCoinBalances = await getBalances([this.swap?.address as string], coinMulticallContracts);
 

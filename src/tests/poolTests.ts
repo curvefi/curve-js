@@ -31,7 +31,9 @@ myPool.init(async function() {
     for (const coin of myPool.coins) {
         amounts.push(ethers.utils.parseUnits("100.0", coin.decimals || coin.wrapped_decimals));
     }
-    await myPool.ensureLiquidityAllowance(amounts);
+
+    const coinIndexes: number[] = myPool.coins.map((_, i) => i)
+    await myPool.ensureCoinsAllowance(coinIndexes, amounts);
     let minMintAmount = await myPool.calcLpTokenAmount(amounts);
     minMintAmount = minMintAmount.div(100).mul(99);
     console.log("Min mint amount: ", ethers.utils.formatUnits(minMintAmount, 18));

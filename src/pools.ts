@@ -160,8 +160,10 @@ export class Pool {
         return minAmounts
     }
 
-    removeLiquidity = async (lpTokenAmount: BigNumber, minAmounts: BigNumber[]): Promise<any> => {
-        return await this.swap?.remove_liquidity(lpTokenAmount, minAmounts);
+    removeLiquidity = async (lpTokenAmount: BigNumber): Promise<string> => {
+        const minAmounts = await this.calcUnderlyingCoinsAmount(lpTokenAmount);
+
+        return (await this.swap?.remove_liquidity(lpTokenAmount, minAmounts)).hash;
     }
 
     removeLiquidityImbalance = async (amounts: BigNumber[], maxBurnAmount: BigNumber): Promise<any> => {
@@ -207,9 +209,9 @@ export class Pool {
         return balances
     }
 
-    exchange = async (i: number, j: number, amount: BigNumber, max_slippage = 0.01): Promise<void> => {
+    exchange = async (i: number, j: number, amount: BigNumber, maxSlippage = 0.01): Promise<void> => {
         const expected: BigNumber = await this.swap?.get_dy(i, j, amount);
-        const minRecvAmount = expected.mul((1 - max_slippage) * 100).div(100);
+        const minRecvAmount = expected.mul((1 - maxSlippage) * 100).div(100);
         await this.ensureCoinsAllowance([i], [amount]);
         await this.swap?.exchange(i, j, amount, minRecvAmount);
     }

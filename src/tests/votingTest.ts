@@ -1,14 +1,11 @@
 import {BigNumber, ethers} from "ethers";
 import { Pool } from "../pools";
-import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
+import { Contract as MulticallContract } from 'ethers-multicall';
 import ERC20Abi from '../constants/abis/json/ERC20.json';
 import { DictInterface } from "../interfaces"
 import { getBalances, ALIASES } from "../utils";
 import { createLock, getLockedAmountAndUnlockTime } from '../voting';
-
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-// const multicallProvider = new MulticallProvider(provider);
-const signer = provider.getSigner();
+import { curve } from "../curve";
 
 const showBalances = async (address: string): Promise<void> => {
     console.log("Checking balances");
@@ -24,8 +21,10 @@ const showBalances = async (address: string): Promise<void> => {
 
 const myPool = new Pool('3pool');
 myPool.init(async function() {
+    await curve.init();
+
     console.log(`--- VOTING ESCROW ---`);
-    const address = await signer.getAddress();
+    const address = await curve.signer.getAddress();
 
     await showBalances(address);
 

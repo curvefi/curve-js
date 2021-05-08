@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { ethers, Contract, BigNumber } from 'ethers';
-import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
+import { Contract as MulticallContract } from 'ethers-multicall';
 import { DictInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
 import ERC20Abi from "./constants/abis/json/ERC20.json";
+import { curve } from "./curve";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
@@ -34,16 +35,11 @@ async function get_pools_data(): Promise<DictInterface<PoolDataInterface>> {
 }
 
 export const getBalances = async (addresses: string[], coinMulticallContracts: MulticallContract[]): Promise<DictInterface<BigNumber[]>> => {
-    // TODO move to init function
-    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-    const multicallProvider = new MulticallProvider(provider);
-    await multicallProvider.init();
-
     const contractCalls = [];
     for (const coinContract of coinMulticallContracts) {
         contractCalls.push(...addresses.map((address: string) => coinContract.balanceOf(address)));
     }
-    const response = await multicallProvider.all(contractCalls)
+    const response = await curve.multicallProvider.all(contractCalls)
 
     const result: DictInterface<BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
@@ -54,13 +50,9 @@ export const getBalances = async (addresses: string[], coinMulticallContracts: M
 }
 
 export const getAllowance = async (tokens: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
-    // TODO move to init function
-    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-    const multicallProvider = new MulticallProvider(provider);
-
     // TODO caching contracts
     if (tokens.length === 1) {
-        const contract = new Contract(tokens[0], ERC20Abi, provider)
+        const contract = new Contract(tokens[0], ERC20Abi, curve.provider)
         return [await contract.allowance(address, spender)]
     }
 
@@ -70,21 +62,17 @@ export const getAllowance = async (tokens: string[], address: string, spender: s
         contractCalls.push(multicall_contract.allowance(address, spender));
     }
 
-    return await multicallProvider.all(contractCalls);
+    return await curve.multicallProvider.all(contractCalls);
 }
 
 export const ensureAllowance = async (tokens: string[], amounts: BigNumber[], spender: string): Promise<void> => {
-    // TODO move to init function
-    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-    const signer = provider.getSigner();
-
-    const address = await signer.getAddress();
+    const address = await curve.signer.getAddress();
     const allowance: BigNumber[] = await getAllowance(tokens, address, spender);
 
     // TODO caching contracts
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
-            const contract = new Contract(tokens[0], ERC20Abi, signer);
+            const contract = new Contract(tokens[0], ERC20Abi, curve.signer);
             if (allowance[i].gt(BigNumber.from(0))) {
                 await contract.approve(spender, BigNumber.from(0))
             }
@@ -94,10 +82,7 @@ export const ensureAllowance = async (tokens: string[], amounts: BigNumber[], sp
 }
 
 export const getDecimals = async (coin: string): Promise<number> => {
-    // TODO move to init function
-    const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-
-    const ERC20Contract = new ethers.Contract(coin, ERC20Abi, provider);
+    const ERC20Contract = new ethers.Contract(coin, ERC20Abi, curve.provider);
     return await ERC20Contract.decimals()
 }
 

@@ -1,16 +1,13 @@
 import { ethers, Contract, BigNumber } from "ethers";
-import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethers-multicall';
+import { Contract as MulticallContract } from 'ethers-multicall';
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import gaugeABI from './constants/abis/json/gauge.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 import { getPoolData, getBalances, ALIASES } from './utils';
 import {CoinInterface, DictInterface, PoolDataInterface} from './interfaces';
+import { curve } from "./curve";
 
-// TODO move to init function
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-const multicallProvider = new MulticallProvider(provider);
-const signer = provider.getSigner();
 
 const MAX_ALLOWANCE = BigNumber.from(2).pow(BigNumber.from(256)).sub(BigNumber.from(1));
 
@@ -44,15 +41,14 @@ export class Pool {
     }
 
     async init(callback: () => void): Promise<void> {
-        await multicallProvider.init();
         const poolData: PoolDataInterface = await getPoolData(this.name);
         const swapABI = poolsData[this.name].swap_abi;
         const zapABI = poolsData[this.name].deposit_abi;
 
-        this.swap = new Contract(poolData['swap_address'] as string, swapABI, signer);
-        this.zap = poolData['zap_address'] ? new Contract(poolData['zap_address'] as string, zapABI, signer) : null;
-        this.lpToken = new Contract(poolData['lp_token_address'] as string, ERC20Abi, signer);
-        this.gauge = new Contract(poolData['gauge_addresses'][0] as string, gaugeABI, signer);
+        this.swap = new Contract(poolData['swap_address'] as string, swapABI, curve.signer);
+        this.zap = poolData['zap_address'] ? new Contract(poolData['zap_address'] as string, zapABI, curve.signer) : null;
+        this.lpToken = new Contract(poolData['lp_token_address'] as string, ERC20Abi, curve.signer);
+        this.gauge = new Contract(poolData['gauge_addresses'][0] as string, gaugeABI, curve.signer);
 
         this.swapMulticall = new MulticallContract(poolData['swap_address'] as string, swapABI);
         this.zapMulticall = poolData['zap_address'] ? new MulticallContract(poolData['zap_address'] as string, zapABI) : null;
@@ -60,10 +56,10 @@ export class Pool {
         this.gaugeMulticall = new MulticallContract(poolData['gauge_addresses'][0] as string, gaugeABI);
 
         poolData['coins'].forEach((coin) => {
-            coin["contract"] = new Contract(coin.underlying_address, ERC20Abi, signer);
+            coin["contract"] = new Contract(coin.underlying_address, ERC20Abi, curve.signer);
             coin["multicall_contract"] = new MulticallContract(coin.underlying_address, ERC20Abi);
             if (coin.wrapped_address) {
-                coin["wrapped_contract"] = new Contract(coin.wrapped_address, cERC20Abi, signer);
+                coin["wrapped_contract"] = new Contract(coin.wrapped_address, cERC20Abi, curve.signer);
                 coin["wrapped_multicall_contract"] = new MulticallContract(coin.wrapped_address, cERC20Abi);
             }
         });
@@ -74,7 +70,7 @@ export class Pool {
 
     // TODO: change for lending and meta pools
     coinsAllowance = async (coinIndexes: number[]): Promise<ethers.BigNumber[]> => {
-        const address: string = await signer.getAddress();
+        const address: string = await curve.signer.getAddress();
 
         if (coinIndexes.length === 1) {
             return [await this.coins[coinIndexes[0]].contract.allowance(address, this.swap?.address)]
@@ -85,7 +81,7 @@ export class Pool {
             contractCalls.push(this.coins[i].multicall_contract.allowance(address, this.swap?.address));
         }
 
-        return await multicallProvider.all(contractCalls);
+        return await curve.multicallProvider.all(contractCalls);
     }
 
     // TODO: change for lending and meta pools
@@ -121,7 +117,7 @@ export class Pool {
     }
 
     gaugeAllowance = async (): Promise<ethers.BigNumber> => {
-        const address: string = await signer.getAddress();
+        const address: string = await curve.signer.getAddress();
         return await this.lpToken?.allowance(address, this.gauge?.address);
     }
 
@@ -231,7 +227,7 @@ export class Pool {
     //
     //     const contractCalls = accounts.map((account: string) => votingEscrowContract.balanceOf(account))
     //     contractCalls.push(votingEscrowContract.totalSupply(), gaugeContract.totalSupply())
-    //     const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
+    //     const response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
     //
     //     const [votingEscrowTotalSupply, gaugeTotalSupply] = response.splice(-2);
     //
@@ -259,7 +255,7 @@ export class Pool {
     //             gaugeContract.balanceOf(account)
     //         )
     //     });
-    //     const response: ethers.BigNumber[] = await multicallProvider.all(contractCalls);
+    //     const response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
     //
     //     const [votingEscrowTotalSupply, gaugeTotalSupply] = response.splice(0,2);
     //

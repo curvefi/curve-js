@@ -1,11 +1,9 @@
-import {BigNumber, ethers} from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { Pool } from "../pools";
 import {CoinInterface, DictInterface} from "../interfaces"
 import { getBalances } from "../utils";
-import has = Reflect.has;
+import { curve } from "../curve";
 
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-const signer = provider.getSigner();
 
 const showBalances = async (address: string, pool: Pool): Promise<void> => {
     console.log("Checking balances");
@@ -22,8 +20,9 @@ const showBalances = async (address: string, pool: Pool): Promise<void> => {
 
 const myPool = new Pool('ren');
 myPool.init(async function() {
+    await curve.init();
     console.log(`--- ${myPool.name} ---`);
-    const address = await signer.getAddress();
+    const address = await curve.signer.getAddress();
 
     await showBalances(address, myPool);
 

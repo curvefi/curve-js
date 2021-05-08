@@ -78,7 +78,7 @@ import busdv2DepositABI from './json/busd/deposit.json';
 import lusdSwapABI from './json/lusd/swap.json';
 import lusdDepositABI from './json/lusd/deposit.json';
 import lusdRewardsabi from './json/lusd/rewards.json';
-import {DictInterface} from "../../interfaces";
+import { PoolsDataInterface } from "../../interfaces";
 
 
 // const infura_url = config.rpcUrl;
@@ -87,7 +87,7 @@ const infura_url = '<infura_url>';
 //rinkeby multicall 0x0ae6578785868f88478B6bCe8227d6F85703092b
 const multicall_address = '0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441';
 
-const poolsData: DictInterface<{ swap_abi: any, deposit_abi: any }> = {
+const poolsData: PoolsDataInterface = {
     compound: {
         N_COINS: 2,
         coin_precisions: [1e18, 1e6],

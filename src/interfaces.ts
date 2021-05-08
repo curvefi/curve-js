@@ -36,3 +36,14 @@ export interface PoolDataInterface {
     swap_constructor?: DictInterface<unknown>,
     testing?: DictInterface<unknown>,
 }
+
+export interface PoolsDataInterface {
+    [inndex: string]: {
+        swap_address: string,
+        token_address: string,
+        gauge_address: string,
+        deposit_address?: string,
+        swap_abi: any,
+        deposit_abi?: any
+    }
+}

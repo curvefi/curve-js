@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { ethers, Contract, BigNumber } from 'ethers';
-import { Contract as MulticallContract } from 'ethers-multicall';
+import { ethers, BigNumber } from 'ethers';
 import { DictInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
-import ERC20Abi from "./constants/abis/json/ERC20.json";
+
 import { curve } from "./curve";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
@@ -34,32 +33,29 @@ async function get_pools_data(): Promise<DictInterface<PoolDataInterface>> {
     return pools_data;
 }
 
-export const getBalances = async (addresses: string[], coinMulticallContracts: MulticallContract[]): Promise<DictInterface<BigNumber[]>> => {
+export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<BigNumber[]>> => {
     const contractCalls = [];
-    for (const coinContract of coinMulticallContracts) {
-        contractCalls.push(...addresses.map((address: string) => coinContract.balanceOf(address)));
+    for (const coinAddr of coins) {
+        contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
     }
     const response = await curve.multicallProvider.all(contractCalls)
 
     const result: DictInterface<BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
-        result[address] = coinMulticallContracts.map((_, j: number ) => response[i + (j * addresses.length)])
+        result[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)])
     });
 
     return result;
 }
 
 export const getAllowance = async (tokens: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
-    // TODO caching contracts
     if (tokens.length === 1) {
-        const contract = new Contract(tokens[0], ERC20Abi, curve.provider)
-        return [await contract.allowance(address, spender)]
+        return [await curve.contracts[tokens[0]].contract.allowance(address, spender)]
     }
 
     const contractCalls = []
     for (const token of tokens) {
-        const multicall_contract = new MulticallContract(token, ERC20Abi)
-        contractCalls.push(multicall_contract.allowance(address, spender));
+        contractCalls.push(curve.contracts[token].contract.allowance(address, spender));
     }
 
     return await curve.multicallProvider.all(contractCalls);
@@ -72,31 +68,14 @@ export const ensureAllowance = async (tokens: string[], amounts: BigNumber[], sp
     // TODO caching contracts
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
-            const contract = new Contract(tokens[0], ERC20Abi, curve.signer);
             if (allowance[i].gt(BigNumber.from(0))) {
-                await contract.approve(spender, BigNumber.from(0))
+                await curve.contracts[tokens[i]].contract.approve(spender, BigNumber.from(0))
             }
-            await contract.approve(spender, MAX_ALLOWANCE)
+            await curve.contracts[tokens[i]].contract.approve(spender, MAX_ALLOWANCE)
         }
     }
 }
 
 export const getDecimals = async (coin: string): Promise<number> => {
-    const ERC20Contract = new ethers.Contract(coin, ERC20Abi, curve.provider);
-    return await ERC20Contract.decimals()
+    return await curve.contracts[coin].contract.decimals()
 }
-
-export const ALIASES = {
-    "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52",
-    "pool_proxy": "0xeCb456EA5365865EbAb8a2661B0c503410e9B347",
-    "gauge_proxy": "0x519AFB566c05E00cfB9af73496D00217A630e4D5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
-    "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
-    "minter": "0xd061D61a4d941c39E5453435B6345Dc261C2fcE0",
-    "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
-    "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
-}
-//
-// get_pools_data().then((poolsData: DictInterface<PoolDataInterface>): void => {
-//
-// })

@@ -1,14 +1,14 @@
 import { ethers, BigNumber } from "ethers";
 import { Pool } from "../pools";
-import {CoinInterface, DictInterface} from "../interfaces"
+import { CoinInterface, DictInterface } from "../interfaces"
 import { getBalances } from "../utils";
 import { curve } from "../curve";
 
 
 const showBalances = async (address: string, pool: Pool): Promise<void> => {
     console.log("Checking balances");
-    const coinMulticallContracts = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.multicall_contract);
-    const underlyingBalances: DictInterface<BigNumber[]> = await getBalances([address], coinMulticallContracts);
+    const coinAddresses = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.underlying_address);
+    const underlyingBalances: DictInterface<BigNumber[]> = await getBalances([address], coinAddresses);
     const userUnderlyingBalances: BigNumber[] = underlyingBalances[address];
     for (let i = 0; i < pool.coins.length; i++) {
         console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(userUnderlyingBalances[i], pool.coins[i].decimals || pool.coins[i].wrapped_decimals));

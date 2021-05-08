@@ -1,19 +1,13 @@
-import {BigNumber, ethers} from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { Pool } from "../pools";
-import { Contract as MulticallContract } from 'ethers-multicall';
-import ERC20Abi from '../constants/abis/json/ERC20.json';
 import { DictInterface } from "../interfaces"
-import { getBalances, ALIASES } from "../utils";
+import { getBalances } from "../utils";
 import { createLock, getLockedAmountAndUnlockTime } from '../voting';
-import { curve } from "../curve";
+import { curve, ALIASES } from "../curve";
 
 const showBalances = async (address: string): Promise<void> => {
     console.log("Checking balances");
-    const crvMulticallContract = new MulticallContract(ALIASES.crv, ERC20Abi);
-    const balances: DictInterface<BigNumber[]> = await getBalances(
-        [address],
-        [crvMulticallContract]
-    );
+    const balances: DictInterface<BigNumber[]> = await getBalances([address], [ALIASES.crv]);
     const { lockedAmount } = await getLockedAmountAndUnlockTime(address);
     console.log("CRV: ", ethers.utils.formatUnits(balances[address][0], 18)); // TODO get decimals
     console.log("Locked CRV: ", lockedAmount); // TODO get decimals

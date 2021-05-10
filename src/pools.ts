@@ -1,5 +1,5 @@
 import { ethers, BigNumber } from "ethers";
-import { getPoolData, getBalances } from './utils';
+import { getPoolData, getBalances, ensureAllowance } from './utils';
 import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
 import { curve } from "./curve";
 
@@ -37,39 +37,6 @@ export class Pool {
         callback.bind(this)();
     }
 
-    // TODO: change for lending and meta pools
-    coinsAllowance = async (coinIndexes: number[]): Promise<ethers.BigNumber[]> => {
-        const address: string = await curve.signer.getAddress();
-
-        if (coinIndexes.length === 1) {
-            const coinAddr = this.coins[coinIndexes[0]].underlying_address;
-            return [await curve.contracts[coinAddr].contract.allowance(address, this.swap)]
-        }
-
-        const contractCalls = []
-        for (const i of coinIndexes) {
-            const coinAddr = this.coins[i].underlying_address;
-            contractCalls.push(curve.contracts[coinAddr].multicallContract.allowance(address, this.swap));
-        }
-
-        return await curve.multicallProvider.all(contractCalls);
-    }
-
-    // TODO: change for lending and meta pools
-    ensureCoinsAllowance = async (coinIndexes: number[], amounts: BigNumber[]): Promise<void> => {
-        const allowance: BigNumber[] = await this.coinsAllowance(coinIndexes);
-
-        for (let i = 0; i < allowance.length; i++) {
-            if (allowance[i].lt(amounts[i])) {
-                const coinAddr = this.coins[coinIndexes[i]].underlying_address;
-                if (allowance[i].gt(BigNumber.from(0))) {
-                    await curve.contracts[coinAddr].contract.approve(this.swap, BigNumber.from(0))
-                }
-                await curve.contracts[coinAddr].contract.approve(this.swap, MAX_ALLOWANCE)
-            }
-        }
-    }
-
     calcLpTokenAmount = async (amounts: BigNumber[], isDeposit = true): Promise<BigNumber> => {
         return await curve.contracts[this.swap as string].contract.calc_token_amount(amounts, isDeposit);
     }
@@ -79,8 +46,8 @@ export class Pool {
     }
 
     addLiquidity = async (amounts: BigNumber[]): Promise<string> => {
-        const coinIndexes: number[] = this.coins.map((_, i) => i)
-        await this.ensureCoinsAllowance(coinIndexes, amounts);
+        const coinAddresses: string[] = this.coins.map((coin) => coin.underlying_address);
+        await ensureAllowance(coinAddresses, amounts, this.swap as string);
 
         let minMintAmount = await this.calcLpTokenAmount(amounts);
         minMintAmount = minMintAmount.div(100).mul(99);
@@ -88,25 +55,8 @@ export class Pool {
         return (await curve.contracts[this.swap as string].contract.add_liquidity(amounts, minMintAmount)).hash;
     }
 
-    gaugeAllowance = async (): Promise<ethers.BigNumber> => {
-        const address: string = await curve.signer.getAddress();
-        return await curve.contracts[this.lpToken as string].contract.allowance(address, this.gauge);
-    }
-
-    ensureGaugeAllowance = async (amount: BigNumber): Promise<void> => {
-        const allowance: BigNumber = await this.gaugeAllowance();
-
-        if (allowance.lt(amount)) {
-            const lpTokenContract = curve.contracts[this.lpToken as string].contract;
-            if (allowance.gt(BigNumber.from(0))) {
-                await lpTokenContract.approve(this.gauge, BigNumber.from(0))
-            }
-            await lpTokenContract.approve(this.gauge, MAX_ALLOWANCE)
-        }
-    }
-
     gaugeDeposit = async (amount: BigNumber): Promise<string> => {
-        await this.ensureGaugeAllowance(amount);
+        await ensureAllowance([this.lpToken as string], [amount], this.gauge as string)
 
         return (await curve.contracts[this.gauge as string].contract.deposit(amount)).hash;
     }
@@ -187,7 +137,7 @@ export class Pool {
     exchange = async (i: number, j: number, amount: BigNumber, maxSlippage = 0.01): Promise<void> => {
         const expected: BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, amount);
         const minRecvAmount = expected.mul((1 - maxSlippage) * 100).div(100);
-        await this.ensureCoinsAllowance([i], [amount]);
+        await ensureAllowance([this.coins[i].underlying_address], [amount], this.swap as string);
         await curve.contracts[this.swap as string].contract.exchange(i, j, amount, minRecvAmount);
     }
 

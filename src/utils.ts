@@ -55,7 +55,7 @@ export const getAllowance = async (tokens: string[], address: string, spender: s
 
     const contractCalls = []
     for (const token of tokens) {
-        contractCalls.push(curve.contracts[token].contract.allowance(address, spender));
+        contractCalls.push(curve.contracts[token].multicallContract.allowance(address, spender));
     }
 
     return await curve.multicallProvider.all(contractCalls);
@@ -65,7 +65,6 @@ export const ensureAllowance = async (tokens: string[], amounts: BigNumber[], sp
     const address = await curve.signer.getAddress();
     const allowance: BigNumber[] = await getAllowance(tokens, address, spender);
 
-    // TODO caching contracts
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
             if (allowance[i].gt(BigNumber.from(0))) {

@@ -27,8 +27,11 @@ myPool.init(async function() {
     await showBalances(address, myPool);
 
     console.log('\nSWAP (100 coins[0] --> coins[1])\n');
-    const amount = ethers.utils.parseUnits("50000.0", myPool.coins[0].decimals || myPool.coins[0].wrapped_decimals);
-    await myPool.exchange(0, 1, amount, 0.02);
+    const amount = ethers.utils.parseUnits("5000.0", myPool.coins[0].decimals || myPool.coins[0].wrapped_decimals);
+    const output = await myPool.getSwapOutput(0, 1, "5000.0");
+    console.log('Expected: ', output);
+    const hash = await myPool.exchange(0, 1, amount, 0.02);
+    console.log(hash);
 
     await showBalances(address, myPool);
 }).then(null, (e) => console.log(e));

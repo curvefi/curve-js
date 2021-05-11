@@ -4,8 +4,6 @@ import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
 import { curve } from "./curve";
 
 
-const MAX_ALLOWANCE = BigNumber.from(2).pow(BigNumber.from(256)).sub(BigNumber.from(1));
-
 export class Pool {
     name: string;
     swap: string | null;
@@ -134,11 +132,19 @@ export class Pool {
         return balances
     }
 
-    exchange = async (i: number, j: number, amount: BigNumber, maxSlippage = 0.01): Promise<void> => {
+    getSwapOutput = async (i: number, j: number, amount: string | number): Promise<string> => {
+        const amountBN = ethers.utils.parseUnits(amount.toString(), this.coins[i].decimals);
+        const expected: BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, amountBN);
+
+        return ethers.utils.formatUnits(expected, this.coins[j].decimals)
+    }
+
+    exchange = async (i: number, j: number, amount: BigNumber, maxSlippage = 0.01): Promise<string> => {
         const expected: BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, amount);
         const minRecvAmount = expected.mul((1 - maxSlippage) * 100).div(100);
         await ensureAllowance([this.coins[i].underlying_address], [amount], this.swap as string);
-        await curve.contracts[this.swap as string].contract.exchange(i, j, amount, minRecvAmount);
+
+        return (await curve.contracts[this.swap as string].contract.exchange(i, j, amount, minRecvAmount)).hash
     }
 
     // // TODO: return int((response.pop() / ve_total_supply) * gauge_total_supply)

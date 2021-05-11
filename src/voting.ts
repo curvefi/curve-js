@@ -14,6 +14,6 @@ export const createLock = async (amount: string, days: number): Promise<string> 
 export const getLockedAmountAndUnlockTime = async (address: string): Promise<{ lockedAmount: string, unlockTime: number }> => {
     let [lockedAmount, unlockTime] = await curve.contracts[ALIASES.voting_escrow].contract.locked(address);
     lockedAmount = ethers.utils.formatUnits(lockedAmount, await getDecimals(ALIASES.crv));
-    unlockTime = Number(ethers.utils.formatUnits(unlockTime, 0)) * 1000;
+    unlockTime = Number(ethers.utils.formatUnits(unlockTime, 0)) * 1000; // ms
     return { lockedAmount, unlockTime }
 }

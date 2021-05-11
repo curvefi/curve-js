@@ -3,6 +3,7 @@ import { Provider as MulticallProvider, Contract as MulticallContract} from 'eth
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import gaugeABI from './constants/abis/json/gauge.json';
 import votingEscrowABI from './constants/abis/json/votingescrow.json';
+import addressProviderABI from './constants/abis/json/address_provider.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 
 export const ALIASES = {
@@ -101,6 +102,16 @@ class Curve {
             contract: new Contract(ALIASES.voting_escrow, votingEscrowABI, this.signer),
             multicallContract: new MulticallContract(ALIASES.voting_escrow, votingEscrowABI),
         };
+
+        this.contracts[ALIASES.address_provider] = {
+            contract: new Contract(ALIASES.address_provider, addressProviderABI, this.signer),
+            multicallContract: new MulticallContract(ALIASES.address_provider, addressProviderABI),
+        };
+        this.contracts[ALIASES.address_provider.toLowerCase()] = {
+            contract: new Contract(ALIASES.address_provider, addressProviderABI, this.signer),
+            multicallContract: new MulticallContract(ALIASES.address_provider, addressProviderABI),
+        };
+
 
         await this.multicallProvider.init();
     }

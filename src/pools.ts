@@ -1,7 +1,8 @@
 import { ethers, BigNumber } from "ethers";
 import { getPoolData, getBalances, ensureAllowance } from './utils';
 import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
-import { curve } from "./curve";
+import registryExchangeABI from './constants/abis/json/registry_exchange.json';
+import { ALIASES, curve } from "./curve";
 
 
 export class Pool {
@@ -195,4 +196,19 @@ export class Pool {
     //
     //     return result
     // }
+}
+
+
+export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<{ poolAddress: string, output: string }> => {
+    const addressProviderContract = curve.contracts[ALIASES.address_provider].contract
+    const registryExchangeAddress = await addressProviderContract.get_address(2);
+    const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer);
+
+    const inputCoinContract = curve.contracts[inputCoinAddress].contract;
+    const outputCoinContract = curve.contracts[outputCoinAddress].contract;
+    const amountBN = ethers.utils.parseUnits(amount.toString(), await inputCoinContract.decimals());
+    const [poolAddress, outputBN] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, amountBN);
+    const output = ethers.utils.formatUnits(outputBN, await outputCoinContract.decimals());
+
+    return { poolAddress, output }
 }

@@ -1,7 +1,8 @@
 import { ethers, BigNumber } from "ethers";
-import { getPoolData, getBalances, ensureAllowance } from './utils';
+import { getPoolData, getBalances, ensureAllowance, getPoolNameBySwapAddress } from './utils';
 import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
+import registryABI from './constants/abis/json/registry.json';
 import { ALIASES, curve } from "./curve";
 
 
@@ -145,7 +146,7 @@ export class Pool {
         const minRecvAmount = expected.mul((1 - maxSlippage) * 100).div(100);
         await ensureAllowance([this.coins[i].underlying_address], [amount], this.swap as string);
 
-        return (await curve.contracts[this.swap as string].contract.exchange(i, j, amount, minRecvAmount)).hash
+        return (await curve.contracts[this.swap as string].contract.exchange_underlying(i, j, amount, minRecvAmount)).hash
     }
 
     // // TODO: return int((response.pop() / ve_total_supply) * gauge_total_supply)
@@ -199,16 +200,40 @@ export class Pool {
 }
 
 
-export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<{ poolAddress: string, output: string }> => {
+export const _getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<{ poolAddress: string, output: BigNumber }> => {
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract
     const registryExchangeAddress = await addressProviderContract.get_address(2);
     const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer);
 
     const inputCoinContract = curve.contracts[inputCoinAddress].contract;
-    const outputCoinContract = curve.contracts[outputCoinAddress].contract;
     const amountBN = ethers.utils.parseUnits(amount.toString(), await inputCoinContract.decimals());
-    const [poolAddress, outputBN] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, amountBN);
+    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, amountBN);
+
+    return { poolAddress, output }
+}
+
+export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<{ poolAddress: string, output: string }> => {
+    const { poolAddress, output: outputBN } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const outputCoinContract = curve.contracts[outputCoinAddress].contract;
     const output = ethers.utils.formatUnits(outputBN, await outputCoinContract.decimals());
 
     return { poolAddress, output }
+}
+
+export const swap = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<void> => {
+    const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
+    const registryAddress = await addressProviderContract.get_registry();
+    const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
+
+    const inputCoinContract = curve.contracts[inputCoinAddress].contract;
+    const amountBN = ethers.utils.parseUnits(amount.toString(), await inputCoinContract.decimals());
+
+    const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const poolName = getPoolNameBySwapAddress(poolAddress);
+    const [i, j, is_underlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
+
+    const pool = new Pool(poolName);
+    await pool.init(async function() {
+        await pool.exchange(i, j, amountBN);
+    });
 }

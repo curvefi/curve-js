@@ -3,6 +3,7 @@ import { ethers, BigNumber } from 'ethers';
 import { DictInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
 
 import { curve } from "./curve";
+import { poolsData } from "./constants/abis/abis-ethereum";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
@@ -77,4 +78,8 @@ export const ensureAllowance = async (tokens: string[], amounts: BigNumber[], sp
 
 export const getDecimals = async (coin: string): Promise<number> => {
     return await curve.contracts[coin].contract.decimals()
+}
+
+export const getPoolNameBySwapAddress = (swapAddress: string): string => {
+    return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address === swapAddress)[0][0];
 }

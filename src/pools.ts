@@ -174,33 +174,62 @@ export class Pool {
     //     return result;
     // }
     //
-    // // TODO return optimal
-    // gaugeOptimalDeposits = async (...accounts: string[]): Promise<{ [index: string]: ethers.BigNumber[] }> => {
-    //     if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
-    //     const votingEscrowContract = new MulticallContract(ALIASES.voting_escrow, ERC20Abi);
-    //
-    //     const lpTokenContract = new MulticallContract(this.lpTokenAddress, ERC20Abi);
-    //     const gaugeContract = new MulticallContract(this.gaugeAddress, ERC20Abi);
-    //
-    //     const contractCalls = [votingEscrowContract.totalSupply(), gaugeContract.totalSupply()]
-    //     accounts.forEach((account: string) => {
-    //         contractCalls.push(
-    //             votingEscrowContract.balanceOf(account),
-    //             lpTokenContract.balanceOf(account),
-    //             gaugeContract.balanceOf(account)
-    //         )
-    //     });
-    //     const response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
-    //
-    //     const [votingEscrowTotalSupply, gaugeTotalSupply] = response.splice(0,2);
-    //
-    //     const result: { [index: string]: ethers.BigNumber[] }  = {};
-    //     for (let i = 0; i < response.length; i += 3) {
-    //         result[accounts[Math.floor(i / 3)]] = [response[i], response[i + 1], response[i + 2], votingEscrowTotalSupply, gaugeTotalSupply]
-    //     }
-    //
-    //     return result
-    // }
+
+    gaugeOptimalDeposits = async (...accounts: string[]): Promise<DictInterface<string>> => {
+        if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
+
+        const votingEscrowContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
+        const lpTokenContract = curve.contracts[this.lpToken as string].multicallContract;
+        const gaugeContract = curve.contracts[this.gauge as string].multicallContract;
+
+        const contractCalls = [votingEscrowContract.totalSupply(), gaugeContract.totalSupply()];
+        accounts.forEach((account: string) => {
+            contractCalls.push(
+                votingEscrowContract.balanceOf(account),
+                lpTokenContract.balanceOf(account),
+                gaugeContract.balanceOf(account)
+            )
+        });
+        const response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+
+        const [veTotalSupply, gaugeTotalSupply] = response.splice(0,2);
+
+        const votePct: DictInterface<BigNumber> = {};
+        let totalBalance = BigNumber.from(0);
+        for (const acct of accounts) {
+            votePct[acct] = response[0].div(veTotalSupply);
+            totalBalance = totalBalance.add(response[1]).add(response[2]);
+            response.splice(0, 3);
+        }
+
+        const totalPct = Object.values(votePct).reduce((sum, item) => sum.add(item));
+        const optimalBN: DictInterface<BigNumber> = Object.fromEntries(accounts.map((acc) => [acc, BigNumber.from(0)]));
+        if (totalBalance.div(gaugeTotalSupply).lt(totalPct)) {
+            for (const acct of accounts) {
+                const amount = votePct[acct].mul(gaugeTotalSupply).lt(totalBalance) ? votePct[acct].mul(gaugeTotalSupply) : totalBalance;
+                optimalBN[acct] = amount;
+                totalBalance = totalBalance.sub(amount);
+                if (totalBalance.lte(0)) {
+                    break;
+                }
+            }
+        }
+        else {
+            if (totalPct.lt(0)) {
+                for (const acct of accounts) {
+                    optimalBN[acct] = votePct[acct].div(totalPct).mul(totalBalance);
+                }
+            }
+            optimalBN[accounts[0]] = optimalBN[accounts[0]].add(totalBalance.sub(Object.values(optimalBN).reduce((sum, item) => sum.add(item))));
+        }
+
+        const optimal: DictInterface<string> = {};
+        for (const entry of Object.entries(optimalBN)) {
+            optimal[entry[0]] = ethers.utils.formatUnits(entry[1], 18);
+        }
+
+        return optimal
+    }
 }
 
 

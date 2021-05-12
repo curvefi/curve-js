@@ -146,7 +146,11 @@ export class Pool {
         const minRecvAmount = expected.mul((1 - maxSlippage) * 100).div(100);
         await ensureAllowance([this.coins[i].underlying_address], [amount], this.swap as string);
 
-        return (await curve.contracts[this.swap as string].contract.exchange_underlying(i, j, amount, minRecvAmount)).hash
+        if (Object.prototype.hasOwnProperty.call(curve.contracts[this.swap as string].contract, 'exchange_underlying')) {
+            return (await curve.contracts[this.swap as string].contract.exchange_underlying(i, j, amount, minRecvAmount)).hash
+        } else {
+            return (await curve.contracts[this.swap as string].contract.exchange(i, j, amount, minRecvAmount)).hash
+        }
     }
 
     // // TODO: return int((response.pop() / ve_total_supply) * gauge_total_supply)

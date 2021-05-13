@@ -73,6 +73,7 @@ export class Pool {
 
         const minAmounts: BigNumber[] = [];
         for (const underlyingCoinBalance of underlyingCoinBalances[this.swap as string]) {
+            console.log(ethers.utils.formatUnits(underlyingCoinBalance.mul(amount), 8), ethers.utils.formatUnits(totalSupply, 8));
             minAmounts.push(underlyingCoinBalance.mul(amount).div(totalSupply).div(BigNumber.from(100)).mul(BigNumber.from(99)));
         }
 
@@ -200,19 +201,20 @@ export class Pool {
 
         const [veTotalSupply, gaugeTotalSupply] = response.splice(0,2);
 
-        const votePct: DictInterface<BigNumber> = {};
+        const votingPower: DictInterface<BigNumber> = {};
         let totalBalance = BigNumber.from(0);
         for (const acct of accounts) {
-            votePct[acct] = response[0].div(veTotalSupply);
+            votingPower[acct] = response[0];
             totalBalance = totalBalance.add(response[1]).add(response[2]);
             response.splice(0, 3);
         }
 
-        const totalPct = Object.values(votePct).reduce((sum, item) => sum.add(item));
+        const totalPower = Object.values(votingPower).reduce((sum, item) => sum.add(item));
         const optimalBN: DictInterface<BigNumber> = Object.fromEntries(accounts.map((acc) => [acc, BigNumber.from(0)]));
-        if (totalBalance.div(gaugeTotalSupply).lt(totalPct)) {
+        if (totalBalance.lt(gaugeTotalSupply.mul(totalPower).div(veTotalSupply))) {
             for (const acct of accounts) {
-                const amount = votePct[acct].mul(gaugeTotalSupply).lt(totalBalance) ? votePct[acct].mul(gaugeTotalSupply) : totalBalance;
+                const amount = gaugeTotalSupply.mul(votingPower[acct]).div(veTotalSupply).lt(totalBalance) ?
+                    gaugeTotalSupply.mul(votingPower[acct]).div(veTotalSupply) : totalBalance;
                 optimalBN[acct] = amount;
                 totalBalance = totalBalance.sub(amount);
                 if (totalBalance.lte(0)) {
@@ -221,9 +223,9 @@ export class Pool {
             }
         }
         else {
-            if (totalPct.lt(0)) {
+            if (totalPower.lt(0)) {
                 for (const acct of accounts) {
-                    optimalBN[acct] = votePct[acct].div(totalPct).mul(totalBalance);
+                    optimalBN[acct] = totalBalance.mul(votingPower[acct]).div(totalPower);
                 }
             }
             optimalBN[accounts[0]] = optimalBN[accounts[0]].add(totalBalance.sub(Object.values(optimalBN).reduce((sum, item) => sum.add(item))));

@@ -46,7 +46,7 @@ export class Pool {
         return await curve.contracts[this.swap as string].contract.calc_withdraw_one_coin(tokenAmount, i);
     }
 
-    addLiquidity = async (amounts: ethers.BigNumber[]): Promise<string> => {
+    private _addLiquidity = async (amounts: ethers.BigNumber[]): Promise<string> => {
         const coinAddresses: string[] = this.coins.map((coin) => coin.underlying_address);
         await ensureAllowance(coinAddresses, amounts, this.swap as string);
 
@@ -54,6 +54,16 @@ export class Pool {
         minMintAmount = minMintAmount.div(100).mul(99);
 
         return (await curve.contracts[this.swap as string].contract.add_liquidity(amounts, minMintAmount)).hash;
+    }
+
+    public addLiquidity = async (amounts: string[] | number[]): Promise<string> => {
+        if (amounts.length !== this.coins.length) {
+            throw Error(`${this.name} pool has ${this.coins.length} coins (amounts provided for ${amounts.length})`)
+        }
+        const _amounts: ethers.BigNumber[] = amounts.map((amount: string | number, i: number) =>
+            ethers.utils.parseUnits(amount.toString(), this.coins[i].decimals || this.coins[i].wrapped_decimals));
+
+        return await this._addLiquidity(_amounts);
     }
 
     gaugeDeposit = async (amount: ethers.BigNumber): Promise<string> => {
@@ -66,7 +76,7 @@ export class Pool {
         return (await curve.contracts[this.gauge as string].contract.withdraw(amount)).hash;
     }
 
-    _calcUnderlyingCoinAmounts = async (amount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
+    private _calcUnderlyingCoinAmounts = async (amount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
         const coinAddresses: string[] = this.coins.map((c: CoinInterface) => c.underlying_address);
         const underlyingCoinBalances: DictInterface<BigNumber[]> = await getBalancesBN([this.swap as string], coinAddresses);
         const totalSupply: BigNumber = toBN(await curve.contracts[this.lpToken as string].contract.totalSupply());
@@ -80,7 +90,7 @@ export class Pool {
             fromBN(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals as number))
     }
 
-    calcUnderlyingCoinAmounts = async (amount: number | string): Promise<string[]> => {
+    public calcUnderlyingCoinAmounts = async (amount: number | string): Promise<string[]> => {
         const underlyingCoinAmounts: ethers.BigNumber[] = await this._calcUnderlyingCoinAmounts(ethers.utils.parseUnits(amount.toString()));
         return underlyingCoinAmounts.map((amount: ethers.BigNumber, i: number) =>
             ethers.utils.formatUnits(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals as number));

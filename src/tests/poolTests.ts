@@ -27,11 +27,7 @@ myPool.init(async function() {
     await showBalances(address, myPool);
 
     console.log('\nADD LIQUIDITY (100 100 100)\n');
-    const amounts: BigNumber[] = [];
-    for (const coin of myPool.coins) {
-        amounts.push(ethers.utils.parseUnits("100.0", coin.decimals || coin.wrapped_decimals));
-    }
-    await myPool.addLiquidity(amounts);
+    await myPool.addLiquidity([100, 100]);
 
     await showBalances(address, myPool);
 
@@ -46,9 +42,9 @@ myPool.init(async function() {
 
     await showBalances(address, myPool);
 
-    // console.log('\nREMOVE LIQUIDITY\n');
-    // const hash = await myPool.removeLiquidity(depositAmount);
-    // console.log(hash);
+    console.log('\nREMOVE LIQUIDITY\n');
+    const hash = await myPool.removeLiquidity(depositAmount);
+    console.log(hash);
 
     // console.log('\nREMOVE LIQUIDITY IMBALANCE (90 90 90)\n');
     // const removeAmounts: BigNumber[] = [];
@@ -59,10 +55,10 @@ myPool.init(async function() {
     // const hash = await myPool.removeLiquidityImbalance(removeAmounts);
     // console.log(hash);
 
-    console.log('\nREMOVE LIQUIDITY ONE COIN (DAI for 20 LP tokens)\n');
-    const lpTokenAmount = ethers.utils.parseUnits("20");
-    const hash = await myPool.removeLiquidityOneCoin(lpTokenAmount, 1);
-    console.log(hash);
-
+    // console.log('\nREMOVE LIQUIDITY ONE COIN (DAI for 20 LP tokens)\n');
+    // const lpTokenAmount = ethers.utils.parseUnits("20");
+    // const hash = await myPool.removeLiquidityOneCoin(lpTokenAmount, 1);
+    // console.log(hash);
+    //
     await showBalances(address, myPool);
 }).then(null, (e) => console.log(e));

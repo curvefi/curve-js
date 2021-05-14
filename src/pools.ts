@@ -38,19 +38,15 @@ export class Pool {
         callback.bind(this)();
     }
 
-    calcLpTokenAmount = async (amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
+    private _calcLpTokenAmount = async (amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         return await curve.contracts[this.swap as string].contract.calc_token_amount(amounts, isDeposit);
-    }
-
-    calcWithdrawOneCoin = async (tokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap as string].contract.calc_withdraw_one_coin(tokenAmount, i);
     }
 
     private _addLiquidity = async (amounts: ethers.BigNumber[]): Promise<string> => {
         const coinAddresses: string[] = this.coins.map((coin) => coin.underlying_address);
         await ensureAllowance(coinAddresses, amounts, this.swap as string);
 
-        let minMintAmount = await this.calcLpTokenAmount(amounts);
+        let minMintAmount = await this._calcLpTokenAmount(amounts);
         minMintAmount = minMintAmount.div(100).mul(99);
 
         return (await curve.contracts[this.swap as string].contract.add_liquidity(amounts, minMintAmount)).hash;
@@ -103,14 +99,18 @@ export class Pool {
     }
 
     removeLiquidityImbalance = async (amounts: ethers.BigNumber[]): Promise<string> => {
-        let maxBurnAmount = await this.calcLpTokenAmount(amounts, false)
+        let maxBurnAmount = await this._calcLpTokenAmount(amounts, false)
         maxBurnAmount = maxBurnAmount.div(100).mul(101);
 
         return (await curve.contracts[this.swap as string].contract.remove_liquidity_imbalance(amounts, maxBurnAmount)).hash;
     }
 
+    private _calcWithdrawOneCoin = async (tokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
+        return await curve.contracts[this.swap as string].contract.calc_withdraw_one_coin(tokenAmount, i);
+    }
+
     removeLiquidityOneCoin = async (lpTokenAmount: ethers.BigNumber, i: number): Promise<string> => {
-        let minAmount = await this.calcWithdrawOneCoin(lpTokenAmount, i);
+        let minAmount = await this._calcWithdrawOneCoin(lpTokenAmount, i);
         minAmount = minAmount.div(100).mul(99);
 
         return (await curve.contracts[this.swap as string].contract.remove_liquidity_one_coin(lpTokenAmount, i, minAmount)).hash;
@@ -180,7 +180,7 @@ export class Pool {
         accounts.forEach((account: string) => {
             contractCalls.push(votingEscrowContract.balanceOf(account));
         });
-        const response: ethers.ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        const response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
 
         const [veTotalSupply, gaugeTotalSupply] = response.splice(0, 2);
 

@@ -1,14 +1,29 @@
 import axios from 'axios';
-import { ethers, BigNumber } from 'ethers';
+import { ethers } from 'ethers';
+import BigNumber from 'bignumber.js'
 import { DictInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
-
 import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";
 
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
 
-const MAX_ALLOWANCE = BigNumber.from(2).pow(BigNumber.from(256)).sub(BigNumber.from(1));
+const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
+
+// bignumber.js
+
+export const BN = (val: number | string): BigNumber => new BigNumber(val);
+
+export const toBN = (n: ethers.BigNumber, decimals = 18): BigNumber => {
+    return BN(ethers.utils.formatUnits(n, decimals)).times(decimals);
+}
+
+export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
+    return ethers.utils.parseUnits(bn.div(decimals).toFixed(decimals), decimals)
+}
+
+// -------------------
+
 
 export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
     const poolResponse = await axios.get(GITHUB_POOL.replace("<poolname>", name));
@@ -34,22 +49,39 @@ async function get_pools_data(): Promise<DictInterface<PoolDataInterface>> {
     return pools_data;
 }
 
-export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<BigNumber[]>> => {
+export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
     const contractCalls = [];
     for (const coinAddr of coins) {
         contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
     }
-    const response = await curve.multicallProvider.all(contractCalls)
+    const response = await curve.multicallProvider.all(contractCalls);
 
-    const result: DictInterface<BigNumber[]>  = {};
+    const balances: DictInterface<ethers.BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
-        result[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)])
+        balances[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)])
     });
 
-    return result;
+    return balances;
 }
 
-export const getAllowance = async (tokens: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
+export const getBalancesBN = async (addresses: string[], coins: string[]): Promise<DictInterface<BigNumber[]>> => {
+    const contractCalls = coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
+    for (const coinAddr of coins) {
+        contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
+    }
+    const response = await curve.multicallProvider.all(contractCalls);
+    const decimals = response.splice(0, coins.length);
+
+
+    const balances: DictInterface<BigNumber[]>  = {};
+    addresses.forEach((address: string, i: number) => {
+        balances[address] = coins.map((_, j: number ) => toBN(response[i + (j * addresses.length)], decimals[j]))
+    });
+
+    return balances;
+}
+
+export const getAllowance = async (tokens: string[], address: string, spender: string): Promise<ethers.ethers.BigNumber[]> => {
     if (tokens.length === 1) {
         return [await curve.contracts[tokens[0]].contract.allowance(address, spender)]
     }
@@ -62,14 +94,14 @@ export const getAllowance = async (tokens: string[], address: string, spender: s
     return await curve.multicallProvider.all(contractCalls);
 }
 
-export const ensureAllowance = async (tokens: string[], amounts: BigNumber[], spender: string): Promise<void> => {
+export const ensureAllowance = async (tokens: string[], amounts: ethers.BigNumber[], spender: string): Promise<void> => {
     const address = await curve.signer.getAddress();
-    const allowance: BigNumber[] = await getAllowance(tokens, address, spender);
+    const allowance: ethers.BigNumber[] = await getAllowance(tokens, address, spender);
 
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
-            if (allowance[i].gt(BigNumber.from(0))) {
-                await curve.contracts[tokens[i]].contract.approve(spender, BigNumber.from(0))
+            if (allowance[i].gt(ethers.BigNumber.from(0))) {
+                await curve.contracts[tokens[i]].contract.approve(spender, ethers.BigNumber.from(0))
             }
             await curve.contracts[tokens[i]].contract.approve(spender, MAX_ALLOWANCE)
         }

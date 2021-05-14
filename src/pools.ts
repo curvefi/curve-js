@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js'
-import { getPoolData, getBalances, getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, BN, toBN, fromBN } from './utils';
+import { getPoolData, _getBalances, _getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, toBN, fromBN } from './utils';
 import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import registryABI from './constants/abis/json/registry.json';
@@ -74,7 +74,7 @@ export class Pool {
 
     private _calcUnderlyingCoinAmounts = async (amount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
         const coinAddresses: string[] = this.coins.map((c: CoinInterface) => c.underlying_address);
-        const underlyingCoinBalances: DictInterface<BigNumber[]> = await getBalancesBN([this.swap as string], coinAddresses);
+        const underlyingCoinBalances: DictInterface<BigNumber[]> = await _getBalancesBN([this.swap as string], coinAddresses);
         const totalSupply: BigNumber = toBN(await curve.contracts[this.lpToken as string].contract.totalSupply());
 
         const minAmounts: BigNumber[] = [];
@@ -116,37 +116,41 @@ export class Pool {
         return (await curve.contracts[this.swap as string].contract.remove_liquidity_one_coin(lpTokenAmount, i, minAmount)).hash;
     }
 
-    balances = async (...addresses: string[] | string[][]): Promise<DictInterface<ethers.BigNumber[]>> =>  {
+    balances = async (...addresses: string[] | string[][]): Promise<DictInterface<string[]>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
-        return await getBalances(addresses, [this.lpToken as string, this.gauge as string]);
+        const rawBalances: DictInterface<ethers.BigNumber[]> = await _getBalances(addresses, [this.lpToken as string, this.gauge as string]);
+        const balances: DictInterface<string[]> = {};
+        for (const address of addresses) {
+            balances[address] = rawBalances[address].map((b: ethers.BigNumber) => ethers.utils.formatUnits(b));
+        }
+
+        return balances
     }
 
-    lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<ethers.BigNumber>> =>  {
+    lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
-        const rawBalances: DictInterface<ethers.BigNumber[]> = await getBalances(addresses, [this.lpToken as string]);
-
-        const balances: DictInterface<ethers.BigNumber> = {};
-        Object.keys(rawBalances).forEach((key: string) => {
-            balances[key] = rawBalances[key][0]
-        })
+        const rawBalances: DictInterface<ethers.BigNumber[]> = await _getBalances(addresses, [this.lpToken as string]);
+        const balances: DictInterface<string> = {};
+        for (const address of addresses) {
+            balances[address] = ethers.utils.formatUnits(rawBalances[address][0]);
+        }
 
         return balances;
     }
 
-    gaugeBalances = async (...addresses: string[] | string[][]): Promise<{ [index: string]: ethers.ethers.BigNumber }> =>  {
+    gaugeBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
-        const rawBalances: DictInterface<ethers.BigNumber[]> = await getBalances(addresses, [this.gauge as string])
-
-        const balances: DictInterface<ethers.BigNumber> = {};
-        Object.keys(rawBalances).forEach((key: string) => {
-            balances[key] = rawBalances[key][0]
-        })
+        const rawBalances: DictInterface<ethers.BigNumber[]> = await _getBalances(addresses, [this.gauge as string])
+        const balances: DictInterface<string> = {};
+        for (const address of addresses) {
+            balances[address] = ethers.utils.formatUnits(rawBalances[address][0]);
+        }
 
         return balances
     }

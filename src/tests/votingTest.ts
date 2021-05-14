@@ -1,4 +1,3 @@
-import { BigNumber, ethers } from "ethers";
 import { Pool } from "../pools";
 import { DictInterface } from "../interfaces"
 import { getBalances } from "../utils";
@@ -7,9 +6,9 @@ import { curve, ALIASES } from "../curve";
 
 const showBalances = async (address: string): Promise<void> => {
     console.log("Checking balances");
-    const balances: DictInterface<BigNumber[]> = await getBalances([address], [ALIASES.crv]);
+    const balances: DictInterface<string[]> = await getBalances([address], [ALIASES.crv]);
     const { lockedAmount } = await getLockedAmountAndUnlockTime(address);
-    console.log("CRV: ", ethers.utils.formatUnits(balances[address][0], 18)); // TODO get decimals
+    console.log("CRV: ", balances[address][0]); // TODO get decimals
     console.log("Locked CRV: ", lockedAmount); // TODO get decimals
 }
 

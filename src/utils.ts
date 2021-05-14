@@ -49,7 +49,24 @@ async function get_pools_data(): Promise<DictInterface<PoolDataInterface>> {
     return pools_data;
 }
 
-export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
+export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
+    const contractCalls = coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
+    for (const coinAddr of coins) {
+        contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
+    }
+    const response = await curve.multicallProvider.all(contractCalls);
+    const decimals = response.splice(0, coins.length);
+
+
+    const balances: DictInterface<string[]>  = {};
+    addresses.forEach((address: string, i: number) => {
+        balances[address] = coins.map((_, j: number ) => ethers.utils.formatUnits(response[i + (j * addresses.length)], decimals[j]))
+    });
+
+    return balances;
+}
+
+export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
     const contractCalls = [];
     for (const coinAddr of coins) {
         contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
@@ -64,7 +81,7 @@ export const getBalances = async (addresses: string[], coins: string[]): Promise
     return balances;
 }
 
-export const getBalancesBN = async (addresses: string[], coins: string[]): Promise<DictInterface<BigNumber[]>> => {
+export const _getBalancesBN = async (addresses: string[], coins: string[]): Promise<DictInterface<BigNumber[]>> => {
     const contractCalls = coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
     for (const coinAddr of coins) {
         contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));

@@ -1,20 +1,19 @@
-import {BigNumber, ethers} from "ethers";
+import { ethers } from "ethers";
 import { Pool } from "../pools";
-import { CoinInterface, DictInterface } from "../interfaces"
+import { CoinInterface } from "../interfaces"
 import { getBalances } from "../utils";
 import { curve } from "../curve";
 
 const showBalances = async (address: string, pool: Pool): Promise<void> => {
     console.log("Checking balances");
     const coinAddresses = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.underlying_address);
-    const underlyingBalances: DictInterface<BigNumber[]> = await getBalances([address], coinAddresses);
-    const userUnderlyingBalances: BigNumber[] = underlyingBalances[address];
+    const underlyingBalances: string[] = (await getBalances([address], coinAddresses))[address];
     for (let i = 0; i < pool.coins.length; i++) {
-        console.log(pool.coins[i].name, ": ", ethers.utils.formatUnits(userUnderlyingBalances[i], pool.coins[i].decimals || pool.coins[i].wrapped_decimals));
+        console.log(pool.coins[i].name, ": ", underlyingBalances[i]);
     }
-    const lpBalances = await pool.balances(address);
-    console.log("Pool tokens: ", ethers.utils.formatUnits(lpBalances[address][0], 18)); // TODO get decimals
-    console.log("Gauge tokens: ", ethers.utils.formatUnits(lpBalances[address][1], 18)); // TODO get decimals
+    const lpBalances = (await pool.balances(address))[address];
+    console.log("Pool tokens: ", lpBalances[0]); // TODO get decimals
+    console.log("Gauge tokens: ", lpBalances[1]); // TODO get decimals
 }
 
 const myPool = new Pool('3pool');

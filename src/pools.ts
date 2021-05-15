@@ -52,24 +52,26 @@ export class Pool {
         return (await curve.contracts[this.swap as string].contract.add_liquidity(amounts, minMintAmount)).hash;
     }
 
-    public addLiquidity = async (amounts: string[] | number[]): Promise<string> => {
+    public addLiquidity = async (amounts: string[]): Promise<string> => {
         if (amounts.length !== this.coins.length) {
             throw Error(`${this.name} pool has ${this.coins.length} coins (amounts provided for ${amounts.length})`)
         }
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string | number, i: number) =>
-            ethers.utils.parseUnits(amount.toString(), this.coins[i].decimals || this.coins[i].wrapped_decimals));
+        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
+            ethers.utils.parseUnits(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals));
 
         return await this._addLiquidity(_amounts);
     }
 
-    gaugeDeposit = async (amount: ethers.BigNumber): Promise<string> => {
-        await ensureAllowance([this.lpToken as string], [amount], this.gauge as string)
+    public gaugeDeposit = async (lpTokenAmount: string): Promise<string> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        await ensureAllowance([this.lpToken as string], [_lpTokenAmount], this.gauge as string)
 
-        return (await curve.contracts[this.gauge as string].contract.deposit(amount)).hash;
+        return (await curve.contracts[this.gauge as string].contract.deposit(_lpTokenAmount)).hash;
     }
 
-    gaugeWithdraw = async (amount: ethers.BigNumber): Promise<string> => {
-        return (await curve.contracts[this.gauge as string].contract.withdraw(amount)).hash;
+    public gaugeWithdraw = async (lpTokenAmount: string): Promise<string> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        return (await curve.contracts[this.gauge as string].contract.withdraw(_lpTokenAmount)).hash;
     }
 
     private _calcUnderlyingCoinAmounts = async (amount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
@@ -86,37 +88,41 @@ export class Pool {
             fromBN(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals as number))
     }
 
-    public calcUnderlyingCoinAmounts = async (amount: number | string): Promise<string[]> => {
+    public calcUnderlyingCoinAmounts = async (amount: string): Promise<string[]> => {
         const underlyingCoinAmounts: ethers.BigNumber[] = await this._calcUnderlyingCoinAmounts(ethers.utils.parseUnits(amount.toString()));
         return underlyingCoinAmounts.map((amount: ethers.BigNumber, i: number) =>
             ethers.utils.formatUnits(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals as number));
     }
 
-    removeLiquidity = async (lpTokenAmount: ethers.BigNumber): Promise<string> => {
-        const minAmounts = await this._calcUnderlyingCoinAmounts(lpTokenAmount);
+    public removeLiquidity = async (lpTokenAmount: string): Promise<string> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        const minAmounts = await this._calcUnderlyingCoinAmounts(_lpTokenAmount);
 
-        return (await curve.contracts[this.swap as string].contract.remove_liquidity(lpTokenAmount, minAmounts)).hash;
+        return (await curve.contracts[this.swap as string].contract.remove_liquidity(_lpTokenAmount, minAmounts)).hash;
     }
 
-    removeLiquidityImbalance = async (amounts: ethers.BigNumber[]): Promise<string> => {
-        let maxBurnAmount = await this._calcLpTokenAmount(amounts, false)
+    public removeLiquidityImbalance = async (amounts: string[]): Promise<string> => {
+        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
+            ethers.utils.parseUnits(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals));
+        let maxBurnAmount = await this._calcLpTokenAmount(_amounts, false)
         maxBurnAmount = maxBurnAmount.div(100).mul(101);
 
-        return (await curve.contracts[this.swap as string].contract.remove_liquidity_imbalance(amounts, maxBurnAmount)).hash;
+        return (await curve.contracts[this.swap as string].contract.remove_liquidity_imbalance(_amounts, maxBurnAmount)).hash;
     }
 
-    private _calcWithdrawOneCoin = async (tokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap as string].contract.calc_withdraw_one_coin(tokenAmount, i);
+    private _calcWithdrawOneCoin = async (lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
+        return await curve.contracts[this.swap as string].contract.calc_withdraw_one_coin(lpTokenAmount, i);
     }
 
-    removeLiquidityOneCoin = async (lpTokenAmount: ethers.BigNumber, i: number): Promise<string> => {
-        let minAmount = await this._calcWithdrawOneCoin(lpTokenAmount, i);
+    public removeLiquidityOneCoin = async (lpTokenAmount: string, i: number): Promise<string> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        let minAmount = await this._calcWithdrawOneCoin(_lpTokenAmount, i);
         minAmount = minAmount.div(100).mul(99);
 
-        return (await curve.contracts[this.swap as string].contract.remove_liquidity_one_coin(lpTokenAmount, i, minAmount)).hash;
+        return (await curve.contracts[this.swap as string].contract.remove_liquidity_one_coin(_lpTokenAmount, i, minAmount)).hash;
     }
 
-    balances = async (...addresses: string[] | string[][]): Promise<DictInterface<string[]>> =>  {
+    public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<string[]>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
@@ -129,7 +135,7 @@ export class Pool {
         return balances
     }
 
-    lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
+    public lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
@@ -142,7 +148,7 @@ export class Pool {
         return balances;
     }
 
-    gaugeBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
+    public gaugeBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         addresses = addresses as string[];
 
@@ -155,26 +161,27 @@ export class Pool {
         return balances
     }
 
-    getSwapOutput = async (i: number, j: number, amount: string | number): Promise<string> => {
-        const amountBN = ethers.utils.parseUnits(amount.toString(), this.coins[i].decimals);
-        const expected: ethers.BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, amountBN);
+    public getSwapOutput = async (i: number, j: number, amount: string): Promise<string> => {
+        const _amount = ethers.utils.parseUnits(amount, this.coins[i].decimals);
+        const expected: ethers.BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, _amount);
 
         return ethers.utils.formatUnits(expected, this.coins[j].decimals)
     }
 
-    exchange = async (i: number, j: number, amount: ethers.BigNumber, maxSlippage = 0.01): Promise<string> => {
-        const expected: ethers.BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, amount);
+    public exchange = async (i: number, j: number, amount: string, maxSlippage = 0.01): Promise<string> => {
+        const _amount = ethers.utils.parseUnits(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals);
+        const expected: ethers.BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, _amount);
         const minRecvAmount = expected.mul((1 - maxSlippage) * 100).div(100);
-        await ensureAllowance([this.coins[i].underlying_address], [amount], this.swap as string);
+        await ensureAllowance([this.coins[i].underlying_address], [_amount], this.swap as string);
 
         if (Object.prototype.hasOwnProperty.call(curve.contracts[this.swap as string].contract, 'exchange_underlying')) {
-            return (await curve.contracts[this.swap as string].contract.exchange_underlying(i, j, amount, minRecvAmount)).hash
+            return (await curve.contracts[this.swap as string].contract.exchange_underlying(i, j, _amount, minRecvAmount)).hash
         } else {
-            return (await curve.contracts[this.swap as string].contract.exchange(i, j, amount, minRecvAmount)).hash
+            return (await curve.contracts[this.swap as string].contract.exchange(i, j, _amount, minRecvAmount)).hash
         }
     }
 
-    gaugeMaxBoostedDeposit = async (...accounts: string[]): Promise<DictInterface<string>> => {
+    public gaugeMaxBoostedDeposit = async (...accounts: string[]): Promise<DictInterface<string>> => {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
 
         const votingEscrowContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
@@ -202,7 +209,7 @@ export class Pool {
     }
 
 
-    gaugeOptimalDeposits = async (...accounts: string[]): Promise<DictInterface<string>> => {
+    public gaugeOptimalDeposits = async (...accounts: string[]): Promise<DictInterface<string>> => {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
 
         const votingEscrowContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
@@ -261,19 +268,19 @@ export class Pool {
 }
 
 
-export const _getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<{ poolAddress: string, output: ethers.BigNumber }> => {
+export const _getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<{ poolAddress: string, output: ethers.BigNumber }> => {
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract
     const registryExchangeAddress = await addressProviderContract.get_address(2);
     const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer);
 
     const inputCoinContract = curve.contracts[inputCoinAddress].contract;
-    const amountBN = ethers.utils.parseUnits(amount.toString(), await inputCoinContract.decimals());
-    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, amountBN);
+    const _amount = ethers.utils.parseUnits(amount.toString(), await inputCoinContract.decimals());
+    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount);
 
     return { poolAddress, output }
 }
 
-export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<{ poolAddress: string, output: string }> => {
+export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<{ poolAddress: string, output: string }> => {
     const { poolAddress, output: outputBN } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
     const outputCoinContract = curve.contracts[outputCoinAddress].contract;
     const output = ethers.utils.formatUnits(outputBN, await outputCoinContract.decimals());
@@ -281,13 +288,10 @@ export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinA
     return { poolAddress, output }
 }
 
-export const swap = async (inputCoinAddress: string, outputCoinAddress: string, amount: string | number): Promise<void> => {
+export const swap = async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<void> => {
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
     const registryAddress = await addressProviderContract.get_registry();
     const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
-
-    const inputCoinContract = curve.contracts[inputCoinAddress].contract;
-    const amountBN = ethers.utils.parseUnits(amount.toString(), await inputCoinContract.decimals());
 
     const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
     const poolName = getPoolNameBySwapAddress(poolAddress);
@@ -295,6 +299,6 @@ export const swap = async (inputCoinAddress: string, outputCoinAddress: string, 
 
     const pool = new Pool(poolName);
     await pool.init(async function() {
-        await pool.exchange(i, j, amountBN);
+        await pool.exchange(i, j, amount);
     });
 }

@@ -1,56 +1,140 @@
-import { Pool } from "../pools";
+import { assert } from "chai";
+import { getBestPoolAndOutput, Pool, swap } from "../pools";
 import { CoinInterface } from "../interfaces"
-import { getBalances } from "../utils";
+import { BN, getBalances } from "../utils";
 import { curve } from "../curve";
 
 
-const showBalances = async (address: string, pool: Pool): Promise<void> => {
-    console.log("Checking balances");
-    const coinAddresses = (pool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.underlying_address);
-    const underlyingBalances: string[] = (await getBalances([address], coinAddresses))[address];
-    for (let i = 0; i < pool.coins.length; i++) {
-        console.log(pool.coins[i].name, ": ", underlyingBalances[i]);
-    }
-    const lpBalances = (await pool.balances(address))[address];
-    console.log("Pool tokens: ", lpBalances[0]); // TODO get decimals
-    console.log("Gauge tokens: ", lpBalances[1]); // TODO get decimals
-}
+describe('Pool', function() {
+    this.timeout(10000);
+    const myPool = new Pool('3pool');
+    let address = '';
+    let coinAddresses: string[] = [];
 
-const myPool = new Pool('3pool');
-myPool.init(async function() {
-    await curve.init();
-    console.log(`--- ${myPool.name} ---`);
-    const address = await curve.signer.getAddress();
+    before(async function() {
+        await curve.init();
+        await myPool.init();
+        address = await curve.signer.getAddress();
+        coinAddresses = (myPool.coins as CoinInterface[]).map((coinObj: CoinInterface) => coinObj.underlying_address);
+    });
 
-    await showBalances(address, myPool);
+    it('Adds liquidity', async function () {
+        const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
 
-    console.log('\nADD LIQUIDITY\n');
-    await myPool.addLiquidity(['0.00000001', '0', '0']);
+        await myPool.addLiquidity(['1000', '1000', '1000']);
 
-    // await showBalances(address, myPool);
-    //
-    // console.log('\nGAUGE DEPOSIT\n');
-    // const depositAmount: string = (await myPool.lpTokenBalances(address))[address];
-    // console.log(depositAmount);
-    // await myPool.gaugeDeposit(depositAmount);
-    //
-    // await showBalances(address, myPool);
-    //
-    // console.log('\nGAUGE WITHDRAW\n');
-    // await myPool.gaugeWithdraw(depositAmount);
-    //
-    // await showBalances(address, myPool);
-    //
-    // // console.log('\nREMOVE LIQUIDITY\n');
-    // // const hash = await myPool.removeLiquidity(depositAmount);
-    //
-    // // console.log('\nREMOVE LIQUIDITY IMBALANCE (90 90 90)\n');
-    // // const hash = await myPool.removeLiquidityImbalance(['90', '90']);
-    //
-    // console.log('\nREMOVE LIQUIDITY ONE COIN (DAI for 20 LP tokens)\n');
-    // const hash = await myPool.removeLiquidityOneCoin('20', 1);
-    //
-    // console.log('TX hash ' + hash + '\n');
+        const coinBalancesAfterAddingLiquidity: string[] = (await getBalances([address], coinAddresses))[address];
+        const lpTokenBalance = (await myPool.lpTokenBalances(address))[address];
 
-    await showBalances(address, myPool);
-}).then(null, (e) => console.log(e));
+        coinBalancesAfterAddingLiquidity.forEach((b: string, i: number) => {
+            assert.deepStrictEqual(BN(b), BN(initialCoinBalances[i]).minus(BN(1000)))
+        })
+        // TODO more accurate test
+        assert.isAbove(Number(lpTokenBalance), 0);
+    }).timeout(15000);
+
+    it('Deposits into gauge', async function () {
+        const depositAmount: string = (await myPool.lpTokenBalances(address))[address];
+
+        await myPool.gaugeDeposit(depositAmount);
+
+        const [lpTokenBalance, gaugeBalance] = (await myPool.balances(address))[address];
+
+        assert.strictEqual(depositAmount, gaugeBalance);
+        assert.strictEqual(Number(lpTokenBalance), 0);
+    }).timeout(15000);
+
+    it('Withdraws from gauge', async function () {
+        const withdrawAmount: string = (await myPool.gaugeBalances(address))[address];
+
+        await myPool.gaugeWithdraw(withdrawAmount);
+
+        const [lpTokenBalance, gaugeBalance] = (await myPool.balances(address))[address];
+
+        assert.strictEqual(withdrawAmount, lpTokenBalance);
+        assert.strictEqual(Number(gaugeBalance), 0);
+    }).timeout(15000);
+
+    it('Removes liquidity', async function () {
+        const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
+        const amountToRemove: string = BN(initialLpTokenBalance).div(10).toFixed(18);
+        const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+
+        await myPool.removeLiquidity(amountToRemove);
+
+        const lpTokenBalanceAfterRemoval: string = (await myPool.lpTokenBalances(address))[address];
+        const coinBalancesAfterRemoval: string[] = (await getBalances([address], coinAddresses))[address];
+
+        assert.deepStrictEqual(BN(lpTokenBalanceAfterRemoval), BN(initialLpTokenBalance).minus(BN(amountToRemove)));
+        coinBalancesAfterRemoval.forEach((b: string, i: number) => {
+            // TODO more accurate test
+            assert.isAbove(Number(b), Number(initialCoinBalances[i]))
+        })
+    }).timeout(15000);
+
+    it('Removes liquidity imbalance', async function () {
+        const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
+        const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+
+        await myPool.removeLiquidityImbalance(['90', '90', '90']);
+
+        const lpTokenBalanceAfterRemoval: string = (await myPool.lpTokenBalances(address))[address];
+        const coinBalancesAfterRemoval: string[] = (await getBalances([address], coinAddresses))[address];
+
+        // TODO more accurate test
+        assert.isBelow(Number(lpTokenBalanceAfterRemoval), Number(initialLpTokenBalance));
+        coinBalancesAfterRemoval.forEach((b: string, i: number) => {
+            assert.deepStrictEqual(BN(initialCoinBalances[i]), BN(b).minus(BN(90)));
+        });
+    }).timeout(15000);
+
+    it('Removes liquidity one coin', async function () {
+        const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
+        const amountToRemove: string = BN(initialLpTokenBalance).div(10).toFixed(18);
+        const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+
+        await myPool.removeLiquidityOneCoin(amountToRemove, 0);
+
+        const lpTokenBalanceAfterRemoval: string = (await myPool.lpTokenBalances(address))[address];
+        const coinBalancesAfterRemoval: string[] = (await getBalances([address], coinAddresses))[address];
+
+        // TODO more accurate test
+        assert.deepStrictEqual(BN(lpTokenBalanceAfterRemoval), BN(initialLpTokenBalance).minus(BN(amountToRemove)));
+        coinBalancesAfterRemoval.forEach((b: string, i: number) => {
+            if (i === 0) {
+                // TODO more accurate test
+                assert.isAbove(Number(b), Number(initialCoinBalances[i]))
+            } else {
+                assert.strictEqual(b, initialCoinBalances[i]);
+            }
+        })
+    }).timeout(15000);
+
+    it('Swaps', async function () {
+        const swapAmount = '100';
+        const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+        const expected = await myPool.getSwapOutput(0, 1, swapAmount);
+
+        await myPool.exchange(0, 1, swapAmount, 0.02);
+
+        const coinBalancesAfterSwap: string[] = (await getBalances([address], coinAddresses))[address];
+
+        assert.deepStrictEqual(BN(coinBalancesAfterSwap[0]), BN(initialCoinBalances[0]).minus(BN(swapAmount)));
+        assert.isAtLeast(Number(coinBalancesAfterSwap[1]), Number(BN(initialCoinBalances[1]).plus(BN(expected).times(0.98)).toString()));
+    }).timeout(15000);
+
+    it('Swaps using all pools', async function () {
+        const swapAmount = '100';
+        const dai = "0x6b175474e89094c44da98b954eedeac495271d0f";
+        const usdc = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+        const initialBalances = (await getBalances([address], [dai, usdc]))[address];
+
+        const { output } = await getBestPoolAndOutput(dai, usdc, swapAmount);
+        await swap(dai, usdc, swapAmount);
+
+        const balancesAfterSwap = (await getBalances([address], [dai, usdc]))[address];
+
+        assert.deepStrictEqual(BN(balancesAfterSwap[0]), BN(initialBalances[0]).minus(BN(swapAmount)));
+        assert.isAtLeast(Number(balancesAfterSwap[1]), Number(BN(initialBalances[1]).plus(BN(output).times(0.99)).toString()));
+    }).timeout(60000);
+});

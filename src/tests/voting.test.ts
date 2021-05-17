@@ -1,4 +1,4 @@
-import assert from "assert";
+import { assert } from "chai";
 import { getBalances, BN } from "../utils";
 import { createLock, getLockedAmountAndUnlockTime } from '../voting';
 import { curve, ALIASES } from "../curve";
@@ -16,6 +16,6 @@ describe('Voting Escrow', function() {
         const CRVBalanceAfterLock = (await getBalances([address], [ALIASES.crv]))[address][0];
         const { lockedAmount } = await getLockedAmountAndUnlockTime(address);
 
-        assert.deepStrictEqual(BN(lockedAmount), BN(initialCRVBalance).minus(BN(CRVBalanceAfterLock)));
+        assert.deepEqual(BN(lockedAmount), BN(initialCRVBalance).minus(BN(CRVBalanceAfterLock)));
     }).timeout(15000);
 });

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js'
-import { getPoolData, _getBalances, _getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, toBN, fromBN } from './utils';
+import { getPoolData, _getBalances, _getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, toBN, fromBN, toStringFromBN } from './utils';
 import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import registryABI from './constants/abis/json/registry.json';
@@ -181,33 +181,32 @@ export class Pool {
         }
     }
 
-    public gaugeMaxBoostedDeposit = async (...accounts: string[]): Promise<DictInterface<string>> => {
-        if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
+    public gaugeMaxBoostedDeposit = async (...addresses: string[]): Promise<DictInterface<string>> => {
+        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
 
         const votingEscrowContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
         const gaugeContract = curve.contracts[this.gauge as string].multicallContract;
 
         const contractCalls = [votingEscrowContract.totalSupply(), gaugeContract.totalSupply()];
-        accounts.forEach((account: string) => {
+        addresses.forEach((account: string) => {
             contractCalls.push(votingEscrowContract.balanceOf(account));
         });
-        const response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        const response: BigNumber[] = (await curve.multicallProvider.all(contractCalls)).map((value: ethers.BigNumber) => toBN(value));
 
         const [veTotalSupply, gaugeTotalSupply] = response.splice(0, 2);
 
-        const resultBN: DictInterface<ethers.BigNumber> = {};
-        accounts.forEach((acct: string, i: number) => {
-            resultBN[acct] = gaugeTotalSupply.mul(response[i]).div(veTotalSupply);
+        const resultBN: DictInterface<BigNumber> = {};
+        addresses.forEach((acct: string, i: number) => {
+            resultBN[acct] = response[i].div(veTotalSupply).times(gaugeTotalSupply);
         });
 
         const result: DictInterface<string> = {};
         for (const entry of Object.entries(resultBN)) {
-            result[entry[0]] = ethers.utils.formatUnits(entry[1], 18);
+            result[entry[0]] = toStringFromBN(entry[1]);
         }
 
         return result;
     }
-
 
     public gaugeOptimalDeposits = async (...accounts: string[]): Promise<DictInterface<string>> => {
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];

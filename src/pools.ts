@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js'
-import { getPoolData, _getBalances, _getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, toBN, fromBN, toStringFromBN } from './utils';
+import { getPoolData, _getBalances, _getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, BN, toBN, fromBN, toStringFromBN } from './utils';
 import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import registryABI from './constants/abis/json/registry.json';
@@ -214,7 +214,6 @@ export class Pool {
         const votingEscrowContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
         const lpTokenContract = curve.contracts[this.lpToken as string].multicallContract;
         const gaugeContract = curve.contracts[this.gauge as string].multicallContract;
-
         const contractCalls = [votingEscrowContract.totalSupply(), gaugeContract.totalSupply()];
         accounts.forEach((account: string) => {
             contractCalls.push(
@@ -223,43 +222,43 @@ export class Pool {
                 gaugeContract.balanceOf(account)
             )
         });
-        const response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        const response: BigNumber[] = (await curve.multicallProvider.all(contractCalls)).map((value: ethers.BigNumber) => toBN(value));
 
         const [veTotalSupply, gaugeTotalSupply] = response.splice(0,2);
 
-        const votingPower: DictInterface<ethers.BigNumber> = {};
-        let totalBalance = ethers.BigNumber.from(0);
+        const votingPower: DictInterface<BigNumber> = {};
+        let totalBalance = BN(0);
         for (const acct of accounts) {
             votingPower[acct] = response[0];
-            totalBalance = totalBalance.add(response[1]).add(response[2]);
+            totalBalance = totalBalance.plus(response[1]).plus(response[2]);
             response.splice(0, 3);
         }
 
-        const totalPower = Object.values(votingPower).reduce((sum, item) => sum.add(item));
-        const optimalBN: DictInterface<ethers.BigNumber> = Object.fromEntries(accounts.map((acc) => [acc, ethers.BigNumber.from(0)]));
-        if (totalBalance.lt(gaugeTotalSupply.mul(totalPower).div(veTotalSupply))) {
+        const totalPower = Object.values(votingPower).reduce((sum, item) => sum.plus(item));
+        const optimalBN: DictInterface<BigNumber> = Object.fromEntries(accounts.map((acc) => [acc, BN(0)]));
+        if (totalBalance.lt(gaugeTotalSupply.times(totalPower).div(veTotalSupply))) {
             for (const acct of accounts) {
-                const amount = gaugeTotalSupply.mul(votingPower[acct]).div(veTotalSupply).lt(totalBalance) ?
-                    gaugeTotalSupply.mul(votingPower[acct]).div(veTotalSupply) : totalBalance;
+                // min(voting, lp)
+                const amount = gaugeTotalSupply.times(votingPower[acct]).div(veTotalSupply).lt(totalBalance) ?
+                    gaugeTotalSupply.times(votingPower[acct]).div(veTotalSupply) : totalBalance;
                 optimalBN[acct] = amount;
-                totalBalance = totalBalance.sub(amount);
+                totalBalance = totalBalance.minus(amount);
                 if (totalBalance.lte(0)) {
                     break;
                 }
             }
-        }
-        else {
+        } else {
             if (totalPower.lt(0)) {
                 for (const acct of accounts) {
-                    optimalBN[acct] = totalBalance.mul(votingPower[acct]).div(totalPower);
+                    optimalBN[acct] = totalBalance.times(votingPower[acct]).div(totalPower);
                 }
             }
-            optimalBN[accounts[0]] = optimalBN[accounts[0]].add(totalBalance.sub(Object.values(optimalBN).reduce((sum, item) => sum.add(item))));
+            optimalBN[accounts[0]] = optimalBN[accounts[0]].plus(totalBalance.minus(Object.values(optimalBN).reduce((sum, item) => sum.plus(item))));
         }
 
         const optimal: DictInterface<string> = {};
         for (const entry of Object.entries(optimalBN)) {
-            optimal[entry[0]] = ethers.utils.formatUnits(entry[1], 18);
+            optimal[entry[0]] = toStringFromBN(entry[1]);
         }
 
         return optimal

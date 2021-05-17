@@ -26,7 +26,7 @@ export class Pool {
         this.coins = [];
     }
 
-    async init(callback: () => void): Promise<void> {
+    async init(): Promise<void> {
         const poolData: PoolDataInterface = await getPoolData(this.name);
 
         this.swap = poolData['swap_address'] as string;
@@ -34,8 +34,6 @@ export class Pool {
         this.lpToken = poolData['lp_token_address'] as string;
         this.gauge = poolData['gauge_addresses'][0] as string;
         this.coins = poolData['coins'];
-
-        callback.bind(this)();
     }
 
     private _calcLpTokenAmount = async (amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
@@ -296,7 +294,7 @@ export const swap = async (inputCoinAddress: string, outputCoinAddress: string, 
     const [i, j, is_underlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
 
     const pool = new Pool(poolName);
-    await pool.init(async function() {
-        await pool.exchange(i, j, amount);
-    });
+    await pool.init();
+
+    await pool.exchange(i, j, amount);
 }

@@ -18,8 +18,12 @@ export const toBN = (n: ethers.BigNumber, decimals = 18): BigNumber => {
     return BN(ethers.utils.formatUnits(n, decimals)).times(decimals);
 }
 
+export const toStringFromBN = (bn: BigNumber, decimals = 18): string => {
+    return bn.div(decimals).toFixed(decimals);
+}
+
 export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
-    return ethers.utils.parseUnits(bn.div(decimals).toFixed(decimals), decimals)
+    return ethers.utils.parseUnits(toStringFromBN(bn, decimals), decimals)
 }
 
 // -------------------

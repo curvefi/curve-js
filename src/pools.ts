@@ -17,7 +17,11 @@ export class Pool {
     coins: CoinInterface[];
 
     constructor(name: string) {
-        this.name = name;
+        if (name === "susdv2") {
+            this.name = "susd";
+        } else {
+            this.name = name;
+        }
 
         this.swap = null;
         this.zap = null;

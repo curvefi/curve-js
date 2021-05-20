@@ -34,25 +34,6 @@ export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
     return poolResponse.data;
 }
 
-async function get_pools_data(): Promise<DictInterface<PoolDataInterface>> {
-    const pools_resp = await axios.get(GITHUB_POOLS);
-    const pool_names: string[] = pools_resp.data.filter((item: PoolListItemInterface) => item.type === "dir").map((item: PoolListItemInterface) => item.name);
-
-    const pools_data: DictInterface<PoolDataInterface> = {};
-
-    for (const pool_name of pool_names) {
-        const pool_resp = await axios.get(GITHUB_POOL.replace("<poolname>", pool_name));
-        const pool_data: PoolDataInterface = pool_resp.data;
-
-        if (Object.prototype.hasOwnProperty.call(pool_data, "swap_address")) {
-            pools_data[pool_name] = pool_data;
-        } else {
-            console.log(pool_data)
-        }
-    }
-    return pools_data;
-}
-
 export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
     const contractCalls = coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
     for (const coinAddr of coins) {

@@ -4,6 +4,7 @@ import ERC20Abi from './constants/abis/json/ERC20.json';
 import gaugeABI from './constants/abis/json/gauge.json';
 import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
+import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 
 export const ALIASES = {
@@ -112,6 +113,14 @@ class Curve {
             multicallContract: new MulticallContract(ALIASES.address_provider, addressProviderABI),
         };
 
+        this.contracts[ALIASES.gauge_controller] = {
+            contract: new Contract(ALIASES.gauge_controller, gaugeControllerABI, this.signer),
+            multicallContract: new MulticallContract(ALIASES.gauge_controller, gaugeControllerABI),
+        };
+        this.contracts[ALIASES.gauge_controller.toLowerCase()] = {
+            contract: new Contract(ALIASES.gauge_controller, gaugeControllerABI, this.signer),
+            multicallContract: new MulticallContract(ALIASES.gauge_controller, gaugeControllerABI),
+        };
 
         await this.multicallProvider.init();
     }

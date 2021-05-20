@@ -83,7 +83,7 @@ export const _getBalancesBN = async (addresses: string[], coins: string[]): Prom
     return balances;
 }
 
-export const getAllowance = async (tokens: string[], address: string, spender: string): Promise<ethers.ethers.BigNumber[]> => {
+export const getAllowance = async (tokens: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
     if (tokens.length === 1) {
         return [await curve.contracts[tokens[0]].contract.allowance(address, spender)]
     }
@@ -116,4 +116,21 @@ export const getDecimals = async (coin: string): Promise<number> => {
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {
     return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address === swapAddress)[0][0];
+}
+
+
+const _crvRateCache = {
+    'rate': 0,
+    'time': 0,
+}
+
+export const getCrvRate = async (): Promise<number> => {
+    let crvAddress = "0xd533a949740bb3306d119cc777fa900ba034cd52";
+    crvAddress = crvAddress.toLowerCase();
+    if (_crvRateCache.time + 60000 < Date.now()) {
+        const response = await axios.get(`https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${crvAddress}&vs_currencies=usd`);
+        _crvRateCache['rate'] = response.data[crvAddress]['usd'];
+        _crvRateCache['time'] = Date.now();
+    }
+    return _crvRateCache['rate']
 }

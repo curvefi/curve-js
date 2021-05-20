@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js'
-import { getPoolData, _getBalances, _getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, BN, toBN, fromBN, toStringFromBN } from './utils';
+import { getPoolData, _getBalances, _getBalancesBN, ensureAllowance, getPoolNameBySwapAddress, BN, toBN, fromBN, toStringFromBN, getCrvRate } from './utils';
 import { CoinInterface, DictInterface, PoolDataInterface } from './interfaces';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import registryABI from './constants/abis/json/registry.json';
@@ -276,6 +276,26 @@ export class Pool {
         const boost = workingBalance / (0.4 * balance);
 
         return boost.toFixed(4).replace(/([0-9])0+$/, '$1')
+    }
+
+    public getApy = async (): Promise<string[]> => {
+        const swapContract = curve.contracts[this.swap as string].multicallContract;
+        const gaugeContract = curve.contracts[this.gauge as string].multicallContract;
+        const gaugeControllerContract = curve.contracts[ALIASES.gauge_controller].multicallContract;
+
+        const [inflation, weight, workingSupply, virtualPrice] = (await curve.multicallProvider.all([
+            gaugeContract.inflation_rate(),
+            gaugeControllerContract.gauge_relative_weight(this.gauge),
+            gaugeContract.working_supply(),
+            swapContract.get_virtual_price(),
+        ])).map((value: ethers.BigNumber) => toBN(value));
+
+        const rate = inflation.times(weight).times( 31536000).div(workingSupply).times( 0.4).div(virtualPrice);
+        const crvRate = await getCrvRate();
+        const baseApy = rate.times(crvRate);
+        const boostedApy = baseApy.times(2.5);
+
+        return [baseApy.toFixed(4), boostedApy.toFixed(4)]
     }
 }
 

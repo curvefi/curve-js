@@ -265,6 +265,18 @@ export class Pool {
 
         return optimal
     }
+
+    public boost = async (address: string): Promise<string> => {
+        const gaugeContract = curve.contracts[this.gauge as string].multicallContract;
+        const [workingBalance, balance] = (await curve.multicallProvider.all([
+            gaugeContract.working_balances(address),
+            gaugeContract.balanceOf(address),
+        ])).map((value: ethers.BigNumber) => Number(ethers.utils.formatUnits(value)));
+
+        const boost = workingBalance / (0.4 * balance);
+
+        return boost.toFixed(4).replace(/([0-9])0+$/, '$1')
+    }
 }
 
 

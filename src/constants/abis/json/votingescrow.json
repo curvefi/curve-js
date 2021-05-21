@@ -270,7 +270,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": "74280830"
+    "gas": "259133"
   },
   {
     "name": "increase_unlock_time",

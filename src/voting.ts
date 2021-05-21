@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { ensureAllowance, getDecimals } from './utils';
-import { curve, ALIASES } from "./curve";
+import { curve, ALIASES,  } from "./curve";
 
 
 export const createLock = async (amount: string, days: number): Promise<string> => {
@@ -10,6 +10,14 @@ export const createLock = async (amount: string, days: number): Promise<string> 
 
     return (await curve.contracts[ALIASES.voting_escrow].contract.create_lock(amountBN, unlockTime)).hash
 }
+
+export const increaseAmount = async (amount: string): Promise<string> => {
+    const amountBN = ethers.utils.parseUnits(amount, await getDecimals(ALIASES.crv));
+    await ensureAllowance([ALIASES.crv], [amountBN], ALIASES.voting_escrow);
+
+    return (await curve.contracts[ALIASES.voting_escrow].contract.increase_amount(amountBN)).hash
+}
+
 
 export const getLockedAmountAndUnlockTime = async (address: string): Promise<{ lockedAmount: string, unlockTime: number }> => {
     let [lockedAmount, unlockTime] = await curve.contracts[ALIASES.voting_escrow].contract.locked(address);

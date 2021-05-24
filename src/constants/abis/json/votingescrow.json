@@ -283,7 +283,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": "220000"
+    "gas": "270000"
   },
   {
     "name": "withdraw",
@@ -291,7 +291,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": "37223566"
+    "gas": "372233"
   },
   {
     "name": "balanceOf",

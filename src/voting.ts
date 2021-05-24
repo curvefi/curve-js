@@ -1,7 +1,14 @@
 import { ethers } from "ethers";
 import { ensureAllowance, getDecimals } from './utils';
-import { curve, ALIASES,  } from "./curve";
+import { curve, ALIASES } from "./curve";
 
+
+export const getLockedAmountAndUnlockTime = async (address: string): Promise<{ lockedAmount: string, unlockTime: number }> => {
+    let [lockedAmount, unlockTime] = await curve.contracts[ALIASES.voting_escrow].contract.locked(address);
+    lockedAmount = ethers.utils.formatUnits(lockedAmount, await getDecimals(ALIASES.crv));
+    unlockTime = Number(ethers.utils.formatUnits(unlockTime, 0)) * 1000; // ms
+    return { lockedAmount, unlockTime }
+}
 
 export const createLock = async (amount: string, days: number): Promise<string> => {
     const amountBN = ethers.utils.parseUnits(amount, await getDecimals(ALIASES.crv));
@@ -18,10 +25,10 @@ export const increaseAmount = async (amount: string): Promise<string> => {
     return (await curve.contracts[ALIASES.voting_escrow].contract.increase_amount(amountBN)).hash
 }
 
+export const increaseUnlockTime = async (days: number): Promise<string> => {
+    const address = await curve.signer.getAddress();
+    const { unlockTime } = await getLockedAmountAndUnlockTime(address);
+    const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
 
-export const getLockedAmountAndUnlockTime = async (address: string): Promise<{ lockedAmount: string, unlockTime: number }> => {
-    let [lockedAmount, unlockTime] = await curve.contracts[ALIASES.voting_escrow].contract.locked(address);
-    lockedAmount = ethers.utils.formatUnits(lockedAmount, await getDecimals(ALIASES.crv));
-    unlockTime = Number(ethers.utils.formatUnits(unlockTime, 0)) * 1000; // ms
-    return { lockedAmount, unlockTime }
+    return (await curve.contracts[ALIASES.voting_escrow].contract.increase_unlock_time(newUnlockTime)).hash
 }

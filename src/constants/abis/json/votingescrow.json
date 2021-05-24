@@ -283,7 +283,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": "74281578"
+    "gas": "220000"
   },
   {
     "name": "withdraw",

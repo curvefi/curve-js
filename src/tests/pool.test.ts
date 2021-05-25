@@ -6,7 +6,7 @@ import { curve } from "../curve";
 
 
 describe('Pool', function() {
-    this.timeout(10000);
+    this.timeout(120000);
     const myPool = new Pool('3pool');
     let address = '';
     let coinAddresses: string[] = [];
@@ -31,7 +31,7 @@ describe('Pool', function() {
         })
         // TODO more accurate test
         assert.isAbove(Number(lpTokenBalance), 0);
-    }).timeout(15000);
+    });
 
     it('Deposits into gauge', async function () {
         const depositAmount: string = (await myPool.lpTokenBalances(address))[address];
@@ -42,7 +42,7 @@ describe('Pool', function() {
 
         assert.strictEqual(depositAmount, gaugeBalance);
         assert.strictEqual(Number(lpTokenBalance), 0);
-    }).timeout(15000);
+    });
 
     it('Withdraws from gauge', async function () {
         const withdrawAmount: string = (await myPool.gaugeBalances(address))[address];
@@ -53,7 +53,7 @@ describe('Pool', function() {
 
         assert.strictEqual(withdrawAmount, lpTokenBalance);
         assert.strictEqual(Number(gaugeBalance), 0);
-    }).timeout(15000);
+    });
 
     it('Removes liquidity', async function () {
         const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
@@ -70,7 +70,7 @@ describe('Pool', function() {
             // TODO more accurate test
             assert.isAbove(Number(b), Number(initialCoinBalances[i]))
         })
-    }).timeout(15000);
+    });
 
     it('Removes liquidity imbalance', async function () {
         const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
@@ -86,7 +86,7 @@ describe('Pool', function() {
         coinBalancesAfterRemoval.forEach((b: string, i: number) => {
             assert.deepStrictEqual(BN(initialCoinBalances[i]), BN(b).minus(BN(90)));
         });
-    }).timeout(15000);
+    });
 
     it('Removes liquidity one coin', async function () {
         const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
@@ -108,7 +108,7 @@ describe('Pool', function() {
                 assert.strictEqual(b, initialCoinBalances[i]);
             }
         })
-    }).timeout(15000);
+    });
 
     it('Swaps', async function () {
         const swapAmount = '100';
@@ -121,7 +121,7 @@ describe('Pool', function() {
 
         assert.deepStrictEqual(BN(coinBalancesAfterSwap[0]), BN(initialCoinBalances[0]).minus(BN(swapAmount)));
         assert.isAtLeast(Number(coinBalancesAfterSwap[1]), Number(BN(initialCoinBalances[1]).plus(BN(expected).times(0.98)).toString()));
-    }).timeout(15000);
+    });
 
     it('Swaps using all pools', async function () {
         const swapAmount = '100';
@@ -136,5 +136,5 @@ describe('Pool', function() {
 
         assert.deepStrictEqual(BN(balancesAfterSwap[0]), BN(initialBalances[0]).minus(BN(swapAmount)));
         assert.isAtLeast(Number(balancesAfterSwap[1]), Number(BN(initialBalances[1]).plus(BN(output).times(0.99)).toString()));
-    }).timeout(60000);
+    });
 });

@@ -164,10 +164,10 @@ export class Pool {
     }
 
     public getSwapOutput = async (i: number, j: number, amount: string): Promise<string> => {
-        const _amount = ethers.utils.parseUnits(amount, this.coins[i].decimals);
+        const _amount = ethers.utils.parseUnits(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals);
         const expected: ethers.BigNumber = await curve.contracts[this.swap as string].contract.get_dy(i, j, _amount);
 
-        return ethers.utils.formatUnits(expected, this.coins[j].decimals)
+        return ethers.utils.formatUnits(expected, this.coins[i].decimals || this.coins[i].wrapped_decimals)
     }
 
     public exchange = async (i: number, j: number, amount: string, maxSlippage = 0.01): Promise<string> => {

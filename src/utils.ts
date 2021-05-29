@@ -8,6 +8,7 @@ import { poolsData } from "./constants/abis/abis-ethereum";
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
 
+const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
 
 // bignumber.js
@@ -34,84 +35,126 @@ export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
     return poolResponse.data;
 }
 
-export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
-    const contractCalls = coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
-    for (const coinAddr of coins) {
+export const _getDecimals = async (...coins: string[] | string[][]): Promise<number[]> => {
+    if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
+    coins = coins as string[];
+
+    const _coins = [...coins]
+    const ethIndex = _coins.map((coin: string) => coin.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
+    if (ethIndex !== -1) {
+        _coins.splice(ethIndex, 1);
+    }
+
+    let decimals: number[];
+    if (_coins.length === 1) {
+        decimals = [await curve.contracts[_coins[0]].contract.decimals()]
+    } else {
+        const contractCalls = _coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
+        decimals = await curve.multicallProvider.all(contractCalls);
+    }
+
+    if (ethIndex !== -1) {
+        decimals.splice(ethIndex, 0, 18);
+    }
+
+    return decimals
+}
+
+
+export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
+    const _coins = [...coins]
+    const ethIndex = _coins.map((coin: string) => coin.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
+    if (ethIndex !== -1) {
+        _coins.splice(ethIndex, 1);
+    }
+
+    const contractCalls = [];
+    for (const coinAddr of _coins) {
         contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
     }
     const response = await curve.multicallProvider.all(contractCalls);
-    const decimals = response.splice(0, coins.length);
 
+    if (ethIndex !== -1) {
+        const ethBalances: ethers.BigNumber[] = [];
+        for (const address of addresses) {
+            ethBalances.push(await curve.provider.getBalance(address));
+        }
+        response.splice(ethIndex * addresses.length, 0, ...ethBalances);
+    }
 
-    const balances: DictInterface<string[]>  = {};
+    const balances: DictInterface<ethers.BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
-        balances[address] = coins.map((_, j: number ) => ethers.utils.formatUnits(response[i + (j * addresses.length)], decimals[j]))
+        balances[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)]);
     });
 
     return balances;
 }
 
-export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
-    const contractCalls = [];
-    for (const coinAddr of coins) {
-        contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
-    }
-    const response = await curve.multicallProvider.all(contractCalls);
+export const _getFormattedBalances = async (
+    addresses: string[],
+    coins: string[],
+    formatFunc: (value: ethers.BigNumber, decimals: any) => string | BigNumber
+): Promise<DictInterface<(string | BigNumber)[]>> => {
+    const _balances = await _getBalances(addresses, coins);
+    const decimals = await _getDecimals(coins);
 
-    const balances: DictInterface<ethers.BigNumber[]>  = {};
-    addresses.forEach((address: string, i: number) => {
-        balances[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)])
-    });
+    const balances: DictInterface<(string | BigNumber)[]>  = {};
+    for (const address of addresses) {
+        balances[address] = coins.map((_, i: number ) => formatFunc(_balances[address][i], decimals[i]))
+    }
 
     return balances;
 }
 
 export const _getBalancesBN = async (addresses: string[], coins: string[]): Promise<DictInterface<BigNumber[]>> => {
-    const contractCalls = coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
-    for (const coinAddr of coins) {
-        contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
-    }
-    const response = await curve.multicallProvider.all(contractCalls);
-    const decimals = response.splice(0, coins.length);
-
-
-    const balances: DictInterface<BigNumber[]>  = {};
-    addresses.forEach((address: string, i: number) => {
-        balances[address] = coins.map((_, j: number ) => toBN(response[i + (j * addresses.length)], decimals[j]))
-    });
-
-    return balances;
+    return await _getFormattedBalances(addresses, coins, toBN) as DictInterface<BigNumber[]>;
 }
 
-export const getAllowance = async (tokens: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
-    if (tokens.length === 1) {
-        return [await curve.contracts[tokens[0]].contract.allowance(address, spender)]
-    }
-
-    const contractCalls = []
-    for (const token of tokens) {
-        contractCalls.push(curve.contracts[token].multicallContract.allowance(address, spender));
-    }
-
-    return await curve.multicallProvider.all(contractCalls);
+export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
+    return await _getFormattedBalances(addresses, coins, ethers.utils.formatUnits) as DictInterface<string[]>;
 }
 
-export const ensureAllowance = async (tokens: string[], amounts: ethers.BigNumber[], spender: string): Promise<void> => {
+
+export const getAllowance = async (coins: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
+    if (coins.length === 1) {
+        return [await curve.contracts[coins[0]].contract.allowance(address, spender)]
+    }
+
+    const _coins = [...coins]
+    const ethIndex = _coins.map((coin: string) => coin.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
+    if (ethIndex !== -1) {
+        _coins.splice(ethIndex, 1);
+
+    }
+
+    let allowance: ethers.BigNumber[];
+    if (_coins.length === 1) {
+        allowance = [await curve.contracts[_coins[0]].contract.allowance(address, spender)];
+    } else {
+        const contractCalls = _coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.allowance(address, spender));
+        allowance = await curve.multicallProvider.all(contractCalls);
+    }
+
+
+    if (ethIndex !== -1) {
+        allowance.splice(ethIndex, 0, MAX_ALLOWANCE);
+    }
+
+    return allowance;
+}
+
+export const ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string): Promise<void> => {
     const address = await curve.signer.getAddress();
-    const allowance: ethers.BigNumber[] = await getAllowance(tokens, address, spender);
+    const allowance: ethers.BigNumber[] = await getAllowance(coins, address, spender);
 
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
-                await curve.contracts[tokens[i]].contract.approve(spender, ethers.BigNumber.from(0))
+                await curve.contracts[coins[i]].contract.approve(spender, ethers.BigNumber.from(0))
             }
-            await curve.contracts[tokens[i]].contract.approve(spender, MAX_ALLOWANCE)
+            await curve.contracts[coins[i]].contract.approve(spender, MAX_ALLOWANCE)
         }
     }
-}
-
-export const getDecimals = async (coin: string): Promise<number> => {
-    return await curve.contracts[coin].contract.decimals()
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {

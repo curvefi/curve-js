@@ -8,7 +8,7 @@ import { poolsData } from "./constants/abis/abis-ethereum";
 const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
 const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
 
-const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
 
 // bignumber.js
@@ -29,6 +29,8 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 
 // -------------------
 
+export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
+export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 
 export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
     const poolResponse = await axios.get(GITHUB_POOL.replace("<poolname>", name));
@@ -36,11 +38,11 @@ export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
 }
 
 export const _getDecimals = async (...coins: string[] | string[][]): Promise<number[]> => {
-    if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
-    coins = coins as string[];
+    let _coins = coins
+    if (coins.length == 1 && Array.isArray(coins[0])) _coins = coins[0];
+    _coins = [..._coins] as string[];
 
-    const _coins = [...coins]
-    const ethIndex = _coins.map((coin: string) => coin.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
+    const ethIndex = getEthIndex(_coins);
     if (ethIndex !== -1) {
         _coins.splice(ethIndex, 1);
     }
@@ -63,7 +65,7 @@ export const _getDecimals = async (...coins: string[] | string[][]): Promise<num
 
 export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
     const _coins = [...coins]
-    const ethIndex = _coins.map((coin: string) => coin.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
+    const ethIndex = getEthIndex(_coins);
     if (ethIndex !== -1) {
         _coins.splice(ethIndex, 1);
     }
@@ -93,7 +95,7 @@ export const _getBalances = async (addresses: string[], coins: string[]): Promis
 export const _getFormattedBalances = async (
     addresses: string[],
     coins: string[],
-    formatFunc: (value: ethers.BigNumber, decimals: any) => string | BigNumber
+    formatFunc: (value: ethers.BigNumber, decimals: number) => string | BigNumber
 ): Promise<DictInterface<(string | BigNumber)[]>> => {
     const _balances = await _getBalances(addresses, coins);
     const decimals = await _getDecimals(coins);
@@ -116,12 +118,8 @@ export const getBalances = async (addresses: string[], coins: string[]): Promise
 
 
 export const getAllowance = async (coins: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
-    if (coins.length === 1) {
-        return [await curve.contracts[coins[0]].contract.allowance(address, spender)]
-    }
-
     const _coins = [...coins]
-    const ethIndex = _coins.map((coin: string) => coin.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
+    const ethIndex = getEthIndex(_coins);
     if (ethIndex !== -1) {
         _coins.splice(ethIndex, 1);
 
@@ -150,9 +148,9 @@ export const ensureAllowance = async (coins: string[], amounts: ethers.BigNumber
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
-                await curve.contracts[coins[i]].contract.approve(spender, ethers.BigNumber.from(0))
+                await curve.contracts[coins[i]].contract.approve(spender, ethers.BigNumber.from(0), curve.options);
             }
-            await curve.contracts[coins[i]].contract.approve(spender, MAX_ALLOWANCE)
+            await curve.contracts[coins[i]].contract.approve(spender, MAX_ALLOWANCE, curve.options);
         }
     }
 }

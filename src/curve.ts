@@ -6,6 +6,7 @@ import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
 import { poolsData } from './constants/abis/abis-ethereum';
+import {DictInterface} from "./interfaces";
 
 export const ALIASES = {
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52",
@@ -22,16 +23,21 @@ class Curve {
     provider: ethers.providers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
     signer: ethers.providers.JsonRpcSigner;
-    contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } }
+    contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
+    options: DictInterface<any>;
 
     constructor() {
         this.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
         this.signer = this.provider.getSigner();
         this.multicallProvider = new MulticallProvider(this.provider);
         this.contracts = {};
+        this.options = {};
     }
 
-    async init(): Promise<void> {
+    // TODO gasPrice in gwei
+    async init(options: { gasPrice?: number } = {}): Promise<void> {
+        this.options.gasPrice = options.gasPrice ?? await this.provider.getGasPrice();
+
         // TODO delete toLowerCase()
         for (const pool of Object.values(poolsData)) {
             this.contracts[pool.swap_address] = {

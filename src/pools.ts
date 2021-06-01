@@ -145,15 +145,21 @@ export class Pool {
     }
 
     private _calcWithdrawOneCoin = async (lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap as string].contract.calc_withdraw_one_coin(lpTokenAmount, i);
+        const contract = this.name === 'susd' ? curve.contracts[this.zap as string].contract : curve.contracts[this.swap as string].contract;
+        return await contract.calc_withdraw_one_coin(lpTokenAmount, i);
     }
 
     public removeLiquidityOneCoin = async (lpTokenAmount: string, i: number): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-        let minAmount = await this._calcWithdrawOneCoin(_lpTokenAmount, i);
-        minAmount = minAmount.div(100).mul(99);
+        let _minAmount = await this._calcWithdrawOneCoin(_lpTokenAmount, i);
+        _minAmount = _minAmount.div(100).mul(99);
 
-        return (await curve.contracts[this.swap as string].contract.remove_liquidity_one_coin(_lpTokenAmount, i, minAmount, curve.options)).hash;
+        if (this.name === 'susd') {
+            await ensureAllowance([this.lpToken as string], [_lpTokenAmount], this.zap as string);
+            return (await curve.contracts[this.zap as string].contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.options)).hash
+        }
+
+        return (await curve.contracts[this.swap as string].contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.options)).hash;
     }
 
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<string[]>> =>  {

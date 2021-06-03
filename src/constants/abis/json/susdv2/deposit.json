@@ -122,31 +122,6 @@
     "type":"function"
   },
   {
-    "name":"remove_liquidity_one_coin",
-    "outputs":[],
-    "inputs":[
-      {
-        "type":"uint256",
-        "name":"_token_amount"
-      },
-      {
-        "type":"int128",
-        "name":"i"
-      },
-      {
-        "type":"uint256",
-        "name":"min_uamount"
-      },
-      {
-        "type":"bool",
-        "name":"donate_dust"
-      }
-    ],
-    "constant":false,
-    "payable":false,
-    "type":"function"
-  },
-  {
     "name":"withdraw_donated_dust",
     "outputs":[],
     "inputs":[],

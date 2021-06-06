@@ -6,6 +6,7 @@ import { BN, getBalances, _getBalancesBN, toStringFromBN } from "../utils";
 import { curve } from "../curve";
 
 const PLAIN_POOLS = ['susdv2', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
+const LENDING_POOLS = ['compound', 'usdt', 'iearn', 'busd', 'pax']//, 'idle', 'saave', 'ib'];
 
 const plainPoolTest = (name: string) => {
     describe(`${name} pool`, function () {
@@ -97,6 +98,8 @@ const plainPoolTest = (name: string) => {
             coinBalancesAfterRemoval.forEach((b: string, i: number) => {
                 if (name === 'steth') {
                     assert.approximately(Number(initialCoinBalances[i]), Number(BN(b).minus(BN(removeAmount)).toString()), 1e-18);
+                } else if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(myPool.name)) {
+                    assert.approximately(Number(initialCoinBalances[i]), Number(BN(b).minus(BN(removeAmount)).toString()), 2e-6);
                 } else {
                     assert.deepStrictEqual(BN(initialCoinBalances[i]), BN(b).minus(BN(removeAmount)));
                 }
@@ -152,6 +155,10 @@ describe('Pools', async function () {
     });
 
     for (const poolName of PLAIN_POOLS) {
+        plainPoolTest(poolName);
+    }
+
+    for (const poolName of LENDING_POOLS) {
         plainPoolTest(poolName);
     }
 })

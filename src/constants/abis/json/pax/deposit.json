@@ -39,7 +39,7 @@
     "constant":false,
     "payable":false,
     "type":"function",
-    "gas":"165036"
+    "gas":"1952570"
   },
   {
     "name":"remove_liquidity",
@@ -57,7 +57,7 @@
     "constant":false,
     "payable":false,
     "type":"function",
-    "gas":"100343"
+    "gas":"865961"
   },
   {
     "name":"remove_liquidity_imbalance",
@@ -75,7 +75,7 @@
     "constant":false,
     "payable":false,
     "type":"function",
-    "gas":"121298"
+    "gas":"1403892"
   },
   {
     "name":"calc_withdraw_one_coin",
@@ -115,31 +115,6 @@
       {
         "type":"uint256",
         "name":"min_uamount"
-      }
-    ],
-    "constant":false,
-    "payable":false,
-    "type":"function"
-  },
-  {
-    "name":"remove_liquidity_one_coin",
-    "outputs":[],
-    "inputs":[
-      {
-        "type":"uint256",
-        "name":"_token_amount"
-      },
-      {
-        "type":"int128",
-        "name":"i"
-      },
-      {
-        "type":"uint256",
-        "name":"min_uamount"
-      },
-      {
-        "type":"bool",
-        "name":"donate_dust"
       }
     ],
     "constant":false,

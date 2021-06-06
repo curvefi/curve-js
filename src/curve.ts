@@ -31,7 +31,7 @@ class Curve {
         this.signer = this.provider.getSigner();
         this.multicallProvider = new MulticallProvider(this.provider);
         this.contracts = {};
-        this.options = {};
+        this.options = { gasLimit: 12000000 };
     }
 
     // TODO gasPrice in gwei

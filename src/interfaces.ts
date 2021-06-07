@@ -39,5 +39,6 @@ export interface PoolsDataInterface {
         swap_abi: any,
         deposit_abi?: any,
         underlying_coins: string[],
+        coins: string[],
     }
 }

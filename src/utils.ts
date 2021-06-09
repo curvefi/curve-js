@@ -47,7 +47,7 @@ export const _getDecimals = async (...coins: string[] | string[][]): Promise<num
         _coins.splice(ethIndex, 1);
     }
 
-    let decimals: number[];
+    let decimals: (number | ethers.BigNumber)[];
     if (_coins.length === 1) {
         decimals = [await curve.contracts[_coins[0]].contract.decimals()]
     } else {
@@ -59,7 +59,7 @@ export const _getDecimals = async (...coins: string[] | string[][]): Promise<num
         decimals.splice(ethIndex, 0, 18);
     }
 
-    return decimals
+    return decimals.map((d: ethers.BigNumber | number) => Number(d.toString()))
 }
 
 

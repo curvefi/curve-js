@@ -73,51 +73,37 @@ export class Pool {
         return await curve.contracts[this.swap as string].contract.calc_token_amount(amounts, isDeposit);
     }
 
-    private _calcLpTokenAmountCompound = async (_underlying_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        const cTokenAddresses = this.coins.map((coin: CoinInterface) => coin.wrapped_address);
+    private _getRates = async(): Promise<ethers.BigNumber[]> => {
+        const wrappedAddresses = this.coins.map((coin: CoinInterface) => coin.wrapped_address);
         const _rates: ethers.BigNumber[] = [];
-        for (const addr of cTokenAddresses) {
+        for (const addr of wrappedAddresses) {
             if (addr !== undefined) {
-                _rates.push(await curve.contracts[addr].contract.exchangeRateStored());
+                if (['compound', 'usdt'].includes(this.name)) {
+                    _rates.push(await curve.contracts[addr].contract.exchangeRateStored());
+                } else if (['y', 'busd', 'pax'].includes(this.name)) {
+                    _rates.push(await curve.contracts[addr].contract.getPricePerFullShare());
+                }
             } else {
                 _rates.push(ethers.BigNumber.from(10).pow(18));
             }
         }
 
-        const _wrapped_amounts = _underlying_amounts.map((amount: ethers.BigNumber, i: number) =>
-            amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
-
-        return await curve.contracts[this.swap as string].contract.calc_token_amount(_wrapped_amounts, isDeposit);
-    }
-
-    private _calcLpTokenAmountYearn = async (_underlying_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        const yTokenAddresses = this.coins.map((coin: CoinInterface) => coin.wrapped_address);
-        const _rates: ethers.BigNumber[] = [];
-        for (const addr of yTokenAddresses) {
-            if (addr !== undefined) {
-                _rates.push(await curve.contracts[addr].contract.getPricePerFullShare());
-            } else {
-                _rates.push(ethers.BigNumber.from(10).pow(18));
-            }
-        }
-
-        const _wrapped_amounts = _underlying_amounts.map((amount: ethers.BigNumber, i: number) =>
-            amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
-
-        return await curve.contracts[this.swap as string].contract.calc_token_amount(_wrapped_amounts, isDeposit);
+        return _rates
     }
 
     // TODO implement
     private _calcLpTokenAmountZap = async (_underlying_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        if (['compound', 'usdt'].includes(this.name)) {
-            return await this._calcLpTokenAmountCompound(_underlying_amounts, isDeposit)
+        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
+            return isDeposit ? ethers.utils.parseUnits('0') : MAX_ALLOWANCE.div(10);
         }
 
-        if (['y', 'busd', 'pax'].includes(this.name)) {
-            return await this._calcLpTokenAmountYearn(_underlying_amounts, isDeposit)
-        }
+        const _rates: ethers.BigNumber[] = await this._getRates();
+        const _wrapped_amounts = _underlying_amounts.map((amount: ethers.BigNumber, i: number) =>
+            amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
 
-        return isDeposit ? ethers.utils.parseUnits('0') : MAX_ALLOWANCE.div(10);
+        return await curve.contracts[this.swap as string].contract.calc_token_amount(_wrapped_amounts, isDeposit);
+
+
     }
 
     private _addLiquidity = async (amounts: ethers.BigNumber[]): Promise<string> => {
@@ -178,7 +164,7 @@ export class Pool {
         return (await curve.contracts[this.gauge as string].contract.withdraw(_lpTokenAmount, curve.options)).hash;
     }
 
-    private _calcUnderlyingCoinAmounts = async (amount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
+    private _calcUnderlyingAmounts = async (amount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
         const coinAddresses: string[] = this.coins.map((c: CoinInterface) => (c.underlying_address || c.wrapped_address) as string);
         const underlyingCoinBalances: DictInterface<BigNumber[]> = await _getBalancesBN([this.swap as string], coinAddresses);
         const totalSupply: BigNumber = toBN(await curve.contracts[this.lpToken as string].contract.totalSupply());
@@ -193,23 +179,41 @@ export class Pool {
     }
 
     // TODO implement
-    private _calcUnderlyingCoinAmountsZap = async (amount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
-        return  this.coins.map(() => ethers.BigNumber.from('0'));
+    private _calcUnderlyingAmountsZap = async (lpAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
+        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
+            return  this.coins.map(() => ethers.BigNumber.from('0'))
+        }
+
+        const coinAddresses: string[] = this.coins.map((c: CoinInterface) => (c.wrapped_address || c.underlying_address)  as string);
+        const coinBalancesBN: BigNumber[] = (await _getBalancesBN([this.swap as string], coinAddresses))[this.swap as string];
+        const lpTotalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken as string].contract.totalSupply());
+
+        const minAmountsBN: BigNumber[] = [];
+        const multiplier = toBN(lpAmount).div(lpTotalSupplyBN);
+        for (const b of coinBalancesBN) {
+            minAmountsBN.push(b.times(multiplier).times(0.99));
+        }
+        const _minAmounts = minAmountsBN.map((amountBN: BigNumber, i: number) => fromBN(amountBN, this.coins[i].wrapped_decimals || this.coins[i].decimals));
+        const _rates: ethers.BigNumber[] = await this._getRates();
+
+        return  _minAmounts.map((_amount: ethers.BigNumber, i: number) => _amount.mul(_rates[i]).div(ethers.BigNumber.from(10).pow(18)))
     }
 
-    public calcUnderlyingCoinAmounts = async (amount: string): Promise<string[]> => {
-        const underlyingCoinAmounts: ethers.BigNumber[] = await this._calcUnderlyingCoinAmounts(ethers.utils.parseUnits(amount.toString()));
-        return underlyingCoinAmounts.map((amount: ethers.BigNumber, i: number) =>
+    public calcUnderlyingAmounts = async (amount: string): Promise<string[]> => {
+        const underlyingAmounts: ethers.BigNumber[] = ['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) ?
+            await this._calcUnderlyingAmountsZap(ethers.utils.parseUnits(amount)) :
+            await this._calcUnderlyingAmounts(ethers.utils.parseUnits(amount));
+        return underlyingAmounts.map((amount: ethers.BigNumber, i: number) =>
             ethers.utils.formatUnits(amount, this.coins[i].decimals || this.coins[i].wrapped_decimals as number));
     }
 
     private _removeLiquidity = async (_lpTokenAmount: ethers.BigNumber): Promise<string> => {
-        const _minAmounts = await this._calcUnderlyingCoinAmounts(_lpTokenAmount);
+        const _minAmounts = await this._calcUnderlyingAmounts(_lpTokenAmount);
         return (await curve.contracts[this.swap as string].contract.remove_liquidity(_lpTokenAmount, _minAmounts, curve.options)).hash;
     }
 
     private _removeLiquidityZap = async (_lpTokenAmount: ethers.BigNumber): Promise<string> => {
-        const _minAmounts = await this._calcUnderlyingCoinAmountsZap(_lpTokenAmount);
+        const _minAmounts = await this._calcUnderlyingAmountsZap(_lpTokenAmount);
         await ensureAllowance([this.lpToken as string], [_lpTokenAmount], this.zap as string);
 
         return (await curve.contracts[this.zap as string].contract.remove_liquidity(_lpTokenAmount, _minAmounts, curve.options)).hash;

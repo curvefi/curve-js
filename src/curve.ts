@@ -24,23 +24,33 @@ export const ALIASES = {
 const cTokens = [
     '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643', // cDAI
     '0x39AA39c021dfbaE8faC545936693aC917d5E7563', // cUSDC
+    "0x8e595470ed749b85c6f7669de83eae304c2ec68f", // cyDAI
+    "0x48759f220ed983db51fa7a8c0d2aab8f3ce4166a", // cyUSDT
+    "0x76eb2fe28b36b3ee97f3adae0c69606eedb2a37c", // cyUSDC
 ]
 
 const yTokens = [
-    "0xC2cB1040220768554cf699b0d863A3cd4324ce32",  // busd/yDAI
-    "0x26EA744E5B887E5205727f55dFBE8685e3b21951",  // busd/yUSDC
-    "0xE6354ed5bC4b393a5Aad09f21c46E101e692d447",  // busd/yUSDT
-    "0x16de59092dAE5CcF4A1E6439D611fd0653f0Bd01",  // y/yDAI
-    "0xd6aD7a6750A7593E092a9B218d66C0A814a3436e",  // y/yUSDC
-    "0x83f798e925BcD4017Eb265844FDDAbb448f1707D",  // y/yUSDT
-    "0x04bC0Ab673d88aE9dbC9DA2380cB6B79C4BCa9aE",  // yTUSD
-    "0x73a052500105205d34Daf004eAb301916DA8190f",  // yBUSD
+    "0xC2cB1040220768554cf699b0d863A3cd4324ce32", // busd/yDAI
+    "0x26EA744E5B887E5205727f55dFBE8685e3b21951", // busd/yUSDC
+    "0xE6354ed5bC4b393a5Aad09f21c46E101e692d447", // busd/yUSDT
+    "0x16de59092dAE5CcF4A1E6439D611fd0653f0Bd01", // y/yDAI
+    "0xd6aD7a6750A7593E092a9B218d66C0A814a3436e", // y/yUSDC
+    "0x83f798e925BcD4017Eb265844FDDAbb448f1707D", // y/yUSDT
+    "0x04bC0Ab673d88aE9dbC9DA2380cB6B79C4BCa9aE", // yTUSD
+    "0x73a052500105205d34Daf004eAb301916DA8190f", // yBUSD
 ]
 
 const ycTokens = [
-    "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // ycDAI
-    "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // ycUSDC
-    "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59",  // ycUSDT
+    "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc", // ycDAI
+    "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E", // ycUSDC
+    "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59", // ycUSDT
+]
+
+const aTokens = [
+    "0x028171bCA77440897B824Ca71D1c56caC55b68A3", // aDAI
+    "0xBcca60bB61934080951369a648Fb03DF4F96263C", // aUSDC
+    "0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811", // aUSDT
+    "0x6c5024cd4f8a59110119c56f8933403a539555eb", // sSUSD
 ]
 
 class Curve {
@@ -123,6 +133,17 @@ class Curve {
                     this.contracts[coinAddr.toLowerCase()] = {
                         contract: new Contract(coinAddr, cERC20Abi, this.signer),
                         multicallContract: new MulticallContract(coinAddr, cERC20Abi),
+                    }
+                }
+
+                if (aTokens.includes(coinAddr)) {
+                    this.contracts[coinAddr] = {
+                        contract: new Contract(coinAddr, ERC20Abi, this.signer),
+                        multicallContract: new MulticallContract(coinAddr, ERC20Abi),
+                    }
+                    this.contracts[coinAddr.toLowerCase()] = {
+                        contract: new Contract(coinAddr, ERC20Abi, this.signer),
+                        multicallContract: new MulticallContract(coinAddr, ERC20Abi),
                     }
                 }
 

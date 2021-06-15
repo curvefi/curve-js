@@ -78,7 +78,7 @@ import busdv2DepositABI from './json/busd/deposit.json';
 import lusdSwapABI from './json/lusd/swap.json';
 import lusdDepositABI from './json/lusd/deposit.json';
 import lusdRewardsabi from './json/lusd/rewards.json';
-import { PoolsDataInterface } from "../../interfaces";
+import { PoolDataInterface } from "../../interfaces";
 
 
 // const infura_url = config.rpcUrl;
@@ -87,11 +87,11 @@ const infura_url = '<infura_url>';
 //rinkeby multicall 0x0ae6578785868f88478B6bCe8227d6F85703092b
 const multicall_address = '0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441';
 
-const poolsData: PoolsDataInterface = {
+const poolsData: { [index: string]: PoolDataInterface } = {
     compound: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e6],
-        wrapped_precisions: [1e8, 1e8],
+        underlying_decimals: [18, 6],
+        decimals: [8, 8],
         use_lending: [true, true],
         is_plain: [false, false],
         old_swap_address: '0x2e60CF74d81ac34eB21eEff58Db4D385920ef419',
@@ -118,8 +118,8 @@ const poolsData: PoolsDataInterface = {
 
     usdt: {
         N_COINS: 3,
-        coin_precisions: [1e18, 1e6, 1e6],
-        wrapped_precisions: [1e8, 1e8, 1e6],
+        underlying_decimals: [18, 6, 6],
+        decimals: [8, 8, 6],
         use_lending: [true, true, false],
         tethered: [false, false, true],
         is_plain: [false, false, true],
@@ -142,10 +142,10 @@ const poolsData: PoolsDataInterface = {
         swap_abi: usdtSwapABI,
     },
 
-    iearn: {
+    y: {
         N_COINS: 4,
-        coin_precisions: [1e18, 1e6, 1e6, 1e18],
-        wrapped_precisions: [1e18, 1e6, 1e6, 1e18],
+        underlying_decimals: [18, 6, 6, 18],
+        decimals: [18, 6, 6, 18],
         use_lending: [true, true, true, true],
         tethered: [false, false, true, false],
         is_plain: [false, false, false, false],
@@ -175,8 +175,8 @@ const poolsData: PoolsDataInterface = {
     },
     busd: {
         N_COINS: 4,
-        coin_precisions: [1e18, 1e6, 1e6, 1e18],
-        wrapped_precisions: [1e18, 1e6, 1e6, 1e18],
+        underlying_decimals: [18, 6, 6, 18],
+        decimals: [18, 6, 6, 18],
         use_lending: [true, true, true, true],
         tethered: [false, false, true, false],
         is_plain: [false, false, false, false],
@@ -201,12 +201,12 @@ const poolsData: PoolsDataInterface = {
         swap_abi: busdSwapABI,
     },
 
-    susdv2: {
+    susd: {
         swap_abi: susdv2SwapABI,
         deposit_abi: susdv2DepositABI,
         N_COINS: 4,
-        coin_precisions: [1e18, 1e6, 1e6, 1e18],
-        wrapped_precisions: [1e18, 1e6, 1e6, 1e18],
+        underlying_decimals: [18, 6, 6, 18],
+        decimals: [18, 6, 6, 18],
         tethered: [false, false, true, false],
         use_lending: [false, false, false, false],
         is_plain: [true, true, true, true],
@@ -235,8 +235,8 @@ const poolsData: PoolsDataInterface = {
         swap_abi: paxSwapABI,
         deposit_abi: paxDepositABI,
         N_COINS: 4,
-        coin_precisions: [1e18, 1e6, 1e6, 1e18],
-        wrapped_precisions: [1e18, 1e6, 1e6, 1e18],
+        underlying_decimals: [18, 6, 6, 18],
+        decimals: [18, 6, 6, 18],
         tethered: [false, false, true, false],
         use_lending: [true, true, true, false],
         is_plain: [false, false, false, true],
@@ -261,8 +261,8 @@ const poolsData: PoolsDataInterface = {
 
     ren: {
         N_COINS: 2,
-        coin_precisions: [1e8, 1e8],
-        wrapped_precisions: [1e8, 1e8],
+        underlying_decimals: [8, 8],
+        decimals: [8, 8],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -287,8 +287,8 @@ const poolsData: PoolsDataInterface = {
 
     sbtc: {
         N_COINS: 3,
-        coin_precisions: [1e8, 1e8, 1e18],
-        wrapped_precisions: [1e8, 1e8, 1e18],
+        underlying_decimals: [8, 8, 18],
+        decimals: [8, 8, 18],
         tethered: [false, false, false],
         use_lending: [false, false, false],
         is_plain: [true, true, true],
@@ -318,8 +318,8 @@ const poolsData: PoolsDataInterface = {
     hbtc: {
         swap_abi: hbtcSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e8],
-        wrapped_precisions: [1e18, 1e8],
+        underlying_decimals: [18, 8],
+        decimals: [18, 8],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -340,8 +340,8 @@ const poolsData: PoolsDataInterface = {
     '3pool': {
         swap_abi: tripoolSwapABI,
         N_COINS: 3,
-        coin_precisions: [1e18, 1e6, 1e6],
-        wrapped_precisions: [1e18, 1e6, 1e6],
+        underlying_decimals: [18, 6, 6],
+        decimals: [18, 6, 6],
         tethered: [false, false, true],
         use_lending: [false, false, false],
         is_plain: [true, true, true],
@@ -363,8 +363,8 @@ const poolsData: PoolsDataInterface = {
 
     gusd: {
         N_COINS: 2,
-        coin_precisions: [1e2, 1e18],
-        wrapped_precisions: [1e2, 1e18],
+        underlying_decimals: [2, 18],
+        decimals: [2, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -386,9 +386,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e2, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e2, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e2, 1e18],
+        meta_precisions: [2, 18, 18, 6, 6],
+        meta_coin_precisions: [2, 18, 6, 6],
+        meta_wrapped_precisions: [2, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -405,8 +405,8 @@ const poolsData: PoolsDataInterface = {
 
     husd: {
         N_COINS: 2,
-        coin_precisions: [1e8, 1e18],
-        wrapped_precisions: [1e8, 1e18],
+        underlying_decimals: [8, 18],
+        decimals: [8, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -428,9 +428,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e8, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e8, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e8, 1e18],
+        meta_precisions: [8, 18, 18, 6, 6],
+        meta_coin_precisions: [8, 18, 6, 6],
+        meta_wrapped_precisions: [8, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -447,8 +447,8 @@ const poolsData: PoolsDataInterface = {
 
     usdk: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -470,9 +470,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -489,8 +489,8 @@ const poolsData: PoolsDataInterface = {
 
     usdn: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -512,9 +512,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -531,8 +531,8 @@ const poolsData: PoolsDataInterface = {
 
     linkusd: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -554,9 +554,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -573,8 +573,8 @@ const poolsData: PoolsDataInterface = {
 
     musd: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -596,9 +596,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -617,8 +617,8 @@ const poolsData: PoolsDataInterface = {
 
     rsv: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -640,9 +640,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -661,8 +661,8 @@ const poolsData: PoolsDataInterface = {
 
     tbtc: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -684,9 +684,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         meta_N: 5,
         base_pool: 'sbtc',
-        meta_precisions: [1e18, 1e18, 1e8, 1e8, 1e18],
-        meta_coin_precisions: [1e18, 1e8, 1e8, 1e18],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 8, 8, 18],
+        meta_coin_precisions: [18, 8, 8, 18],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -705,8 +705,8 @@ const poolsData: PoolsDataInterface = {
 
     dusd: {
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -728,9 +728,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -750,8 +750,8 @@ const poolsData: PoolsDataInterface = {
     pbtc: {
         swap_abi: pbtcSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -772,9 +772,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         meta_N: 5,
         base_pool: 'sbtc',
-        meta_precisions: [1e18, 1e18, 1e8, 1e8, 1e18],
-        meta_coin_precisions: [1e18, 1e8, 1e8, 1e18],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 8, 8, 18],
+        meta_coin_precisions: [18, 8, 8, 18],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -795,8 +795,8 @@ const poolsData: PoolsDataInterface = {
     bbtc: {
         swap_abi: bbtcSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e8, 1e18],
-        wrapped_precisions: [1e8, 1e18],
+        underlying_decimals: [8, 18],
+        decimals: [8, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -817,9 +817,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         meta_N: 5,
         base_pool: 'sbtc',
-        meta_precisions: [1e8, 1e18, 1e8, 1e8, 1e18],
-        meta_coin_precisions: [1e8, 1e8, 1e8, 1e18],
-        meta_wrapped_precisions: [1e8, 1e18],
+        meta_precisions: [8, 18, 8, 8, 18],
+        meta_coin_precisions: [8, 8, 8, 18],
+        meta_wrapped_precisions: [8, 18],
         meta_coins: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -837,8 +837,8 @@ const poolsData: PoolsDataInterface = {
     obtc: {
         swap_abi: obtcSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -859,9 +859,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         meta_N: 5,
         base_pool: 'sbtc',
-        meta_precisions: [1e18, 1e18, 1e8, 1e8, 1e18],
-        meta_coin_precisions: [1e18, 1e8, 1e8, 1e18],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 8, 8, 18],
+        meta_coin_precisions: [18, 8, 8, 18],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -883,8 +883,8 @@ const poolsData: PoolsDataInterface = {
         swap_abi: sethSwapABI,
         N_COINS: 2,
         has_eth: true,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -905,8 +905,8 @@ const poolsData: PoolsDataInterface = {
     eurs: {
         swap_abi: eursSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e2, 1e18],
-        wrapped_precisions: [1e2, 1e18],
+        underlying_decimals: [2, 18],
+        decimals: [2, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -930,8 +930,8 @@ const poolsData: PoolsDataInterface = {
     ust: {
         swap_abi: ustSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -952,9 +952,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -972,8 +972,8 @@ const poolsData: PoolsDataInterface = {
     aave: {
         N_COINS: 3,
         is_aave: true,
-        coin_precisions: [1e18, 1e6, 1e6],
-        wrapped_precisions: [1e18, 1e6, 1e6],
+        underlying_decimals: [18, 6, 6],
+        decimals: [18, 6, 6],
         use_lending: [false, false, false],
         tethered: [false, false, true],
         is_plain: [false, false, false],
@@ -997,8 +997,8 @@ const poolsData: PoolsDataInterface = {
     idle: {
         N_COINS: 3,
         is_idle: true,
-        coin_precisions: [1e18, 1e6, 1e6],
-        wrapped_precisions: [1e18, 1e18, 1e18],
+        underlying_decimals: [18, 6, 6],
+        decimals: [18, 18, 18],
         use_lending: [true, true, true],
         tethered: [false, false, true],
         is_plain: [false, false, false],
@@ -1023,8 +1023,8 @@ const poolsData: PoolsDataInterface = {
         swap_abi: stethSwapABI,
         N_COINS: 2,
         has_eth: true,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1048,8 +1048,8 @@ const poolsData: PoolsDataInterface = {
     saave: {
         N_COINS: 2,
         is_aave: true,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         use_lending: [false, false],
         tethered: [false, false],
         is_plain: [false, false],
@@ -1072,8 +1072,8 @@ const poolsData: PoolsDataInterface = {
         swap_abi: ankrethSwapABI,
         N_COINS: 2,
         has_eth: true,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1098,8 +1098,8 @@ const poolsData: PoolsDataInterface = {
     usdp: {
         swap_abi: usdpSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1120,9 +1120,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1140,8 +1140,8 @@ const poolsData: PoolsDataInterface = {
     ib: {
         swap_abi: ibSwapABI,
         N_COINS: 3,
-        coin_precisions: [1e18, 1e6, 1e6],
-        wrapped_precisions: [1e8, 1e8, 1e8],
+        underlying_decimals: [18, 6, 6],
+        decimals: [8, 8, 8],
         use_lending: [true, true, true],
         is_plain: [false, false, false],
         tethered: [false, false, true],
@@ -1165,8 +1165,8 @@ const poolsData: PoolsDataInterface = {
     link: {
         swap_abi: linkSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1186,8 +1186,8 @@ const poolsData: PoolsDataInterface = {
     tusd: {
         swap_abi: tusdSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1208,9 +1208,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1228,8 +1228,8 @@ const poolsData: PoolsDataInterface = {
     frax: {
         swap_abi: fraxSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1250,9 +1250,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 1e18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1270,8 +1270,8 @@ const poolsData: PoolsDataInterface = {
     lusd: {
         swap_abi: lusdSwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1292,9 +1292,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1315,8 +1315,8 @@ const poolsData: PoolsDataInterface = {
     busdv2: {
         swap_abi: busdv2SwapABI,
         N_COINS: 2,
-        coin_precisions: [1e18, 1e18],
-        wrapped_precisions: [1e18, 1e18],
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
         tethered: [false, false],
         use_lending: [false, false],
         is_plain: [true, true],
@@ -1337,9 +1337,9 @@ const poolsData: PoolsDataInterface = {
         is_meta: true,
         base_pool: '3pool',
         meta_N: 5,
-        meta_precisions: [1e18, 1e18, 1e18, 1e6, 1e6],
-        meta_coin_precisions: [1e18, 1e18, 1e6, 1e6],
-        meta_wrapped_precisions: [1e18, 1e18],
+        meta_precisions: [18, 18, 18, 6, 6],
+        meta_coin_precisions: [18, 18, 6, 6],
+        meta_wrapped_precisions: [18, 18],
         meta_coins: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

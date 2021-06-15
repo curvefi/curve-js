@@ -1,12 +1,9 @@
 import axios from 'axios';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js'
-import { DictInterface, PoolListItemInterface, PoolDataInterface } from './interfaces';
+import { DictInterface } from './interfaces';
 import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";
-
-const GITHUB_POOLS = "https://api.github.com/repos/curvefi/curve-contract/contents/contracts/pools";
-const GITHUB_POOL = "https://raw.githubusercontent.com/curvefi/curve-contract/master/contracts/pools/<poolname>/pooldata.json";
 
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
@@ -31,11 +28,6 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
-
-export const getPoolData = async (name: string): Promise<PoolDataInterface> => {
-    const poolResponse = await axios.get(GITHUB_POOL.replace("<poolname>", name));
-    return poolResponse.data;
-}
 
 export const _getDecimals = async (...coins: string[] | string[][]): Promise<number[]> => {
     let _coins = coins

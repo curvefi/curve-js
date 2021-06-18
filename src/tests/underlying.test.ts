@@ -1,23 +1,21 @@
 import { assert } from "chai";
 import BigNumber from "bignumber.js";
 import { getBestPoolAndOutput, Pool, swap } from "../pools";
-import { CoinInterface } from "../interfaces"
 import { BN, getBalances, _getBalancesBN, toStringFromBN } from "../utils";
 import { curve } from "../curve";
 
-const PLAIN_POOLS = ['susdv2', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
-const LENDING_POOLS = ['compound', 'usdt', 'iearn', 'busd', 'pax', 'aave', 'saave', 'ib'];
+const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
+const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
+const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2'];
 
-const plainPoolTest = (name: string) => {
+const underlyingTest = (name: string) => {
     describe(`${name} pool`, function () {
         const myPool = new Pool(name);
+        const coinAddresses = myPool.underlyingCoins;
         let address = '';
-        let coinAddresses: string[] = [];
 
         before(async function () {
-            await myPool.init();
             address = await curve.signer.getAddress();
-            coinAddresses = (myPool.coins as CoinInterface[]).map((coinObj: CoinInterface) => (coinObj.underlying_address || coinObj.wrapped_address) as string);
         });
 
         it('Adds liquidity', async function () {
@@ -147,7 +145,7 @@ const plainPoolTest = (name: string) => {
     });
 }
 
-describe('Pools', async function () {
+describe('Underlying tests', async function () {
     this.timeout(120000);
 
     before(async function () {
@@ -155,11 +153,15 @@ describe('Pools', async function () {
     });
 
     for (const poolName of PLAIN_POOLS) {
-        plainPoolTest(poolName);
+        underlyingTest(poolName);
     }
 
     for (const poolName of LENDING_POOLS) {
-        plainPoolTest(poolName);
+        underlyingTest(poolName);
+    }
+
+    for (const poolName of META_POOLS) {
+        underlyingTest(poolName);
     }
 })
 

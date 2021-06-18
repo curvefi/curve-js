@@ -15,4 +15,8 @@ export interface PoolDataInterface {
     underlying_decimals: number[],
     decimals: number[],
     use_lending: boolean[],
+    is_meta?: boolean,
+    base_pool?: string,
+    meta_coins?: string[],
+    meta_coin_decimals?: number[],
 }

@@ -83,13 +83,15 @@ class Curve {
                 multicallContract: new MulticallContract(pool.swap_address, pool.swap_abi),
             };
 
-            this.contracts[pool.token_address] = {
-                contract: new Contract(pool.token_address, ERC20Abi, this.signer),
-                multicallContract: new MulticallContract(pool.token_address, ERC20Abi),
-            }
-            this.contracts[pool.token_address.toLowerCase()] = {
-                contract: new Contract(pool.token_address, ERC20Abi, this.signer),
-                multicallContract: new MulticallContract(pool.token_address, ERC20Abi),
+            if (pool.token_address !== pool.swap_address) {
+                this.contracts[pool.token_address] = {
+                    contract: new Contract(pool.token_address, ERC20Abi, this.signer),
+                    multicallContract: new MulticallContract(pool.token_address, ERC20Abi),
+                }
+                this.contracts[pool.token_address.toLowerCase()] = {
+                    contract: new Contract(pool.token_address, ERC20Abi, this.signer),
+                    multicallContract: new MulticallContract(pool.token_address, ERC20Abi),
+                }
             }
 
             this.contracts[pool.gauge_address] = {
@@ -101,7 +103,7 @@ class Curve {
                 multicallContract: new MulticallContract(pool.gauge_address, gaugeABI),
             }
 
-            if (pool.deposit_address) {
+            if (pool.deposit_address && this.contracts[pool.deposit_address] === undefined) {
                 this.contracts[pool.deposit_address] = {
                     contract: new Contract(pool.deposit_address, pool.deposit_abi, this.signer),
                     multicallContract: new MulticallContract(pool.deposit_address, pool.deposit_abi),

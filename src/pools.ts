@@ -59,8 +59,8 @@ export class Pool {
         }
     }
 
-    private _calcLpTokenAmount = async (amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap].contract.calc_token_amount(amounts, isDeposit);
+    private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
+        return await curve.contracts[this.swap].contract.calc_token_amount(_amounts, isDeposit, curve.options);
     }
 
     private _calcLpTokenAmountZap = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
@@ -105,26 +105,28 @@ export class Pool {
         return await curve.contracts[this.swap].contract.calc_token_amount(_wrapped_amounts, isDeposit);
     }
 
-    private _addLiquidityPlain = async (amounts: ethers.BigNumber[]): Promise<string> => {
-        await ensureAllowance(this.underlyingCoins, amounts, this.swap);
+    private _addLiquiditySwap = async (_amounts: ethers.BigNumber[]): Promise<string> => {;
+        await ensureAllowance(this.coins, _amounts, this.swap);
 
-        const _minMintAmount = (await this._calcLpTokenAmount(amounts)).div(100).mul(99);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).div(100).mul(99);
         const contract = curve.contracts[this.swap].contract;
 
-        const ethIndex = getEthIndex(this.underlyingCoins);
+        const ethIndex = getEthIndex(this.coins);
         if (ethIndex !== -1) {
             // TODO figure out, how to set gasPrice
-            return (await contract.add_liquidity(amounts, _minMintAmount, { ...curve.options, value: amounts[ethIndex] })).hash;
+            return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value: _amounts[ethIndex] })).hash;
         }
 
-        return (await contract.add_liquidity(amounts, _minMintAmount, curve.options)).hash;
+        return (await contract.add_liquidity(_amounts, _minMintAmount, curve.options)).hash;
     }
 
     private _addLiquidity = async (_amounts: ethers.BigNumber[], useUnderlying= true): Promise<string> => {
-        await ensureAllowance(this.underlyingCoins, _amounts, this.swap);
+        const coins = useUnderlying ? this.underlyingCoins : this.coins;
+        await ensureAllowance(coins, _amounts, this.swap);
 
         // TODO add calc for wrapped
-        const _minMintAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts)).div(100).mul(99);
+        let _minMintAmount = useUnderlying ? await this._calcLpTokenAmountWithUnderlying(_amounts) : await this._calcLpTokenAmount(_amounts);
+        _minMintAmount = _minMintAmount.div(100).mul(99);
         const contract = curve.contracts[this.swap].contract;
 
         const ethIndex = getEthIndex(this.underlyingCoins);
@@ -140,7 +142,6 @@ export class Pool {
         await ensureAllowance(this.underlyingCoins, _amounts, this.zap as string);
 
         const _minMintAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts)).div(100).mul(99);
-
         const ethIndex = getEthIndex(this.underlyingCoins);
         if (ethIndex !== -1) {
             // TODO figure out, how to set gasPrice
@@ -155,7 +156,7 @@ export class Pool {
         const _minMintAmount = (await this._calcLpTokenAmountZap(_amounts)).div(100).mul(99);
 
         const ethIndex = getEthIndex(this.underlyingCoins)
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0); // TODO check if this is correct
 
         if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
             return (await curve.contracts[this.zap as string].contract.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, value })).hash;
@@ -166,24 +167,28 @@ export class Pool {
 
     public addLiquidity = async (amounts: string[]): Promise<string> => {
         if (amounts.length !== this.underlyingCoins.length) {
-            throw Error(`${this.name} pool has ${this.coins.length} coins (amounts provided for ${amounts.length})`);
+            throw Error(`${this.name} pool has ${this.underlyingCoins.length} coins (amounts provided for ${amounts.length})`);
         }
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
             ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
+        // Lending pools with zap
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
             return await this._addLiquidityZap(_amounts);
         }
 
+        // Lending pools without zap
         if (['aave', 'saave', 'ib'].includes(this.name)) {
             return await this._addLiquidity(_amounts, true);
         }
 
+        // Metapools
         if (this.isMeta) {
             return await this._addLiquidityMetaZap(_amounts);
         }
 
-        return await this._addLiquidityPlain(_amounts);
+        // Plain pools
+        return await this._addLiquiditySwap(_amounts);
     }
 
     public gaugeDeposit = async (lpTokenAmount: string): Promise<string> => {
@@ -421,11 +426,11 @@ export class Pool {
         const  contract = curve.contracts[this.zap as string].contract;
 
         if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
-            const gasLimit = await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.options);
+            const gasLimit = (await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.options)).mul(120).div(100);
             return (await contract.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
         }
 
-        const gasLimit = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.options);
+        const gasLimit = (await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.options)).mul(120).div(100);
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
     }
 

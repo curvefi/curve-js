@@ -191,6 +191,22 @@ export class Pool {
         return await this._addLiquiditySwap(_amounts);
     }
 
+    public addLiquidityWrapped = async (amounts: string[]): Promise<string> => {
+        if (amounts.length !== this.coins.length) {
+            throw Error(`${this.name} pool has ${this.coins.length} coins (amounts provided for ${amounts.length})`);
+        }
+        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
+            ethers.utils.parseUnits(amount, this.decimals[i]));
+
+        // Lending pools without zap
+        if (['aave', 'saave', 'ib'].includes(this.name)) {
+            return await this._addLiquidity(_amounts, false);
+        }
+
+        // Lending pools with zap and metapools
+        return await this._addLiquiditySwap(_amounts);
+    }
+
     public gaugeDeposit = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         await ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)

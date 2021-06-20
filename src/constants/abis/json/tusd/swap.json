@@ -602,31 +602,6 @@
     "type": "function"
   },
   {
-    "name": "calc_token_amount",
-    "outputs": [
-      {
-        "type": "uint256",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "uint256[2]",
-        "name": "_amounts"
-      },
-      {
-        "type": "bool",
-        "name": "_is_deposit"
-      },
-      {
-        "type": "bool",
-        "name": "_previous"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "name": "add_liquidity",
     "outputs": [
       {
@@ -642,31 +617,6 @@
       {
         "type": "uint256",
         "name": "_min_mint_amount"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "name": "add_liquidity",
-    "outputs": [
-      {
-        "type": "uint256",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "uint256[2]",
-        "name": "_amounts"
-      },
-      {
-        "type": "uint256",
-        "name": "_min_mint_amount"
-      },
-      {
-        "type": "address",
-        "name": "_receiver"
       }
     ],
     "stateMutability": "nonpayable",

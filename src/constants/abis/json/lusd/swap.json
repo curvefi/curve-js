@@ -648,35 +648,6 @@
     "type": "function"
   },
   {
-    "name": "get_dy",
-    "outputs": [
-      {
-        "type": "uint256",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "int128",
-        "name": "i"
-      },
-      {
-        "type": "int128",
-        "name": "j"
-      },
-      {
-        "type": "uint256",
-        "name": "dx"
-      },
-      {
-        "type": "uint256[2]",
-        "name": "_balances"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "name": "get_dy_underlying",
     "outputs": [
       {
@@ -725,39 +696,6 @@
       {
         "type": "uint256",
         "name": "min_dy"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "name": "exchange",
-    "outputs": [
-      {
-        "type": "uint256",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "int128",
-        "name": "i"
-      },
-      {
-        "type": "int128",
-        "name": "j"
-      },
-      {
-        "type": "uint256",
-        "name": "dx"
-      },
-      {
-        "type": "uint256",
-        "name": "min_dy"
-      },
-      {
-        "type": "address",
-        "name": "_receiver"
       }
     ],
     "stateMutability": "nonpayable",
@@ -814,31 +752,6 @@
     "type": "function"
   },
   {
-    "name": "remove_liquidity",
-    "outputs": [
-      {
-        "type": "uint256[2]",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "_burn_amount"
-      },
-      {
-        "type": "uint256[2]",
-        "name": "_min_amounts"
-      },
-      {
-        "type": "address",
-        "name": "_receiver"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "name": "remove_liquidity_imbalance",
     "outputs": [
       {
@@ -854,31 +767,6 @@
       {
         "type": "uint256",
         "name": "_max_burn_amount"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "name": "remove_liquidity_imbalance",
-    "outputs": [
-      {
-        "type": "uint256",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "uint256[2]",
-        "name": "_amounts"
-      },
-      {
-        "type": "uint256",
-        "name": "_max_burn_amount"
-      },
-      {
-        "type": "address",
-        "name": "_receiver"
       }
     ],
     "stateMutability": "nonpayable",
@@ -906,31 +794,6 @@
     "type": "function"
   },
   {
-    "name": "calc_withdraw_one_coin",
-    "outputs": [
-      {
-        "type": "uint256",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "_burn_amount"
-      },
-      {
-        "type": "int128",
-        "name": "i"
-      },
-      {
-        "type": "bool",
-        "name": "_previous"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "name": "remove_liquidity_one_coin",
     "outputs": [
       {
@@ -950,35 +813,6 @@
       {
         "type": "uint256",
         "name": "_min_received"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "name": "remove_liquidity_one_coin",
-    "outputs": [
-      {
-        "type": "uint256",
-        "name": ""
-      }
-    ],
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "_burn_amount"
-      },
-      {
-        "type": "int128",
-        "name": "i"
-      },
-      {
-        "type": "uint256",
-        "name": "_min_received"
-      },
-      {
-        "type": "address",
-        "name": "_receiver"
       }
     ],
     "stateMutability": "nonpayable",

@@ -59,6 +59,41 @@ export class Pool {
         }
     }
 
+    public calcLpTokenAmount = async (amounts: string[], isDeposit = true): Promise<string> => {
+        if (amounts.length !== this.underlyingCoins.length) {
+            throw Error(`${this.name} pool has ${this.underlyingCoins.length} coins (amounts provided for ${amounts.length})`);
+        }
+
+        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
+            ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
+        let _expected: ethers.BigNumber;
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'].includes(this.name)) {
+            _expected = await this._calcLpTokenAmountWithUnderlying(_amounts, isDeposit); // Lending pools
+        } else if (this.isMeta) {
+            _expected = await this._calcLpTokenAmountZap(_amounts, isDeposit); // Metapools
+        } else {
+            _expected = await this._calcLpTokenAmount(_amounts, isDeposit); // Plain pools
+        }
+
+        return ethers.utils.formatUnits(_expected);
+    }
+
+    public calcLpTokenAmountWrapped = async (amounts: string[], isDeposit = true): Promise<string> => {
+        if (amounts.length !== this.coins.length) {
+            throw Error(`${this.name} pool has ${this.coins.length} coins (amounts provided for ${amounts.length})`);
+        }
+
+        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
+            ethers.utils.parseUnits(amount, this.decimals[i]));
+        const _expected = await this._calcLpTokenAmount(_amounts, isDeposit);
+
+        return ethers.utils.formatUnits(_expected);
+    }
+
+    public addLiquidityExpected = async (amounts: string[]): Promise<string> => {
+        return await this.calcLpTokenAmount(amounts);
+    }
+
     public addLiquidity = async (amounts: string[]): Promise<string> => {
         if (amounts.length !== this.underlyingCoins.length) {
             throw Error(`${this.name} pool has ${this.underlyingCoins.length} coins (amounts provided for ${amounts.length})`);
@@ -85,6 +120,10 @@ export class Pool {
         return await this._addLiquiditySwap(_amounts);
     }
 
+    public addLiquidityWrappedExpected = async (amounts: string[]): Promise<string> => {
+        return await this.calcLpTokenAmountWrapped(amounts);
+    }
+
     public addLiquidityWrapped = async (amounts: string[]): Promise<string> => {
         if (amounts.length !== this.coins.length) {
             throw Error(`${this.name} pool has ${this.coins.length} coins (amounts provided for ${amounts.length})`);
@@ -101,13 +140,19 @@ export class Pool {
         return await this._addLiquiditySwap(_amounts);
     }
 
-    public calcExpectedUnderlyingAmounts = async (amount: string): Promise<string[]> => {
-        const expectedUnderlyingAmounts: ethers.BigNumber[] = ['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(this.name) ?
-            await this._calcExpectedUnderlyingAmounts(ethers.utils.parseUnits(amount)) :
-            this.isMeta ? await this._calcExpectedUnderlyingAmountsMeta(ethers.utils.parseUnits(amount)) :
-            await this._calcExpectedAmounts(ethers.utils.parseUnits(amount));
+    public removeLiquidityExpected = async (lpTokenAmount: string): Promise<string[]> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
-        return expectedUnderlyingAmounts.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
+        let _expected: ethers.BigNumber[];
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'].includes(this.name)) {
+            _expected = await this._calcExpectedUnderlyingAmounts(_lpTokenAmount); // Lending pools
+        } else if (this.isMeta) {
+            _expected = await this._calcExpectedUnderlyingAmountsMeta(_lpTokenAmount); // Metapools
+        } else {
+            _expected = await this._calcExpectedAmounts(_lpTokenAmount); // Plain pools
+        }
+
+        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
     }
 
     public removeLiquidity = async (lpTokenAmount: string): Promise<string> => {
@@ -128,6 +173,13 @@ export class Pool {
         return await this._removeLiquiditySwap(_lpTokenAmount);
     }
 
+    public removeLiquidityWrappedExpected = async (lpTokenAmount: string): Promise<string[]> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        const _expected = await this._calcExpectedAmounts(_lpTokenAmount)
+
+        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
+    }
+
     public removeLiquidityWrapped = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
@@ -136,6 +188,10 @@ export class Pool {
         }
 
         return await this._removeLiquiditySwap(_lpTokenAmount);
+    }
+
+    public removeLiquidityImbalanceExpected = async (amounts: string[]): Promise<string> => {
+        return await this.calcLpTokenAmount(amounts, false);
     }
 
     public removeLiquidityImbalance = async (amounts: string[]): Promise<string> => {
@@ -159,6 +215,10 @@ export class Pool {
         return await this._removeLiquidityImbalanceSwap(_amounts)
     }
 
+    public removeLiquidityImbalanceWrappedExpected = async (amounts: string[]): Promise<string> => {
+        return await this.calcLpTokenAmountWrapped(amounts, false);
+    }
+
     public removeLiquidityImbalanceWrapped = async (amounts: string[]): Promise<string> => {
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.decimals[i]));
 
@@ -167,6 +227,21 @@ export class Pool {
         }
 
         return await this._removeLiquidityImbalanceSwap(_amounts);
+    }
+
+    public removeLiquidityOneCoinExpected = async (lpTokenAmount: string, i: number): Promise<string> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+
+        let _expected: ethers.BigNumber;
+        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) || this.name === 'susd' || this.isMeta) {
+            _expected = await this._calcWithdrawOneCoinZap(_lpTokenAmount, i); // Lending pools with zap, susd and metapools
+        } else if (this.name === 'ib') {
+            _expected = await this._calcWithdrawOneCoin(_lpTokenAmount, i, true); // ib
+        } else {
+            _expected = await this._calcWithdrawOneCoinSwap(_lpTokenAmount, i); // Aave, saave and plain pools
+        }
+
+        return ethers.utils.formatUnits(_expected);
     }
 
     public removeLiquidityOneCoin = async (lpTokenAmount: string, i: number): Promise<string> => {
@@ -184,6 +259,19 @@ export class Pool {
 
         // Plain pools
         return await this._removeLiquidityOneCoinSwap(_lpTokenAmount, i)
+    }
+
+    public removeLiquidityOneCoinWrappedExpected = async (lpTokenAmount: string, i: number): Promise<string> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+
+        let _expected: ethers.BigNumber;
+        if (this.name === 'ib') {
+            _expected = await this._calcWithdrawOneCoin(_lpTokenAmount, i, false); // ib
+        } else {
+            _expected = await this._calcWithdrawOneCoinSwap(_lpTokenAmount, i); // All other pools
+        }
+
+        return ethers.utils.formatUnits(_expected);
     }
 
     public removeLiquidityOneCoinWrapped = async (lpTokenAmount: string, i: number): Promise<string> => {

@@ -252,23 +252,23 @@ export class Pool {
         return balances
     }
 
-    public getSwapOutput = async (i: number, j: number, amount: string): Promise<string> => {
+    public getExchangeOutput = async (i: number, j: number, amount: string): Promise<string> => {
         const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
-        const _expected = await this._getSwapOutput(i, j, _amount);
+        const _expected = await this._getExchangeOutput(i, j, _amount);
 
         return ethers.utils.formatUnits(_expected, this.underlyingDecimals[j])
     }
 
-    public getSwapOutputWrapped = async (i: number, j: number, amount: string): Promise<string> => {
+    public getExchangeOutputWrapped = async (i: number, j: number, amount: string): Promise<string> => {
         const _amount = ethers.utils.parseUnits(amount, this.decimals[i]);
-        const _expected = await this._getSwapOutputWrapped(i, j, _amount);
+        const _expected = await this._getExchangeOutputWrapped(i, j, _amount);
 
         return ethers.utils.formatUnits(_expected, this.decimals[j])
     }
 
     public exchange = async (i: number, j: number, amount: string, maxSlippage = 0.01): Promise<string> => {
         const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
-        const _expected: ethers.BigNumber = await this._getSwapOutput(i, j, _amount);
+        const _expected: ethers.BigNumber = await this._getExchangeOutput(i, j, _amount);
         const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
         await ensureAllowance([this.underlyingCoins[i]], [_amount], this.swap);
         const contract = curve.contracts[this.swap].contract;
@@ -292,7 +292,7 @@ export class Pool {
 
     public exchangeWrapped = async (i: number, j: number, amount: string, maxSlippage = 0.01): Promise<string> => {
         const _amount = ethers.utils.parseUnits(amount, this.decimals[i]);
-        const _expected: ethers.BigNumber = await this._getSwapOutputWrapped(i, j, _amount);
+        const _expected: ethers.BigNumber = await this._getExchangeOutputWrapped(i, j, _amount);
         const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
         await ensureAllowance([this.coins[i]], [_amount], this.swap);
         const contract = curve.contracts[this.swap].contract;
@@ -691,7 +691,7 @@ export class Pool {
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, useUnderlying, { ...curve.options, gasLimit })).hash
     }
 
-    private _getSwapOutput = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
+    private _getExchangeOutput = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.swap].contract;
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
             return await contract.get_dy_underlying(i, j, _amount, curve.options)
@@ -700,7 +700,7 @@ export class Pool {
         }
     }
 
-    private _getSwapOutputWrapped = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
+    private _getExchangeOutputWrapped = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
         return await curve.contracts[this.swap].contract.get_dy(i, j, _amount, curve.options);
     }
 }
@@ -724,7 +724,7 @@ export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinA
     return { poolAddress, output }
 }
 
-export const swap = async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<void> => {
+export const exchange = async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<void> => {
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
     const registryAddress = await addressProviderContract.get_registry();
     const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);

@@ -133,7 +133,7 @@ const wrappedTest = (name: string) => {
         it('Swaps', async function () {
             const swapAmount = '10';
             const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
-            const expected = await myPool.getSwapOutputWrapped(0, 1, swapAmount);
+            const expected = await myPool.getExchangeOutputWrapped(0, 1, swapAmount);
 
             await myPool.exchangeWrapped(0, 1, swapAmount, 0.02);
 

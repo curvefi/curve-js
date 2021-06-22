@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import BigNumber from "bignumber.js";
-import { getBestPoolAndOutput, Pool, swap } from "../pools";
+import { getBestPoolAndOutput, Pool, exchange } from "../pools";
 import { BN, getBalances, _getBalancesBN, toStringFromBN } from "../utils";
 import { curve } from "../curve";
 
@@ -129,7 +129,7 @@ const underlyingTest = (name: string) => {
         it('Swaps', async function () {
             const swapAmount = '10';
             const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
-            const expected = await myPool.getSwapOutput(0, 1, swapAmount);
+            const expected = await myPool.getExchangeOutput(0, 1, swapAmount);
 
             await myPool.exchange(0, 1, swapAmount, 0.02);
 
@@ -172,7 +172,7 @@ describe('Underlying tests', async function () {
 //     const initialBalances = (await getBalances([address], [dai, usdc]))[address];
 //
 //     const { output } = await getBestPoolAndOutput(dai, usdc, swapAmount);
-//     await swap(dai, usdc, swapAmount);
+//     await exchange(dai, usdc, swapAmount);
 //
 //     const balancesAfterSwap = (await getBalances([address], [dai, usdc]))[address];
 //

@@ -31,8 +31,6 @@ import usdkSwapABI from './json/usdk/swap.json';
 import usdkDepositABI from './json/usdk/deposit.json';
 import usdnSwapABI from './json/usdn/swap.json';
 import usdnDepositABI from './json/usdn/deposit.json';
-import linkusdSwapABI from './json/linkusd/swap.json';
-import linkusdDepositABI from './json/linkusd/deposit.json';
 import musdSwapABI from './json/musd/swap.json';
 import musdDepositABI from './json/musd/deposit.json';
 import musdSCurveRewards_abi from './json/musd/sCurveRewards.json';
@@ -59,7 +57,6 @@ import eursSCurveRewards_abi from './json/eurs/sCurveRewards.json';
 import ustSwapABI from './json/ust/swap.json';
 import ustDepositABI from './json/ust/deposit.json';
 import aaveSwapABI from './json/aave/swap.json';
-import idleSwapABI from './json/idle/swap.json';
 import stethSwapABI from './json/steth/swap.json';
 import stethSCurveRewards_abi from './json/steth/sCurveRewards.json';
 import saaveSwapABI from './json/saave/swap.json';
@@ -529,48 +526,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         ],
     },
 
-    linkusd: {
-        N_COINS: 2,
-        underlying_decimals: [18, 18],
-        decimals: [18, 18],
-        tethered: [false, false],
-        use_lending: [false, false],
-        is_plain: [true, true],
-        swap_address: '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171',
-        token_address: '0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F',
-        gauge_address: '0x936734ea750bb194ddb4892b191b6bd5c43a3985',
-        infura_url,
-        underlying_coins: [
-            '0x0E2EC54fC0B509F445631Bf4b91AB8168230C752',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-        ],
-        coins: [
-            '0x0E2EC54fC0B509F445631Bf4b91AB8168230C752',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-        ],
-        swap_abi: linkusdSwapABI,
-        deposit_abi: linkusdDepositABI,
-        deposit_address: '0x1de7f0866e2c4adAC7b457c58Cc25c8688CDa1f2',
-        is_meta: true,
-        base_pool: '3pool',
-        meta_N: 5,
-        meta_decimals: [18, 18, 18, 6, 6],
-        meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
-        meta_coins: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coins: [
-            '0x0E2EC54fC0B509F445631Bf4b91AB8168230C752',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-    },
-
     musd: {
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -992,31 +947,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
             '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
         ],
         swap_abi: aaveSwapABI,
-    },
-
-    idle: {
-        N_COINS: 3,
-        is_idle: true,
-        underlying_decimals: [18, 6, 6],
-        decimals: [18, 18, 18],
-        use_lending: [true, true, true],
-        tethered: [false, false, true],
-        is_plain: [false, false, false],
-        swap_address: '0x83f252f036761a1E3d10DACa8e16D7b21E3744D7',
-        token_address: '0x09f4B84A87FC81FC84220fD7287b613B8A9D4c05',
-        gauge_address: '0xd69ac8d9D25e99446171B5D0B3E4234dAd294890',
-        infura_url,
-        underlying_coins: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        coins: [
-            '0x3fe7940616e5bc47b0775a0dccf6237893353bb4',
-            '0x5274891bEC421B39D23760c04A6755eCB444797C',
-            '0xF34842d05A1c888Ca02769A633DF37177415C2f8',
-        ],
-        swap_abi: idleSwapABI,
     },
 
     steth: {

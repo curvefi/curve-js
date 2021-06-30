@@ -4,7 +4,8 @@ import { getBestPoolAndOutput, Pool, exchange } from "../pools";
 import { BN, getBalances, _getBalancesBN, toStringFromBN } from "../utils";
 import { curve } from "../curve";
 
-const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
+// const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
+const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link']; // Without eurs
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2'];
 
@@ -19,25 +20,30 @@ const underlyingTest = (name: string) => {
         });
 
         it('Adds liquidity', async function () {
-            const addAmount = '10';
-            const addAmounts = coinAddresses.map(() => addAmount);
+            const amount = '10';
+            const amounts = coinAddresses.map(() => amount);
 
             const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+            const initialLpTokenBalance = (await myPool.lpTokenBalances(address))[address];
+            const lpTokenExpected = await myPool.addLiquidityExpected(amounts)
 
-            await myPool.addLiquidity(addAmounts);
+            await myPool.addLiquidity(amounts);
 
-            const coinBalancesAfterAddingLiquidity: string[] = (await getBalances([address], coinAddresses))[address];
+            const coinBalances: string[] = (await getBalances([address], coinAddresses))[address];
             const lpTokenBalance = (await myPool.lpTokenBalances(address))[address];
 
-            coinBalancesAfterAddingLiquidity.forEach((b: string, i: number) => {
+            coinBalances.forEach((b: string, i: number) => {
                 if (name === 'steth') {
-                    assert.approximately(Number(BN(b)), Number(BN(initialCoinBalances[i]).minus(BN(addAmount).toString())), 1e-18);
+                    assert.approximately(Number(BN(b)), Number(BN(initialCoinBalances[i]).minus(BN(amount).toString())), 1e-18);
                 } else {
-                    assert.deepStrictEqual(BN(b), BN(initialCoinBalances[i]).minus(BN(addAmount)));
+                    assert.deepStrictEqual(BN(b), BN(initialCoinBalances[i]).minus(BN(amount)));
                 }
             })
-            // TODO more accurate test
-            assert.isAbove(Number(lpTokenBalance), 0);
+            if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(name)) {
+                assert.isAbove(Number(lpTokenBalance) - Number(initialLpTokenBalance), Number(lpTokenExpected) * 0.99);
+            } else {
+                assert.approximately(Number(lpTokenBalance) - Number(initialLpTokenBalance), Number(lpTokenExpected), 0.01);
+            }
         });
 
         it('Deposits into gauge', async function () {
@@ -64,62 +70,62 @@ const underlyingTest = (name: string) => {
 
         it('Removes liquidity', async function () {
             const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
-            const amountToRemove: string = BN(initialLpTokenBalance).div(10).toFixed(18);
+            const lpTokenAmount: string = BN(initialLpTokenBalance).div(10).toFixed(18);
             const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+            const coinsExpected = await myPool.removeLiquidityExpected(lpTokenAmount);
 
-            await myPool.removeLiquidity(amountToRemove);
+            await myPool.removeLiquidity(lpTokenAmount);
 
-            const lpTokenBalanceAfterRemoval: string = (await myPool.lpTokenBalances(address))[address];
-            const coinBalancesAfterRemoval: string[] = (await getBalances([address], coinAddresses))[address];
+            const lpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
+            const coinBalances: string[] = (await getBalances([address], coinAddresses))[address];
 
-            assert.deepStrictEqual(BN(lpTokenBalanceAfterRemoval), BN(initialLpTokenBalance).minus(BN(amountToRemove)));
-            coinBalancesAfterRemoval.forEach((b: string, i: number) => {
-                // TODO more accurate test
-                assert.isAbove(Number(b), Number(initialCoinBalances[i]))
+            assert.deepStrictEqual(BN(lpTokenBalance), BN(initialLpTokenBalance).minus(BN(lpTokenAmount)));
+            coinBalances.forEach((b: string, i: number) => {
+                const delta = name == 'gusd' ? 0.011 : 0.01;
+                assert.approximately(Number(b) - Number(initialCoinBalances[i]), Number(coinsExpected[i]), delta);
             })
         });
 
         it('Removes liquidity imbalance', async function () {
-            const removeAmount = '1';
-            const removeAmounts = coinAddresses.map(() => removeAmount);
+            const amount = '1';
+            const amounts = coinAddresses.map(() => amount);
 
             const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
             const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+            const lpTokenExpected = await myPool.removeLiquidityImbalanceExpected(amounts);
 
-            await myPool.removeLiquidityImbalance(removeAmounts);
+            await myPool.removeLiquidityImbalance(amounts);
 
-            const lpTokenBalanceAfterRemoval: string = (await myPool.lpTokenBalances(address))[address];
-            const coinBalancesAfterRemoval: string[] = (await getBalances([address], coinAddresses))[address];
+            const lpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
+            const coinBalances: string[] = (await getBalances([address], coinAddresses))[address];
 
-            // TODO more accurate test
-            assert.isBelow(Number(lpTokenBalanceAfterRemoval), Number(initialLpTokenBalance));
-            coinBalancesAfterRemoval.forEach((b: string, i: number) => {
+            assert.approximately(Number(initialLpTokenBalance) - Number(lpTokenBalance), Number(lpTokenExpected), 0.01);
+            coinBalances.forEach((b: string, i: number) => {
                 if (name === 'steth') {
-                    assert.approximately(Number(initialCoinBalances[i]), Number(BN(b).minus(BN(removeAmount)).toString()), 1e-18);
+                    assert.approximately(Number(initialCoinBalances[i]), Number(BN(b).minus(BN(amount)).toString()), 1e-18);
                 } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(myPool.name)) {
-                    assert.approximately(Number(initialCoinBalances[i]), Number(BN(b).minus(BN(removeAmount)).toString()), 3e-6);
+                    assert.approximately(Number(initialCoinBalances[i]), Number(BN(b).minus(BN(amount)).toString()), 3e-6);
                 } else {
-                    assert.deepStrictEqual(BN(initialCoinBalances[i]), BN(b).minus(BN(removeAmount)));
+                    assert.deepStrictEqual(BN(initialCoinBalances[i]), BN(b).minus(BN(amount)));
                 }
             });
         });
 
         it('Removes liquidity one coin', async function () {
             const initialLpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
-            const amountToRemove: string = BN(initialLpTokenBalance).div(10).toFixed(18);
+            const lpTokenAmount: string = BN(initialLpTokenBalance).div(10).toFixed(18);
             const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
+            const expected = await myPool.removeLiquidityOneCoinExpected(lpTokenAmount, 0);
 
-            await myPool.removeLiquidityOneCoin(amountToRemove, 0);
+            await myPool.removeLiquidityOneCoin(lpTokenAmount, 0);
 
-            const lpTokenBalanceAfterRemoval: string = (await myPool.lpTokenBalances(address))[address];
-            const coinBalancesAfterRemoval: string[] = (await getBalances([address], coinAddresses))[address];
+            const lpTokenBalance: string = (await myPool.lpTokenBalances(address))[address];
+            const coinBalances: string[] = (await getBalances([address], coinAddresses))[address];
 
-            // TODO more accurate test
-            assert.deepStrictEqual(BN(lpTokenBalanceAfterRemoval), BN(initialLpTokenBalance).minus(BN(amountToRemove)));
-            coinBalancesAfterRemoval.forEach((b: string, i: number) => {
+            assert.deepStrictEqual(BN(lpTokenBalance), BN(initialLpTokenBalance).minus(BN(lpTokenAmount)));
+            coinBalances.forEach((b: string, i: number) => {
                 if (i === 0) {
-                    // TODO more accurate test
-                    assert.isAbove(Number(b), Number(initialCoinBalances[i]))
+                    assert.approximately(Number(b) - Number(initialCoinBalances[i]), Number(expected), 0.01)
                 } else {
                     assert.strictEqual(b, initialCoinBalances[i]);
                 }

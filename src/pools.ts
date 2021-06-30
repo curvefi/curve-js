@@ -363,18 +363,18 @@ export class Pool {
 
         if (Object.prototype.hasOwnProperty.call(curve.contracts[this.swap].contract, 'exchange_underlying')) {
             if (isEth(this.underlyingCoins[i])) {
-                const gasLimit = await contract.estimateGas.exchange_underlying(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount });
+                const gasLimit = (await contract.estimateGas.exchange_underlying(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount })).mul(130).div(100);
                 return (await contract.exchange_underlying(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount, gasLimit })).hash
             }
-            const gasLimit = await contract.estimateGas.exchange_underlying(i, j, _amount, _minRecvAmount, curve.options);
+            const gasLimit = (await contract.estimateGas.exchange_underlying(i, j, _amount, _minRecvAmount, curve.options)).mul(130).div(100);
             return (await contract.exchange_underlying(i, j, _amount, _minRecvAmount, { ...curve.options, gasLimit })).hash
         }
 
         if (isEth(this.underlyingCoins[i])) {
-            const gasLimit = await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount });
+            const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount })).mul(130).div(100);
             return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount, gasLimit })).hash
         }
-        const gasLimit = await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, curve.options);
+        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, curve.options)).mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, gasLimit })).hash
     }
 

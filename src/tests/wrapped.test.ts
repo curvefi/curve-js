@@ -6,8 +6,8 @@ import { curve } from "../curve";
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2'];
 
-const wrappedTest = (name: string) => {
-    describe(`${name} pool`, function () {
+const wrappedLiquidityTest = (name: string) => {
+    describe(`${name} add/remove liquidity`, function () {
         const myPool = new Pool(name);
         const coinAddresses = myPool.coins;
         let address = '';
@@ -129,24 +129,41 @@ const wrappedTest = (name: string) => {
                 })
             });
         }
+    });
+}
 
-        it('Swaps', async function () {
-            const swapAmount = '10';
-            const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
-            const expected = await myPool.getExchangeOutputWrapped(0, 1, swapAmount);
+const wrappedExchangeTest = (name: string) => {
+    describe(`${name} exchange`, function () {
+        const pool = new Pool(name);
+        let address = '';
 
-            await myPool.exchangeWrapped(0, 1, swapAmount, 0.02);
-
-            const coinBalancesAfterSwap: string[] = (await getBalances([address], coinAddresses))[address];
-
-            if (['aave', 'saave'].includes(name)) {
-                // Because of increasing quantity
-                assert.approximately(Number(coinBalancesAfterSwap[0]), Number(BN(initialCoinBalances[0]).minus(BN(swapAmount).toString())), 1e-4);
-            } else {
-                assert.deepStrictEqual(BN(coinBalancesAfterSwap[0]), BN(initialCoinBalances[0]).minus(BN(swapAmount)));
-            }
-            assert.isAtLeast(Number(coinBalancesAfterSwap[1]), Number(BN(initialCoinBalances[1]).plus(BN(expected).times(0.98)).toString()));
+        before(async function () {
+            address = await curve.signer.getAddress();
         });
+
+        for (let i = 0; i < pool.coins.length; i++) {
+            for (let j = 0; j < pool.coins.length; j++) {
+                if (i !== j) {
+                    it(`${i} --> ${j}`, async function () {
+                        const swapAmount = '10';
+                        const initialCoinBalances: string[] = (await getBalances([address], pool.coins))[address];
+                        const expected = await pool.getExchangeOutputWrapped(i, j, swapAmount);
+
+                        await pool.exchangeWrapped(i, j, swapAmount, 0.02);
+
+                        const coinBalancesAfterSwap: string[] = (await getBalances([address], pool.coins))[address];
+
+                        if (['aave', 'saave'].includes(pool.name)) {
+                            // Because of increasing quantity
+                            assert.approximately(Number(coinBalancesAfterSwap[i]), Number(BN(initialCoinBalances[i]).minus(BN(swapAmount).toString())), 1e-4);
+                        } else {
+                            assert.deepStrictEqual(BN(coinBalancesAfterSwap[i]), BN(initialCoinBalances[i]).minus(BN(swapAmount)));
+                        }
+                        assert.isAtLeast(Number(coinBalancesAfterSwap[j]), Number(BN(initialCoinBalances[j]).plus(BN(expected).times(0.98)).toString()));
+                    });
+                }
+            }
+        }
     });
 }
 
@@ -158,10 +175,12 @@ describe('Wrapped tests', async function () {
     });
 
     for (const poolName of LENDING_POOLS) {
-        wrappedTest(poolName);
+        wrappedLiquidityTest(poolName);
+        wrappedExchangeTest(poolName);
     }
 
     for (const poolName of META_POOLS) {
-        wrappedTest(poolName);
+        wrappedLiquidityTest(poolName);
+        wrappedExchangeTest(poolName);
     }
 })

@@ -9,8 +9,8 @@ const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'a
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2'];
 
-const underlyingTest = (name: string) => {
-    describe(`${name} pool`, function () {
+const underlyingLiquidityTest = (name: string) => {
+    describe(`${name} add/remove liquidity`, function () {
         const myPool = new Pool(name);
         const coinAddresses = myPool.underlyingCoins;
         let address = '';
@@ -131,23 +131,40 @@ const underlyingTest = (name: string) => {
                 }
             })
         });
+    });
+}
 
-        it('Swaps', async function () {
-            const swapAmount = '10';
-            const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
-            const expected = await myPool.getExchangeOutput(0, 1, swapAmount);
+const underlyingExchangeTest = (name: string) => {
+    describe(`${name} exchange`, function () {
+        const pool = new Pool(name);
+        let address = '';
 
-            await myPool.exchange(0, 1, swapAmount, 0.02);
-
-            const coinBalancesAfterSwap: string[] = (await getBalances([address], coinAddresses))[address];
-
-            if (name === 'steth') {
-                assert.approximately(Number(coinBalancesAfterSwap[0]), Number(BN(initialCoinBalances[0]).minus(BN(swapAmount)).toString()), 1e-18);
-            } else {
-                assert.deepStrictEqual(BN(coinBalancesAfterSwap[0]), BN(initialCoinBalances[0]).minus(BN(swapAmount)));
-            }
-            assert.isAtLeast(Number(coinBalancesAfterSwap[1]), Number(BN(initialCoinBalances[1]).plus(BN(expected).times(0.98)).toString()));
+        before(async function () {
+            address = await curve.signer.getAddress();
         });
+
+        for (let i = 0; i < pool.underlyingCoins.length; i++) {
+            for (let j = 0; j < pool.underlyingCoins.length; j++) {
+                if (i !== j) {
+                    it(`${i} --> ${j}`, async function () {
+                        const swapAmount = '10';
+                        const initialCoinBalances: string[] = (await getBalances([address], pool.underlyingCoins))[address];
+                        const expected = await pool.getExchangeOutput(i, j, swapAmount);
+
+                        await pool.exchange(i, j, swapAmount, 0.02);
+
+                        const coinBalances: string[] = (await getBalances([address], pool.underlyingCoins))[address];
+
+                        if (pool.name === 'steth') {
+                            assert.approximately(Number(coinBalances[i]), Number(BN(initialCoinBalances[i]).minus(BN(swapAmount)).toString()), 1e-18);
+                        } else {
+                            assert.deepStrictEqual(BN(coinBalances[i]), BN(initialCoinBalances[i]).minus(BN(swapAmount)));
+                        }
+                        assert.isAtLeast(Number(coinBalances[j]), Number(BN(initialCoinBalances[j]).plus(BN(expected).times(0.98)).toString()));
+                    });
+                }
+            }
+        }
     });
 }
 
@@ -159,15 +176,18 @@ describe('Underlying tests', async function () {
     });
 
     for (const poolName of PLAIN_POOLS) {
-        underlyingTest(poolName);
+        underlyingLiquidityTest(poolName);
+        underlyingExchangeTest(poolName);
     }
 
     for (const poolName of LENDING_POOLS) {
-        underlyingTest(poolName);
+        underlyingLiquidityTest(poolName);
+        underlyingExchangeTest(poolName);
     }
 
     for (const poolName of META_POOLS) {
-        underlyingTest(poolName);
+        underlyingLiquidityTest(poolName);
+        underlyingExchangeTest(poolName);
     }
 })
 

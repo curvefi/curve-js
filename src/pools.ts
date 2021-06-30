@@ -614,7 +614,11 @@ export class Pool {
     }
 
     private _calcExpectedAmounts = async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
-        const coinBalancesBN: BigNumber[] = (await _getBalancesBN([this.swap], this.coins))[this.swap];
+        const coinBalancesBN: BigNumber[] = [];
+        for (let i = 0; i < this.coins.length; i++) {
+            const _balance: ethers.BigNumber = await curve.contracts[this.swap].contract.balances(i, curve.options);
+            coinBalancesBN.push(toBN(_balance, this.decimals[i]));
+        }
         const totalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken].contract.totalSupply(curve.options));
 
         const expectedAmountsBN: BigNumber[] = [];
@@ -698,7 +702,7 @@ export class Pool {
         const _maxBurnAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts, false)).mul(101).div(100);
         await ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
         const  contract = curve.contracts[this.zap as string].contract;
-        const gasLimit = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.options);
+        const gasLimit = (await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.options)).mul(130).div(100);
 
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
     }

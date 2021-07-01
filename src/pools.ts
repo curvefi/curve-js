@@ -359,22 +359,11 @@ export class Pool {
         const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
         await ensureAllowance([this.underlyingCoins[i]], [_amount], this.swap);
         const contract = curve.contracts[this.swap].contract;
+        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
+        const value = isEth(this.underlyingCoins[i]) ? _amount : ethers.BigNumber.from(0);
 
-        if (Object.prototype.hasOwnProperty.call(curve.contracts[this.swap].contract, 'exchange_underlying')) {
-            if (isEth(this.underlyingCoins[i])) {
-                const gasLimit = (await contract.estimateGas.exchange_underlying(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount })).mul(130).div(100);
-                return (await contract.exchange_underlying(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount, gasLimit })).hash
-            }
-            const gasLimit = (await contract.estimateGas.exchange_underlying(i, j, _amount, _minRecvAmount, curve.options)).mul(130).div(100);
-            return (await contract.exchange_underlying(i, j, _amount, _minRecvAmount, { ...curve.options, gasLimit })).hash
-        }
-
-        if (isEth(this.underlyingCoins[i])) {
-            const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount })).mul(130).div(100);
-            return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount, gasLimit })).hash
-        }
-        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, curve.options)).mul(130).div(100);
-        return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, gasLimit })).hash
+        const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
+        return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
     public exchangeWrapped = async (i: number, j: number, amount: string, maxSlippage = 0.01): Promise<string> => {
@@ -384,12 +373,9 @@ export class Pool {
         await ensureAllowance([this.coins[i]], [_amount], this.swap);
         const contract = curve.contracts[this.swap].contract;
 
-        if (isEth(this.coins[i])) {
-            const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount })).mul(130).div(100);
-            return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value: _amount, gasLimit })).hash
-        }
-        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, curve.options)).mul(130).div(100);
-        return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, gasLimit })).hash
+        const value = isEth(this.underlyingCoins[i]) ? _amount : ethers.BigNumber.from(0);
+        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
+        return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
     public gaugeMaxBoostedDeposit = async (...addresses: string[]): Promise<DictInterface<string>> => {

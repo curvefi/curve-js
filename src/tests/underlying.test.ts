@@ -1,7 +1,6 @@
 import { assert } from "chai";
-import BigNumber from "bignumber.js";
-import { getBestPoolAndOutput, Pool, exchange } from "../pools";
-import { BN, getBalances, _getBalancesBN, toStringFromBN } from "../utils";
+import { Pool } from "../pools";
+import { BN, getBalances } from "../utils";
 import { curve } from "../curve";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
@@ -190,18 +189,3 @@ describe('Underlying tests', async function () {
         underlyingExchangeTest(poolName);
     }
 })
-
-// it('Swaps using all pools', async function () {
-//     const swapAmount = '100';
-//     const dai = "0x6b175474e89094c44da98b954eedeac495271d0f";
-//     const usdc = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
-//     const initialBalances = (await getBalances([address], [dai, usdc]))[address];
-//
-//     const { output } = await getBestPoolAndOutput(dai, usdc, swapAmount);
-//     await exchange(dai, usdc, swapAmount);
-//
-//     const balancesAfterSwap = (await getBalances([address], [dai, usdc]))[address];
-//
-//     assert.deepStrictEqual(BN(balancesAfterSwap[0]), BN(initialBalances[0]).minus(BN(swapAmount)));
-//     assert.isAtLeast(Number(balancesAfterSwap[1]), Number(BN(initialBalances[1]).plus(BN(output).times(0.99)).toString()));
-// });

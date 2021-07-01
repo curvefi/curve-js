@@ -139,10 +139,13 @@ export const ensureAllowance = async (coins: string[], amounts: ethers.BigNumber
 
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
+            const contract = curve.contracts[coins[i]].contract;
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
-                await curve.contracts[coins[i]].contract.approve(spender, ethers.BigNumber.from(0), curve.options);
+                const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.options)).mul(130).div(100);
+                await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit });
             }
-            await curve.contracts[coins[i]].contract.approve(spender, MAX_ALLOWANCE, curve.options);
+            const gasLimit = (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.options)).mul(130).div(100);
+            await contract.approve(spender, MAX_ALLOWANCE, { ...curve.options, gasLimit });
         }
     }
 }

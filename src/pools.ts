@@ -3,7 +3,6 @@ import BigNumber from 'bignumber.js'
 import {
     _getDecimals,
     _getBalances,
-    _getBalancesBN,
     ensureAllowance,
     getPoolNameBySwapAddress,
     BN,
@@ -561,12 +560,9 @@ export class Pool {
         const contract = curve.contracts[this.swap].contract;
 
         const ethIndex = getEthIndex(this.coins);
-        if (ethIndex !== -1) {
-            // TODO figure out, how to set gasPrice
-            return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value: _amounts[ethIndex] })).hash;
-        }
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
-        return (await contract.add_liquidity(_amounts, _minMintAmount, curve.options)).hash;
+        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value })).hash;
     }
 
     private _addLiquidityZap = async (_amounts: ethers.BigNumber[]): Promise<string> => {
@@ -574,12 +570,9 @@ export class Pool {
 
         const _minMintAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts)).mul(99).div(100);
         const ethIndex = getEthIndex(this.underlyingCoins);
-        if (ethIndex !== -1) {
-            // TODO figure out, how to set gasPrice
-            return (await curve.contracts[this.zap as string].contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value: _amounts[ethIndex] })).hash;
-        }
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
-        return (await curve.contracts[this.zap as string].contract.add_liquidity(_amounts, _minMintAmount, curve.options)).hash;
+        return (await curve.contracts[this.zap as string].contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value })).hash;
     }
 
     private _addLiquidityMetaZap = async (_amounts: ethers.BigNumber[]): Promise<string> => {
@@ -587,7 +580,7 @@ export class Pool {
         const _minMintAmount = (await this._calcLpTokenAmountZap(_amounts)).mul(99).div(100);
 
         const ethIndex = getEthIndex(this.underlyingCoins)
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0); // TODO check if this is correct
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
         if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
             return (await curve.contracts[this.zap as string].contract.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, value })).hash;
@@ -605,12 +598,9 @@ export class Pool {
         const contract = curve.contracts[this.swap].contract;
 
         const ethIndex = getEthIndex(this.underlyingCoins);
-        if (ethIndex !== -1) {
-            // TODO figure out, how to set gasPrice
-            return (await contract.add_liquidity(_amounts, _minMintAmount, useUnderlying, { ...curve.options, value: _amounts[ethIndex] })).hash;
-        }
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
-        return (await contract.add_liquidity(_amounts, _minMintAmount, useUnderlying, curve.options)).hash;
+        return (await contract.add_liquidity(_amounts, _minMintAmount, useUnderlying, { ...curve.options, value })).hash;
     }
 
     private _calcExpectedAmounts = async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {

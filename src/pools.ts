@@ -822,10 +822,17 @@ export const exchange = async (inputCoinAddress: string, outputCoinAddress: stri
     const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
 
     const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    if (poolAddress === "0x0000000000000000000000000000000000000000") {
+        throw new Error("This pair can't be exchanged");
+    }
     const poolName = getPoolNameBySwapAddress(poolAddress);
     const [i, j, is_underlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
 
     const pool = new Pool(poolName);
 
-    await pool.exchange(i, j, amount);
+    if (is_underlying) {
+        await pool.exchange(i, j, amount);
+    } else {
+        await pool.exchangeWrapped(i, j, amount);
+    }
 }

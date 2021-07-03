@@ -8,7 +8,6 @@ import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
 import { poolsData } from './constants/abis/abis-ethereum';
-import {DictInterface} from "./interfaces";
 
 export const ALIASES = {
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52",
@@ -59,7 +58,7 @@ class Curve {
     signer: ethers.Signer;
     signerAddress: string;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
-    options: DictInterface<any>;
+    options: { gasLimit: number, gasPrice?: number | ethers.BigNumber };
 
     constructor() {
         this.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');

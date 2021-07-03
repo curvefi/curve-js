@@ -134,7 +134,7 @@ export const getAllowance = async (coins: string[], address: string, spender: st
 }
 
 export const ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string): Promise<void> => {
-    const address = await curve.signer.getAddress();
+    const address = curve.signerAddress;
     const allowance: ethers.BigNumber[] = await getAllowance(coins, address, spender);
 
     for (let i = 0; i < allowance.length; i++) {

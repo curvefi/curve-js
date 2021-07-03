@@ -10,11 +10,7 @@ const wrappedLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
         const myPool = new Pool(name);
         const coinAddresses = myPool.coins;
-        let address = '';
-
-        before(async function () {
-            address = await curve.signer.getAddress();
-        });
+        const address = curve.signerAddress;
 
         it('Adds liquidity', async function () {
             const amount = '10';
@@ -135,11 +131,7 @@ const wrappedLiquidityTest = (name: string) => {
 const wrappedExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
         const pool = new Pool(name);
-        let address = '';
-
-        before(async function () {
-            address = await curve.signer.getAddress();
-        });
+        const address = curve.signerAddress;
 
         for (let i = 0; i < pool.coins.length; i++) {
             for (let j = 0; j < pool.coins.length; j++) {
@@ -171,7 +163,7 @@ describe('Wrapped tests', async function () {
     this.timeout(120000);
 
     before(async function () {
-        await curve.init({ gasPrice: 0 });
+        await curve.init('JsonRpc', {}, { gasPrice: 0 });
     });
 
     for (const poolName of LENDING_POOLS) {

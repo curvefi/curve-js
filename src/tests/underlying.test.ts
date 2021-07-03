@@ -12,11 +12,7 @@ const underlyingLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
         const myPool = new Pool(name);
         const coinAddresses = myPool.underlyingCoins;
-        let address = '';
-
-        before(async function () {
-            address = await curve.signer.getAddress();
-        });
+        const address = curve.signerAddress;
 
         it('Adds liquidity', async function () {
             const amount = '10';
@@ -136,11 +132,7 @@ const underlyingLiquidityTest = (name: string) => {
 const underlyingExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
         const pool = new Pool(name);
-        let address = '';
-
-        before(async function () {
-            address = await curve.signer.getAddress();
-        });
+        const address = curve.signerAddress;
 
         for (let i = 0; i < pool.underlyingCoins.length; i++) {
             for (let j = 0; j < pool.underlyingCoins.length; j++) {
@@ -171,7 +163,7 @@ describe('Underlying tests', async function () {
     this.timeout(120000);
 
     before(async function () {
-        await curve.init({ gasPrice: 0 });
+        await curve.init('JsonRpc', {},{ gasPrice: 0 });
     });
 
     for (const poolName of PLAIN_POOLS) {

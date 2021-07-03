@@ -54,23 +54,53 @@ const aTokens = [
 ]
 
 class Curve {
-    provider: ethers.providers.JsonRpcProvider;
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
-    signer: ethers.providers.JsonRpcSigner;
+    signer: ethers.Signer;
+    signerAddress: string;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
     options: DictInterface<any>;
 
     constructor() {
         this.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
         this.signer = this.provider.getSigner();
+        this.signerAddress = '';
         this.multicallProvider = new MulticallProvider(this.provider);
         this.contracts = {};
         this.options = { gasLimit: 12000000 };
     }
 
-    // TODO gasPrice in gwei
-    async init(options: { gasPrice?: number } = {}): Promise<void> {
-        this.options.gasPrice = options.gasPrice ?? await this.provider.getGasPrice();
+    async init(
+        providerType: 'JsonRpc' | 'Web3' = 'JsonRpc',
+        providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider },
+        options: { gasPrice?: number } = {} // in Gwei
+    ): Promise<void> {
+        // JsonRpc provider
+        if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
+            providerSettings = providerSettings as { url: string, privateKey: string };
+
+            if (providerSettings.url) {
+                this.provider = this.provider = new ethers.providers.JsonRpcProvider(providerSettings.url);
+                this.multicallProvider = new MulticallProvider(this.provider);
+            }
+
+            if (providerSettings.privateKey) {
+                console.log('pk');
+                this.signer = new ethers.Wallet(providerSettings.privateKey, this.provider);
+            } else {
+                console.log('No pk');
+                this.signer = this.provider.getSigner();
+            }
+        // Web3 provider
+        } else if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
+            providerSettings = providerSettings as { externalProvider: ethers.providers.ExternalProvider };
+            this.provider = new ethers.providers.Web3Provider(providerSettings.externalProvider as ethers.providers.ExternalProvider);
+            this.multicallProvider = new MulticallProvider(this.provider);
+            this.signer = this.provider.getSigner();
+        }
+
+        this.signerAddress = await this.signer.getAddress();
+        this.options.gasPrice = options.gasPrice ? (options.gasPrice * 1e9) : await this.provider.getGasPrice();
 
         // TODO delete toLowerCase()
         for (const pool of Object.values(poolsData)) {
@@ -203,6 +233,3 @@ class Curve {
 }
 
 export const curve = new Curve();
-
-Object.freeze(curve);
-Object.preventExtensions(curve);

@@ -4,7 +4,7 @@ import { BN, getBalances } from "../utils";
 import { curve } from "../curve";
 
 const bestExchangeTest = async (coin1: string, coin2: string) => {
-    const address = await curve.signer.getAddress();
+    const address = curve.signerAddress;
     const amount = '100';
     const initialBalances = (await getBalances([address], [coin1, coin2]))[address];
 
@@ -21,7 +21,7 @@ describe('Exchange using all pools', async function () {
     this.timeout(240000);
 
     before(async function () {
-        await curve.init({ gasPrice: 0 });
+        await curve.init('JsonRpc', {}, { gasPrice: 0 });
     });
 
     const DAI = "0x6b175474e89094c44da98b954eedeac495271d0f";

@@ -70,7 +70,7 @@ export const increaseAmount = async (amount: string): Promise<string> => {
 }
 
 export const increaseUnlockTime = async (days: number): Promise<string> => {
-    const address = await curve.signer.getAddress();
+    const address = curve.signerAddress;
     const { unlockTime } = await getLockedAmountAndUnlockTime(address);
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
 

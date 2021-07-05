@@ -2,7 +2,7 @@
   "name": "curve",
   "version": "1.0.0",
   "description": "JavaScript library for curve.fi",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json"
   },

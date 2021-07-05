@@ -159,7 +159,7 @@ const wrappedExchangeTest = (name: string) => {
     });
 }
 
-describe('Wrapped tests', async function () {
+describe('Wrapped test', async function () {
     this.timeout(120000);
 
     before(async function () {

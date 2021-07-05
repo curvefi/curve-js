@@ -159,7 +159,7 @@ const underlyingExchangeTest = (name: string) => {
     });
 }
 
-describe('Underlying tests', async function () {
+describe('Underlying test', async function () {
     this.timeout(120000);
 
     before(async function () {

@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { Pool } from "../pools";
-import { BN, getBalances } from "../utils";
-import { curve } from "../curve";
+import { Pool } from "../src/pools";
+import { BN, getBalances } from "../src/utils";
+import { curve } from "../src/curve";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
 const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link']; // Without eurs

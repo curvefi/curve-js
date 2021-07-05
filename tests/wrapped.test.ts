@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { Pool } from "../pools";
-import { BN, getBalances } from "../utils";
-import { curve } from "../curve";
+import { Pool } from "../src/pools";
+import { BN, getBalances } from "../src/utils";
+import { curve } from "../src/curve";
 
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2'];

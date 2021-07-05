@@ -4,7 +4,7 @@
   "description": "JavaScript library for curve.fi",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig.build.json"
   },
   "author": "Macket",
   "license": "ISC",

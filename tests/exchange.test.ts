@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { getBestPoolAndOutput, exchange } from "../pools";
-import { BN, getBalances } from "../utils";
-import { curve } from "../curve";
+import { getBestPoolAndOutput, exchange } from "../src/pools";
+import { BN, getBalances } from "../src/utils";
+import { curve } from "../src/curve";
 
 const bestExchangeTest = async (coin1: string, coin2: string) => {
     const address = curve.signerAddress;

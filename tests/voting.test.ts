@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { getBalances, BN } from "../utils";
-import { createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime } from '../voting';
-import { curve, ALIASES } from "../curve";
+import { getBalances, BN } from "../src/utils";
+import { createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime } from '../src/voting';
+import { curve, ALIASES } from "../src/curve";
 
 describe('Voting Escrow', function() {
     this.timeout(120000);

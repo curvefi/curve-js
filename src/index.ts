@@ -6,7 +6,7 @@ import { getLockedAmountAndUnlockTime, getVeCRV, getVeCRVPct, createLock, increa
 const init = async (
     providerType: 'JsonRpc' | 'Web3',
     providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider },
-    options: { gasPrice?: number }
+    options: { gasPrice?: number } = {}
 ): Promise<void> => {
     await _curve.init(providerType, providerSettings, options);
 }

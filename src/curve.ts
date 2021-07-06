@@ -70,7 +70,7 @@ class Curve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' = 'JsonRpc',
+        providerType: 'JsonRpc' | 'Web3',
         providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider },
         options: { gasPrice?: number } = {} // in Gwei
     ): Promise<void> {
@@ -84,10 +84,8 @@ class Curve {
             }
 
             if (providerSettings.privateKey) {
-                console.log('pk');
                 this.signer = new ethers.Wallet(providerSettings.privateKey, this.provider);
             } else {
-                console.log('No pk');
                 this.signer = this.provider.getSigner();
             }
         // Web3 provider

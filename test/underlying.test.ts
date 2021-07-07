@@ -12,7 +12,12 @@ const underlyingLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
         const myPool = new Pool(name);
         const coinAddresses = myPool.underlyingCoins;
-        const address = curve.signerAddress;
+        let address = '';
+
+        // It's needed because curve.signer.getAddress() is async
+        before( async () => {
+            address = curve.signerAddress;
+        })
 
         it('Adds liquidity', async function () {
             const amount = '10';
@@ -132,7 +137,12 @@ const underlyingLiquidityTest = (name: string) => {
 const underlyingExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
         const pool = new Pool(name);
-        const address = curve.signerAddress;
+        let address = '';
+
+        // It's needed because curve.signer.getAddress() is async
+        before( async () => {
+            address = curve.signerAddress;
+        })
 
         for (let i = 0; i < pool.underlyingCoins.length; i++) {
             for (let j = 0; j < pool.underlyingCoins.length; j++) {

@@ -10,7 +10,12 @@ const wrappedLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
         const myPool = new Pool(name);
         const coinAddresses = myPool.coins;
-        const address = curve.signerAddress;
+        let address = '';
+
+        // It's needed because curve.signer.getAddress() is async
+        before( async () => {
+            address = curve.signerAddress;
+        })
 
         it('Adds liquidity', async function () {
             const amount = '10';
@@ -131,7 +136,12 @@ const wrappedLiquidityTest = (name: string) => {
 const wrappedExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
         const pool = new Pool(name);
-        const address = curve.signerAddress;
+        let address = '';
+
+        // It's needed because curve.signer.getAddress() is async
+        before( async () => {
+            address = curve.signerAddress;
+        })
 
         for (let i = 0; i < pool.coins.length; i++) {
             for (let j = 0; j < pool.coins.length; j++) {

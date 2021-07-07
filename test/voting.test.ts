@@ -5,10 +5,11 @@ import { curve, ALIASES } from "../src/curve";
 
 describe('Voting Escrow', function() {
     this.timeout(120000);
-    const address = curve.signerAddress;
+    let address = '';
 
     before(async function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
+        address = curve.signerAddress;
     });
 
     it('Creates lock in Voting Escrow contract', async function () {

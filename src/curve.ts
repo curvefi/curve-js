@@ -72,7 +72,7 @@ class Curve {
     async init(
         providerType: 'JsonRpc' | 'Web3',
         providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider },
-        options: { gasPrice?: number } = {} // in Gwei
+        options: { gasPrice?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
         // JsonRpc provider
         if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
@@ -96,8 +96,12 @@ class Curve {
             this.signer = this.provider.getSigner();
         }
 
-        this.multicallProvider = new MulticallProvider(this.provider);
-        await this.multicallProvider.init();
+        if (options.chainId) {
+            this.multicallProvider = new MulticallProvider(this.provider, options.chainId);
+        } else {
+            this.multicallProvider = new MulticallProvider(this.provider);
+            await this.multicallProvider.init();
+        }
         this.signerAddress = await this.signer.getAddress();
         this.options.gasPrice = options.gasPrice ? (options.gasPrice * 1e9) : await this.provider.getGasPrice();
 

@@ -61,10 +61,10 @@ class Curve {
     options: { gasLimit: number, gasPrice?: number | ethers.BigNumber };
 
     constructor() {
-        this.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
-        this.signer = this.provider.getSigner();
+        this.provider = null;
+        this.signer = null;
         this.signerAddress = '';
-        this.multicallProvider = new MulticallProvider(this.provider);
+        this.multicallProvider = null;
         this.contracts = {};
         this.options = { gasLimit: 12000000 };
     }
@@ -80,7 +80,8 @@ class Curve {
 
             if (providerSettings.url) {
                 this.provider = this.provider = new ethers.providers.JsonRpcProvider(providerSettings.url);
-                this.multicallProvider = new MulticallProvider(this.provider);
+            } else {
+                this.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
             }
 
             if (providerSettings.privateKey) {
@@ -91,11 +92,12 @@ class Curve {
         // Web3 provider
         } else if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
             providerSettings = providerSettings as { externalProvider: ethers.providers.ExternalProvider };
-            this.provider = new ethers.providers.Web3Provider(providerSettings.externalProvider as ethers.providers.ExternalProvider);
-            this.multicallProvider = new MulticallProvider(this.provider);
+            this.provider = new ethers.providers.Web3Provider(providerSettings.externalProvider);
             this.signer = this.provider.getSigner();
         }
 
+        this.multicallProvider = new MulticallProvider(this.provider);
+        await this.multicallProvider.init();
         this.signerAddress = await this.signer.getAddress();
         this.options.gasPrice = options.gasPrice ? (options.gasPrice * 1e9) : await this.provider.getGasPrice();
 
@@ -224,8 +226,6 @@ class Curve {
             contract: new Contract(ALIASES.gauge_controller, gaugeControllerABI, this.signer),
             multicallContract: new MulticallContract(ALIASES.gauge_controller, gaugeControllerABI),
         };
-
-        await this.multicallProvider.init();
     }
 }
 

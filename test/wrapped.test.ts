@@ -150,7 +150,7 @@ const wrappedExchangeTest = (name: string) => {
                     it(`${i} --> ${j}`, async function () {
                         const swapAmount = '10';
                         const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
-                        const expected = await pool.getExchangeOutputWrapped(i, j, swapAmount);
+                        const expected = await pool.exchangeWrappedExpected(i, j, swapAmount);
 
                         await pool.exchangeWrapped(i, j, swapAmount, 0.02);
 

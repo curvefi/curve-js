@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { getBestPoolAndOutput, exchange } from "../src/pools";
+import { exchangeExpected, exchange } from "../src/pools";
 import { BN, getBalances } from "../src/utils";
 import { curve } from "../src/curve";
 
@@ -8,7 +8,7 @@ const bestExchangeTest = async (coin1: string, coin2: string) => {
     const amount = '100';
     const initialBalances = (await getBalances([address], [coin1, coin2]))[address];
 
-    const { output } = await getBestPoolAndOutput(coin1, coin2, amount);
+    const output = await exchangeExpected(coin1, coin2, amount);
     await exchange(coin1, coin2, amount);
 
     const balancesAfterSwap = (await getBalances([address], [coin1, coin2]))[address];

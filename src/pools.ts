@@ -348,7 +348,7 @@ export class Pool {
         return balances
     }
 
-    public getExchangeOutput = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
+    public exchangeExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
         const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
@@ -372,7 +372,7 @@ export class Pool {
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
-    public getExchangeOutputWrapped = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
+    public exchangeWrappedExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
         const i = this._getCoinIdx(inputCoin, false);
         const j = this._getCoinIdx(outputCoin, false);
         const _amount = ethers.utils.parseUnits(amount, this.decimals[i]);
@@ -842,12 +842,21 @@ export const _getBestPoolAndOutput = async (inputCoinAddress: string, outputCoin
     return { poolAddress, output }
 }
 
-export const getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<{ poolAddress: string, output: string }> => {
+export const getBestPoolAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ poolAddress: string, output: string }> => {
+    const inputCoinAddress = _getCoinAddress(inputCoin);
+    const outputCoinAddress = _getCoinAddress(outputCoin);
     const { poolAddress, output: outputBN } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
     const output = ethers.utils.formatUnits(outputBN, await _getDecimals(outputCoinAddress));
 
     return { poolAddress, output }
 }
+
+export const exchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
+    const { output } = await getBestPoolAndOutput(inputCoin, outputCoin, amount);
+
+    return output
+}
+
 
 export const exchange = async (inputCoin: string, outputCoin: string, amount: string): Promise<void> => {
     const inputCoinAddress = _getCoinAddress(inputCoin);

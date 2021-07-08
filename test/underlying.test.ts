@@ -151,7 +151,7 @@ const underlyingExchangeTest = (name: string) => {
                     it(`${i} --> ${j}`, async function () {
                         const swapAmount = '10';
                         const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
-                        const expected = await pool.getExchangeOutput(i, j, swapAmount);
+                        const expected = await pool.exchangeExpected(i, j, swapAmount);
 
                         await pool.exchange(i, j, swapAmount, 0.02);
 

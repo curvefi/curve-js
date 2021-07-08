@@ -147,7 +147,7 @@ class Curve {
                 }
             }
 
-            for (const coinAddr of pool.underlying_coins) {
+            for (const coinAddr of pool.underlying_coin_addresses) {
                 this.contracts[coinAddr] = {
                     contract: new Contract(coinAddr, ERC20Abi, this.signer),
                     multicallContract: new MulticallContract(coinAddr, ERC20Abi),
@@ -159,7 +159,7 @@ class Curve {
             }
 
             // TODO add all coins
-            for (const coinAddr of pool.coins) {
+            for (const coinAddr of pool.coin_addresses) {
                 if (cTokens.includes(coinAddr)) {
                     this.contracts[coinAddr] = {
                         contract: new Contract(coinAddr, cERC20Abi, this.signer),

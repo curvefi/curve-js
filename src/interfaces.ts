@@ -19,6 +19,8 @@ export interface PoolDataInterface {
     old_token_address?: string,
     migration_address?: string,
     deposit_address?: string,
+    underlying_coins: string[],
+    coins: string[],
     underlying_coin_addresses: string[],
     coin_addresses: string[],
     swap_abi: any,

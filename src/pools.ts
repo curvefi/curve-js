@@ -26,6 +26,8 @@ export class Pool {
     zap: string | null;
     lpToken: string;
     gauge: string;
+    underlyingCoins: string[];
+    coins: string[];
     underlyingCoinAddresses: string[];
     coinAddresses: string[];
     underlyingDecimals: number[];
@@ -42,6 +44,8 @@ export class Pool {
         this.zap = poolData.deposit_address || null;
         this.lpToken = poolData.token_address;
         this.gauge = poolData.gauge_address;
+        this.underlyingCoins = poolData.underlying_coins;
+        this.coins = poolData.coins;
         this.underlyingCoinAddresses = poolData.underlying_coin_addresses;
         this.coinAddresses = poolData.coin_addresses;
         this.underlyingDecimals = poolData.underlying_decimals;

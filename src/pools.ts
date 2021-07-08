@@ -432,6 +432,7 @@ export class Pool {
         }
 
         const totalPower = Object.values(votingPower).reduce((sum, item) => sum.plus(item));
+        // @ts-ignore
         const optimalBN: DictInterface<BigNumber> = Object.fromEntries(accounts.map((acc) => [acc, BN(0)]));
         if (totalBalance.lt(gaugeTotalSupply.times(totalPower).div(veTotalSupply))) {
             for (const acct of accounts) {

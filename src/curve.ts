@@ -61,9 +61,12 @@ class Curve {
     options: { gasLimit: number, gasPrice?: number | ethers.BigNumber };
 
     constructor() {
+        // @ts-ignore
         this.provider = null;
+        // @ts-ignore
         this.signer = null;
         this.signerAddress = '';
+        // @ts-ignore
         this.multicallProvider = null;
         this.contracts = {};
         this.options = { gasLimit: 12000000 };
@@ -94,6 +97,8 @@ class Curve {
             providerSettings = providerSettings as { externalProvider: ethers.providers.ExternalProvider };
             this.provider = new ethers.providers.Web3Provider(providerSettings.externalProvider);
             this.signer = this.provider.getSigner();
+        } else {
+            throw Error('Wrong providerType');
         }
 
         if (options.chainId) {

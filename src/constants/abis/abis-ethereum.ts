@@ -178,7 +178,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         token_address: '0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B',
         gauge_address: '0x69Fb7c45726cfE2baDeE8317005d3F94bE838840',
         underlying_coins: ['DAI', 'USDC', 'USDT', 'BUSD'],
-        coins: ['yDAI', 'yUSDC', 'yUSDT', 'yBUSD'],
+        coins: ['byDAI', 'byUSDC', 'byUSDT', 'yBUSD'],
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

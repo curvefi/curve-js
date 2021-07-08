@@ -9,7 +9,7 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 const wrappedLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
         const myPool = new Pool(name);
-        const coinAddresses = myPool.coins;
+        const coinAddresses = myPool.coinAddresses;
         let address = '';
 
         // It's needed because curve.signer.getAddress() is async
@@ -136,6 +136,7 @@ const wrappedLiquidityTest = (name: string) => {
 const wrappedExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
         const pool = new Pool(name);
+        const coinAddresses = pool.coinAddresses;
         let address = '';
 
         // It's needed because curve.signer.getAddress() is async
@@ -143,17 +144,17 @@ const wrappedExchangeTest = (name: string) => {
             address = curve.signerAddress;
         })
 
-        for (let i = 0; i < pool.coins.length; i++) {
-            for (let j = 0; j < pool.coins.length; j++) {
+        for (let i = 0; i < coinAddresses.length; i++) {
+            for (let j = 0; j < coinAddresses.length; j++) {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
                         const swapAmount = '10';
-                        const initialCoinBalances: string[] = (await getBalances([address], pool.coins))[address];
+                        const initialCoinBalances: string[] = (await getBalances([address], coinAddresses))[address];
                         const expected = await pool.getExchangeOutputWrapped(i, j, swapAmount);
 
                         await pool.exchangeWrapped(i, j, swapAmount, 0.02);
 
-                        const coinBalancesAfterSwap: string[] = (await getBalances([address], pool.coins))[address];
+                        const coinBalancesAfterSwap: string[] = (await getBalances([address], coinAddresses))[address];
 
                         if (['aave', 'saave'].includes(pool.name)) {
                             // Because of increasing quantity

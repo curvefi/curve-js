@@ -78,13 +78,7 @@ import lusdRewardsabi from './json/lusd/rewards.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
-// const infura_url = config.rpcUrl;
-const infura_url = '<infura_url>';
-
-//rinkeby multicall 0x0ae6578785868f88478B6bCe8227d6F85703092b
-const multicall_address = '0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441';
-
-const poolsData: { [index: string]: PoolDataInterface } = {
+export const poolsData: { [index: string]: PoolDataInterface } = {
     compound: {
         N_COINS: 2,
         underlying_decimals: [18, 6],
@@ -97,7 +91,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         gauge_address: '0x7ca5b0a2910B33e9759DC7dDB0413949071D7575',
         old_token_address: '0x3740fb63ab7a09891d7c0d4299442A551D06F5fD',
         migration_address: '0x54Ee22d5593FC76fB20EafAb66C45aAb3268B800',
-        infura_url,
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -123,7 +116,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C',
         token_address: '0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23',
         gauge_address: '0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53',
-        infura_url,
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -149,7 +141,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51',
         token_address: '0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8',
         gauge_address: '0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1',
-        infura_url,
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -180,7 +171,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27',
         token_address: '0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B',
         gauge_address: '0x69Fb7c45726cfE2baDeE8317005d3F94bE838840',
-        infura_url,
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -210,7 +200,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xA5407eAE9Ba41422680e2e00537571bcC53efBfD',
         token_address: '0xC25a3A3b969415c80451098fa907EC722572917F',
         gauge_address: '0xA90996896660DEcC6E997655E065b23788857849',
-        infura_url,
         deposit_address: '0xFCBa3E75865d2d561BE8D220616520c171F12851',
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -240,7 +229,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x06364f10B501e868329afBc005b3492902d6C763',
         token_address: '0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8',
         gauge_address: '0x64E3C23bfc40722d3B649844055F1D51c1ac041d',
-        infura_url,
         deposit_address: '0xA50cCc70b6a011CffDdf45057E39679379187287',
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -266,7 +254,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x93054188d876f558f4a66B2EF1d97d16eDf0895B',
         token_address: '0x49849C98ae39Fff122806C06791Fa73784FB3675',
         gauge_address: '0xB1F2cdeC61db658F091671F5f199635aEF202CAC',
-        infura_url,
         underlying_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -276,10 +263,10 @@ const poolsData: { [index: string]: PoolDataInterface } = {
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
         ],
         swap_abi: renSwapABI,
-        adapterABI: renAdapterABI,
-        oldAdapterAddress: '0x9fe350DfA5F66bC086243F21A8F0932514316627',
-        adapterBiconomyAddress: '0x73aB2Bd10aD10F7174a1AD5AFAe3ce3D991C5047',
-        adapterAddress: '0x26D9980571e77FfB0349f9c801DD7ca9951Fb656',
+        adapter_abi: renAdapterABI,
+        old_adapter_address: '0x9fe350DfA5F66bC086243F21A8F0932514316627',
+        adapter_biconomy_address: '0x73aB2Bd10aD10F7174a1AD5AFAe3ce3D991C5047',
+        adapter_address: '0x26D9980571e77FfB0349f9c801DD7ca9951Fb656',
     },
 
     sbtc: {
@@ -292,7 +279,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714',
         token_address: '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
         gauge_address: '0x705350c4BcD35c9441419DdD5d2f097d7a55410F',
-        infura_url,
         underlying_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -304,10 +290,10 @@ const poolsData: { [index: string]: PoolDataInterface } = {
             '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
         swap_abi: sbtcSwapABI,
-        adapterABI: sbtcAdapterABI,
-        oldAdapterAddress: '0x104c1E66c67c385E6095FFcC6227D75c761DC019',
-        adapterBiconomyAddress: '0xAEade605D01FE9a8e9C4B3AA0130A90d62167029',
-        adapterAddress: '0x02B3F51AC9202aA19be63d61A8C681579D6E3a51',
+        adapter_abi: sbtcAdapterABI,
+        old_adapter_address: '0x104c1E66c67c385E6095FFcC6227D75c761DC019',
+        adapter_biconomy_address: '0xAEade605D01FE9a8e9C4B3AA0130A90d62167029',
+        adapter_address: '0x02B3F51AC9202aA19be63d61A8C681579D6E3a51',
         sCurveRewards_abi: sbtcSCurveRewardsABI,
         sCurveRewards_address: '0x13C1542A468319688B89E323fe9A3Be3A90EBb27',
     },
@@ -323,7 +309,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F',
         token_address: '0xb19059ebb43466C323583928285a49f558E572Fd',
         gauge_address: '0x4c18E409Dc8619bFb6a1cB56D114C3f592E0aE79',
-        infura_url,
         underlying_coin_addresses: [
             '0x0316EB71485b0Ab14103307bf65a021042c6d380',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -345,7 +330,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',
         token_address: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
         gauge_address: '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A',
-        infura_url,
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -368,7 +352,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956',
         token_address: '0xD2967f45c4f384DEEa880F807Be904762a3DeA07',
         gauge_address: '0xC5cfaDA84E902aD92DD40194f0883ad49639b023',
-        infura_url,
         underlying_coin_addresses: [
             '0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -410,7 +393,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604',
         token_address: '0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858',
         gauge_address: '0x2db0E83599a91b508Ac268a6197b8B14F5e72840',
-        infura_url,
         underlying_coin_addresses: [
             '0xdF574c24545E5FfEcb9a659c229253D4111d87e1',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -452,7 +434,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb',
         token_address: '0x97E2768e8E73511cA874545DC5Ff8067eB19B787',
         gauge_address: '0xC2b1DF84112619D190193E48148000e3990Bf627',
-        infura_url,
         underlying_coin_addresses: [
             '0x1c48f86ae57291F7686349F12601910BD8D470bb',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -494,7 +475,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1',
         token_address: '0x4f3E8F405CF5aFC05D68142F3783bDfE13811522',
         gauge_address: '0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4',
-        infura_url,
         underlying_coin_addresses: [
             '0x674C6Ad92Fd080e4004b2312b45f796a192D27a0',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -536,7 +516,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6',
         token_address: '0x1AEf73d49Dedc4b1778d0706583995958Dc862e6',
         gauge_address: '0x5f626c30EC1215f4EdCc9982265E8b1F411D1352',
-        infura_url,
         underlying_coin_addresses: [
             '0xe2f2a5C287993345a840Db3B0845fbC70f5935a5',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -580,7 +559,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xC18cC39da8b11dA8c3541C598eE022258F9744da',
         token_address: '0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35',
         gauge_address: '0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7',
-        infura_url,
         underlying_coin_addresses: [
             '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -624,7 +602,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xC25099792E9349C7DD09759744ea681C7de2cb66',
         token_address: '0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd',
         gauge_address: '0x6828bcF74279eE32f2723eC536c22c51Eed383C6',
-        infura_url,
         underlying_coin_addresses: [
             '0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa',
             '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
@@ -668,7 +645,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c',
         token_address: '0x3a664Ab939FD8482048609f652f9a0B0677337B9',
         gauge_address: '0xAEA6c312f4b3E04D752946d329693F7293bC2e6D',
-        infura_url,
         underlying_coin_addresses: [
             '0x5BC25f649fc4e26069dDF4cF4010F9f706c23831',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -713,7 +689,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF',
         token_address: '0xDE5331AC4B3630f94853Ff322B66407e0D6331E8',
         gauge_address: '0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416',
-        infura_url,
         underlying_coin_addresses: [
             '0x5228a22e72ccC52d415EcFd199F99D0665E7733b',
             '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
@@ -758,7 +733,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b',
         token_address: '0x410e3E86ef427e30B9235497143881f717d93c2A',
         gauge_address: '0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE',
-        infura_url,
         underlying_coin_addresses: [
             '0x9be89d2a4cd102d8fecc6bf9da793be995c22541',
             '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
@@ -800,7 +774,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xd81dA8D904b52208541Bade1bD6595D8a251F8dd',
         token_address: '0x2fE94ea3d5d4a175184081439753DE15AeF9d614',
         gauge_address: '0x11137B10C210b579405c21A07489e28F3c040AB1',
-        infura_url,
         underlying_coin_addresses: [
             '0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68',
             '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
@@ -846,7 +819,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xc5424b857f758e906013f3555dad202e4bdb4567',
         token_address: '0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c',
         gauge_address: '0x3C0FFFF15EA30C35d7A85B85c0782D6c94e1d238',
-        infura_url,
         underlying_coin_addresses: [
             '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
             '0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb',
@@ -868,7 +840,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x0Ce6a5fF5217e38315f87032CF90686C96627CAA',
         token_address: '0x194eBd173F6cDacE046C53eACcE9B953F28411d1',
         gauge_address: '0x90Bb609649E0451E5aD952683D64BD2d1f245840',
-        infura_url,
         underlying_coin_addresses: [
             '0xdB25f211AB05b1c97D595516F45794528a807ad8',
             '0xD71eCFF9342A5Ced620049e616c5035F1dB98620',
@@ -893,7 +864,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x890f4e345B1dAED0367A877a1612f86A1f86985f',
         token_address: '0x94e131324b6054c0D789b190b2dAC504e4361b53',
         gauge_address: '0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855',
-        infura_url,
         underlying_coin_addresses: [
             '0xa47c8bf37f92abed4a126bda807a7b7498661acd',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -935,7 +905,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xDeBF20617708857ebe4F679508E7b7863a8A8EeE',
         token_address: '0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900',
         gauge_address: '0xd662908ADA2Ea1916B3318327A97eB18aD588b5d',
-        infura_url,
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -961,7 +930,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xDC24316b9AE028F1497c275EB9192a3Ea0f67022',
         token_address: '0x06325440D014e39736583c165C2963BA99fAf14E',
         gauge_address: '0x182B723a58739a9c974cFDB385ceaDb237453c28',
-        infura_url,
         underlying_coin_addresses: [
             '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
             '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
@@ -986,7 +954,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xEB16Ae0052ed37f479f7fe63849198Df1765a733',
         token_address: '0x02d341CcB60fAaf662bC0554d13778015d1b285C',
         gauge_address: '0x462253b8F74B72304c145DB0e4Eebd326B22ca39',
-        infura_url,
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0x57ab1ec28d129707052df4df418d58a2d46d5f51',
@@ -1010,7 +977,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xA96A65c051bF88B4095Ee1f2451C2A9d43F53Ae2',
         token_address: '0xaA17A236F2bAdc98DDc0Cf999AbB47D47Fc0A6Cf',
         gauge_address: '0x6d10ed2cf043e6fcf51a0e7b4c2af3fa06695707',
-        infura_url,
         underlying_coin_addresses: [
             '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
             '0xE95A203B1a91a908F9B9CE46459d101078c2c3cb',
@@ -1036,7 +1002,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x42d7025938bEc20B69cBae5A77421082407f053A',
         token_address: '0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6',
         gauge_address: '0x055be5DDB7A925BfEF3417FC157f53CA77cA7222',
-        infura_url,
         underlying_coin_addresses: [
             '0x1456688345527bE1f37E9e627DA0837D6f08C925',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -1079,7 +1044,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF',
         token_address: '0x5282a4eF67D9C33135340fB3289cc1711c13638C',
         gauge_address: '0xF5194c3325202F456c95c1Cf0cA36f8475C1949F',
-        infura_url,
         underlying_coin_addresses: [
             '0x6b175474e89094c44da98b954eedeac495271d0f',
             '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -1103,7 +1067,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xF178C0b5Bb7e7aBF4e12A4838C7b7c5bA2C623c0',
         token_address: '0xcee60cfa923170e4f8204ae08b4fa6a3f5656f3a',
         gauge_address: '0xfd4d8a17df4c27c1dd245d153ccf4499e806c87d',
-        infura_url,
         underlying_coin_addresses: [
             '0x514910771AF9Ca656af840dff83E8264EcF986CA',
             '0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6',
@@ -1124,7 +1087,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xecd5e75afb02efa118af914515d6521aabd189f1',
         token_address: '0xecd5e75afb02efa118af914515d6521aabd189f1',
         gauge_address: '0x359FD5d6417aE3D8D6497d9B2e7A890798262BA4',
-        infura_url,
         underlying_coin_addresses: [
             '0x0000000000085d4780B73119b644AE5ecd22b376',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -1166,7 +1128,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',
         token_address: '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',
         gauge_address: '0x72e158d38dbd50a483501c24f792bdaaa3e7d55c',
-        infura_url,
         underlying_coin_addresses: [
             '0x853d955acef822db058eb8505911ed77f175b99e',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -1208,7 +1169,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA',
         token_address: '0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA',
         gauge_address: '0x9b8519a9a00100720ccdc8a120fbed319ca47a14',
-        infura_url,
         underlying_coin_addresses: [
             '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -1253,7 +1213,6 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x4807862AA8b2bF68830e4C8dc86D0e9A998e085a',
         token_address: '0x4807862AA8b2bF68830e4C8dc86D0e9A998e085a',
         gauge_address: '0xd4b22fedca85e684919955061fdf353b9d38389b',
-        infura_url,
         underlying_coin_addresses: [
             '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
@@ -1284,10 +1243,4 @@ const poolsData: { [index: string]: PoolDataInterface } = {
         ],
         is_factory: true,
     },
-};
-
-export {
-    infura_url,
-    multicall_address,
-    poolsData,
 };

@@ -3,16 +3,19 @@ import { Pool, getBestPoolAndOutput, exchangeExpected, exchange } from "./pools"
 import { curve as _curve } from "./curve";
 import { getLockedAmountAndUnlockTime, getVeCRV, getVeCRVPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCRV } from "./boosting";
 
-const init = async (
+async function init (
     providerType: 'JsonRpc' | 'Web3',
     providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider },
     options: { gasPrice?: number, chainId?: number } = {}
-): Promise<void> => {
+): Promise<void> {
     await _curve.init(providerType, providerSettings, options);
+    // @ts-ignore
+    this.signerAddress = _curve.signerAddress;
 }
 
 const curve = {
     init,
+    signerAddress: '',
     Pool,
     getBestPoolAndOutput,
     exchangeExpected,

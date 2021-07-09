@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
-import { Pool, getBestPoolAndOutput, exchange } from "./pools";
+import { Pool, getBestPoolAndOutput, exchangeExpected, exchange } from "./pools";
 import { curve as _curve } from "./curve";
-import { getLockedAmountAndUnlockTime, getVeCRV, getVeCRVPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCRV } from "./voting";
+import { getLockedAmountAndUnlockTime, getVeCRV, getVeCRVPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCRV } from "./boosting";
 
 const init = async (
     providerType: 'JsonRpc' | 'Web3',
@@ -15,8 +15,9 @@ const curve = {
     init,
     Pool,
     getBestPoolAndOutput,
+    exchangeExpected,
     exchange,
-    voting: {
+    boosting: {
         getLockedAmountAndUnlockTime,
         getVeCRV,
         getVeCRVPct,

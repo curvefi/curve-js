@@ -1,9 +1,9 @@
 import { assert } from "chai";
 import { getBalances, BN } from "../src/utils";
-import { createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime } from '../src/voting';
+import { createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime } from '../src/boosting';
 import { curve, ALIASES } from "../src/curve";
 
-describe('Voting Escrow', function() {
+describe('Boosting', function() {
     this.timeout(120000);
     let address = '';
 

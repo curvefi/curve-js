@@ -892,7 +892,9 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
         throw new Error("This pair can't be exchanged");
     }
     const poolName = getPoolNameBySwapAddress(poolAddress);
-    const [i, j, is_underlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
+    const [_i, _j, is_underlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
+    const i = Number(_i.toString());
+    const j = Number(_j.toString());
 
     const pool = new Pool(poolName);
 

@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { DictInterface } from './interfaces';
 import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";
+import { DECIMALS } from "./constants";
 
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
@@ -34,24 +35,7 @@ export const _getDecimals = async (...coins: string[] | string[][]): Promise<num
     if (coins.length == 1 && Array.isArray(coins[0])) _coins = coins[0];
     _coins = [..._coins] as string[];
 
-    const ethIndex = getEthIndex(_coins);
-    if (ethIndex !== -1) {
-        _coins.splice(ethIndex, 1);
-    }
-
-    let decimals: (number | ethers.BigNumber)[];
-    if (_coins.length === 1) {
-        decimals = [await curve.contracts[_coins[0]].contract.decimals()]
-    } else {
-        const contractCalls = _coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.decimals());
-        decimals = await curve.multicallProvider.all(contractCalls);
-    }
-
-    if (ethIndex !== -1) {
-        decimals.splice(ethIndex, 0, 18);
-    }
-
-    return decimals.map((d: ethers.BigNumber | number) => Number(d.toString()))
+    return  _coins.map((coinAddr) => DECIMALS[coinAddr] || 18);
 }
 
 

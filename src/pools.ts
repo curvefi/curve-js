@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import {
     _getDecimals,
     _getBalances,
+    getBalances,
     ensureAllowance,
     getPoolNameBySwapAddress,
     BN,
@@ -309,30 +310,32 @@ export class Pool {
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, curve.options)).hash;
     }
 
-    public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<string[]>> =>  {
-        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-        addresses = addresses as string[];
-
-        const rawBalances: DictInterface<ethers.BigNumber[]> = await _getBalances(addresses, [this.lpToken, this.gauge]);
-        const balances: DictInterface<string[]> = {};
-        for (const address of addresses) {
-            balances[address] = rawBalances[address].map((b: ethers.BigNumber) => ethers.utils.formatUnits(b));
-        }
-
-        return balances
+    public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+        return await this._balances(
+            ['lpToken', 'gauge', ...this.underlyingCoins, ...this.coins],
+            [this.lpToken, this.gauge, ...this.underlyingCoinAddresses, ...this.coinAddresses],
+            ...addresses
+        )
     }
 
-    public lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
-        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-        addresses = addresses as string[];
+    public lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+        return await this._balances(['lpToken', 'gauge'], [this.lpToken, this.gauge], ...addresses)
+    }
 
-        const rawBalances: DictInterface<ethers.BigNumber[]> = await _getBalances(addresses, [this.lpToken]);
-        const balances: DictInterface<string> = {};
-        for (const address of addresses) {
-            balances[address] = ethers.utils.formatUnits(rawBalances[address][0]);
-        }
+    public underlyingCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+        return await this._balances(this.underlyingCoins, this.underlyingCoinAddresses, ...addresses)
+    }
 
-        return balances;
+    public coinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+        return await this._balances(this.coins, this.coinAddresses, ...addresses)
+    }
+
+    public allCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+        return await this._balances(
+            [...this.underlyingCoins, ...this.coins],
+            [...this.underlyingCoinAddresses, ...this.coinAddresses],
+            ...addresses
+        )
     }
 
     public gaugeBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
@@ -555,6 +558,25 @@ export class Pool {
         }
 
         return _rates
+    }
+
+    private _balances = async (coinNames: string[], coinAddresses: string[], ...addresses: string[] | string[][]):
+        Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+        if (addresses.length === 0) addresses = [curve.signerAddress];
+        addresses = addresses as string[];
+
+        const rawBalances: DictInterface<string[]> = await getBalances(addresses, coinAddresses);
+
+        const balances: DictInterface<DictInterface<string>> = {};
+        for (const address of addresses) {
+            balances[address] = {};
+            for (const coinName of coinNames) {
+                balances[address][coinName] = rawBalances[address].shift() as string;
+            }
+        }
+
+        return addresses.length === 1 ? balances[addresses[0]] : balances
     }
 
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {

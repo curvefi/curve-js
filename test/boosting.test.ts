@@ -19,7 +19,7 @@ describe('Boosting', function() {
         const lockTime = Date.now();
         await createLock(lockAmount, 365);
         const CRVBalanceAfterLock = (await getBalances([address], [ALIASES.crv]))[address][0];
-        const { lockedAmount, unlockTime } = await getLockedAmountAndUnlockTime(address);
+        const { lockedAmount, unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
 
         assert.deepEqual(BN(lockedAmount), BN(initialCRVBalance).minus(BN(CRVBalanceAfterLock)));
         assert.isAtLeast(unlockTime + (7 * 86400 * 1000), lockTime + (365 * 86400 * 1000));
@@ -29,18 +29,18 @@ describe('Boosting', function() {
         const increaseLockAmount = '1000';
 
         const initialCRVBalance: string = (await getBalances([address], [ALIASES.crv]))[address][0];
-        const { lockedAmount: initialLockedAmount } = await getLockedAmountAndUnlockTime(address);
+        const { lockedAmount: initialLockedAmount } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
         await increaseAmount(increaseLockAmount);
         const CRVBalanceAfterLock = (await getBalances([address], [ALIASES.crv]))[address][0];
-        const { lockedAmount } = await getLockedAmountAndUnlockTime(address);
+        const { lockedAmount } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
 
         assert.deepEqual(BN(lockedAmount).minus(BN(initialLockedAmount)), BN(initialCRVBalance).minus(BN(CRVBalanceAfterLock)));
     });
 
     it('Extends lock time', async function () {
-        const { unlockTime: initialUnlockTime } = await getLockedAmountAndUnlockTime(address);
+        const { unlockTime: initialUnlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
         await increaseUnlockTime(120);
-        const { unlockTime } = await getLockedAmountAndUnlockTime(address);
+        const { unlockTime } = await getLockedAmountAndUnlockTime(address) as { lockedAmount: string, unlockTime: number };
 
         assert.isAtLeast(unlockTime + (7 * 86400 * 1000), initialUnlockTime + (120 * 86400 * 1000));
     });

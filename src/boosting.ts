@@ -5,15 +5,29 @@ import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
 
 
-export const getLockedAmountAndUnlockTime = async (address: string): Promise<{ lockedAmount: string, unlockTime: number }> => {
-    let [lockedAmount, unlockTime] = await curve.contracts[ALIASES.voting_escrow].contract.locked(address);
-    lockedAmount = ethers.utils.formatUnits(lockedAmount, await _getDecimals(ALIASES.crv));
-    unlockTime = Number(ethers.utils.formatUnits(unlockTime, 0)) * 1000; // ms
-    return { lockedAmount, unlockTime }
+export const getLockedAmountAndUnlockTime = async (...addresses: string[] | string[][]):
+    Promise<DictInterface<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {
+    if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+    if (addresses.length === 0) addresses = [curve.signerAddress];
+    addresses = addresses as string[];
+
+    const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
+    const contractCalls = addresses.map((address: string) => veContract.locked(address));
+
+    const response: (string | number)[][] = (await curve.multicallProvider.all(contractCalls)).map(
+        (value: ethers.BigNumber[]) => [ethers.utils.formatUnits(value[0]), Number(ethers.utils.formatUnits(value[1], 0)) * 1000]);
+
+    const result: DictInterface<{ lockedAmount: string, unlockTime: number }> = {};
+    addresses.forEach((addr: string, i: number) => {
+        result[addr] = { lockedAmount: response[i][0] as string, unlockTime: response[i][1] as number};
+    });
+
+    return addresses.length === 1 ? result[addresses[0]] : result
 }
 
-export const getVeCRV = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> => {
+export const getVeCRV = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
     if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+    if (addresses.length === 0) addresses = [curve.signerAddress];
     addresses = addresses as string[];
 
     const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
@@ -25,11 +39,12 @@ export const getVeCRV = async (...addresses: string[] | string[][]): Promise<Dic
         result[addr] = response[i];
     });
 
-    return result
+    return addresses.length === 1 ? result[addresses[0]] : result
 }
 
-export const getVeCRVPct = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> => {
+export const getVeCRVPct = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
     if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+    if (addresses.length === 0) addresses = [curve.signerAddress];
     addresses = addresses as string[];
 
     const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
@@ -51,7 +66,7 @@ export const getVeCRVPct = async (...addresses: string[] | string[][]): Promise<
         result[entry[0]] = toStringFromBN(entry[1]);
     }
 
-    return result
+    return addresses.length === 1 ? result[addresses[0]] : result
 }
 
 export const createLock = async (amount: string, days: number): Promise<string> => {
@@ -70,8 +85,7 @@ export const increaseAmount = async (amount: string): Promise<string> => {
 }
 
 export const increaseUnlockTime = async (days: number): Promise<string> => {
-    const address = curve.signerAddress;
-    const { unlockTime } = await getLockedAmountAndUnlockTime(address);
+    const { unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
 
     return (await curve.contracts[ALIASES.voting_escrow].contract.increase_unlock_time(newUnlockTime)).hash

@@ -37,6 +37,7 @@ export class Pool {
     useLending: boolean[];
     isMeta: boolean;
     basePool: string;
+    isFactory: boolean;
 
     constructor(name: string) {
         const poolData = poolsData[name];
@@ -55,6 +56,7 @@ export class Pool {
         this.useLending = poolData.use_lending;
         this.isMeta = poolData.is_meta || false;
         this.basePool = poolData.base_pool || '';
+        this.isFactory = poolData.is_factory || false;
 
         if (this.isMeta) {
             const metaCoins = poolData.meta_coin_addresses as string[];
@@ -586,7 +588,7 @@ export class Pool {
     private _calcLpTokenAmountZap = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
+        if (this.isFactory) {
             return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.options);
         }
 
@@ -633,7 +635,7 @@ export class Pool {
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
+        if (this.isFactory) {
             const gasLimit = (await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, value })).mul(130).div(100);
             return (await contract.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
         }
@@ -725,7 +727,7 @@ export class Pool {
         await ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
+        if (this.isFactory) {
             const gasLimit = (await contract.estimateGas.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, curve.options)).mul(130).div(100);
             return (await contract.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
         }
@@ -764,7 +766,7 @@ export class Pool {
         await ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
+        if (this.isFactory) {
             const gasLimit = (await contract.estimateGas.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, curve.options)).mul(130).div(100);
             return (await contract.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
         }
@@ -791,7 +793,7 @@ export class Pool {
     private _calcWithdrawOneCoinZap = async (_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
+        if (this.isFactory) {
             return (await contract.calc_withdraw_one_coin(this.swap, _lpTokenAmount, i, curve.options));
         }
 
@@ -815,7 +817,7 @@ export class Pool {
         await ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
         const  contract = curve.contracts[this.zap as string].contract;
 
-        if (['tusd', 'frax', 'lusd', 'busdv2'].includes(this.name)) {
+        if (this.isFactory) {
             const gasLimit = (await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.options)).mul(130).div(100);
             return (await contract.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
         }

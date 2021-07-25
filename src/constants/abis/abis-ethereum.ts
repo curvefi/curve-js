@@ -75,6 +75,8 @@ import busdv2DepositABI from './json/busdv2/deposit.json';
 import lusdSwapABI from './json/lusd/swap.json';
 import lusdDepositABI from './json/lusd/deposit.json';
 import lusdRewardsabi from './json/lusd/rewards.json';
+import mimSwapABI from './json/mim/swap.json';
+import mimDepositABI from './json/mim/deposit.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
@@ -1306,6 +1308,49 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         ],
         all_coin_addresses: [
             '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        is_factory: true,
+    },
+    mim: {
+        swap_abi: mimSwapABI,
+        N_COINS: 2,
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
+        token_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
+        gauge_address: '0xd4b22fedca85e684919955061fdf353b9d38389b',
+        underlying_coins: ['MIM', 'DAI', 'USDC', 'USDT'],
+        coins: ['MIM', '3Crv'],
+        underlying_coin_addresses: [
+            '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        coin_addresses: [
+            '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        deposit_abi: mimDepositABI,
+        deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
+        is_meta: true,
+        base_pool: '3pool',
+        meta_N: 5,
+        meta_decimals: [18, 18, 18, 6, 6],
+        meta_coin_decimals: [18, 18, 6, 6],
+        meta_wrapped_decimals: [18, 18],
+        meta_coin_addresses: [
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        all_coin_addresses: [
+            '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
             '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

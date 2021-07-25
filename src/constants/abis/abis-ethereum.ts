@@ -70,11 +70,14 @@ import tusdSwapABI from './json/tusd/swap.json';
 import tusdDepositABI from './json/tusd/deposit.json';
 import fraxSwapABI from './json/frax/swap.json';
 import fraxDepositABI from './json/frax/deposit.json';
+import fraxRewardsabi from './json/frax/rewards.json';
 import busdv2SwapABI from './json/busdv2/swap.json';
 import busdv2DepositABI from './json/busdv2/deposit.json';
 import lusdSwapABI from './json/lusd/swap.json';
 import lusdDepositABI from './json/lusd/deposit.json';
 import lusdRewardsabi from './json/lusd/rewards.json';
+import alusdSwapABI from './json/alusd/swap.json';
+import alusdDepositABI from './json/alusd/deposit.json';
 import mimSwapABI from './json/mim/swap.json';
 import mimDepositABI from './json/mim/deposit.json';
 import { PoolDataInterface } from "../../interfaces";
@@ -1314,6 +1317,52 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         is_factory: true,
+    },
+    alusd: {
+        swap_abi: alusdSwapABI,
+        N_COINS: 2,
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c',
+        token_address: '0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c',
+        gauge_address: '0x9582C4ADACB3BCE56Fea3e590F05c3ca2fb9C477',
+        underlying_coins: ['alUSD', 'DAI', 'USDC', 'USDT'],
+        coins: ['alUSD', '3Crv'],
+        underlying_coin_addresses: [
+            '0xbc6da0fe9ad5f3b0d58160288917aa56653660e9',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        coin_addresses: [
+            '0xbc6da0fe9ad5f3b0d58160288917aa56653660e9',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        deposit_abi: alusdDepositABI,
+        deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
+        is_meta: true,
+        base_pool: '3pool',
+        meta_N: 5,
+        meta_decimals: [18, 18, 18, 6, 6],
+        meta_coin_decimals: [18, 18, 6, 6],
+        meta_wrapped_decimals: [18, 18],
+        meta_coin_addresses: [
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        all_coin_addresses: [
+            '0xbc6da0fe9ad5f3b0d58160288917aa56653660e9',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        is_factory: true,
+        sCurveRewards_abi: fraxRewardsabi,
+        sCurveRewards_address: '0xb76256d1091e93976c61449d6e500d9f46d827d4',
+        reward_token: '0xdbdb4d16eda451d0503b854cf79d55697f90c8df',
     },
     mim: {
         swap_abi: mimSwapABI,

@@ -66,6 +66,7 @@ import usdpSwapABI from './json/usdp/swap.json';
 import usdpDepositABI from './json/usdp/deposit.json';
 import ibSwapABI from './json/ib/swap.json';
 import linkSwapABI from './json/link/swap.json';
+import rethSwapABI from './json/reth/swap.json';
 import factorySwapABI from './json/factoryPools/swap.json';
 import factoryDepositABI from './json/factoryPools/deposit.json';
 import factoryRewardsABI from './json/factoryPools/rewards.json';
@@ -1309,6 +1310,32 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         is_factory: true,
+    },
+    reth: {
+        swap_abi: rethSwapABI,
+        N_COINS: 2,
+        has_eth: true,
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0xF9440930043eb3997fc70e1339dBb11F341de7A8',
+        token_address: '0x53a901d48795C58f485cBB38df08FA96a24669D5',
+        gauge_address: '0x824F13f1a2F29cFEEa81154b46C0fc820677A637',
+        underlying_coins: ['ETH', 'rETH'],
+        coins: ['ETH', 'rETH'],
+        underlying_coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593',
+        ],
+        coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593',
+        ],
+        sCurveRewards_abi: factoryRewardsABI,
+        sCurveRewards_address: '0x3b7382805A1d887b73e98570796C5cEFeA32A462',
+        reward_token: '0xef3a930e1ffffacd2fc13434ac81bd278b0ecc8d',
     },
     alusd: {
         swap_abi: factorySwapABI,

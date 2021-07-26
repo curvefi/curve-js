@@ -562,8 +562,17 @@ export class Pool {
         return _rates
     }
 
-    private _balances = async (coinNames: string[], coinAddresses: string[], ...addresses: string[] | string[][]):
+    private _balances = async (rawCoinNames: string[], rawCoinAddresses: string[], ...addresses: string[] | string[][]):
         Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+        const coinNames: string[] = [];
+        const coinAddresses: string[] = [];
+        for (let i = 0; i < rawCoinAddresses.length; i++) {
+            if (!coinAddresses.includes(rawCoinAddresses[i])) {
+                coinNames.push(rawCoinNames[i]);
+                coinAddresses.push(rawCoinAddresses[i])
+            }
+        }
+
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         if (addresses.length === 0) addresses = [curve.signerAddress];
         addresses = addresses as string[];

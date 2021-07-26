@@ -70,6 +70,8 @@ import rethSwapABI from './json/reth/swap.json';
 import factorySwapABI from './json/factoryPools/swap.json';
 import factoryDepositABI from './json/factoryPools/deposit.json';
 import factoryRewardsABI from './json/factoryPools/rewards.json';
+import tricrypto2SwapABI from './json/tricrypto2/swap.json';
+import tricrypto2DepositABI from './json/tricrypto2/deposit.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
@@ -1102,7 +1104,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         underlying_coin_addresses: [
             '0x6b175474e89094c44da98b954eedeac495271d0f',
             '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            '0xdac17f958d2ee523a2206206994597c13d831ec7',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x8e595470ed749b85c6f7669de83eae304c2ec68f',
@@ -1425,5 +1427,32 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         is_factory: true,
+    },
+    tricrypto2: {
+        swap_abi: tricrypto2SwapABI,
+        N_COINS: 3,
+        pool_type: 'crypto',
+        underlying_decimals: [6, 8, 18],
+        decimals: [6, 8, 18],
+        tethered: [false, false, false],
+        use_lending: [false, false, false],
+        is_plain: [true, true, true],
+        swap_address: '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46',
+        token_address: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
+        gauge_address: '0xDeFd8FdD20e0f34115C7018CCfb655796F6B2168',
+        underlying_coins: ['USDT', 'wBTC', 'WETH'],
+        coins: ['USDT', 'wBTC', 'WETH'],
+        underlying_coin_addresses: [
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        ],
+        coin_addresses: [
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        ],
+        deposit_abi: tricrypto2DepositABI,
+        deposit_address: '0x3993d34e7e99Abf6B6f367309975d1360222D446',
     },
 };

@@ -77,27 +77,29 @@ const underlyingLiquidityTest = (name: string) => {
             })
         });
 
-        it('Removes liquidity imbalance', async function () {
-            const amount = '1';
-            const amounts = coinAddresses.map(() => amount);
-            const initialBalances = await myPool.balances() as DictInterface<string>;
-            const lpTokenExpected = await myPool.removeLiquidityImbalanceExpected(amounts);
+        if (myPool.name !== 'tricrypto2') {
+            it('Removes liquidity imbalance', async function () {
+                const amount = '1';
+                const amounts = coinAddresses.map(() => amount);
+                const initialBalances = await myPool.balances() as DictInterface<string>;
+                const lpTokenExpected = await myPool.removeLiquidityImbalanceExpected(amounts);
 
-            await myPool.removeLiquidityImbalance(amounts);
+                await myPool.removeLiquidityImbalance(amounts);
 
-            const balances = await myPool.balances() as DictInterface<string>;
+                const balances = await myPool.balances() as DictInterface<string>;
 
-            assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
-            myPool.underlyingCoins.forEach((c: string) => {
-                if (name === 'steth') {
-                    assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-18);
-                } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(myPool.name)) {
-                    assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 3e-6);
-                } else {
-                    assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
-                }
+                assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
+                myPool.underlyingCoins.forEach((c: string) => {
+                    if (name === 'steth') {
+                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-18);
+                    } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(myPool.name)) {
+                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 3e-6);
+                    } else {
+                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
+                    }
+                });
             });
-        });
+        }
 
         it('Removes liquidity one coin', async function () {
             const initialBalances = await myPool.balances() as DictInterface<string>;
@@ -150,6 +152,38 @@ const underlyingExchangeTest = (name: string) => {
     });
 }
 
+const tricryptoExchangeTest = (useEth: boolean) => {
+    describe(`tricrypto2 exchange (useEth=${useEth})`, function () {
+        const pool = new Pool('tricrypto2');
+        const coinAddresses = pool.underlyingCoinAddresses;
+
+        for (let i = 0; i < coinAddresses.length; i++) {
+            for (let j = 0; j < coinAddresses.length; j++) {
+                if (i !== j) {
+                    it(`${i} --> ${j}`, async function () {
+                        const swapAmount = '10';
+                        const initialCoinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
+                        const expected = await pool.exchangeExpected(i, j, swapAmount);
+
+                        await pool.exchangeTricrypto(i, j, swapAmount, 0.02, useEth);
+
+                        const coinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
+
+                        const initialInputCoinBalance = useEth && i === 2 ? initialCoinBalances['ETH'] : Object.values(initialCoinBalances)[i]
+                        const inputCoinBalance = useEth && i === 2 ? coinBalances['ETH'] : Object.values(coinBalances)[i]
+                        const initialOutputCoinBalance = useEth && j === 2 ? initialCoinBalances['ETH'] : Object.values(initialCoinBalances)[j]
+                        const outputCoinBalance = useEth && j === 2 ? coinBalances['ETH'] : Object.values(coinBalances)[j]
+
+
+                        assert.deepStrictEqual(BN(inputCoinBalance), BN(initialInputCoinBalance).minus(BN(swapAmount)));
+                        assert.isAtLeast(Number(outputCoinBalance), Number(BN(initialOutputCoinBalance).plus(BN(expected).times(0.98)).toString()));
+                    });
+                }
+            }
+        }
+    });
+}
+
 describe('Underlying test', async function () {
     this.timeout(120000);
 
@@ -159,7 +193,12 @@ describe('Underlying test', async function () {
 
     for (const poolName of PLAIN_POOLS) {
         underlyingLiquidityTest(poolName);
-        underlyingExchangeTest(poolName);
+        if (poolName === 'tricrypto2') {
+            tricryptoExchangeTest(false);
+            tricryptoExchangeTest(true);
+        } else {
+            underlyingExchangeTest(poolName);
+        }
     }
 
     for (const poolName of LENDING_POOLS) {

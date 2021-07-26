@@ -46,4 +46,5 @@ export interface PoolDataInterface {
     aRewards_address?: string,
     reward_token?: string,
     reward_tokens?: string[],
+    pool_type?: string,
 }

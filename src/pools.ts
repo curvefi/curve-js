@@ -363,6 +363,9 @@ export class Pool {
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
+        if (this.name === 'tricrypto2') {
+            throw Error("Use exchangeTricrypto method for tricrypto2 pool instead")
+        }
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
         const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
@@ -375,6 +378,25 @@ export class Pool {
 
         const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
+    }
+
+    public exchangeTricrypto = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01, useEth = false): Promise<string> => {
+        if (this.name !== 'tricrypto2') {
+            throw Error("This method is for only tricrypto2 pool")
+        }
+        const i = this._getCoinIdx(inputCoin);
+        const j = this._getCoinIdx(outputCoin);
+        const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
+        const _expected: ethers.BigNumber = await this._getExchangeOutput(i, j, _amount);
+        const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
+        if (i !== 2 || !useEth) {
+            await ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], this.swap);
+        }
+        const contract = curve.contracts[this.swap].contract;
+        const value = useEth && i == 2 ? _amount : ethers.BigNumber.from(0);
+
+        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value })).mul(130).div(100);
+        return (await contract.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value, gasLimit })).hash
     }
 
     public exchangeWrappedExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
@@ -571,6 +593,10 @@ export class Pool {
                 coinNames.push(rawCoinNames[i]);
                 coinAddresses.push(rawCoinAddresses[i])
             }
+        }
+        if (this.name === 'tricrypto2') {
+            coinNames.push('ETH');
+            coinAddresses.push('0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE');
         }
 
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];

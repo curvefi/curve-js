@@ -108,7 +108,7 @@ class Curve {
             await this.multicallProvider.init();
         }
         this.signerAddress = await this.signer.getAddress();
-        this.options.gasPrice = options.gasPrice ? (options.gasPrice * 1e9) : await this.provider.getGasPrice();
+        this.options.gasPrice = options.gasPrice !== undefined ? (options.gasPrice * 1e9) : await this.provider.getGasPrice();
 
         // TODO delete toLowerCase()
         for (const pool of Object.values(poolsData)) {

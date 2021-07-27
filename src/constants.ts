@@ -19,6 +19,8 @@ export const COINS: { [index: string]: string } = {
     eth: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  // ETH
     ankreth: "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb",  // ankrETH
     seth: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",  // sETH
+    reth: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593", // rETH
+    weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
 
     eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
     seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
@@ -65,6 +67,13 @@ export const COINS: { [index: string]: string } = {
     usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",  // USDT
     susd: "0x57ab1ec28d129707052df4df418d58a2d46d5f51",  // sUSD
 
+    tusd: "0x0000000000085d4780B73119b644AE5ecd22b376", // TUSD
+    frax: "0x853d955acef822db058eb8505911ed77f175b99e", // FRAX
+    lusd: "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0", // LUSD
+    busd: "0x4Fabb145d64652a948d72533023f6E7A623C7C53", // BUSD
+    alusd: "0xbc6da0fe9ad5f3b0d58160288917aa56653660e9", // alUSD
+    mim: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", // MIM
+
     '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
 }
 
@@ -89,6 +98,8 @@ export const DECIMALS: { [index: string]: number } = {
     "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE": 18,  // ETH
     "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb": 18,  // ankrETH
     "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb": 18,  // sETH
+    "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593": 18,  // rETH
+    "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": 18,  // WETH
 
     "0xdB25f211AB05b1c97D595516F45794528a807ad8": 2,  // EURS
     "0xD71eCFF9342A5Ced620049e616c5035F1dB98620": 18,  // sEUR
@@ -134,6 +145,13 @@ export const DECIMALS: { [index: string]: number } = {
     "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": 6,  // USDC
     "0xdAC17F958D2ee523a2206206994597C13D831ec7": 6,  // USDT
     "0x57ab1ec28d129707052df4df418d58a2d46d5f51": 18,  // sUSD
+
+    "0x0000000000085d4780B73119b644AE5ecd22b376": 18, // TUSD
+    "0x853d955acef822db058eb8505911ed77f175b99e": 18, // FRAX
+    "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0": 18, // LUSD
+    "0x4Fabb145d64652a948d72533023f6E7A623C7C53": 18, // BUSD
+    "0xbc6da0fe9ad5f3b0d58160288917aa56653660e9": 18, // alUSD
+    "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3": 18, // MIM
 
     "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490": 18,  // 3CRV
 }

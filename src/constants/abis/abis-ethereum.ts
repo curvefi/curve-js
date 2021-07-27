@@ -1206,7 +1206,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         meta_N: 5,
         meta_decimals: [18, 18, 18, 6, 6],
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 1e18],
+        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

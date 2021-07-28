@@ -1,8 +1,6 @@
-import { ethers } from "ethers";
+import { ethers, Contract } from "ethers";
 import BigNumber from 'bignumber.js'
 import {
-    _getDecimals,
-    _getBalances,
     getBalances,
     ensureAllowance,
     getPoolNameBySwapAddress,
@@ -17,6 +15,7 @@ import {
 import { DictInterface } from './interfaces';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import registryABI from './constants/abis/json/registry.json';
+import ERC20Abi from './constants/abis/json/ERC20.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 import { ALIASES, curve } from "./curve";
 import { COINS } from "./constants";
@@ -881,8 +880,9 @@ export const _getBestPoolAndOutput = async (inputCoinAddress: string, outputCoin
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract
     const registryExchangeAddress = await addressProviderContract.get_address(2);
     const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer);
+    const inputCoinContract = new Contract(inputCoinAddress, ERC20Abi, curve.provider);
 
-    const _amount = ethers.utils.parseUnits(amount.toString(), await _getDecimals(inputCoinAddress));
+    const _amount = ethers.utils.parseUnits(amount.toString(), await inputCoinContract.decimals());
     const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount);
 
     return { poolAddress, output }
@@ -891,20 +891,20 @@ export const _getBestPoolAndOutput = async (inputCoinAddress: string, outputCoin
 export const getBestPoolAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ poolAddress: string, output: string }> => {
     const inputCoinAddress = _getCoinAddress(inputCoin);
     const outputCoinAddress = _getCoinAddress(outputCoin);
-    const { poolAddress, output: outputBN } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
-    const output = ethers.utils.formatUnits(outputBN, await _getDecimals(outputCoinAddress));
+    const outputCoinContract = new Contract(outputCoinAddress, ERC20Abi, curve.provider);
+
+    const { poolAddress, output: _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const output = ethers.utils.formatUnits(_output, await outputCoinContract.decimals());
 
     return { poolAddress, output }
 }
 
 export const exchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
-    const { output } = await getBestPoolAndOutput(inputCoin, outputCoin, amount);
-
-    return output
+    return (await getBestPoolAndOutput(inputCoin, outputCoin, amount))['output'];
 }
 
 
-export const exchange = async (inputCoin: string, outputCoin: string, amount: string): Promise<void> => {
+export const exchange = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
     const inputCoinAddress = _getCoinAddress(inputCoin);
     const outputCoinAddress = _getCoinAddress(outputCoin);
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
@@ -923,8 +923,8 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     const pool = new Pool(poolName);
 
     if (is_underlying) {
-        await pool.exchange(i, j, amount);
+        return await pool.exchange(i, j, amount);
     } else {
-        await pool.exchangeWrapped(i, j, amount);
+        return await pool.exchangeWrapped(i, j, amount);
     }
 }

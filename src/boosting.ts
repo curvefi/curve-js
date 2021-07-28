@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 import { getBalances } from "./utils";
-import { ensureAllowance, _getDecimals, toBN, toStringFromBN } from './utils';
+import { ensureAllowance, toBN, toStringFromBN } from './utils';
 import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
 
@@ -86,7 +86,7 @@ export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<
 }
 
 export const createLock = async (amount: string, days: number): Promise<string> => {
-    const _amount = ethers.utils.parseUnits(amount, await _getDecimals(ALIASES.crv));
+    const _amount = ethers.utils.parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
     await ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
 
@@ -94,7 +94,7 @@ export const createLock = async (amount: string, days: number): Promise<string> 
 }
 
 export const increaseAmount = async (amount: string): Promise<string> => {
-    const _amount = ethers.utils.parseUnits(amount, await _getDecimals(ALIASES.crv));
+    const _amount = ethers.utils.parseUnits(amount);
     await ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
 
     return (await curve.contracts[ALIASES.voting_escrow].contract.increase_amount(_amount)).hash

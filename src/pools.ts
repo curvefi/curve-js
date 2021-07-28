@@ -340,19 +340,6 @@ export class Pool {
         )
     }
 
-    public gaugeBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<string>> =>  {
-        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-        addresses = addresses as string[];
-
-        const rawBalances: DictInterface<ethers.BigNumber[]> = await _getBalances(addresses, [this.gauge])
-        const balances: DictInterface<string> = {};
-        for (const address of addresses) {
-            balances[address] = ethers.utils.formatUnits(rawBalances[address][0]);
-        }
-
-        return balances
-    }
-
     public exchangeExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);

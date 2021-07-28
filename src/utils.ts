@@ -68,28 +68,16 @@ export const _getBalances = async (addresses: string[], coins: string[]): Promis
     return balances;
 }
 
-export const _getFormattedBalances = async (
-    addresses: string[],
-    coins: string[],
-    formatFunc: (value: ethers.BigNumber, decimals: number) => string | BigNumber
-): Promise<DictInterface<(string | BigNumber)[]>> => {
+export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
     const _balances = await _getBalances(addresses, coins);
     const decimals = await _getDecimals(coins);
 
-    const balances: DictInterface<(string | BigNumber)[]>  = {};
+    const balances: DictInterface<string[]>  = {};
     for (const address of addresses) {
-        balances[address] = coins.map((_, i: number ) => formatFunc(_balances[address][i], decimals[i]))
+        balances[address] = coins.map((_, i: number ) => ethers.utils.formatUnits(_balances[address][i], decimals[i]))
     }
 
     return balances;
-}
-
-export const _getBalancesBN = async (addresses: string[], coins: string[]): Promise<DictInterface<BigNumber[]>> => {
-    return await _getFormattedBalances(addresses, coins, toBN) as DictInterface<BigNumber[]>;
-}
-
-export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
-    return await _getFormattedBalances(addresses, coins, ethers.utils.formatUnits) as DictInterface<string[]>;
 }
 
 

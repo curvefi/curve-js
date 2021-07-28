@@ -233,17 +233,22 @@ import curve from "curve";
 const boostingTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
 
-    await curve.boosting.createLock('1000', 365);
+    console.log(await curve.boosting.getCrv());
+    // 100000.0
 
+    await curve.boosting.createLock('1000', 365);
+    // 99000.0 CRV
+    
     console.log(await curve.boosting.getLockedAmountAndUnlockTime());
     // { lockedAmount: '1000.0', unlockTime: 1657152000000 }
-    console.log(await curve.boosting.getVeCRV());
+    console.log(await curve.boosting.getVeCrv());
     // 248.193183980208499221
-    console.log(await curve.boosting.getVeCRVPct());
+    console.log(await curve.boosting.getVeCrvPct());
     // 0.000006190640156035
 
     await curve.boosting.increaseAmount('500');
 
+    // 98500.0 CRV
     // { lockedAmount: '1500.0', unlockTime: 1657152000000 }
     // 372.289692732093137414 veCRV
     // 0.000009285953543912 veCRV %

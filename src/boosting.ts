@@ -1,8 +1,25 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
+import { getBalances } from "./utils";
 import { ensureAllowance, _getDecimals, toBN, toStringFromBN } from './utils';
 import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
+
+
+export const getCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
+    if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+    if (addresses.length === 0) addresses = [curve.signerAddress];
+    addresses = addresses as string[];
+
+    const rawBalances = (await getBalances(addresses, [ALIASES.crv]));
+
+    const balances: DictInterface<string> = {};
+    for (const address of addresses) {
+        balances[address] = rawBalances[address].shift() as string;
+    }
+
+    return addresses.length === 1 ? balances[addresses[0]] : balances
+}
 
 export const getLockedAmountAndUnlockTime = async (...addresses: string[] | string[][]):
     Promise<DictInterface<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { Pool, getBestPoolAndOutput, exchangeExpected, exchange } from "./pools";
 import { curve as _curve } from "./curve";
-import { getLockedAmountAndUnlockTime, getVeCrv, getVeCrvPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCrv } from "./boosting";
+import { getCrv, getLockedAmountAndUnlockTime, getVeCrv, getVeCrvPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCrv } from "./boosting";
 
 async function init (
     providerType: 'JsonRpc' | 'Web3',
@@ -21,6 +21,7 @@ const curve = {
     exchangeExpected,
     exchange,
     boosting: {
+        getCrv,
         getLockedAmountAndUnlockTime,
         getVeCrv,
         getVeCrvPct,

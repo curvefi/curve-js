@@ -574,6 +574,7 @@ export class Pool {
         Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
         const coinNames: string[] = [];
         const coinAddresses: string[] = [];
+        // removing duplicates
         for (let i = 0; i < rawCoinAddresses.length; i++) {
             if (!coinAddresses.includes(rawCoinAddresses[i])) {
                 coinNames.push(rawCoinNames[i]);

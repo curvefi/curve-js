@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { getBalances, BN } from "../src/utils";
-import { createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime } from '../src/boosting';
-import { curve, ALIASES } from "../src/curve";
+import { BN } from "../src/utils";
+import { getCrv, createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime } from '../src/boosting';
+import { curve } from "../src/curve";
 
 describe('Boosting', function() {
     this.timeout(120000);
@@ -15,26 +15,26 @@ describe('Boosting', function() {
     it('Creates lock in Voting Escrow contract', async function () {
         const lockAmount = '1000';
 
-        const initialCRVBalance: string = (await getBalances([address], [ALIASES.crv]))[address][0];
+        const initialCrvBalance: string = await getCrv() as string;
         const lockTime = Date.now();
         await createLock(lockAmount, 365);
-        const CRVBalanceAfterLock = (await getBalances([address], [ALIASES.crv]))[address][0];
+        const crvBalance = await getCrv() as string;
         const { lockedAmount, unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
 
-        assert.deepEqual(BN(lockedAmount), BN(initialCRVBalance).minus(BN(CRVBalanceAfterLock)));
+        assert.deepEqual(BN(lockedAmount), BN(initialCrvBalance).minus(BN(crvBalance)));
         assert.isAtLeast(unlockTime + (7 * 86400 * 1000), lockTime + (365 * 86400 * 1000));
     });
 
     it('Increases amount locked in Voting Escrow contract', async function () {
         const increaseLockAmount = '1000';
 
-        const initialCRVBalance: string = (await getBalances([address], [ALIASES.crv]))[address][0];
+        const initialCrvBalance: string = await getCrv() as string;
         const { lockedAmount: initialLockedAmount } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
         await increaseAmount(increaseLockAmount);
-        const CRVBalanceAfterLock = (await getBalances([address], [ALIASES.crv]))[address][0];
+        const crvBalance = await getCrv() as string;
         const { lockedAmount } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
 
-        assert.deepEqual(BN(lockedAmount).minus(BN(initialLockedAmount)), BN(initialCRVBalance).minus(BN(CRVBalanceAfterLock)));
+        assert.deepEqual(BN(lockedAmount).minus(BN(initialLockedAmount)), BN(initialCrvBalance).minus(BN(crvBalance)));
     });
 
     it('Extends lock time', async function () {

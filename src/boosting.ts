@@ -4,7 +4,6 @@ import { ensureAllowance, _getDecimals, toBN, toStringFromBN } from './utils';
 import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
 
-
 export const getLockedAmountAndUnlockTime = async (...addresses: string[] | string[][]):
     Promise<DictInterface<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {
     if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
@@ -25,7 +24,7 @@ export const getLockedAmountAndUnlockTime = async (...addresses: string[] | stri
     return addresses.length === 1 ? result[addresses[0]] : result
 }
 
-export const getVeCRV = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
+export const getVeCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
     if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
     if (addresses.length === 0) addresses = [curve.signerAddress];
     addresses = addresses as string[];
@@ -42,7 +41,7 @@ export const getVeCRV = async (...addresses: string[] | string[][]): Promise<Dic
     return addresses.length === 1 ? result[addresses[0]] : result
 }
 
-export const getVeCRVPct = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
+export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
     if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
     if (addresses.length === 0) addresses = [curve.signerAddress];
     addresses = addresses as string[];
@@ -91,6 +90,6 @@ export const increaseUnlockTime = async (days: number): Promise<string> => {
     return (await curve.contracts[ALIASES.voting_escrow].contract.increase_unlock_time(newUnlockTime)).hash
 }
 
-export const withdrawLockedCRV = async (): Promise<string> => {
+export const withdrawLockedCrv = async (): Promise<string> => {
     return (await curve.contracts[ALIASES.voting_escrow].contract.withdraw()).hash
 }

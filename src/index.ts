@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { Pool, getBestPoolAndOutput, exchangeExpected, exchange } from "./pools";
+import { Pool, getBestPoolAndOutput, exchangeExpected, exchange, crossAssetExchangeAvailable, crossAssetExchangeOutputAndSlippage, crossAssetExchangeExpected, crossAssetExchange } from "./pools";
 import { curve as _curve } from "./curve";
 import { getCrv, getLockedAmountAndUnlockTime, getVeCrv, getVeCrvPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCrv } from "./boosting";
 
@@ -20,6 +20,10 @@ const curve = {
     getBestPoolAndOutput,
     exchangeExpected,
     exchange,
+    crossAssetExchangeAvailable,
+    crossAssetExchangeOutputAndSlippage,
+    crossAssetExchangeExpected,
+    crossAssetExchange,
     boosting: {
         getCrv,
         getLockedAmountAndUnlockTime,

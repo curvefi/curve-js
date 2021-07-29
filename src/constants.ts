@@ -1,12 +1,6 @@
-export const COINS: { [index: string]: string } = {
+export const BTC_COINS: { [index: string]: string } = {
     sbtccrv: "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",  // sbtcCRV
-
     hbtc: "0x0316EB71485b0Ab14103307bf65a021042c6d380",  // hBTC
-    ycdai: "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // pax/yDAI
-    ycusdc: "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // pax/yUSDC
-    ycusdt: "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59",  // pax/yUSDT
-    pax: "0x8E870D67F660D95d5be530380D0eC0bd388289E1",  // PAX
-
     renbtc: "0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D",  // renBTC
     wbtc: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",  // wBTC
     tbtc: "0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa",  // tBTC
@@ -15,18 +9,41 @@ export const COINS: { [index: string]: string } = {
     obtc: "0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68",  // oBTC
     sbtc: "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6",  // sBTC
 
+}
+
+// @ts-ignore
+export const BTC_COINS_LOWER_CASE = Object.fromEntries(Object.entries(BTC_COINS).map((entry) => [entry[0], entry[1].toLowerCase()]));
+
+export const ETH_COINS: { [index: string]: string } = {
     steth: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",  // stETH
     eth: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  // ETH
     ankreth: "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb",  // ankrETH
     seth: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",  // sETH
     reth: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593", // rETH
     weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+}
 
-    eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
-    seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
+// @ts-ignore
+export const ETH_COINS_LOWER_CASE = Object.fromEntries(Object.entries(ETH_COINS).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
+export const LINK_COINS: { [index: string]: string } = {
     link: "0x514910771AF9Ca656af840dff83E8264EcF986CA",  // LINK
     slink: "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6",  // sLINK
+}
+
+// @ts-ignore
+export const LINK_COINS_LOWER_CASE = Object.fromEntries(Object.entries(LINK_COINS).map((entry) => [entry[0], entry[1].toLowerCase()]));
+
+export const EUR_COINS: { [index: string]: string } = {
+    eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
+    seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
+}
+
+export const USD_COINS: { [index: string]: string } = {
+    ycdai: "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // pax/yDAI
+    ycusdc: "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // pax/yUSDC
+    ycusdt: "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59",  // pax/yUSDT
+    pax: "0x8E870D67F660D95d5be530380D0eC0bd388289E1",  // PAX
 
     adai: "0x028171bCA77440897B824Ca71D1c56caC55b68A3",  // aDAI
     ausdc: "0xBcca60bB61934080951369a648Fb03DF4F96263C",  // aUSDC
@@ -60,8 +77,6 @@ export const COINS: { [index: string]: string } = {
 
     usdn: "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",  // USDN
 
-    snx: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",  // SNX
-
     dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",  // DAI
     usdc: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  // USDC
     usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",  // USDT
@@ -75,6 +90,16 @@ export const COINS: { [index: string]: string } = {
     mim: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", // MIM
 
     '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
+}
+
+
+export const COINS: { [index: string]: string } = {
+    ...BTC_COINS,
+    ...ETH_COINS,
+    ...LINK_COINS,
+    ...EUR_COINS,
+    ...USD_COINS,
+    snx: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",  // SNX
 }
 
 export const DECIMALS: { [index: string]: number } = {

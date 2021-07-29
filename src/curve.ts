@@ -7,6 +7,7 @@ import gaugeABI from './constants/abis/json/gauge.json';
 import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
+import routerABI from './constants/abis/json/router.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 
 export const ALIASES = {
@@ -18,6 +19,7 @@ export const ALIASES = {
     "minter": "0xd061D61a4d941c39E5453435B6345Dc261C2fcE0",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+    "router": "0x13e987c9169f532e1EAcAFcd69CFc84344Dbd781",
 }
 
 const cTokens = [
@@ -234,6 +236,15 @@ class Curve {
         this.contracts[ALIASES.gauge_controller.toLowerCase()] = {
             contract: new Contract(ALIASES.gauge_controller, gaugeControllerABI, this.signer),
             multicallContract: new MulticallContract(ALIASES.gauge_controller, gaugeControllerABI),
+        };
+
+        this.contracts[ALIASES.router] = {
+            contract: new Contract(ALIASES.router, routerABI, this.signer),
+            multicallContract: new MulticallContract(ALIASES.router, routerABI),
+        };
+        this.contracts[ALIASES.router.toLowerCase()] = {
+            contract: new Contract(ALIASES.router, routerABI, this.signer),
+            multicallContract: new MulticallContract(ALIASES.router, routerABI),
         };
     }
 }

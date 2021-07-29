@@ -18,7 +18,7 @@ import registryABI from './constants/abis/json/registry.json';
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 import { ALIASES, curve } from "./curve";
-import { COINS } from "./constants";
+import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./constants";
 
 
 export class Pool {
@@ -928,4 +928,92 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     } else {
         return await pool.exchangeWrapped(i, j, amount);
     }
+}
+
+// --------- cross-asset exchange ---------
+export const crossAssetExchangeAvailable = async (inputCoin: string, outputCoin: string): Promise<boolean> => {
+    const inputCoinAddress = _getCoinAddress(inputCoin);
+    const outputCoinAddress = _getCoinAddress(outputCoin);
+    const routerContract = await curve.contracts[ALIASES.router].contract;
+
+    return routerContract.can_route(inputCoinAddress, outputCoinAddress, curve.options);
+}
+
+export const _getSmallAmountForCoin = (coinAddress: string): string => {
+    let smallAmount = '10'; // $10 or €10
+    if (Object.values(BTC_COINS_LOWER_CASE).includes(coinAddress.toLowerCase())) smallAmount = '0.00025'; // =10$ when BTC = $40k
+    else if (Object.values(ETH_COINS_LOWER_CASE).includes(coinAddress.toLowerCase())) smallAmount = '0.004'; // =10$ when ETH = $2.5k
+    else if (Object.values(LINK_COINS_LOWER_CASE).includes(coinAddress.toLowerCase())) smallAmount = '0.5'; // =10$ when LINK = $20
+
+    return smallAmount
+}
+
+export const _crossAssetExchangeInfo = async (inputCoin: string, outputCoin: string, amount: string):
+    Promise<{ route: string[], indices: ethers.BigNumber[], _expected: ethers.BigNumber, slippage: number }> => {
+    const inputCoinAddress = _getCoinAddress(inputCoin);
+    const outputCoinAddress = _getCoinAddress(outputCoin);
+    const inputCoinDecimals = await curve.contracts[inputCoinAddress.toLowerCase()].contract.decimals();
+    const outputCoinDecimals = await curve.contracts[outputCoinAddress.toLowerCase()].contract.decimals();
+    const routerContract = await curve.contracts[ALIASES.router].contract;
+
+    const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+    const amountBN = toBN(_amount, inputCoinDecimals);
+    const [route, indices, _expected] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _amount, curve.options);
+    const expectedBN = toBN(_expected, outputCoinDecimals);
+    const exchangeRateBN = expectedBN.div(amountBN);
+
+    const _smallAmount = ethers.utils.parseUnits(_getSmallAmountForCoin(inputCoinAddress), inputCoinDecimals)
+    const smallAmountBN = toBN(_smallAmount, inputCoinDecimals);
+    const [, , _expectedSmall] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _smallAmount, curve.options);
+    const expectedSmallBN = toBN(_expectedSmall, outputCoinDecimals);
+    const exchangeSmallRateBN = expectedSmallBN.div(smallAmountBN);
+
+    const slippage = 1 - exchangeRateBN.div(exchangeSmallRateBN).toNumber();
+
+    return { route, indices, _expected, slippage }
+}
+
+export const crossAssetExchangeOutputAndSlippage = async (inputCoin: string, outputCoin: string, amount: string):
+    Promise<{ slippage: number, output: string }> => {
+    const { _expected, slippage } = await _crossAssetExchangeInfo(inputCoin, outputCoin, amount);
+
+    const outputCoinAddress = _getCoinAddress(outputCoin);
+    const outputCoinDecimals = await curve.contracts[outputCoinAddress.toLowerCase()].contract.decimals();
+    const output = ethers.utils.formatUnits(_expected, outputCoinDecimals);
+
+    return { output, slippage }
+}
+
+export const crossAssetExchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
+    const inputCoinAddress = _getCoinAddress(inputCoin);
+    const outputCoinAddress = _getCoinAddress(outputCoin);
+    const inputCoinDecimals = await curve.contracts[inputCoinAddress.toLowerCase()].contract.decimals();
+    const outputCoinDecimals = await curve.contracts[outputCoinAddress.toLowerCase()].contract.decimals();
+    const routerContract = await curve.contracts[ALIASES.router].contract;
+
+    const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+    const [, , _expected] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _amount, curve.options);
+
+    return ethers.utils.formatUnits(_expected, outputCoinDecimals)
+}
+
+export const crossAssetExchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.02): Promise<string> => {
+    if (!(await crossAssetExchangeAvailable(inputCoin, outputCoin))) throw Error("Such exchange is not available");
+
+    const inputCoinAddress = _getCoinAddress(inputCoin);
+    const outputCoinAddress = _getCoinAddress(outputCoin);
+    const inputCoinDecimals = await curve.contracts[inputCoinAddress.toLowerCase()].contract.decimals();
+    const outputCoinDecimals = await curve.contracts[outputCoinAddress.toLowerCase()].contract.decimals();
+    const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+
+    const { route, indices, _expected } = await _crossAssetExchangeInfo(inputCoin, outputCoin, amount);
+    const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times((1 - maxSlippage));
+    const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+    const value = isEth(inputCoinAddress) ? _amount : 0;
+
+    const routerContract = await curve.contracts[ALIASES.router].contract;
+    await ensureAllowance([inputCoinAddress], [_amount], ALIASES.router);
+
+    const gasLimit = (await routerContract.estimateGas.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
+    return (await routerContract.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value, gasLimit })).hash;
 }

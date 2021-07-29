@@ -1007,7 +1007,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         coins: ['aDAI', 'aSUSD'],
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0x57ab1ec28d129707052df4df418d58a2d46d5f51',
+            '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51',
         ],
         coin_addresses: [
             '0x028171bCA77440897B824Ca71D1c56caC55b68A3',
@@ -1102,8 +1102,8 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         coins: ['cyDAI', 'cyUSDC', 'cyUSDT'],
         underlying_coin_addresses: [
-            '0x6b175474e89094c44da98b954eedeac495271d0f',
-            '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [

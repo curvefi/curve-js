@@ -123,7 +123,7 @@ export const ensureAllowance = async (coins: string[], amounts: ethers.BigNumber
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {
-    return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address === swapAddress)[0][0];
+    return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
 

@@ -263,8 +263,8 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x93054188d876f558f4a66B2EF1d97d16eDf0895B',
         token_address: '0x49849C98ae39Fff122806C06791Fa73784FB3675',
         gauge_address: '0xB1F2cdeC61db658F091671F5f199635aEF202CAC',
-        underlying_coins: ['renBTC', 'wBTC'],
-        coins: ['renBTC', 'wBTC'],
+        underlying_coins: ['renBTC', 'WBTC'],
+        coins: ['renBTC', 'WBTC'],
         underlying_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -290,8 +290,8 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714',
         token_address: '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
         gauge_address: '0x705350c4BcD35c9441419DdD5d2f097d7a55410F',
-        underlying_coins: ['renBTC', 'wBTC', 'sBTC'],
-        coins: ['renBTC', 'wBTC', 'sBTC'],
+        underlying_coins: ['renBTC', 'WBTC', 'sBTC'],
+        coins: ['renBTC', 'WBTC', 'sBTC'],
         underlying_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -322,8 +322,8 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F',
         token_address: '0xb19059ebb43466C323583928285a49f558E572Fd',
         gauge_address: '0x4c18E409Dc8619bFb6a1cB56D114C3f592E0aE79',
-        underlying_coins: ['hBTC', 'wBTC'],
-        coins: ['hBTC', 'wBTC'],
+        underlying_coins: ['HBTC', 'WBTC'],
+        coins: ['HBTC', 'WBTC'],
         underlying_coin_addresses: [
             '0x0316EB71485b0Ab14103307bf65a021042c6d380',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -631,8 +631,8 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xC25099792E9349C7DD09759744ea681C7de2cb66',
         token_address: '0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd',
         gauge_address: '0x6828bcF74279eE32f2723eC536c22c51Eed383C6',
-        underlying_coins: ['tBTC', 'renBTC', 'wBTC', 'sBTC'],
-        coins: ['tBTC', 'sbtcCrv'],
+        underlying_coins: ['TBTC', 'renBTC', 'WBTC', 'sBTC'],
+        coins: ['TBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa',
             '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
@@ -722,7 +722,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF',
         token_address: '0xDE5331AC4B3630f94853Ff322B66407e0D6331E8',
         gauge_address: '0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416',
-        underlying_coins: ['pBTC', 'renBTC', 'wBTC', 'sBTC'],
+        underlying_coins: ['pBTC', 'renBTC', 'WBTC', 'sBTC'],
         coins: ['pBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x5228a22e72ccC52d415EcFd199F99D0665E7733b',
@@ -768,7 +768,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b',
         token_address: '0x410e3E86ef427e30B9235497143881f717d93c2A',
         gauge_address: '0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE',
-        underlying_coins: ['BBTC', 'renBTC', 'wBTC', 'sBTC'],
+        underlying_coins: ['BBTC', 'renBTC', 'WBTC', 'sBTC'],
         coins: ['BBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x9be89d2a4cd102d8fecc6bf9da793be995c22541',
@@ -811,7 +811,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xd81dA8D904b52208541Bade1bD6595D8a251F8dd',
         token_address: '0x2fE94ea3d5d4a175184081439753DE15AeF9d614',
         gauge_address: '0x11137B10C210b579405c21A07489e28F3c040AB1',
-        underlying_coins: ['oBTC', 'renBTC', 'wBTC', 'sBTC'],
+        underlying_coins: ['oBTC', 'renBTC', 'WBTC', 'sBTC'],
         coins: ['oBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68',
@@ -1440,8 +1440,8 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46',
         token_address: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
         gauge_address: '0xDeFd8FdD20e0f34115C7018CCfb655796F6B2168',
-        underlying_coins: ['USDT', 'wBTC', 'WETH'],
-        coins: ['USDT', 'wBTC', 'WETH'],
+        underlying_coins: ['USDT', 'WBTC', 'WETH'],
+        coins: ['USDT', 'WBTC', 'WETH'],
         underlying_coin_addresses: [
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',

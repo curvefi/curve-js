@@ -34,11 +34,13 @@ export const _getDecimals = async (coins: string[]): Promise<number[]> => {
     return coins.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
 }
 
-export const _getCoinAddress = (coin: string): string => {
-    const coinAddress = COINS[coin.toLowerCase()] || coin;
+export const _getCoinAddresses = (coins: string[]): string[] => {
+    const coinAddresses = coins.map((c) => COINS[c.toLowerCase()] || c);
     const availableAddresses = Object.keys(LOWER_CASE_DECIMALS).filter((c) => c !== COINS['snx'].toLowerCase());
-    if (!availableAddresses.includes(coinAddress.toLowerCase())) throw Error(`Coin with address '${coinAddress}' is not available`);
-    return coinAddress
+    for (const coinAddr of coinAddresses) {
+        if (!availableAddresses.includes(coinAddr.toLowerCase())) throw Error(`Coin with address '${coinAddr}' is not available`);
+    }
+    return coinAddresses
 }
 
 export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
@@ -71,7 +73,7 @@ export const _getBalances = async (addresses: string[], coins: string[]): Promis
 }
 
 export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
-    const coinAddresses = coins.map(_getCoinAddress);
+    const coinAddresses = _getCoinAddresses(coins);
     const _balances = await _getBalances(addresses, coinAddresses);
     const decimals = await _getDecimals(coinAddresses);
 

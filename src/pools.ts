@@ -18,7 +18,7 @@ import registryABI from './constants/abis/json/registry.json';
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 import { ALIASES, curve } from "./curve";
-import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./constants";
+import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./constants/coins";
 
 
 export class Pool {

@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { DictInterface } from './interfaces';
 import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";
-import { DECIMALS } from "./constants";
+import { DECIMALS } from "./constants/coins";
 
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));

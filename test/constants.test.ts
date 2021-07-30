@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { ethers } from "ethers";
 import { poolsData } from "../src/constants/abis/abis-ethereum";
-import { COINS, DECIMALS } from "../src/constants";
+import { COINS, DECIMALS } from "../src/constants/coins";
 import { curve } from "../src/curve";
 
 describe('Checking constants', async function () {

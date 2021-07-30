@@ -178,3 +178,6 @@ export const DECIMALS: { [index: string]: number } = {
 
     "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490": 18,  // 3CRV
 }
+
+// @ts-ignore
+export const LOWER_CASE_DECIMALS = Object.fromEntries(Object.entries(DECIMALS).map((entry) => [entry[0].toLowerCase(), entry[1]]));

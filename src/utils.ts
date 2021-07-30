@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { DictInterface } from './interfaces';
 import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";
-import {COINS, DECIMALS} from "./constants/coins";
+import { COINS, LOWER_CASE_DECIMALS } from "./constants/coins";
 
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
@@ -30,16 +30,12 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 
-export const _getDecimals = async (...coins: string[] | string[][]): Promise<number[]> => {
-    let _coins = coins
-    if (coins.length == 1 && Array.isArray(coins[0])) _coins = coins[0];
-    _coins = [..._coins] as string[];
-
-    return  _coins.map((coinAddr) => DECIMALS[coinAddr] || 18);
+export const _getDecimals = async (coins: string[]): Promise<number[]> => {
+    return coins.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()] || 18);
 }
 
 export const _getCoinAddress = (coin: string): string => {
-    return  COINS[coin.toLowerCase()] || coin;
+    return COINS[coin.toLowerCase()] || coin;
 }
 
 export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {

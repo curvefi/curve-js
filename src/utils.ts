@@ -31,11 +31,14 @@ export const isEth = (address: string): boolean => address.toLowerCase() === ETH
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 
 export const _getDecimals = async (coins: string[]): Promise<number[]> => {
-    return coins.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()] || 18);
+    return coins.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
 }
 
 export const _getCoinAddress = (coin: string): string => {
-    return COINS[coin.toLowerCase()] || coin;
+    const coinAddress = COINS[coin.toLowerCase()] || coin;
+    const availableAddresses = Object.keys(LOWER_CASE_DECIMALS).filter((c) => c !== COINS['snx'].toLowerCase());
+    if (!availableAddresses.includes(coinAddress.toLowerCase())) throw Error(`Coin with address '${coinAddress}' is not available`);
+    return coinAddress
 }
 
 export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {

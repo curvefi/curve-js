@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { DictInterface } from './interfaces';
 import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";
-import { DECIMALS } from "./constants/coins";
+import {COINS, DECIMALS} from "./constants/coins";
 
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
@@ -38,6 +38,9 @@ export const _getDecimals = async (...coins: string[] | string[][]): Promise<num
     return  _coins.map((coinAddr) => DECIMALS[coinAddr] || 18);
 }
 
+export const _getCoinAddress = (coin: string): string => {
+    return  COINS[coin.toLowerCase()] || coin;
+}
 
 export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
     const _coins = [...coins]
@@ -69,12 +72,13 @@ export const _getBalances = async (addresses: string[], coins: string[]): Promis
 }
 
 export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
-    const _balances = await _getBalances(addresses, coins);
-    const decimals = await _getDecimals(coins);
+    const coinAddresses = coins.map(_getCoinAddress);
+    const _balances = await _getBalances(addresses, coinAddresses);
+    const decimals = await _getDecimals(coinAddresses);
 
     const balances: DictInterface<string[]>  = {};
     for (const address of addresses) {
-        balances[address] = coins.map((_, i: number ) => ethers.utils.formatUnits(_balances[address][i], decimals[i]))
+        balances[address] = _balances[address].map((b, i: number ) => ethers.utils.formatUnits(b, decimals[i]));
     }
 
     return balances;

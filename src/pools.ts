@@ -1,6 +1,7 @@
 import { ethers, Contract } from "ethers";
 import BigNumber from 'bignumber.js'
 import {
+    _getCoinAddress,
     getBalances,
     ensureAllowance,
     getPoolNameBySwapAddress,
@@ -871,10 +872,6 @@ export class Pool {
     private _getExchangeOutputWrapped = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
         return await curve.contracts[this.swap].contract.get_dy(i, j, _amount, curve.options);
     }
-}
-
-export const _getCoinAddress = (coin: string): string => {
-    return  COINS[coin.toLowerCase()] || coin;
 }
 
 export const _getBestPoolAndOutput = async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<{ poolAddress: string, output: ethers.BigNumber }> => {

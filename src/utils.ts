@@ -30,11 +30,18 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 
-export const _getCoinDecimals = async (coins: string[]): Promise<number[]> => {
-    return coins.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
+export const _getCoinDecimals = async (...coinAddresses: string[] | string[][]): Promise<number[]> => {
+    if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
+    coinAddresses = coinAddresses as string[];
+
+    return coinAddresses.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
 }
 
-export const _getCoinAddresses = (coins: string[]): string[] => {
+// coins can be either addresses or symbols
+export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => {
+    if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
+    coins = coins as string[];
+
     const coinAddresses = coins.map((c) => COINS[c.toLowerCase()] || c);
     const availableAddresses = Object.keys(LOWER_CASE_DECIMALS).filter((c) => c !== COINS['snx'].toLowerCase());
     for (const coinAddr of coinAddresses) {

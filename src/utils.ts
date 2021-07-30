@@ -30,7 +30,7 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 
-export const _getCoinDecimals = async (...coinAddresses: string[] | string[][]): Promise<number[]> => {
+export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): number[] => {
     if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
     coinAddresses = coinAddresses as string[];
 
@@ -81,7 +81,7 @@ export const _getBalances = async (addresses: string[], coins: string[]): Promis
 
 export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
     const coinAddresses = _getCoinAddresses(coins);
-    const decimals = await _getCoinDecimals(coinAddresses);
+    const decimals = _getCoinDecimals(coinAddresses);
     const _balances = await _getBalances(addresses, coinAddresses);
 
     const balances: DictInterface<string[]>  = {};

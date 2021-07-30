@@ -902,7 +902,7 @@ export const exchangeExpected = async (inputCoin: string, outputCoin: string, am
 }
 
 
-export const exchange = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
+export const exchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<string> => {
     const inputCoinAddress = _getCoinAddress(inputCoin);
     const outputCoinAddress = _getCoinAddress(outputCoin);
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
@@ -921,13 +921,14 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     const pool = new Pool(poolName);
 
     if (is_underlying) {
-        return await pool.exchange(i, j, amount);
+        return await pool.exchange(i, j, amount, maxSlippage);
     } else {
-        return await pool.exchangeWrapped(i, j, amount);
+        return await pool.exchangeWrapped(i, j, amount, maxSlippage);
     }
 }
 
-// --------- cross-asset exchange ---------
+// --------- Cross-Asset Exchange ---------
+
 export const crossAssetExchangeAvailable = async (inputCoin: string, outputCoin: string): Promise<boolean> => {
     const inputCoinAddress = _getCoinAddress(inputCoin);
     const outputCoinAddress = _getCoinAddress(outputCoin);

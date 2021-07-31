@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { exchangeExpected, exchange } from "../src/pools";
+import { crossAssetExchangeAvailable, crossAssetExchangeExpected, crossAssetExchange } from "../src/pools";
 import { BN, getBalances } from "../src/utils";
 import { COINS } from "../src/constants/coins";
 import { curve } from "../src/curve";
@@ -9,8 +9,8 @@ const exchangeTest = async (coin1: string, coin2: string) => {
     const amount = '1';
     const initialBalances = (await getBalances([address], [coin1, coin2]))[address];
 
-    const output = await exchangeExpected(coin1, coin2, amount);
-    await exchange(coin1, coin2, amount);
+    const output = await crossAssetExchangeExpected(coin1, coin2, amount);
+    await crossAssetExchange(coin1, coin2, amount);
 
     const balances = (await getBalances([address], [coin1, coin2]))[address];
 
@@ -37,11 +37,10 @@ describe('Exchange using all pools', async function () {
             if (coin1 === 'eurs' || coin2 === 'eurs') continue; // TODO remove
             if (coin1 !== coin2) {
                 it(`${coin1} --> ${coin2}`, async function () {
-                    try {
+                    if (await crossAssetExchangeAvailable(coin1, coin2)) {
                         await exchangeTest(coin1, coin2);
-                    } catch (err) {
-                        console.log(err.message);
-                        assert.equal(err.message, "This pair can't be exchanged")
+                    } else {
+                        console.log("Not available");
                     }
                 });
             }

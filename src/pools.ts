@@ -19,7 +19,7 @@ import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import registryABI from './constants/abis/json/registry.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 import { ALIASES, curve } from "./curve";
-import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE } from "./constants/coins";
+import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./constants/coins";
 
 
 export class Pool {
@@ -882,6 +882,12 @@ export const _getBestPoolAndOutput = async (
     inputCoinDecimals: number,
     amount: string
 ): Promise<{ poolAddress: string, output: ethers.BigNumber }> => {
+    // TODO remove it when fixed
+    const tricryptoCoins = [COINS.usdt.toLowerCase(), COINS.wbtc.toLowerCase(), COINS.weth.toLowerCase()];
+    if (tricryptoCoins.includes(inputCoinAddress.toLowerCase()) && tricryptoCoins.includes(outputCoinAddress.toLowerCase())) {
+        throw new Error("This pair can't be exchanged");
+    }
+
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
     const registryExchangeAddress = await addressProviderContract.get_address(2);
     const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer);
@@ -911,7 +917,6 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
     const registryAddress = await addressProviderContract.get_registry();
-    console.log(registryAddress); // 0x90E00ACe148ca3b23Ac1bC8C240C2a7Dd9c2d7f5
     const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
 
     const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, inputCoinDecimals, amount);

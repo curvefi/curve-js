@@ -6,6 +6,9 @@ import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";
 import { COINS, LOWER_CASE_DECIMALS } from "./constants/coins";
 
+const LP_TOKENS = Object.values(poolsData).map((data) => data.token_address.toLowerCase());
+const GAUGES = Object.values(poolsData).map((data) => data.gauge_address.toLowerCase());
+
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
 
@@ -36,7 +39,11 @@ export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => 
     coins = coins as string[];
 
     const coinAddresses = coins.map((c) => COINS[c.toLowerCase()] || c);
-    const availableAddresses = Object.keys(LOWER_CASE_DECIMALS).filter((c) => c !== COINS['snx'].toLowerCase());
+    const availableAddresses = [
+        ...Object.keys(LOWER_CASE_DECIMALS).filter((c) => c !== COINS['snx'].toLowerCase()),
+        ...LP_TOKENS,
+        ...GAUGES,
+    ];
     for (const coinAddr of coinAddresses) {
         if (!availableAddresses.includes(coinAddr.toLowerCase())) throw Error(`Coin with address '${coinAddr}' is not available`);
     }
@@ -50,15 +57,17 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
     return coinAddresses.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
 }
 
-export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {
-    const _coins = [...coins]
-    const ethIndex = getEthIndex(_coins);
+export const _getBalances = async (coins: string[], addresses: string[]): Promise<DictInterface<string[]>> => {
+    const coinAddresses = _getCoinAddresses(coins);
+    const decimals = _getCoinDecimals(coinAddresses);
+
+    const ethIndex = getEthIndex(coinAddresses);
     if (ethIndex !== -1) {
-        _coins.splice(ethIndex, 1);
+        coinAddresses.splice(ethIndex, 1);
     }
 
     const contractCalls = [];
-    for (const coinAddr of _coins) {
+    for (const coinAddr of coinAddresses) {
         contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
     }
     const response = await curve.multicallProvider.all(contractCalls);
@@ -71,18 +80,10 @@ export const _getBalances = async (addresses: string[], coins: string[]): Promis
         response.splice(ethIndex * addresses.length, 0, ...ethBalances);
     }
 
-    const balances: DictInterface<ethers.BigNumber[]>  = {};
+    const _balances: DictInterface<ethers.BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
-        balances[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)]);
+        _balances[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)]);
     });
-
-    return balances;
-}
-
-export const getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<string[]>> => {
-    const coinAddresses = _getCoinAddresses(coins);
-    const decimals = _getCoinDecimals(coinAddresses);
-    const _balances = await _getBalances(addresses, coinAddresses);
 
     const balances: DictInterface<string[]>  = {};
     for (const address of addresses) {
@@ -90,6 +91,16 @@ export const getBalances = async (addresses: string[], coins: string[]): Promise
     }
 
     return balances;
+}
+
+export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<DictInterface<string[]> | string[]> => {
+    if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+    if (addresses.length === 0) addresses = [curve.signerAddress];
+    addresses = addresses as string[];
+
+    const balances: DictInterface<string[]> = await _getBalances(coins, addresses);
+
+    return addresses.length === 1 ? balances[addresses[0]] : balances
 }
 
 

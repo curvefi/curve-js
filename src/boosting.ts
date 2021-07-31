@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
-import { getBalances } from "./utils";
+import { _getBalances } from "./utils";
 import { ensureAllowance, toBN, toStringFromBN } from './utils';
 import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
@@ -11,7 +11,7 @@ export const getCrv = async (...addresses: string[] | string[][]): Promise<DictI
     if (addresses.length === 0) addresses = [curve.signerAddress];
     addresses = addresses as string[];
 
-    const rawBalances = (await getBalances(addresses, [ALIASES.crv]));
+    const rawBalances = (await _getBalances([ALIASES.crv], addresses));
 
     const balances: DictInterface<string> = {};
     for (const address of addresses) {

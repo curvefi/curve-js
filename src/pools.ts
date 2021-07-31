@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import {
     _getCoinAddresses,
     _getCoinDecimals,
-    getBalances,
+    _getBalances,
     ensureAllowance,
     getPoolNameBySwapAddress,
     BN,
@@ -591,7 +591,7 @@ export class Pool {
         if (addresses.length === 0) addresses = [curve.signerAddress];
         addresses = addresses as string[];
 
-        const rawBalances: DictInterface<string[]> = await getBalances(addresses, coinAddresses);
+        const rawBalances: DictInterface<string[]> = await _getBalances(coinAddresses, addresses);
 
         const balances: DictInterface<DictInterface<string>> = {};
         for (const address of addresses) {

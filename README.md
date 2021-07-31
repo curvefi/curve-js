@@ -210,21 +210,48 @@ import curve from "curve";
 ```ts
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
-    const pool = new curve.Pool('3pool');
 
-    // { DAI: '1000.0', USDC: '1000.0' }
+    console.log(await curve.getBalances(['DAI', 'USDC']));
+    // [ '1000.0', '0.0' ]
 
     const { poolAddress, output } = await curve.getBestPoolAndOutput('DAI', 'USDC', '100');
     // OR await curve.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '100');
     const expected = await curve.exchangeExpected('DAI', 'USDC', '100');
     // OR await curve.exchangeExpected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '100');
 
-    // poolAddress = 0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF, output = expected = 100.039633
+    console.log(poolAddress, output, expected);
+    // poolAddress = 0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27, output = expected = 100.071099
 
     await curve.exchange('DAI', 'USDC', '10')
     // OR await curve.exchange('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '100');
 
-    // { DAI: '990.0', USDC: '1010.003963' }
+    console.log(await curve.getBalances(['DAI', 'USDC']));
+    // [ '900.0', '100.071098' ]
+})()
+```
+
+## Cross-Asset Exchange
+
+```ts
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+
+    console.log(await curve.getBalances(['DAI', 'WBTC']));
+    // [ '1000.0', '0.0' ]
+
+    console.log(await curve.crossAssetExchangeAvailable('DAI', 'WBTC'));
+    // true
+    console.log(await curve.crossAssetExchangeOutputAndSlippage('DAI', 'WBTC', '500'));
+    // { output: '0.01207752', slippage: 0.0000016559718476472085 }
+    console.log(await curve.crossAssetExchangeExpected('DAI', 'WBTC', '500'));
+    // 0.01207752
+
+    const tx = await curve.crossAssetExchange('DAI', 'WBTC', '500');
+    console.log(tx);
+    // 0xf452fbb49d9e4ba8976dc6762bcfcc87d5e164577c21f3fa087ae4fe275d1710
+
+    console.log(await curve.getBalances(['DAI', 'WBTC']));
+    // [ '500.0', '0.01207752' ]
 })()
 ```
 

@@ -30,13 +30,6 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 
-export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): number[] => {
-    if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
-    coinAddresses = coinAddresses as string[];
-
-    return coinAddresses.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
-}
-
 // coins can be either addresses or symbols
 export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => {
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
@@ -48,6 +41,13 @@ export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => 
         if (!availableAddresses.includes(coinAddr.toLowerCase())) throw Error(`Coin with address '${coinAddr}' is not available`);
     }
     return coinAddresses
+}
+
+export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): number[] => {
+    if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
+    coinAddresses = coinAddresses as string[];
+
+    return coinAddresses.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
 }
 
 export const _getBalances = async (addresses: string[], coins: string[]): Promise<DictInterface<ethers.BigNumber[]>> => {

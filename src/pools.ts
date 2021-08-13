@@ -4,6 +4,7 @@ import {
     _getCoinAddresses,
     _getCoinDecimals,
     _getBalances,
+    _prepareAddresses,
     ensureAllowance,
     getPoolNameBySwapAddress,
     BN,
@@ -587,10 +588,7 @@ export class Pool {
             coinAddresses.push('0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE');
         }
 
-        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-        if (addresses.length === 0) addresses = [curve.signerAddress];
-        addresses = addresses as string[];
-
+        addresses = _prepareAddresses(addresses);
         const rawBalances: DictInterface<string[]> = await _getBalances(coinAddresses, addresses);
 
         const balances: DictInterface<DictInterface<string>> = {};
@@ -889,11 +887,12 @@ export const _getBestPoolAndOutput = async (
     }
 
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
-    const registryExchangeAddress = await addressProviderContract.get_address(2);
-    const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer);
+    const registryExchangeAddress = await addressProviderContract.get_address(2, curve.options);
+    console.log(registryExchangeAddress);
+    const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer || curve.provider);
 
     const _amount = ethers.utils.parseUnits(amount.toString(), inputCoinDecimals);
-    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount);
+    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount, curve.options);
 
     return { poolAddress, output }
 }
@@ -917,6 +916,7 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
     const registryAddress = await addressProviderContract.get_registry();
+    console.log(registryAddress);
     const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
 
     const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, inputCoinDecimals, amount);

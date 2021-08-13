@@ -93,11 +93,16 @@ export const _getBalances = async (coins: string[], addresses: string[]): Promis
     return balances;
 }
 
-export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<DictInterface<string[]> | string[]> => {
+export const _prepareAddresses = (addresses: string[] | string[][]): string[] => {
     if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-    if (addresses.length === 0) addresses = [curve.signerAddress];
+    if (addresses.length === 0 && curve.signerAddress !== '') addresses = [curve.signerAddress];
     addresses = addresses as string[];
 
+    return addresses.filter((val, idx, arr) => arr.indexOf(val) === idx)
+}
+
+export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<DictInterface<string[]> | string[]> => {
+    addresses = _prepareAddresses(addresses);
     const balances: DictInterface<string[]> = await _getBalances(coins, addresses);
 
     return addresses.length === 1 ? balances[addresses[0]] : balances

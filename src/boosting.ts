@@ -1,16 +1,13 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
-import { _getBalances } from "./utils";
+import { _getBalances, _prepareAddresses } from "./utils";
 import { ensureAllowance, toBN, toStringFromBN } from './utils';
 import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
 
 
 export const getCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
-    if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-    if (addresses.length === 0) addresses = [curve.signerAddress];
-    addresses = addresses as string[];
-
+    addresses = _prepareAddresses(addresses);
     const rawBalances = (await _getBalances([ALIASES.crv], addresses));
 
     const balances: DictInterface<string> = {};
@@ -23,10 +20,7 @@ export const getCrv = async (...addresses: string[] | string[][]): Promise<DictI
 
 export const getLockedAmountAndUnlockTime = async (...addresses: string[] | string[][]):
     Promise<DictInterface<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {
-    if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-    if (addresses.length === 0) addresses = [curve.signerAddress];
-    addresses = addresses as string[];
-
+    addresses = _prepareAddresses(addresses);
     const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
     const contractCalls = addresses.map((address: string) => veContract.locked(address));
 
@@ -42,9 +36,7 @@ export const getLockedAmountAndUnlockTime = async (...addresses: string[] | stri
 }
 
 export const getVeCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
-    if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-    if (addresses.length === 0) addresses = [curve.signerAddress];
-    addresses = addresses as string[];
+    addresses = _prepareAddresses(addresses);
 
     const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
     const contractCalls = addresses.map((address: string) => veContract.balanceOf(address));
@@ -59,9 +51,7 @@ export const getVeCrv = async (...addresses: string[] | string[][]): Promise<Dic
 }
 
 export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
-    if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-    if (addresses.length === 0) addresses = [curve.signerAddress];
-    addresses = addresses as string[];
+    addresses = _prepareAddresses(addresses);
 
     const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
     const contractCalls = [veContract.totalSupply()];

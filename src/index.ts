@@ -1,12 +1,13 @@
 import { ethers } from "ethers";
+import { Networkish } from "@ethersproject/networks";
 import { Pool, getBestPoolAndOutput, exchangeExpected, exchange, crossAssetExchangeAvailable, crossAssetExchangeOutputAndSlippage, crossAssetExchangeExpected, crossAssetExchange } from "./pools";
 import { curve as _curve } from "./curve";
 import { getCrv, getLockedAmountAndUnlockTime, getVeCrv, getVeCrvPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCrv } from "./boosting";
 import { getBalances } from "./utils";
 
 async function init (
-    providerType: 'JsonRpc' | 'Web3',
-    providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider },
+    providerType: 'JsonRpc' | 'Web3' | 'Infura',
+    providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
     options: { gasPrice?: number, chainId?: number } = {}
 ): Promise<void> {
     await _curve.init(providerType, providerSettings, options);

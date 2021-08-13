@@ -14,8 +14,13 @@ async function init (
     this.signerAddress = _curve.signerAddress;
 }
 
+function setGasPrice (gasPrice: number): void {
+    _curve.setGasPrice(gasPrice);
+}
+
 const curve = {
     init,
+    setGasPrice,
     signerAddress: '',
     Pool,
     getBalances,

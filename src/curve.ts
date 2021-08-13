@@ -255,6 +255,10 @@ class Curve {
             multicallContract: new MulticallContract(ALIASES.router, routerABI),
         };
     }
+
+    setGasPrice(gasPrice: number): void {
+        this.options.gasPrice = gasPrice * 1e9;
+    }
 }
 
 export const curve = new Curve();

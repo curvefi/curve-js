@@ -54,7 +54,7 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
     if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
     coinAddresses = coinAddresses as string[];
 
-    return coinAddresses.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()]);
+    return coinAddresses.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()] || 18);
 }
 
 export const _getBalances = async (coins: string[], addresses: string[]): Promise<DictInterface<string[]>> => {

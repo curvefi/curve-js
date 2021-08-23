@@ -3,7 +3,7 @@ import { Networkish } from "@ethersproject/networks";
 import { Pool, getBestPoolAndOutput, exchangeExpected, exchange, crossAssetExchangeAvailable, crossAssetExchangeOutputAndSlippage, crossAssetExchangeExpected, crossAssetExchange } from "./pools";
 import { curve as _curve } from "./curve";
 import { getCrv, getLockedAmountAndUnlockTime, getVeCrv, getVeCrvPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCrv } from "./boosting";
-import { getBalances } from "./utils";
+import { getBalances, getAllowance, hasAllowance, ensureAllowance } from "./utils";
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura',
@@ -25,6 +25,9 @@ const curve = {
     signerAddress: '',
     Pool,
     getBalances,
+    getAllowance,
+    hasAllowance,
+    ensureAllowance,
     getBestPoolAndOutput,
     exchangeExpected,
     exchange,

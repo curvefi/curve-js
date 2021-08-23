@@ -109,7 +109,7 @@ export const getBalances = async (coins: string[], ...addresses: string[] | stri
 }
 
 
-export const getAllowance = async (coins: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
+export const _getAllowance = async (coins: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
     const _coins = [...coins]
     const ethIndex = getEthIndex(_coins);
     if (ethIndex !== -1) {
@@ -133,21 +133,52 @@ export const getAllowance = async (coins: string[], address: string, spender: st
     return allowance;
 }
 
-export const ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string): Promise<void> => {
-    const address = curve.signerAddress;
-    const allowance: ethers.BigNumber[] = await getAllowance(coins, address, spender);
+// coins can be either addresses or symbols
+export const getAllowance = async (coins: string[], address: string, spender: string): Promise<string[]> => {
+    const coinAddresses = _getCoinAddresses(coins);
+    const decimals = _getCoinDecimals(coinAddresses);
+    const _allowance = await _getAllowance(coinAddresses, address, spender);
 
+    return _allowance.map((a, i) => ethers.utils.formatUnits(a, decimals[i]))
+}
+
+// coins can be either addresses or symbols
+export const hasAllowance = async (coins: string[], amounts: string[], address: string, spender: string): Promise<boolean> => {
+    const coinAddresses = _getCoinAddresses(coins);
+    const decimals = _getCoinDecimals(coinAddresses);
+    const _allowance = await _getAllowance(coinAddresses, address, spender);
+    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+
+    return _allowance.map((a, i) => a.gte(_amounts[i])).reduce((a, b) => a && b);
+}
+
+export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string): Promise<string[]> => {
+    const address = curve.signerAddress;
+    const allowance: ethers.BigNumber[] = await _getAllowance(coins, address, spender);
+
+    const txHashes: string[] = []
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
             const contract = curve.contracts[coins[i]].contract;
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
                 const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.options)).mul(130).div(100);
-                await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit });
+                txHashes.push((await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit })).hash);
             }
             const gasLimit = (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.options)).mul(130).div(100);
-            await contract.approve(spender, MAX_ALLOWANCE, { ...curve.options, gasLimit });
+            txHashes.push((await contract.approve(spender, MAX_ALLOWANCE, { ...curve.options, gasLimit })).hash);
         }
     }
+
+    return txHashes;
+}
+
+// coins can be either addresses or symbols
+export const ensureAllowance = async (coins: string[], amounts: string[], spender: string): Promise<string[]> => {
+    const coinAddresses = _getCoinAddresses(coins);
+    const decimals = _getCoinDecimals(coinAddresses);
+    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+
+    return await _ensureAllowance(coinAddresses, _amounts, spender)
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {

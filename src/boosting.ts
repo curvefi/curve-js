@@ -79,24 +79,33 @@ export const createLock = async (amount: string, days: number): Promise<string> 
     const _amount = ethers.utils.parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
     await _ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
+    const contract = curve.contracts[ALIASES.voting_escrow].contract;
 
-    return (await curve.contracts[ALIASES.voting_escrow].contract.create_lock(_amount, unlockTime)).hash
+    const gasLimit = (await contract.estimateGas.create_lock(_amount, unlockTime)).mul(130).div(100);
+    return (await contract.create_lock(_amount, unlockTime, { ...curve.options, gasLimit })).hash
 }
 
 export const increaseAmount = async (amount: string): Promise<string> => {
     const _amount = ethers.utils.parseUnits(amount);
     await _ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
+    const contract = curve.contracts[ALIASES.voting_escrow].contract;
 
-    return (await curve.contracts[ALIASES.voting_escrow].contract.increase_amount(_amount)).hash
+    const gasLimit = (await contract.estimateGas.increase_amount(_amount)).mul(130).div(100);
+    return (await contract.increase_amount(_amount, { ...curve.options, gasLimit })).hash
 }
 
 export const increaseUnlockTime = async (days: number): Promise<string> => {
     const { unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
+    const contract = curve.contracts[ALIASES.voting_escrow].contract;
 
-    return (await curve.contracts[ALIASES.voting_escrow].contract.increase_unlock_time(newUnlockTime)).hash
+    const gasLimit = (await contract.estimateGas.increase_unlock_time(newUnlockTime)).mul(130).div(100);
+    return (await contract.increase_unlock_time(newUnlockTime, { ...curve.options, gasLimit })).hash
 }
 
 export const withdrawLockedCrv = async (): Promise<string> => {
-    return (await curve.contracts[ALIASES.voting_escrow].contract.withdraw()).hash
+    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+
+    const gasLimit = (await contract.estimateGas.withdraw()).mul(130).div(100);
+    return (await contract.withdraw({ ...curve.options, gasLimit })).hash
 }

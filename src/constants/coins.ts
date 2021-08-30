@@ -89,6 +89,7 @@ export const USD_COINS: { [index: string]: string } = {
     mim: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", // MIM
 
     '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
+    crv: "0xD533a949740bb3306d119CC777fa900bA034cd52", // CRV
 }
 
 
@@ -177,6 +178,7 @@ export const DECIMALS: { [index: string]: number } = {
     "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3": 18, // MIM
 
     "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490": 18,  // 3CRV
+    "0xD533a949740bb3306d119CC777fa900bA034cd52": 18,  // CRV
 }
 
 // @ts-ignore

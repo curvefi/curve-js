@@ -1,9 +1,33 @@
 import { ethers } from "ethers";
 import { Networkish } from "@ethersproject/networks";
-import { Pool, getBestPoolAndOutput, exchangeExpected, exchange, crossAssetExchangeAvailable, crossAssetExchangeOutputAndSlippage, crossAssetExchangeExpected, crossAssetExchange } from "./pools";
+import {
+    Pool,
+    getBestPoolAndOutput,
+    exchangeExpected,
+    exchangeEstimateGas,
+    exchange,
+    crossAssetExchangeAvailable,
+    crossAssetExchangeOutputAndSlippage,
+    crossAssetExchangeExpected,
+    crossAssetExchangeEstimateGas,
+    crossAssetExchange,
+} from "./pools";
 import { curve as _curve } from "./curve";
-import { getCrv, getLockedAmountAndUnlockTime, getVeCrv, getVeCrvPct, createLock, increaseAmount, increaseUnlockTime, withdrawLockedCrv } from "./boosting";
-import { getBalances, getAllowance, hasAllowance, ensureAllowance } from "./utils";
+import {
+    getCrv,
+    getLockedAmountAndUnlockTime,
+    getVeCrv,
+    getVeCrvPct,
+    createLockEstimateGas,
+    createLock,
+    increaseAmountEstimateGas,
+    increaseAmount,
+    increaseUnlockTimeEstimateGas,
+    increaseUnlockTime,
+    withdrawLockedCrvEstimateGas,
+    withdrawLockedCrv,
+} from "./boosting";
+import { getBalances, getAllowance, hasAllowance, ensureAllowanceEstimateGas, ensureAllowance } from "./utils";
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura',
@@ -35,6 +59,11 @@ const curve = {
     crossAssetExchangeOutputAndSlippage,
     crossAssetExchangeExpected,
     crossAssetExchange,
+    estimateGas: {
+        ensureAllowance: ensureAllowanceEstimateGas,
+        exchange: exchangeEstimateGas,
+        crossAssetExchange: crossAssetExchangeEstimateGas,
+    },
     boosting: {
         getCrv,
         getLockedAmountAndUnlockTime,
@@ -44,6 +73,12 @@ const curve = {
         increaseAmount,
         increaseUnlockTime,
         withdrawLockedCrv,
+        estimateGas: {
+            createLock: createLockEstimateGas,
+            increaseAmount: increaseAmountEstimateGas,
+            increaseUnlockTime: increaseUnlockTimeEstimateGas,
+            withdrawLockedCrv: withdrawLockedCrvEstimateGas,
+        },
     },
 }
 

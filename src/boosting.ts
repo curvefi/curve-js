@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
-import { _getBalances, _prepareAddresses } from "./utils";
+import {_getBalances, _prepareAddresses, hasAllowance} from "./utils";
 import { _ensureAllowance, toBN, toStringFromBN } from './utils';
 import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
@@ -75,6 +75,23 @@ export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<
     return addresses.length === 1 ? result[addresses[0]] : result
 }
 
+export const createLockEstimateGas = async (amount: string, days: number): Promise<number> => {
+    const crvBalance = await getCrv() as string;
+
+    if (Number(crvBalance) < Number(amount)) {
+        throw Error(`Not enough . Actual: ${crvBalance}, required: ${amount}`);
+    }
+
+    if (!(await hasAllowance([ALIASES.crv], [amount], curve.signerAddress, ALIASES.voting_escrow))) {
+        throw Error("Token allowance is needed to estimate gas")
+    }
+
+    const _amount = ethers.utils.parseUnits(amount);
+    const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
+
+    return (await curve.contracts[ALIASES.voting_escrow].contract.estimateGas.create_lock(_amount, unlockTime)).toNumber()
+}
+
 export const createLock = async (amount: string, days: number): Promise<string> => {
     const _amount = ethers.utils.parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
@@ -83,6 +100,23 @@ export const createLock = async (amount: string, days: number): Promise<string> 
 
     const gasLimit = (await contract.estimateGas.create_lock(_amount, unlockTime)).mul(130).div(100);
     return (await contract.create_lock(_amount, unlockTime, { ...curve.options, gasLimit })).hash
+}
+
+export const increaseAmountEstimateGas = async (amount: string): Promise<number> => {
+    const crvBalance = await getCrv() as string;
+
+    if (Number(crvBalance) < Number(amount)) {
+        throw Error(`Not enough. Actual: ${crvBalance}, required: ${amount}`);
+    }
+
+    if (!(await hasAllowance([ALIASES.crv], [amount], curve.signerAddress, ALIASES.voting_escrow))) {
+        throw Error("Token allowance is needed to estimate gas")
+    }
+
+    const _amount = ethers.utils.parseUnits(amount);
+    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+
+    return (await contract.estimateGas.increase_amount(_amount)).toNumber()
 }
 
 export const increaseAmount = async (amount: string): Promise<string> => {
@@ -94,6 +128,14 @@ export const increaseAmount = async (amount: string): Promise<string> => {
     return (await contract.increase_amount(_amount, { ...curve.options, gasLimit })).hash
 }
 
+export const increaseUnlockTimeEstimateGas = async (days: number): Promise<number> => {
+    const { unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
+    const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
+    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+
+    return (await contract.estimateGas.increase_unlock_time(newUnlockTime)).toNumber()
+}
+
 export const increaseUnlockTime = async (days: number): Promise<string> => {
     const { unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
@@ -101,6 +143,12 @@ export const increaseUnlockTime = async (days: number): Promise<string> => {
 
     const gasLimit = (await contract.estimateGas.increase_unlock_time(newUnlockTime)).mul(130).div(100);
     return (await contract.increase_unlock_time(newUnlockTime, { ...curve.options, gasLimit })).hash
+}
+
+export const withdrawLockedCrvEstimateGas = async (): Promise<number> => {
+    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+
+    return (await contract.estimateGas.withdraw()).toNumber()
 }
 
 export const withdrawLockedCrv = async (): Promise<string> => {

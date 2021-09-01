@@ -173,6 +173,28 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
 }
 
 // coins can be either addresses or symbols
+export const ensureAllowanceEstimateGas = async (coins: string[], amounts: string[], spender: string): Promise<number> => {
+    const coinAddresses = _getCoinAddresses(coins);
+    const decimals = _getCoinDecimals(coinAddresses);
+    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+    const address = curve.signerAddress;
+    const allowance: ethers.BigNumber[] = await _getAllowance(coinAddresses, address, spender);
+
+    let gas = 0;
+    for (let i = 0; i < allowance.length; i++) {
+        if (allowance[i].lt(_amounts[i])) {
+            const contract = curve.contracts[coinAddresses[i]].contract;
+            if (allowance[i].gt(ethers.BigNumber.from(0))) {
+                gas += (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.options)).toNumber();
+            }
+            gas += (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.options)).toNumber();
+        }
+    }
+
+    return gas
+}
+
+// coins can be either addresses or symbols
 export const ensureAllowance = async (coins: string[], amounts: string[], spender: string): Promise<string[]> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);

@@ -175,6 +175,8 @@ export class Pool {
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
             ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
+        await curve.updateFeeData();
+
         // Lending pools with zap
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
             return await this._addLiquidityZap(_amounts) as string;
@@ -233,6 +235,8 @@ export class Pool {
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
             ethers.utils.parseUnits(amount, this.decimals[i]));
 
+        await curve.updateFeeData();
+
         // Lending pools without zap
         if (['aave', 'saave', 'ib'].includes(this.name)) {
             return await this._addLiquidity(_amounts, false) as string;
@@ -288,6 +292,8 @@ export class Pool {
     public removeLiquidity = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
+        await curve.updateFeeData();
+
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
             return await this._removeLiquidityZap(_lpTokenAmount) as string;
         }
@@ -327,6 +333,8 @@ export class Pool {
 
     public removeLiquidityWrapped = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+
+        await curve.updateFeeData();
 
         if (['aave', 'saave', 'ib'].includes(this.name)) {
             return await this._removeLiquidity(_lpTokenAmount, false) as string;
@@ -373,6 +381,8 @@ export class Pool {
     public removeLiquidityImbalance = async (amounts: string[]): Promise<string> => {
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
+        await curve.updateFeeData();
+
         // Lending pools with zap
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
             return await this._removeLiquidityImbalanceZap(_amounts) as string;
@@ -413,6 +423,8 @@ export class Pool {
 
     public removeLiquidityImbalanceWrapped = async (amounts: string[], estimateGas = false): Promise<string | number> => {
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.decimals[i]));
+
+        await curve.updateFeeData();
 
         if (['aave', 'saave', 'ib'].includes(this.name)) {
             return await this._removeLiquidityImbalance(_amounts, false, estimateGas);
@@ -467,6 +479,8 @@ export class Pool {
     public removeLiquidityOneCoin = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
         const i = this._getCoinIdx(coin);
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+
+        await curve.updateFeeData();
 
         // Lending pools with zap, susd and metapools
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) || this.name === 'susd' || this.isMeta) {
@@ -524,6 +538,8 @@ export class Pool {
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
             throw Error(`${this.name} pool doesn't have remove_liquidity_one_coin method for wrapped tokens`);
         }
+
+        await curve.updateFeeData();
 
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
@@ -625,6 +641,7 @@ export class Pool {
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
+        await curve.updateFeeData();
         const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
@@ -670,6 +687,7 @@ export class Pool {
         const contract = curve.contracts[this.swap].contract;
         const value = useEth && i == 2 ? _amount : ethers.BigNumber.from(0);
 
+        await curve.updateFeeData();
         const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value })).mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value, gasLimit })).hash
     }
@@ -716,6 +734,7 @@ export class Pool {
         const contract = curve.contracts[this.swap].contract;
 
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
+        await curve.updateFeeData();
         const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
@@ -1496,6 +1515,7 @@ export const crossAssetExchange = async (inputCoin: string, outputCoin: string, 
     const routerContract = await curve.contracts[ALIASES.router].contract;
     await _ensureAllowance([inputCoinAddress], [_amount], ALIASES.router);
 
+    await curve.updateFeeData();
     const gasLimit = (await routerContract.estimateGas.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
     return (await routerContract.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value, gasLimit })).hash;
 }

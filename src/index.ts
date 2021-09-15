@@ -32,20 +32,20 @@ import { getBalances, getAllowance, hasAllowance, ensureAllowanceEstimateGas, en
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura',
     providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
-    options: { gasPrice?: number, chainId?: number } = {}
+    options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {}
 ): Promise<void> {
     await _curve.init(providerType, providerSettings, options);
     // @ts-ignore
     this.signerAddress = _curve.signerAddress;
 }
 
-function setGasPrice (gasPrice: number): void {
-    _curve.setGasPrice(gasPrice);
+function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
+    _curve.setCustomFeeData(customFeeData);
 }
 
 const curve = {
     init,
-    setGasPrice,
+    setCustomFeeData,
     signerAddress: '',
     Pool,
     getBalances,

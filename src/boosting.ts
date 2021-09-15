@@ -98,6 +98,7 @@ export const createLock = async (amount: string, days: number): Promise<string> 
     await _ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
     const contract = curve.contracts[ALIASES.voting_escrow].contract;
 
+    await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.create_lock(_amount, unlockTime)).mul(130).div(100);
     return (await contract.create_lock(_amount, unlockTime, { ...curve.options, gasLimit })).hash
 }
@@ -124,6 +125,7 @@ export const increaseAmount = async (amount: string): Promise<string> => {
     await _ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
     const contract = curve.contracts[ALIASES.voting_escrow].contract;
 
+    await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.increase_amount(_amount)).mul(130).div(100);
     return (await contract.increase_amount(_amount, { ...curve.options, gasLimit })).hash
 }
@@ -141,6 +143,7 @@ export const increaseUnlockTime = async (days: number): Promise<string> => {
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
     const contract = curve.contracts[ALIASES.voting_escrow].contract;
 
+    await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.increase_unlock_time(newUnlockTime)).mul(130).div(100);
     return (await contract.increase_unlock_time(newUnlockTime, { ...curve.options, gasLimit })).hash
 }
@@ -154,6 +157,7 @@ export const withdrawLockedCrvEstimateGas = async (): Promise<number> => {
 export const withdrawLockedCrv = async (): Promise<string> => {
     const contract = curve.contracts[ALIASES.voting_escrow].contract;
 
+    await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.withdraw()).mul(130).div(100);
     return (await contract.withdraw({ ...curve.options, gasLimit })).hash
 }

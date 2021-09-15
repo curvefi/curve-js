@@ -61,7 +61,8 @@ class Curve {
     signer: ethers.Signer;
     signerAddress: string;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
-    options: { gasLimit: number, gasPrice?: number | ethers.BigNumber };
+    feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
+    options: { gasLimit: number, gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
 
     constructor() {
         // @ts-ignore
@@ -72,13 +73,14 @@ class Curve {
         // @ts-ignore
         this.multicallProvider = null;
         this.contracts = {};
+        this.feeData = {}
         this.options = { gasLimit: 12000000 };
     }
 
     async init(
         providerType: 'JsonRpc' | 'Web3' | 'Infura',
         providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
-        options: { gasPrice?: number, chainId?: number } = {} // gasPrice in Gwei
+        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
         // JsonRpc provider
         if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
@@ -118,7 +120,9 @@ class Curve {
         if (this.signer) {
             this.signerAddress = await this.signer.getAddress();
         }
-        this.options.gasPrice = options.gasPrice !== undefined ? (options.gasPrice * 1e9) : await this.provider.getGasPrice();
+
+        this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };
+        await this.updateFeeData();
 
         // TODO delete toLowerCase()
         for (const pool of Object.values(poolsData)) {
@@ -256,8 +260,29 @@ class Curve {
         };
     }
 
-    setGasPrice(gasPrice: number): void {
-        this.options.gasPrice = gasPrice * 1e9;
+    setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
+        this.feeData = { ...this.feeData, ...customFeeData };
+    }
+
+    async updateFeeData(): Promise<void> {
+        const feeData = await this.provider.getFeeData();
+        if (feeData.maxFeePerGas === null || feeData.maxPriorityFeePerGas === null) {
+            delete this.options.maxFeePerGas;
+            delete this.options.maxPriorityFeePerGas;
+
+            this.options.gasPrice = this.feeData.gasPrice !== undefined ?
+                ethers.utils.parseUnits(this.feeData.gasPrice.toString(), "gwei") :
+                (feeData.gasPrice || await this.provider.getGasPrice());
+        } else {
+            delete this.options.gasPrice;
+
+            this.options.maxFeePerGas = this.feeData.maxFeePerGas !== undefined ?
+                ethers.utils.parseUnits(this.feeData.maxFeePerGas.toString(), "gwei") :
+                feeData.maxFeePerGas;
+            this.options.maxPriorityFeePerGas = this.feeData.maxPriorityFeePerGas !== undefined ?
+                ethers.utils.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
+                feeData.maxFeePerGas;
+        }
     }
 }
 

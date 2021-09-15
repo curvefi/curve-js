@@ -160,6 +160,7 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
             const contract = curve.contracts[coins[i]].contract;
+            await curve.updateFeeData();
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
                 const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.options)).mul(130).div(100);
                 txHashes.push((await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit })).hash);

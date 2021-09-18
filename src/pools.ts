@@ -43,6 +43,8 @@ export class Pool {
     estimateGas: {
         addLiquidity: (amounts: string[]) => Promise<number>,
         addLiquidityWrapped: (amounts: string[]) => Promise<number>,
+        gaugeDeposit: (lpTokenAmount: string) => Promise<number>,
+        gaugeWithdraw: (lpTokenAmount: string) => Promise<number>,
         removeLiquidity: (lpTokenAmount: string) => Promise<number>,
         removeLiquidityWrapped: (lpTokenAmount: string) => Promise<number>,
         removeLiquidityImbalance: (amounts: string[]) => Promise<number>,
@@ -75,6 +77,8 @@ export class Pool {
         this.estimateGas = {
             addLiquidity: this.addLiquidityEstimateGas,
             addLiquidityWrapped: this.addLiquidityWrappedEstimateGas,
+            gaugeDeposit: this.gaugeDepositEstimateGas,
+            gaugeWithdraw: this.gaugeWithdrawEstimateGas,
             removeLiquidity: this.removeLiquidityEstimateGas,
             removeLiquidityWrapped: this.removeLiquidityWrappedEstimateGas,
             removeLiquidityImbalance: this.removeLiquidityImbalanceEstimateGas,
@@ -551,11 +555,21 @@ export class Pool {
         return await this._removeLiquidityOneCoinSwap(_lpTokenAmount, i) as string;
     }
 
+    private gaugeDepositEstimateGas = async (lpTokenAmount: string): Promise<number> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        return (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.options)).toNumber();
+    }
+
     public gaugeDeposit = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)
 
         return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, curve.options)).hash;
+    }
+
+    private gaugeWithdrawEstimateGas = async (lpTokenAmount: string): Promise<number> => {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        return (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.options)).toNumber();
     }
 
     public gaugeWithdraw = async (lpTokenAmount: string): Promise<string> => {

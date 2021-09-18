@@ -624,7 +624,7 @@ export class Pool {
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
-        return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value })).toNumber();
+        return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
@@ -642,7 +642,7 @@ export class Pool {
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
         await curve.updateFeeData();
-        const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
+        const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
@@ -668,7 +668,7 @@ export class Pool {
         const contract = curve.contracts[this.swap].contract;
         const value = useEth && i == 2 ? _amount : ethers.BigNumber.from(0);
 
-        return (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value })).toNumber()
+        return (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.constantOptions, value })).toNumber()
     }
 
 
@@ -688,7 +688,7 @@ export class Pool {
         const value = useEth && i == 2 ? _amount : ethers.BigNumber.from(0);
 
         await curve.updateFeeData();
-        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value })).mul(130).div(100);
+        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.constantOptions, value })).mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value, gasLimit })).hash
     }
 
@@ -721,7 +721,7 @@ export class Pool {
         const contract = curve.contracts[this.swap].contract;
 
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
-        return (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value })).toNumber()
+        return (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber()
     }
 
     public exchangeWrapped = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
@@ -735,7 +735,7 @@ export class Pool {
 
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
         await curve.updateFeeData();
-        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
+        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
@@ -932,17 +932,17 @@ export class Pool {
     }
 
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap].contract.calc_token_amount(_amounts, isDeposit, curve.options);
+        return await curve.contracts[this.swap].contract.calc_token_amount(_amounts, isDeposit, curve.constantOptions);
     }
 
     private _calcLpTokenAmountZap = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
         if (this.isFactory) {
-            return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.options);
+            return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
         }
 
-        return await contract.calc_token_amount(_amounts, isDeposit, curve.options);
+        return await contract.calc_token_amount(_amounts, isDeposit, curve.constantOptions);
     }
 
     private _calcLpTokenAmountWithUnderlying = async (_underlying_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
@@ -950,7 +950,7 @@ export class Pool {
         const _wrapped_amounts = _underlying_amounts.map((amount: ethers.BigNumber, i: number) =>
             amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
 
-        return await curve.contracts[this.swap].contract.calc_token_amount(_wrapped_amounts, isDeposit, curve.options);
+        return await curve.contracts[this.swap].contract.calc_token_amount(_wrapped_amounts, isDeposit, curve.constantOptions);
     }
 
     private _addLiquiditySwap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
@@ -963,7 +963,7 @@ export class Pool {
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.swap].contract;
 
-        const gas: ethers.BigNumber = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value });
+        const gas: ethers.BigNumber = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -983,7 +983,7 @@ export class Pool {
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value });
+        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1003,7 +1003,7 @@ export class Pool {
         const contract = curve.contracts[this.zap as string].contract;
 
         if (this.isFactory) {
-            const gas = await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, value });
+            const gas = await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.constantOptions, value });
             if (estimateGas) {
                 return gas.toNumber()
             }
@@ -1012,7 +1012,7 @@ export class Pool {
             return (await contract.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
         }
 
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.options, value });
+        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1034,7 +1034,7 @@ export class Pool {
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, useUnderlying, { ...curve.options, value });
+        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, useUnderlying, { ...curve.constantOptions, value });
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1046,10 +1046,10 @@ export class Pool {
     private _calcExpectedAmounts = async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
         const coinBalancesBN: BigNumber[] = [];
         for (let i = 0; i < this.coinAddresses.length; i++) {
-            const _balance: ethers.BigNumber = await curve.contracts[this.swap].contract.balances(i, curve.options);
+            const _balance: ethers.BigNumber = await curve.contracts[this.swap].contract.balances(i, curve.constantOptions);
             coinBalancesBN.push(toBN(_balance, this.decimals[i]));
         }
-        const totalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken].contract.totalSupply(curve.options));
+        const totalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
 
         const expectedAmountsBN: BigNumber[] = [];
         for (const coinBalance of coinBalancesBN) {
@@ -1093,7 +1093,7 @@ export class Pool {
         const _minAmounts = await this._calcMinAmounts(_lpTokenAmount);
         const contract = curve.contracts[this.swap].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1109,7 +1109,7 @@ export class Pool {
         const _minAmounts = await this._calcMinUnderlyingAmounts(_lpTokenAmount);
         const contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
 
         if (estimateGas) {
             return gas.toNumber()
@@ -1128,7 +1128,7 @@ export class Pool {
         const contract = curve.contracts[this.zap as string].contract;
 
         if (this.isFactory) {
-            const gas = await contract.estimateGas.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, curve.options);
+            const gas = await contract.estimateGas.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()
             }
@@ -1136,7 +1136,7 @@ export class Pool {
             return (await contract.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
         }
 
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1149,7 +1149,7 @@ export class Pool {
         const _minAmounts = useUnderlying ? await this._calcMinUnderlyingAmounts(_lpTokenAmount) : await this._calcMinAmounts(_lpTokenAmount);
         const contract = curve.contracts[this.swap].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, useUnderlying, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, useUnderlying, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1162,7 +1162,7 @@ export class Pool {
         const _maxBurnAmount =(await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
         const  contract = curve.contracts[this.swap].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1180,7 +1180,7 @@ export class Pool {
 
         const  contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1199,7 +1199,7 @@ export class Pool {
         const contract = curve.contracts[this.zap as string].contract;
 
         if (this.isFactory) {
-            const gas = await contract.estimateGas.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, curve.options);
+            const gas = await contract.estimateGas.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()
             }
@@ -1207,7 +1207,7 @@ export class Pool {
             return (await contract.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
         }
 
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.options)
+        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions)
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1222,7 +1222,7 @@ export class Pool {
         _maxBurnAmount = _maxBurnAmount.mul(101).div(100);
         const  contract = curve.contracts[this.swap].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, useUnderlying, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, useUnderlying, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1232,28 +1232,28 @@ export class Pool {
     }
 
     private _calcWithdrawOneCoinSwap = async (_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap].contract.calc_withdraw_one_coin(_lpTokenAmount, i, curve.options);
+        return await curve.contracts[this.swap].contract.calc_withdraw_one_coin(_lpTokenAmount, i, curve.constantOptions);
     }
 
     private _calcWithdrawOneCoinZap = async (_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
         if (this.isFactory) {
-            return (await contract.calc_withdraw_one_coin(this.swap, _lpTokenAmount, i, curve.options));
+            return (await contract.calc_withdraw_one_coin(this.swap, _lpTokenAmount, i, curve.constantOptions));
         }
 
-        return await contract.calc_withdraw_one_coin(_lpTokenAmount, i, curve.options);
+        return await contract.calc_withdraw_one_coin(_lpTokenAmount, i, curve.constantOptions);
     }
 
     private _calcWithdrawOneCoin = async (_lpTokenAmount: ethers.BigNumber, i: number, useUnderlying = true): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap].contract.calc_withdraw_one_coin(_lpTokenAmount, i, useUnderlying, curve.options);
+        return await curve.contracts[this.swap].contract.calc_withdraw_one_coin(_lpTokenAmount, i, useUnderlying, curve.constantOptions);
     }
 
     private _removeLiquidityOneCoinSwap = async (_lpTokenAmount: ethers.BigNumber, i: number, estimateGas = false): Promise<string | number> => {
         const _minAmount = (await this._calcWithdrawOneCoinSwap(_lpTokenAmount, i)).mul(99).div(100);
         const  contract = curve.contracts[this.swap].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1271,7 +1271,7 @@ export class Pool {
         const  contract = curve.contracts[this.zap as string].contract;
 
         if (this.isFactory) {
-            const gas = await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.options);
+            const gas = await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()
             }
@@ -1279,7 +1279,7 @@ export class Pool {
             return (await contract.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
         }
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1295,7 +1295,7 @@ export class Pool {
         _minAmount = _minAmount.mul(99).div(100);
         const  contract = curve.contracts[this.swap].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, useUnderlying, curve.options);
+        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, useUnderlying, curve.constantOptions);
         if (estimateGas) {
             return gas.toNumber()
         }
@@ -1307,14 +1307,14 @@ export class Pool {
     private _getExchangeOutput = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.swap].contract;
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
-            return await contract.get_dy_underlying(i, j, _amount, curve.options)
+            return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
         } else {
-            return await contract.get_dy(i, j, _amount, curve.options);
+            return await contract.get_dy(i, j, _amount, curve.constantOptions);
         }
     }
 
     private _getExchangeOutputWrapped = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
-        return await curve.contracts[this.swap].contract.get_dy(i, j, _amount, curve.options);
+        return await curve.contracts[this.swap].contract.get_dy(i, j, _amount, curve.constantOptions);
     }
 }
 
@@ -1333,11 +1333,11 @@ export const _getBestPoolAndOutput = async (
     }
 
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
-    const registryExchangeAddress = await addressProviderContract.get_address(2, curve.options);
+    const registryExchangeAddress = await addressProviderContract.get_address(2, curve.constantOptions);
     const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer || curve.provider);
 
     const _amount = ethers.utils.parseUnits(amount.toString(), inputCoinDecimals);
-    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount, curve.options);
+    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount, curve.constantOptions);
 
     return { poolAddress, output }
 }
@@ -1413,7 +1413,7 @@ export const crossAssetExchangeAvailable = async (inputCoin: string, outputCoin:
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const routerContract = await curve.contracts[ALIASES.router].contract;
 
-    return routerContract.can_route(inputCoinAddress, outputCoinAddress, curve.options);
+    return routerContract.can_route(inputCoinAddress, outputCoinAddress, curve.constantOptions);
 }
 
 export const _getSmallAmountForCoin = (coinAddress: string): string => {
@@ -1436,13 +1436,13 @@ export const _crossAssetExchangeInfo = async (
 
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
     const amountBN = toBN(_amount, inputCoinDecimals);
-    const [route, indices, _expected] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _amount, curve.options);
+    const [route, indices, _expected] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _amount, curve.constantOptions);
     const expectedBN = toBN(_expected, outputCoinDecimals);
     const exchangeRateBN = expectedBN.div(amountBN);
 
     const _smallAmount = ethers.utils.parseUnits(_getSmallAmountForCoin(inputCoinAddress), inputCoinDecimals)
     const smallAmountBN = toBN(_smallAmount, inputCoinDecimals);
-    const [, , _expectedSmall] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _smallAmount, curve.options);
+    const [, , _expectedSmall] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _smallAmount, curve.constantOptions);
     const expectedSmallBN = toBN(_expectedSmall, outputCoinDecimals);
     const exchangeSmallRateBN = expectedSmallBN.div(smallAmountBN);
 
@@ -1468,7 +1468,7 @@ export const crossAssetExchangeExpected = async (inputCoin: string, outputCoin: 
     const routerContract = await curve.contracts[ALIASES.router].contract;
 
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
-    const [, , _expected] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _amount, curve.options);
+    const [, , _expected] = await routerContract.get_exchange_routing(inputCoinAddress, outputCoinAddress, _amount, curve.constantOptions);
 
     return ethers.utils.formatUnits(_expected, outputCoinDecimals)
 }
@@ -1497,7 +1497,7 @@ export const crossAssetExchangeEstimateGas = async (inputCoin: string, outputCoi
 
     const routerContract = await curve.contracts[ALIASES.router].contract;
 
-    return (await routerContract.estimateGas.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value })).toNumber()
+    return (await routerContract.estimateGas.exchange(_amount, route, indices, _minRecvAmount, { ...curve.constantOptions, value })).toNumber()
 }
 
 export const crossAssetExchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.02): Promise<string> => {
@@ -1516,6 +1516,6 @@ export const crossAssetExchange = async (inputCoin: string, outputCoin: string, 
     await _ensureAllowance([inputCoinAddress], [_amount], ALIASES.router);
 
     await curve.updateFeeData();
-    const gasLimit = (await routerContract.estimateGas.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value })).mul(130).div(100);
+    const gasLimit = (await routerContract.estimateGas.exchange(_amount, route, indices, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
     return (await routerContract.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value, gasLimit })).hash;
 }

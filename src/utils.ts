@@ -162,10 +162,10 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
             const contract = curve.contracts[coins[i]].contract;
             await curve.updateFeeData();
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
-                const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.options)).mul(130).div(100);
+                const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).mul(130).div(100);
                 txHashes.push((await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit })).hash);
             }
-            const gasLimit = (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.options)).mul(130).div(100);
+            const gasLimit = (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.constantOptions)).mul(130).div(100);
             txHashes.push((await contract.approve(spender, MAX_ALLOWANCE, { ...curve.options, gasLimit })).hash);
         }
     }
@@ -186,9 +186,9 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: strin
         if (allowance[i].lt(_amounts[i])) {
             const contract = curve.contracts[coinAddresses[i]].contract;
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
-                gas += (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.options)).toNumber();
+                gas += (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).toNumber();
             }
-            gas += (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.options)).toNumber();
+            gas += (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.constantOptions)).toNumber();
         }
     }
 

@@ -62,7 +62,8 @@ class Curve {
     signerAddress: string;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
-    options: { gasLimit: number, gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
+    constantOptions: { gasLimit: number };
+    options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
 
     constructor() {
         // @ts-ignore
@@ -74,7 +75,8 @@ class Curve {
         this.multicallProvider = null;
         this.contracts = {};
         this.feeData = {}
-        this.options = { gasLimit: 12000000 };
+        this.constantOptions = { gasLimit: 12000000 }
+        this.options = {};
     }
 
     async init(

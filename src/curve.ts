@@ -20,7 +20,7 @@ export const ALIASES = {
     "minter": "0xd061D61a4d941c39E5453435B6345Dc261C2fcE0",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
-    "router": "0x13e987c9169f532e1EAcAFcd69CFc84344Dbd781",
+    "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
 }
 
 const cTokens = [

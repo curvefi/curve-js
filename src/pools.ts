@@ -129,6 +129,12 @@ export class Pool {
         return ethers.utils.formatUnits(_expected);
     }
 
+    public getVirtualPrice = async (): Promise<string> => {
+        const _virtualPrice = await curve.contracts[this.swap].contract.get_virtual_price(curve.constantOptions);
+
+        return ethers.utils.formatUnits(_virtualPrice);
+    }
+
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {
         return await this.calcLpTokenAmount(amounts);
     }

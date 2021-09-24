@@ -178,6 +178,33 @@ export class Pool {
         return await this._addLiquiditySwap(_amounts, true) as number;
     }
 
+    public balancedAmounts = async (): Promise<string[]> => {
+        const swapContract = curve.contracts[this.swap].multicallContract;
+        const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
+        const _poolWrappedBalances = (await curve.multicallProvider.all(contractCalls));
+        let _poolUnderlyingBalances: ethers.BigNumber[] = [];
+
+        if (this.isMeta) {
+            _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
+            const [_poolMetaCoinBalance, ..._poolUnderlyingBalance] = _poolWrappedBalances;
+
+            const basePool = new Pool(this.basePool);
+            const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_poolMetaCoinBalance);
+            _poolUnderlyingBalances = [..._poolUnderlyingBalance, ..._basePoolExpectedAmounts]
+        } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'].includes(this.name)) {
+            const _rates: ethers.BigNumber[] = await this._getRates();
+            _poolUnderlyingBalances = _poolWrappedBalances.map(
+                (_b: ethers.BigNumber, i: number) => _b.mul(_rates[i]).div(ethers.BigNumber.from(10).pow(18)));
+        } else {
+            _poolUnderlyingBalances = _poolWrappedBalances;
+        }
+
+        const poolBalances = _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => Number(ethers.utils.formatUnits(_b, this.underlyingDecimals[i])))
+        const walletBalances = Object.values(await this.underlyingCoinBalances()).map(Number);
+
+        return this._balancedAmounts(poolBalances, walletBalances)
+    }
+
     public addLiquidity = async (amounts: string[]): Promise<string> => {
         if (amounts.length !== this.underlyingCoinAddresses.length) {
             throw Error(`${this.name} pool has ${this.underlyingCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
@@ -204,6 +231,16 @@ export class Pool {
 
         // Plain pools
         return await this._addLiquiditySwap(_amounts)  as string;
+    }
+
+    public balancedWrappedAmounts = async (address?: string): Promise<string[]> => {
+        const swapContract = curve.contracts[this.swap].multicallContract;
+        const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
+        const poolBalances = (await curve.multicallProvider.all(contractCalls)).map(
+            (_b: ethers.BigNumber, i: number) => Number(ethers.utils.formatUnits(_b, this.decimals[i])));
+        const walletBalances = Object.values(await this.coinBalances(address ? [address] : [])).map(Number);
+
+        return this._balancedAmounts(poolBalances, walletBalances)
     }
 
     public addLiquidityWrappedExpected = async (amounts: string[]): Promise<string> => {
@@ -949,6 +986,21 @@ export class Pool {
         }
 
         return addresses.length === 1 ? balances[addresses[0]] : balances
+    }
+
+    private _balancedAmounts = (poolBalances: number[], walletBalances: number[]): string[] => {
+        const poolBalancesRatios = poolBalances.map((b) => b / poolBalances.reduce((a,b) => a + b));
+        // Cross factors for each wallet balance used as reference to see the
+        // max that can be used according to the lowest relative wallet balance
+        const balancesAmountsForEachScenario = walletBalances.map((_, i) => (
+            walletBalances.map((_, j) => (
+                poolBalancesRatios[j] * walletBalances[i] / poolBalancesRatios[i]
+            ))
+        ));
+        const firstCoinBalanceForEachScenario = balancesAmountsForEachScenario.map(([a]) => a);
+        const scenarioWithLowestBalances = firstCoinBalanceForEachScenario.indexOf(Math.min(...firstCoinBalanceForEachScenario));
+
+        return balancesAmountsForEachScenario[scenarioWithLowestBalances].map(String)
     }
 
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {

@@ -610,9 +610,8 @@
         "name":"arg0"
       }
     ],
-    "constant":true,
-    "payable":false,
-    "type":"function",
+    "stateMutability": "view",
+    "type": "function",
     "gas":"2190"
   },
   {

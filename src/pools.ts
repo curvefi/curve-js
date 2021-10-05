@@ -663,6 +663,10 @@ export class Pool {
     }
 
     public removeLiquidityOneCoinWrappedExpected = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_one_coin method for wrapped tokens`);
+        }
+
         const i = this._getCoinIdx(coin, false);
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 

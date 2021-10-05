@@ -436,7 +436,7 @@ export class Pool {
             return await this._removeLiquidity(_lpTokenAmount, false, true) as number;
         }
 
-        return await this._removeLiquiditySwap(_lpTokenAmount) as number;
+        return await this._removeLiquiditySwap(_lpTokenAmount, true) as number;
     }
 
     public removeLiquidityWrapped = async (lpTokenAmount: string): Promise<string> => {

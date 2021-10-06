@@ -237,7 +237,7 @@ export class Pool {
         const poolBalances = _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => Number(ethers.utils.formatUnits(_b, this.underlyingDecimals[i])))
         const walletBalances = Object.values(await this.underlyingCoinBalances()).map(Number);
 
-        return this._balancedAmounts(poolBalances, walletBalances)
+        return this._balancedAmounts(poolBalances, walletBalances, this.underlyingDecimals)
     }
 
     public addLiquidity = async (amounts: string[]): Promise<string> => {
@@ -275,7 +275,7 @@ export class Pool {
             (_b: ethers.BigNumber, i: number) => Number(ethers.utils.formatUnits(_b, this.decimals[i])));
         const walletBalances = Object.values(await this.coinBalances(address ? [address] : [])).map(Number);
 
-        return this._balancedAmounts(poolBalances, walletBalances)
+        return this._balancedAmounts(poolBalances, walletBalances, this.decimals)
     }
 
     public addLiquidityWrappedExpected = async (amounts: string[]): Promise<string> => {
@@ -1172,7 +1172,7 @@ export class Pool {
         return addresses.length === 1 ? balances[addresses[0]] : balances
     }
 
-    private _balancedAmounts = (poolBalances: number[], walletBalances: number[]): string[] => {
+    private _balancedAmounts = (poolBalances: number[], walletBalances: number[], decimals: number[]): string[] => {
         const poolBalancesRatios = poolBalances.map((b) => b / poolBalances.reduce((a,b) => a + b));
         // Cross factors for each wallet balance used as reference to see the
         // max that can be used according to the lowest relative wallet balance
@@ -1184,7 +1184,7 @@ export class Pool {
         const firstCoinBalanceForEachScenario = balancesAmountsForEachScenario.map(([a]) => a);
         const scenarioWithLowestBalances = firstCoinBalanceForEachScenario.indexOf(Math.min(...firstCoinBalanceForEachScenario));
 
-        return balancesAmountsForEachScenario[scenarioWithLowestBalances].map(String)
+        return balancesAmountsForEachScenario[scenarioWithLowestBalances].map((a, i) => a.toFixed(decimals[i]))
     }
 
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {

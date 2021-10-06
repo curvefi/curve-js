@@ -155,6 +155,37 @@ export class Pool {
         return ethers.utils.formatUnits(_virtualPrice);
     }
 
+    public getPoolBalances = async (): Promise<string[]> => {
+        const swapContract = curve.contracts[this.swap].multicallContract;
+        const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
+        const _poolWrappedBalances = (await curve.multicallProvider.all(contractCalls));
+        let _poolUnderlyingBalances: ethers.BigNumber[] = [];
+
+        if (this.isMeta) {
+            _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
+            const [_poolMetaCoinBalance, ..._poolUnderlyingBalance] = _poolWrappedBalances;
+
+            const basePool = new Pool(this.basePool);
+            const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_poolMetaCoinBalance);
+            _poolUnderlyingBalances = [..._poolUnderlyingBalance, ..._basePoolExpectedAmounts]
+        } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'].includes(this.name)) {
+            const _rates: ethers.BigNumber[] = await this._getRates();
+            _poolUnderlyingBalances = _poolWrappedBalances.map(
+                (_b: ethers.BigNumber, i: number) => _b.mul(_rates[i]).div(ethers.BigNumber.from(10).pow(18)));
+        } else {
+            _poolUnderlyingBalances = _poolWrappedBalances;
+        }
+
+        return  _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => ethers.utils.formatUnits(_b, this.underlyingDecimals[i]))
+    }
+
+    public getPoolWrappedBalances = async (): Promise<string[]> => {
+        const swapContract = curve.contracts[this.swap].multicallContract;
+        const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
+
+        return (await curve.multicallProvider.all(contractCalls)).map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
+    }
+
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {
         return await this.calcLpTokenAmount(amounts);
     }
@@ -214,27 +245,7 @@ export class Pool {
     }
 
     public balancedAmounts = async (): Promise<string[]> => {
-        const swapContract = curve.contracts[this.swap].multicallContract;
-        const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
-        const _poolWrappedBalances = (await curve.multicallProvider.all(contractCalls));
-        let _poolUnderlyingBalances: ethers.BigNumber[] = [];
-
-        if (this.isMeta) {
-            _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
-            const [_poolMetaCoinBalance, ..._poolUnderlyingBalance] = _poolWrappedBalances;
-
-            const basePool = new Pool(this.basePool);
-            const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_poolMetaCoinBalance);
-            _poolUnderlyingBalances = [..._poolUnderlyingBalance, ..._basePoolExpectedAmounts]
-        } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'].includes(this.name)) {
-            const _rates: ethers.BigNumber[] = await this._getRates();
-            _poolUnderlyingBalances = _poolWrappedBalances.map(
-                (_b: ethers.BigNumber, i: number) => _b.mul(_rates[i]).div(ethers.BigNumber.from(10).pow(18)));
-        } else {
-            _poolUnderlyingBalances = _poolWrappedBalances;
-        }
-
-        const poolBalances = _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => Number(ethers.utils.formatUnits(_b, this.underlyingDecimals[i])))
+        const poolBalances = (await this.getPoolBalances()).map(Number);
         const walletBalances = Object.values(await this.underlyingCoinBalances()).map(Number);
 
         return this._balancedAmounts(poolBalances, walletBalances, this.underlyingDecimals)
@@ -268,12 +279,9 @@ export class Pool {
         return await this._addLiquiditySwap(_amounts)  as string;
     }
 
-    public balancedWrappedAmounts = async (address?: string): Promise<string[]> => {
-        const swapContract = curve.contracts[this.swap].multicallContract;
-        const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
-        const poolBalances = (await curve.multicallProvider.all(contractCalls)).map(
-            (_b: ethers.BigNumber, i: number) => Number(ethers.utils.formatUnits(_b, this.decimals[i])));
-        const walletBalances = Object.values(await this.coinBalances(address ? [address] : [])).map(Number);
+    public balancedWrappedAmounts = async (): Promise<string[]> => {
+        const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
+        const walletBalances = Object.values(await this.coinBalances()).map(Number);
 
         return this._balancedAmounts(poolBalances, walletBalances, this.decimals)
     }

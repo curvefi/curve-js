@@ -187,7 +187,15 @@ export class Pool {
     }
 
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {
+        amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmount(amounts);
+    }
+
+    public addLiquiditySlippage = async (amounts: string[]): Promise<string> => {
+        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
+        const expected = Number(await this.addLiquidityExpected(amounts));
+
+        return await this._addLiquiditySlippage(totalAmount, expected);
     }
 
     public addLiquidityIsApproved = async (amounts: string[]): Promise<boolean> => {
@@ -287,7 +295,15 @@ export class Pool {
     }
 
     public addLiquidityWrappedExpected = async (amounts: string[]): Promise<string> => {
+        amounts = amounts.map((a, i) => Number(a).toFixed(this.decimals[i]));
         return await this.calcLpTokenAmountWrapped(amounts);
+    }
+
+    public addLiquidityWrappedSlippage = async (amounts: string[]): Promise<string> => {
+        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
+        const expected = Number(await this.addLiquidityWrappedExpected(amounts));
+
+        return await this._addLiquiditySlippage(totalAmount, expected, false);
     }
 
     public addLiquidityWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
@@ -460,7 +476,15 @@ export class Pool {
     }
 
     public removeLiquidityImbalanceExpected = async (amounts: string[]): Promise<string> => {
+        amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmount(amounts, false);
+    }
+
+    public removeLiquidityImbalanceSlippage = async (amounts: string[]): Promise<string> => {
+        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
+        const expected = Number(await this.removeLiquidityImbalanceExpected(amounts));
+
+        return await this._removeLiquiditySlippage(totalAmount, expected);
     }
 
     public removeLiquidityImbalanceIsApproved = async (amounts: string[]): Promise<boolean> => {
@@ -560,7 +584,15 @@ export class Pool {
     }
 
     public removeLiquidityImbalanceWrappedExpected = async (amounts: string[]): Promise<string> => {
+        amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmountWrapped(amounts, false);
+    }
+
+    public removeLiquidityImbalanceWrappedSlippage = async (amounts: string[]): Promise<string> => {
+        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
+        const expected = Number(await this.removeLiquidityImbalanceWrappedExpected(amounts));
+
+        return await this._removeLiquiditySlippage(totalAmount, expected, false);
     }
 
     private removeLiquidityImbalanceWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
@@ -605,6 +637,12 @@ export class Pool {
         }
 
         return ethers.utils.formatUnits(_expected, this.underlyingDecimals[i]);
+    }
+
+    public removeLiquidityOneCoinSlippage = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+        const totalAmount = Number(await this.removeLiquidityOneCoinExpected(lpTokenAmount, coin));
+
+        return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount));
     }
 
     public removeLiquidityOneCoinIsApproved = async (lpTokenAmount: string): Promise<boolean> => {
@@ -686,6 +724,12 @@ export class Pool {
         }
 
         return ethers.utils.formatUnits(_expected, this.decimals[i]);
+    }
+
+    public removeLiquidityOneCoinWrappedSlippage = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+        const totalAmount = Number(await this.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, coin));
+
+        return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount), false);
     }
 
 
@@ -1178,6 +1222,36 @@ export class Pool {
         }
 
         return addresses.length === 1 ? balances[addresses[0]] : balances
+    }
+
+    private _addLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
+        const poolBalances: number[] = useUnderlying ?
+            (await this.getPoolBalances()).map(Number) :
+            (await this.getPoolWrappedBalances()).map(Number);
+        const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
+        const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
+
+        const balancedAmounts: string[] = poolBalancesRatios.map((r) => String(r * totalAmount));
+        const balancedExpected = useUnderlying ?
+            Number(await this.addLiquidityExpected(balancedAmounts)) :
+            Number(await this.addLiquidityWrappedExpected(balancedAmounts));
+
+        return String((balancedExpected - expected) / balancedExpected)
+    }
+
+    private _removeLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
+        const poolBalances: number[] = useUnderlying ?
+            (await this.getPoolBalances()).map(Number) :
+            (await this.getPoolWrappedBalances()).map(Number);
+        const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
+        const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
+
+        const balancedAmounts: string[] = poolBalancesRatios.map((r) => String(r * totalAmount));
+        const balancedExpected = useUnderlying ?
+            Number(await this.removeLiquidityImbalanceExpected(balancedAmounts)) :
+            Number(await this.removeLiquidityImbalanceWrappedExpected(balancedAmounts));
+
+        return String((expected - balancedExpected) / balancedExpected)
     }
 
     private _balancedAmounts = (poolBalances: number[], walletBalances: number[], decimals: number[]): string[] => {

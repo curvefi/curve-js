@@ -1251,7 +1251,7 @@ export class Pool {
             Number(await this.removeLiquidityImbalanceExpected(balancedAmounts)) :
             Number(await this.removeLiquidityImbalanceWrappedExpected(balancedAmounts));
 
-        return String((expected - balancedExpected) / balancedExpected)
+        return String((expected - balancedExpected) / expected)
     }
 
     private _balancedAmounts = (poolBalances: number[], walletBalances: number[], decimals: number[]): string[] => {

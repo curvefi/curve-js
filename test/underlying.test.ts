@@ -1,7 +1,6 @@
 import { assert } from "chai";
-import { Pool } from "../src/pools";
+import curve from "../src";
 import { BN } from "../src/utils";
-import { curve } from "../src/curve";
 import { DictInterface } from "../lib/interfaces";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link'];
@@ -11,21 +10,21 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 
 const underlyingLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
-        const myPool = new Pool(name);
-        const coinAddresses = myPool.underlyingCoinAddresses;
+        const pool = new curve.Pool(name);
+        const coinAddresses = pool.underlyingCoinAddresses;
 
         it('Adds liquidity', async function () {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
 
-            const initialBalances = await myPool.balances() as DictInterface<string>;
-            const lpTokenExpected = await myPool.addLiquidityExpected(amounts)
+            const initialBalances = await pool.balances() as DictInterface<string>;
+            const lpTokenExpected = await pool.addLiquidityExpected(amounts)
 
-            await myPool.addLiquidity(amounts);
+            await pool.addLiquidity(amounts);
 
-            const balances = await myPool.balances() as DictInterface<string>;
+            const balances = await pool.balances() as DictInterface<string>;
 
-            myPool.underlyingCoins.forEach((c: string) => {
+            pool.underlyingCoins.forEach((c: string) => {
                 if (name === 'steth') {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-18);
                 } else {
@@ -40,59 +39,59 @@ const underlyingLiquidityTest = (name: string) => {
         });
 
         it('Deposits into gauge', async function () {
-            const depositAmount: string = (await myPool.lpTokenBalances() as DictInterface<string>).lpToken;
+            const depositAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).lpToken;
 
-            await myPool.gaugeDeposit(depositAmount);
+            await pool.gaugeDeposit(depositAmount);
 
-            const balances = await myPool.lpTokenBalances();
+            const balances = await pool.lpTokenBalances();
 
             assert.strictEqual(depositAmount, balances.gauge);
             assert.strictEqual(Number(balances.lpToken), 0);
         });
 
         it('Withdraws from gauge', async function () {
-            const withdrawAmount: string = (await myPool.lpTokenBalances() as DictInterface<string>).gauge;
+            const withdrawAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).gauge;
 
-            await myPool.gaugeWithdraw(withdrawAmount);
+            await pool.gaugeWithdraw(withdrawAmount);
 
-            const balances = await myPool.lpTokenBalances();
+            const balances = await pool.lpTokenBalances();
 
             assert.strictEqual(withdrawAmount, balances.lpToken);
             assert.strictEqual(Number(balances.gauge), 0);
         });
 
         it('Removes liquidity', async function () {
-            const initialBalances = await myPool.balances() as DictInterface<string>;
+            const initialBalances = await pool.balances() as DictInterface<string>;
             const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-            const coinsExpected = await myPool.removeLiquidityExpected(lpTokenAmount);
+            const coinsExpected = await pool.removeLiquidityExpected(lpTokenAmount);
 
-            await myPool.removeLiquidity(lpTokenAmount);
+            await pool.removeLiquidity(lpTokenAmount);
 
-            const balances = await myPool.balances() as DictInterface<string>;
+            const balances = await pool.balances() as DictInterface<string>;
 
             assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-            myPool.underlyingCoins.forEach((c: string, i: number) => {
+            pool.underlyingCoins.forEach((c: string, i: number) => {
                 const delta = name == 'gusd' ? 0.011 : 0.01;
                 assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta);
             })
         });
 
-        if (myPool.name !== 'tricrypto2') {
+        if (pool.name !== 'tricrypto2') {
             it('Removes liquidity imbalance', async function () {
                 const amount = '1';
                 const amounts = coinAddresses.map(() => amount);
-                const initialBalances = await myPool.balances() as DictInterface<string>;
-                const lpTokenExpected = await myPool.removeLiquidityImbalanceExpected(amounts);
+                const initialBalances = await pool.balances() as DictInterface<string>;
+                const lpTokenExpected = await pool.removeLiquidityImbalanceExpected(amounts);
 
-                await myPool.removeLiquidityImbalance(amounts);
+                await pool.removeLiquidityImbalance(amounts);
 
-                const balances = await myPool.balances() as DictInterface<string>;
+                const balances = await pool.balances() as DictInterface<string>;
 
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
-                myPool.underlyingCoins.forEach((c: string) => {
+                pool.underlyingCoins.forEach((c: string) => {
                     if (name === 'steth') {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-18);
-                    } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(myPool.name)) {
+                    } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(pool.name)) {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 3e-6);
                     } else {
                         assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
@@ -102,16 +101,16 @@ const underlyingLiquidityTest = (name: string) => {
         }
 
         it('Removes liquidity one coin', async function () {
-            const initialBalances = await myPool.balances() as DictInterface<string>;
+            const initialBalances = await pool.balances() as DictInterface<string>;
             const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-            const expected = await myPool.removeLiquidityOneCoinExpected(lpTokenAmount, 0);
+            const expected = await pool.removeLiquidityOneCoinExpected(lpTokenAmount, 0);
 
-            await myPool.removeLiquidityOneCoin(lpTokenAmount, 0);
+            await pool.removeLiquidityOneCoin(lpTokenAmount, 0);
 
-            const balances = await myPool.balances() as DictInterface<string>;
+            const balances = await pool.balances() as DictInterface<string>;
 
             assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-            myPool.underlyingCoins.forEach((c: string, i: number) => {
+            pool.underlyingCoins.forEach((c: string, i: number) => {
                 if (i === 0) {
                     assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01)
                 } else {
@@ -124,7 +123,7 @@ const underlyingLiquidityTest = (name: string) => {
 
 const underlyingExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
-        const pool = new Pool(name);
+        const pool = new curve.Pool(name);
         const coinAddresses = pool.underlyingCoinAddresses;
 
         for (let i = 0; i < coinAddresses.length; i++) {
@@ -154,7 +153,7 @@ const underlyingExchangeTest = (name: string) => {
 
 const tricryptoExchangeTest = (useEth: boolean) => {
     describe(`tricrypto2 exchange (useEth=${useEth})`, function () {
-        const pool = new Pool('tricrypto2');
+        const pool = new curve.Pool('tricrypto2');
         const coinAddresses = pool.underlyingCoinAddresses;
 
         for (let i = 0; i < coinAddresses.length; i++) {

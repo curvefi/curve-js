@@ -1,9 +1,103 @@
 # Curve JS
 
+## Setup
+
+Install from npm:
+
+`npm install @curvefi/api`
+
+
+## Balances
+```ts
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+
+    console.log(await curve.getBalances(['DAI', 'sUSD']));
+    // OR console.log(await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']));
+    
+    // [ '10000.0', '10000.0' ]
+
+    console.log(await curve.getBalances(['aDAI', 'aSUSD']));
+    // OR console.log(await curve.getBalances(['0x028171bCA77440897B824Ca71D1c56caC55b68A3', '0x6c5024cd4f8a59110119c56f8933403a539555eb']));
+
+    // [ '10000.000211315200513239', '10000.0' ]
+
+    
+    // --- Pool ---
+
+    const saave = new curve.Pool('saave');
+
+    
+    // 1. Current address balances (signer balances)
+    
+    console.log(await saave.balances());
+    // {
+    //     lpToken: '0.0',
+    //     gauge: '0.0',
+    //     DAI: '10000.0',
+    //     sUSD: '10000.0',
+    //     aDAI: '10000.000211315200513239',
+    //     aSUSD: '10000.0'
+    // }
+
+    console.log(await saave.lpTokenBalances());
+    // { lpToken: '0.0', gauge: '0.0' }
+    
+    console.log(await saave.underlyingCoinBalances());
+    // { DAI: '10000.0', sUSD: '10000.0' }
+
+    console.log(await saave.coinBalances());
+    // { aDAI: '10000.000211315200513239', aSUSD: '10000.0' }
+    
+    console.log(await saave.allCoinBalances());
+    // {
+    //     DAI: '10000.0',
+    //     sUSD: '10000.0',
+    //     aDAI: '10000.000211315200513239',
+    //     aSUSD: '10000.0'
+    // }
+
+    
+    // 2. For every method above you can specify the address
+    
+    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5"));
+    // {
+    //     lpToken: '0.0',
+    //     gauge: '0.0',
+    //     DAI: '0.0',
+    //     sUSD: '0.0',
+    //     aDAI: '0.0',
+    //     aSUSD: '0.0'
+    // }
+
+    // Or several addresses
+    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5", "0x66aB6D9362d4F35596279692F0251Db635165871"));
+    // {
+    //     '0x0063046686E46Dc6F15918b61AE2B121458534a5': {
+    //         lpToken: '0.0',
+    //         gauge: '0.0',
+    //         DAI: '0.0',
+    //         sUSD: '0.0',
+    //         aDAI: '0.0',
+    //         aSUSD: '0.0'
+    //     },
+    //     '0x66aB6D9362d4F35596279692F0251Db635165871': {
+    //         lpToken: '0.0',
+    //         gauge: '0.0',
+    //         DAI: '10000.0',
+    //         sUSD: '10000.0',
+    //         aDAI: '10000.000211315200513239',
+    //         aSUSD: '10000.0'
+    //     }
+    // }
+
+})()
+```
+
 ## Add/remove liquidity
 
 ```ts
-import curve from "curve";
+import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {url: 'http://localhost:8545/', privateKey: ''}, { gasPrice: 0, chainId: 1 });
@@ -257,7 +351,7 @@ import curve from "curve";
 
 ## Boosting
 ```ts
-const boostingTest = async () => {
+(async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
 
     console.log(await curve.boosting.getCrv());
@@ -286,5 +380,5 @@ const boostingTest = async () => {
     // { lockedAmount: '1500.0', unlockTime: 1688601600000 }
     // 746.262271689452535192 veCRV
     // 0.000018613852077810 veCRV %
-}
+})()
 ```

@@ -6,11 +6,128 @@ Install from npm:
 
 `npm install @curvefi/api`
 
+## Init
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    // 1. Dev
+    await curve.init('JsonRpc', {url: 'http://localhost:8545/', privateKey: ''}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
+    // OR
+    await curve.init('JsonRpc', {}, { chainId: 1 }); // In this case fee data will be specified automatically
+
+    // 2. Infura
+    curve.init("Infura", { network: "homestead", apiKey: <INFURA_KEY> }, { chainId: 1 });
+    
+    // 3. Web3 provider
+    curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
+})()
+```
+**Note 1.** ```chainId``` parameter is optional, but you must specify it in the case you use Metamask on localhost network, because Metamask has that [bug](https://hardhat.org/metamask-issue.html)
+
+**Note 2.** Web3 init requires the address. Therefore, it can be initialized only after receiving the address.
+
+**Wrong ✖️ ❌️**
+```tsx
+import type { FunctionComponent } from 'react'
+import { useState, useMemo } from 'react'
+import { providers } from 'ethers'
+import Onboard from 'bnc-onboard'
+import type { Wallet } from 'bnc-onboard/dist/src/interfaces'
+import curve from '@curvefi/api'
+
+    ...
+
+const WalletProvider: FunctionComponent = ({ children }) => {
+    const [wallet, setWallet] = useState<Wallet>()
+    const [provider, setProvider] = useState<providers.Web3Provider>()
+    const [address, setAddress] = useState<string>()
+
+    const networkId = 1
+
+    const onboard = useMemo(
+        () =>
+            Onboard({
+                dappId: DAPP_ID,
+                networkId,
+
+                subscriptions: {
+                    address: (address) => {
+                        setAddress(address)
+                    },
+
+                    wallet: (wallet) => {
+                        setWallet(wallet)
+                        if (wallet.provider) {
+                            curve.init("Web3", { externalProvider: wallet.provider }, { chainId: networkId })
+                        }
+                    },
+                },
+                walletSelect: {
+                    wallets: wallets,
+                },
+            }),
+        []
+    )
+
+    ...
+```
+
+**Right ✔ ✅️**
+```tsx
+import type { FunctionComponent } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { providers } from 'ethers'
+import Onboard from 'bnc-onboard'
+import type { Wallet } from 'bnc-onboard/dist/src/interfaces'
+import curve from '@curvefi/api'
+
+    ...
+
+const WalletProvider: FunctionComponent = ({ children }) => {
+    const [wallet, setWallet] = useState<Wallet>()
+    const [provider, setProvider] = useState<providers.Web3Provider>()
+    const [address, setAddress] = useState<string>()
+
+    const networkId = 1
+
+    const onboard = useMemo(
+        () =>
+            Onboard({
+                dappId: DAPP_ID,
+                networkId,
+
+                subscriptions: {
+                    address: (address) => {
+                        setAddress(address)
+                    },
+
+                    wallet: (wallet) => {
+                        setWallet(wallet)
+                    },
+                },
+                walletSelect: {
+                    wallets: wallets,
+                },
+            }),
+        []
+    )
+
+    useEffect(() => {
+        if (address && wallet?.provider) {
+            curve.init("Web3", { externalProvider: wallet.provider }, { chainId: networkId })
+        }
+    }, [address, wallet?.provider]);
+
+    ...
+```
 
 ## Balances
 ```ts
+import curve from "@curvefi/api";
+
 (async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
 
     console.log(await curve.getBalances(['DAI', 'sUSD']));
     // OR console.log(await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']));
@@ -100,8 +217,7 @@ Install from npm:
 import curve from "@curvefi/api";
 
 (async () => {
-    await curve.init('JsonRpc', {url: 'http://localhost:8545/', privateKey: ''}, { gasPrice: 0, chainId: 1 });
-    // OR await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
 
     const pool = new curve.Pool('aave');
     console.log(pool.underlyingCoins); // [ 'DAI', 'USDC', 'USDT' ]
@@ -302,8 +418,10 @@ import curve from "@curvefi/api";
 ## Exchange using all pools
 
 ```ts
+import curve from "@curvefi/api";
+
 (async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
 
     console.log(await curve.getBalances(['DAI', 'USDC']));
     // [ '1000.0', '0.0' ]
@@ -327,8 +445,10 @@ import curve from "@curvefi/api";
 ## Cross-Asset Exchange
 
 ```ts
+import curve from "@curvefi/api";
+
 (async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
 
     console.log(await curve.getBalances(['DAI', 'WBTC']));
     // [ '1000.0', '0.0' ]
@@ -351,8 +471,10 @@ import curve from "@curvefi/api";
 
 ## Boosting
 ```ts
+import curve from "@curvefi/api";
+
 (async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
 
     console.log(await curve.boosting.getCrv());
     // 100000.0

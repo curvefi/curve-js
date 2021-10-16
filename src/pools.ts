@@ -981,17 +981,17 @@ export class Pool {
     }
 
     public exchangeWrappedIsApproved = async (inputCoin: string | number, amount: string): Promise<boolean> => {
-        const i = this._getCoinIdx(inputCoin);
+        const i = this._getCoinIdx(inputCoin, false);
         return await hasAllowance([this.coinAddresses[i]], [amount], curve.signerAddress, this.swap);
     }
 
     private exchangeWrappedApproveEstimateGas = async (inputCoin: string | number, amount: string): Promise<number> => {
-        const i = this._getCoinIdx(inputCoin);
+        const i = this._getCoinIdx(inputCoin, false);
         return await ensureAllowanceEstimateGas([this.coinAddresses[i]], [amount], this.swap);
     }
 
     public exchangeWrappedApprove = async (inputCoin: string | number, amount: string): Promise<string[]> => {
-        const i = this._getCoinIdx(inputCoin);
+        const i = this._getCoinIdx(inputCoin, false);
         return await ensureAllowance([this.coinAddresses[i]], [amount], this.swap);
     }
 
@@ -1165,8 +1165,12 @@ export class Pool {
             return idx
         }
 
-        const lowerCaseCoins = useUnderlying ? this.underlyingCoins.map((c) => c.toLowerCase()) : this.coins.map((c) => c.toLowerCase());
-        const idx = lowerCaseCoins.indexOf(coin.toLowerCase());
+        const [coinAddress] = _getCoinAddresses(coin);
+        const lowerCaseCoinAddresses = useUnderlying ?
+            this.underlyingCoinAddresses.map((c) => c.toLowerCase()) :
+            this.coinAddresses.map((c) => c.toLowerCase());
+
+        const idx = lowerCaseCoinAddresses.indexOf(coinAddress.toLowerCase());
         if (idx === -1) {
             throw Error(`There is no ${coin} in ${this.name} pool`);
         }

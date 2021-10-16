@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
-import {_getBalances, _prepareAddresses, hasAllowance} from "./utils";
+import {_getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance} from "./utils";
 import { _ensureAllowance, toBN, toStringFromBN } from './utils';
 import { curve, ALIASES } from "./curve";
 import { DictInterface } from "./interfaces";
@@ -73,6 +73,18 @@ export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<
     }
 
     return addresses.length === 1 ? result[addresses[0]] : result
+}
+
+export const isApproved = async (amount: string): Promise<boolean> => {
+    return await hasAllowance([ALIASES.crv], [amount], curve.signerAddress, ALIASES.voting_escrow);
+}
+
+export const approveEstimateGas = async (amount: string): Promise<number> => {
+    return await ensureAllowanceEstimateGas([ALIASES.crv], [amount], ALIASES.voting_escrow);
+}
+
+export const approve = async (amount: string): Promise<string[]> => {
+    return await ensureAllowance([ALIASES.crv], [amount], ALIASES.voting_escrow);
 }
 
 export const createLockEstimateGas = async (amount: string, days: number): Promise<number> => {

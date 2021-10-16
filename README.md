@@ -27,7 +27,7 @@ import curve from "@curvefi/api";
 
 **Note 2.** Web3 init requires the address. Therefore, it can be initialized only after receiving the address.
 
-**Wrong ✖️ ❌️**
+**Wrong ❌️**
 ```tsx
 import type { FunctionComponent } from 'react'
 import { useState, useMemo } from 'react'
@@ -73,7 +73,7 @@ const WalletProvider: FunctionComponent = ({ children }) => {
     ...
 ```
 
-**Right ✔ ✅️**
+**Right ✔️**
 ```tsx
 import type { FunctionComponent } from 'react'
 import { useState, useMemo, useEffect } from 'react'
@@ -504,3 +504,97 @@ import curve from "@curvefi/api";
     // 0.000018613852077810 veCRV %
 })()
 ```
+
+## Allowance and approve
+**General methods**
+```ts
+const spender = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7" // 3pool swap address
+
+await curve.getAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], curve.signerAddress, spender)
+// [ '0.0', '0.0' ]
+await curve.hasAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], ['1000', '1000'], curve.signerAddress, spender)
+// false
+await curve.ensureAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], ['1000', '1000'], spender)
+// [
+//     '0xb0cada2a2983dc0ed85a26916d32b9caefe45fecde47640bd7d0e214ff22aed3',
+//     '0x00ea7d827b3ad50ce933e96c579810cd7e70d66a034a86ec4e1e10005634d041'
+// ]
+
+```
+
+**Pools**
+```ts
+const pool = new curve.Pool('usdn');
+
+// --- Add Liquidity ---
+
+await pool.addLiquidityIsApproved(["1000", "1000", "1000", "1000"])
+// false
+await pool.addLiquidityApprove(["1000", "1000", "1000", "1000"])
+// [
+//     '0xbac4b0271ad340488a8135dda2f9adf3e3c402361b514f483ba2b7e9cafbdc21',
+//     '0x39fe196a52d9fb649f9c099fbd40ae773d28c457195c878ecdb7cd05be0f6512',
+//     '0xf39ebfb4b11434b879f951a08a1c633a038425c35eae09b2b7015816d068de3c',
+//     '0xa8b1631384da247efe1987b56fe010b852fc1d38e4d71d204c7dc5448a3a6c96'
+// ]
+
+
+// --- Add Liquidity Wrapped ---
+
+await pool.addLiquidityWrappedIsApproved(["1000", "1000"])
+// false
+await pool.addLiquidityWrappedApprove(["1000", "1000"])
+// [
+//     '0xe486bfba5e9e8190be580ad528707876136e6b0c201e228db0f3bd82e51619fa',
+//     '0xd56f7d583b20f4f7760510cc4310e3651f7dab8c276fe3bcde7e7200d65ed0dd'
+// ]
+
+
+// --- Remove Liquidity ---
+
+await pool.removeLiquidityIsApproved("1000")
+await pool.removeLiquidityApprove("1000")
+
+
+// --- Remove Liquidity Imbalance ---
+
+await pool.removeLiquidityImbalanceIsApproved(["1000", "1000", "1000", "1000"])
+await pool.removeLiquidityImbalanceApprove(["1000", "1000", "1000", "1000"])
+
+
+// --- Remove Liquidity One Coin ---
+
+await pool.removeLiquidityOneCoinIsApproved("1000")
+await pool.removeLiquidityOneCoinApprove("1000")
+
+
+// --- Gauge Deposit ---
+
+await pool.gaugeDepositIsApproved("1000")
+await pool.gaugeDepositApprove("1000")
+
+
+// --- Exchange ---
+
+await pool.exchangeIsApproved("DAI", "1000")
+await pool.exchangeApprove("DAI", "1000")
+
+
+// --- Exchange Tricrypto ---
+
+await pool.exchangeIsApproved(0, "1000")
+await pool.exchangeApprove(0, "1000")
+
+
+// --- Exchange Wrapped ---
+
+await pool.exchangeWrappedIsApproved("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490", "1000")
+await pool.exchangeWrappedApprove("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490", "1000")
+```
+
+**Boosting**
+```ts
+await curve.boosting.isApproved('1000')
+await curve.boosting.approve('1000')
+```
+

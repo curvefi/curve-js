@@ -506,7 +506,7 @@ import curve from "@curvefi/api";
 ```
 
 ## Allowance and approve
-**General methods**
+### General methods
 ```ts
 const spender = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7" // 3pool swap address
 
@@ -522,7 +522,7 @@ await curve.ensureAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
 
 ```
 
-**Pools**
+### Pools
 ```ts
 const pool = new curve.Pool('usdn');
 
@@ -591,10 +591,27 @@ await pool.exchangeApprove(0, "1000")
 await pool.exchangeWrappedIsApproved("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490", "1000")
 await pool.exchangeWrappedApprove("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490", "1000")
 ```
+**Note.** Removing wrapped does not require approve.
 
-**Boosting**
+### Boosting
 ```ts
 await curve.boosting.isApproved('1000')
 await curve.boosting.approve('1000')
 ```
 
+## Gas estimation
+Every non-constant method has corresponding gas estimation method. Rule: ```obj.method -> obj.estimateGas.method```
+
+**Examples**
+```ts
+const spender = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7" // 3pool swap address
+await curve.estimateGas.ensureAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], curve.signerAddress, spender);
+
+const pool = new curve.Pool('usdn');
+await pool.estimateGas.addLiquidityApprove(["1000", "1000", "1000", "1000"])
+await pool.estimateGas.addLiquidity(["1000", "1000", "1000", "1000"])
+
+await curve.estimateGas.crossAssetExchange('DAI', "WBTC", "1000", 0.01)
+
+await curve.boosting.estimateGas.createLock('1000', 365)
+```

@@ -1258,15 +1258,15 @@ export class Pool {
         const poolBalancesRatios = poolBalances.map((b) => b / poolBalances.reduce((a,b) => a + b));
         // Cross factors for each wallet balance used as reference to see the
         // max that can be used according to the lowest relative wallet balance
-        const balancesAmountsForEachScenario = walletBalances.map((_, i) => (
+        const balancedAmountsForEachScenario = walletBalances.map((_, i) => (
             walletBalances.map((_, j) => (
                 poolBalancesRatios[j] * walletBalances[i] / poolBalancesRatios[i]
             ))
         ));
-        const firstCoinBalanceForEachScenario = balancesAmountsForEachScenario.map(([a]) => a);
+        const firstCoinBalanceForEachScenario = balancedAmountsForEachScenario.map(([a]) => a);
         const scenarioWithLowestBalances = firstCoinBalanceForEachScenario.indexOf(Math.min(...firstCoinBalanceForEachScenario));
 
-        return balancesAmountsForEachScenario[scenarioWithLowestBalances].map((a, i) => a.toFixed(decimals[i]))
+        return balancedAmountsForEachScenario[scenarioWithLowestBalances].map((a, i) => a.toFixed(decimals[i]))
     }
 
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {

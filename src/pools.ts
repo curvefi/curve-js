@@ -1684,6 +1684,25 @@ export const _getBestPoolAndOutput = async (
     return { poolAddress, output }
 }
 
+const _getExchangeData = async (inputCoin: string, outputCoin: string, amount: string): Promise<[string, number, number, boolean]> => {
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+    const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
+    const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
+    const registryAddress = await addressProviderContract.get_registry();
+    const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
+
+    const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, inputCoinDecimals, amount);
+    if (poolAddress === "0x0000000000000000000000000000000000000000") {
+        throw new Error("This pair can't be exchanged");
+    }
+    const poolName = getPoolNameBySwapAddress(poolAddress);
+    const [_i, _j, isUnderlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
+    const i = Number(_i.toString());
+    const j = Number(_j.toString());
+
+    return [poolName, i, j, isUnderlying]
+}
+
 export const getBestPoolAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ poolAddress: string, output: string }> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
@@ -1696,6 +1715,39 @@ export const getBestPoolAndOutput = async (inputCoin: string, outputCoin: string
 
 export const exchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
     return (await getBestPoolAndOutput(inputCoin, outputCoin, amount))['output'];
+}
+
+export const exchangeIsApproved = async (inputCoin: string, outputCoin: string, amount: string): Promise<boolean> => {
+    const [poolName, i, , isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
+    const pool = new Pool(poolName);
+
+    if (isUnderlying) {
+        return await pool.exchangeIsApproved(i, amount);
+    } else {
+        return await pool.exchangeWrappedIsApproved(i, amount);
+    }
+}
+
+export const exchangeApproveEstimateGas = async (inputCoin: string, outputCoin: string, amount: string): Promise<number> => {
+    const [poolName, i, , isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
+    const pool = new Pool(poolName);
+
+    if (isUnderlying) {
+        return await pool.estimateGas.exchangeApprove(i, amount);
+    } else {
+        return await pool.estimateGas.exchangeWrappedApprove(i, amount);
+    }
+}
+
+export const exchangeApprove = async (inputCoin: string, outputCoin: string, amount: string): Promise<string[]> => {
+    const [poolName, i, , isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
+    const pool = new Pool(poolName);
+
+    if (isUnderlying) {
+        return await pool.exchangeApprove(i, amount);
+    } else {
+        return await pool.exchangeWrappedApprove(i, amount);
+    }
 }
 
 export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<number> => {

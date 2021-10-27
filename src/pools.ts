@@ -1751,24 +1751,11 @@ export const exchangeApprove = async (inputCoin: string, outputCoin: string, amo
 }
 
 export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<number> => {
-    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
-    const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
-    const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
-    const registryAddress = await addressProviderContract.get_registry();
-    const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
-
-    const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, inputCoinDecimals, amount);
-    if (poolAddress === "0x0000000000000000000000000000000000000000") {
-        throw new Error("This pair can't be exchanged");
-    }
-    const poolName = getPoolNameBySwapAddress(poolAddress);
-    const [_i, _j, is_underlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
-    const i = Number(_i.toString());
-    const j = Number(_j.toString());
+    const [poolName, i, j, isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
 
     const pool = new Pool(poolName);
 
-    if (is_underlying) {
+    if (isUnderlying) {
         return await pool.estimateGas.exchange(i, j, amount, maxSlippage);
     } else {
         return await pool.estimateGas.exchangeWrapped(i, j, amount, maxSlippage);
@@ -1777,24 +1764,11 @@ export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string,
 
 
 export const exchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<string> => {
-    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
-    const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
-    const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
-    const registryAddress = await addressProviderContract.get_registry();
-    const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
-
-    const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, inputCoinDecimals, amount);
-    if (poolAddress === "0x0000000000000000000000000000000000000000") {
-        throw new Error("This pair can't be exchanged");
-    }
-    const poolName = getPoolNameBySwapAddress(poolAddress);
-    const [_i, _j, is_underlying] = await registryContract.get_coin_indices(poolAddress, inputCoinAddress, outputCoinAddress);
-    const i = Number(_i.toString());
-    const j = Number(_j.toString());
+    const [poolName, i, j, isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
 
     const pool = new Pool(poolName);
 
-    if (is_underlying) {
+    if (isUnderlying) {
         return await pool.exchange(i, j, amount, maxSlippage);
     } else {
         return await pool.exchangeWrapped(i, j, amount, maxSlippage);

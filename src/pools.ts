@@ -1718,36 +1718,18 @@ export const exchangeExpected = async (inputCoin: string, outputCoin: string, am
 }
 
 export const exchangeIsApproved = async (inputCoin: string, outputCoin: string, amount: string): Promise<boolean> => {
-    const [poolName, i, , isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
-    const pool = new Pool(poolName);
-
-    if (isUnderlying) {
-        return await pool.exchangeIsApproved(i, amount);
-    } else {
-        return await pool.exchangeWrappedIsApproved(i, amount);
-    }
+    const { poolAddress } = await getBestPoolAndOutput(inputCoin, outputCoin, amount);
+    return await hasAllowance([inputCoin], [amount], curve.signerAddress, poolAddress);
 }
 
 export const exchangeApproveEstimateGas = async (inputCoin: string, outputCoin: string, amount: string): Promise<number> => {
-    const [poolName, i, , isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
-    const pool = new Pool(poolName);
-
-    if (isUnderlying) {
-        return await pool.estimateGas.exchangeApprove(i, amount);
-    } else {
-        return await pool.estimateGas.exchangeWrappedApprove(i, amount);
-    }
+    const { poolAddress } = await getBestPoolAndOutput(inputCoin, outputCoin, amount);
+    return await ensureAllowanceEstimateGas([inputCoin], [amount], poolAddress);
 }
 
 export const exchangeApprove = async (inputCoin: string, outputCoin: string, amount: string): Promise<string[]> => {
-    const [poolName, i, , isUnderlying] = await _getExchangeData(inputCoin, outputCoin, amount);
-    const pool = new Pool(poolName);
-
-    if (isUnderlying) {
-        return await pool.exchangeApprove(i, amount);
-    } else {
-        return await pool.exchangeWrappedApprove(i, amount);
-    }
+    const { poolAddress } = await getBestPoolAndOutput(inputCoin, outputCoin, amount);
+    return await ensureAllowance([inputCoin], [amount], poolAddress);
 }
 
 export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<number> => {

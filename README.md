@@ -595,8 +595,13 @@ await pool.exchangeWrappedApprove("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490", 
 
 ### Exchange
 ```ts
+// Straight
 await curve.exchangeisApproved("DAI", "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", "1000"); // DAI -> MIM
 await curve.exchangeApprove("DAI", "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", "1000"); // DAI -> MIM
+
+// Cross-Asset
+await curve.crossAssetExchangeIsApproved("DAI", "1000");
+await curve.crossAssetExchangeApprove("DAI", "1000");
 ```
 
 ### Boosting

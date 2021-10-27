@@ -1841,6 +1841,18 @@ export const crossAssetExchangeExpected = async (inputCoin: string, outputCoin: 
     return ethers.utils.formatUnits(_expected, outputCoinDecimals)
 }
 
+export const crossAssetExchangeIsApproved = async (inputCoin: string, amount: string): Promise<boolean> => {
+    return await hasAllowance([inputCoin], [amount], curve.signerAddress, ALIASES.router);
+}
+
+export const crossAssetExchangeApproveEstimateGas = async (inputCoin: string, amount: string): Promise<number> => {
+    return await ensureAllowanceEstimateGas([inputCoin], [amount], ALIASES.router);
+}
+
+export const crossAssetExchangeApprove = async (inputCoin: string, amount: string): Promise<string[]> => {
+    return await ensureAllowance([inputCoin], [amount], ALIASES.router);
+}
+
 export const crossAssetExchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.02): Promise<number> => {
     if (!(await crossAssetExchangeAvailable(inputCoin, outputCoin))) throw Error("Such exchange is not available");
 

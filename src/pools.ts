@@ -1666,40 +1666,35 @@ export class Pool {
 export const _getBestPoolAndOutput = async (
     inputCoinAddress: string,
     outputCoinAddress: string,
-    inputCoinDecimals: number,
     amount: string
-): Promise<{ poolAddress: string, output: ethers.BigNumber }> => {
+): Promise<{ poolAddress: string, output: string }> => {
     // TODO remove it when fixed
     const tricryptoCoins = [COINS.usdt.toLowerCase(), COINS.wbtc.toLowerCase(), COINS.weth.toLowerCase()];
     if (tricryptoCoins.includes(inputCoinAddress.toLowerCase()) && tricryptoCoins.includes(outputCoinAddress.toLowerCase())) {
         const tricrypto2 = new Pool("tricrypto2");
+        const output = await tricrypto2.exchangeExpected(inputCoinAddress, outputCoinAddress, amount);
 
-        const i = tricrypto2._getCoinIdx(inputCoinAddress);
-        const j = tricrypto2._getCoinIdx(outputCoinAddress);
-        const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
-        const _expected = await tricrypto2._getExchangeOutput(i, j, _amount);
-
-        return { poolAddress: tricrypto2.swap, output: _expected }
+        return { poolAddress: tricrypto2.swap, output }
     }
 
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
     const registryExchangeAddress = await addressProviderContract.get_address(2, curve.constantOptions);
     const registryExchangeContract = new ethers.Contract(registryExchangeAddress, registryExchangeABI, curve.signer || curve.provider);
 
     const _amount = ethers.utils.parseUnits(amount.toString(), inputCoinDecimals);
-    const [poolAddress, output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount, curve.constantOptions);
+    const [poolAddress, _output] = await registryExchangeContract.get_best_rate(inputCoinAddress, outputCoinAddress, _amount, curve.constantOptions);
 
-    return { poolAddress, output }
+    return { poolAddress, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }
 }
 
 const _getExchangeData = async (inputCoin: string, outputCoin: string, amount: string): Promise<[string, number, number, boolean]> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
-    const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
     const registryAddress = await addressProviderContract.get_registry();
     const registryContract = new ethers.Contract(registryAddress, registryABI, curve.signer);
 
-    const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, inputCoinDecimals, amount);
+    const { poolAddress } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
     if (poolAddress === "0x0000000000000000000000000000000000000000") {
         throw new Error("This pair can't be exchanged");
     }
@@ -1713,10 +1708,7 @@ const _getExchangeData = async (inputCoin: string, outputCoin: string, amount: s
 
 export const getBestPoolAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ poolAddress: string, output: string }> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
-    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
-
-    const { poolAddress, output: _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, inputCoinDecimals, amount);
-    const output = ethers.utils.formatUnits(_output, outputCoinDecimals);
+    const { poolAddress, output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
     return { poolAddress, output }
 }
@@ -1773,6 +1765,10 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
 
 export const crossAssetExchangeAvailable = async (inputCoin: string, outputCoin: string): Promise<boolean> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+
+    // TODO remove it when fixed
+    if (inputCoinAddress === COINS.weth || outputCoinAddress === COINS.weth) return false
+
     const routerContract = await curve.contracts[ALIASES.router].contract;
 
     return routerContract.can_route(inputCoinAddress, outputCoinAddress, curve.constantOptions);

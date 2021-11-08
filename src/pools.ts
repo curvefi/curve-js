@@ -1745,7 +1745,9 @@ export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string,
 
     const pool = new Pool(poolName);
 
-    if (isUnderlying) {
+    if (poolName === "tricrypto2") {
+        return await pool.estimateGas.exchangeTricrypto(i, j, amount, maxSlippage);
+    } else if (isUnderlying) {
         return await pool.estimateGas.exchange(i, j, amount, maxSlippage);
     } else {
         return await pool.estimateGas.exchangeWrapped(i, j, amount, maxSlippage);

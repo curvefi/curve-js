@@ -1028,6 +1028,7 @@ export class Pool {
 
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
         await curve.updateFeeData();
+
         const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
@@ -1671,7 +1672,14 @@ export const _getBestPoolAndOutput = async (
     // TODO remove it when fixed
     const tricryptoCoins = [COINS.usdt.toLowerCase(), COINS.wbtc.toLowerCase(), COINS.weth.toLowerCase()];
     if (tricryptoCoins.includes(inputCoinAddress.toLowerCase()) && tricryptoCoins.includes(outputCoinAddress.toLowerCase())) {
-        throw new Error("This pair can't be exchanged");
+        const tricrypto2 = new Pool("tricrypto2");
+
+        const i = tricrypto2._getCoinIdx(inputCoinAddress);
+        const j = tricrypto2._getCoinIdx(outputCoinAddress);
+        const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+        const _expected = await tricrypto2._getExchangeOutput(i, j, _amount);
+
+        return { poolAddress: tricrypto2.swap, output: _expected }
     }
 
     const addressProviderContract = curve.contracts[ALIASES.address_provider].contract;
@@ -1750,7 +1758,9 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
 
     const pool = new Pool(poolName);
 
-    if (isUnderlying) {
+    if (poolName === "tricrypto2") {
+        return await pool.exchangeTricrypto(i, j, amount, maxSlippage);
+    } else if (isUnderlying) {
         return await pool.exchange(i, j, amount, maxSlippage);
     } else {
         return await pool.exchangeWrapped(i, j, amount, maxSlippage);

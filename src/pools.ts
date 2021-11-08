@@ -1767,7 +1767,7 @@ export const crossAssetExchangeAvailable = async (inputCoin: string, outputCoin:
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
 
     // TODO remove it when fixed
-    if (inputCoinAddress === COINS.weth || outputCoinAddress === COINS.weth) return false
+    if (inputCoinAddress.toLowerCase() === COINS.weth.toLowerCase() || outputCoinAddress.toLowerCase() === COINS.weth.toLowerCase()) return false
 
     const routerContract = await curve.contracts[ALIASES.router].contract;
 

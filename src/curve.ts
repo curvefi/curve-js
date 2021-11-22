@@ -9,6 +9,7 @@ import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
 import routerABI from './constants/abis/json/router.json';
+import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 
 export const ALIASES = {
@@ -21,6 +22,7 @@ export const ALIASES = {
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
+    "registry_exchange": "",
 }
 
 const cTokens = [
@@ -241,6 +243,18 @@ class Curve {
         this.contracts[ALIASES.address_provider.toLowerCase()] = {
             contract: new Contract(ALIASES.address_provider, addressProviderABI, this.signer || this.provider),
             multicallContract: new MulticallContract(ALIASES.address_provider, addressProviderABI),
+        };
+
+        const addressProviderContract = this.contracts[ALIASES.address_provider].contract;
+        ALIASES.registry_exchange = await addressProviderContract.get_address(2, this.constantOptions);
+
+        this.contracts[ALIASES.registry_exchange] = {
+            contract: new Contract(ALIASES.registry_exchange, registryExchangeABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.registry_exchange, registryExchangeABI),
+        };
+        this.contracts[ALIASES.registry_exchange.toLowerCase()] = {
+            contract: new Contract(ALIASES.registry_exchange, registryExchangeABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.registry_exchange, registryExchangeABI),
         };
 
         this.contracts[ALIASES.gauge_controller] = {

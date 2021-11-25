@@ -57,6 +57,8 @@ const aTokens = [
     "0x6c5024cd4f8a59110119c56f8933403a539555eb", // sSUSD
 ]
 
+const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
+
 class Curve {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
@@ -171,6 +173,19 @@ class Curve {
             }
 
             for (const coinAddr of pool.underlying_coin_addresses) {
+                this.contracts[coinAddr] = {
+                    contract: new Contract(coinAddr, ERC20Abi, this.signer || this.provider),
+                    multicallContract: new MulticallContract(coinAddr, ERC20Abi),
+                }
+                this.contracts[coinAddr.toLowerCase()] = {
+                    contract: new Contract(coinAddr, ERC20Abi, this.signer || this.provider),
+                    multicallContract: new MulticallContract(coinAddr, ERC20Abi),
+                }
+            }
+
+            for (const coinAddr of pool.coin_addresses) {
+                if (customAbiTokens.includes(coinAddr)) continue;
+
                 this.contracts[coinAddr] = {
                     contract: new Contract(coinAddr, ERC20Abi, this.signer || this.provider),
                     multicallContract: new MulticallContract(coinAddr, ERC20Abi),

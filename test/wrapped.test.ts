@@ -5,6 +5,7 @@ import { DictInterface } from "../lib/interfaces";
 
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
+const CRYPTO_POOLS = ['tricrypto2'];
 
 const wrappedLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
@@ -70,25 +71,27 @@ const wrappedLiquidityTest = (name: string) => {
             });
         });
 
-        it('Removes liquidity imbalance', async function () {
-            const amount = '1';
-            const amounts = coinAddresses.map(() => amount);
-            const initialBalances = await pool.balances() as DictInterface<string>;
-            const lpTokenExpected = await pool.removeLiquidityImbalanceWrappedExpected(amounts);
+        if (pool.name !== 'tricrypto2') {
+            it('Removes liquidity imbalance', async function () {
+                const amount = '1';
+                const amounts = coinAddresses.map(() => amount);
+                const initialBalances = await pool.balances() as DictInterface<string>;
+                const lpTokenExpected = await pool.removeLiquidityImbalanceWrappedExpected(amounts);
 
-            await pool.removeLiquidityImbalanceWrapped(amounts);
+                await pool.removeLiquidityImbalanceWrapped(amounts);
 
-            const balances = await pool.balances() as DictInterface<string>;
+                const balances = await pool.balances() as DictInterface<string>;
 
-            assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
-            pool.coins.forEach((c: string) => {
-                if (['aave', 'saave'].includes(name)) {
-                    assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
-                } else {
-                    assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
-                }
+                assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
+                pool.coins.forEach((c: string) => {
+                    if (['aave', 'saave'].includes(name)) {
+                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
+                    } else {
+                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
+                    }
+                });
             });
-        });
+        }
 
         if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(name)) {
             it('Removes liquidity one coin', async function () {
@@ -162,6 +165,11 @@ describe('Wrapped test', async function () {
     }
 
     for (const poolName of META_POOLS) {
+        wrappedLiquidityTest(poolName);
+        wrappedExchangeTest(poolName);
+    }
+
+    for (const poolName of CRYPTO_POOLS) {
         wrappedLiquidityTest(poolName);
         wrappedExchangeTest(poolName);
     }

@@ -7,6 +7,7 @@ import { DictInterface } from "../lib/interfaces";
 const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth']; // Without eurs
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
+const CRYPTO_POOLS = ['tricrypto2'];
 
 const underlyingLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
@@ -151,38 +152,6 @@ const underlyingExchangeTest = (name: string) => {
     });
 }
 
-const tricryptoExchangeTest = (useEth: boolean) => {
-    describe(`tricrypto2 exchange (useEth=${useEth})`, function () {
-        const pool = new curve.Pool('tricrypto2');
-        const coinAddresses = pool.underlyingCoinAddresses;
-
-        for (let i = 0; i < coinAddresses.length; i++) {
-            for (let j = 0; j < coinAddresses.length; j++) {
-                if (i !== j) {
-                    it(`${i} --> ${j}`, async function () {
-                        const swapAmount = '10';
-                        const initialCoinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
-                        const expected = await pool.exchangeExpected(i, j, swapAmount);
-
-                        await pool.exchangeTricrypto(i, j, swapAmount, 0.02, useEth);
-
-                        const coinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
-
-                        const initialInputCoinBalance = useEth && i === 2 ? initialCoinBalances['ETH'] : Object.values(initialCoinBalances)[i]
-                        const inputCoinBalance = useEth && i === 2 ? coinBalances['ETH'] : Object.values(coinBalances)[i]
-                        const initialOutputCoinBalance = useEth && j === 2 ? initialCoinBalances['ETH'] : Object.values(initialCoinBalances)[j]
-                        const outputCoinBalance = useEth && j === 2 ? coinBalances['ETH'] : Object.values(coinBalances)[j]
-
-
-                        assert.deepStrictEqual(BN(inputCoinBalance), BN(initialInputCoinBalance).minus(BN(swapAmount)));
-                        assert.isAtLeast(Number(outputCoinBalance), Number(BN(initialOutputCoinBalance).plus(BN(expected).times(0.98)).toString()));
-                    });
-                }
-            }
-        }
-    });
-}
-
 describe('Underlying test', async function () {
     this.timeout(120000);
 
@@ -192,12 +161,7 @@ describe('Underlying test', async function () {
 
     for (const poolName of PLAIN_POOLS) {
         underlyingLiquidityTest(poolName);
-        if (poolName === 'tricrypto2') {
-            tricryptoExchangeTest(false);
-            tricryptoExchangeTest(true);
-        } else {
-            underlyingExchangeTest(poolName);
-        }
+        underlyingExchangeTest(poolName);
     }
 
     for (const poolName of LENDING_POOLS) {
@@ -206,6 +170,11 @@ describe('Underlying test', async function () {
     }
 
     for (const poolName of META_POOLS) {
+        underlyingLiquidityTest(poolName);
+        underlyingExchangeTest(poolName);
+    }
+
+    for (const poolName of CRYPTO_POOLS) {
         underlyingLiquidityTest(poolName);
         underlyingExchangeTest(poolName);
     }

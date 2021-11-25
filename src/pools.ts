@@ -10,7 +10,6 @@ import {
     hasAllowance,
     ensureAllowance,
     ensureAllowanceEstimateGas,
-    getPoolNameBySwapAddress,
     BN,
     toBN,
     fromBN,
@@ -20,7 +19,6 @@ import {
     getEthIndex,
 } from './utils';
 import { DictInterface } from './interfaces';
-import registryABI from './constants/abis/json/registry.json';
 import { poolsData } from './constants/abis/abis-ethereum';
 import { ALIASES, curve } from "./curve";
 import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./constants/coins";
@@ -62,8 +60,6 @@ export class Pool {
         removeLiquidityOneCoinWrapped: (lpTokenAmount: string, coin: string | number) => Promise<number>,
         exchangeApprove: (inputCoin: string | number, amount: string) => Promise<number>,
         exchange: (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage: number) => Promise<number>,
-        exchangeTricryptoApprove: (inputCoin: string | number, amount: string, useEth?: boolean) => Promise<number>,
-        exchangeTricrypto: (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage: number, useEth?: boolean) => Promise<number>,
         exchangeWrappedApprove: (inputCoin: string | number, amount: string) => Promise<number>,
         exchangeWrapped: (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage: number) => Promise<number>,
     };
@@ -105,8 +101,6 @@ export class Pool {
             removeLiquidityOneCoinWrapped: this.removeLiquidityOneCoinWrappedEstimateGas,
             exchangeApprove: this.exchangeApproveEstimateGas,
             exchange: this.exchangeEstimateGas,
-            exchangeTricryptoApprove: this.exchangeTricryptoApproveEstimateGas,
-            exchangeTricrypto: this.exchangeTricryptoEstimateGas,
             exchangeWrappedApprove: this.exchangeWrappedApproveEstimateGas,
             exchangeWrapped: this.exchangeWrappedEstimateGas,
         }
@@ -270,7 +264,7 @@ export class Pool {
         await curve.updateFeeData();
 
         // Lending pools with zap
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name)) {
             return await this._addLiquidityZap(_amounts) as string;
         }
 
@@ -381,17 +375,17 @@ export class Pool {
     }
 
     public removeLiquidityIsApproved = async (lpTokenAmount: string): Promise<boolean> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) && !this.isMeta) return true
+        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !this.isMeta) return true
         return await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap as string);
     }
 
     private removeLiquidityApproveEstimateGas = async (lpTokenAmount: string): Promise<number> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) && !this.isMeta) return 0;
+        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !this.isMeta) return 0;
         return await ensureAllowanceEstimateGas([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 
     public removeLiquidityApprove = async (lpTokenAmount: string): Promise<string[]> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) && !this.isMeta) return [];
+        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !this.isMeta) return [];
         return await ensureAllowance([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 
@@ -407,7 +401,7 @@ export class Pool {
 
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name)) {
             return await this._removeLiquidityZap(_lpTokenAmount, true) as number;
         }
 
@@ -427,7 +421,7 @@ export class Pool {
 
         await curve.updateFeeData();
 
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name)) {
             return await this._removeLiquidityZap(_lpTokenAmount) as string;
         }
 
@@ -477,11 +471,19 @@ export class Pool {
     }
 
     public removeLiquidityImbalanceExpected = async (amounts: string[]): Promise<string> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmount(amounts, false);
     }
 
     public removeLiquidityImbalanceSlippage = async (amounts: string[]): Promise<string> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
         const expected = Number(await this.removeLiquidityImbalanceExpected(amounts));
 
@@ -489,6 +491,10 @@ export class Pool {
     }
 
     public removeLiquidityImbalanceIsApproved = async (amounts: string[]): Promise<boolean> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
@@ -503,6 +509,10 @@ export class Pool {
     }
 
     private removeLiquidityImbalanceApproveEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
@@ -517,6 +527,10 @@ export class Pool {
     }
 
     public removeLiquidityImbalanceApprove = async (amounts: string[]): Promise<string[]> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
@@ -531,6 +545,10 @@ export class Pool {
     }
 
     private removeLiquidityImbalanceEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const lpTokenAmount = await this.removeLiquidityImbalanceExpected(amounts);
         const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
         if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
@@ -562,6 +580,10 @@ export class Pool {
     }
 
     public removeLiquidityImbalance = async (amounts: string[]): Promise<string> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
         await curve.updateFeeData();
@@ -585,11 +607,19 @@ export class Pool {
     }
 
     public removeLiquidityImbalanceWrappedExpected = async (amounts: string[]): Promise<string> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmountWrapped(amounts, false);
     }
 
     public removeLiquidityImbalanceWrappedSlippage = async (amounts: string[]): Promise<string> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
         const expected = Number(await this.removeLiquidityImbalanceWrappedExpected(amounts));
 
@@ -597,6 +627,10 @@ export class Pool {
     }
 
     private removeLiquidityImbalanceWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const lpTokenAmount = await this.removeLiquidityImbalanceExpected(amounts);
         const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
         if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
@@ -613,6 +647,10 @@ export class Pool {
     }
 
     public removeLiquidityImbalanceWrapped = async (amounts: string[], estimateGas = false): Promise<string | number> => {
+        if (['tricrypto2'].includes(this.name)) {
+            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+        }
+
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.decimals[i]));
 
         await curve.updateFeeData();
@@ -647,18 +685,18 @@ export class Pool {
     }
 
     public removeLiquidityOneCoinIsApproved = async (lpTokenAmount: string): Promise<boolean> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return true
+        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return true
 
         return await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap as string);
     }
 
     private removeLiquidityOneCoinApproveEstimateGas = async (lpTokenAmount: string): Promise<number> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return 0
+        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return 0
         return await ensureAllowanceEstimateGas([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 
     public removeLiquidityOneCoinApprove = async (lpTokenAmount: string): Promise<string[]> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return []
+        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return []
         return await ensureAllowance([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 
@@ -676,7 +714,7 @@ export class Pool {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         // Lending pools with zap, susd and metapools
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) || this.name === 'susd' || this.isMeta) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) || this.name === 'susd' || this.isMeta) {
             return await this._removeLiquidityOneCoinZap(_lpTokenAmount, i, true) as number;
         }
 
@@ -696,7 +734,7 @@ export class Pool {
         await curve.updateFeeData();
 
         // Lending pools with zap, susd and metapools
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) || this.name === 'susd' || this.isMeta) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) || this.name === 'susd' || this.isMeta) {
             return await this._removeLiquidityOneCoinZap(_lpTokenAmount, i) as string;
         }
 
@@ -861,10 +899,6 @@ export class Pool {
     }
 
     private exchangeEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> => {
-        if (this.name === 'tricrypto2') {
-            throw Error("Use exchangeTricryptoEstimateGas method for tricrypto2 pool instead")
-        }
-
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -884,13 +918,14 @@ export class Pool {
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
+        if (this.name === "tricrypto2") {
+            return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).toNumber();
+        }
+
         return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
-        if (this.name === 'tricrypto2') {
-            throw Error("Use exchangeTricrypto method for tricrypto2 pool instead")
-        }
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
         const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
@@ -902,74 +937,14 @@ export class Pool {
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
         await curve.updateFeeData();
+
+        if (this.name === 'tricrypto2') {
+            const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).mul(130).div(100);
+            return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.options, value, gasLimit })).hash
+        }
+
         const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
-    }
-
-    public exchangeTricryptoIsApproved = async (inputCoin: string | number, amount: string, useEth = false): Promise<boolean> => {
-        const i = this._getCoinIdx(inputCoin);
-        if (i === 2 && useEth) return true;
-
-        return await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, this.swap);
-    }
-
-    private exchangeTricryptoApproveEstimateGas = async (inputCoin: string | number, amount: string, useEth = false): Promise<number> => {
-        const i = this._getCoinIdx(inputCoin);
-        if (i === 2 && useEth) return 0;
-
-        return await ensureAllowanceEstimateGas([this.underlyingCoinAddresses[i]], [amount], this.swap);
-    }
-
-    public exchangeTricryptoApprove = async (inputCoin: string | number, amount: string, useEth = false): Promise<string[]> => {
-        const i = this._getCoinIdx(inputCoin);
-        if (i === 2 && useEth) return [];
-
-        return await ensureAllowance([this.underlyingCoinAddresses[i]], [amount], this.swap);
-    }
-
-    private exchangeTricryptoEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01, useEth = false): Promise<number> => {
-        if (this.name !== 'tricrypto2') {
-            throw Error("This method is for only tricrypto2 pool")
-        }
-        const i = this._getCoinIdx(inputCoin);
-        const j = this._getCoinIdx(outputCoin);
-
-        const inputCoinBalance = Object.values(await this.underlyingCoinBalances())[i];
-        if (Number(inputCoinBalance) < Number(amount)) {
-            throw Error(`Not enough ${this.underlyingCoins[i]}. Actual: ${inputCoinBalance}, required: ${amount}`);
-        }
-
-        if (!(await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, this.swap))) {
-            throw Error("Token allowance is needed to estimate gas")
-        }
-
-        const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
-        const _expected: ethers.BigNumber = await this._getExchangeOutput(i, j, _amount);
-        const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
-        const contract = curve.contracts[this.swap].contract;
-        const value = useEth && i == 2 ? _amount : ethers.BigNumber.from(0);
-
-        return (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.constantOptions, value })).toNumber()
-    }
-
-    public exchangeTricrypto = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01, useEth = false): Promise<string> => {
-        if (this.name !== 'tricrypto2') {
-            throw Error("This method is for only tricrypto2 pool")
-        }
-        const i = this._getCoinIdx(inputCoin);
-        const j = this._getCoinIdx(outputCoin);
-        const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
-        const _expected: ethers.BigNumber = await this._getExchangeOutput(i, j, _amount);
-        const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
-        if (i !== 2 || !useEth) {
-            await _ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], this.swap);
-        }
-        const contract = curve.contracts[this.swap].contract;
-        const value = useEth && i == 2 ? _amount : ethers.BigNumber.from(0);
-
-        await curve.updateFeeData();
-        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.constantOptions, value })).mul(130).div(100);
-        return (await contract.exchange(i, j, _amount, _minRecvAmount, useEth, { ...curve.options, value, gasLimit })).hash
     }
 
     public exchangeWrappedExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
@@ -1013,8 +988,12 @@ export class Pool {
         const _expected: ethers.BigNumber = await this._getExchangeOutputWrapped(i, j, _amount);
         const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
         const contract = curve.contracts[this.swap].contract;
-
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
+
+        if (this.name === 'tricrypto2') {
+            return (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, false, { ...curve.constantOptions, value })).toNumber()
+        }
+
         return (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber()
     }
 
@@ -1026,9 +1005,13 @@ export class Pool {
         const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
         await _ensureAllowance([this.coinAddresses[i]], [_amount], this.swap);
         const contract = curve.contracts[this.swap].contract;
-
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
         await curve.updateFeeData();
+
+        if (this.name === 'tricrypto2') {
+            const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, false, { ...curve.constantOptions, value })).mul(130).div(100);
+            return (await contract.exchange(i, j, _amount, _minRecvAmount, false, { ...curve.options, value, gasLimit })).hash
+        }
 
         const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
@@ -1210,10 +1193,6 @@ export class Pool {
                 coinNames.push(rawCoinNames[i]);
                 coinAddresses.push(rawCoinAddresses[i])
             }
-        }
-        if (this.name === 'tricrypto2') {
-            coinNames.push('ETH');
-            coinAddresses.push('0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE');
         }
 
         addresses = _prepareAddresses(addresses);
@@ -1611,7 +1590,11 @@ export class Pool {
             await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
         }
 
-        const _minAmount = (await this._calcWithdrawOneCoinZap(_lpTokenAmount, i)).mul(99).div(100);
+        let _minAmount = this.name === 'tricrypto2' ?
+            await this._calcWithdrawOneCoinSwap(_lpTokenAmount, i) :
+            await this._calcWithdrawOneCoinZap(_lpTokenAmount, i);
+        _minAmount = _minAmount.mul(99).div(100);
+
         const  contract = curve.contracts[this.zap as string].contract;
 
         if (this.isFactory) {
@@ -1705,7 +1688,7 @@ const _estimateGasForPools = async (poolAddresses: string[], inputCoinAddress: s
     }
 }
 
-export const _getBestPoolAndOutput = async (
+const _getBestPoolAndOutput = async (
     inputCoinAddress: string,
     outputCoinAddress: string,
     amount: string
@@ -1835,6 +1818,7 @@ export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string,
 export const exchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<string> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
+
     await ensureAllowance([inputCoin], [amount], ALIASES.registry_exchange);
 
     const { poolAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
@@ -1845,7 +1829,6 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
 
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
     const _minRecvAmount = _output.mul((1 - maxSlippage) * 100).div(100);
-
     const contract = curve.contracts[ALIASES.registry_exchange].contract;
     const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
 

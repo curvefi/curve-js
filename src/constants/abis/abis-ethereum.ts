@@ -1440,12 +1440,12 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         swap_address: '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46',
         token_address: '0xc4AD29ba4B3c580e6D59105FFf484999997675Ff',
         gauge_address: '0xDeFd8FdD20e0f34115C7018CCfb655796F6B2168',
-        underlying_coins: ['USDT', 'WBTC', 'WETH'],
+        underlying_coins: ['USDT', 'WBTC', 'ETH'],
         coins: ['USDT', 'WBTC', 'WETH'],
         underlying_coin_addresses: [
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
         ],
         coin_addresses: [
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',

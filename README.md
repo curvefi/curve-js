@@ -580,12 +580,6 @@ await pool.exchangeIsApproved("DAI", "1000")
 await pool.exchangeApprove("DAI", "1000")
 
 
-// --- Exchange Tricrypto ---
-
-await pool.exchangeIsApproved(0, "1000")
-await pool.exchangeApprove(0, "1000")
-
-
 // --- Exchange Wrapped ---
 
 await pool.exchangeWrappedIsApproved("0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490", "1000")

@@ -913,7 +913,10 @@ export class Pool {
 
         const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
         const _expected: ethers.BigNumber = await this._getExchangeOutput(i, j, _amount);
-        const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
+        const [outputCoinDecimals] = _getCoinDecimals(this.underlyingCoinAddresses[j]);
+        const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
+        const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
         const contract = curve.contracts[this.swap].contract;
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
@@ -928,9 +931,13 @@ export class Pool {
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
+
         const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
         const _expected: ethers.BigNumber = await this._getExchangeOutput(i, j, _amount);
-        const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
+        const [outputCoinDecimals] = _getCoinDecimals(this.underlyingCoinAddresses[j]);
+        const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
+        const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
         await _ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], this.swap);
         const contract = curve.contracts[this.swap].contract;
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
@@ -986,7 +993,10 @@ export class Pool {
 
         const _amount = ethers.utils.parseUnits(amount, this.decimals[i]);
         const _expected: ethers.BigNumber = await this._getExchangeOutputWrapped(i, j, _amount);
-        const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
+        const [outputCoinDecimals] = _getCoinDecimals(this.coinAddresses[j]);
+        const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
+        const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
         const contract = curve.contracts[this.swap].contract;
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
@@ -1000,9 +1010,13 @@ export class Pool {
     public exchangeWrapped = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
         const i = this._getCoinIdx(inputCoin, false);
         const j = this._getCoinIdx(outputCoin, false);
+
         const _amount = ethers.utils.parseUnits(amount, this.decimals[i]);
         const _expected: ethers.BigNumber = await this._getExchangeOutputWrapped(i, j, _amount);
-        const _minRecvAmount = _expected.mul((1 - maxSlippage) * 100).div(100);
+        const [outputCoinDecimals] = _getCoinDecimals(this.coinAddresses[j]);
+        const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
+        const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
         await _ensureAllowance([this.coinAddresses[i]], [_amount], this.swap);
         const contract = curve.contracts[this.swap].contract;
         const value = isEth(this.coinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
@@ -1798,7 +1812,7 @@ export const exchangeApprove = async (inputCoin: string, outputCoin: string, amo
 
 export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<number> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
-    const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const { poolAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
     if (poolAddress === "0x0000000000000000000000000000000000000000") {
@@ -1806,7 +1820,8 @@ export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string,
     }
 
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
-    const _minRecvAmount = _output.mul((1 - maxSlippage) * 100).div(100);
+    const minRecvAmountBN: BigNumber = toBN(_output, outputCoinDecimals).times(1 - maxSlippage);
+    const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
     const contract = curve.contracts[ALIASES.registry_exchange].contract;
     const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
@@ -1817,10 +1832,9 @@ export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string,
 
 export const exchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<string> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
-    const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress);
-
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
+    
     await ensureAllowance([inputCoin], [amount], ALIASES.registry_exchange);
-
     const { poolAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
     if (poolAddress === "0x0000000000000000000000000000000000000000") {
@@ -1828,7 +1842,9 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     }
 
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
-    const _minRecvAmount = _output.mul((1 - maxSlippage) * 100).div(100);
+    const minRecvAmountBN: BigNumber = toBN(_output, outputCoinDecimals).times(1 - maxSlippage);
+    const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+    
     const contract = curve.contracts[ALIASES.registry_exchange].contract;
     const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
 
@@ -1937,7 +1953,7 @@ export const crossAssetExchangeEstimateGas = async (inputCoin: string, outputCoi
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
 
     const { route, indices, _expected } = await _crossAssetExchangeInfo(inputCoinAddress, outputCoinAddress, inputCoinDecimals, outputCoinDecimals, amount);
-    const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times((1 - maxSlippage));
+    const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
     const value = isEth(inputCoinAddress) ? _amount : 0;
 
@@ -1954,7 +1970,7 @@ export const crossAssetExchange = async (inputCoin: string, outputCoin: string, 
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
 
     const { route, indices, _expected } = await _crossAssetExchangeInfo(inputCoinAddress, outputCoinAddress, inputCoinDecimals, outputCoinDecimals, amount);
-    const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times((1 - maxSlippage));
+    const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
     const value = isEth(inputCoinAddress) ? _amount : 0;
 

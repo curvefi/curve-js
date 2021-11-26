@@ -312,7 +312,7 @@ class Curve {
                 feeData.maxFeePerGas;
             this.options.maxPriorityFeePerGas = this.feeData.maxPriorityFeePerGas !== undefined ?
                 ethers.utils.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
-                feeData.maxFeePerGas;
+                feeData.maxPriorityFeePerGas;
         }
     }
 }

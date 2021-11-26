@@ -72,6 +72,7 @@ import factoryDepositABI from './json/factoryPools/deposit.json';
 import factoryRewardsABI from './json/factoryPools/rewards.json';
 import tricrypto2SwapABI from './json/tricrypto2/swap.json';
 import tricrypto2DepositABI from './json/tricrypto2/deposit.json';
+import eurtSwapABI from './json/eurt/swap.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
@@ -1454,5 +1455,29 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
         ],
         deposit_abi: tricrypto2DepositABI,
         deposit_address: '0x3993d34e7e99Abf6B6f367309975d1360222D446',
+    },
+
+    eurt: {
+        swap_abi: eurtSwapABI,
+        N_COINS: 2,
+        underlying_decimals: [6, 18],
+        decimals: [6, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0xfd5db7463a3ab53fd211b4af195c5bccc1a03890',
+        token_address: '0xfd5db7463a3ab53fd211b4af195c5bccc1a03890',
+        gauge_address: '0xe8060Ad8971450E624d5289A10017dD30F5dA85F',
+        underlying_coins: ['EURT', 'sEUR'],
+        coins: ['EURT', 'sEUR'],
+        underlying_coin_addresses: [
+            '0xC581b735A1688071A1746c968e0798D642EDE491',
+            '0xD71eCFF9342A5Ced620049e616c5035F1dB98620',
+        ],
+        coin_addresses: [
+            '0xC581b735A1688071A1746c968e0798D642EDE491',
+            '0xD71eCFF9342A5Ced620049e616c5035F1dB98620',
+        ],
+        is_factory: true,
     },
 };

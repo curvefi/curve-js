@@ -37,6 +37,7 @@ export const LINK_COINS_LOWER_CASE = Object.fromEntries(Object.entries(LINK_COIN
 export const EUR_COINS: { [index: string]: string } = {
     eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
     seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
+    eurt: "0xC581b735A1688071A1746c968e0798D642EDE491",  // EURT
 }
 
 export const USD_COINS: { [index: string]: string } = {
@@ -128,6 +129,7 @@ export const DECIMALS: { [index: string]: number } = {
 
     "0xdB25f211AB05b1c97D595516F45794528a807ad8": 2,  // EURS
     "0xD71eCFF9342A5Ced620049e616c5035F1dB98620": 18,  // sEUR
+    "0xC581b735A1688071A1746c968e0798D642EDE491": 6,  // EURT
 
     "0x514910771AF9Ca656af840dff83E8264EcF986CA": 18,  // LINK
     "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6": 18,  // sLINK

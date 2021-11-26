@@ -1833,7 +1833,7 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
 
     await curve.updateFeeData();
-    const gasLimit = (await contract.estimateGas.exchange(poolAddress, inputCoinAddress, outputCoinAddress, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(200).div(100);
+    const gasLimit = (await contract.estimateGas.exchange(poolAddress, inputCoinAddress, outputCoinAddress, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
     return (await contract.exchange(poolAddress, inputCoinAddress, outputCoinAddress, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
 }
 

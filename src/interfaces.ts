@@ -27,6 +27,7 @@ export interface PoolDataInterface {
     deposit_abi?: any,
     old_swap_abi?: any,
     is_meta?: boolean,
+    is_crypto?: boolean,
     meta_N?: number,
     meta_decimals?: number[],
     meta_coin_decimals?: number[],

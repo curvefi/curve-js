@@ -73,6 +73,8 @@ import factoryRewardsABI from './json/factoryPools/rewards.json';
 import tricrypto2SwapABI from './json/tricrypto2/swap.json';
 import tricrypto2DepositABI from './json/tricrypto2/deposit.json';
 import eurtSwapABI from './json/eurt/swap.json';
+import eurtusdSwapABI from './json/eurtusd/swap.json';
+import eurtusdDepositABI from './json/eurtusd/deposit.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
@@ -1432,7 +1434,7 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
     tricrypto2: {
         swap_abi: tricrypto2SwapABI,
         N_COINS: 3,
-        pool_type: 'crypto',
+        is_crypto: true,
         underlying_decimals: [6, 8, 18],
         decimals: [6, 8, 18],
         tethered: [false, false, false],
@@ -1478,6 +1480,49 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
             '0xC581b735A1688071A1746c968e0798D642EDE491',
             '0xD71eCFF9342A5Ced620049e616c5035F1dB98620',
         ],
-        is_factory: true,
+    },
+
+    eurtusd: {
+        N_COINS: 2,
+        underlying_decimals: [6, 18],
+        decimals: [6, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0x9838eCcC42659FA8AA7daF2aD134b53984c9427b',
+        token_address: '0x3b6831c0077a1e44ED0a21841C3bC4dC11bCE833',
+        gauge_address: '0x4Fd86Ce7Ecea88F7E0aA78DC12625996Fb3a04bC',
+        is_crypto: true,
+        base_pool: '3pool',
+        underlying_coins: ['EURT', 'DAI', 'USDC', 'USDT'],
+        coins: ['EURT', '3Crv'],
+        underlying_coin_addresses: [
+            '0xC581b735A1688071A1746c968e0798D642EDE491',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        coin_addresses: [
+            '0xC581b735A1688071A1746c968e0798D642EDE491',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        swap_abi: eurtusdSwapABI,
+        deposit_abi: eurtusdDepositABI,
+        deposit_address: '0x5D0F47B32fDd343BfA74cE221808e2abE4A53827',
+        is_meta: true,
+        meta_N: 5,
+        meta_decimals: [6, 18, 18, 6, 6],
+        meta_coin_decimals: [6, 18, 6, 6],
+        meta_wrapped_decimals: [6, 18],
+        meta_coin_addresses: [
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        all_coin_addresses: [
+            '0xC581b735A1688071A1746c968e0798D642EDE491',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', //base pool lp
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
     },
 };

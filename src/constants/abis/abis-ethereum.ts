@@ -75,6 +75,7 @@ import tricrypto2DepositABI from './json/tricrypto2/deposit.json';
 import eurtSwapABI from './json/eurt/swap.json';
 import eurtusdSwapABI from './json/eurtusd/swap.json';
 import eurtusdDepositABI from './json/eurtusd/deposit.json';
+import crvethSwap from './json/crveth/swap.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
@@ -1523,6 +1524,30 @@ export const poolsData: { [index: string]: PoolDataInterface } = {
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+    },
+
+    crveth: {
+        swap_abi: crvethSwap,
+        N_COINS: 2,
+        is_crypto: true,
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        underlying_coins: ['ETH', 'CRV'],
+        coins: ['WETH', 'CRV'],
+        swap_address: '0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511',
+        token_address: '0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d',
+        gauge_address: '0x936734ea750bb194ddb4892b191b6bd5c43a3985', // Fake pool address to prevent old multicalls from
+        underlying_coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0xD533a949740bb3306d119CC777fa900bA034cd52',
+        ],
+        coin_addresses: [
+            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            '0xD533a949740bb3306d119CC777fa900bA034cd52',
         ],
     },
 };

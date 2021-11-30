@@ -1,6 +1,6 @@
 import { ethers, Contract } from "ethers";
 import { Networkish } from "@ethersproject/networks";
-import { Provider as MulticallProvider, Contract as MulticallContract} from 'ethers-multicall';
+import { Provider as MulticallProvider, Contract as MulticallContract} from 'ethcall';
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import yERC20Abi from './constants/abis/json/yERC20.json';
@@ -116,12 +116,8 @@ class Curve {
             throw Error('Wrong providerType');
         }
 
-        if (options.chainId) {
-            this.multicallProvider = new MulticallProvider(this.provider, options.chainId);
-        } else {
-            this.multicallProvider = new MulticallProvider(this.provider);
-            await this.multicallProvider.init();
-        }
+        this.multicallProvider = new MulticallProvider();
+        await this.multicallProvider.init(this.provider);
 
         if (this.signer) {
             this.signerAddress = await this.signer.getAddress();

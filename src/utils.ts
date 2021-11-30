@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ethers } from 'ethers';
-import BigNumber from 'bignumber.js'
+import BigNumber from 'bignumber.js';
 import { DictInterface } from './interfaces';
 import { curve } from "./curve";
 import { poolsData } from "./constants/abis/abis-ethereum";

@@ -155,7 +155,7 @@ export class Pool {
     public getPoolBalances = async (): Promise<string[]> => {
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
-        const _poolWrappedBalances = (await curve.multicallProvider.all(contractCalls));
+        const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
         let _poolUnderlyingBalances: ethers.BigNumber[] = [];
 
         if (this.isMeta) {
@@ -180,7 +180,8 @@ export class Pool {
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
 
-        return (await curve.multicallProvider.all(contractCalls)).map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
+        const _wrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        return _wrappedBalances.map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
     }
 
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {
@@ -1048,13 +1049,15 @@ export class Pool {
         addresses.forEach((account: string) => {
             contractCalls.push(votingEscrowContract.balanceOf(account));
         });
-        const response: BigNumber[] = (await curve.multicallProvider.all(contractCalls)).map((value: ethers.BigNumber) => toBN(value));
 
-        const [veTotalSupply, gaugeTotalSupply] = response.splice(0, 2);
+        const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        const responseBN: BigNumber[] = _response.map((value: ethers.BigNumber) => toBN(value));
+
+        const [veTotalSupplyBN, gaugeTotalSupplyBN] = responseBN.splice(0, 2);
 
         const resultBN: DictInterface<BigNumber> = {};
         addresses.forEach((acct: string, i: number) => {
-            resultBN[acct] = response[i].div(veTotalSupply).times(gaugeTotalSupply);
+            resultBN[acct] = responseBN[i].div(veTotalSupplyBN).times(gaugeTotalSupplyBN);
         });
 
         const result: DictInterface<string> = {};
@@ -1079,7 +1082,9 @@ export class Pool {
                 gaugeContract.balanceOf(account)
             )
         });
-        const response: BigNumber[] = (await curve.multicallProvider.all(contractCalls)).map((value: ethers.BigNumber) => toBN(value));
+
+        const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        const response: BigNumber[] = _response.map((value: ethers.BigNumber) => toBN(value));
 
         const [veTotalSupply, gaugeTotalSupply] = response.splice(0,2);
 
@@ -1127,7 +1132,7 @@ export class Pool {
         const [workingBalance, balance] = (await curve.multicallProvider.all([
             gaugeContract.working_balances(address),
             gaugeContract.balanceOf(address),
-        ])).map((value: ethers.BigNumber) => Number(ethers.utils.formatUnits(value)));
+        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => Number(ethers.utils.formatUnits(value)));
 
         const boost = workingBalance / (0.4 * balance);
 
@@ -1144,7 +1149,7 @@ export class Pool {
             gaugeControllerContract.gauge_relative_weight(this.gauge),
             gaugeContract.working_supply(),
             swapContract.get_virtual_price(),
-        ])).map((value: ethers.BigNumber) => toBN(value));
+        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
 
         const rate = inflation.times(weight).times( 31536000).div(workingSupply).times( 0.4).div(virtualPrice);
         const crvRate = await getCrvRate();
@@ -1785,13 +1790,14 @@ const _getBestPoolAndOutput = async (
         _getUsdRate(COINS.eth),
     ])
     const gasPrice = gasData.data.data.gas.standard;
-    const expectedAmounts = _expectedAmounts.map((_amount) => Number(ethers.utils.formatUnits(_amount, outputCoinDecimals)));
+    const expectedAmounts = (_expectedAmounts as ethers.BigNumber[]).map(
+        (_amount) => Number(ethers.utils.formatUnits(_amount, outputCoinDecimals)));
 
     const expectedAmountsUsd = expectedAmounts.map((a) => a * outputCoinUsdRate);
     const txCostsUsd = gasAmounts.map((a) => ethUsdRate * a * gasPrice / 1e18);
 
     availablePools.forEach((pool, i) => {
-        pool._output = _expectedAmounts[i];
+        pool._output = _expectedAmounts[i] as ethers.BigNumber;
         pool.outputUsd = expectedAmountsUsd[i];
         pool.txCostUsd = txCostsUsd[i]
     });

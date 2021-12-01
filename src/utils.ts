@@ -70,19 +70,19 @@ export const _getBalances = async (coins: string[], addresses: string[]): Promis
     for (const coinAddr of coinAddresses) {
         contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
     }
-    const response = await curve.multicallProvider.all(contractCalls);
+    const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
 
     if (ethIndex !== -1) {
         const ethBalances: ethers.BigNumber[] = [];
         for (const address of addresses) {
             ethBalances.push(await curve.provider.getBalance(address));
         }
-        response.splice(ethIndex * addresses.length, 0, ...ethBalances);
+        _response.splice(ethIndex * addresses.length, 0, ...ethBalances);
     }
 
     const _balances: DictInterface<ethers.BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
-        _balances[address] = coins.map((_, j: number ) => response[i + (j * addresses.length)]);
+        _balances[address] = coins.map((_, j: number ) => _response[i + (j * addresses.length)]);
     });
 
     const balances: DictInterface<string[]>  = {};

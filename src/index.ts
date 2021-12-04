@@ -46,6 +46,8 @@ async function init (
     await _curve.init(providerType, providerSettings, options);
     // @ts-ignore
     this.signerAddress = _curve.signerAddress;
+    // @ts-ignore
+    this.chainId = _curve.chainId;
 }
 
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
@@ -56,6 +58,7 @@ const curve = {
     init,
     setCustomFeeData,
     signerAddress: '',
+    chainId: 0,
     Pool,
     getBalances,
     getAllowance,

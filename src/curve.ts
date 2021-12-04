@@ -341,7 +341,6 @@ class Curve {
 
         const addressProviderContract = this.contracts[ALIASES.address_provider].contract;
         ALIASES.registry_exchange = await addressProviderContract.get_address(2, this.constantOptions);
-        console.log(ALIASES.registry_exchange);
 
         this.contracts[ALIASES.registry_exchange] = {
             contract: new Contract(ALIASES.registry_exchange, registryExchangeABI, this.signer || this.provider),

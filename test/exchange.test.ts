@@ -16,7 +16,7 @@ const exchangeTest = async (coin1: string, coin2: string) => {
 
     if (coin1 === 'steth' || coin2 === 'steth') {
         assert.approximately(Number(Object.values(balances)[0]), Number(BN(Object.values(initialBalances)[0]).minus(BN(amount)).toString()), 1e-18);
-    } else if (['adai', 'ausdc', 'ausdt', 'asusd'].includes(coin1) || ['adai', 'ausdc', 'ausdt', 'asusd'].includes(coin2)) {
+    } else if (['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc'].includes(coin1) || ['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc'].includes(coin2)) {
         assert.approximately(Number(Object.values(balances)[0]), Number(BN(Object.values(initialBalances)[0]).minus(BN(amount)).toString()), 1e-2);
     } else {
         assert.deepStrictEqual(BN(balances[0]), BN(initialBalances[0]).minus(BN(amount)));

@@ -1,5 +1,6 @@
 import aaveSwapABI from './json/aave/swap.json';
 import paaveRewardsabi from './json/paave/rewards.json';
+import renSwapABI from './json/ren-polygon/swap.json';
 import {PoolDataInterface} from "../../interfaces";
 
 export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
@@ -30,5 +31,29 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         sCurveRewards_abi: paaveRewardsabi,
         sCurveRewards_address: '0xBdFF0C27dd073C119ebcb1299a68A6A92aE607F0',
         reward_token: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+    },
+
+    ren: {
+        N_COINS: 2,
+        is_aave: true,
+        underlying_decimals: [8, 8],
+        decimals: [8, 8],
+        use_lending: [true, false],
+        tethered: [false, false],
+        is_plain: [false, true],
+        swap_address: '0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67',
+        token_address: '0xf8a57c1d3b9629b77b6726a042ca48990A84Fb49',
+        gauge_address: '0xffbACcE0CC7C19d46132f1258FC16CF6871D153c',
+        underlying_coins: ['WBTC', 'renBTC'],
+        coins: ['aWBTC', 'renBTC'],
+        underlying_coin_addresses: [
+            '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',
+            '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
+        ],
+        coin_addresses: [
+            '0x5c2ed810328349100A66B82b78a1791B101C9D61',
+            '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
+        ],
+        swap_abi: renSwapABI,
     },
 };

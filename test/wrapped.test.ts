@@ -29,7 +29,7 @@ const wrappedLiquidityTest = (name: string) => {
             const balances = await pool.balances() as DictInterface<string>;
 
             pool.coins.forEach((c: string) => {
-                if (['aave', 'saave'].includes(name)) {
+                if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
                     // Because of increasing quantity
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else {
@@ -78,7 +78,7 @@ const wrappedLiquidityTest = (name: string) => {
         });
 
         it('Removes liquidity imbalance', async function () {
-            if (!pool.isCrypto) {
+            if (pool.isCrypto) {
                 console.log("No such method")
             } else {
                 const amount = '1';
@@ -92,7 +92,7 @@ const wrappedLiquidityTest = (name: string) => {
 
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
                 pool.coins.forEach((c: string) => {
-                    if (['aave', 'saave'].includes(name)) {
+                    if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
                     } else {
                         assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
@@ -116,7 +116,7 @@ const wrappedLiquidityTest = (name: string) => {
                     if (i === 0) {
                         assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
                     } else {
-                        if (['aave', 'saave'].includes(name)) {
+                        if (['aave', 'saave'].includes(name)  || (curve.chainId === 137 && this.name === 'ren')) {
                             // Because of increasing quantity
                             assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
                         } else {
@@ -148,7 +148,7 @@ const wrappedExchangeTest = (name: string) => {
 
                             const coinBalances = await pool.coinBalances() as DictInterface<string>;
 
-                            if (['aave', 'saave'].includes(pool.name)) {
+                            if (['aave', 'saave'].includes(pool.name) || (curve.chainId === 137 && pool.name === 'ren')) {
                                 // Because of increasing quantity
                                 assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount).toString())), 1e-2);
                             } else {

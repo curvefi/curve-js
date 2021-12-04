@@ -85,7 +85,7 @@ const underlyingLiquidityTest = (name: string) => {
 
 
         it('Removes liquidity imbalance', async function () {
-            if (!pool.isCrypto) {
+            if (pool.isCrypto) {
                 console.log("No such method")
             } else {
                 const amount = '1';

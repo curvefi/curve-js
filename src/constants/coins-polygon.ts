@@ -1,4 +1,8 @@
-export const BTC_COINS_POLYGON: { [index: string]: string } = {}
+export const BTC_COINS_POLYGON: { [index: string]: string } = {
+    wbtc: "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",  // WBTC
+    renbtc: "0xDBf31dF14B66535aF65AaC99C32e9eA844e14501",  // renBTC
+    awbtc: "0x5c2ed810328349100A66B82b78a1791B101C9D61",  // aWBTC
+}
 // @ts-ignore
 export const BTC_COINS_LOWER_CASE_POLYGON = Object.fromEntries(Object.entries(BTC_COINS_POLYGON).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
@@ -43,6 +47,10 @@ export const DECIMALS_POLYGON: { [index: string]: number } = {
     "0x27F8D03b3a2196956ED754baDc28D73be8830A6e": 18,  // aDAI
     "0x1a13F4Ca1d028320A707D99520AbFefca3998b7F": 6,  // aUSDC
     "0x60D55F02A771d515e077c9C2403a1ef324885CeC": 6,  // aUSDT
+
+    "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6": 8,  // WBTC
+    "0xDBf31dF14B66535aF65AaC99C32e9eA844e14501": 8,  // renBTC
+    "0x5c2ed810328349100A66B82b78a1791B101C9D61": 8,  // aWBTC
 }
 
 // @ts-ignore

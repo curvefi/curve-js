@@ -19,9 +19,7 @@ import {
     getEthIndex,
 } from './utils';
 import { DictInterface } from './interfaces';
-import { poolsData } from './constants/abis/abis-ethereum';
-import { ALIASES, curve } from "./curve";
-import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./constants/coins";
+import { ALIASES, POOLS_DATA, curve, BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./curve";
 import axios from "axios";
 
 
@@ -66,7 +64,7 @@ export class Pool {
     };
 
     constructor(name: string) {
-        const poolData = poolsData[name];
+        const poolData = POOLS_DATA[name];
         
         this.name = name;
         this.swap = poolData.swap_address;
@@ -1730,7 +1728,7 @@ const _getBestPoolAndOutput = async (
     outputCoinAddress: string,
     amount: string
 ): Promise<{ poolAddress: string, _output: ethers.BigNumber }> => {
-    const availablePools: { poolAddress: string, _output: ethers.BigNumber, outputUsd: number, txCostUsd: number }[] = Object.entries(poolsData).map((pool)=> {
+    const availablePools: { poolAddress: string, _output: ethers.BigNumber, outputUsd: number, txCostUsd: number }[] = Object.entries(POOLS_DATA).map((pool)=> {
         const coin_addresses = pool[1].coin_addresses.map((a: string) => a.toLowerCase());
         const underlying_coin_addresses = pool[1].underlying_coin_addresses.map((a: string) => a.toLowerCase());
         const meta_coin_addresses = pool[1].meta_coin_addresses?.map((a: string) => a.toLowerCase());
@@ -1880,6 +1878,10 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
 // --------- Cross-Asset Exchange ---------
 
 export const crossAssetExchangeAvailable = async (inputCoin: string, outputCoin: string): Promise<boolean> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
 
     // TODO remove it when fixed
@@ -1927,6 +1929,10 @@ export const _crossAssetExchangeInfo = async (
 
 export const crossAssetExchangeOutputAndSlippage = async (inputCoin: string, outputCoin: string, amount: string):
     Promise<{ slippage: number, output: string }> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
@@ -1937,6 +1943,10 @@ export const crossAssetExchangeOutputAndSlippage = async (inputCoin: string, out
 }
 
 export const crossAssetExchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const routerContract = await curve.contracts[ALIASES.router].contract;
@@ -1948,18 +1958,34 @@ export const crossAssetExchangeExpected = async (inputCoin: string, outputCoin: 
 }
 
 export const crossAssetExchangeIsApproved = async (inputCoin: string, amount: string): Promise<boolean> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     return await hasAllowance([inputCoin], [amount], curve.signerAddress, ALIASES.router);
 }
 
 export const crossAssetExchangeApproveEstimateGas = async (inputCoin: string, amount: string): Promise<number> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     return await ensureAllowanceEstimateGas([inputCoin], [amount], ALIASES.router);
 }
 
 export const crossAssetExchangeApprove = async (inputCoin: string, amount: string): Promise<string[]> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     return await ensureAllowance([inputCoin], [amount], ALIASES.router);
 }
 
 export const crossAssetExchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.02): Promise<number> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     if (!(await crossAssetExchangeAvailable(inputCoin, outputCoin))) throw Error("Such exchange is not available");
 
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
@@ -1987,6 +2013,10 @@ export const crossAssetExchangeEstimateGas = async (inputCoin: string, outputCoi
 }
 
 export const crossAssetExchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.02): Promise<string> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     if (!(await crossAssetExchangeAvailable(inputCoin, outputCoin))) throw Error("Such exchange is not available");
 
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);

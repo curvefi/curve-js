@@ -1,8 +1,7 @@
 import { assert } from "chai";
 import { crossAssetExchangeAvailable, crossAssetExchangeExpected, crossAssetExchange } from "../src/pools";
 import { BN, getBalances } from "../src/utils";
-import { COINS } from "../src/constants/coins";
-import { curve } from "../src/curve";
+import { curve, COINS } from "../src/curve";
 
 const exchangeTest = async (coin1: string, coin2: string) => {
     const amount = '1';

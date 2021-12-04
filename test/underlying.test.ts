@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import curve from "../src";
+import { Pool } from "../src/pools";
 import { BN } from "../src/utils";
 import { DictInterface } from "../lib/interfaces";
 
@@ -11,8 +12,13 @@ const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth'];
 
 const underlyingLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
-        const pool = new curve.Pool(name);
-        const coinAddresses = pool.underlyingCoinAddresses;
+        let pool: Pool;
+        let coinAddresses: string[];
+
+        before(async function () {
+            pool = new curve.Pool(name);
+            coinAddresses = pool.underlyingCoinAddresses;
+        });
 
         it('Adds liquidity', async function () {
             const amount = '10';
@@ -77,8 +83,11 @@ const underlyingLiquidityTest = (name: string) => {
             })
         });
 
-        if (!pool.isCrypto) {
-            it('Removes liquidity imbalance', async function () {
+
+        it('Removes liquidity imbalance', async function () {
+            if (!pool.isCrypto) {
+                console.log("No such method")
+            } else {
                 const amount = '1';
                 const amounts = coinAddresses.map(() => amount);
                 const initialBalances = await pool.balances() as DictInterface<string>;
@@ -98,8 +107,8 @@ const underlyingLiquidityTest = (name: string) => {
                         assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
                     }
                 });
-            });
-        }
+            }
+        });
 
         it('Removes liquidity one coin', async function () {
             const initialBalances = await pool.balances() as DictInterface<string>;
@@ -124,27 +133,30 @@ const underlyingLiquidityTest = (name: string) => {
 
 const underlyingExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
-        const pool = new curve.Pool(name);
-        const coinAddresses = pool.underlyingCoinAddresses;
-
-        for (let i = 0; i < coinAddresses.length; i++) {
-            for (let j = 0; j < coinAddresses.length; j++) {
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 5; j++) {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
-                        const swapAmount = '10';
-                        const initialCoinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
-                        const expected = await pool.exchangeExpected(i, j, swapAmount);
-
-                        await pool.exchange(i, j, swapAmount, 0.02);
-
-                        const coinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
-
-                        if (pool.name === 'steth') {
-                            assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)).toString()), 1e-18);
+                        const pool = new curve.Pool(name);
+                        const coinAddresses = pool.underlyingCoinAddresses;
+                        if (i >= coinAddresses.length || j >= coinAddresses.length) {
+                            console.log('Skip')
                         } else {
-                            assert.deepStrictEqual(BN(Object.values(coinBalances)[i]), BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)));
+                            const swapAmount = '10';
+                            const initialCoinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
+                            const expected = await pool.exchangeExpected(i, j, swapAmount);
+
+                            await pool.exchange(i, j, swapAmount, 0.02);
+
+                            const coinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
+
+                            if (pool.name === 'steth') {
+                                assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)).toString()), 1e-18);
+                            } else {
+                                assert.deepStrictEqual(BN(Object.values(coinBalances)[i]), BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)));
+                            }
+                            assert.isAtLeast(Number(Object.values(coinBalances)[j]), Number(BN(Object.values(initialCoinBalances)[j]).plus(BN(expected).times(0.98)).toString()));
                         }
-                        assert.isAtLeast(Number(Object.values(coinBalances)[j]), Number(BN(Object.values(initialCoinBalances)[j]).plus(BN(expected).times(0.98)).toString()));
                     });
                 }
             }

@@ -1,8 +1,6 @@
 import { assert } from "chai";
 import { ethers } from "ethers";
-import { poolsData } from "../src/constants/abis/abis-ethereum";
-import { COINS, DECIMALS } from "../src/constants/coins";
-import { curve } from "../src/curve";
+import { curve, POOLS_DATA, COINS, DECIMALS } from "../src/curve";
 
 describe('Checking constants', async function () {
     this.timeout(120000);
@@ -11,9 +9,9 @@ describe('Checking constants', async function () {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
     });
 
-    it('poolsData <-> COINS match', async function () {
+    it('POOLS_DATA <-> COINS match', async function () {
         const COIN_ADDRESSES = Object.values(COINS);
-        for (const poolData of Object.values(poolsData)) {
+        for (const poolData of Object.values(POOLS_DATA)) {
             const coinAddresses = [
                 ...poolData.underlying_coin_addresses,
                 ...poolData.coin_addresses,
@@ -30,8 +28,8 @@ describe('Checking constants', async function () {
         assert.deepStrictEqual(Object.values(COINS).sort(), Object.keys(DECIMALS).sort());
     });
 
-    it('poolsData <-> DECIMALS match', async function () {
-        for (const poolData of Object.values(poolsData)) {
+    it('POOLS_DATA <-> DECIMALS match', async function () {
+        for (const poolData of Object.values(POOLS_DATA)) {
             let coinAddresses = [
                 ...poolData.underlying_coin_addresses,
                 ...poolData.coin_addresses,
@@ -69,8 +67,8 @@ describe('Checking constants', async function () {
         }
     });
 
-    it('poolsData names of coins are correct', async function () {
-        for (const poolData of Object.values(poolsData)) {
+    it('POOLS_DATA names of coins are correct', async function () {
+        for (const poolData of Object.values(POOLS_DATA)) {
             const coins = [
                 ...poolData.underlying_coins,
                 ...poolData.coins,

@@ -10,6 +10,8 @@ const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth'];
 
+const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3'];
+
 const underlyingLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
         let pool: Pool;
@@ -187,6 +189,11 @@ describe('Underlying test', async function () {
     }
 
     for (const poolName of CRYPTO_POOLS) {
+        underlyingLiquidityTest(poolName);
+        underlyingExchangeTest(poolName);
+    }
+
+    for (const poolName of POLYGON_POOLS) {
         underlyingLiquidityTest(poolName);
         underlyingExchangeTest(poolName);
     }

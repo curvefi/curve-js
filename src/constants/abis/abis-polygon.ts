@@ -20,7 +20,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         token_address: '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171',
         gauge_address: '0x19793B454D3AfC7b454F206Ffe95aDE26cA6912c',
         underlying_coins: ['DAI', 'USDC', 'USDT'],
-        coins: ['aDAI', 'aUSDC', 'aUSDT'],
+        coins: ['amDAI', 'amUSDC', 'amUSDT'],
         underlying_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
@@ -49,7 +49,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         token_address: '0xf8a57c1d3b9629b77b6726a042ca48990A84Fb49',
         gauge_address: '0xffbACcE0CC7C19d46132f1258FC16CF6871D153c',
         underlying_coins: ['WBTC', 'renBTC'],
-        coins: ['aWBTC', 'renBTC'],
+        coins: ['amWBTC', 'renBTC'],
         underlying_coin_addresses: [
             '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',
             '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
@@ -78,7 +78,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         base_pool: 'aave',
         is_fake: true,
         underlying_coins: ['DAI', 'USDC', 'USDT', 'WBTC', 'WETH'],
-        coins: ['a3Crv', 'aWBTC', 'aWETH'],
+        coins: ['am3CRV', 'amWBTC', 'amWETH'],
         underlying_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
@@ -87,9 +87,9 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
         ],
         coin_addresses: [
-            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // a3Crv
-            '0x5c2ed810328349100A66B82b78a1791B101C9D61', // aWBTC
-            '0x28424507fefb6f7f8E9D3860F56504E4e5f5f390', // aWETH
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
+            '0x5c2ed810328349100A66B82b78a1791B101C9D61', // amWBTC
+            '0x28424507fefb6f7f8E9D3860F56504E4e5f5f390', // amWETH
         ],
         is_meta: true,
         meta_coin_addresses: [
@@ -112,14 +112,14 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         is_crypto: true,
         base_pool: 'aave',
         underlying_coins: ['EURT', 'DAI', 'USDC', 'USDT'],
-        coins: ['EURT', 'a3Crv'],
+        coins: ['EURT', 'am3CRV'],
         underlying_coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
-            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // a3Crv
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
         ],
         coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
-            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // a3Crv
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
         ],
         swap_abi: eurtusdSwap,
         deposit_abi: eurtusdZap,
@@ -130,16 +130,16 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [6, 18, 6, 6],
         meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [
-            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', //DAI
+            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
-            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', //usdt
+            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
         all_coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f',
-            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', //base pool lp
-            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', //DAI
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
+            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
-            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', //usdt
-        ]
+            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
+        ],
     },
 };

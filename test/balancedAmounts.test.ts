@@ -8,9 +8,15 @@ const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'a
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 
+const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
+
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
-        const pool = new Pool(name);
+        let pool: Pool;
+
+        before(async function () {
+            pool = new Pool(name);
+        });
 
         it('underlying', async function () {
             const balancedAmounts = (await pool.balancedAmounts()).map(Number);
@@ -23,8 +29,6 @@ const balancedAmountsTest = (name: string) => {
 
         it('wrapped', async function () {
             const balancedWrappedAmounts = (await pool.balancedWrappedAmounts()).map(Number);
-
-            console.log(balancedWrappedAmounts);
 
             assert.equal(balancedWrappedAmounts.length, pool.coins.length);
             for (const amount of balancedWrappedAmounts) {
@@ -51,6 +55,10 @@ describe('Underlying test', async function () {
     }
 
     for (const poolName of META_POOLS) {
+        balancedAmountsTest(poolName);
+    }
+
+    for (const poolName of POLYGON_POOLS) {
         balancedAmountsTest(poolName);
     }
 })

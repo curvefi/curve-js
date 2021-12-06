@@ -39,7 +39,7 @@ describe('Checking constants', async function () {
                 ...poolData.decimals,
             ]
 
-            if (poolData.is_meta) {
+            if (poolData.is_meta && !poolData.is_fake) {
                 coinAddresses = [
                     poolData.underlying_coin_addresses[0],
                     ...poolData.meta_coin_addresses as string[],
@@ -77,7 +77,7 @@ describe('Checking constants', async function () {
                 ...poolData.underlying_coin_addresses,
                 ...poolData.coin_addresses,
             ]
-            if (poolData.is_meta) {
+            if (poolData.is_meta && !poolData.is_fake) {
                 coinAddresses = [
                     poolData.underlying_coin_addresses[0],
                     ...poolData.meta_coin_addresses as string[],

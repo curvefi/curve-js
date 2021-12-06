@@ -10,7 +10,7 @@ const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth'];
 
-const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3'];
+const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
 const underlyingLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {

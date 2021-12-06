@@ -8,6 +8,8 @@ const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth'];
 
+const POLYGON_POOLS = ['aave', 'ren', 'eurtusd'];
+
 const wrappedLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
         let pool: Pool;
@@ -15,7 +17,7 @@ const wrappedLiquidityTest = (name: string) => {
 
         before(async function () {
             pool = new curve.Pool(name);
-            coinAddresses = pool.underlyingCoinAddresses;
+            coinAddresses = pool.coinAddresses;
         });
 
         it('Adds liquidity', async function () {
@@ -136,7 +138,7 @@ const wrappedExchangeTest = (name: string) => {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
                         const pool = new curve.Pool(name);
-                        const coinAddresses = pool.underlyingCoinAddresses;
+                        const coinAddresses = pool.coinAddresses;
                         if (i >= coinAddresses.length || j >= coinAddresses.length) {
                             console.log('Skip')
                         } else {
@@ -181,6 +183,11 @@ describe('Wrapped test', async function () {
     }
 
     for (const poolName of CRYPTO_POOLS) {
+        wrappedLiquidityTest(poolName);
+        wrappedExchangeTest(poolName);
+    }
+
+    for (const poolName of POLYGON_POOLS) {
         wrappedLiquidityTest(poolName);
         wrappedExchangeTest(poolName);
     }

@@ -3,6 +3,8 @@ import paaveRewardsabi from './json/paave/rewards.json';
 import renSwapABI from './json/ren-polygon/swap.json';
 import atricrypto3Swap from './json/atricrypto3/swap.json';
 import atricrypto3Zap from './json/atricrypto3/zap.json';
+import eurtusdSwap from './json/eurtusd/swap.json';
+import eurtusdZap from './json/eurtusd/deposit.json';
 import {PoolDataInterface} from "../../interfaces";
 
 export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
@@ -95,5 +97,49 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
+    },
+
+    eurtusd: {
+        N_COINS: 2,
+        underlying_decimals: [6, 18],
+        decimals: [6, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0xB446BF7b8D6D4276d0c75eC0e3ee8dD7Fe15783A',
+        token_address: '0x600743B1d8A96438bD46836fD34977a00293f6Aa',
+        gauge_address: '0x40c0e9376468b4f257d15F8c47E5D0C646C28880',
+        is_crypto: true,
+        base_pool: 'aave',
+        underlying_coins: ['EURT', 'DAI', 'USDC', 'USDT'],
+        coins: ['EURT', 'a3Crv'],
+        underlying_coin_addresses: [
+            '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // a3Crv
+        ],
+        coin_addresses: [
+            '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // a3Crv
+        ],
+        swap_abi: eurtusdSwap,
+        deposit_abi: eurtusdZap,
+        deposit_address: '0x225FB4176f0E20CDb66b4a3DF70CA3063281E855',
+        is_meta: true,
+        meta_N: 5,
+        meta_decimals: [6, 18, 18, 6, 6],
+        meta_coin_decimals: [6, 18, 6, 6],
+        meta_wrapped_decimals: [6, 18],
+        meta_coin_addresses: [
+            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', //DAI
+            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
+            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', //usdt
+        ],
+        all_coin_addresses: [
+            '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f',
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', //base pool lp
+            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', //DAI
+            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
+            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', //usdt
+        ]
     },
 };

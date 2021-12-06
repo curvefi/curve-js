@@ -17,7 +17,9 @@ export const LINK_COINS_POLYGON: { [index: string]: string } = {}
 // @ts-ignore
 export const LINK_COINS_LOWER_CASE_POLYGON = Object.fromEntries(Object.entries(LINK_COINS_POLYGON).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
-export const EUR_COINS_POLYGON: { [index: string]: string } = {}
+export const EUR_COINS_POLYGON: { [index: string]: string } = {
+    eurt: "0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f",  // EURT
+}
 // @ts-ignore
 export const EUR_COINS_LOWER_CASE_POLYGON = Object.fromEntries(Object.entries(EUR_COINS_POLYGON).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
@@ -29,6 +31,8 @@ export const USD_COINS_POLYGON: { [index: string]: string } = {
     adai: "0x27F8D03b3a2196956ED754baDc28D73be8830A6e",  // aDAI
     ausdc: "0x1a13F4Ca1d028320A707D99520AbFefca3998b7F", // aUSDC
     ausdt: "0x60D55F02A771d515e077c9C2403a1ef324885CeC", // aUSDT
+
+    a3crv: "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171", // a3Crv
 }
 
 // @ts-ignore
@@ -50,6 +54,7 @@ export const DECIMALS_POLYGON: { [index: string]: number } = {
     "0x27F8D03b3a2196956ED754baDc28D73be8830A6e": 18, // aDAI
     "0x1a13F4Ca1d028320A707D99520AbFefca3998b7F": 6,  // aUSDC
     "0x60D55F02A771d515e077c9C2403a1ef324885CeC": 6,  // aUSDT
+    "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171": 18,  // a3Crv
 
     "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6": 8,  // WBTC
     "0xDBf31dF14B66535aF65AaC99C32e9eA844e14501": 8,  // renBTC
@@ -57,6 +62,8 @@ export const DECIMALS_POLYGON: { [index: string]: number } = {
 
     "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619": 18, // WETH
     "0x28424507fefb6f7f8E9D3860F56504E4e5f5f390": 18, // aWETH
+
+    "0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f": 6,  // EURT
 }
 
 // @ts-ignore

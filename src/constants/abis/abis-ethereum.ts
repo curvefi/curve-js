@@ -79,7 +79,7 @@ import crvethSwap from './json/crveth/swap.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
-export const poolsData: { [index: string]: PoolDataInterface } = {
+export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     compound: {
         N_COINS: 2,
         underlying_decimals: [18, 6],

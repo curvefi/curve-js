@@ -19,9 +19,7 @@ import {
     getEthIndex,
 } from './utils';
 import { DictInterface } from './interfaces';
-import { poolsData } from './constants/abis/abis-ethereum';
-import { ALIASES, curve } from "./curve";
-import { BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./constants/coins";
+import { ALIASES, POOLS_DATA, curve, BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./curve";
 import axios from "axios";
 
 
@@ -39,6 +37,7 @@ export class Pool {
     decimals: number[];
     useLending: boolean[];
     isMeta: boolean;
+    isFake: boolean;
     isCrypto: boolean;
     basePool: string;
     isFactory: boolean;
@@ -66,7 +65,7 @@ export class Pool {
     };
 
     constructor(name: string) {
-        const poolData = poolsData[name];
+        const poolData = POOLS_DATA[name];
         
         this.name = name;
         this.swap = poolData.swap_address;
@@ -81,6 +80,7 @@ export class Pool {
         this.decimals = poolData.decimals;
         this.useLending = poolData.use_lending;
         this.isMeta = poolData.is_meta || false;
+        this.isFake = poolData.is_fake || false;
         this.isCrypto = poolData.is_crypto || false;
         this.isFactory = poolData.is_factory || false;
         this.basePool = poolData.base_pool || '';
@@ -107,7 +107,7 @@ export class Pool {
             exchangeWrapped: this.exchangeWrappedEstimateGas,
         }
 
-        if (this.isMeta) {
+        if (this.isMeta && !this.isFake) {
             const metaCoins = poolData.meta_coin_addresses as string[];
             const metaCoinDecimals = poolData.meta_coin_decimals as number[];
             this.underlyingCoinAddresses = [this.underlyingCoinAddresses[0], ...metaCoins];
@@ -123,7 +123,7 @@ export class Pool {
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
             ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
         let _expected: ethers.BigNumber;
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             _expected = await this._calcLpTokenAmountWithUnderlying(_amounts, isDeposit); // Lending pools
         } else if (this.isMeta) {
             _expected = await this._calcLpTokenAmountZap(_amounts, isDeposit); // Metapools
@@ -135,6 +135,10 @@ export class Pool {
     }
 
     public calcLpTokenAmountWrapped = async (amounts: string[], isDeposit = true): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         if (amounts.length !== this.coinAddresses.length) {
             throw Error(`${this.name} pool has ${this.coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
@@ -159,13 +163,17 @@ export class Pool {
         let _poolUnderlyingBalances: ethers.BigNumber[] = [];
 
         if (this.isMeta) {
-            _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
+            if (this.name !== 'atricrypto3') {
+                _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
+            }
             const [_poolMetaCoinBalance, ..._poolUnderlyingBalance] = _poolWrappedBalances;
 
             const basePool = new Pool(this.basePool);
             const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_poolMetaCoinBalance);
-            _poolUnderlyingBalances = [..._poolUnderlyingBalance, ..._basePoolExpectedAmounts]
-        } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+            _poolUnderlyingBalances = this.name !== 'atricrypto3' ?
+                [..._poolUnderlyingBalance, ..._basePoolExpectedAmounts] :
+                [..._basePoolExpectedAmounts, ..._poolUnderlyingBalance];
+        } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             const _rates: ethers.BigNumber[] = await this._getRates();
             _poolUnderlyingBalances = _poolWrappedBalances.map(
                 (_b: ethers.BigNumber, i: number) => _b.mul(_rates[i]).div(ethers.BigNumber.from(10).pow(18)));
@@ -177,6 +185,10 @@ export class Pool {
     }
 
     public getPoolWrappedBalances = async (): Promise<string[]> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
 
@@ -237,7 +249,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, true, true) as number;
         }
 
@@ -272,7 +284,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, true) as string;
         }
 
@@ -286,6 +298,10 @@ export class Pool {
     }
 
     public balancedWrappedAmounts = async (): Promise<string[]> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
         const walletBalances = Object.values(await this.coinBalances()).map(Number);
 
@@ -293,11 +309,19 @@ export class Pool {
     }
 
     public addLiquidityWrappedExpected = async (amounts: string[]): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         amounts = amounts.map((a, i) => Number(a).toFixed(this.decimals[i]));
         return await this.calcLpTokenAmountWrapped(amounts);
     }
 
     public addLiquidityWrappedSlippage = async (amounts: string[]): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
         const expected = Number(await this.addLiquidityWrappedExpected(amounts));
 
@@ -305,18 +329,34 @@ export class Pool {
     }
 
     public addLiquidityWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         return await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.swap);
     }
 
     private addLiquidityWrappedApproveEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         return await ensureAllowanceEstimateGas(this.coinAddresses, amounts, this.swap);
     }
 
     public addLiquidityWrappedApprove = async (amounts: string[]): Promise<string[]> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         return await ensureAllowance(this.coinAddresses, amounts, this.swap);
     }
 
     private addLiquidityWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         if (amounts.length !== this.coinAddresses.length) {
             throw Error(`${this.name} pool has ${this.coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
@@ -336,7 +376,7 @@ export class Pool {
             ethers.utils.parseUnits(amount, this.decimals[i]));
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, false, true) as number;
         }
 
@@ -345,6 +385,10 @@ export class Pool {
     }
 
     public addLiquidityWrapped = async (amounts: string[]): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         if (amounts.length !== this.coinAddresses.length) {
             throw Error(`${this.name} pool has ${this.coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
@@ -354,7 +398,7 @@ export class Pool {
         await curve.updateFeeData();
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, false) as string;
         }
 
@@ -366,7 +410,7 @@ export class Pool {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         let _expected: ethers.BigNumber[];
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             _expected = await this._calcExpectedUnderlyingAmounts(_lpTokenAmount); // Lending pools
         } else if (this.isMeta) {
             _expected = await this._calcExpectedUnderlyingAmountsMeta(_lpTokenAmount); // Metapools
@@ -408,7 +452,7 @@ export class Pool {
             return await this._removeLiquidityZap(_lpTokenAmount, true) as number;
         }
 
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, true, true) as number;
         }
 
@@ -428,7 +472,7 @@ export class Pool {
             return await this._removeLiquidityZap(_lpTokenAmount) as string;
         }
 
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, true) as string;
         }
 
@@ -440,6 +484,10 @@ export class Pool {
     }
 
     public removeLiquidityWrappedExpected = async (lpTokenAmount: string): Promise<string[]> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         const _expected = await this._calcExpectedAmounts(_lpTokenAmount)
 
@@ -447,6 +495,10 @@ export class Pool {
     }
 
     private removeLiquidityWrappedEstimateGas = async (lpTokenAmount: string): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
@@ -454,7 +506,7 @@ export class Pool {
             throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
         }
 
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, false, true) as number;
         }
 
@@ -462,11 +514,15 @@ export class Pool {
     }
 
     public removeLiquidityWrapped = async (lpTokenAmount: string): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         await curve.updateFeeData();
 
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, false) as string;
         }
 
@@ -570,7 +626,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib'].includes(this.name)) {
+        if (['aave', 'saave', 'ib'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityImbalance(_amounts, true, true) as number;
         }
 
@@ -597,7 +653,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib'].includes(this.name)) {
+        if (['aave', 'saave', 'ib'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityImbalance(_amounts, true) as string;
         }
 
@@ -642,7 +698,7 @@ export class Pool {
 
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.decimals[i]));
 
-        if (['aave', 'saave', 'ib'].includes(this.name)) {
+        if (['aave', 'saave', 'ib'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityImbalance(_amounts, false, true) as number;
         }
 
@@ -658,7 +714,7 @@ export class Pool {
 
         await curve.updateFeeData();
 
-        if (['aave', 'saave', 'ib'].includes(this.name)) {
+        if (['aave', 'saave', 'ib'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityImbalance(_amounts, false, estimateGas);
         }
 
@@ -722,7 +778,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,true, true) as number;
         }
 
@@ -742,7 +798,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,true) as string;
         }
 
@@ -751,6 +807,10 @@ export class Pool {
     }
 
     public removeLiquidityOneCoinWrappedExpected = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
             throw Error(`${this.name} pool doesn't have remove_liquidity_one_coin method for wrapped tokens`);
         }
@@ -769,6 +829,10 @@ export class Pool {
     }
 
     public removeLiquidityOneCoinWrappedSlippage = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const totalAmount = Number(await this.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, coin));
 
         return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount), false);
@@ -776,6 +840,10 @@ export class Pool {
 
 
     private removeLiquidityOneCoinWrappedEstimateGas = async (lpTokenAmount: string, coin: string | number): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
         if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
             throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
@@ -789,7 +857,7 @@ export class Pool {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,false, true) as number;
         }
 
@@ -798,6 +866,10 @@ export class Pool {
 
 
     public removeLiquidityOneCoinWrapped = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const i = this._getCoinIdx(coin, false);
         if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
             throw Error(`${this.name} pool doesn't have remove_liquidity_one_coin method for wrapped tokens`);
@@ -808,7 +880,7 @@ export class Pool {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name)) {
+        if (['aave', 'saave', 'ib', 'crveth'].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,false) as string;
         }
 
@@ -887,24 +959,25 @@ export class Pool {
     }
 
     public exchangeIsApproved = async (inputCoin: string | number, amount: string): Promise<boolean> => {
-        const contractAddress = this.name === "eurtusd" ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, contractAddress);
     }
 
     private exchangeApproveEstimateGas = async (inputCoin: string | number, amount: string): Promise<number> => {
-        const contractAddress = this.name === "eurtusd" ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowanceEstimateGas([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     public exchangeApprove = async (inputCoin: string | number, amount: string): Promise<string[]> => {
-        const contractAddress = this.name === "eurtusd" ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowance([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     private exchangeEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> => {
+        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -913,7 +986,7 @@ export class Pool {
             throw Error(`Not enough ${this.underlyingCoins[i]}. Actual: ${inputCoinBalance}, required: ${amount}`);
         }
 
-        if (!(await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, this.swap))) {
+        if (!(await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, contractAddress))) {
             throw Error("Token allowance is needed to estimate gas")
         }
 
@@ -923,7 +996,6 @@ export class Pool {
         const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
         const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
-        const contractAddress = this.name === "eurtusd" ? this.zap as string : this.swap;
         const contract = curve.contracts[contractAddress].contract;
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
@@ -936,6 +1008,7 @@ export class Pool {
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
+        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -945,8 +1018,7 @@ export class Pool {
         const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
         const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
-        await _ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], this.swap);
-        const contractAddress = this.name === "eurtusd" ? this.zap as string : this.swap;
+        await _ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], contractAddress);
         const contract = curve.contracts[contractAddress].contract;
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
@@ -958,11 +1030,18 @@ export class Pool {
             return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.options, value, gasLimit })).hash
         }
 
-        const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
+        const estimatedGas = await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
+        const gasLimit = curve.chainId === 137 && this.name === 'ren' ?
+            estimatedGas.mul(160).div(100) :
+            estimatedGas.mul(130).div(100);
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
     public exchangeWrappedExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const i = this._getCoinIdx(inputCoin, false);
         const j = this._getCoinIdx(outputCoin, false);
         const _amount = ethers.utils.parseUnits(amount, this.decimals[i]);
@@ -972,21 +1051,37 @@ export class Pool {
     }
 
     public exchangeWrappedIsApproved = async (inputCoin: string | number, amount: string): Promise<boolean> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const i = this._getCoinIdx(inputCoin, false);
         return await hasAllowance([this.coinAddresses[i]], [amount], curve.signerAddress, this.swap);
     }
 
     private exchangeWrappedApproveEstimateGas = async (inputCoin: string | number, amount: string): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const i = this._getCoinIdx(inputCoin, false);
         return await ensureAllowanceEstimateGas([this.coinAddresses[i]], [amount], this.swap);
     }
 
     public exchangeWrappedApprove = async (inputCoin: string | number, amount: string): Promise<string[]> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const i = this._getCoinIdx(inputCoin, false);
         return await ensureAllowance([this.coinAddresses[i]], [amount], this.swap);
     }
 
     private exchangeWrappedEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const i = this._getCoinIdx(inputCoin, false);
         const j = this._getCoinIdx(outputCoin, false);
 
@@ -1016,6 +1111,10 @@ export class Pool {
     }
 
     public exchangeWrapped = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const i = this._getCoinIdx(inputCoin, false);
         const j = this._getCoinIdx(outputCoin, false);
 
@@ -1035,7 +1134,10 @@ export class Pool {
             return (await contract.exchange(i, j, _amount, _minRecvAmount, false, { ...curve.options, value, gasLimit })).hash
         }
 
-        const gasLimit = (await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
+        const estimatedGas = await contract.estimateGas.exchange(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
+        const gasLimit = curve.chainId === 137 && this.name === 'ren' ?
+            estimatedGas.mul(140).div(100) :
+            estimatedGas.mul(130).div(100);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
@@ -1435,13 +1537,17 @@ export class Pool {
 
     private _calcExpectedUnderlyingAmountsMeta = async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
         const _expectedWrappedAmounts = await this._calcExpectedAmounts(_lpTokenAmount);
-        _expectedWrappedAmounts.unshift(_expectedWrappedAmounts.pop() as ethers.BigNumber);
+        if (this.name !== 'atricrypto3') {
+            _expectedWrappedAmounts.unshift(_expectedWrappedAmounts.pop() as ethers.BigNumber);
+        }
         const [_expectedMetaCoinAmount, ..._expectedUnderlyingAmounts] = _expectedWrappedAmounts;
 
         const basePool = new Pool(this.basePool);
         const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_expectedMetaCoinAmount);
 
-        return  [..._expectedUnderlyingAmounts, ..._basePoolExpectedAmounts]
+        return  this.name !== 'atricrypto3' ?
+            [..._expectedUnderlyingAmounts, ..._basePoolExpectedAmounts] :
+            [..._basePoolExpectedAmounts, ..._expectedUnderlyingAmounts];
     }
 
     private _calcMinUnderlyingAmountsMeta= async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
@@ -1586,7 +1692,9 @@ export class Pool {
             return gas.toNumber()
         }
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = curve.chainId === 137 && this.name === 'ren' ?
+            gas.mul(140).div(100) :
+            gas.mul(130).div(100);
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, useUnderlying, { ...curve.options, gasLimit })).hash;
     }
 
@@ -1663,12 +1771,14 @@ export class Pool {
             return gas.toNumber()
         }
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = curve.chainId === 137 && this.name === 'ren' ?
+            gas.mul(160).div(100) :
+            gas.mul(130).div(100);
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, useUnderlying, { ...curve.options, gasLimit })).hash
     }
 
     private _getExchangeOutput = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
-        const contractAddress = this.name === "eurtusd" ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name)  ? this.zap as string : this.swap;
         const contract = curve.contracts[contractAddress].contract;
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
             return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
@@ -1730,7 +1840,7 @@ const _getBestPoolAndOutput = async (
     outputCoinAddress: string,
     amount: string
 ): Promise<{ poolAddress: string, _output: ethers.BigNumber }> => {
-    const availablePools: { poolAddress: string, _output: ethers.BigNumber, outputUsd: number, txCostUsd: number }[] = Object.entries(poolsData).map((pool)=> {
+    const availablePools: { poolAddress: string, _output: ethers.BigNumber, outputUsd: number, txCostUsd: number }[] = Object.entries(POOLS_DATA).map((pool)=> {
         const coin_addresses = pool[1].coin_addresses.map((a: string) => a.toLowerCase());
         const underlying_coin_addresses = pool[1].underlying_coin_addresses.map((a: string) => a.toLowerCase());
         const meta_coin_addresses = pool[1].meta_coin_addresses?.map((a: string) => a.toLowerCase());
@@ -1746,6 +1856,10 @@ const _getBestPoolAndOutput = async (
             underlying_coin_addresses.indexOf(outputCoinAddress.toLowerCase()),
             meta_coin_addresses ? meta_coin_addresses.indexOf(outputCoinAddress.toLowerCase()) : -1,
         ]
+
+        if (pool[0] === 'atricrypto3') {
+            return null
+        }
 
         if (inputCoinIndexes[0] >= 0 && outputCoinIndexes[0] >= 0) {
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
@@ -1880,6 +1994,10 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
 // --------- Cross-Asset Exchange ---------
 
 export const crossAssetExchangeAvailable = async (inputCoin: string, outputCoin: string): Promise<boolean> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
 
     // TODO remove it when fixed
@@ -1927,6 +2045,10 @@ export const _crossAssetExchangeInfo = async (
 
 export const crossAssetExchangeOutputAndSlippage = async (inputCoin: string, outputCoin: string, amount: string):
     Promise<{ slippage: number, output: string }> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
@@ -1937,6 +2059,10 @@ export const crossAssetExchangeOutputAndSlippage = async (inputCoin: string, out
 }
 
 export const crossAssetExchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const routerContract = await curve.contracts[ALIASES.router].contract;
@@ -1948,18 +2074,34 @@ export const crossAssetExchangeExpected = async (inputCoin: string, outputCoin: 
 }
 
 export const crossAssetExchangeIsApproved = async (inputCoin: string, amount: string): Promise<boolean> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     return await hasAllowance([inputCoin], [amount], curve.signerAddress, ALIASES.router);
 }
 
 export const crossAssetExchangeApproveEstimateGas = async (inputCoin: string, amount: string): Promise<number> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     return await ensureAllowanceEstimateGas([inputCoin], [amount], ALIASES.router);
 }
 
 export const crossAssetExchangeApprove = async (inputCoin: string, amount: string): Promise<string[]> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     return await ensureAllowance([inputCoin], [amount], ALIASES.router);
 }
 
 export const crossAssetExchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.02): Promise<number> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     if (!(await crossAssetExchangeAvailable(inputCoin, outputCoin))) throw Error("Such exchange is not available");
 
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
@@ -1987,6 +2129,10 @@ export const crossAssetExchangeEstimateGas = async (inputCoin: string, outputCoi
 }
 
 export const crossAssetExchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.02): Promise<string> => {
+    if (curve.chainId !== 1) {
+        throw Error(`Cross-asset swaps are not available on this network (id${curve.chainId})`)
+    }
+
     if (!(await crossAssetExchangeAvailable(inputCoin, outputCoin))) throw Error("Such exchange is not available");
 
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);

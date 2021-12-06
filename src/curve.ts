@@ -1,6 +1,7 @@
 import { ethers, Contract } from "ethers";
 import { Networkish } from "@ethersproject/networks";
-import { Provider as MulticallProvider, Contract as MulticallContract} from 'ethcall';
+import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
+import {PoolDataInterface, DictInterface} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import yERC20Abi from './constants/abis/json/yERC20.json';
@@ -10,60 +11,81 @@ import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
 import routerABI from './constants/abis/json/router.json';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
-import { poolsData } from './constants/abis/abis-ethereum';
+import { POOLS_DATA_ETHEREUM } from './constants/abis/abis-ethereum';
+import { POOLS_DATA_POLYGON } from './constants/abis/abis-polygon';
+import {
+    BTC_COINS_ETHEREUM,
+    BTC_COINS_LOWER_CASE_ETHEREUM,
+    ETH_COINS_ETHEREUM,
+    ETH_COINS_LOWER_CASE_ETHEREUM,
+    LINK_COINS_ETHEREUM,
+    LINK_COINS_LOWER_CASE_ETHEREUM,
+    EUR_COINS_ETHEREUM,
+    EUR_COINS_LOWER_CASE_ETHEREUM,
+    USD_COINS_ETHEREUM,
+    USD_COINS_LOWER_CASE_ETHEREUM,
+    COINS_ETHEREUM,
+    DECIMALS_ETHEREUM,
+    DECIMALS_LOWER_CASE_ETHEREUM,
+    cTokensEthereum,
+    ycTokensEthereum,
+    yTokensEthereum,
+    aTokensEthereum,
+} from "./constants/coins-ethereum";
+import {
+    BTC_COINS_POLYGON,
+    BTC_COINS_LOWER_CASE_POLYGON,
+    ETH_COINS_POLYGON,
+    ETH_COINS_LOWER_CASE_POLYGON,
+    LINK_COINS_POLYGON,
+    LINK_COINS_LOWER_CASE_POLYGON,
+    EUR_COINS_POLYGON,
+    EUR_COINS_LOWER_CASE_POLYGON,
+    USD_COINS_POLYGON,
+    USD_COINS_LOWER_CASE_POLYGON,
+    COINS_POLYGON,
+    DECIMALS_POLYGON,
+    DECIMALS_LOWER_CASE_POLYGON,
+    cTokensPolygon,
+    ycTokensPolygon,
+    yTokensPolygon,
+    aTokensPolygon,
+} from "./constants/coins-polygon";
+import { ALIASES_ETHEREUM, ALIASES_POLYGON } from "./constants/aliases";
 
-export const ALIASES = {
+export let POOLS_DATA: { [index: string]: PoolDataInterface };
+export let LP_TOKENS: string[];
+export let GAUGES: string[];
+
+export let BTC_COINS: DictInterface<string>;
+export let BTC_COINS_LOWER_CASE: DictInterface<string>;
+export let ETH_COINS: DictInterface<string>;
+export let ETH_COINS_LOWER_CASE: DictInterface<string>;
+export let LINK_COINS: DictInterface<string>;
+export let LINK_COINS_LOWER_CASE: DictInterface<string>;
+export let EUR_COINS: DictInterface<string>;
+export let EUR_COINS_LOWER_CASE: DictInterface<string>;
+export let USD_COINS: DictInterface<string>;
+export let USD_COINS_LOWER_CASE: DictInterface<string>;
+export let COINS: DictInterface<string>;
+export let DECIMALS: DictInterface<number>;
+export let DECIMALS_LOWER_CASE: DictInterface<number>;
+
+export let ALIASES = {
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52",
-    "pool_proxy": "0xeCb456EA5365865EbAb8a2661B0c503410e9B347",
-    "gauge_proxy": "0x519AFB566c05E00cfB9af73496D00217A630e4D5",
     "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
-    "minter": "0xd061D61a4d941c39E5453435B6345Dc261C2fcE0",
-    "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "registry_exchange": "",
 }
-
-const cTokens = [
-    '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643', // cDAI
-    '0x39AA39c021dfbaE8faC545936693aC917d5E7563', // cUSDC
-    "0x8e595470ed749b85c6f7669de83eae304c2ec68f", // cyDAI
-    "0x48759f220ed983db51fa7a8c0d2aab8f3ce4166a", // cyUSDT
-    "0x76eb2fe28b36b3ee97f3adae0c69606eedb2a37c", // cyUSDC
-]
-
-const yTokens = [
-    "0xC2cB1040220768554cf699b0d863A3cd4324ce32", // busd/yDAI
-    "0x26EA744E5B887E5205727f55dFBE8685e3b21951", // busd/yUSDC
-    "0xE6354ed5bC4b393a5Aad09f21c46E101e692d447", // busd/yUSDT
-    "0x16de59092dAE5CcF4A1E6439D611fd0653f0Bd01", // y/yDAI
-    "0xd6aD7a6750A7593E092a9B218d66C0A814a3436e", // y/yUSDC
-    "0x83f798e925BcD4017Eb265844FDDAbb448f1707D", // y/yUSDT
-    "0x04bC0Ab673d88aE9dbC9DA2380cB6B79C4BCa9aE", // yBUSD
-    "0x73a052500105205d34Daf004eAb301916DA8190f", // yTUSD
-]
-
-const ycTokens = [
-    "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc", // ycDAI
-    "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E", // ycUSDC
-    "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59", // ycUSDT
-]
-
-const aTokens = [
-    "0x028171bCA77440897B824Ca71D1c56caC55b68A3", // aDAI
-    "0xBcca60bB61934080951369a648Fb03DF4F96263C", // aUSDC
-    "0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811", // aUSDT
-    "0x6c5024cd4f8a59110119c56f8933403a539555eb", // sSUSD
-]
-
-const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
 
 class Curve {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer;
     signerAddress: string;
+    chainId: number;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
     constantOptions: { gasLimit: number };
@@ -75,6 +97,7 @@ class Curve {
         // @ts-ignore
         this.signer = null;
         this.signerAddress = '';
+        this.chainId = 0;
         // @ts-ignore
         this.multicallProvider = null;
         this.contracts = {};
@@ -116,6 +139,66 @@ class Curve {
             throw Error('Wrong providerType');
         }
 
+        let cTokens, yTokens, ycTokens, aTokens;
+
+        const network = await this.provider._networkPromise;
+        console.log("CURVE-JS IS CONNECTED TO NETWORK:", network);
+
+        this.chainId = network.chainId;
+
+        if (network.chainId === 1) {
+            cTokens = cTokensEthereum;
+            yTokens = yTokensEthereum;
+            ycTokens = ycTokensEthereum;
+            aTokens = aTokensEthereum;
+
+            ALIASES = ALIASES_ETHEREUM;
+            POOLS_DATA = POOLS_DATA_ETHEREUM;
+
+            BTC_COINS = BTC_COINS_ETHEREUM;
+            BTC_COINS_LOWER_CASE = BTC_COINS_LOWER_CASE_ETHEREUM;
+            ETH_COINS = ETH_COINS_ETHEREUM;
+            ETH_COINS_LOWER_CASE = ETH_COINS_LOWER_CASE_ETHEREUM;
+            LINK_COINS = LINK_COINS_ETHEREUM;
+            LINK_COINS_LOWER_CASE = LINK_COINS_LOWER_CASE_ETHEREUM;
+            EUR_COINS = EUR_COINS_ETHEREUM;
+            EUR_COINS_LOWER_CASE = EUR_COINS_LOWER_CASE_ETHEREUM;
+            USD_COINS = USD_COINS_ETHEREUM;
+            USD_COINS_LOWER_CASE = USD_COINS_LOWER_CASE_ETHEREUM;
+            COINS = COINS_ETHEREUM;
+            DECIMALS = DECIMALS_ETHEREUM;
+            DECIMALS_LOWER_CASE = DECIMALS_LOWER_CASE_ETHEREUM;
+        } else if (network.chainId === 137) {
+            cTokens = cTokensPolygon;
+            yTokens = yTokensPolygon;
+            ycTokens = ycTokensPolygon;
+            aTokens = aTokensPolygon;
+
+            ALIASES = ALIASES_POLYGON;
+            POOLS_DATA = POOLS_DATA_POLYGON;
+
+            BTC_COINS = BTC_COINS_POLYGON;
+            BTC_COINS_LOWER_CASE = BTC_COINS_LOWER_CASE_POLYGON;
+            ETH_COINS = ETH_COINS_POLYGON;
+            ETH_COINS_LOWER_CASE = ETH_COINS_LOWER_CASE_POLYGON;
+            LINK_COINS = LINK_COINS_POLYGON;
+            LINK_COINS_LOWER_CASE = LINK_COINS_LOWER_CASE_POLYGON;
+            EUR_COINS = EUR_COINS_POLYGON;
+            EUR_COINS_LOWER_CASE = EUR_COINS_LOWER_CASE_POLYGON;
+            USD_COINS = USD_COINS_POLYGON;
+            USD_COINS_LOWER_CASE = USD_COINS_LOWER_CASE_POLYGON;
+            COINS = COINS_POLYGON;
+            DECIMALS = DECIMALS_POLYGON;
+            DECIMALS_LOWER_CASE = DECIMALS_LOWER_CASE_POLYGON;
+        } else {
+            throw Error(`Network with chainId ${this.provider.network.chainId} is not supported`)
+        }
+
+        LP_TOKENS = Object.values(POOLS_DATA).map((data) => data.token_address.toLowerCase());
+        GAUGES = Object.values(POOLS_DATA).map((data) => data.gauge_address.toLowerCase());
+
+        const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
+
         this.multicallProvider = new MulticallProvider();
         await this.multicallProvider.init(this.provider);
 
@@ -127,7 +210,7 @@ class Curve {
         await this.updateFeeData();
 
         // TODO delete toLowerCase()
-        for (const pool of Object.values(poolsData)) {
+        for (const pool of Object.values(POOLS_DATA)) {
             this.contracts[pool.swap_address] = {
                 contract: new Contract(pool.swap_address, pool.swap_abi, this.signer || this.provider),
                 multicallContract: new MulticallContract(pool.swap_address, pool.swap_abi),

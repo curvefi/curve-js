@@ -2,12 +2,9 @@ import axios from 'axios';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 import { DictInterface } from './interfaces';
-import { curve } from "./curve";
-import { poolsData } from "./constants/abis/abis-ethereum";
-import { COINS, LOWER_CASE_DECIMALS } from "./constants/coins";
+import { curve, POOLS_DATA, LP_TOKENS, GAUGES } from "./curve";
+import { COINS, DECIMALS_LOWER_CASE } from "./curve";
 
-const LP_TOKENS = Object.values(poolsData).map((data) => data.token_address.toLowerCase());
-const GAUGES = Object.values(poolsData).map((data) => data.gauge_address.toLowerCase());
 
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
@@ -40,7 +37,7 @@ export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => 
 
     const coinAddresses = coins.map((c) => COINS[c.toLowerCase()] || c);
     const availableAddresses = [
-        ...Object.keys(LOWER_CASE_DECIMALS).filter((c) => c !== COINS['snx'].toLowerCase()),
+        ...Object.keys(DECIMALS_LOWER_CASE).filter((c) => c !== COINS['snx']?.toLowerCase()),
         ...LP_TOKENS,
         ...GAUGES,
     ];
@@ -54,7 +51,7 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
     if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
     coinAddresses = coinAddresses as string[];
 
-    return coinAddresses.map((coinAddr) => LOWER_CASE_DECIMALS[coinAddr.toLowerCase()] || 18);
+    return coinAddresses.map((coinAddr) => DECIMALS_LOWER_CASE[coinAddr.toLowerCase()] || 18);
 }
 
 export const _getBalances = async (coins: string[], addresses: string[]): Promise<DictInterface<string[]>> => {
@@ -205,7 +202,7 @@ export const ensureAllowance = async (coins: string[], amounts: string[], spende
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {
-    return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
+    return Object.entries(POOLS_DATA).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
 

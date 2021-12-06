@@ -1,4 +1,4 @@
-export const BTC_COINS: { [index: string]: string } = {
+export const BTC_COINS_ETHEREUM: { [index: string]: string } = {
     sbtccrv: "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",  // sbtcCRV
     hbtc: "0x0316EB71485b0Ab14103307bf65a021042c6d380",  // HBTC
     renbtc: "0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D",  // renBTC
@@ -12,9 +12,9 @@ export const BTC_COINS: { [index: string]: string } = {
 }
 
 // @ts-ignore
-export const BTC_COINS_LOWER_CASE = Object.fromEntries(Object.entries(BTC_COINS).map((entry) => [entry[0], entry[1].toLowerCase()]));
+export const BTC_COINS_LOWER_CASE_ETHEREUM = Object.fromEntries(Object.entries(BTC_COINS_ETHEREUM).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
-export const ETH_COINS: { [index: string]: string } = {
+export const ETH_COINS_ETHEREUM: { [index: string]: string } = {
     steth: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",  // stETH
     eth: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  // ETH
     ankreth: "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb",  // ankrETH
@@ -24,23 +24,26 @@ export const ETH_COINS: { [index: string]: string } = {
 }
 
 // @ts-ignore
-export const ETH_COINS_LOWER_CASE = Object.fromEntries(Object.entries(ETH_COINS).map((entry) => [entry[0], entry[1].toLowerCase()]));
+export const ETH_COINS_LOWER_CASE_ETHEREUM = Object.fromEntries(Object.entries(ETH_COINS_ETHEREUM).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
-export const LINK_COINS: { [index: string]: string } = {
+export const LINK_COINS_ETHEREUM: { [index: string]: string } = {
     link: "0x514910771AF9Ca656af840dff83E8264EcF986CA",  // LINK
     slink: "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6",  // sLINK
 }
 
 // @ts-ignore
-export const LINK_COINS_LOWER_CASE = Object.fromEntries(Object.entries(LINK_COINS).map((entry) => [entry[0], entry[1].toLowerCase()]));
+export const LINK_COINS_LOWER_CASE_ETHEREUM = Object.fromEntries(Object.entries(LINK_COINS_ETHEREUM).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
-export const EUR_COINS: { [index: string]: string } = {
+export const EUR_COINS_ETHEREUM: { [index: string]: string } = {
     eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
     seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
     eurt: "0xC581b735A1688071A1746c968e0798D642EDE491",  // EURT
 }
 
-export const USD_COINS: { [index: string]: string } = {
+// @ts-ignore
+export const EUR_COINS_LOWER_CASE_ETHEREUM = Object.fromEntries(Object.entries(EUR_COINS_ETHEREUM).map((entry) => [entry[0], entry[1].toLowerCase()]));
+
+export const USD_COINS_ETHEREUM: { [index: string]: string } = {
     ycdai: "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // pax/yDAI
     ycusdc: "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // pax/yUSDC
     ycusdt: "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59",  // pax/yUSDT
@@ -93,17 +96,19 @@ export const USD_COINS: { [index: string]: string } = {
     crv: "0xD533a949740bb3306d119CC777fa900bA034cd52", // CRV
 }
 
+// @ts-ignore
+export const USD_COINS_LOWER_CASE_ETHEREUM = Object.fromEntries(Object.entries(USD_COINS_ETHEREUM).map((entry) => [entry[0], entry[1].toLowerCase()]));
 
-export const COINS: { [index: string]: string } = {
-    ...BTC_COINS,
-    ...ETH_COINS,
-    ...LINK_COINS,
-    ...EUR_COINS,
-    ...USD_COINS,
+export const COINS_ETHEREUM: { [index: string]: string } = {
+    ...BTC_COINS_ETHEREUM,
+    ...ETH_COINS_ETHEREUM,
+    ...LINK_COINS_ETHEREUM,
+    ...EUR_COINS_ETHEREUM,
+    ...USD_COINS_ETHEREUM,
     snx: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",  // SNX
 }
 
-export const DECIMALS: { [index: string]: number } = {
+export const DECIMALS_ETHEREUM: { [index: string]: number } = {
     "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3": 18,  // sbtcCRV
 
     "0x0316EB71485b0Ab14103307bf65a021042c6d380": 18,  // HBTC
@@ -184,4 +189,36 @@ export const DECIMALS: { [index: string]: number } = {
 }
 
 // @ts-ignore
-export const LOWER_CASE_DECIMALS = Object.fromEntries(Object.entries(DECIMALS).map((entry) => [entry[0].toLowerCase(), entry[1]]));
+export const DECIMALS_LOWER_CASE_ETHEREUM = Object.fromEntries(Object.entries(DECIMALS_ETHEREUM).map((entry) => [entry[0].toLowerCase(), entry[1]]));
+
+export const cTokensEthereum = [
+    '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643', // cDAI
+    '0x39AA39c021dfbaE8faC545936693aC917d5E7563', // cUSDC
+    "0x8e595470ed749b85c6f7669de83eae304c2ec68f", // cyDAI
+    "0x48759f220ed983db51fa7a8c0d2aab8f3ce4166a", // cyUSDT
+    "0x76eb2fe28b36b3ee97f3adae0c69606eedb2a37c", // cyUSDC
+]
+
+export const yTokensEthereum = [
+    "0xC2cB1040220768554cf699b0d863A3cd4324ce32", // busd/yDAI
+    "0x26EA744E5B887E5205727f55dFBE8685e3b21951", // busd/yUSDC
+    "0xE6354ed5bC4b393a5Aad09f21c46E101e692d447", // busd/yUSDT
+    "0x16de59092dAE5CcF4A1E6439D611fd0653f0Bd01", // y/yDAI
+    "0xd6aD7a6750A7593E092a9B218d66C0A814a3436e", // y/yUSDC
+    "0x83f798e925BcD4017Eb265844FDDAbb448f1707D", // y/yUSDT
+    "0x04bC0Ab673d88aE9dbC9DA2380cB6B79C4BCa9aE", // yBUSD
+    "0x73a052500105205d34Daf004eAb301916DA8190f", // yTUSD
+]
+
+export const ycTokensEthereum = [
+    "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc", // ycDAI
+    "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E", // ycUSDC
+    "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59", // ycUSDT
+]
+
+export const aTokensEthereum = [
+    "0x028171bCA77440897B824Ca71D1c56caC55b68A3", // aDAI
+    "0xBcca60bB61934080951369a648Fb03DF4F96263C", // aUSDC
+    "0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811", // aUSDT
+    "0x6c5024cd4f8a59110119c56f8933403a539555eb", // sSUSD
+]

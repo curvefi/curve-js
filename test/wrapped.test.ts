@@ -2,15 +2,23 @@ import { assert } from "chai";
 import curve from "../src";
 import { BN } from "../src/utils";
 import { DictInterface } from "../lib/interfaces";
+import { Pool } from "../src/pools";
 
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth'];
 
+const POLYGON_POOLS = ['aave', 'ren', 'eurtusd'];
+
 const wrappedLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
-        const pool = new curve.Pool(name);
-        const coinAddresses = pool.coinAddresses;
+        let pool: Pool;
+        let coinAddresses: string[];
+
+        before(async function () {
+            pool = new curve.Pool(name);
+            coinAddresses = pool.coinAddresses;
+        });
 
         it('Adds liquidity', async function () {
             const amount = '10';
@@ -23,9 +31,9 @@ const wrappedLiquidityTest = (name: string) => {
             const balances = await pool.balances() as DictInterface<string>;
 
             pool.coins.forEach((c: string) => {
-                if (['aave', 'saave'].includes(name)) {
+                if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
                     // Because of increasing quantity
-                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-4);
+                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else {
                     assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
                 }
@@ -71,8 +79,10 @@ const wrappedLiquidityTest = (name: string) => {
             });
         });
 
-        if (!pool.isCrypto) {
-            it('Removes liquidity imbalance', async function () {
+        it('Removes liquidity imbalance', async function () {
+            if (pool.isCrypto) {
+                console.log("No such method")
+            } else {
                 const amount = '1';
                 const amounts = coinAddresses.map(() => amount);
                 const initialBalances = await pool.balances() as DictInterface<string>;
@@ -84,14 +94,14 @@ const wrappedLiquidityTest = (name: string) => {
 
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
                 pool.coins.forEach((c: string) => {
-                    if (['aave', 'saave'].includes(name)) {
+                    if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
                     } else {
                         assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
                     }
                 });
-            });
-        }
+            }
+        });
 
         if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(name)) {
             it('Removes liquidity one coin', async function () {
@@ -108,7 +118,7 @@ const wrappedLiquidityTest = (name: string) => {
                     if (i === 0) {
                         assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
                     } else {
-                        if (['aave', 'saave'].includes(name)) {
+                        if (['aave', 'saave'].includes(name)  || (curve.chainId === 137 && this.name === 'ren')) {
                             // Because of increasing quantity
                             assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
                         } else {
@@ -123,28 +133,31 @@ const wrappedLiquidityTest = (name: string) => {
 
 const wrappedExchangeTest = (name: string) => {
     describe(`${name} exchange`, function () {
-        const pool = new curve.Pool(name);
-        const coinAddresses = pool.coinAddresses;
-
-        for (let i = 0; i < coinAddresses.length; i++) {
-            for (let j = 0; j < coinAddresses.length; j++) {
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 5; j++) {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
-                        const swapAmount = '10';
-                        const initialCoinBalances = await pool.coinBalances() as DictInterface<string>;
-                        const expected = await pool.exchangeWrappedExpected(i, j, swapAmount);
-
-                        await pool.exchangeWrapped(i, j, swapAmount, 0.02);
-
-                        const coinBalances = await pool.coinBalances() as DictInterface<string>;
-
-                        if (['aave', 'saave'].includes(pool.name)) {
-                            // Because of increasing quantity
-                            assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount).toString())), 1e-4);
+                        const pool = new curve.Pool(name);
+                        const coinAddresses = pool.coinAddresses;
+                        if (i >= coinAddresses.length || j >= coinAddresses.length) {
+                            console.log('Skip')
                         } else {
-                            assert.deepStrictEqual(BN(Object.values(coinBalances)[i]), BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)));
+                            const swapAmount = '10';
+                            const initialCoinBalances = await pool.coinBalances() as DictInterface<string>;
+                            const expected = await pool.exchangeWrappedExpected(i, j, swapAmount);
+
+                            await pool.exchangeWrapped(i, j, swapAmount, 0.02);
+
+                            const coinBalances = await pool.coinBalances() as DictInterface<string>;
+
+                            if (['aave', 'saave'].includes(pool.name) || (curve.chainId === 137 && pool.name === 'ren')) {
+                                // Because of increasing quantity
+                                assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount).toString())), 1e-2);
+                            } else {
+                                assert.deepStrictEqual(BN(Object.values(coinBalances)[i]), BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)));
+                            }
+                            assert.isAtLeast(Number(Object.values(coinBalances)[j]), Number(BN(Object.values(initialCoinBalances)[j]).plus(BN(expected).times(0.98)).toString()));
                         }
-                        assert.isAtLeast(Number(Object.values(coinBalances)[j]), Number(BN(Object.values(initialCoinBalances)[j]).plus(BN(expected).times(0.98)).toString()));
                     });
                 }
             }
@@ -170,6 +183,11 @@ describe('Wrapped test', async function () {
     }
 
     for (const poolName of CRYPTO_POOLS) {
+        wrappedLiquidityTest(poolName);
+        wrappedExchangeTest(poolName);
+    }
+
+    for (const poolName of POLYGON_POOLS) {
         wrappedLiquidityTest(poolName);
         wrappedExchangeTest(poolName);
     }

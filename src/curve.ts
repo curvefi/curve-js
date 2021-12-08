@@ -149,7 +149,7 @@ class Curve {
 
         this.chainId = network.chainId;
 
-        if (network.chainId === 1) {
+        if (network.chainId === 1 || network.chainId === 1337) {
             cTokens = cTokensEthereum;
             yTokens = yTokensEthereum;
             ycTokens = ycTokensEthereum;

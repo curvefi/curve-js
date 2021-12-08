@@ -107,7 +107,7 @@ class Curve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' | 'Infura',
+        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
         providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
@@ -135,18 +135,21 @@ class Curve {
         } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.providers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
+        } else if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
+            providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
+            this.provider = new ethers.providers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
         } else {
             throw Error('Wrong providerType');
         }
 
         let cTokens, yTokens, ycTokens, aTokens;
 
-        const network = await this.provider._networkPromise;
+        const network = this.provider.network || await this.provider._networkPromise;
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", network);
 
         this.chainId = network.chainId;
 
-        if (network.chainId === 1) {
+        if (network.chainId === 1 || network.chainId === 1337) {
             cTokens = cTokensEthereum;
             yTokens = yTokensEthereum;
             ycTokens = ycTokensEthereum;
@@ -204,6 +207,8 @@ class Curve {
 
         if (this.signer) {
             this.signerAddress = await this.signer.getAddress();
+        } else {
+            this.signerAddress = '';
         }
 
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };

@@ -39,7 +39,7 @@ import {
 import { getBalances, getAllowance, hasAllowance, ensureAllowanceEstimateGas, ensureAllowance } from "./utils";
 
 async function init (
-    providerType: 'JsonRpc' | 'Web3' | 'Infura',
+    providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
     providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
     options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {}
 ): Promise<void> {

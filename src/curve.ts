@@ -207,6 +207,8 @@ class Curve {
 
         if (this.signer) {
             this.signerAddress = await this.signer.getAddress();
+        } else {
+            this.signerAddress = '';
         }
 
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };

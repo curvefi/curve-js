@@ -107,7 +107,7 @@ class Curve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' | 'Infura',
+        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
         providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
@@ -135,13 +135,16 @@ class Curve {
         } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.providers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
+        } else if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
+            providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
+            this.provider = new ethers.providers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
         } else {
             throw Error('Wrong providerType');
         }
 
         let cTokens, yTokens, ycTokens, aTokens;
 
-        const network = await this.provider._networkPromise;
+        const network = this.provider.network || await this.provider._networkPromise;
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", network);
 
         this.chainId = network.chainId;

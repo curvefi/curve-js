@@ -2,30 +2,39 @@ name: Release & Publish
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - master
 
 jobs:
   release:
-    if: github.event.base_ref == 'refs/heads/master'
     name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
+      - name: Changelog
+        id: Changelog
+        uses: scottbrenner/generate-changelog-action@master
+        with:
+          from-tag: current tag
+          to-tag: HEAD
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: v${{ steps.package-version.outputs.current-version }}
+          release_name: v${{ steps.package-version.outputs.current-version }}
+          body: |
+            ${{ steps.Changelog.outputs.changelog }}
           draft: false
           prerelease: false
 
   publish:
-    if: github.event.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

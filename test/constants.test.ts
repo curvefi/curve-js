@@ -91,6 +91,7 @@ describe('Checking constants', async function () {
                 if (coins[i] === "byDAI" || coins[i] === "byUSDC" || coins[i] === "byUSDT") continue; // Actually yDAI, yUSDC, yUSDT
                 if (coins[i] === "sbtcCrv") continue; // Actually crvRenWSBTC
                 if (coins[i] === "ankrETH") continue; // Actually aETHc
+                if (coins[i] === "PAX") continue; // Actually USDP
                 const contract = curve.contracts[coinAddresses[i]].contract;
                 assert.equal(coins[i], await contract.symbol())
             }

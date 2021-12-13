@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    if: github.event.base_ref == 'refs/heads/master
+    if: github.event.base_ref == 'refs/heads/master'
     name: Release
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +25,7 @@ jobs:
           prerelease: false
 
   publish:
-    if: github.event.base_ref == 'refs/heads/master
+    if: github.event.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

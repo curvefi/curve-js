@@ -94,6 +94,7 @@ export const USD_COINS_ETHEREUM: { [index: string]: string } = {
 
     '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
     crv: "0xD533a949740bb3306d119CC777fa900bA034cd52", // CRV
+    cvx: "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b", // CVX
 }
 
 // @ts-ignore
@@ -184,8 +185,9 @@ export const DECIMALS_ETHEREUM: { [index: string]: number } = {
     "0xbc6da0fe9ad5f3b0d58160288917aa56653660e9": 18, // alUSD
     "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3": 18, // MIM
 
-    "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490": 18,  // 3CRV
-    "0xD533a949740bb3306d119CC777fa900bA034cd52": 18,  // CRV
+    "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490": 18, // 3CRV
+    "0xD533a949740bb3306d119CC777fa900bA034cd52": 18, // CRV
+    "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b": 18, // CVX
 }
 
 // @ts-ignore

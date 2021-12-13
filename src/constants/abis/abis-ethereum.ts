@@ -1550,4 +1550,28 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xD533a949740bb3306d119CC777fa900bA034cd52',
         ],
     },
+
+    cvxeth: {
+        swap_abi: crvethSwap,
+        N_COINS: 2,
+        is_crypto: true,
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4',
+        token_address: '0x3A283D9c08E8b55966afb64C515f5143cf907611',
+        gauge_address: '0x7E1444BA99dcdFfE8fBdb42C02F0005D14f13BE1',
+        underlying_coins: ['ETH', 'CVX'],
+        coins: ['WETH', 'CVX'],
+        underlying_coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+        ],
+        coin_addresses: [
+            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+        ],
+    },
 };

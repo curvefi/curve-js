@@ -271,8 +271,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"1570535"
   },
@@ -294,8 +293,7 @@
         "name":"deposit"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"6103471"
   },
@@ -339,8 +337,7 @@
         "name":"dx"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"3489637"
   },
@@ -366,8 +363,7 @@
         "name":"dx"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"3489467"
   },
@@ -572,8 +568,7 @@
         "name":"arg0"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2130"
   },
@@ -591,8 +586,7 @@
         "name":"arg0"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2160"
   },
@@ -623,8 +617,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2021"
   },
@@ -637,8 +630,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2051"
   },
@@ -651,8 +643,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2081"
   },
@@ -665,8 +656,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2111"
   },
@@ -680,8 +670,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2141"
   },
@@ -695,8 +684,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2171"
   },
@@ -709,8 +697,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2201"
   },
@@ -723,8 +710,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2231"
   },
@@ -737,8 +723,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2261"
   },
@@ -751,8 +736,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"2291"
   }

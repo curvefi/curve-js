@@ -95,8 +95,7 @@
         "name":"i"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"3881771"
   },
@@ -144,8 +143,7 @@
         "name":"arg0"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"1680"
   },
@@ -163,8 +161,7 @@
         "name":"arg0"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"1710"
   },
@@ -177,8 +174,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"1541"
   },
@@ -191,8 +187,7 @@
       }
     ],
     "inputs":[],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"1571"
   }

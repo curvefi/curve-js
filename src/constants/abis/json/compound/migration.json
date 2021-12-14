@@ -50,8 +50,7 @@
         "name":"arg0"
       }
     ],
-    "constant":true,
-    "payable":false,
+    "stateMutability": "view",
     "type":"function",
     "gas":"1380"
   }

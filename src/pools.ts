@@ -150,10 +150,27 @@ export class Pool {
         return ethers.utils.formatUnits(_expected);
     }
 
-    public getVirtualPrice = async (): Promise<string> => {
-        const _virtualPrice = await curve.contracts[this.swap].contract.get_virtual_price(curve.constantOptions);
+    public getPoolParameters = async (): Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }> => {
+        const calls = [
+            curve.contracts[this.swap].multicallContract.get_virtual_price(),
+            curve.contracts[this.swap].multicallContract.fee(),
+            curve.contracts[this.swap].multicallContract.admin_fee(),
+            curve.contracts[this.swap].multicallContract.A(),
+        ]
 
-        return ethers.utils.formatUnits(_virtualPrice);
+        if (this.isCrypto) calls.push(curve.contracts[this.swap].multicallContract.gamma())
+
+        const [_virtualPrice, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+        const [virtualPrice, fee, adminFee, A, gamma] = [
+            ethers.utils.formatUnits(_virtualPrice),
+            ethers.utils.formatUnits(_fee, 8),
+            ethers.utils.formatUnits(_adminFee.mul(_fee)),
+            ethers.utils.formatUnits(_A, 0),
+            _gamma ? ethers.utils.formatUnits(_gamma) : _gamma,
+
+        ]
+
+        return { virtualPrice, fee, adminFee, A, gamma };
     }
 
     public getPoolBalances = async (): Promise<string[]> => {
@@ -197,14 +214,15 @@ export class Pool {
     }
 
     public getPoolTotalLiquidity = async (): Promise<string> => {
-        const promises = [];
-        promises.push(this.getPoolWrappedBalances());
+        const balances = await this.getPoolWrappedBalances();
 
+        const promises = [];
         for (const addr of this.coinAddresses) {
             promises.push(_getUsdRate(addr))
         }
 
-        const [balances, ...prices] = await Promise.all(promises);
+        const prices = await Promise.all(promises);
+
         const totalLiquidity = (balances as string[]).reduce(
             (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
 

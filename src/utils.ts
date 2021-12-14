@@ -225,11 +225,21 @@ export const getCrvRate = async (): Promise<number> => {
 const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
 
 export const _getUsdRate = async (assetId: string): Promise<number> => {
+    const chainName = {
+        1: 'ethereum',
+        137: 'polygon-pos',
+        1337: 'ethereum',
+    }[curve.chainId]
+
+    if (chainName === undefined) {
+        throw Error('curve object is not initialized')
+    }
+
     assetId = isEth(assetId) ? "ethereum" : assetId.toLowerCase();
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
         const url = assetId.toLowerCase() === "ethereum" ?
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
-            `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${assetId}&vs_currencies=usd`
+            `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
         const response = await axios.get(url);
         _usdRatesCache[assetId] = { 'rate': response.data[assetId]['usd'], 'time': Date.now() };
     }

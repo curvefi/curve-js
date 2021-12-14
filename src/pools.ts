@@ -196,6 +196,21 @@ export class Pool {
         return _wrappedBalances.map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
     }
 
+    public getPoolTotalLiquidity = async (): Promise<string> => {
+        const promises = [];
+        promises.push(this.getPoolWrappedBalances());
+
+        for (const addr of this.coinAddresses) {
+            promises.push(_getUsdRate(addr))
+        }
+
+        const [balances, ...prices] = await Promise.all(promises);
+        const totalLiquidity = (balances as string[]).reduce(
+            (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
+
+        return String(totalLiquidity)
+    }
+
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {
         amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmount(amounts);

@@ -225,6 +225,8 @@ export const getCrvRate = async (): Promise<number> => {
 const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
 
 export const _getUsdRate = async (assetId: string): Promise<number> => {
+    if (assetId === 'USD') return 1
+
     const chainName = {
         1: 'ethereum',
         137: 'polygon-pos',
@@ -235,13 +237,30 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         throw Error('curve object is not initialized')
     }
 
+    assetId = {
+        'EUR': COINS.eurt,
+        'BTC': 'bitcoin',
+        'ETH': 'ethereum',
+        'LINK': 'link',
+    }[assetId] || assetId
     assetId = isEth(assetId) ? "ethereum" : assetId.toLowerCase();
+
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
-        const url = assetId.toLowerCase() === "ethereum" ?
+        const url = ['bitcoin', 'ethereum', 'link'].includes(assetId.toLowerCase()) ?
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
             `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
         const response = await axios.get(url);
         _usdRatesCache[assetId] = { 'rate': response.data[assetId]['usd'], 'time': Date.now() };
     }
     return _usdRatesCache[assetId]['rate']
+}
+
+export const _getStatsUrl = (isCrypto = false): string => {
+    if (curve.chainId === 1 || curve.chainId === 1337) {
+        return isCrypto ? "http://stats.curve.fi/raw-stats-crypto/apys.json" : "http://stats.curve.fi/raw-stats/apys.json";
+    } else if (curve.chainId === 137) {
+        return "http://stats.curve.fi/raw-stats-polygon/apys.json"
+    } else {
+        throw Error(`Unsupported network id${curve.chainId}`)
+    }
 }

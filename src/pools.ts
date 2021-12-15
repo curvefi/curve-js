@@ -17,6 +17,7 @@ import {
     getCrvRate,
     isEth,
     getEthIndex,
+    _getStatsUrl,
 } from './utils';
 import { DictInterface } from './interfaces';
 import { ALIASES, POOLS_DATA, curve, BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./curve";
@@ -25,6 +26,7 @@ import axios from "axios";
 
 export class Pool {
     name: string;
+    referenceAsset: string;
     swap: string;
     zap: string | null;
     lpToken: string;
@@ -68,6 +70,7 @@ export class Pool {
         const poolData = POOLS_DATA[name];
         
         this.name = name;
+        this.referenceAsset = poolData.reference_asset
         this.swap = poolData.swap_address;
         this.zap = poolData.deposit_address || null;
         this.lpToken = poolData.token_address;
@@ -227,6 +230,15 @@ export class Pool {
             (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
 
         return String(totalLiquidity)
+    }
+
+    public getPoolVolume = async (): Promise<string> => {
+        const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
+        const statsUrl = _getStatsUrl(this.isCrypto);
+        const volume = (await axios.get(statsUrl)).data.volume[name] || 0;
+        const usdRate = this.isCrypto ? 1 : await _getUsdRate(this.referenceAsset);
+
+        return String(volume * usdRate)
     }
 
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {

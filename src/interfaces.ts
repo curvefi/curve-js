@@ -3,6 +3,7 @@ export interface DictInterface<T> {
 }
 
 export interface PoolDataInterface {
+    reference_asset: 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO',
     N_COINS: number,
     underlying_decimals: number[],
     decimals: number[],

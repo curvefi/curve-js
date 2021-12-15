@@ -81,6 +81,7 @@ import { PoolDataInterface } from "../../interfaces";
 
 export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     compound: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 6],
         decimals: [8, 8],
@@ -110,6 +111,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdt: {
+        reference_asset: 'USD',
         N_COINS: 3,
         underlying_decimals: [18, 6, 6],
         decimals: [8, 8, 6],
@@ -137,6 +139,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     y: {
+        reference_asset: 'USD',
         N_COINS: 4,
         underlying_decimals: [18, 6, 6, 18],
         decimals: [18, 6, 6, 18],
@@ -169,6 +172,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         aRewards_address: '0xcc9efea3ac5df6ad6a656235ef955fbfef65b862',
     },
     busd: {
+        reference_asset: 'USD',
         N_COINS: 4,
         underlying_decimals: [18, 6, 6, 18],
         decimals: [18, 6, 6, 18],
@@ -198,6 +202,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     susd: {
+        reference_asset: 'USD',
         swap_abi: susdv2SwapABI,
         deposit_abi: susdv2DepositABI,
         N_COINS: 4,
@@ -229,6 +234,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     pax: {
+        reference_asset: 'USD',
         swap_abi: paxSwapABI,
         deposit_abi: paxDepositABI,
         N_COINS: 4,
@@ -258,6 +264,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ren: {
+        reference_asset: 'BTC',
         N_COINS: 2,
         underlying_decimals: [8, 8],
         decimals: [8, 8],
@@ -285,6 +292,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     sbtc: {
+        reference_asset: 'BTC',
         N_COINS: 3,
         underlying_decimals: [8, 8, 18],
         decimals: [8, 8, 18],
@@ -316,6 +324,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     hbtc: {
+        reference_asset: 'BTC',
         swap_abi: hbtcSwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 8],
@@ -339,6 +348,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     '3pool': {
+        reference_asset: 'USD',
         swap_abi: tripoolSwapABI,
         N_COINS: 3,
         underlying_decimals: [18, 6, 6],
@@ -364,6 +374,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     gusd: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [2, 18],
         decimals: [2, 18],
@@ -407,6 +418,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     husd: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [8, 18],
         decimals: [8, 18],
@@ -450,6 +462,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdk: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
         decimals: [18, 18],
@@ -493,6 +506,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdn: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
         decimals: [18, 18],
@@ -536,6 +550,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     musd: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
         decimals: [18, 18],
@@ -581,6 +596,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     rsv: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
         decimals: [18, 18],
@@ -626,6 +642,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     tbtc: {
+        reference_asset: 'BTC',
         N_COINS: 2,
         underlying_decimals: [18, 18],
         decimals: [18, 18],
@@ -671,6 +688,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     dusd: {
+        reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
         decimals: [18, 18],
@@ -716,6 +734,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     pbtc: {
+        reference_asset: 'BTC',
         swap_abi: pbtcSwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -762,6 +781,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     bbtc: {
+        reference_asset: 'BTC',
         swap_abi: bbtcSwapABI,
         N_COINS: 2,
         underlying_decimals: [8, 18],
@@ -805,6 +825,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     obtc: {
+        reference_asset: 'BTC',
         swap_abi: obtcSwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -851,6 +872,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     seth: {
+        reference_asset: 'ETH',
         swap_abi: sethSwapABI,
         N_COINS: 2,
         has_eth: true,
@@ -875,6 +897,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     eurs: {
+        reference_asset: 'EUR',
         swap_abi: eursSwapABI,
         N_COINS: 2,
         underlying_decimals: [2, 18],
@@ -901,6 +924,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ust: {
+        reference_asset: 'USD',
         swap_abi: ustSwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -944,6 +968,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     aave: {
+        reference_asset: 'USD',
         N_COINS: 3,
         is_aave: true,
         underlying_decimals: [18, 6, 6],
@@ -970,6 +995,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     steth: {
+        reference_asset: 'ETH',
         swap_abi: stethSwapABI,
         N_COINS: 2,
         has_eth: true,
@@ -997,6 +1023,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     saave: {
+        reference_asset: 'USD',
         N_COINS: 2,
         is_aave: true,
         underlying_decimals: [18, 18],
@@ -1021,6 +1048,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ankreth: {
+        reference_asset: 'ETH',
         swap_abi: ankrethSwapABI,
         N_COINS: 2,
         has_eth: true,
@@ -1049,6 +1077,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdp: {
+        reference_asset: 'USD',
         swap_abi: usdpSwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1092,6 +1121,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ib: {
+        reference_asset: 'USD',
         swap_abi: ibSwapABI,
         N_COINS: 3,
         underlying_decimals: [18, 6, 6],
@@ -1118,6 +1148,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     link: {
+        reference_asset: 'LINK',
         swap_abi: linkSwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1140,6 +1171,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
     },
     tusd: {
+        reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1183,6 +1215,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_factory: true,
     },
     frax: {
+        reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1229,6 +1262,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         reward_token: '0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0',
     },
     lusd: {
+        reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1275,6 +1309,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         reward_token: '0x6dea81c8171d0ba574754ef6f8b412f2ed88c54d',
     },
     busdv2: {
+        reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1318,6 +1353,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_factory: true,
     },
     reth: {
+        reference_asset: 'ETH',
         swap_abi: rethSwapABI,
         N_COINS: 2,
         has_eth: true,
@@ -1344,6 +1380,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         reward_token: '0xef3a930e1ffffacd2fc13434ac81bd278b0ecc8d',
     },
     alusd: {
+        reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1390,6 +1427,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         reward_token: '0xdbdb4d16eda451d0503b854cf79d55697f90c8df',
     },
     mim: {
+        reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -1433,6 +1471,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_factory: true,
     },
     tricrypto2: {
+        reference_asset: 'CRYPTO',
         swap_abi: tricrypto2SwapABI,
         N_COINS: 3,
         is_crypto: true,
@@ -1461,6 +1500,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     eurt: {
+        reference_asset: 'EUR',
         swap_abi: eurtSwapABI,
         N_COINS: 2,
         underlying_decimals: [6, 18],
@@ -1484,6 +1524,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     eurtusd: {
+        reference_asset: 'CRYPTO',
         N_COINS: 2,
         underlying_decimals: [6, 18],
         decimals: [6, 18],
@@ -1528,6 +1569,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     crveth: {
+        reference_asset: 'CRYPTO',
         swap_abi: crvethSwap,
         N_COINS: 2,
         is_crypto: true,
@@ -1552,6 +1594,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     cvxeth: {
+        reference_asset: 'CRYPTO',
         swap_abi: crvethSwap,
         N_COINS: 2,
         is_crypto: true,

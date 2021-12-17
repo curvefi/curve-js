@@ -154,7 +154,7 @@ export class Pool {
         return ethers.utils.formatUnits(_expected);
     }
 
-    public getPoolParameters = async (): Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }> => {
+    public getParameters = async (): Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }> => {
         const calls = [
             curve.contracts[this.swap].multicallContract.get_virtual_price(),
             curve.contracts[this.swap].multicallContract.fee(),
@@ -206,10 +206,6 @@ export class Pool {
     }
 
     public getPoolWrappedBalances = async (): Promise<string[]> => {
-        // if (this.isFake) {
-        //     throw Error(`${this.name} pool doesn't have this method`);
-        // }
-
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
 
@@ -217,7 +213,7 @@ export class Pool {
         return _wrappedBalances.map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
     }
 
-    public getPoolTotalLiquidity = async (): Promise<string> => {
+    public getTotalLiquidity = async (): Promise<string> => {
         const balances = await this.getPoolWrappedBalances();
 
         const promises = [];
@@ -233,7 +229,7 @@ export class Pool {
         return String(totalLiquidity)
     }
 
-    public getPoolVolume = async (): Promise<string> => {
+    public getVolume = async (): Promise<string> => {
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
         const statsUrl = _getStatsUrl(this.isCrypto);
         const volume = (await axios.get(statsUrl)).data.volume[name] || 0;
@@ -242,7 +238,7 @@ export class Pool {
         return String(volume * usdRate)
     }
 
-    public getApy = async (): Promise<[daily: string, weekly: string, monthly: string, total: string]> => {
+    public getBaseApy = async (): Promise<[daily: string, weekly: string, monthly: string, total: string]> => {
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
         const statsUrl = _getStatsUrl(this.isCrypto);
         const apy = (await axios.get(statsUrl)).data.apy;
@@ -256,7 +252,7 @@ export class Pool {
         if (curve.chainId === 137) {
             const rewardContract = curve.contracts[this.crvRewardContract as string].contract;
 
-            const totalLiquidityUSD = await this.getPoolTotalLiquidity();
+            const totalLiquidityUSD = await this.getTotalLiquidity();
             const crvRate = await _getUsdRate(ALIASES.crv);
 
             const inflation = toBN((await rewardContract.reward_data(ALIASES.crv, curve.constantOptions)).rate);
@@ -268,7 +264,7 @@ export class Pool {
             const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
             const gaugeControllerContract = curve.contracts[ALIASES.gauge_controller].multicallContract;
 
-            const totalLiquidityUSD = await this.getPoolTotalLiquidity();
+            const totalLiquidityUSD = await this.getTotalLiquidity();
 
             const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
                 gaugeContract.inflation_rate(),

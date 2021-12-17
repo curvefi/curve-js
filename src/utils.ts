@@ -14,11 +14,11 @@ export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(
 export const BN = (val: number | string): BigNumber => new BigNumber(val);
 
 export const toBN = (n: ethers.BigNumber, decimals = 18): BigNumber => {
-    return BN(ethers.utils.formatUnits(n, decimals)).times(decimals);
+    return BN(ethers.utils.formatUnits(n, decimals));
 }
 
 export const toStringFromBN = (bn: BigNumber, decimals = 18): string => {
-    return bn.div(decimals).toFixed(decimals);
+    return bn.toFixed(decimals);
 }
 
 export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
@@ -225,9 +225,9 @@ export const getCrvRate = async (): Promise<number> => {
 const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
 
 export const _getUsdRate = async (assetId: string): Promise<number> => {
-    if (assetId === 'USD') return 1
+    if (assetId === 'USD' || assetId.toLowerCase() === COINS.am3crv.toLowerCase()) return 1
 
-    const chainName = {
+    let chainName = {
         1: 'ethereum',
         137: 'polygon-pos',
         1337: 'ethereum',
@@ -244,6 +244,12 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         'LINK': 'link',
     }[assetId] || assetId
     assetId = isEth(assetId) ? "ethereum" : assetId.toLowerCase();
+
+    // No EURT on Coingecko Polygon
+    if (assetId.toLowerCase() === COINS.eurt.toLowerCase()) {
+        chainName = 'ethereum';
+        assetId = '0xC581b735A1688071A1746c968e0798D642EDE491'.toLowerCase(); // EURT Ethereum
+    }
 
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
         const url = ['bitcoin', 'ethereum', 'link'].includes(assetId.toLowerCase()) ?

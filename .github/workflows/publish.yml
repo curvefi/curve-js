@@ -19,7 +19,6 @@ jobs:
         id: Changelog
         uses: scottbrenner/generate-changelog-action@master
         with:
-          from-tag: current tag
           to-tag: HEAD
       - name: Create Release
         id: create_release

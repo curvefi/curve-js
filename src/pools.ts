@@ -65,6 +65,15 @@ export class Pool {
         exchangeWrappedApprove: (inputCoin: string | number, amount: string) => Promise<number>,
         exchangeWrapped: (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage: number) => Promise<number>,
     };
+    stats: {
+        getParameters: () => Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }>,
+        getPoolBalances: () => Promise<string[]>,
+        getPoolWrappedBalances: () => Promise<string[]>,
+        getTotalLiquidity: () => Promise<string>,
+        getVolume: () => Promise<string>,
+        getBaseApy: () => Promise<[daily: string, weekly: string, monthly: string, total: string]>,
+        getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
+    }
 
     constructor(name: string) {
         const poolData = POOLS_DATA[name];
@@ -110,6 +119,15 @@ export class Pool {
             exchangeWrappedApprove: this.exchangeWrappedApproveEstimateGas,
             exchangeWrapped: this.exchangeWrappedEstimateGas,
         }
+        this.stats = {
+            getParameters: this.getParameters,
+            getPoolBalances: this.getPoolBalances,
+            getPoolWrappedBalances: this.getPoolWrappedBalances,
+            getTotalLiquidity: this.getTotalLiquidity,
+            getVolume: this.getVolume,
+            getBaseApy: this.getBaseApy,
+            getTokenApy: this.getTokenApy,
+        }
 
         if (this.isMeta && !this.isFake) {
             const metaCoins = poolData.meta_coin_addresses as string[];
@@ -154,7 +172,7 @@ export class Pool {
         return ethers.utils.formatUnits(_expected);
     }
 
-    public getParameters = async (): Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }> => {
+    private getParameters = async (): Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }> => {
         const calls = [
             curve.contracts[this.swap].multicallContract.get_virtual_price(),
             curve.contracts[this.swap].multicallContract.fee(),
@@ -177,7 +195,7 @@ export class Pool {
         return { virtualPrice, fee, adminFee, A, gamma };
     }
 
-    public getPoolBalances = async (): Promise<string[]> => {
+    private getPoolBalances = async (): Promise<string[]> => {
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
@@ -205,7 +223,7 @@ export class Pool {
         return  _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => ethers.utils.formatUnits(_b, this.underlyingDecimals[i]))
     }
 
-    public getPoolWrappedBalances = async (): Promise<string[]> => {
+    private getPoolWrappedBalances = async (): Promise<string[]> => {
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
 
@@ -213,7 +231,7 @@ export class Pool {
         return _wrappedBalances.map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
     }
 
-    public getTotalLiquidity = async (): Promise<string> => {
+    private getTotalLiquidity = async (): Promise<string> => {
         const balances = await this.getPoolWrappedBalances();
 
         const promises = [];
@@ -229,7 +247,7 @@ export class Pool {
         return String(totalLiquidity)
     }
 
-    public getVolume = async (): Promise<string> => {
+    private getVolume = async (): Promise<string> => {
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
         const statsUrl = _getStatsUrl(this.isCrypto);
         const volume = (await axios.get(statsUrl)).data.volume[name] || 0;
@@ -238,7 +256,7 @@ export class Pool {
         return String(volume * usdRate)
     }
 
-    public getBaseApy = async (): Promise<[daily: string, weekly: string, monthly: string, total: string]> => {
+    private getBaseApy = async (): Promise<[daily: string, weekly: string, monthly: string, total: string]> => {
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
         const statsUrl = _getStatsUrl(this.isCrypto);
         const apy = (await axios.get(statsUrl)).data.apy;
@@ -248,7 +266,7 @@ export class Pool {
         ) as [daily: string, weekly: string, monthly: string, total: string]
     }
 
-    public getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
+    private getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
         if (curve.chainId === 137) {
             const rewardContract = curve.contracts[this.crvRewardContract as string].contract;
 

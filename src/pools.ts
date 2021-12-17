@@ -14,7 +14,6 @@ import {
     toBN,
     fromBN,
     toStringFromBN,
-    getCrvRate,
     isEth,
     getEthIndex,
     _getStatsUrl,

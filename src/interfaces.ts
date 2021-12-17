@@ -3,6 +3,7 @@ export interface DictInterface<T> {
 }
 
 export interface PoolDataInterface {
+    reference_asset: 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO',
     N_COINS: number,
     underlying_decimals: number[],
     decimals: number[],
@@ -49,4 +50,5 @@ export interface PoolDataInterface {
     reward_token?: string,
     reward_tokens?: string[],
     pool_type?: string,
+    crv_reward_contract?: string,
 }

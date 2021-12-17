@@ -11,6 +11,7 @@ import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
 import routerABI from './constants/abis/json/router.json';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
+import streamerABI from './constants/abis/json/streamer.json';
 import { POOLS_DATA_ETHEREUM } from './constants/abis/abis-ethereum';
 import { POOLS_DATA_POLYGON } from './constants/abis/abis-polygon';
 import {
@@ -313,6 +314,17 @@ class Curve {
                         contract: new Contract(coinAddr, yERC20Abi, this.signer || this.provider),
                         multicallContract: new MulticallContract(coinAddr, yERC20Abi),
                     }
+                }
+            }
+
+            if (pool.crv_reward_contract) {
+                this.contracts[pool.crv_reward_contract] = {
+                    contract: new Contract(pool.crv_reward_contract, streamerABI, this.signer || this.provider),
+                    multicallContract: new MulticallContract(pool.crv_reward_contract, streamerABI),
+                }
+                this.contracts[pool.crv_reward_contract.toLowerCase()] = {
+                    contract: new Contract(pool.crv_reward_contract, streamerABI, this.signer || this.provider),
+                    multicallContract: new MulticallContract(pool.crv_reward_contract, streamerABI),
                 }
             }
         }

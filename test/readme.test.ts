@@ -1,6 +1,49 @@
 import curve from "../src";
 import { DictInterface } from "../src/interfaces";
 
+
+const balancesTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+
+    console.log(await curve.getBalances(['DAI', 'sUSD']));
+    // OR console.log(await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']));
+
+    console.log(await curve.getBalances(['aDAI', 'aSUSD']));
+    // OR console.log(await curve.getBalances(['0x028171bCA77440897B824Ca71D1c56caC55b68A3', '0x6c5024cd4f8a59110119c56f8933403a539555eb']));
+
+
+    // --- Pool ---
+
+    const saave = new curve.Pool('saave');
+
+    // Current address balances (signer balances)
+    console.log(await saave.balances());
+    console.log(await saave.lpTokenBalances());
+    console.log(await saave.underlyingCoinBalances());
+    console.log(await saave.coinBalances());
+    console.log(await saave.allCoinBalances());
+
+
+    // For every method above you can specify address
+    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5"));
+    // Or several addresses
+    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5", "0x66aB6D9362d4F35596279692F0251Db635165871"));
+}
+
+const statsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const saave = new curve.Pool('aave');
+
+    console.log(await saave.stats.getParameters());
+    console.log(await saave.stats.getPoolBalances());
+    console.log(await saave.stats.getPoolWrappedBalances());
+    console.log(await saave.stats.getTotalLiquidity());
+    console.log(await saave.stats.getVolume());
+    console.log(await saave.stats.getBaseApy());
+    console.log(await saave.stats.getTokenApy());
+}
+
 const poolTest = async () => {
     await curve.init('JsonRpc', {url: 'http://localhost:8545/', privateKey: ''}, { gasPrice: 0, chainId: 1 });
 
@@ -150,33 +193,3 @@ const boostingTest = async () => {
     console.log(await curve.boosting.getVeCrv());
     console.log(await curve.boosting.getVeCrvPct());
 }
-
-const balancesTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
-
-    console.log(await curve.getBalances(['DAI', 'sUSD']));
-    // OR console.log(await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']));
-
-    console.log(await curve.getBalances(['aDAI', 'aSUSD']));
-    // OR console.log(await curve.getBalances(['0x028171bCA77440897B824Ca71D1c56caC55b68A3', '0x6c5024cd4f8a59110119c56f8933403a539555eb']));
-
-
-    // --- Pool ---
-
-    const saave = new curve.Pool('saave');
-
-    // Current address balances (signer balances)
-    console.log(await saave.balances());
-    console.log(await saave.lpTokenBalances());
-    console.log(await saave.underlyingCoinBalances());
-    console.log(await saave.coinBalances());
-    console.log(await saave.allCoinBalances());
-
-
-    // For every method above you can specify address
-    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5"));
-    // Or several addresses
-    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5", "0x66aB6D9362d4F35596279692F0251Db635165871"));
-}
-
-balancesTest();

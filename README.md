@@ -211,6 +211,44 @@ import curve from "@curvefi/api";
 })()
 ```
 
+## Stats
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+
+    const saave = new curve.Pool('aave');
+
+    console.log(await saave.stats.getParameters());
+    // {
+    //     virtualPrice: '1.051888073134291314',
+    //     fee: '0.04',
+    //     adminFee: '0.02',
+    //     A: '100',
+    //     gamma: undefined
+    // }
+    
+    console.log(await saave.stats.getPoolBalances());
+    // [ '56379002.278506498342855456', '40931955.428972956435172989' ]
+    
+    console.log(await saave.stats.getPoolWrappedBalances());
+    // [ '56379002.278506498342855456', '40931955.428972956435172989' ]
+    
+    console.log(await saave.stats.getTotalLiquidity());
+    // 97172772.77289483
+    
+    console.log(await saave.stats.getVolume());
+    // 1022328.1797568246
+    
+    console.log(await saave.stats.getBaseApy());
+    // [ '3.2200', '3.5690', '3.0858', '5.9629' ]
+    
+    console.log(await saave.stats.getTokenApy());
+    // [ '0.0167', '0.0417' ]
+})()
+````
+
 ## Add/remove liquidity
 
 ```ts

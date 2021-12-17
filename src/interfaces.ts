@@ -50,4 +50,5 @@ export interface PoolDataInterface {
     reward_token?: string,
     reward_tokens?: string[],
     pool_type?: string,
+    crv_reward_contract?: string,
 }

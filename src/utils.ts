@@ -208,7 +208,7 @@ export const getPoolNameBySwapAddress = (swapAddress: string): string => {
 const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
 
 export const _getUsdRate = async (assetId: string): Promise<number> => {
-    if (assetId === 'USD' || assetId.toLowerCase() === COINS.am3crv.toLowerCase()) return 1
+    if (assetId === 'USD' || (curve.chainId === 137 && (assetId.toLowerCase() === COINS.am3crv.toLowerCase()))) return 1
 
     let chainName = {
         1: 'ethereum',

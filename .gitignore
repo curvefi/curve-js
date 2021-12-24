@@ -3,3 +3,4 @@ node_modules
 dist/**/*
 lib/**/*
 package-lock.json
+test/temp.test.ts

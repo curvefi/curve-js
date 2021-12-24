@@ -1025,6 +1025,13 @@ export class Pool {
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, curve.options)).hash;
     }
 
+    public gaugeClaimableTokens = async (address = ""): Promise<string> => {
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        return ethers.utils.formatUnits(await curve.contracts[this.gauge].contract.claimable_tokens(address, curve.options));
+    }
+
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
         return await this._balances(
             ['lpToken', 'gauge', ...this.underlyingCoins, ...this.coins],

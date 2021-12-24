@@ -112,7 +112,7 @@
         "name": "addr"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function",
     "gas": "1998318"
   },

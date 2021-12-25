@@ -5,6 +5,7 @@ import {PoolDataInterface, DictInterface} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import yERC20Abi from './constants/abis/json/yERC20.json';
+import minterABI from './constants/abis/json/minter.json';
 import gaugeABI from './constants/abis/json/gauge.json';
 import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
@@ -74,6 +75,7 @@ export let DECIMALS_LOWER_CASE: DictInterface<number>;
 
 export let ALIASES = {
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+    "minter": "0xd061D61a4d941c39E5453435B6345Dc261C2fcE0",
     "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -336,6 +338,15 @@ class Curve {
         this.contracts[ALIASES.crv.toLowerCase()] = {
             contract: new Contract(ALIASES.crv, ERC20Abi, this.signer || this.provider),
             multicallContract: new MulticallContract(ALIASES.crv, ERC20Abi),
+        };
+
+        this.contracts[ALIASES.minter] = {
+            contract: new Contract(ALIASES.minter, minterABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.minter, minterABI),
+        };
+        this.contracts[ALIASES.minter.toLowerCase()] = {
+            contract: new Contract(ALIASES.minter, minterABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.minter, minterABI),
         };
 
         this.contracts[ALIASES.voting_escrow] = {

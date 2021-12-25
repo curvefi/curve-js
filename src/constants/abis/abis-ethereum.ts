@@ -1437,7 +1437,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_plain: [true, true],
         swap_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
         token_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
-        gauge_address: '0xd4b22fedca85e684919955061fdf353b9d38389b',
+        gauge_address: '0xd8b712d29381748dB89c36BCa0138d7c75866ddF',
         underlying_coins: ['MIM', 'DAI', 'USDC', 'USDT'],
         coins: ['MIM', '3Crv'],
         underlying_coin_addresses: [
@@ -1582,7 +1582,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['WETH', 'CRV'],
         swap_address: '0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511',
         token_address: '0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d',
-        gauge_address: '0x936734ea750bb194ddb4892b191b6bd5c43a3985', // Fake pool address to prevent old multicalls from
+        gauge_address: '0x1cEBdB0856dd985fAe9b8fEa2262469360B8a3a6',
         underlying_coin_addresses: [
             '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
             '0xD533a949740bb3306d119CC777fa900bA034cd52',

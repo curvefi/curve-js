@@ -25,6 +25,7 @@ export interface PoolDataInterface {
     underlying_coin_addresses: string[],
     coin_addresses: string[],
     swap_abi: any,
+    gauge_abi: any,
     deposit_abi?: any,
     old_swap_abi?: any,
     is_meta?: boolean,

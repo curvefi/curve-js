@@ -6,7 +6,6 @@ import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import yERC20Abi from './constants/abis/json/yERC20.json';
 import minterABI from './constants/abis/json/minter.json';
-import gaugeABI from './constants/abis/json/gauge.json';
 import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
@@ -240,12 +239,12 @@ class Curve {
             }
 
             this.contracts[pool.gauge_address] = {
-                contract: new Contract(pool.gauge_address, gaugeABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(pool.gauge_address, gaugeABI),
+                contract: new Contract(pool.gauge_address, pool.gauge_abi, this.signer || this.provider),
+                multicallContract: new MulticallContract(pool.gauge_address, pool.gauge_abi),
             }
             this.contracts[pool.gauge_address.toLowerCase()] = {
-                contract: new Contract(pool.gauge_address, gaugeABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(pool.gauge_address, gaugeABI),
+                contract: new Contract(pool.gauge_address, pool.gauge_abi, this.signer || this.provider),
+                multicallContract: new MulticallContract(pool.gauge_address, pool.gauge_abi),
             }
 
             if (pool.deposit_address && this.contracts[pool.deposit_address] === undefined) {
@@ -327,6 +326,17 @@ class Curve {
                 this.contracts[pool.crv_reward_contract.toLowerCase()] = {
                     contract: new Contract(pool.crv_reward_contract, streamerABI, this.signer || this.provider),
                     multicallContract: new MulticallContract(pool.crv_reward_contract, streamerABI),
+                }
+            }
+
+            for (const rewardTokenAddr of pool.reward_tokens || []) {
+                this.contracts[rewardTokenAddr] = {
+                    contract: new Contract(rewardTokenAddr, ERC20Abi, this.signer || this.provider),
+                    multicallContract: new MulticallContract(rewardTokenAddr, ERC20Abi),
+                }
+                this.contracts[rewardTokenAddr.toLowerCase()] = {
+                    contract: new Contract(rewardTokenAddr, ERC20Abi, this.signer || this.provider),
+                    multicallContract: new MulticallContract(rewardTokenAddr, ERC20Abi),
                 }
             }
         }

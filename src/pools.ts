@@ -19,7 +19,16 @@ import {
     _getStatsUrl,
 } from './utils';
 import { DictInterface } from './interfaces';
-import { ALIASES, POOLS_DATA, curve, BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./curve";
+import {
+    ALIASES,
+    POOLS_DATA,
+    curve,
+    BTC_COINS_LOWER_CASE,
+    ETH_COINS_LOWER_CASE,
+    LINK_COINS_LOWER_CASE,
+    COINS,
+    curve as _curve
+} from "./curve";
 import axios from "axios";
 
 
@@ -43,6 +52,7 @@ export class Pool {
     isCrypto: boolean;
     basePool: string;
     isFactory: boolean;
+    rewardTokens: string[];
     estimateGas: {
         addLiquidityApprove: (amounts: string[]) => Promise<number>,
         addLiquidity: (amounts: string[]) => Promise<number>,
@@ -97,6 +107,7 @@ export class Pool {
         this.isCrypto = poolData.is_crypto || false;
         this.isFactory = poolData.is_factory || false;
         this.basePool = poolData.base_pool || '';
+        this.rewardTokens = poolData.reward_tokens || [];
         this.estimateGas = {
             addLiquidityApprove: this.addLiquidityApproveEstimateGas,
             addLiquidity: this.addLiquidityEstimateGas,
@@ -1035,6 +1046,40 @@ export class Pool {
     public gaugeClaimTokens = async (): Promise<string> => {
         const gasLimit = (await curve.contracts[ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
         return (await curve.contracts[ALIASES.minter].contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
+    }
+
+    public gaugeClaimableRewards = async (address = ""): Promise<{token: string, symbol: string, amount: string}[]> => {
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        const rewards = [];
+        if ('claimable_reward(address,address)' in gaugeContract) {
+            for (const rewardToken of this.rewardTokens) {
+                const rewardTokenContract = curve.contracts[rewardToken].contract;
+                const symbol = await rewardTokenContract.symbol();
+                const decimals = await rewardTokenContract.decimals();
+                const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, rewardToken, curve.constantOptions), decimals);
+                rewards.push({
+                    token: rewardToken,
+                    symbol: symbol,
+                    amount: amount,
+                })
+            }
+        } else if ('claimable_reward(address)' in gaugeContract && this.rewardTokens.length > 0) {
+            const rewardToken = this.rewardTokens[0];
+            const rewardTokenContract = curve.contracts[rewardToken].contract;
+            const symbol = await rewardTokenContract.symbol();
+            const decimals = await rewardTokenContract.decimals();
+            const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, curve.constantOptions), decimals);
+            rewards.push({
+                token: rewardToken,
+                symbol: symbol,
+                amount: amount,
+            })
+        }
+
+        return rewards
     }
 
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {

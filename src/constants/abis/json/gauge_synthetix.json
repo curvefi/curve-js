@@ -185,44 +185,12 @@
     "type": "function"
   },
   {
-    "name": "deposit",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "_value"
-      },
-      {
-        "type": "address",
-        "name": "addr"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "name": "withdraw",
     "outputs": [],
     "inputs": [
       {
         "type": "uint256",
         "name": "_value"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "name": "withdraw",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "_value"
-      },
-      {
-        "type": "bool",
-        "name": "claim_rewards"
       }
     ],
     "stateMutability": "nonpayable",
@@ -232,18 +200,6 @@
     "name": "claim_rewards",
     "outputs": [],
     "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "name": "claim_rewards",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "address",
-        "name": "addr"
-      }
-    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

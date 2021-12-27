@@ -252,18 +252,6 @@
     "type": "function"
   },
   {
-    "name": "claim_rewards",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "address",
-        "name": "_addr"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "name": "claim_historic_rewards",
     "outputs": [],
     "inputs": [
@@ -328,22 +316,6 @@
       {
         "type": "uint256",
         "name": "_value"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "name": "deposit",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "_value"
-      },
-      {
-        "type": "address",
-        "name": "_addr"
       }
     ],
     "stateMutability": "nonpayable",

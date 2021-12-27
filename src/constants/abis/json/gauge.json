@@ -159,22 +159,6 @@
     "type": "function"
   },
   {
-    "name": "deposit",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "_value"
-      },
-      {
-        "type": "address",
-        "name": "addr"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "name": "withdraw",
     "outputs": [],
     "inputs": [

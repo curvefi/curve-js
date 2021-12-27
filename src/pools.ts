@@ -1040,6 +1040,8 @@ export class Pool {
     }
 
     public gaugeClaimableTokens = async (address = ""): Promise<string> => {
+        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use gaugeClaimableRewards instead`)
+
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
@@ -1047,6 +1049,8 @@ export class Pool {
     }
 
     public gaugeClaimTokens = async (): Promise<string> => {
+        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use gaugeClaimRewards instead`)
+
         const gasLimit = (await curve.contracts[ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
         return (await curve.contracts[ALIASES.minter].contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }

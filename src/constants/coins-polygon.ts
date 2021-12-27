@@ -44,6 +44,7 @@ export const COINS_POLYGON: { [index: string]: string } = {
     ...LINK_COINS_POLYGON,
     ...EUR_COINS_POLYGON,
     ...USD_COINS_POLYGON,
+    crv: "0x172370d5cd63279efa6d502dab29171933a610af", // CRV
 }
 
 export const DECIMALS_POLYGON: { [index: string]: number } = {
@@ -64,6 +65,8 @@ export const DECIMALS_POLYGON: { [index: string]: number } = {
     "0x28424507fefb6f7f8E9D3860F56504E4e5f5f390": 18, // amWETH
 
     "0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f": 6,  // EURT
+
+    "0x172370d5cd63279efa6d502dab29171933a610af": 18,  // CRV
 }
 
 // @ts-ignore

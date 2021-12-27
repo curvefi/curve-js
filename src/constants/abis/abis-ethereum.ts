@@ -63,6 +63,7 @@ import eursSCurveRewards_abi from './json/eurs/sCurveRewards.json';
 import ustSwapABI from './json/ust/swap.json';
 import ustDepositABI from './json/ust/deposit.json';
 import aaveSwapABI from './json/aave/swap.json';
+import aaveRewardsABI from './json/aave/rewards.json';
 import stethSwapABI from './json/steth/swap.json';
 import stethSCurveRewards_abi from './json/steth/sCurveRewards.json';
 import saaveSwapABI from './json/saave/swap.json';
@@ -1026,6 +1027,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
         ],
         swap_abi: aaveSwapABI,
+        sCurveRewards_abi: aaveRewardsABI,
+        sCurveRewards_address: "0x99ac10631F69C753DDb595D074422a0922D9056B",
+        reward_tokens: ["0x4da27a545c0c5b758a6ba100e3a049001de870f5"],
         gauge_abi: gaugeV2ABI,
     },
 
@@ -1081,6 +1085,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x6c5024cd4f8a59110119c56f8933403a539555eb',
         ],
         swap_abi: saaveSwapABI,
+        sCurveRewards_abi: aaveRewardsABI,
+        sCurveRewards_address: "0xe5f41acad47849c6eb28b93913ca81893fb5a2a6",
+        reward_tokens: ["0x4da27a545c0c5b758a6ba100e3a049001de870f5"],
         gauge_abi: gaugeV2ABI,
     },
 

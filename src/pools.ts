@@ -27,7 +27,6 @@ import {
     ETH_COINS_LOWER_CASE,
     LINK_COINS_LOWER_CASE,
     COINS,
-    curve as _curve
 } from "./curve";
 import axios from "axios";
 
@@ -1048,6 +1047,8 @@ export class Pool {
         return (await curve.contracts[ALIASES.minter].contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
 
+    // TODO 1. Fix aave and saave error
+    // TODO 2. Figure out Synthetix cumulative results
     public gaugeClaimableRewards = async (address = ""): Promise<{token: string, symbol: string, amount: string}[]> => {
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -1080,6 +1081,14 @@ export class Pool {
         }
 
         return rewards
+    }
+
+    public gaugeClaimRewards = async (): Promise<string> => {
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
+
+        const gasLimit = (await gaugeContract.estimateGas.claim_rewards(curve.constantOptions)).mul(130).div(100);
+        return (await gaugeContract.claim_rewards({ ...curve.options, gasLimit })).hash;
     }
 
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {

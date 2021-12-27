@@ -1064,7 +1064,9 @@ export class Pool {
                 const rewardTokenContract = curve.contracts[rewardToken].contract;
                 const symbol = await rewardTokenContract.symbol();
                 const decimals = await rewardTokenContract.decimals();
-                const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, rewardToken, curve.constantOptions), decimals);
+
+                const method = curve.chainId === 1 ? "claimable_reward" : "claimable_reward_write";
+                const amount = ethers.utils.formatUnits(await gaugeContract[method](address, rewardToken, curve.constantOptions), decimals);
                 rewards.push({
                     token: rewardToken,
                     symbol: symbol,

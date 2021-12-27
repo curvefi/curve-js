@@ -53,3 +53,13 @@ export interface PoolDataInterface {
     pool_type?: string,
     crv_reward_contract?: string,
 }
+
+export interface RewardsApyInterface {
+    gaugeAddress: string,
+    tokenAddress: string,
+    tokenPrice: number,
+    name: string,
+    symbol: string,
+    decimals: string,
+    apy: number
+}

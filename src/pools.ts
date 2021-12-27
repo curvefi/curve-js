@@ -18,7 +18,7 @@ import {
     getEthIndex,
     _getStatsUrl,
 } from './utils';
-import { DictInterface } from './interfaces';
+import { DictInterface, RewardsApyInterface } from './interfaces';
 import {
     ALIASES,
     POOLS_DATA,
@@ -308,6 +308,10 @@ export class Pool {
 
             return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
         }
+    }
+
+    public getRewardsApy = async (): Promise<RewardsApyInterface> => {
+        return (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards[this.gauge] || [];
     }
 
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {

@@ -327,7 +327,10 @@ export class Pool {
             return apy
         }
 
-        const apyData = (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards[this.gauge.toLowerCase()] || [];
+        const mainPoolsGaugeRewards = (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards;
+        // @ts-ignore
+        const mainPoolsGaugeRewardsLowerCase = Object.fromEntries(Object.entries(mainPoolsGaugeRewards).map((entry) => [entry[0].toLowerCase(), entry[1]]));
+        const apyData = mainPoolsGaugeRewardsLowerCase[this.gauge.toLowerCase()] || [];
         const apy: RewardsApyInterface[] = [];
         for (const data of apyData) {
             apy.push({

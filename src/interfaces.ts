@@ -51,15 +51,11 @@ export interface PoolDataInterface {
     reward_token?: string,
     reward_tokens?: string[],
     pool_type?: string,
-    crv_reward_contract?: string,
+    reward_contract?: string,
 }
 
 export interface RewardsApyInterface {
-    gaugeAddress: string,
-    tokenAddress: string,
-    tokenPrice: number,
-    name: string,
+    token: string,
     symbol: string,
-    decimals: string,
-    apy: number
+    apy: string,
 }

@@ -318,14 +318,14 @@ class Curve {
                 }
             }
 
-            if (pool.crv_reward_contract) {
-                this.contracts[pool.crv_reward_contract] = {
-                    contract: new Contract(pool.crv_reward_contract, streamerABI, this.signer || this.provider),
-                    multicallContract: new MulticallContract(pool.crv_reward_contract, streamerABI),
+            if (pool.reward_contract) {
+                this.contracts[pool.reward_contract] = {
+                    contract: new Contract(pool.reward_contract, streamerABI, this.signer || this.provider),
+                    multicallContract: new MulticallContract(pool.reward_contract, streamerABI),
                 }
-                this.contracts[pool.crv_reward_contract.toLowerCase()] = {
-                    contract: new Contract(pool.crv_reward_contract, streamerABI, this.signer || this.provider),
-                    multicallContract: new MulticallContract(pool.crv_reward_contract, streamerABI),
+                this.contracts[pool.reward_contract.toLowerCase()] = {
+                    contract: new Contract(pool.reward_contract, streamerABI, this.signer || this.provider),
+                    multicallContract: new MulticallContract(pool.reward_contract, streamerABI),
                 }
             }
 

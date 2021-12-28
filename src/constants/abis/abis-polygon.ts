@@ -37,7 +37,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         sCurveRewards_abi: paaveRewardsabi,
         sCurveRewards_address: '0xBdFF0C27dd073C119ebcb1299a68A6A92aE607F0',
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"],
-        crv_reward_contract: "0xC48f4653dd6a9509De44c92beb0604BEA3AEe714",
+        reward_contract: "0xC48f4653dd6a9509De44c92beb0604BEA3AEe714",
         gauge_abi: gaugeRewardsOnlyABI,
     },
 
@@ -64,7 +64,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
         ],
         swap_abi: renSwapABI,
-        crv_reward_contract: "0x488E6ef919C2bB9de535C634a80afb0114DA8F62",
+        reward_contract: "0x488E6ef919C2bB9de535C634a80afb0114DA8F62",
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"],
         gauge_abi: gaugeRewardsOnlyABI,
     },
@@ -106,7 +106,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
-        crv_reward_contract: "0x060e386eCfBacf42Aa72171Af9EFe17b3993fC4F",
+        reward_contract: "0x060e386eCfBacf42Aa72171Af9EFe17b3993fC4F",
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"],
         gauge_abi: gaugeRewardsOnlyABI,
     },
@@ -154,7 +154,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
-        crv_reward_contract: "0xAF78381216a8eCC7Ad5957f3cD12a431500E0B0D",
+        reward_contract: "0xAF78381216a8eCC7Ad5957f3cD12a431500E0B0D",
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         gauge_abi: gaugeRewardsOnlyABI,
     },

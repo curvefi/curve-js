@@ -38,7 +38,7 @@ export class Pool {
     zap: string | null;
     lpToken: string;
     gauge: string;
-    crvRewardContract: string | null;
+    rewardContract: string | null;
     underlyingCoins: string[];
     coins: string[];
     underlyingCoinAddresses: string[];
@@ -93,7 +93,7 @@ export class Pool {
         this.zap = poolData.deposit_address || null;
         this.lpToken = poolData.token_address;
         this.gauge = poolData.gauge_address;
-        this.crvRewardContract = poolData.crv_reward_contract || null;
+        this.rewardContract = poolData.reward_contract || null;
         this.underlyingCoins = poolData.underlying_coins;
         this.coins = poolData.coins;
         this.underlyingCoinAddresses = poolData.underlying_coin_addresses;
@@ -278,7 +278,7 @@ export class Pool {
 
     private getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
         if (curve.chainId === 137) {
-            const rewardContract = curve.contracts[this.crvRewardContract as string].contract;
+            const rewardContract = curve.contracts[this.rewardContract as string].contract;
 
             const totalLiquidityUSD = await this.getTotalLiquidity();
             const crvRate = await _getUsdRate(ALIASES.crv);
@@ -310,8 +310,42 @@ export class Pool {
         }
     }
 
-    public getRewardsApy = async (): Promise<RewardsApyInterface> => {
-        return (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards[this.gauge] || [];
+    public getRewardsApy = async (): Promise<RewardsApyInterface[]> => {
+        if (curve.chainId === 137) {
+            const apy: RewardsApyInterface[] = [];
+            for (const rewardToken of this.rewardTokens) {
+                const rewardContract = curve.contracts[this.rewardContract as string].contract;
+
+                const totalLiquidityUSD = await this.getTotalLiquidity();
+                const crvRate = await _getUsdRate(rewardToken);
+
+                const inflation = toBN((await rewardContract.reward_data(ALIASES.crv, curve.constantOptions)).rate);
+                const baseApy = inflation.times(31536000).times(crvRate).div(Number(totalLiquidityUSD))
+
+                const rewardTokenContract = curve.contracts[rewardToken].contract;
+                const symbol = await rewardTokenContract.symbol();
+
+                apy.push({
+                    token: rewardToken,
+                    symbol,
+                    apy: baseApy.times(100).toFixed(4),
+                })
+            }
+
+            return apy
+        }
+
+        const apyData = (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards[this.gauge.toLowerCase()] || [];
+        const apy: RewardsApyInterface[] = [];
+        for (const data of apyData) {
+            apy.push({
+                token: data.tokenAddress,
+                symbol: data.symbol,
+                apy: String(data.apy),
+            })
+        }
+
+        return apy
     }
 
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {

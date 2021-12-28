@@ -18,8 +18,6 @@ jobs:
       - name: Changelog
         id: Changelog
         uses: scottbrenner/generate-changelog-action@master
-        with:
-          to-tag: HEAD
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

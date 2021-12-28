@@ -82,6 +82,7 @@ export class Pool {
         getVolume: () => Promise<string>,
         getBaseApy: () => Promise<[daily: string, weekly: string, monthly: string, total: string]>,
         getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
+        getRewardsApy: () => Promise<RewardsApyInterface[]>,
     }
 
     constructor(name: string) {
@@ -137,6 +138,7 @@ export class Pool {
             getVolume: this.getVolume,
             getBaseApy: this.getBaseApy,
             getTokenApy: this.getTokenApy,
+            getRewardsApy: this.getRewardsApy,
         }
 
         if (this.isMeta && !this.isFake) {
@@ -277,40 +279,30 @@ export class Pool {
     }
 
     private getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
-        if (curve.chainId === 137) {
-            const rewardContract = curve.contracts[this.rewardContract as string].contract;
+        if (curve.chainId === 137) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`)
 
-            const totalLiquidityUSD = await this.getTotalLiquidity();
-            const crvRate = await _getUsdRate(ALIASES.crv);
+        const gaugeContract = curve.contracts[this.gauge].multicallContract;
+        const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
+        const gaugeControllerContract = curve.contracts[ALIASES.gauge_controller].multicallContract;
 
-            const inflation = toBN((await rewardContract.reward_data(ALIASES.crv, curve.constantOptions)).rate);
-            const baseApy = inflation.times(31536000).times(crvRate).div(Number(totalLiquidityUSD))
+        const totalLiquidityUSD = await this.getTotalLiquidity();
 
-            return [baseApy.times(100).toFixed(4), ""]
-        } else {
-            const gaugeContract = curve.contracts[this.gauge].multicallContract;
-            const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
-            const gaugeControllerContract = curve.contracts[ALIASES.gauge_controller].multicallContract;
+        const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
+            gaugeContract.inflation_rate(),
+            gaugeControllerContract.gauge_relative_weight(this.gauge),
+            gaugeContract.working_supply(),
+            lpTokenContract.totalSupply(),
+        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
 
-            const totalLiquidityUSD = await this.getTotalLiquidity();
+        const rate = inflation.times(weight).times(31536000).times(0.4).div(workingSupply).times(totalSupply).div(Number(totalLiquidityUSD));
+        const crvRate = await _getUsdRate(ALIASES.crv);
+        const baseApy = rate.times(crvRate);
+        const boostedApy = baseApy.times(2.5);
 
-            const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
-                gaugeContract.inflation_rate(),
-                gaugeControllerContract.gauge_relative_weight(this.gauge),
-                gaugeContract.working_supply(),
-                lpTokenContract.totalSupply(),
-            ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
-
-            const rate = inflation.times(weight).times(31536000).times(0.4).div(workingSupply).times(totalSupply).div(Number(totalLiquidityUSD));
-            const crvRate = await _getUsdRate(ALIASES.crv);
-            const baseApy = rate.times(crvRate);
-            const boostedApy = baseApy.times(2.5);
-
-            return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
-        }
+        return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
     }
 
-    public getRewardsApy = async (): Promise<RewardsApyInterface[]> => {
+    private getRewardsApy = async (): Promise<RewardsApyInterface[]> => {
         if (curve.chainId === 137) {
             const apy: RewardsApyInterface[] = [];
             for (const rewardToken of this.rewardTokens) {

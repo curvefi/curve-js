@@ -42,6 +42,7 @@ const statsTest = async () => {
     console.log(await saave.stats.getVolume());
     console.log(await saave.stats.getBaseApy());
     console.log(await saave.stats.getTokenApy());
+    console.log(await saave.stats.getRewardsApy());
 }
 
 const poolTest = async () => {

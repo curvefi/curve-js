@@ -92,7 +92,7 @@
     "type": "function"
   },
   {
-    "gas": 8403,
+    "gas": "8403",
     "inputs": [
       {
         "name": "i",
@@ -118,7 +118,7 @@
     "type": "function"
   },
   {
-    "gas": 4305,
+    "gas": "4305",
     "inputs": [
       {
         "name": "_amounts",
@@ -140,7 +140,7 @@
     "type": "function"
   },
   {
-    "gas": 6199,
+    "gas": "6199",
     "inputs": [
       {
         "name": "token_amount",
@@ -162,7 +162,7 @@
     "type": "function"
   },
   {
-    "gas": 1343,
+    "gas": "1343",
     "inputs": [
       {
         "name": "arg0",
@@ -180,7 +180,7 @@
     "type": "function"
   },
   {
-    "gas": 1373,
+    "gas": "1373",
     "inputs": [
       {
         "name": "arg0",
@@ -198,7 +198,7 @@
     "type": "function"
   },
   {
-    "gas": 1358,
+    "gas": "1358",
     "inputs": [],
     "name": "pool",
     "outputs": [
@@ -211,7 +211,7 @@
     "type": "function"
   },
   {
-    "gas": 1388,
+    "gas": "1388",
     "inputs": [],
     "name": "base_pool",
     "outputs": [
@@ -224,7 +224,7 @@
     "type": "function"
   },
   {
-    "gas": 1418,
+    "gas": "1418",
     "inputs": [],
     "name": "token",
     "outputs": [

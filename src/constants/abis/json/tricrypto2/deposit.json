@@ -92,7 +92,7 @@
         "type": "address"
       }
     ],
-    "gas": 2568
+    "gas": "2568"
   },
   {
     "stateMutability": "view",
@@ -105,7 +105,7 @@
         "type": "address"
       }
     ],
-    "gas": 2598
+    "gas": "2598"
   },
   {
     "stateMutability": "view",
@@ -123,6 +123,6 @@
         "type": "address"
       }
     ],
-    "gas": 2737
+    "gas": "2737"
   }
 ]

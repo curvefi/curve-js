@@ -246,6 +246,15 @@ import curve from "@curvefi/api";
     
     console.log(await saave.stats.getTokenApy());
     // [ '0.0167', '0.0417' ]
+
+    console.log(await saave.stats.getRewardsApy());
+    // [
+    //     {
+    //         token: '0x4da27a545c0c5B758a6BA100e3a049001de870f5',
+    //         symbol: 'stkAAVE',
+    //         apy: '0.5807714739298449'
+    //     }
+    // ]
 })()
 ````
 
@@ -657,4 +666,25 @@ await pool.estimateGas.addLiquidity(["1000", "1000", "1000", "1000"])
 await curve.estimateGas.crossAssetExchange('DAI', "WBTC", "1000", 0.01)
 
 await curve.boosting.estimateGas.createLock('1000', 365)
+```
+
+## Rewards
+```ts
+const pool = new curve.Pool('susd');
+
+// CRV
+console.log(await pool.gaugeClaimableTokens());
+// 0.006296257916265276
+await pool.gaugeClaimTokens();
+
+// Additional rewards
+console.log(await pool.gaugeClaimableRewards());
+// [
+//     {
+//         token: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F',
+//         symbol: 'SNX',
+//         amount: '0.000596325465987726'
+//     }
+// ]
+await pool.gaugeClaimRewards();
 ```

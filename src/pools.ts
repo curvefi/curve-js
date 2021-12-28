@@ -18,8 +18,16 @@ import {
     getEthIndex,
     _getStatsUrl,
 } from './utils';
-import { DictInterface } from './interfaces';
-import { ALIASES, POOLS_DATA, curve, BTC_COINS_LOWER_CASE, ETH_COINS_LOWER_CASE, LINK_COINS_LOWER_CASE, COINS } from "./curve";
+import { DictInterface, RewardsApyInterface } from './interfaces';
+import {
+    ALIASES,
+    POOLS_DATA,
+    curve,
+    BTC_COINS_LOWER_CASE,
+    ETH_COINS_LOWER_CASE,
+    LINK_COINS_LOWER_CASE,
+    COINS,
+} from "./curve";
 import axios from "axios";
 
 
@@ -30,7 +38,7 @@ export class Pool {
     zap: string | null;
     lpToken: string;
     gauge: string;
-    crvRewardContract: string | null;
+    rewardContract: string | null;
     underlyingCoins: string[];
     coins: string[];
     underlyingCoinAddresses: string[];
@@ -43,6 +51,7 @@ export class Pool {
     isCrypto: boolean;
     basePool: string;
     isFactory: boolean;
+    rewardTokens: string[];
     estimateGas: {
         addLiquidityApprove: (amounts: string[]) => Promise<number>,
         addLiquidity: (amounts: string[]) => Promise<number>,
@@ -73,6 +82,7 @@ export class Pool {
         getVolume: () => Promise<string>,
         getBaseApy: () => Promise<[daily: string, weekly: string, monthly: string, total: string]>,
         getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
+        getRewardsApy: () => Promise<RewardsApyInterface[]>,
     }
 
     constructor(name: string) {
@@ -84,7 +94,7 @@ export class Pool {
         this.zap = poolData.deposit_address || null;
         this.lpToken = poolData.token_address;
         this.gauge = poolData.gauge_address;
-        this.crvRewardContract = poolData.crv_reward_contract || null;
+        this.rewardContract = poolData.reward_contract || null;
         this.underlyingCoins = poolData.underlying_coins;
         this.coins = poolData.coins;
         this.underlyingCoinAddresses = poolData.underlying_coin_addresses;
@@ -97,6 +107,7 @@ export class Pool {
         this.isCrypto = poolData.is_crypto || false;
         this.isFactory = poolData.is_factory || false;
         this.basePool = poolData.base_pool || '';
+        this.rewardTokens = poolData.reward_tokens || [];
         this.estimateGas = {
             addLiquidityApprove: this.addLiquidityApproveEstimateGas,
             addLiquidity: this.addLiquidityEstimateGas,
@@ -127,6 +138,7 @@ export class Pool {
             getVolume: this.getVolume,
             getBaseApy: this.getBaseApy,
             getTokenApy: this.getTokenApy,
+            getRewardsApy: this.getRewardsApy,
         }
 
         if (this.isMeta && !this.isFake) {
@@ -267,37 +279,68 @@ export class Pool {
     }
 
     private getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
+        if (curve.chainId === 137) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`)
+
+        const gaugeContract = curve.contracts[this.gauge].multicallContract;
+        const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
+        const gaugeControllerContract = curve.contracts[ALIASES.gauge_controller].multicallContract;
+
+        const totalLiquidityUSD = await this.getTotalLiquidity();
+
+        const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
+            gaugeContract.inflation_rate(),
+            gaugeControllerContract.gauge_relative_weight(this.gauge),
+            gaugeContract.working_supply(),
+            lpTokenContract.totalSupply(),
+        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
+
+        const rate = inflation.times(weight).times(31536000).times(0.4).div(workingSupply).times(totalSupply).div(Number(totalLiquidityUSD));
+        const crvRate = await _getUsdRate(ALIASES.crv);
+        const baseApy = rate.times(crvRate);
+        const boostedApy = baseApy.times(2.5);
+
+        return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
+    }
+
+    private getRewardsApy = async (): Promise<RewardsApyInterface[]> => {
         if (curve.chainId === 137) {
-            const rewardContract = curve.contracts[this.crvRewardContract as string].contract;
+            const apy: RewardsApyInterface[] = [];
+            for (const rewardToken of this.rewardTokens) {
+                const rewardContract = curve.contracts[this.rewardContract as string].contract;
 
-            const totalLiquidityUSD = await this.getTotalLiquidity();
-            const crvRate = await _getUsdRate(ALIASES.crv);
+                const totalLiquidityUSD = await this.getTotalLiquidity();
+                const crvRate = await _getUsdRate(rewardToken);
 
-            const inflation = toBN((await rewardContract.reward_data(ALIASES.crv, curve.constantOptions)).rate);
-            const baseApy = inflation.times(31536000).times(crvRate).div(Number(totalLiquidityUSD))
+                const inflation = toBN((await rewardContract.reward_data(ALIASES.crv, curve.constantOptions)).rate);
+                const baseApy = inflation.times(31536000).times(crvRate).div(Number(totalLiquidityUSD))
 
-            return [baseApy.times(100).toFixed(4), ""]
-        } else {
-            const gaugeContract = curve.contracts[this.gauge].multicallContract;
-            const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
-            const gaugeControllerContract = curve.contracts[ALIASES.gauge_controller].multicallContract;
+                const rewardTokenContract = curve.contracts[rewardToken].contract;
+                const symbol = await rewardTokenContract.symbol();
 
-            const totalLiquidityUSD = await this.getTotalLiquidity();
+                apy.push({
+                    token: rewardToken,
+                    symbol,
+                    apy: baseApy.times(100).toFixed(4),
+                })
+            }
 
-            const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
-                gaugeContract.inflation_rate(),
-                gaugeControllerContract.gauge_relative_weight(this.gauge),
-                gaugeContract.working_supply(),
-                lpTokenContract.totalSupply(),
-            ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
-
-            const rate = inflation.times(weight).times(31536000).times(0.4).div(workingSupply).times(totalSupply).div(Number(totalLiquidityUSD));
-            const crvRate = await _getUsdRate(ALIASES.crv);
-            const baseApy = rate.times(crvRate);
-            const boostedApy = baseApy.times(2.5);
-
-            return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
+            return apy
         }
+
+        const mainPoolsGaugeRewards = (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards;
+        // @ts-ignore
+        const mainPoolsGaugeRewardsLowerCase = Object.fromEntries(Object.entries(mainPoolsGaugeRewards).map((entry) => [entry[0].toLowerCase(), entry[1]]));
+        const apyData = mainPoolsGaugeRewardsLowerCase[this.gauge.toLowerCase()] || [];
+        const apy: RewardsApyInterface[] = [];
+        for (const data of apyData) {
+            apy.push({
+                token: data.tokenAddress,
+                symbol: data.symbol,
+                apy: String(data.apy),
+            })
+        }
+
+        return apy
     }
 
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {
@@ -1023,6 +1066,68 @@ export class Pool {
     public gaugeWithdraw = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, curve.options)).hash;
+    }
+
+    public gaugeClaimableTokens = async (address = ""): Promise<string> => {
+        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use gaugeClaimableRewards instead`)
+
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        return ethers.utils.formatUnits(await curve.contracts[this.gauge].contract.claimable_tokens(address, curve.constantOptions));
+    }
+
+    public gaugeClaimTokens = async (): Promise<string> => {
+        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use gaugeClaimRewards instead`)
+
+        const gasLimit = (await curve.contracts[ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
+        return (await curve.contracts[ALIASES.minter].contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
+    }
+
+    // TODO 1. Fix aave and saave error
+    // TODO 2. Figure out Synthetix cumulative results
+    public gaugeClaimableRewards = async (address = ""): Promise<{token: string, symbol: string, amount: string}[]> => {
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        const rewards = [];
+        if ('claimable_reward(address,address)' in gaugeContract) {
+            for (const rewardToken of this.rewardTokens) {
+                const rewardTokenContract = curve.contracts[rewardToken].contract;
+                const symbol = await rewardTokenContract.symbol();
+                const decimals = await rewardTokenContract.decimals();
+
+                const method = curve.chainId === 1 ? "claimable_reward" : "claimable_reward_write";
+                const amount = ethers.utils.formatUnits(await gaugeContract[method](address, rewardToken, curve.constantOptions), decimals);
+                rewards.push({
+                    token: rewardToken,
+                    symbol: symbol,
+                    amount: amount,
+                })
+            }
+        } else if ('claimable_reward(address)' in gaugeContract && this.rewardTokens.length > 0) {
+            const rewardToken = this.rewardTokens[0];
+            const rewardTokenContract = curve.contracts[rewardToken].contract;
+            const symbol = await rewardTokenContract.symbol();
+            const decimals = await rewardTokenContract.decimals();
+            const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, curve.constantOptions), decimals);
+            rewards.push({
+                token: rewardToken,
+                symbol: symbol,
+                amount: amount,
+            })
+        }
+
+        return rewards
+    }
+
+    public gaugeClaimRewards = async (): Promise<string> => {
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
+
+        const gasLimit = (await gaugeContract.estimateGas.claim_rewards(curve.constantOptions)).mul(130).div(100);
+        return (await gaugeContract.claim_rewards({ ...curve.options, gasLimit })).hash;
     }
 
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {

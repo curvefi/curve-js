@@ -1,4 +1,10 @@
 // import config from '../config';
+import gaugeABI from "./json/gauge.json";
+import gaugeSynthetixABI from "./json/gauge_synthetix.json";
+import gaugeV2ABI from "./json/gauge_v2.json";
+import gaugeV3ABI from "./json/gauge_v3.json";
+import gaugeV4ABI from "./json/gauge_v4.json";
+import gaugeFactoryABI from "./json/gauge_factory.json";
 import compoundDepositABI from './json/compound/deposit.json';
 import compoundMigrationABI from './json/compound/migration.json';
 import compoundSwapABI from './json/compound/swap.json';
@@ -57,6 +63,7 @@ import eursSCurveRewards_abi from './json/eurs/sCurveRewards.json';
 import ustSwapABI from './json/ust/swap.json';
 import ustDepositABI from './json/ust/deposit.json';
 import aaveSwapABI from './json/aave/swap.json';
+import aaveRewardsABI from './json/aave/rewards.json';
 import stethSwapABI from './json/steth/swap.json';
 import stethSCurveRewards_abi from './json/steth/sCurveRewards.json';
 import saaveSwapABI from './json/saave/swap.json';
@@ -108,6 +115,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         migration_abi: compoundMigrationABI,
         swap_abi: compoundSwapABI,
         old_swap_abi: compoundOldSwapABI,
+        gauge_abi: gaugeABI,
     },
 
     usdt: {
@@ -136,6 +144,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xac795D2c97e60DF6a99ff1c814727302fD747a80',
         deposit_abi: usdtDepositABI,
         swap_abi: usdtSwapABI,
+        gauge_abi: gaugeABI,
     },
 
     y: {
@@ -170,6 +179,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         sCurveRewards_address: '0x0001FB050Fe7312791bF6475b96569D83F695C9f',
         aRewards_abi: aRewards_abi,
         aRewards_address: '0xcc9efea3ac5df6ad6a656235ef955fbfef65b862',
+        gauge_abi: gaugeABI,
     },
     busd: {
         reference_asset: 'USD',
@@ -199,6 +209,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB',
         deposit_abi: busdDepositABI,
         swap_abi: busdSwapABI,
+        gauge_abi: gaugeABI,
     },
 
     susd: {
@@ -231,6 +242,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: susdv2SCurveRewards_abi,
         sCurveRewards_address: '0xdcb6a51ea3ca5d3fd898fd6564757c7aaec3ca92',
+        reward_tokens: ["0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"],
+        gauge_abi: gaugeSynthetixABI,
     },
 
     pax: {
@@ -261,6 +274,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59',
             '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
         ],
+        gauge_abi: gaugeABI,
     },
 
     ren: {
@@ -289,6 +303,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         old_adapter_address: '0x9fe350DfA5F66bC086243F21A8F0932514316627',
         adapter_biconomy_address: '0x73aB2Bd10aD10F7174a1AD5AFAe3ce3D991C5047',
         adapter_address: '0x26D9980571e77FfB0349f9c801DD7ca9951Fb656',
+        gauge_abi: gaugeABI,
     },
 
     sbtc: {
@@ -321,6 +336,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         adapter_address: '0x02B3F51AC9202aA19be63d61A8C681579D6E3a51',
         sCurveRewards_abi: sbtcSCurveRewardsABI,
         sCurveRewards_address: '0x13C1542A468319688B89E323fe9A3Be3A90EBb27',
+        gauge_abi: gaugeSynthetixABI,
     },
 
     hbtc: {
@@ -345,6 +361,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x0316EB71485b0Ab14103307bf65a021042c6d380',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
         ],
+        gauge_abi: gaugeABI,
     },
 
     '3pool': {
@@ -371,6 +388,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeABI,
     },
 
     gusd: {
@@ -415,6 +433,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeABI,
     },
 
     husd: {
@@ -459,6 +478,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeABI,
     },
 
     usdk: {
@@ -503,6 +523,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeABI,
     },
 
     usdn: {
@@ -547,6 +568,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeABI,
     },
 
     musd: {
@@ -593,6 +615,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: musdSCurveRewards_abi,
         sCurveRewards_address: "0xE6E6E25EfdA5F69687aA9914f8d750C523A1D261",
+        reward_tokens: ["0xa3BeD4E1c75D00fa6f4E5E6922DB7261B5E9AcD2"],
+        gauge_abi: gaugeSynthetixABI,
     },
 
     rsv: {
@@ -639,6 +663,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: rsvSCurveRewards_abi,
         sCurveRewards_address: "0xAD4768F408dD170e62E074188D81A29AE31B8Fd8",
+        reward_tokens: ["0x8762db106B2c2A0bccB3A80d1Ed41273552616E8"],
+        gauge_abi: gaugeSynthetixABI,
     },
 
     tbtc: {
@@ -685,6 +711,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: tbtcSCurveRewards_abi,
         sCurveRewards_address: '0xAF379f0228ad0d46bB7B4f38f9dc9bCC1ad0360c',
+        gauge_abi: gaugeSynthetixABI,
     },
 
     dusd: {
@@ -731,6 +758,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: dusdSCurveRewards_abi,
         sCurveRewards_address: "0xd9Acb0BAeeD77C99305017821167674Cc7e82f7a",
+        reward_tokens: ["0x20c36f062a31865bED8a5B1e512D9a1A20AA333A"],
+        gauge_abi: gaugeSynthetixABI,
     },
 
     pbtc: {
@@ -777,7 +806,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: pbtcSCurveRewards_abi,
         sCurveRewards_address: "0xf7977edc1fa61aa9b5f90d70a74a3fbc46e9dad3",
-        reward_token: "0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD",
+        reward_tokens: ["0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD"],
+        gauge_abi: gaugeV2ABI,
     },
 
     bbtc: {
@@ -822,6 +852,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
             '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
+        gauge_abi: gaugeV2ABI,
     },
 
     obtc: {
@@ -868,7 +899,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: obtcSCurveRewards_abi,
         sCurveRewards_address: "0x7f1ae7a1fc275b5b9c3ad4497fa94e3b9424e76e",
-        reward_token: "0x3c9d6c1C73b31c837832c72E04D3152f051fc1A9",
+        reward_tokens: ["0x3c9d6c1C73b31c837832c72E04D3152f051fc1A9"],
+        gauge_abi: gaugeV2ABI,
     },
 
     seth: {
@@ -894,6 +926,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
             '0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb',
         ],
+        gauge_abi: gaugeV2ABI,
     },
 
     eurs: {
@@ -920,7 +953,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: eursSCurveRewards_abi,
         sCurveRewards_address: "0xc0d8994cd78ee1980885df1a0c5470fc977b5cfe",
-        reward_token: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
+        reward_tokens: ["0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f"],
+        gauge_abi: gaugeV2ABI,
     },
 
     ust: {
@@ -965,6 +999,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeV2ABI,
     },
 
     aave: {
@@ -992,6 +1027,10 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
         ],
         swap_abi: aaveSwapABI,
+        sCurveRewards_abi: aaveRewardsABI,
+        sCurveRewards_address: "0x99ac10631F69C753DDb595D074422a0922D9056B",
+        reward_tokens: ["0x4da27a545c0c5b758a6ba100e3a049001de870f5"],
+        gauge_abi: gaugeV2ABI,
     },
 
     steth: {
@@ -1019,7 +1058,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: stethSCurveRewards_abi,
         sCurveRewards_address: "0x99ac10631F69C753DDb595D074422a0922D9056B",
-        reward_token: "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
+        reward_tokens: ["0x5a98fcbea516cf06857215779fd812ca3bef1b32"],
+        gauge_abi: gaugeV2ABI,
     },
 
     saave: {
@@ -1045,6 +1085,10 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x6c5024cd4f8a59110119c56f8933403a539555eb',
         ],
         swap_abi: saaveSwapABI,
+        sCurveRewards_abi: aaveRewardsABI,
+        sCurveRewards_address: "0xe5f41acad47849c6eb28b93913ca81893fb5a2a6",
+        reward_tokens: ["0x4da27a545c0c5b758a6ba100e3a049001de870f5"],
+        gauge_abi: gaugeV2ABI,
     },
 
     ankreth: {
@@ -1072,8 +1116,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: ankrethSCurveRewards_abi,
         sCurveRewards_address: "0x3547DFCa04358540891149559e691B146c6B0043",
-        reward_token: "0xe0ad1806fd3e7edf6ff52fdb822432e847411033",
         reward_tokens:["0xe0ad1806fd3e7edf6ff52fdb822432e847411033", "0x8290333cef9e6d528dd5618fb97a76f268f3edd4"],
+        gauge_abi: gaugeV2ABI,
     },
 
     usdp: {
@@ -1118,6 +1162,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeV2ABI,
     },
 
     ib: {
@@ -1145,6 +1190,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x76eb2fe28b36b3ee97f3adae0c69606eedb2a37c',
             '0x48759f220ed983db51fa7a8c0d2aab8f3ce4166a',
         ],
+        gauge_abi: gaugeV2ABI,
     },
 
     link: {
@@ -1169,6 +1215,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x514910771AF9Ca656af840dff83E8264EcF986CA',
             '0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6',
         ],
+        gauge_abi: gaugeV2ABI,
     },
     tusd: {
         reference_asset: 'USD',
@@ -1213,6 +1260,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         is_factory: true,
+        gauge_abi: gaugeV2ABI,
     },
     frax: {
         reference_asset: 'USD',
@@ -1259,7 +1307,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_factory: true,
         sCurveRewards_abi: factoryRewardsABI,
         sCurveRewards_address: '0xBBbAf1adf4d39B2843928CCa1E65564e5ce99ccC',
-        reward_token: '0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0',
+        reward_tokens: ['0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0'],
+        gauge_abi: gaugeV2ABI,
     },
     lusd: {
         reference_asset: 'USD',
@@ -1306,7 +1355,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_factory: true,
         sCurveRewards_abi: factoryRewardsABI,
         sCurveRewards_address: '0xeb31da939878d1d780fdbcc244531c0fb80a2cf3',
-        reward_token: '0x6dea81c8171d0ba574754ef6f8b412f2ed88c54d',
+        reward_tokens: ['0x6dea81c8171d0ba574754ef6f8b412f2ed88c54d'],
+        gauge_abi: gaugeV2ABI,
     },
     busdv2: {
         reference_asset: 'USD',
@@ -1351,6 +1401,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         is_factory: true,
+        gauge_abi: gaugeV2ABI,
     },
     reth: {
         reference_asset: 'ETH',
@@ -1377,7 +1428,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         sCurveRewards_abi: factoryRewardsABI,
         sCurveRewards_address: '0x3b7382805A1d887b73e98570796C5cEFeA32A462',
-        reward_token: '0xef3a930e1ffffacd2fc13434ac81bd278b0ecc8d',
+        reward_tokens: ['0xef3a930e1ffffacd2fc13434ac81bd278b0ecc8d'],
+        gauge_abi: gaugeV3ABI,
     },
     alusd: {
         reference_asset: 'USD',
@@ -1424,7 +1476,8 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_factory: true,
         sCurveRewards_abi: factoryRewardsABI,
         sCurveRewards_address: '0xb76256d1091e93976c61449d6e500d9f46d827d4',
-        reward_token: '0xdbdb4d16eda451d0503b854cf79d55697f90c8df',
+        reward_tokens: ['0xdbdb4d16eda451d0503b854cf79d55697f90c8df'],
+        gauge_abi: gaugeV3ABI,
     },
     mim: {
         reference_asset: 'USD',
@@ -1437,7 +1490,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_plain: [true, true],
         swap_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
         token_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
-        gauge_address: '0xd4b22fedca85e684919955061fdf353b9d38389b',
+        gauge_address: '0xd8b712d29381748dB89c36BCa0138d7c75866ddF',
         underlying_coins: ['MIM', 'DAI', 'USDC', 'USDT'],
         coins: ['MIM', '3Crv'],
         underlying_coin_addresses: [
@@ -1469,6 +1522,10 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         is_factory: true,
+        sCurveRewards_abi: factoryRewardsABI,
+        sCurveRewards_address: '0xb76256d1091e93976c61449d6e500d9f46d827d4', //not needed anymore???
+        reward_tokens: ['0x090185f2135308BaD17527004364eBcC2D37e5F6'],
+        gauge_abi: gaugeFactoryABI,
     },
     tricrypto2: {
         reference_asset: 'CRYPTO',
@@ -1497,6 +1554,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         deposit_abi: tricrypto2DepositABI,
         deposit_address: '0x3993d34e7e99Abf6B6f367309975d1360222D446',
+        gauge_abi: gaugeV3ABI,
     },
 
     eurt: {
@@ -1521,6 +1579,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xC581b735A1688071A1746c968e0798D642EDE491',
             '0xD71eCFF9342A5Ced620049e616c5035F1dB98620',
         ],
+        gauge_abi: gaugeV3ABI,
     },
 
     eurtusd: {
@@ -1566,6 +1625,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
+        gauge_abi: gaugeV4ABI,
     },
 
     crveth: {
@@ -1582,7 +1642,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['WETH', 'CRV'],
         swap_address: '0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511',
         token_address: '0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d',
-        gauge_address: '0x936734ea750bb194ddb4892b191b6bd5c43a3985', // Fake pool address to prevent old multicalls from
+        gauge_address: '0x1cEBdB0856dd985fAe9b8fEa2262469360B8a3a6',
         underlying_coin_addresses: [
             '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
             '0xD533a949740bb3306d119CC777fa900bA034cd52',
@@ -1591,6 +1651,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             '0xD533a949740bb3306d119CC777fa900bA034cd52',
         ],
+        gauge_abi: gaugeV4ABI,
     },
 
     cvxeth: {
@@ -1616,5 +1677,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
         ],
+        gauge_abi: gaugeV4ABI,
     },
 };

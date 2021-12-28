@@ -42,6 +42,7 @@ const statsTest = async () => {
     console.log(await saave.stats.getVolume());
     console.log(await saave.stats.getBaseApy());
     console.log(await saave.stats.getTokenApy());
+    console.log(await saave.stats.getRewardsApy());
 }
 
 const poolTest = async () => {
@@ -192,4 +193,16 @@ const boostingTest = async () => {
     console.log(await curve.boosting.getLockedAmountAndUnlockTime());
     console.log(await curve.boosting.getVeCrv());
     console.log(await curve.boosting.getVeCrvPct());
+}
+
+const rewardsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = new curve.Pool('susd');
+
+    console.log(await pool.gaugeClaimableTokens());
+    console.log(await pool.gaugeClaimTokens());
+
+    console.log(await pool.gaugeClaimableRewards());
+    console.log(await pool.gaugeClaimRewards());
 }

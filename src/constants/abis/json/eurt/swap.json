@@ -274,7 +274,7 @@
       }
     ],
     "outputs": [],
-    "gas": 471502
+    "gas": "471502"
   },
   {
     "stateMutability": "view",
@@ -287,7 +287,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 318
+    "gas": "318"
   },
   {
     "stateMutability": "nonpayable",
@@ -309,7 +309,7 @@
         "type": "bool"
       }
     ],
-    "gas": 77977
+    "gas": "77977"
   },
   {
     "stateMutability": "nonpayable",
@@ -335,7 +335,7 @@
         "type": "bool"
       }
     ],
-    "gas": 115912
+    "gas": "115912"
   },
   {
     "stateMutability": "nonpayable",
@@ -357,7 +357,7 @@
         "type": "bool"
       }
     ],
-    "gas": 37851
+    "gas": "37851"
   },
   {
     "stateMutability": "view",
@@ -370,7 +370,7 @@
         "type": "uint256[2]"
       }
     ],
-    "gas": 4707
+    "gas": "4707"
   },
   {
     "stateMutability": "view",
@@ -383,7 +383,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 468
+    "gas": "468"
   },
   {
     "stateMutability": "view",
@@ -396,7 +396,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 10764
+    "gas": "10764"
   },
   {
     "stateMutability": "view",
@@ -409,7 +409,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 10726
+    "gas": "10726"
   },
   {
     "stateMutability": "view",
@@ -422,7 +422,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 848656
+    "gas": "848656"
   },
   {
     "stateMutability": "view",
@@ -444,7 +444,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3336308
+    "gas": "3336308"
   },
   {
     "stateMutability": "nonpayable",
@@ -491,7 +491,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 2117591
+    "gas": "2117591"
   },
   {
     "stateMutability": "nonpayable",
@@ -584,7 +584,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 1100
+    "gas": "1100"
   },
   {
     "stateMutability": "nonpayable",
@@ -626,7 +626,7 @@
       }
     ],
     "outputs": [],
-    "gas": 162101
+    "gas": "162101"
   },
   {
     "stateMutability": "nonpayable",
@@ -634,7 +634,7 @@
     "name": "stop_ramp_A",
     "inputs": [],
     "outputs": [],
-    "gas": 157565
+    "gas": "157565"
   },
   {
     "stateMutability": "view",
@@ -652,7 +652,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 7740
+    "gas": "7740"
   },
   {
     "stateMutability": "nonpayable",
@@ -660,7 +660,7 @@
     "name": "withdraw_admin_fees",
     "inputs": [],
     "outputs": [],
-    "gas": 33182
+    "gas": "33182"
   },
   {
     "stateMutability": "view",
@@ -678,7 +678,7 @@
         "type": "address"
       }
     ],
-    "gas": 3093
+    "gas": "3093"
   },
   {
     "stateMutability": "view",
@@ -696,7 +696,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3123
+    "gas": "3123"
   },
   {
     "stateMutability": "view",
@@ -709,7 +709,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3108
+    "gas": "3108"
   },
   {
     "stateMutability": "view",
@@ -722,7 +722,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3138
+    "gas": "3138"
   },
   {
     "stateMutability": "view",
@@ -735,7 +735,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3168
+    "gas": "3168"
   },
   {
     "stateMutability": "view",
@@ -748,7 +748,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3198
+    "gas": "3198"
   },
   {
     "stateMutability": "view",
@@ -761,7 +761,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3228
+    "gas": "3228"
   },
   {
     "stateMutability": "view",
@@ -774,7 +774,7 @@
         "type": "string"
       }
     ],
-    "gas": 13488
+    "gas": "13488"
   },
   {
     "stateMutability": "view",
@@ -787,7 +787,7 @@
         "type": "string"
       }
     ],
-    "gas": 11241
+    "gas": "11241"
   },
   {
     "stateMutability": "view",
@@ -805,7 +805,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3533
+    "gas": "3533"
   },
   {
     "stateMutability": "view",
@@ -827,7 +827,7 @@
         "type": "uint256"
       }
     ],
-    "gas": 3778
+    "gas": "3778"
   },
   {
     "stateMutability": "view",
@@ -840,6 +840,6 @@
         "type": "uint256"
       }
     ],
-    "gas": 3378
+    "gas": "3378"
   }
 ]

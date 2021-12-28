@@ -25,6 +25,7 @@ export interface PoolDataInterface {
     underlying_coin_addresses: string[],
     coin_addresses: string[],
     swap_abi: any,
+    gauge_abi: any,
     deposit_abi?: any,
     old_swap_abi?: any,
     is_meta?: boolean,
@@ -50,5 +51,11 @@ export interface PoolDataInterface {
     reward_token?: string,
     reward_tokens?: string[],
     pool_type?: string,
-    crv_reward_contract?: string,
+    reward_contract?: string,
+}
+
+export interface RewardsApyInterface {
+    token: string,
+    symbol: string,
+    apy: string,
 }

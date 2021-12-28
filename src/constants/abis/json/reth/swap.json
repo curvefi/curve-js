@@ -298,7 +298,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 5289
+    "gas": "5289"
   },
   {
     "name": "A_precise",
@@ -311,7 +311,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 5251
+    "gas": "5251"
   },
   {
     "name": "get_virtual_price",
@@ -324,7 +324,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 1007693
+    "gas": "1007693"
   },
   {
     "name": "calc_token_amount",
@@ -346,7 +346,7 @@
     ],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2008092
+    "gas": "2008092"
   },
   {
     "name": "add_liquidity",
@@ -368,7 +368,7 @@
     ],
     "stateMutability": "payable",
     "type": "function",
-    "gas": 3177140
+    "gas": "3177140"
   },
   {
     "name": "get_dy",
@@ -394,7 +394,7 @@
     ],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2444404
+    "gas": "2444404"
   },
   {
     "name": "exchange",
@@ -424,7 +424,7 @@
     ],
     "stateMutability": "payable",
     "type": "function",
-    "gas": 2638539
+    "gas": "2638539"
   },
   {
     "name": "remove_liquidity",
@@ -446,7 +446,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 230063
+    "gas": "230063"
   },
   {
     "name": "remove_liquidity_imbalance",
@@ -468,7 +468,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 3240360
+    "gas": "3240360"
   },
   {
     "name": "calc_withdraw_one_coin",
@@ -490,7 +490,7 @@
     ],
     "stateMutability": "view",
     "type": "function",
-    "gas": 1375
+    "gas": "1375"
   },
   {
     "name": "remove_liquidity_one_coin",
@@ -516,7 +516,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 3899991
+    "gas": "3899991"
   },
   {
     "name": "ramp_A",
@@ -533,7 +533,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 151774
+    "gas": "151774"
   },
   {
     "name": "stop_ramp_A",
@@ -541,7 +541,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 148535
+    "gas": "148535"
   },
   {
     "name": "commit_new_fee",
@@ -558,7 +558,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 110371
+    "gas": "110371"
   },
   {
     "name": "apply_new_fee",
@@ -566,7 +566,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 153055
+    "gas": "153055"
   },
   {
     "name": "revert_new_parameters",
@@ -574,7 +574,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 21805
+    "gas": "21805"
   },
   {
     "name": "commit_transfer_ownership",
@@ -587,7 +587,7 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 74543
+    "gas": "74543"
   },
   {
     "name": "apply_transfer_ownership",
@@ -595,7 +595,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 116523
+    "gas": "116523"
   },
   {
     "name": "revert_transfer_ownership",
@@ -603,7 +603,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 21895
+    "gas": "21895"
   },
   {
     "name": "admin_balances",
@@ -621,7 +621,7 @@
     ],
     "stateMutability": "view",
     "type": "function",
-    "gas": 3453
+    "gas": "3453"
   },
   {
     "name": "withdraw_admin_fees",
@@ -629,7 +629,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 133752
+    "gas": "133752"
   },
   {
     "name": "donate_admin_fees",
@@ -637,7 +637,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 130899
+    "gas": "130899"
   },
   {
     "name": "kill_me",
@@ -645,7 +645,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 37908
+    "gas": "37908"
   },
   {
     "name": "unkill_me",
@@ -653,7 +653,7 @@
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "function",
-    "gas": 22045
+    "gas": "22045"
   },
   {
     "name": "coins",
@@ -671,7 +671,7 @@
     ],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2130
+    "gas": "2130"
   },
   {
     "name": "balances",
@@ -689,7 +689,7 @@
     ],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2160
+    "gas": "2160"
   },
   {
     "name": "fee",
@@ -702,7 +702,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2081
+    "gas": "2081"
   },
   {
     "name": "admin_fee",
@@ -715,7 +715,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2111
+    "gas": "2111"
   },
   {
     "name": "owner",
@@ -728,7 +728,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2141
+    "gas": "2141"
   },
   {
     "name": "initial_A",
@@ -741,7 +741,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2171
+    "gas": "2171"
   },
   {
     "name": "future_A",
@@ -754,7 +754,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2201
+    "gas": "2201"
   },
   {
     "name": "initial_A_time",
@@ -767,7 +767,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2231
+    "gas": "2231"
   },
   {
     "name": "future_A_time",
@@ -780,7 +780,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2261
+    "gas": "2261"
   },
   {
     "name": "admin_actions_deadline",
@@ -793,7 +793,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2291
+    "gas": "2291"
   },
   {
     "name": "transfer_ownership_deadline",
@@ -806,7 +806,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2321
+    "gas": "2321"
   },
   {
     "name": "future_fee",
@@ -819,7 +819,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2351
+    "gas": "2351"
   },
   {
     "name": "future_admin_fee",
@@ -832,7 +832,7 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2381
+    "gas": "2381"
   },
   {
     "name": "future_owner",
@@ -845,6 +845,6 @@
     "inputs": [],
     "stateMutability": "view",
     "type": "function",
-    "gas": 2411
+    "gas": "2411"
   }
 ]

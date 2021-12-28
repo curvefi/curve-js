@@ -5,7 +5,7 @@ import curve from "../../src/";
 // TO MAKE THIS TEST WORKING YOU NEED TO DO THESE STEPS FIRST
 //
 // 1. Run
-//     node deposit.js
+//     node deposit.test.js
 //
 // 2. Go to brownie console and run:
 //     chain.sleep(1000000)

@@ -12,7 +12,7 @@ const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 (async function () {
     await curve.init('JsonRpc', {},{ gasPrice: 0 });
 
-    for (const poolName of CRYPTO_POOLS) {
+    for (const poolName of ['susd']) {
         const pool = new curve.Pool(poolName);
         const amounts = pool.underlyingCoinAddresses.map(() => '10');
 

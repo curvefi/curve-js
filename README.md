@@ -667,3 +667,24 @@ await curve.estimateGas.crossAssetExchange('DAI', "WBTC", "1000", 0.01)
 
 await curve.boosting.estimateGas.createLock('1000', 365)
 ```
+
+## Rewards
+```ts
+const pool = new curve.Pool('susd');
+
+// CRV
+console.log(await pool.gaugeClaimableTokens());
+// 0.006296257916265276
+await pool.gaugeClaimTokens();
+
+// Additional rewards
+console.log(await pool.gaugeClaimableRewards());
+// [
+//     {
+//         token: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F',
+//         symbol: 'SNX',
+//         amount: '0.000596325465987726'
+//     }
+// ]
+await pool.gaugeClaimRewards();
+```

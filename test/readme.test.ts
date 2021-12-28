@@ -194,3 +194,15 @@ const boostingTest = async () => {
     console.log(await curve.boosting.getVeCrv());
     console.log(await curve.boosting.getVeCrvPct());
 }
+
+const rewardsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = new curve.Pool('susd');
+
+    console.log(await pool.gaugeClaimableTokens());
+    console.log(await pool.gaugeClaimTokens());
+
+    console.log(await pool.gaugeClaimableRewards());
+    console.log(await pool.gaugeClaimRewards());
+}

@@ -184,15 +184,35 @@ export class Pool {
         return ethers.utils.formatUnits(_expected);
     }
 
-    private getParameters = async (): Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }> => {
-        const calls = [
-            curve.contracts[this.swap].multicallContract.get_virtual_price(),
-            curve.contracts[this.swap].multicallContract.fee(),
-            curve.contracts[this.swap].multicallContract.admin_fee(),
-            curve.contracts[this.swap].multicallContract.A(),
-        ]
+    private getParameters = async (): Promise<{
+        virtualPrice: string,
+        fee: string,
+        adminFee: string,
+        A: string,
+        future_A?: string,
+        initial_A?: string,
+        future_A_time?: number,
+        initial_A_time?: number,
+        gamma?: string,
+    }> => {
+        const multicallContract = curve.contracts[this.swap].multicallContract;
 
-        if (this.isCrypto) calls.push(curve.contracts[this.swap].multicallContract.gamma())
+        const calls = [
+            multicallContract.get_virtual_price(),
+            multicallContract.fee(),
+            multicallContract.admin_fee(),
+            multicallContract.A(),
+        ]
+        if (this.isCrypto) calls.push(multicallContract.gamma())
+
+        const additionalCalls = this.isCrypto ? [] : [multicallContract.future_A()];
+        if ('initial_A' in multicallContract) {
+            additionalCalls.push(
+                multicallContract.initial_A(),
+                multicallContract.future_A_time(),
+                multicallContract.initial_A_time()
+            );
+        }
 
         const [_virtualPrice, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
         const [virtualPrice, fee, adminFee, A, gamma] = [
@@ -204,7 +224,16 @@ export class Pool {
 
         ]
 
-        return { virtualPrice, fee, adminFee, A, gamma };
+        const A_PRECISION = curve.chainId === 1 && ['compound', 'usdt', 'y', 'busd', 'susd', 'pax', 'ren', 'sbtc', 'hbtc', '3pool'].includes(this.name) ? 1 : 100;
+        const [_future_A, _initial_A, _future_A_time, _initial_A_time] = await curve.multicallProvider.all(additionalCalls) as ethers.BigNumber[]
+        const [future_A, initial_A, future_A_time, initial_A_time] = [
+            _future_A ? String(Number(ethers.utils.formatUnits(_future_A, 0)) / A_PRECISION) : undefined,
+            _initial_A ? String(Number(ethers.utils.formatUnits(_initial_A, 0)) / A_PRECISION) : undefined,
+            _future_A_time ? Number(ethers.utils.formatUnits(_future_A_time, 0)) * 1000 : undefined,
+            _initial_A_time ? Number(ethers.utils.formatUnits(_initial_A_time, 0)) * 1000 : undefined,
+        ]
+
+        return { virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma };
     }
 
     private getPoolBalances = async (): Promise<string[]> => {

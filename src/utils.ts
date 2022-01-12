@@ -253,3 +253,5 @@ export const _getStatsUrl = (isCrypto = false): string => {
         throw Error(`Unsupported network id${curve.chainId}`)
     }
 }
+
+export const getPoolList = (): string[] => Object.keys(POOLS_DATA);

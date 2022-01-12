@@ -273,10 +273,10 @@ export class Pool {
     }
 
     private getTotalLiquidity = async (): Promise<string> => {
-        const balances = await this.getPoolWrappedBalances();
+        const balances = await this.getPoolBalances();
 
         const promises = [];
-        for (const addr of this.coinAddresses) {
+        for (const addr of this.underlyingCoinAddresses) {
             promises.push(_getUsdRate(addr))
         }
 

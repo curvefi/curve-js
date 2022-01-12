@@ -122,12 +122,36 @@ const WalletProvider: FunctionComponent = ({ children }) => {
     ...
 ```
 
+## Available pools
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+
+    console.log(curve.getPoolList());
+    // [
+    //     'compound', 'usdt',   'y',          'busd',
+    //     'susd',     'pax',    'ren',        'sbtc',
+    //     'hbtc',     '3pool',  'gusd',       'husd',
+    //     'usdk',     'usdn',   'musd',       'rsv',
+    //     'tbtc',     'dusd',   'pbtc',       'bbtc',
+    //     'obtc',     'seth',   'eurs',       'ust',
+    //     'aave',     'steth',  'saave',      'ankreth',
+    //     'usdp',     'ib',     'link',       'tusd',
+    //     'frax',     'lusd',   'busdv2',     'reth',
+    //     'alusd',    'mim',    'tricrypto2', 'eurt',
+    //     'eurtusd',  'crveth', 'cvxeth'
+    // ]
+})()
+````
+
 ## Balances
 ```ts
 import curve from "@curvefi/api";
 
 (async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
     console.log(await curve.getBalances(['DAI', 'sUSD']));
     // OR console.log(await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']));
@@ -218,41 +242,46 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
 
-    const saave = new curve.Pool('aave');
+    const aave = new curve.Pool('aave');
 
-    console.log(await saave.stats.getParameters());
+    console.log(await aave.stats.getParameters());
     // {
-    //     virtualPrice: '1.051888073134291314',
+    //     virtualPrice: '1.082056814810440924',
     //     fee: '0.04',
     //     adminFee: '0.02',
-    //     A: '100',
+    //     A: '2000',
+    //     future_A: '2000',
+    //     initial_A: '200',
+    //     future_A_time: 1628525830000,
+    //     initial_A_time: 1627923611000,
     //     gamma: undefined
     // }
-    
-    console.log(await saave.stats.getPoolBalances());
-    // [ '56379002.278506498342855456', '40931955.428972956435172989' ]
-    
-    console.log(await saave.stats.getPoolWrappedBalances());
-    // [ '56379002.278506498342855456', '40931955.428972956435172989' ]
-    
-    console.log(await saave.stats.getTotalLiquidity());
-    // 97172772.77289483
-    
-    console.log(await saave.stats.getVolume());
-    // 1022328.1797568246
-    
-    console.log(await saave.stats.getBaseApy());
-    // [ '3.2200', '3.5690', '3.0858', '5.9629' ]
-    
-    console.log(await saave.stats.getTokenApy());
-    // [ '0.0167', '0.0417' ]
 
-    console.log(await saave.stats.getRewardsApy());
+
+    console.log(await aave.stats.getPoolBalances());
+    // [ '19619514.600802512613372364', '18740372.790339', '16065974.167437' ]
+    
+    console.log(await aave.stats.getPoolWrappedBalances());
+    // [ '19619514.600802512613372364', '18740372.790339', '16065974.167437' ]
+    
+    console.log(await aave.stats.getTotalLiquidity());
+    // 54425861.55857851
+    
+    console.log(await aave.stats.getVolume());
+    // 175647.68180084194
+    
+    console.log(await aave.stats.getBaseApy());
+    // { day: '3.2015', week: '3.1185', month: '3.1318', total: '7.7286' }
+    
+    console.log(await aave.stats.getTokenApy());
+    // [ '0.4093', '1.0233' ]
+
+    console.log(await aave.stats.getRewardsApy());
     // [
     //     {
     //         token: '0x4da27a545c0c5B758a6BA100e3a049001de870f5',
     //         symbol: 'stkAAVE',
-    //         apy: '0.5807714739298449'
+    //         apy: '0.4978306501849664'
     //     }
     // ]
 })()

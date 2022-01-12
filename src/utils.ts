@@ -246,10 +246,12 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 
 export const _getStatsUrl = (isCrypto = false): string => {
     if (curve.chainId === 1 || curve.chainId === 1337) {
-        return isCrypto ? "http://stats.curve.fi/raw-stats-crypto/apys.json" : "http://stats.curve.fi/raw-stats/apys.json";
+        return isCrypto ? "https://stats.curve.fi/raw-stats-crypto/apys.json" : "https://stats.curve.fi/raw-stats/apys.json";
     } else if (curve.chainId === 137) {
-        return "http://stats.curve.fi/raw-stats-polygon/apys.json"
+        return "https://stats.curve.fi/raw-stats-polygon/apys.json"
     } else {
         throw Error(`Unsupported network id${curve.chainId}`)
     }
 }
+
+export const getPoolList = (): string[] => Object.keys(POOLS_DATA);

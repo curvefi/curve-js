@@ -80,7 +80,7 @@ export class Pool {
         getPoolWrappedBalances: () => Promise<string[]>,
         getTotalLiquidity: () => Promise<string>,
         getVolume: () => Promise<string>,
-        getBaseApy: () => Promise<[daily: string, weekly: string, monthly: string, total: string]>,
+        getBaseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
         getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
         getRewardsApy: () => Promise<RewardsApyInterface[]>,
     }
@@ -297,14 +297,21 @@ export class Pool {
         return String(volume * usdRate)
     }
 
-    private getBaseApy = async (): Promise<[daily: string, weekly: string, monthly: string, total: string]> => {
+    private getBaseApy = async (): Promise<{day: string, week: string, month: string, total: string}> => {
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
         const statsUrl = _getStatsUrl(this.isCrypto);
         const apy = (await axios.get(statsUrl)).data.apy;
 
-        return [apy.day[name], apy.week[name], apy.month[name], apy.total[name]].map(
+        const formattedApy = [apy.day[name], apy.week[name], apy.month[name], apy.total[name]].map(
             (x: number) => (x * 100).toFixed(4)
         ) as [daily: string, weekly: string, monthly: string, total: string]
+
+        return {
+            day: formattedApy[0],
+            week: formattedApy[1],
+            month: formattedApy[2],
+            total: formattedApy[3],
+        }
     }
 
     private getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {

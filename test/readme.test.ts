@@ -33,16 +33,16 @@ const balancesTest = async () => {
 const statsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0 });
 
-    const saave = new curve.Pool('aave');
+    const aave = new curve.Pool('aave');
 
-    console.log(await saave.stats.getParameters());
-    console.log(await saave.stats.getPoolBalances());
-    console.log(await saave.stats.getPoolWrappedBalances());
-    console.log(await saave.stats.getTotalLiquidity());
-    console.log(await saave.stats.getVolume());
-    console.log(await saave.stats.getBaseApy());
-    console.log(await saave.stats.getTokenApy());
-    console.log(await saave.stats.getRewardsApy());
+    console.log(await aave.stats.getParameters());
+    console.log(await aave.stats.getPoolBalances());
+    console.log(await aave.stats.getPoolWrappedBalances());
+    console.log(await aave.stats.getTotalLiquidity());
+    console.log(await aave.stats.getVolume());
+    console.log(await aave.stats.getBaseApy());
+    console.log(await aave.stats.getTokenApy());
+    console.log(await aave.stats.getRewardsApy());
 }
 
 const poolTest = async () => {

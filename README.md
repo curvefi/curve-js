@@ -122,12 +122,36 @@ const WalletProvider: FunctionComponent = ({ children }) => {
     ...
 ```
 
+## Available pools
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+
+    console.log(curve.getPoolList());
+    // [
+    //     'compound', 'usdt',   'y',          'busd',
+    //     'susd',     'pax',    'ren',        'sbtc',
+    //     'hbtc',     '3pool',  'gusd',       'husd',
+    //     'usdk',     'usdn',   'musd',       'rsv',
+    //     'tbtc',     'dusd',   'pbtc',       'bbtc',
+    //     'obtc',     'seth',   'eurs',       'ust',
+    //     'aave',     'steth',  'saave',      'ankreth',
+    //     'usdp',     'ib',     'link',       'tusd',
+    //     'frax',     'lusd',   'busdv2',     'reth',
+    //     'alusd',    'mim',    'tricrypto2', 'eurt',
+    //     'eurtusd',  'crveth', 'cvxeth'
+    // ]
+})()
+````
+
 ## Balances
 ```ts
 import curve from "@curvefi/api";
 
 (async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
     console.log(await curve.getBalances(['DAI', 'sUSD']));
     // OR console.log(await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']));

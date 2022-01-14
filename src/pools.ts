@@ -1084,24 +1084,27 @@ export class Pool {
 
     private gaugeDepositEstimateGas = async (lpTokenAmount: string): Promise<number> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.options)).toNumber();
+        return (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).toNumber();
     }
 
     public gaugeDeposit = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)
 
-        return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, curve.options)).hash;
+        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).mul(150).div(100);
+        return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
     private gaugeWithdrawEstimateGas = async (lpTokenAmount: string): Promise<number> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.options)).toNumber();
+        return (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).toNumber();
     }
 
     public gaugeWithdraw = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, curve.options)).hash;
+
+        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(180).div(100);
+        return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
     public gaugeClaimableTokens = async (address = ""): Promise<string> => {

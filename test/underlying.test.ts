@@ -8,8 +8,10 @@ import { DictInterface } from "../lib/interfaces";
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
-const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth'];
+const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
 
+// const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
+const ETHEREUM_POOLS = ['teth'];
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
 const underlyingLiquidityTest = (name: string) => {
@@ -173,28 +175,13 @@ describe('Underlying test', async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
     });
 
-    for (const poolName of PLAIN_POOLS) {
+    for (const poolName of ETHEREUM_POOLS) {
         underlyingLiquidityTest(poolName);
         underlyingExchangeTest(poolName);
     }
 
-    for (const poolName of LENDING_POOLS) {
-        underlyingLiquidityTest(poolName);
-        underlyingExchangeTest(poolName);
-    }
-
-    for (const poolName of META_POOLS) {
-        underlyingLiquidityTest(poolName);
-        underlyingExchangeTest(poolName);
-    }
-
-    for (const poolName of CRYPTO_POOLS) {
-        underlyingLiquidityTest(poolName);
-        underlyingExchangeTest(poolName);
-    }
-
-    for (const poolName of POLYGON_POOLS) {
-        underlyingLiquidityTest(poolName);
-        underlyingExchangeTest(poolName);
-    }
+    // for (const poolName of POLYGON_POOLS) {
+    //     underlyingLiquidityTest(poolName);
+    //     underlyingExchangeTest(poolName);
+    // }
 })

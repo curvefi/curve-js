@@ -157,7 +157,7 @@ export class Pool {
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
             ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
         let _expected: ethers.BigNumber;
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             _expected = await this._calcLpTokenAmountWithUnderlying(_amounts, isDeposit); // Lending pools
         } else if (this.isMeta) {
             _expected = await this._calcLpTokenAmountZap(_amounts, isDeposit); // Metapools
@@ -253,7 +253,7 @@ export class Pool {
             _poolUnderlyingBalances = this.name !== 'atricrypto3' ?
                 [..._poolUnderlyingBalance, ..._basePoolExpectedAmounts] :
                 [..._basePoolExpectedAmounts, ..._poolUnderlyingBalance];
-        } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             const _rates: ethers.BigNumber[] = await this._getRates();
             _poolUnderlyingBalances = _poolWrappedBalances.map(
                 (_b: ethers.BigNumber, i: number) => _b.mul(_rates[i]).div(ethers.BigNumber.from(10).pow(18)));
@@ -432,7 +432,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, true, true) as number;
         }
 
@@ -467,7 +467,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, true) as string;
         }
 
@@ -559,7 +559,7 @@ export class Pool {
             ethers.utils.parseUnits(amount, this.decimals[i]));
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, false, true) as number;
         }
 
@@ -581,7 +581,7 @@ export class Pool {
         await curve.updateFeeData();
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._addLiquidity(_amounts, false) as string;
         }
 
@@ -593,7 +593,7 @@ export class Pool {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         let _expected: ethers.BigNumber[];
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             _expected = await this._calcExpectedUnderlyingAmounts(_lpTokenAmount); // Lending pools
         } else if (this.isMeta) {
             _expected = await this._calcExpectedUnderlyingAmountsMeta(_lpTokenAmount); // Metapools
@@ -635,7 +635,7 @@ export class Pool {
             return await this._removeLiquidityZap(_lpTokenAmount, true) as number;
         }
 
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, true, true) as number;
         }
 
@@ -655,7 +655,7 @@ export class Pool {
             return await this._removeLiquidityZap(_lpTokenAmount) as string;
         }
 
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, true) as string;
         }
 
@@ -689,7 +689,7 @@ export class Pool {
             throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
         }
 
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, false, true) as number;
         }
 
@@ -705,7 +705,7 @@ export class Pool {
 
         await curve.updateFeeData();
 
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidity(_lpTokenAmount, false) as string;
         }
 
@@ -961,7 +961,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,true, true) as number;
         }
 
@@ -981,7 +981,7 @@ export class Pool {
         }
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,true) as string;
         }
 
@@ -1040,7 +1040,7 @@ export class Pool {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,false, true) as number;
         }
 
@@ -1063,7 +1063,7 @@ export class Pool {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
         // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
+        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren')) {
             return await this._removeLiquidityOneCoin(_lpTokenAmount, i,false) as string;
         }
 
@@ -1084,24 +1084,27 @@ export class Pool {
 
     private gaugeDepositEstimateGas = async (lpTokenAmount: string): Promise<number> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.options)).toNumber();
+        return (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).toNumber();
     }
 
     public gaugeDeposit = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)
 
-        return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, curve.options)).hash;
+        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).mul(150).div(100);
+        return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
     private gaugeWithdrawEstimateGas = async (lpTokenAmount: string): Promise<number> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.options)).toNumber();
+        return (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).toNumber();
     }
 
     public gaugeWithdraw = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, curve.options)).hash;
+
+        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(180).div(100);
+        return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
     public gaugeClaimableTokens = async (address = ""): Promise<string> => {
@@ -1204,25 +1207,25 @@ export class Pool {
     }
 
     public exchangeIsApproved = async (inputCoin: string | number, amount: string): Promise<boolean> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, contractAddress);
     }
 
     private exchangeApproveEstimateGas = async (inputCoin: string | number, amount: string): Promise<number> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowanceEstimateGas([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     public exchangeApprove = async (inputCoin: string | number, amount: string): Promise<string[]> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowance([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     private exchangeEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1253,7 +1256,7 @@ export class Pool {
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1610,7 +1613,7 @@ export class Pool {
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.swap].contract;
 
-        if (["eurtusd", "crveth", "cvxeth"].includes(this.name)) {
+        if (["eurtusd", "xautusd", "crveth", "cvxeth", "spelleth", "teth"].includes(this.name)) {
             return await contract.calc_token_amount(_amounts, curve.constantOptions);
         }
 
@@ -1624,7 +1627,7 @@ export class Pool {
             return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
         }
 
-        if (this.name === "eurtusd") {
+        if (["eurtusd", "xautusd"].includes(this.name)) {
             return await contract.calc_token_amount(_amounts, curve.constantOptions);
         }
 
@@ -2003,7 +2006,7 @@ export class Pool {
     }
 
     private _getExchangeOutput = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name)  ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name)  ? this.zap as string : this.swap;
         const contract = curve.contracts[contractAddress].contract;
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
             return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
@@ -2090,9 +2093,9 @@ const _getBestPoolAndOutput = async (
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
         } else if (inputCoinIndexes[1] >= 0 && outputCoinIndexes[1] >= 0) {
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else if (inputCoinIndexes[0] === 0 && outputCoinIndexes[2] >= 0 && pool[0] !== 'eurtusd') {
+        } else if (inputCoinIndexes[0] === 0 && outputCoinIndexes[2] >= 0 && !['eurtusd', "xautusd"].includes(pool[0])) {
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else if (inputCoinIndexes[2] >= 0 && outputCoinIndexes[0] === 0 && pool[0] !== 'eurtusd') {
+        } else if (inputCoinIndexes[2] >= 0 && outputCoinIndexes[0] === 0 && !['eurtusd', "xautusd"].includes(pool[0])) {
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
         } else {
             return null

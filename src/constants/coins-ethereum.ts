@@ -21,6 +21,7 @@ export const ETH_COINS_ETHEREUM: { [index: string]: string } = {
     seth: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",  // sETH
     reth: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593", // rETH
     weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+    xaut: "0x68749665ff8d2d112fa859aa293f07a622782f38", // XAUt TODO move to GOLD
 }
 
 // @ts-ignore
@@ -188,6 +189,7 @@ export const DECIMALS_ETHEREUM: { [index: string]: number } = {
     "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490": 18, // 3CRV
     "0xD533a949740bb3306d119CC777fa900bA034cd52": 18, // CRV
     "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b": 18, // CVX
+    "0x68749665ff8d2d112fa859aa293f07a622782f38": 6,  // XAUt
 }
 
 // @ts-ignore

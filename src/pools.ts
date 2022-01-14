@@ -1204,25 +1204,25 @@ export class Pool {
     }
 
     public exchangeIsApproved = async (inputCoin: string | number, amount: string): Promise<boolean> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, contractAddress);
     }
 
     private exchangeApproveEstimateGas = async (inputCoin: string | number, amount: string): Promise<number> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowanceEstimateGas([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     public exchangeApprove = async (inputCoin: string | number, amount: string): Promise<string[]> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowance([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     private exchangeEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1253,7 +1253,7 @@ export class Pool {
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1610,7 +1610,7 @@ export class Pool {
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.swap].contract;
 
-        if (["eurtusd", "crveth", "cvxeth"].includes(this.name)) {
+        if (["eurtusd", "xautusd", "crveth", "cvxeth"].includes(this.name)) {
             return await contract.calc_token_amount(_amounts, curve.constantOptions);
         }
 
@@ -1624,7 +1624,7 @@ export class Pool {
             return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
         }
 
-        if (this.name === "eurtusd") {
+        if (["eurtusd", "xautusd"].includes(this.name)) {
             return await contract.calc_token_amount(_amounts, curve.constantOptions);
         }
 
@@ -2003,7 +2003,7 @@ export class Pool {
     }
 
     private _getExchangeOutput = async (i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
-        const contractAddress = ["eurtusd", "atricrypto3"].includes(this.name)  ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name)  ? this.zap as string : this.swap;
         const contract = curve.contracts[contractAddress].contract;
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
             return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
@@ -2090,9 +2090,9 @@ const _getBestPoolAndOutput = async (
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
         } else if (inputCoinIndexes[1] >= 0 && outputCoinIndexes[1] >= 0) {
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else if (inputCoinIndexes[0] === 0 && outputCoinIndexes[2] >= 0 && pool[0] !== 'eurtusd') {
+        } else if (inputCoinIndexes[0] === 0 && outputCoinIndexes[2] >= 0 && !['eurtusd', "xautusd"].includes(pool[0])) {
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else if (inputCoinIndexes[2] >= 0 && outputCoinIndexes[0] === 0 && pool[0] !== 'eurtusd') {
+        } else if (inputCoinIndexes[2] >= 0 && outputCoinIndexes[0] === 0 && !['eurtusd', "xautusd"].includes(pool[0])) {
             return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
         } else {
             return null

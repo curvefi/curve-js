@@ -109,6 +109,7 @@ export const COINS_ETHEREUM: { [index: string]: string } = {
     ...USD_COINS_ETHEREUM,
     snx: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",  // SNX
     spell: "0x090185f2135308bad17527004364ebcc2d37e5f6", // SPELL
+    t: "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5", // T
 }
 
 export const DECIMALS_ETHEREUM: { [index: string]: number } = {
@@ -192,6 +193,7 @@ export const DECIMALS_ETHEREUM: { [index: string]: number } = {
     "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b": 18, // CVX
     "0x68749665ff8d2d112fa859aa293f07a622782f38": 6,  // XAUt
     "0x090185f2135308bad17527004364ebcc2d37e5f6": 18, // SPELL
+    "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5": 18, // T
 }
 
 // @ts-ignore

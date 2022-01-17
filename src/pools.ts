@@ -385,6 +385,14 @@ export class Pool {
     }
 
     public addLiquiditySlippage = async (amounts: string[]): Promise<string> => {
+        if (this.isCrypto) {
+            const prices = await this._underlyingPrices();
+            const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
+            const expected = Number(await this.addLiquidityExpected(amounts));
+
+            return await this._addLiquidityCryptoSlippage(totalAmountUSD, expected);
+        }
+
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
         const expected = Number(await this.addLiquidityExpected(amounts));
 
@@ -449,6 +457,15 @@ export class Pool {
         const poolBalances = (await this.getPoolBalances()).map(Number);
         const walletBalances = Object.values(await this.underlyingCoinBalances()).map(Number);
 
+        if (this.isCrypto) {
+            const prices = await this._underlyingPrices();
+            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
+            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
+            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.underlyingDecimals);
+
+            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
+        }
+
         return this._balancedAmounts(poolBalances, walletBalances, this.underlyingDecimals)
     }
 
@@ -488,6 +505,15 @@ export class Pool {
         const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
         const walletBalances = Object.values(await this.coinBalances()).map(Number);
 
+        if (this.isCrypto) {
+            const prices = await this._wrappedPrices();
+            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
+            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
+            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.decimals);
+
+            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
+        }
+
         return this._balancedAmounts(poolBalances, walletBalances, this.decimals)
     }
 
@@ -503,6 +529,14 @@ export class Pool {
     public addLiquidityWrappedSlippage = async (amounts: string[]): Promise<string> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        if (this.isCrypto) {
+            const prices = await this._wrappedPrices();
+            const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
+            const expected = Number(await this.addLiquidityWrappedExpected(amounts));
+
+            return await this._addLiquidityCryptoSlippage(totalAmountUSD, expected, false);
         }
 
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
@@ -923,6 +957,11 @@ export class Pool {
     public removeLiquidityOneCoinSlippage = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
         const totalAmount = Number(await this.removeLiquidityOneCoinExpected(lpTokenAmount, coin));
 
+        if (this.isCrypto) {
+            const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin)];
+            return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+        }
+
         return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount));
     }
 
@@ -1017,6 +1056,11 @@ export class Pool {
         }
 
         const totalAmount = Number(await this.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, coin));
+
+        if (this.isCrypto) {
+            const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin, false)];
+            return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+        }
 
         return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount), false);
     }
@@ -1565,6 +1609,45 @@ export class Pool {
         return addresses.length === 1 ? balances[addresses[0]] : balances
     }
 
+    private _underlyingPrices = async (): Promise<number[]> => {
+        const promises = [];
+        for (const addr of this.underlyingCoinAddresses) {
+            promises.push(_getUsdRate(addr))
+        }
+
+        return await Promise.all(promises)
+    }
+
+    // NOTE! It may crash!
+    private _wrappedPrices = async (): Promise<number[]> => {
+        const promises = [];
+        for (const addr of this.coinAddresses) {
+            promises.push(_getUsdRate(addr))
+        }
+
+        return await Promise.all(promises)
+    }
+
+    private _addLiquidityCryptoSlippage = async (totalAmountUSD: number, expected: number, useUnderlying = true): Promise<string> => {
+        const poolBalances: number[] = useUnderlying ?
+            (await this.getPoolBalances()).map(Number) :
+            (await this.getPoolWrappedBalances()).map(Number);
+        const prices: number[] = useUnderlying ? await this._underlyingPrices() : await this._wrappedPrices();
+
+        const poolBalancesUSD = poolBalances.map((b, i) => Number(b) * prices[i]);
+        const poolTotalBalance: number = poolBalancesUSD.reduce((a,b) => a + b);
+        const poolBalancesRatios: number[] = poolBalancesUSD.map((b) => b / poolTotalBalance);
+
+        const balancedAmountsUSD: number[] = poolBalancesRatios.map((r) => r * totalAmountUSD);
+        const balancedAmounts: string[] = balancedAmountsUSD.map((a, i) => String(a / prices[i]));
+
+        const balancedExpected = useUnderlying ?
+            Number(await this.addLiquidityExpected(balancedAmounts)) :
+            Number(await this.addLiquidityWrappedExpected(balancedAmounts));
+
+        return String((balancedExpected - expected) / balancedExpected)
+    }
+
     private _addLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
         const poolBalances: number[] = useUnderlying ?
             (await this.getPoolBalances()).map(Number) :
@@ -1578,6 +1661,17 @@ export class Pool {
             Number(await this.addLiquidityWrappedExpected(balancedAmounts));
 
         return String((balancedExpected - expected) / balancedExpected)
+    }
+
+    private _removeLiquidityCryptoSlippage = async (totalAmountUSD: number, lpTokenAmount: number, useUnderlying = true): Promise<string> => {
+        const prices: number[] = useUnderlying ? await this._underlyingPrices() : await this._wrappedPrices();
+
+        const balancedAmounts = useUnderlying ?
+            await this.removeLiquidityExpected(String(lpTokenAmount)) :
+            await this.removeLiquidityWrappedExpected(String(lpTokenAmount));
+        const balancedTotalAmountsUSD = balancedAmounts.reduce((s, b, i) => s + (Number(b) * prices[i]), 0);
+
+        return String((balancedTotalAmountsUSD - totalAmountUSD) / balancedTotalAmountsUSD)
     }
 
     private _removeLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
@@ -1596,7 +1690,8 @@ export class Pool {
     }
 
     private _balancedAmounts = (poolBalances: number[], walletBalances: number[], decimals: number[]): string[] => {
-        const poolBalancesRatios = poolBalances.map((b) => b / poolBalances.reduce((a,b) => a + b));
+        const poolTotalLiquidity = poolBalances.reduce((a,b) => a + b);
+        const poolBalancesRatios = poolBalances.map((b) => b / poolTotalLiquidity);
         // Cross factors for each wallet balance used as reference to see the
         // max that can be used according to the lowest relative wallet balance
         const balancedAmountsForEachScenario = walletBalances.map((_, i) => (

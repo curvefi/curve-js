@@ -457,6 +457,15 @@ export class Pool {
         const poolBalances = (await this.getPoolBalances()).map(Number);
         const walletBalances = Object.values(await this.underlyingCoinBalances()).map(Number);
 
+        if (this.isCrypto) {
+            const prices = await this._underlyingPrices();
+            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
+            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
+            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.underlyingDecimals);
+
+            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
+        }
+
         return this._balancedAmounts(poolBalances, walletBalances, this.underlyingDecimals)
     }
 
@@ -495,6 +504,15 @@ export class Pool {
 
         const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
         const walletBalances = Object.values(await this.coinBalances()).map(Number);
+
+        if (this.isCrypto) {
+            const prices = await this._wrappedPrices();
+            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
+            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
+            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.decimals);
+
+            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
+        }
 
         return this._balancedAmounts(poolBalances, walletBalances, this.decimals)
     }
@@ -1672,7 +1690,8 @@ export class Pool {
     }
 
     private _balancedAmounts = (poolBalances: number[], walletBalances: number[], decimals: number[]): string[] => {
-        const poolBalancesRatios = poolBalances.map((b) => b / poolBalances.reduce((a,b) => a + b));
+        const poolTotalLiquidity = poolBalances.reduce((a,b) => a + b);
+        const poolBalancesRatios = poolBalances.map((b) => b / poolTotalLiquidity);
         // Cross factors for each wallet balance used as reference to see the
         // max that can be used according to the lowest relative wallet balance
         const balancedAmountsForEachScenario = walletBalances.map((_, i) => (

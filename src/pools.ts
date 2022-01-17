@@ -938,9 +938,11 @@ export class Pool {
 
     public removeLiquidityOneCoinSlippage = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
         const totalAmount = Number(await this.removeLiquidityOneCoinExpected(lpTokenAmount, coin));
-        const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin)];
 
-        if (this.isCrypto) return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+        if (this.isCrypto) {
+            const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin)];
+            return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+        }
 
         return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount));
     }
@@ -1036,9 +1038,11 @@ export class Pool {
         }
 
         const totalAmount = Number(await this.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, coin));
-        const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin, false)];
 
-        if (this.isCrypto) return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+        if (this.isCrypto) {
+            const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin, false)];
+            return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+        }
 
         return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount), false);
     }

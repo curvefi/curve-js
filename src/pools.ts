@@ -938,6 +938,9 @@ export class Pool {
 
     public removeLiquidityOneCoinSlippage = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
         const totalAmount = Number(await this.removeLiquidityOneCoinExpected(lpTokenAmount, coin));
+        const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin)];
+
+        if (this.isCrypto) return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
 
         return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount));
     }
@@ -1033,6 +1036,9 @@ export class Pool {
         }
 
         const totalAmount = Number(await this.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, coin));
+        const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin, false)];
+
+        if (this.isCrypto) return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
 
         return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount), false);
     }
@@ -1633,6 +1639,17 @@ export class Pool {
             Number(await this.addLiquidityWrappedExpected(balancedAmounts));
 
         return String((balancedExpected - expected) / balancedExpected)
+    }
+
+    private _removeLiquidityCryptoSlippage = async (totalAmountUSD: number, lpTokenAmount: number, useUnderlying = true): Promise<string> => {
+        const prices: number[] = useUnderlying ? await this._underlyingPrices() : await this._wrappedPrices();
+
+        const balancedAmounts = useUnderlying ?
+            await this.removeLiquidityExpected(String(lpTokenAmount)) :
+            await this.removeLiquidityWrappedExpected(String(lpTokenAmount));
+        const balancedTotalAmountsUSD = balancedAmounts.reduce((s, b, i) => s + (Number(b) * prices[i]), 0);
+
+        return String((balancedTotalAmountsUSD - totalAmountUSD) / balancedTotalAmountsUSD)
     }
 
     private _removeLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {

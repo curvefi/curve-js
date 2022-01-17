@@ -385,6 +385,14 @@ export class Pool {
     }
 
     public addLiquiditySlippage = async (amounts: string[]): Promise<string> => {
+        if (this.isCrypto) {
+            const prices = await this._underlyingPrices();
+            const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
+            const expected = Number(await this.addLiquidityExpected(amounts));
+
+            return await this._addLiquidityCryptoSlippage(totalAmountUSD, expected);
+        }
+
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
         const expected = Number(await this.addLiquidityExpected(amounts));
 
@@ -503,6 +511,14 @@ export class Pool {
     public addLiquidityWrappedSlippage = async (amounts: string[]): Promise<string> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        if (this.isCrypto) {
+            const prices = await this._wrappedPrices();
+            const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
+            const expected = Number(await this.addLiquidityWrappedExpected(amounts));
+
+            return await this._addLiquidityCryptoSlippage(totalAmountUSD, expected, false);
         }
 
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
@@ -1563,6 +1579,45 @@ export class Pool {
         }
 
         return addresses.length === 1 ? balances[addresses[0]] : balances
+    }
+
+    private _underlyingPrices = async (): Promise<number[]> => {
+        const promises = [];
+        for (const addr of this.underlyingCoinAddresses) {
+            promises.push(_getUsdRate(addr))
+        }
+
+        return await Promise.all(promises)
+    }
+
+    // NOTE! It may crash!
+    private _wrappedPrices = async (): Promise<number[]> => {
+        const promises = [];
+        for (const addr of this.coinAddresses) {
+            promises.push(_getUsdRate(addr))
+        }
+
+        return await Promise.all(promises)
+    }
+
+    private _addLiquidityCryptoSlippage = async (totalAmountUSD: number, expected: number, useUnderlying = true): Promise<string> => {
+        const poolBalances: number[] = useUnderlying ?
+            (await this.getPoolBalances()).map(Number) :
+            (await this.getPoolWrappedBalances()).map(Number);
+        const prices: number[] = useUnderlying ? await this._underlyingPrices() : await this._wrappedPrices();
+
+        const poolBalancesUSD = poolBalances.map((b, i) => Number(b) * prices[i]);
+        const poolTotalBalance: number = poolBalancesUSD.reduce((a,b) => a + b);
+        const poolBalancesRatios: number[] = poolBalancesUSD.map((b) => b / poolTotalBalance);
+
+        const balancedAmountsUSD: number[] = poolBalancesRatios.map((r) => r * totalAmountUSD);
+        const balancedAmounts: string[] = balancedAmountsUSD.map((a, i) => String(a / prices[i]));
+
+        const balancedExpected = useUnderlying ?
+            Number(await this.addLiquidityExpected(balancedAmounts)) :
+            Number(await this.addLiquidityWrappedExpected(balancedAmounts));
+
+        return String((balancedExpected - expected) / balancedExpected)
     }
 
     private _addLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {

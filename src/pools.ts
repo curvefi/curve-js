@@ -580,9 +580,10 @@ export class Pool {
             ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
         const contract = curve.contracts[ALIASES.deposit_and_stake].contract;
-        const deposit = (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) || this.isMeta) ? this.zap : this.swap;
         const useUnderlying = ['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren');
         const _minMintAmount = ethers.utils.parseUnits(await this.addLiquidityExpected(amounts)).mul(99).div(100);
+        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
         const coinAddresses = [...this.underlyingCoinAddresses];
         for (let i = 0; i < 5; i++) {
@@ -591,7 +592,7 @@ export class Pool {
         }
 
         const _gas = (await contract.estimateGas.deposit_and_stake(
-            deposit,
+            this.zap || this.swap,
             this.lpToken,
             this.gauge,
             this.underlyingCoins.length,
@@ -599,8 +600,8 @@ export class Pool {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            ethers.constants.AddressZero,
-            curve.constantOptions
+            this.isFactory ? this.swap : ethers.constants.AddressZero,
+            { ...curve.constantOptions, value }
         ))
 
         if (estimateGas) return _gas.toNumber()
@@ -608,7 +609,7 @@ export class Pool {
         await curve.updateFeeData();
         const gasLimit = _gas.mul(130).div(100);
         return (await contract.deposit_and_stake(
-            deposit,
+            this.zap || this.swap,
             this.lpToken,
             this.gauge,
             this.underlyingCoins.length,
@@ -616,8 +617,8 @@ export class Pool {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            ethers.constants.AddressZero,
-            {...curve.options, gasLimit}
+            this.isFactory ? this.swap : ethers.constants.AddressZero,
+            { ...curve.options, gasLimit, value }
         )).hash
     }
 

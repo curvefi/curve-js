@@ -55,8 +55,12 @@ export class Pool {
     estimateGas: {
         addLiquidityApprove: (amounts: string[]) => Promise<number>,
         addLiquidity: (amounts: string[]) => Promise<number>,
+        depositAndStakeApprove: (amounts: string[]) => Promise<number>,
+        depositAndStake: (amounts: string[]) => Promise<number>,
         addLiquidityWrappedApprove: (amounts: string[]) => Promise<number>,
         addLiquidityWrapped: (amounts: string[]) => Promise<number>,
+        depositAndStakeWrappedApprove: (amounts: string[]) => Promise<number>,
+        depositAndStakeWrapped: (amounts: string[]) => Promise<number>,
         gaugeDepositApprove: (lpTokenAmount: string) => Promise<number>,
         gaugeDeposit: (lpTokenAmount: string) => Promise<number>,
         gaugeWithdraw: (lpTokenAmount: string) => Promise<number>,
@@ -111,8 +115,12 @@ export class Pool {
         this.estimateGas = {
             addLiquidityApprove: this.addLiquidityApproveEstimateGas,
             addLiquidity: this.addLiquidityEstimateGas,
+            depositAndStakeApprove: this.depositAndStakeApproveEstimateGas,
+            depositAndStake: this.depositAndStakeEstimateGas,
             addLiquidityWrappedApprove: this.addLiquidityWrappedApproveEstimateGas,
             addLiquidityWrapped: this.addLiquidityWrappedEstimateGas,
+            depositAndStakeWrappedApprove: this.depositAndStakeWrappedApproveEstimateGas,
+            depositAndStakeWrapped: this.depositAndStakeWrappedEstimateGas,
             gaugeDepositApprove: this.gaugeDepositApproveEstimateGas,
             gaugeDeposit: this.gaugeDepositEstimateGas,
             gaugeWithdraw: this.gaugeWithdrawEstimateGas,
@@ -517,7 +525,7 @@ export class Pool {
         return coinsAllowance;
     }
 
-    public depositAndStakeApproveEstimateGas = async (amounts: string[]): Promise<number> => {
+    private depositAndStakeApproveEstimateGas = async (amounts: string[]): Promise<number> => {
         const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, ALIASES.deposit_and_stake);
 
         const gaugeContract = curve.contracts[this.gauge].contract;
@@ -548,7 +556,7 @@ export class Pool {
         return approveCoinsTx;
     }
 
-    public depositAndStakeEstimateGas = async (amounts: string[]): Promise<number> => {
+    private depositAndStakeEstimateGas = async (amounts: string[]): Promise<number> => {
         return await this._depositAndStake(amounts, true, true) as number
     }
 
@@ -792,7 +800,7 @@ export class Pool {
         return coinsAllowance;
     }
 
-    public depositAndStakeApproveWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
+    private depositAndStakeWrappedApproveEstimateGas = async (amounts: string[]): Promise<number> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
         }
@@ -831,7 +839,7 @@ export class Pool {
         return approveCoinsTx;
     }
 
-    public depositAndStakeWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
+    private depositAndStakeWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
         }

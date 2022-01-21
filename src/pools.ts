@@ -549,75 +549,87 @@ export class Pool {
     }
 
     public depositAndStakeEstimateGas = async (amounts: string[]): Promise<number> => {
-        return await this._depositAndStake(amounts, true) as number
+        return await this._depositAndStake(amounts, true, true) as number
     }
 
     public depositAndStake = async (amounts: string[]): Promise<string> => {
-        return await this._depositAndStake(amounts, false) as string
+        return await this._depositAndStake(amounts, true, false) as string
     }
 
-    private _depositAndStake = async (amounts: string[], estimateGas: boolean): Promise<string | number> => {
-        if (amounts.length !== this.underlyingCoinAddresses.length) {
-            throw Error(`${this.name} pool has ${this.underlyingCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
+    private _depositAndStake = async (amounts: string[], isUnderlying: boolean, estimateGas: boolean): Promise<string | number> => {
+        const coinAddresses = isUnderlying ? [...this.underlyingCoinAddresses] : [...this.coinAddresses];
+        const coins = isUnderlying ? this.underlyingCoins : this.coinAddresses;
+        const decimals = isUnderlying ? this.underlyingDecimals : this.decimals;
+        const depositAddress = isUnderlying ? this.zap || this.swap : this.swap;
+
+        if (amounts.length !== coinAddresses.length) {
+            throw Error(`${this.name} pool has ${coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
 
-        const balances = Object.values(await this.underlyingCoinBalances());
+        const balances = isUnderlying ? Object.values(await this.underlyingCoinBalances()) : Object.values(await this.coinBalances());
         for (let i = 0; i < balances.length; i++) {
             if (Number(balances[i]) < Number(amounts[i])) {
-                throw Error(`Not enough ${this.underlyingCoins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
+                throw Error(`Not enough ${coins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
             }
         }
 
-        if (estimateGas && !(await this.depositAndStakeIsApproved(amounts))) {
+        const allowance = isUnderlying ? await this.depositAndStakeIsApproved(amounts) : await this.depositAndStakeWrappedIsApproved(amounts);
+        if (estimateGas && !allowance) {
             throw Error("Token allowance is needed to estimate gas")
         }
 
         if (!estimateGas) {
-            await this.depositAndStakeApprove(amounts);
+            if (isUnderlying) {
+                await this.depositAndStakeApprove(amounts);
+            } else {
+                await this.depositAndStakeWrappedApprove(amounts);
+            }
         }
 
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
-            ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
+            ethers.utils.parseUnits(amount, decimals[i]));
 
         const contract = curve.contracts[ALIASES.deposit_and_stake].contract;
-        const useUnderlying = ['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren');
-        const _minMintAmount = ethers.utils.parseUnits(await this.addLiquidityExpected(amounts)).mul(99).div(100);
-        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const useUnderlying = isUnderlying && (
+            ['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.name) || (curve.chainId === 137 && this.name === 'ren'));
+        const _minMintAmount = isUnderlying ?
+            ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)).mul(99).div(100) :
+            ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts)).mul(99).div(100);
+        const ethIndex = getEthIndex(coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
-        const coinAddresses = [...this.underlyingCoinAddresses];
         for (let i = 0; i < 5; i++) {
             coinAddresses[i] = coinAddresses[i] || ethers.constants.AddressZero;
             _amounts[i] = _amounts[i] || ethers.BigNumber.from(0);
         }
 
         const _gas = (await contract.estimateGas.deposit_and_stake(
-            this.zap || this.swap,
+            depositAddress,
             this.lpToken,
             this.gauge,
-            this.underlyingCoins.length,
+            coins.length,
             coinAddresses,
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isFactory ? this.swap : ethers.constants.AddressZero,
+            this.isFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
             { ...curve.constantOptions, value }
         ))
 
         if (estimateGas) return _gas.toNumber()
 
         await curve.updateFeeData();
-        const gasLimit = _gas.mul(130).div(100);
+        const gasLimit = _gas.mul(200).div(100);
         return (await contract.deposit_and_stake(
-            this.zap || this.swap,
+            depositAddress,
             this.lpToken,
             this.gauge,
-            this.underlyingCoins.length,
+            coins.length,
             coinAddresses,
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isFactory ? this.swap : ethers.constants.AddressZero,
+            this.isFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
             { ...curve.options, gasLimit, value }
         )).hash
     }
@@ -746,6 +758,93 @@ export class Pool {
 
         // Lending pools with zap and metapools
         return await this._addLiquiditySwap(_amounts) as string;
+    }
+
+    public depositAndStakeWrappedExpected = async (amounts: string[]): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        return await this.addLiquidityWrappedExpected(amounts);
+    }
+
+    public depositAndStakeWrappedSlippage = async (amounts: string[]): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        return await this.addLiquidityWrappedSlippage(amounts);
+    }
+
+    public depositAndStakeWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        const coinsAllowance: boolean = await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, ALIASES.deposit_and_stake);
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
+            return coinsAllowance && gaugeAllowance
+        }
+
+        return coinsAllowance;
+    }
+
+    public depositAndStakeApproveWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
+            if (!gaugeAllowance) {
+                const approveGaugeGas = (await gaugeContract.estimateGas.set_approve_deposit(ALIASES.deposit_and_stake, true, curve.constantOptions)).toNumber();
+                return approveCoinsGas + approveGaugeGas;
+            }
+        }
+
+        return approveCoinsGas;
+    }
+
+    public depositAndStakeWrappedApprove = async (amounts: string[]): Promise<string[]> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        const approveCoinsTx: string[] = await ensureAllowance(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
+            if (!gaugeAllowance) {
+                const gasLimit = (await gaugeContract.estimateGas.set_approve_deposit(ALIASES.deposit_and_stake, true, curve.constantOptions)).mul(130).div(100);
+                const approveGaugeTx: string = (await gaugeContract.set_approve_deposit(ALIASES.deposit_and_stake, true, { ...curve.options, gasLimit })).hash;
+                return [...approveCoinsTx, approveGaugeTx];
+            }
+        }
+
+        return approveCoinsTx;
+    }
+
+    public depositAndStakeWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        return await this._depositAndStake(amounts, false, true) as number
+    }
+
+    public depositAndStakeWrapped = async (amounts: string[]): Promise<string> => {
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        return await this._depositAndStake(amounts, false, false) as string
     }
 
     public removeLiquidityExpected = async (lpTokenAmount: string): Promise<string[]> => {

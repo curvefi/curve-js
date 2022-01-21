@@ -5,7 +5,7 @@ export const ALIASES_ETHEREUM = {
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
-    "deposit_and_stake": "0x72dE985C5aF6F96f3be22784b5533218421E6394",
+    "deposit_and_stake": "0x271fbE8aB7f1fB262f81C77Ea5303F03DA9d3d6A",
     "registry_exchange": "",
 }
 
@@ -16,6 +16,6 @@ export const ALIASES_POLYGON = {
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
-    "deposit_and_stake": "0x1467F454d8f883daaaaD3721125bf1f04A8f649C",
+    "deposit_and_stake": "0x43FF7b96808988C9d19C1d05Ef19658B03e8a143",
     "registry_exchange": "",
 }

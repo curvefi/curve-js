@@ -717,3 +717,64 @@ console.log(await pool.gaugeClaimableRewards());
 // ]
 await pool.gaugeClaimRewards();
 ```
+
+## Deposit&Stake
+Add liquidity and deposit into gauge in one transaction.
+
+### Underlying
+```ts
+(async () => {
+    const pool = new curve.Pool('compound');
+    const amounts = ['1000', '1000'];
+
+    console.log(await pool.underlyingCoinBalances());
+    // { DAI: '10000.0', USDC: '10000.0' }
+    console.log(await pool.lpTokenBalances());
+    // { lpToken: '0.0', gauge: '0.0' }
+    
+    console.log(await pool.depositAndStakeExpected(amounts));
+    // 1820.604572902286288394
+    console.log(await pool.depositAndStakeSlippage(amounts));
+    // -0.0000036435051742755193
+
+    console.log(await pool.depositAndStakeIsApproved(amounts));
+    // false
+    
+    await pool.depositAndStakeApprove(amounts);
+    await pool.depositAndStake(amounts);
+
+    console.log(await pool.underlyingCoinBalances());
+    // { DAI: '9000.0', USDC: '9000.0' }
+    console.log(await pool.lpTokenBalances());
+    // { lpToken: '0.0', gauge: '1820.556829935710883568' }
+})();
+```
+
+### Wrapped
+```ts
+(async () => {
+    const pool = new curve.Pool('compound');
+    const amounts = ['1000', '1000'];
+
+    console.log(await pool.coinBalances());
+    // { cDAI: '10000.0', cUSDC: '10000.0' }
+    console.log(await pool.lpTokenBalances());
+    // { lpToken: '0.0', gauge: '1820.556829935710883568' }
+    
+    console.log(await pool.depositAndStakeWrappedExpected(amounts));
+    // 40.328408669183101673
+    console.log(await pool.depositAndStakeWrappedSlippage(amounts));
+    // -0.0020519915272297325
+
+    console.log(await pool.depositAndStakeWrappedIsApproved(amounts));
+    // false
+    
+    await pool.depositAndStakeWrappedApprove(amounts);
+    await pool.depositAndStakeWrapped(amounts);
+
+    console.log(await pool.coinBalances());
+    // { cDAI: '9000.0', cUSDC: '9000.0' }
+    console.log(await pool.lpTokenBalances());
+    // { lpToken: '0.0', gauge: '1860.884096082215274556' }
+})();
+```

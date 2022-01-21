@@ -13,8 +13,8 @@ const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 's
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
-const underlyingLiquidityTest = (name: string) => {
-    describe(`${name} Deposit&Stake`, function () {
+const underlyingDepositAndStakeTest = (name: string) => {
+    describe(`${name} Deposit&Stake underlying`, function () {
         let pool: Pool;
         let coinAddresses: string[];
 
@@ -28,9 +28,7 @@ const underlyingLiquidityTest = (name: string) => {
             const amounts = coinAddresses.map(() => amount);
 
             const initialBalances = await pool.balances() as DictInterface<string>;
-            console.log(initialBalances);
             const lpTokenExpected = await pool.depositAndStakeExpected(amounts);
-            console.log(lpTokenExpected);
 
             await pool.depositAndStake(amounts);
 
@@ -47,10 +45,46 @@ const underlyingLiquidityTest = (name: string) => {
             assert.approximately(Number(balances.gauge) - Number(initialBalances.gauge), Number(lpTokenExpected), 0.01);
             assert.strictEqual(Number(balances.lpToken) - Number(initialBalances.lpToken), 0);
         });
+
     });
 }
 
-describe('Deposit&Stake underlying test', async function () {
+const wrappedDepositAndStakeTest = (name: string) => {
+    describe(`${name} Deposit&Stake wrapped`, function () {
+        let pool: Pool;
+        let coinAddresses: string[];
+
+        before(async function () {
+            pool = new curve.Pool(name);
+            coinAddresses = pool.coinAddresses;
+        });
+
+        it('Deposits and stakes', async function () {
+            const amount = '10';
+            const amounts = coinAddresses.map(() => amount);
+
+            const initialBalances = await pool.balances() as DictInterface<string>;
+            const lpTokenExpected = await pool.depositAndStakeWrappedExpected(amounts);
+
+            await pool.depositAndStakeWrapped(amounts);
+
+            const balances = await pool.balances() as DictInterface<string>;
+
+            pool.coins.forEach((c: string) => {
+                if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
+                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
+                } else {
+                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
+                }
+            })
+
+            assert.approximately(Number(balances.gauge) - Number(initialBalances.gauge), Number(lpTokenExpected), 0.01);
+            assert.strictEqual(Number(balances.lpToken) - Number(initialBalances.lpToken), 0);
+        });
+    });
+}
+
+describe('Deposit&Stake test', async function () {
     this.timeout(120000);
 
     before(async function () {
@@ -58,10 +92,16 @@ describe('Deposit&Stake underlying test', async function () {
     });
 
     for (const poolName of ETHEREUM_POOLS) {
-        underlyingLiquidityTest(poolName);
+        underlyingDepositAndStakeTest(poolName);
+        if (!PLAIN_POOLS.includes(poolName)) {
+            wrappedDepositAndStakeTest(poolName);
+        }
     }
 
     // for (const poolName of POLYGON_POOLS) {
-    //     underlyingLiquidityTest(poolName);
+    //     underlyingDepositAndStakeTest(poolName);
+    //     if (poolName !== 'atricrypto3') {
+    //         wrappedDepositAndStakeTest(poolName);
+    //     }
     // }
 })

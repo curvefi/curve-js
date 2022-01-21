@@ -10,6 +10,7 @@ import votingEscrowABI from './constants/abis/json/votingescrow.json';
 import addressProviderABI from './constants/abis/json/address_provider.json';
 import gaugeControllerABI from './constants/abis/json/gaugecontroller.json';
 import routerABI from './constants/abis/json/router.json';
+import depositAndStakeABI from './constants/abis/json/deposit_and_stake.json';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import streamerABI from './constants/abis/json/streamer.json';
 import { POOLS_DATA_ETHEREUM } from './constants/abis/abis-ethereum';
@@ -79,6 +80,7 @@ export let ALIASES = {
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
+    "deposit_and_stake": "0x271fbE8aB7f1fB262f81C77Ea5303F03DA9d3d6A",
     "registry_exchange": "",
 }
 
@@ -405,6 +407,15 @@ class Curve {
         this.contracts[ALIASES.router.toLowerCase()] = {
             contract: new Contract(ALIASES.router, routerABI, this.signer || this.provider),
             multicallContract: new MulticallContract(ALIASES.router, routerABI),
+        };
+
+        this.contracts[ALIASES.deposit_and_stake] = {
+            contract: new Contract(ALIASES.deposit_and_stake, depositAndStakeABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.deposit_and_stake, depositAndStakeABI),
+        };
+        this.contracts[ALIASES.deposit_and_stake.toLowerCase()] = {
+            contract: new Contract(ALIASES.deposit_and_stake, depositAndStakeABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.deposit_and_stake, depositAndStakeABI),
         };
     }
 

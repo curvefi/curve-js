@@ -206,3 +206,45 @@ const rewardsTest = async () => {
     console.log(await pool.gaugeClaimableRewards());
     console.log(await pool.gaugeClaimRewards());
 }
+
+const depositAndStakeUnderlyingTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = new curve.Pool('compound');
+    const amounts = ['1000', '1000'];
+
+    console.log(await pool.underlyingCoinBalances());
+    console.log(await pool.lpTokenBalances());
+
+    console.log(await pool.depositAndStakeExpected(amounts));
+    console.log(await pool.depositAndStakeSlippage(amounts));
+
+    console.log(await pool.depositAndStakeIsApproved(amounts));
+
+    await pool.depositAndStakeApprove(amounts);
+    await pool.depositAndStake(amounts);
+
+    console.log(await pool.underlyingCoinBalances());
+    console.log(await pool.lpTokenBalances());
+}
+
+const depositAndStakeWrappedTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = new curve.Pool('compound');
+    const amounts = ['1000', '1000'];
+
+    console.log(await pool.coinBalances());
+    console.log(await pool.lpTokenBalances());
+
+    console.log(await pool.depositAndStakeWrappedExpected(amounts));
+    console.log(await pool.depositAndStakeWrappedSlippage(amounts));
+
+    console.log(await pool.depositAndStakeWrappedIsApproved(amounts));
+
+    await pool.depositAndStakeWrappedApprove(amounts);
+    await pool.depositAndStakeWrapped(amounts);
+
+    console.log(await pool.coinBalances());
+    console.log(await pool.lpTokenBalances());
+}

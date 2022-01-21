@@ -20,6 +20,7 @@ jobs:
         uses: TriPSs/conventional-changelog-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          git-push: false
           output-file: false
           skip-version-file: true
           skip-commit: true

@@ -408,18 +408,15 @@ export class Pool {
     }
 
     public addLiquidityIsApproved = async (amounts: string[]): Promise<boolean> => {
-        const spender = (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) || this.isMeta) ? this.zap as string : this.swap;
-        return await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, spender);
+        return await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.swap);
     }
 
     private addLiquidityApproveEstimateGas = async (amounts: string[]): Promise<number> => {
-        const spender = (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) || this.isMeta) ? this.zap as string : this.swap;
-        return await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, spender);
+        return await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, this.zap || this.swap);
     }
 
     public addLiquidityApprove = async (amounts: string[]): Promise<string[]> => {
-        const spender = (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name) || this.isMeta) ? this.zap as string : this.swap;
-        return await ensureAllowance(this.underlyingCoinAddresses, amounts, spender);
+        return await ensureAllowance(this.underlyingCoinAddresses, amounts, this.zap || this.swap);
     }
 
     private addLiquidityEstimateGas = async (amounts: string[]): Promise<number> => {

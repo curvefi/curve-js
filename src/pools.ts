@@ -1195,18 +1195,17 @@ export class Pool {
     }
 
     public removeLiquidityOneCoinIsApproved = async (lpTokenAmount: string): Promise<boolean> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return true
-
+        if (!this.zap) return true
         return await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap as string);
     }
 
     private removeLiquidityOneCoinApproveEstimateGas = async (lpTokenAmount: string): Promise<number> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return 0
+        if (!this.zap) return 0
         return await ensureAllowanceEstimateGas([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 
     public removeLiquidityOneCoinApprove = async (lpTokenAmount: string): Promise<string[]> => {
-        if (!['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name) && !(this.name === 'susd') && !this.isMeta) return []
+        if (!this.zap) return []
         return await ensureAllowance([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 

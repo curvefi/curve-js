@@ -255,3 +255,8 @@ export const _getStatsUrl = (isCrypto = false): string => {
 }
 
 export const getPoolList = (): string[] => Object.keys(POOLS_DATA);
+
+export const getUsdRate = async (coin: string): Promise<number> => {
+    const [coinAddress] = _getCoinAddresses(coin);
+    return await _getUsdRate(coinAddress);
+}

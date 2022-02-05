@@ -3,7 +3,7 @@ export interface DictInterface<T> {
 }
 
 export interface PoolDataInterface {
-    reference_asset: 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO',
+    reference_asset: 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER',
     N_COINS: number,
     underlying_decimals: number[],
     decimals: number[],
@@ -39,6 +39,8 @@ export interface PoolDataInterface {
     meta_coin_addresses?: string[],
     all_coin_addresses?: string[],
     is_factory?: boolean,
+    is_plain_factory?: boolean,
+    is_meta_factory?: boolean,
     adapter_abi?: any,
     old_adapter_address?: string,
     adapter_biconomy_address?: string,

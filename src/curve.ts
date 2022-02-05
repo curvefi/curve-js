@@ -1,6 +1,7 @@
 import { ethers, Contract } from "ethers";
 import { Networkish } from "@ethersproject/networks";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
+import { getFactoryPoolData } from "./factory";
 import {PoolDataInterface, DictInterface} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
@@ -13,6 +14,7 @@ import routerABI from './constants/abis/json/router.json';
 import depositAndStakeABI from './constants/abis/json/deposit_and_stake.json';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import streamerABI from './constants/abis/json/streamer.json';
+import factoryABI from './constants/abis/json/factory.json';
 import { POOLS_DATA_ETHEREUM } from './constants/abis/abis-ethereum';
 import { POOLS_DATA_POLYGON } from './constants/abis/abis-polygon';
 import {
@@ -81,6 +83,7 @@ export let ALIASES = {
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0x271fbE8aB7f1fB262f81C77Ea5303F03DA9d3d6A",
+    "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4',
     "registry_exchange": "",
 }
 
@@ -94,6 +97,7 @@ class Curve {
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
     constantOptions: { gasLimit: number };
     options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
+    constants: DictInterface<any>;
 
     constructor() {
         // @ts-ignore
@@ -108,6 +112,7 @@ class Curve {
         this.feeData = {}
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
+        this.constants ={};
     }
 
     async init(
@@ -417,6 +422,25 @@ class Curve {
             contract: new Contract(ALIASES.deposit_and_stake, depositAndStakeABI, this.signer || this.provider),
             multicallContract: new MulticallContract(ALIASES.deposit_and_stake, depositAndStakeABI),
         };
+
+        this.contracts[ALIASES.factory] = {
+            contract: new Contract(ALIASES.factory, factoryABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.factory, factoryABI),
+        };
+        this.contracts[ALIASES.factory.toLowerCase()] = {
+            contract: new Contract(ALIASES.factory, factoryABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.factory, factoryABI),
+        };
+    }
+
+    async fetchFactoryPoolsData(): Promise<void> {
+        this.constants = {
+            ALIASES,
+            POOLS_DATA,
+            DECIMALS_LOWER_CASE,
+        }
+
+        this.constants.FACTORY_POOLS_DATA = await getFactoryPoolData.call(this);
     }
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {

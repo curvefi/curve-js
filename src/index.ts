@@ -50,12 +50,17 @@ async function init (
     this.chainId = _curve.chainId;
 }
 
+async function fetchFactoryPools(): Promise<void> {
+    await _curve.fetchFactoryPools();
+}
+
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
     _curve.setCustomFeeData(customFeeData);
 }
 
 const curve = {
     init,
+    fetchFactoryPools,
     getPoolList,
     getUsdRate,
     setCustomFeeData,

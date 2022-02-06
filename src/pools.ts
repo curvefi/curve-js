@@ -51,6 +51,8 @@ export class Pool {
     isCrypto: boolean;
     basePool: string;
     isFactory: boolean;
+    isMetaFactory: boolean;
+    isPlainFactory: boolean;
     rewardTokens: string[];
     estimateGas: {
         addLiquidityApprove: (amounts: string[]) => Promise<number>,
@@ -90,10 +92,10 @@ export class Pool {
     }
 
     constructor(name: string) {
-        const poolData = POOLS_DATA[name];
+        const poolData = { ...POOLS_DATA, ...(curve.constants.FACTORY_POOLS_DATA || {}) }[name];
         
         this.name = name;
-        this.referenceAsset = poolData.reference_asset
+        this.referenceAsset = poolData.reference_asset;
         this.swap = poolData.swap_address;
         this.zap = poolData.deposit_address || null;
         this.lpToken = poolData.token_address;
@@ -110,6 +112,8 @@ export class Pool {
         this.isFake = poolData.is_fake || false;
         this.isCrypto = poolData.is_crypto || false;
         this.isFactory = poolData.is_factory || false;
+        this.isMetaFactory = poolData.is_meta_factory || false;
+        this.isPlainFactory = poolData.is_plain_factory || false;
         this.basePool = poolData.base_pool || '';
         this.rewardTokens = poolData.reward_tokens || [];
         this.estimateGas = {
@@ -617,7 +621,7 @@ export class Pool {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
             { ...curve.constantOptions, value }
         ))
 
@@ -634,7 +638,7 @@ export class Pool {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
             { ...curve.options, gasLimit, value }
         )).hash
     }
@@ -1375,7 +1379,7 @@ export class Pool {
     public gaugeWithdraw = async (lpTokenAmount: string): Promise<string> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
-        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(180).div(100);
+        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(200).div(100);
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
@@ -1946,7 +1950,7 @@ export class Pool {
     private _calcLpTokenAmountZap = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
         }
 
@@ -2014,7 +2018,7 @@ export class Pool {
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.constantOptions, value });
             if (estimateGas) {
                 return gas.toNumber()
@@ -2143,7 +2147,7 @@ export class Pool {
         const _minAmounts = await this._calcMinUnderlyingAmountsMeta(_lpTokenAmount);
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()
@@ -2214,7 +2218,7 @@ export class Pool {
 
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()
@@ -2256,7 +2260,7 @@ export class Pool {
     private _calcWithdrawOneCoinZap = async (_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             return (await contract.calc_withdraw_one_coin(this.swap, _lpTokenAmount, i, curve.constantOptions));
         }
 
@@ -2292,7 +2296,7 @@ export class Pool {
 
         const  contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()

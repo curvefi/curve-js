@@ -433,11 +433,13 @@ class Curve {
         };
     }
 
-    async fetchFactoryPoolsData(): Promise<void> {
+    async fetchFactoryPools(): Promise<void> {
         this.constants = {
             ALIASES,
             POOLS_DATA,
             DECIMALS_LOWER_CASE,
+            LP_TOKENS,
+            GAUGES,
         }
 
         this.constants.FACTORY_POOLS_DATA = await getFactoryPoolData.call(this);

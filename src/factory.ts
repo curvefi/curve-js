@@ -23,6 +23,7 @@ import Plain4BasicABI from "./constants/abis/json/factory-v2/Plain4Basic.json";
 import Plain4BalancesABI from "./constants/abis/json/factory-v2/Plain4Balances.json";
 import Plain4ETHABI from "./constants/abis/json/factory-v2/Plain4ETH.json";
 import Plain4OptimizedABI from "./constants/abis/json/factory-v2/Plain4Optimized.json";
+import {DECIMALS_LOWER_CASE} from "./curve";
 
 
 const implementationABIDict: DictInterface<any> = {
@@ -296,6 +297,7 @@ async function getCoinAddressDecimalsDict(
 
     newCoinAddresses.forEach((addr, i) => {
         coinAddrNamesDict[addr] = decimals[i];
+        existingCoinAddressDecimalsDict[addr] = decimals[i];  // Add to DECIMALS_LOWER_CASE TODO move to another place
     });
 
     return coinAddrNamesDict
@@ -327,8 +329,10 @@ export async function getFactoryPoolData(this: CurveInterface): Promise<DictInte
     const swapAddresses = await getFactorySwapAddresses.call(this);
     const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
+    this.constants.LP_TOKENS.push(...swapAddresses); // TODO move to another place
     const gaugeAddresses = await getFactoryGaugeAddresses.call(this, swapAddresses);
     setFactoryGaugeContracts.call(this, gaugeAddresses);
+    this.constants.GAUGES.push(...gaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero));  // TODO move to another place
     const poolNames = await getFactoryPoolNames.call(this, swapAddresses);
     const referenceAssets = await getFactoryReferenceAssets.call(this, swapAddresses);
     const coinAddresses = await getFactoryCoinAddresses.call(this, swapAddresses);

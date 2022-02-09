@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { assert } from "chai";
 import curve from "../src";
 import { Pool } from "../src/pools";
@@ -9,9 +10,11 @@ const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', '
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
+const FACTORY_PLAIN_POOLS = ['ibEUR+sEUR', 'D3', 'crvCRV'];
+const FACTORY_META_POOLS = ['baoUSD-3CRV', 'ELONXSWAP3CRV', 'ibbtc/sbtcCRV'];
 
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
-const ETHEREUM_POOLS = ['teth'];
+const ETHEREUM_POOLS = FACTORY_META_POOLS;
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
 const underlyingLiquidityTest = (name: string) => {
@@ -27,29 +30,33 @@ const underlyingLiquidityTest = (name: string) => {
         it('Adds liquidity', async function () {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
+            if (name === "crvCRV") amounts[3] = '0';
 
             const initialBalances = await pool.balances() as DictInterface<string>;
-            const lpTokenExpected = await pool.addLiquidityExpected(amounts)
+            const lpTokenExpected = await pool.addLiquidityExpected(amounts);
 
             await pool.addLiquidity(amounts);
 
             const balances = await pool.balances() as DictInterface<string>;
 
-            pool.underlyingCoins.forEach((c: string) => {
-                if (name === 'steth') {
-                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-18);
+            pool.underlyingCoins.forEach((c, i) => {
+                if (name === 'steth' || pool.name === 'ibbtc/sbtcCRV') {
+                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amounts[i]).toString())), 1e-18);
                 } else {
-                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
+                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amounts[i])));
                 }
             })
-            if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(name)) {
-                assert.isAbove(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected) * 0.99);
-            } else {
-                assert.approximately(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected), 0.01);
-            }
+
+            const delta = name === 'ELONXSWAP3CRV' ? 2 : 0.01
+            assert.approximately(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected), delta);
         });
 
         it('Deposits into gauge', async function () {
+            if (pool.gauge === ethers.constants.AddressZero) {
+                console.log('Skip');
+                return
+            }
+
             const depositAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).lpToken;
 
             await pool.gaugeDeposit(depositAmount);
@@ -61,6 +68,11 @@ const underlyingLiquidityTest = (name: string) => {
         });
 
         it('Withdraws from gauge', async function () {
+            if (pool.gauge === ethers.constants.AddressZero) {
+                console.log('Skip');
+                return
+            }
+
             const withdrawAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).gauge;
 
             await pool.gaugeWithdraw(withdrawAmount);
@@ -94,6 +106,7 @@ const underlyingLiquidityTest = (name: string) => {
             } else {
                 const amount = '1';
                 const amounts = coinAddresses.map(() => amount);
+                if (name === "crvCRV") amounts[3] = '0.1';
                 const initialBalances = await pool.balances() as DictInterface<string>;
                 const lpTokenExpected = await pool.removeLiquidityImbalanceExpected(amounts);
 
@@ -101,14 +114,15 @@ const underlyingLiquidityTest = (name: string) => {
 
                 const balances = await pool.balances() as DictInterface<string>;
 
-                assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), 0.01);
-                pool.underlyingCoins.forEach((c: string) => {
+                const delta = name === 'ELONXSWAP3CRV' ? 2 : 0.01
+                assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
+                pool.underlyingCoins.forEach((c, i) => {
                     if (name === 'steth') {
-                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-18);
+                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 1e-18);
                     } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(pool.name)) {
-                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 3e-6);
+                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 3e-6);
                     } else {
-                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
+                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amounts[i])));
                     }
                 });
             }
@@ -143,7 +157,7 @@ const underlyingExchangeTest = (name: string) => {
                     it(`${i} --> ${j}`, async function () {
                         const pool = new curve.Pool(name);
                         const coinAddresses = pool.underlyingCoinAddresses;
-                        if (i >= coinAddresses.length || j >= coinAddresses.length) {
+                        if (i >= coinAddresses.length || j >= coinAddresses.length || (name === "crvCRV" && i === 3)) {
                             console.log('Skip')
                         } else {
                             const swapAmount = '10';
@@ -154,7 +168,7 @@ const underlyingExchangeTest = (name: string) => {
 
                             const coinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
 
-                            if (pool.name === 'steth') {
+                            if (pool.name === 'steth' || pool.name === 'ibbtc/sbtcCRV') {
                                 assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)).toString()), 1e-18);
                             } else {
                                 assert.deepStrictEqual(BN(Object.values(coinBalances)[i]), BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)));
@@ -173,6 +187,7 @@ describe('Underlying test', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
+        await curve.fetchFactoryPools();
     });
 
     for (const poolName of ETHEREUM_POOLS) {

@@ -23,7 +23,6 @@ import Plain4BasicABI from "./constants/abis/json/factory-v2/Plain4Basic.json";
 import Plain4BalancesABI from "./constants/abis/json/factory-v2/Plain4Balances.json";
 import Plain4ETHABI from "./constants/abis/json/factory-v2/Plain4ETH.json";
 import Plain4OptimizedABI from "./constants/abis/json/factory-v2/Plain4Optimized.json";
-import {DECIMALS_LOWER_CASE} from "./curve";
 
 
 const implementationABIDict: DictInterface<any> = {
@@ -325,6 +324,14 @@ async function getFactoryBasePoolAddresses(this: CurveInterface, factorySwapAddr
     return await this.multicallProvider.all(calls);
 }
 
+function setFactoryZapContracts(this: CurveInterface): void {
+    const metaSBtcZapAddress = "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase();
+    this.contracts[metaSBtcZapAddress] = {
+        contract: new Contract(metaSBtcZapAddress, factoryDepositABI, this.signer || this.provider),
+        multicallContract: new MulticallContract(metaSBtcZapAddress, factoryDepositABI),
+    };
+}
+
 export async function getFactoryPoolData(this: CurveInterface): Promise<DictInterface<PoolDataInterface>> {
     const swapAddresses = await getFactorySwapAddresses.call(this);
     const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
@@ -342,6 +349,7 @@ export async function getFactoryPoolData(this: CurveInterface): Promise<DictInte
     const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS_LOWER_CASE);
     const isMeta = await getFactoryIsMeta.call(this, swapAddresses);
     const basePoolAddresses = await getFactoryBasePoolAddresses.call(this, swapAddresses);
+    setFactoryZapContracts.call(this);
 
     const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
     for (let i = 0; i < poolNames.length; i++) {

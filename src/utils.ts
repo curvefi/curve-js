@@ -239,8 +239,13 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
             `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
         const response = await axios.get(url);
-        _usdRatesCache[assetId] = { 'rate': response.data[assetId]['usd'], 'time': Date.now() };
+        try {
+            _usdRatesCache[assetId] = {'rate': response.data[assetId]['usd'], 'time': Date.now()};
+        } catch (err) { // TODO pay attention!
+            _usdRatesCache[assetId] = {'rate': 1, 'time': Date.now()};
+        }
     }
+
     return _usdRatesCache[assetId]['rate']
 }
 

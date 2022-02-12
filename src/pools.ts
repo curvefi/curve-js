@@ -17,6 +17,7 @@ import {
     isEth,
     getEthIndex,
     _getStatsUrl,
+    _getStats,
 } from './utils';
 import { DictInterface, RewardsApyInterface } from './interfaces';
 import {
@@ -294,6 +295,7 @@ export class Pool {
 
         const prices = await Promise.all(promises);
 
+
         const totalLiquidity = (balances as string[]).reduce(
             (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
 
@@ -303,7 +305,7 @@ export class Pool {
     private getVolume = async (): Promise<string> => {
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
         const statsUrl = _getStatsUrl(this.isCrypto);
-        const volume = (await axios.get(statsUrl)).data.volume[name] || 0;
+        const volume = (await _getStats(statsUrl)).volume[name] || 0;
         const usdRate = this.isCrypto ? 1 : await _getUsdRate(this.referenceAsset);
 
         return String(volume * usdRate)
@@ -312,7 +314,7 @@ export class Pool {
     private getBaseApy = async (): Promise<{day: string, week: string, month: string, total: string}> => {
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
         const statsUrl = _getStatsUrl(this.isCrypto);
-        const apy = (await axios.get(statsUrl)).data.apy;
+        const apy = (await _getStats(statsUrl)).apy;
 
         const formattedApy = [apy.day[name], apy.week[name], apy.month[name], apy.total[name]].map(
             (x: number) => (x * 100).toFixed(4)

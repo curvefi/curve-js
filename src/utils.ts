@@ -1,4 +1,5 @@
 import axios from 'axios';
+import memoize from 'memoizee';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 import { DictInterface } from './interfaces';
@@ -258,6 +259,16 @@ export const _getStatsUrl = (isCrypto = false): string => {
         throw Error(`Unsupported network id${curve.chainId}`)
     }
 }
+
+export const _getStats = memoize(
+    async (statsUrl: string): Promise<DictInterface<DictInterface<DictInterface<string>>>> => {
+        return (await axios.get(statsUrl)).data;
+    },
+    {
+        promise: true,
+        maxAge: 10 * 60 * 1000, // 10m
+    }
+)
 
 export const getPoolList = (): string[] => Object.keys(POOLS_DATA);
 

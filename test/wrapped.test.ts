@@ -10,9 +10,12 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
 const FACTORY_META_POOLS = ['baoUSD-3CRV', 'ELONXSWAP3CRV', 'ibbtc/sbtcCRV'];
 
+const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd'];
+const POLYGON_FACTORY_META_POOLS = ['FRAX3CRV-f3CRV'];
+
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const ETHEREUM_POOLS = FACTORY_META_POOLS;
-const POLYGON_POOLS = ['aave', 'ren', 'eurtusd'];
+const POLYGON_POOLS = POLYGON_FACTORY_META_POOLS;
 
 const wrappedLiquidityTest = (name: string) => {
     describe(`${name} add/remove liquidity`, function () {
@@ -194,13 +197,13 @@ describe('Wrapped test', async function () {
         await curve.fetchFactoryPools();
     });
 
-    for (const poolName of ETHEREUM_POOLS) {
-        wrappedLiquidityTest(poolName);
-        wrappedExchangeTest(poolName);
-    }
-
-    // for (const poolName of POLYGON_POOLS) {
+    // for (const poolName of ETHEREUM_POOLS) {
     //     wrappedLiquidityTest(poolName);
     //     wrappedExchangeTest(poolName);
     // }
+
+    for (const poolName of POLYGON_POOLS) {
+        wrappedLiquidityTest(poolName);
+        wrappedExchangeTest(poolName);
+    }
 })

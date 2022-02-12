@@ -1508,25 +1508,29 @@ export class Pool {
     }
 
     public exchangeIsApproved = async (inputCoin: string | number, amount: string): Promise<boolean> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, contractAddress);
     }
 
     private exchangeApproveEstimateGas = async (inputCoin: string | number, amount: string): Promise<number> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowanceEstimateGas([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     public exchangeApprove = async (inputCoin: string | number, amount: string): Promise<string[]> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowance([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     private exchangeEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1551,13 +1555,16 @@ export class Pool {
 
         if (this.name === "tricrypto2") {
             return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).toNumber();
+        } else if (curve.chainId === 137 && this.isFactory) {
+            return (await contract.estimateGas[exchangeMethod](this.swap, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
         }
 
         return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1577,6 +1584,9 @@ export class Pool {
         if (this.name === 'tricrypto2') {
             const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).mul(130).div(100);
             return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.options, value, gasLimit })).hash
+        } else if (curve.chainId === 137 && this.isFactory) {
+            const gasLimit = (await contract.estimateGas[exchangeMethod](this.swap, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(140).div(100);
+            return (await contract[exchangeMethod](this.swap, i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
         }
 
         const estimatedGas = await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });

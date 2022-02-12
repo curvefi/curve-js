@@ -272,6 +272,8 @@ export const _getStats = memoize(
 
 export const getPoolList = (): string[] => Object.keys(POOLS_DATA);
 
+export const getFactoryPoolList = (): string[] => Object.keys(curve.constants.FACTORY_POOLS_DATA);
+
 export const getUsdRate = async (coin: string): Promise<number> => {
     const [coinAddress] = _getCoinAddresses(coin);
     return await _getUsdRate(coinAddress);

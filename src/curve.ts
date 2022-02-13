@@ -84,6 +84,7 @@ export let ALIASES = {
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0x271fbE8aB7f1fB262f81C77Ea5303F03DA9d3d6A",
     "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4',
+    "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99',
     "registry_exchange": "",
 }
 

@@ -17,8 +17,12 @@ import {
     isEth,
     getEthIndex,
     _getStatsUrl,
+    _getFactoryStatsUrl,
+    _getStats,
+    _getFactoryStatsEthereum,
+    _getFactoryStatsPolygon,
 } from './utils';
-import { DictInterface, RewardsApyInterface } from './interfaces';
+import {DictInterface, IPoolStats, RewardsApyInterface} from './interfaces';
 import {
     ALIASES,
     POOLS_DATA,
@@ -51,6 +55,8 @@ export class Pool {
     isCrypto: boolean;
     basePool: string;
     isFactory: boolean;
+    isMetaFactory: boolean;
+    isPlainFactory: boolean;
     rewardTokens: string[];
     estimateGas: {
         addLiquidityApprove: (amounts: string[]) => Promise<number>,
@@ -90,10 +96,10 @@ export class Pool {
     }
 
     constructor(name: string) {
-        const poolData = POOLS_DATA[name];
+        const poolData = { ...POOLS_DATA, ...(curve.constants.FACTORY_POOLS_DATA || {}) }[name];
         
         this.name = name;
-        this.referenceAsset = poolData.reference_asset
+        this.referenceAsset = poolData.reference_asset;
         this.swap = poolData.swap_address;
         this.zap = poolData.deposit_address || null;
         this.lpToken = poolData.token_address;
@@ -110,6 +116,8 @@ export class Pool {
         this.isFake = poolData.is_fake || false;
         this.isCrypto = poolData.is_crypto || false;
         this.isFactory = poolData.is_factory || false;
+        this.isMetaFactory = poolData.is_meta_factory || false;
+        this.isPlainFactory = poolData.is_plain_factory || false;
         this.basePool = poolData.base_pool || '';
         this.rewardTokens = poolData.reward_tokens || [];
         this.estimateGas = {
@@ -290,28 +298,42 @@ export class Pool {
 
         const prices = await Promise.all(promises);
 
+
         const totalLiquidity = (balances as string[]).reduce(
             (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
 
         return String(totalLiquidity)
     }
 
-    private getVolume = async (): Promise<string> => {
+    private _getPoolStats = async (): Promise<IPoolStats> => {
+        const statsUrl = this.isFactory ? _getFactoryStatsUrl() : _getStatsUrl(this.isCrypto);
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
-        const statsUrl = _getStatsUrl(this.isCrypto);
-        const volume = (await axios.get(statsUrl)).data.volume[name] || 0;
-        const usdRate = this.isCrypto ? 1 : await _getUsdRate(this.referenceAsset);
+        const key = this.isFactory ? this.swap.toLowerCase() : name;
+
+        if (this.isFactory) {
+            if (curve.chainId === 137) {
+                return (await _getFactoryStatsPolygon(statsUrl))[key];
+            } else {
+                return (await _getFactoryStatsEthereum(statsUrl))[key];
+            }
+        }
+
+        return (await _getStats(statsUrl))[key];
+    }
+
+    private getVolume = async (): Promise<string> => {
+        const volume = (await this._getPoolStats()).volume;
+        const usdRate = (this.isCrypto || (curve.chainId === 1 && this.isFactory)) ? 1 : await _getUsdRate(this.referenceAsset);
 
         return String(volume * usdRate)
     }
 
     private getBaseApy = async (): Promise<{day: string, week: string, month: string, total: string}> => {
-        const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
-        const statsUrl = _getStatsUrl(this.isCrypto);
-        const apy = (await axios.get(statsUrl)).data.apy;
+        const apy = (await this._getPoolStats()).apy;
 
-        const formattedApy = [apy.day[name], apy.week[name], apy.month[name], apy.total[name]].map(
-            (x: number) => (x * 100).toFixed(4)
+        const multiplier = this.isFactory ? 1 : 100;
+        const formattedApy = [apy.day, apy.week, apy.month, apy.total].map(
+            (x: number) => (x * multiplier).toFixed(4)
         ) as [daily: string, weekly: string, monthly: string, total: string]
 
         return {
@@ -323,7 +345,8 @@ export class Pool {
     }
 
     private getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
-        if (curve.chainId === 137) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`)
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (curve.chainId === 137) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
 
         const gaugeContract = curve.contracts[this.gauge].multicallContract;
         const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
@@ -511,6 +534,7 @@ export class Pool {
     }
 
     public depositAndStakeIsApproved = async (amounts: string[]): Promise<boolean> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const coinsAllowance: boolean = await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, ALIASES.deposit_and_stake);
 
         const gaugeContract = curve.contracts[this.gauge].contract;
@@ -523,6 +547,7 @@ export class Pool {
     }
 
     private depositAndStakeApproveEstimateGas = async (amounts: string[]): Promise<number> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, ALIASES.deposit_and_stake);
 
         const gaugeContract = curve.contracts[this.gauge].contract;
@@ -538,6 +563,7 @@ export class Pool {
     }
 
     public depositAndStakeApprove = async (amounts: string[]): Promise<string[]> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const approveCoinsTx: string[] = await ensureAllowance(this.underlyingCoinAddresses, amounts, ALIASES.deposit_and_stake);
 
         const gaugeContract = curve.contracts[this.gauge].contract;
@@ -562,6 +588,7 @@ export class Pool {
     }
 
     private _depositAndStake = async (amounts: string[], isUnderlying: boolean, estimateGas: boolean): Promise<string | number> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const coinAddresses = isUnderlying ? [...this.underlyingCoinAddresses] : [...this.coinAddresses];
         const coins = isUnderlying ? this.underlyingCoins : this.coinAddresses;
         const decimals = isUnderlying ? this.underlyingDecimals : this.decimals;
@@ -617,7 +644,7 @@ export class Pool {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
             { ...curve.constantOptions, value }
         ))
 
@@ -634,7 +661,7 @@ export class Pool {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.swap : ethers.constants.AddressZero,
             { ...curve.options, gasLimit, value }
         )).hash
     }
@@ -782,9 +809,8 @@ export class Pool {
     }
 
     public depositAndStakeWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.isFake) throw Error(`${this.name} pool doesn't have this method`);
 
         const coinsAllowance: boolean = await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, ALIASES.deposit_and_stake);
 
@@ -798,9 +824,8 @@ export class Pool {
     }
 
     private depositAndStakeWrappedApproveEstimateGas = async (amounts: string[]): Promise<number> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.isFake) throw Error(`${this.name} pool doesn't have this method`);
 
         const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
 
@@ -817,9 +842,8 @@ export class Pool {
     }
 
     public depositAndStakeWrappedApprove = async (amounts: string[]): Promise<string[]> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.isFake) throw Error(`${this.name} pool doesn't have this method`);
 
         const approveCoinsTx: string[] = await ensureAllowance(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
 
@@ -1343,23 +1367,28 @@ export class Pool {
     }
 
     public gaugeDepositIsApproved = async (lpTokenAmount: string): Promise<boolean> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         return await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.gauge);
     }
 
     private gaugeDepositApproveEstimateGas = async (lpTokenAmount: string): Promise<number> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         return await ensureAllowanceEstimateGas([this.lpToken], [lpTokenAmount], this.gauge);
     }
 
     public gaugeDepositApprove = async (lpTokenAmount: string): Promise<string[]> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         return await ensureAllowance([this.lpToken], [lpTokenAmount], this.gauge);
     }
 
     private gaugeDepositEstimateGas = async (lpTokenAmount: string): Promise<number> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         return (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).toNumber();
     }
 
     public gaugeDeposit = async (lpTokenAmount: string): Promise<string> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)
 
@@ -1368,18 +1397,21 @@ export class Pool {
     }
 
     private gaugeWithdrawEstimateGas = async (lpTokenAmount: string): Promise<number> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
         return (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).toNumber();
     }
 
     public gaugeWithdraw = async (lpTokenAmount: string): Promise<string> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
-        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(180).div(100);
+        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(200).div(100);
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
     public gaugeClaimableTokens = async (address = ""): Promise<string> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use gaugeClaimableRewards instead`)
 
         address = address || curve.signerAddress;
@@ -1389,6 +1421,7 @@ export class Pool {
     }
 
     public gaugeClaimTokens = async (): Promise<string> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use gaugeClaimRewards instead`)
 
         const gasLimit = (await curve.contracts[ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
@@ -1398,6 +1431,7 @@ export class Pool {
     // TODO 1. Fix aave and saave error
     // TODO 2. Figure out Synthetix cumulative results
     public gaugeClaimableRewards = async (address = ""): Promise<{token: string, symbol: string, amount: string}[]> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
@@ -1434,6 +1468,7 @@ export class Pool {
     }
 
     public gaugeClaimRewards = async (): Promise<string> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
 
@@ -1442,15 +1477,27 @@ export class Pool {
     }
 
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
-        return await this._balances(
-            ['lpToken', 'gauge', ...this.underlyingCoins, ...this.coins],
-            [this.lpToken, this.gauge, ...this.underlyingCoinAddresses, ...this.coinAddresses],
-            ...addresses
-        )
+        if (this.gauge === ethers.constants.AddressZero) {
+            return await this._balances(
+                ['lpToken', ...this.underlyingCoins, ...this.coins],
+                [this.lpToken, ...this.underlyingCoinAddresses, ...this.coinAddresses],
+                ...addresses
+            );
+        } else {
+            return await this._balances(
+                ['lpToken', 'gauge', ...this.underlyingCoins, ...this.coins],
+                [this.lpToken, this.gauge, ...this.underlyingCoinAddresses, ...this.coinAddresses],
+                ...addresses
+            );
+        }
     }
 
     public lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
-        return await this._balances(['lpToken', 'gauge'], [this.lpToken, this.gauge], ...addresses)
+        if (this.gauge === ethers.constants.AddressZero) {
+            return await this._balances(['lpToken'], [this.lpToken], ...addresses);
+        } else {
+            return await this._balances(['lpToken', 'gauge'], [this.lpToken, this.gauge], ...addresses);
+        }
     }
 
     public underlyingCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
@@ -1479,25 +1526,29 @@ export class Pool {
     }
 
     public exchangeIsApproved = async (inputCoin: string | number, amount: string): Promise<boolean> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, contractAddress);
     }
 
     private exchangeApproveEstimateGas = async (inputCoin: string | number, amount: string): Promise<number> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowanceEstimateGas([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     public exchangeApprove = async (inputCoin: string | number, amount: string): Promise<string[]> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         return await ensureAllowance([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
     private exchangeEstimateGas = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1522,13 +1573,16 @@ export class Pool {
 
         if (this.name === "tricrypto2") {
             return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).toNumber();
+        } else if (curve.chainId === 137 && this.isFactory) {
+            return (await contract.estimateGas[exchangeMethod](this.swap, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
         }
 
         return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
     }
 
     public exchange = async (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> => {
-        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ? this.zap as string : this.swap;
+        const contractAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(this.name) ||
+        (curve.chainId === 137 && this.isFactory) ? this.zap as string : this.swap;
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
@@ -1548,6 +1602,9 @@ export class Pool {
         if (this.name === 'tricrypto2') {
             const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).mul(130).div(100);
             return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.options, value, gasLimit })).hash
+        } else if (curve.chainId === 137 && this.isFactory) {
+            const gasLimit = (await contract.estimateGas[exchangeMethod](this.swap, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(140).div(100);
+            return (await contract[exchangeMethod](this.swap, i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
         }
 
         const estimatedGas = await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
@@ -1662,6 +1719,7 @@ export class Pool {
     }
 
     public gaugeMaxBoostedDeposit = async (...addresses: string[]): Promise<DictInterface<string>> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
 
         const votingEscrowContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
@@ -1691,6 +1749,7 @@ export class Pool {
     }
 
     public gaugeOptimalDeposits = async (...accounts: string[]): Promise<DictInterface<string>> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
 
         const votingEscrowContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
@@ -1750,6 +1809,7 @@ export class Pool {
     }
 
     public boost = async (address: string): Promise<string> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const gaugeContract = curve.contracts[this.gauge].multicallContract;
         const [workingBalance, balance] = (await curve.multicallProvider.all([
             gaugeContract.working_balances(address),
@@ -1946,7 +2006,7 @@ export class Pool {
     private _calcLpTokenAmountZap = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
         }
 
@@ -2014,7 +2074,7 @@ export class Pool {
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.constantOptions, value });
             if (estimateGas) {
                 return gas.toNumber()
@@ -2143,7 +2203,7 @@ export class Pool {
         const _minAmounts = await this._calcMinUnderlyingAmountsMeta(_lpTokenAmount);
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()
@@ -2214,7 +2274,7 @@ export class Pool {
 
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()
@@ -2256,7 +2316,7 @@ export class Pool {
     private _calcWithdrawOneCoinZap = async (_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             return (await contract.calc_withdraw_one_coin(this.swap, _lpTokenAmount, i, curve.constantOptions));
         }
 
@@ -2292,7 +2352,7 @@ export class Pool {
 
         const  contract = curve.contracts[this.zap as string].contract;
 
-        if (this.isFactory) {
+        if (this.isMetaFactory) {
             const gas = await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.constantOptions);
             if (estimateGas) {
                 return gas.toNumber()

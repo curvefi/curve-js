@@ -1,6 +1,6 @@
 {
   "name": "@curvefi/api",
-  "version": "1.17.2",
+  "version": "1.18.0",
   "description": "JavaScript library for curve.fi",
   "main": "lib/index.js",
   "scripts": {
@@ -10,6 +10,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/chai": "^4.2.18",
+    "@types/memoizee": "^0.4.7",
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.37",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
@@ -25,6 +26,7 @@
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "ethcall": "^4.2.5",
-    "ethers": "^5.4.6"
+    "ethers": "^5.4.6",
+    "memoizee": "^0.4.15"
   }
 }

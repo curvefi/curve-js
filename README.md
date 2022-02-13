@@ -778,3 +778,40 @@ Add liquidity and deposit into gauge in one transaction.
     // { lpToken: '0.0', gauge: '1860.884096082215274556' }
 })();
 ```
+
+## Factory
+All the methods above can be used for factory pools. It's only needed to fetch them.
+
+### Stable factory pools
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { chainId: 1 });
+    await curve.fetchFactoryPools();
+
+    const factoryPools = curve.getFactoryPoolList();
+    // [
+    //     'ibEUR+sEUR',    'ibKRW+sKRW',    'ibEUR+sEUR-2',  'crvCRVsCRV',
+    //     'jGBP+TGBP',     '2CRV',          'crvCRV',        'ibbtc/sbtcCRV',
+    //     'OUSD3CRV',      'aUSDC+aDAI',    'FEI3CRV3CRV',   'GrapeFUSD3CRV',
+    //     'SifuETH3CRV',   'RC_INV3CRV',    'RC_xRULER3CRV', 'RC_xCOVER3CRV',
+    //     'nUSD3CRV',      'cvxcrv',        'USDM3CRV',      'mEUR',
+    //     'waUSD3CRV',     'waBTC/sbtcCRV', 'DOLA3POOL3CRV', 'ibJPY+sJPY',
+    //     'ibAUD+sAUD',    'ibGBP+sGBP',    'ibCHF+sCHF',    'OPEN MATIC',
+    //     'EURN/EURT',     'sdCRV',         'BTCpx/sbtcCRV', 'PWRD3CRV3CRV',
+    //     'sansUSDT',      'alETH+ETH',     '17PctCypt3CRV', '17PctCypt3CRV-2',
+    //     'tbtc2/sbtcCRV', 'kusd3pool3CRV', 'tusd3pool3CRV', 'PWRD3CRV',
+    //     'fUSD3CRV',      'TPD3CRV',       'DEI3CRV',       'MIM-UST',
+    //     'ETH/vETH2',     'QBITWELLS3CRV', 'QWell13CRV',    'bveCVX-CVX',
+    //     'UST_whv23CRV',  'DSU+3Crv3CRV',  'DSU3CRV',       'aETHb',
+    //     'D3',            'aMATICb',       'pax-usdp3CRV',  'ibbtc/sbtcCRV-2',
+    //     'fxEUR_CRV',     'ORK/sbtcCRV',   'agEUR/sEUR',    'ibZAR+ZARP',
+    //     '3DYDX3CRV',     '3EURpool',      'tWETH+WETH',    'XSTUSD3CRV',
+    //     'XIM3CRV3CRV',   'XIM3CRV',       'RAMP rUSD3CRV', 'bhome3CRV',
+    //     'JPYC+ibJPY',    'UST-FRAX',      'FEIPCV-1',      'bentcvx',
+    //     'USX3CRV3CRV',   'ag+ib-EUR',     'tFRAX+FRAX',    'ELONXSWAP3CRV',
+    //     'BEAN3CRV',      'USDV3CRV',      'PARUSDC3CRV',   'baoUSD-3CRV'
+    // ]
+
+})()

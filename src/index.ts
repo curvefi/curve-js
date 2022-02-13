@@ -36,7 +36,7 @@ import {
     withdrawLockedCrvEstimateGas,
     withdrawLockedCrv,
 } from "./boosting";
-import { getBalances, getAllowance, hasAllowance, ensureAllowanceEstimateGas, ensureAllowance, getPoolList, getUsdRate } from "./utils";
+import { getBalances, getAllowance, hasAllowance, ensureAllowanceEstimateGas, ensureAllowance, getPoolList, getFactoryPoolList, getUsdRate } from "./utils";
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
@@ -50,13 +50,19 @@ async function init (
     this.chainId = _curve.chainId;
 }
 
+async function fetchFactoryPools(): Promise<void> {
+    await _curve.fetchFactoryPools();
+}
+
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
     _curve.setCustomFeeData(customFeeData);
 }
 
 const curve = {
     init,
+    fetchFactoryPools,
     getPoolList,
+    getFactoryPoolList,
     getUsdRate,
     setCustomFeeData,
     signerAddress: '',

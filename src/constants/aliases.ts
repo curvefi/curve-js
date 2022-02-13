@@ -6,6 +6,7 @@ export const ALIASES_ETHEREUM = {
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0x271fbE8aB7f1fB262f81C77Ea5303F03DA9d3d6A",
+    "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4',
     "registry_exchange": "",
 }
 
@@ -17,5 +18,6 @@ export const ALIASES_POLYGON = {
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0x43FF7b96808988C9d19C1d05Ef19658B03e8a143",
+    "factory": '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
     "registry_exchange": "",
 }

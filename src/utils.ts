@@ -1,7 +1,8 @@
 import axios from 'axios';
+import memoize from 'memoizee';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import { DictInterface } from './interfaces';
+import {DictInterface, IStats } from './interfaces';
 import { curve, POOLS_DATA, LP_TOKENS, GAUGES } from "./curve";
 import { COINS, DECIMALS_LOWER_CASE } from "./curve";
 
@@ -51,7 +52,7 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
     if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
     coinAddresses = coinAddresses as string[];
 
-    return coinAddresses.map((coinAddr) => DECIMALS_LOWER_CASE[coinAddr.toLowerCase()] || 18);
+    return coinAddresses.map((coinAddr) => DECIMALS_LOWER_CASE[coinAddr.toLowerCase()] ?? 18);
 }
 
 export const _getBalances = async (coins: string[], addresses: string[]): Promise<DictInterface<string[]>> => {
@@ -239,9 +240,24 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
             `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
         const response = await axios.get(url);
-        _usdRatesCache[assetId] = { 'rate': response.data[assetId]['usd'], 'time': Date.now() };
+        try {
+            _usdRatesCache[assetId] = {'rate': response.data[assetId]['usd'] ?? 1, 'time': Date.now()};
+        } catch (err) { // TODO pay attention!
+            _usdRatesCache[assetId] = {'rate': 1, 'time': Date.now()};
+        }
     }
+
     return _usdRatesCache[assetId]['rate']
+}
+
+export const _getFactoryStatsUrl = (): string => {
+    if (curve.chainId === 1 || curve.chainId === 1337) {
+        return "https://curve-api-hplkiejxx-curvefi.vercel.app/api/getSubgraphData";
+    } else if (curve.chainId === 137) {
+        return "https://api.curve.fi/api/getFactoryAPYs-polygon"
+    } else {
+        throw Error(`Unsupported network id${curve.chainId}`)
+    }
 }
 
 export const _getStatsUrl = (isCrypto = false): string => {
@@ -254,7 +270,82 @@ export const _getStatsUrl = (isCrypto = false): string => {
     }
 }
 
+export const _getStats = memoize(
+    async (statsUrl: string): Promise<IStats> => {
+        const rawData = (await axios.get(statsUrl)).data;
+
+        const data: IStats = {};
+        Object.keys(rawData.apy.day).forEach((poolName) => {
+            data[poolName] = {
+                volume: rawData.volume[poolName] ?? 0,
+                apy: {
+                    day: rawData.apy.day[poolName],
+                    week: rawData.apy.week[poolName],
+                    month: rawData.apy.month[poolName],
+                    total: rawData.apy.total[poolName],
+                },
+            }
+        })
+
+        return data
+    },
+    {
+        promise: true,
+        maxAge: 10 * 60 * 1000, // 10m
+    }
+)
+
+export const _getFactoryStatsEthereum = memoize(
+    async (statsUrl: string): Promise<IStats> => {
+        const rawData = (await axios.get(statsUrl)).data.data.poolList;
+        const data: IStats = {};
+        rawData.forEach((item: { address: string, volumeUSD: number, latestDailyApy: number | null, latestWeeklyApy: number | null }) => {
+            data[item.address.toLowerCase()] = {
+                volume: item.volumeUSD ?? 0,
+                apy: {
+                    day: item.latestDailyApy ?? 0,
+                    week: item.latestWeeklyApy ?? 0,
+                    month: item.latestWeeklyApy ?? 0,
+                    total: item.latestWeeklyApy ?? 0,
+                },
+            }
+        })
+
+        return data;
+    },
+    {
+        promise: true,
+        maxAge: 10 * 60 * 1000, // 10m
+    }
+)
+
+export const _getFactoryStatsPolygon = memoize(
+    async (statsUrl: string): Promise<IStats> => {
+        const rawData = (await axios.get(statsUrl)).data.data.poolDetails;
+        const data: IStats = {};
+        rawData.forEach((item: { poolAddress: string, volume: number, apy: number }) => {
+            data[item.poolAddress.toLowerCase()] = {
+                volume: item.volume ?? 0,
+                apy: {
+                    day: item.apy ?? 0,
+                    week: item.apy ?? 0,
+                    month: item.apy ?? 0,
+                    total: item.apy ?? 0,
+                },
+            }
+        })
+
+        return data;
+    },
+    {
+        promise: true,
+        maxAge: 10 * 60 * 1000, // 10m
+    }
+)
+
 export const getPoolList = (): string[] => Object.keys(POOLS_DATA);
+
+export const getFactoryPoolList = (): string[] => Object.keys(curve.constants.FACTORY_POOLS_DATA);
 
 export const getUsdRate = async (coin: string): Promise<number> => {
     const [coinAddress] = _getCoinAddresses(coin);

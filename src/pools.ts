@@ -17,9 +17,12 @@ import {
     isEth,
     getEthIndex,
     _getStatsUrl,
+    _getFactoryStatsUrl,
     _getStats,
+    _getFactoryStatsEthereum,
+    _getFactoryStatsPolygon,
 } from './utils';
-import { DictInterface, RewardsApyInterface } from './interfaces';
+import {DictInterface, IPoolStats, RewardsApyInterface} from './interfaces';
 import {
     ALIASES,
     POOLS_DATA,
@@ -302,22 +305,35 @@ export class Pool {
         return String(totalLiquidity)
     }
 
-    private getVolume = async (): Promise<string> => {
+    private _getPoolStats = async (): Promise<IPoolStats> => {
+        const statsUrl = this.isFactory ? _getFactoryStatsUrl() : _getStatsUrl(this.isCrypto);
         const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
-        const statsUrl = _getStatsUrl(this.isCrypto);
-        const volume = (await _getStats(statsUrl)).volume[name] || 0;
-        const usdRate = this.isCrypto ? 1 : await _getUsdRate(this.referenceAsset);
+        const key = this.isFactory ? this.swap.toLowerCase() : name;
+
+        if (this.isFactory) {
+            if (curve.chainId === 137) {
+                return (await _getFactoryStatsPolygon(statsUrl))[key];
+            } else {
+                return (await _getFactoryStatsEthereum(statsUrl))[key];
+            }
+        }
+
+        return (await _getStats(statsUrl))[key];
+    }
+
+    private getVolume = async (): Promise<string> => {
+        const volume = (await this._getPoolStats()).volume;
+        const usdRate = (this.isCrypto || (curve.chainId === 1 && this.isFactory)) ? 1 : await _getUsdRate(this.referenceAsset);
 
         return String(volume * usdRate)
     }
 
     private getBaseApy = async (): Promise<{day: string, week: string, month: string, total: string}> => {
-        const name = (this.name === 'ren' && curve.chainId === 1) ? 'ren2' : this.name === 'sbtc' ? 'rens' : this.name;
-        const statsUrl = _getStatsUrl(this.isCrypto);
-        const apy = (await _getStats(statsUrl)).apy;
+        const apy = (await this._getPoolStats()).apy;
 
-        const formattedApy = [apy.day[name], apy.week[name], apy.month[name], apy.total[name]].map(
-            (x: number) => (x * 100).toFixed(4)
+        const multiplier = this.isFactory ? 1 : 100;
+        const formattedApy = [apy.day, apy.week, apy.month, apy.total].map(
+            (x: number) => (x * multiplier).toFixed(4)
         ) as [daily: string, weekly: string, monthly: string, total: string]
 
         return {

@@ -61,3 +61,17 @@ export interface RewardsApyInterface {
     symbol: string,
     apy: string,
 }
+
+export interface IPoolStats {
+    volume: number,
+    apy: {
+        day: number,
+        week: number,
+        month: number,
+        total: number,
+    }
+}
+
+export interface IStats {
+    [index: string]: IPoolStats
+}

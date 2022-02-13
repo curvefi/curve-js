@@ -2,7 +2,7 @@ import axios from 'axios';
 import memoize from 'memoizee';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import { DictInterface } from './interfaces';
+import {DictInterface, IStats } from './interfaces';
 import { curve, POOLS_DATA, LP_TOKENS, GAUGES } from "./curve";
 import { COINS, DECIMALS_LOWER_CASE } from "./curve";
 
@@ -250,6 +250,16 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     return _usdRatesCache[assetId]['rate']
 }
 
+export const _getFactoryStatsUrl = (): string => {
+    if (curve.chainId === 1 || curve.chainId === 1337) {
+        return "https://curve-api-hplkiejxx-curvefi.vercel.app/api/getSubgraphData";
+    } else if (curve.chainId === 137) {
+        return "https://api.curve.fi/api/getFactoryAPYs-polygon"
+    } else {
+        throw Error(`Unsupported network id${curve.chainId}`)
+    }
+}
+
 export const _getStatsUrl = (isCrypto = false): string => {
     if (curve.chainId === 1 || curve.chainId === 1337) {
         return isCrypto ? "https://stats.curve.fi/raw-stats-crypto/apys.json" : "https://stats.curve.fi/raw-stats/apys.json";
@@ -261,8 +271,71 @@ export const _getStatsUrl = (isCrypto = false): string => {
 }
 
 export const _getStats = memoize(
-    async (statsUrl: string): Promise<DictInterface<DictInterface<DictInterface<string>>>> => {
-        return (await axios.get(statsUrl)).data;
+    async (statsUrl: string): Promise<IStats> => {
+        const rawData = (await axios.get(statsUrl)).data;
+
+        const data: IStats = {};
+        Object.keys(rawData.apy.day).forEach((poolName) => {
+            data[poolName] = {
+                volume: rawData.volume[poolName] ?? 0,
+                apy: {
+                    day: rawData.apy.day[poolName],
+                    week: rawData.apy.week[poolName],
+                    month: rawData.apy.month[poolName],
+                    total: rawData.apy.total[poolName],
+                },
+            }
+        })
+
+        return data
+    },
+    {
+        promise: true,
+        maxAge: 10 * 60 * 1000, // 10m
+    }
+)
+
+export const _getFactoryStatsEthereum = memoize(
+    async (statsUrl: string): Promise<IStats> => {
+        const rawData = (await axios.get(statsUrl)).data.data.poolList;
+        const data: IStats = {};
+        rawData.forEach((item: { address: string, volumeUSD: number, latestDailyApy: number | null, latestWeeklyApy: number | null }) => {
+            data[item.address.toLowerCase()] = {
+                volume: item.volumeUSD ?? 0,
+                apy: {
+                    day: item.latestDailyApy ?? 0,
+                    week: item.latestWeeklyApy ?? 0,
+                    month: item.latestWeeklyApy ?? 0,
+                    total: item.latestWeeklyApy ?? 0,
+                },
+            }
+        })
+
+        return data;
+    },
+    {
+        promise: true,
+        maxAge: 10 * 60 * 1000, // 10m
+    }
+)
+
+export const _getFactoryStatsPolygon = memoize(
+    async (statsUrl: string): Promise<IStats> => {
+        const rawData = (await axios.get(statsUrl)).data.data.poolDetails;
+        const data: IStats = {};
+        rawData.forEach((item: { poolAddress: string, volume: number, apy: number }) => {
+            data[item.poolAddress.toLowerCase()] = {
+                volume: item.volume ?? 0,
+                apy: {
+                    day: item.apy ?? 0,
+                    week: item.apy ?? 0,
+                    month: item.apy ?? 0,
+                    total: item.apy ?? 0,
+                },
+            }
+        })
+
+        return data;
     },
     {
         promise: true,

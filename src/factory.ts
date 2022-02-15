@@ -227,22 +227,23 @@ function setFactoryGaugeContracts(this: CurveInterface, factoryGaugeAddresses: s
     });
 }
 
-
 async function getFactoryPoolNames(this: CurveInterface, factorySwapAddresses: string[]): Promise<string[]> {
     const calls = [];
     for (const addr of factorySwapAddresses) {
         calls.push(this.contracts[addr].multicallContract.symbol());
     }
 
-    const names = (await this.multicallProvider.all(calls) as string[]).map((name) => name.slice(0, -2));
+    const names = (await this.multicallProvider.all(calls) as string[]);
     const existingNames = Object.keys(this.constants.POOLS_DATA);
 
     // rename duplications
     for (let i = 0; i < names.length; i++) {
         if (names.indexOf(names[i]) !== i || existingNames.includes(names[i])) {
             let n = 1;
-            do { n++ } while (names.indexOf(names[i] + `-${n}`) !== -1 || existingNames.includes(names[i] + `-${n}`));
-            names[i] += `-${n}`;
+            do { n++ } while (
+                names.indexOf(names[i].slice(0, -2) + `-${n}` + "-f") !== -1 || existingNames.includes(names[i].slice(0, -2) + `-${n}` + "-f")
+            );
+            names[i] = names[i].slice(0, -2) + `-${n}` + "-f";
         }
     }
 
@@ -273,8 +274,6 @@ async function getFactoryCoinAddresses(this: CurveInterface, factorySwapAddresse
     for (const addr of factorySwapAddresses) {
         calls.push(factoryMulticallContract.get_coins(addr));
     }
-
-
 
     return (await this.multicallProvider.all(calls) as string[][]).map(
         (addresses) => addresses

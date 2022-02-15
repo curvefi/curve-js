@@ -8,11 +8,11 @@ import { Pool } from "../src/pools";
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
-const FACTORY_META_POOLS = ['baoUSD-3CRV', 'ELONXSWAP3CRV', 'ibbtc/sbtcCRV'];
+const FACTORY_META_POOLS = ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-2-f'];
 const FACTORY_CRYPTO_POOLS = ['YFIETH-fV2'];
 
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd'];
-const POLYGON_FACTORY_META_POOLS = ['FRAX3CRV-f3CRV'];
+const POLYGON_FACTORY_META_POOLS = ['FRAX3CRV-f3CRV-f'];
 
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const ETHEREUM_POOLS = FACTORY_CRYPTO_POOLS;

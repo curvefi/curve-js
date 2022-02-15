@@ -101,8 +101,10 @@ async function getCryptoFactoryPoolNames(this: CurveInterface, factoryTokenAddre
     for (let i = 0; i < names.length; i++) {
         if (names.indexOf(names[i]) !== i || existingNames.includes(names[i])) {
             let n = 1;
-            do { n++ } while (names.indexOf(names[i] + `-${n}`) !== -1 || existingNames.includes(names[i] + `-${n}`));
-            names[i] += `-${n}`;
+            do { n++ } while (
+                names.indexOf(names[i].slice(0, -4) + `-${n}` + "-fV2") !== -1 || existingNames.includes(names[i].slice(0, -4) + `-${n}` + "-fV2")
+            );
+            names[i] = names[i].slice(0, -4) + `-${n}` + "-fV2";
         }
     }
 

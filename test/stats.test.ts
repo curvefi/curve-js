@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import curve from "../src/";
 import { Pool } from "../src/pools";
+import {ethers} from "ethers";
 
 const MAIN_POOLS_ETHEREUM = [
     'compound', 'usdt',   'y',          'busd',
@@ -15,8 +16,7 @@ const MAIN_POOLS_ETHEREUM = [
     'alusd',    'mim',    'tricrypto2', 'eurt',
     'eurtusd',  'crveth', 'cvxeth',     'xautusd',
     'spelleth', 'teth',
-]
-
+];
 const FACTORY_POOLS_ETHEREUM = [
     'ibEUR+sEUR',    'ibKRW+sKRW',    'ibEUR+sEUR-2',  'crvCRVsCRV',
     'jGBP+TGBP',     '2CRV',          'crvCRV',        'ibbtc/sbtcCRV',
@@ -38,7 +38,18 @@ const FACTORY_POOLS_ETHEREUM = [
     'JPYC+ibJPY',    'UST-FRAX',      'FEIPCV-1',      'bentcvx',
     'USX3CRV3CRV',   'ag+ib-EUR',     'tFRAX+FRAX',    'ELONXSWAP3CRV',
     'BEAN3CRV',      'USDV3CRV',      'PARUSDC3CRV',   'baoUSD-3CRV',
-]
+];
+const CRYPTO_FACTORY_POOLS_ETHEREUM = [
+    'FXSETH-fV2',     'FXSETH-fV2-2',
+    'FXSETH-fV2-3',   'FXSETH-fV2-4',
+    'BADGERWBTC-fV2', 'INVDOLA-fV2',
+    'RAIFRAX-fV2',    'RAIETH-fV2',
+    'YFIETH-fV2',     'palStkAAVE-fV2',
+    'DYDXETH-fV2',    'SDTETH-fV2',
+    'CADCUSDC-fV2',   'RAIAGEUR-fV2',
+    'rp-eth-fV2',     'PARUSDC-fV2',
+    'DUCKETH-fV2',    'BTRFLYETH-fV2',
+];
 
 const MAIN_POOLS_POLYGON = [ 'aave', 'ren', 'atricrypto3', 'eurtusd' ];
 const FACTORY_POOLS_POLYGON = [
@@ -122,7 +133,8 @@ describe('Stats test', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
-        await curve.fetchFactoryPools();
+        // await curve.fetchFactoryPools();
+        await curve.fetchCryptoFactoryPools();
     });
 
     // for (const poolName of MAIN_POOLS_ETHEREUM) {
@@ -133,11 +145,15 @@ describe('Stats test', async function () {
     //     poolStatsTest(poolName);
     // }
 
-    for (const poolName of MAIN_POOLS_POLYGON) {
+    for (const poolName of CRYPTO_FACTORY_POOLS_ETHEREUM) {
         poolStatsTest(poolName);
     }
 
-    for (const poolName of FACTORY_POOLS_POLYGON) {
-        poolStatsTest(poolName);
-    }
+    // for (const poolName of MAIN_POOLS_POLYGON) {
+    //     poolStatsTest(poolName);
+    // }
+    //
+    // for (const poolName of FACTORY_POOLS_POLYGON) {
+    //     poolStatsTest(poolName);
+    // }
 })

@@ -12,13 +12,14 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
 const FACTORY_PLAIN_POOLS = ['ibEUR+sEUR', 'D3', 'crvCRV'];
 const FACTORY_META_POOLS = ['baoUSD-3CRV', 'ELONXSWAP3CRV', 'ibbtc/sbtcCRV'];
+const FACTORY_CRYPTO_POOLS = ['YFIETH-fV2', 'BADGERWBTC-fV2'];
 
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 const POLYGON_FACTORY_PLAIN_POOLS = ['CRVALRTO', '3EUR', '4eur-2'];
 const POLYGON_FACTORY_META_POOLS = ['FRAX3CRV-f3CRV'];
 
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
-const ETHEREUM_POOLS = FACTORY_META_POOLS;
+const ETHEREUM_POOLS = FACTORY_CRYPTO_POOLS;
 const POLYGON_POOLS = POLYGON_FACTORY_META_POOLS;
 
 const underlyingLiquidityTest = (name: string) => {
@@ -192,15 +193,16 @@ describe('Underlying test', async function () {
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
         await curve.fetchFactoryPools();
+        await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolName of ETHEREUM_POOLS) {
+    for (const poolName of ETHEREUM_POOLS) {
+        underlyingLiquidityTest(poolName);
+        underlyingExchangeTest(poolName);
+    }
+
+    // for (const poolName of POLYGON_POOLS) {
     //     underlyingLiquidityTest(poolName);
     //     underlyingExchangeTest(poolName);
     // }
-
-    for (const poolName of POLYGON_POOLS) {
-        // underlyingLiquidityTest(poolName);
-        underlyingExchangeTest(poolName);
-    }
 })

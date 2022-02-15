@@ -92,6 +92,12 @@ const FACTORY_POOLS_POLYGON = [
     'PSOLM3CRV-3',    'PSOLM3CRV-4',
 ];
 
+const checkNumber = (str: string) => {
+    const re = /\d+(\.\d+)?/g
+    const match = str.match(re);
+    return match && str === match[0]
+}
+
 const poolStatsTest = (name: string) => {
     describe(`${name} stats test`, function () {
         let pool: Pool;
@@ -123,6 +129,20 @@ const poolStatsTest = (name: string) => {
             assert.equal(typeof apy.week, 'string');
             assert.equal(typeof apy.month, 'string');
             assert.equal(typeof apy.total, 'string');
+        });
+
+        it('Token APY', async function () {
+            if (pool.gauge === ethers.constants.AddressZero) {
+                console.log("Skip");
+                return
+            }
+
+            const [apy, boostedApy] = await pool.stats.getTokenApy();
+
+            console.log(apy, boostedApy);
+
+            assert.isTrue(checkNumber(apy));
+            assert.isTrue(checkNumber(boostedApy));
         });
     })
 }

@@ -93,7 +93,7 @@ const FACTORY_POOLS_POLYGON = [
 ];
 
 const checkNumber = (str: string) => {
-    const re = /\d+(\.\d+)?/g
+    const re = /-?\d+(\.\d+)?/g
     const match = str.match(re);
     return match && str === match[0]
 }
@@ -109,26 +109,23 @@ const poolStatsTest = (name: string) => {
 
         it('Total liquidity', async function () {
             const totalLiquidity = await pool.stats.getTotalLiquidity();
-            console.log(totalLiquidity);
 
-            assert.equal(typeof totalLiquidity, 'string');
+            assert.isTrue(checkNumber(totalLiquidity));
         });
 
         it('Volume', async function () {
             const volume = await pool.stats.getVolume();
-            console.log(volume);
 
-            assert.equal(typeof volume, 'string');
+            assert.isTrue(checkNumber(volume));
         });
 
         it('Base APY', async function () {
             const apy = await pool.stats.getBaseApy();
-            console.log(apy);
 
-            assert.equal(typeof apy.day, 'string');
-            assert.equal(typeof apy.week, 'string');
-            assert.equal(typeof apy.month, 'string');
-            assert.equal(typeof apy.total, 'string');
+            assert.isTrue(checkNumber(apy.day));
+            assert.isTrue(checkNumber(apy.week));
+            assert.isTrue(checkNumber(apy.month));
+            assert.isTrue(checkNumber(apy.total));
         });
 
         it('Token APY', async function () {
@@ -139,10 +136,16 @@ const poolStatsTest = (name: string) => {
 
             const [apy, boostedApy] = await pool.stats.getTokenApy();
 
-            console.log(apy, boostedApy);
-
             assert.isTrue(checkNumber(apy));
             assert.isTrue(checkNumber(boostedApy));
+        });
+
+        it('Rewards APY', async function () {
+            const rewardsApy = await pool.stats.getRewardsApy();
+
+            rewardsApy.forEach((item: { apy: string }) => {
+                assert.isTrue(checkNumber(item.apy));
+            })
         });
     })
 }
@@ -153,17 +156,17 @@ describe('Stats test', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
-        // await curve.fetchFactoryPools();
+        await curve.fetchFactoryPools();
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolName of MAIN_POOLS_ETHEREUM) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (const poolName of FACTORY_POOLS_ETHEREUM) {
-    //     poolStatsTest(poolName);
-    // }
+    for (const poolName of MAIN_POOLS_ETHEREUM) {
+        poolStatsTest(poolName);
+    }
+
+    for (const poolName of FACTORY_POOLS_ETHEREUM) {
+        poolStatsTest(poolName);
+    }
 
     for (const poolName of CRYPTO_FACTORY_POOLS_ETHEREUM) {
         poolStatsTest(poolName);

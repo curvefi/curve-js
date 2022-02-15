@@ -458,7 +458,9 @@ class Curve {
     }
 
     async fetchCryptoFactoryPools(): Promise<void> {
-        this.constants.CRYPTO_FACTORY_POOLS_DATA = await getCryptoFactoryPoolData.call(this);
+        if (this.chainId === 1 || this.chainId === 1337) {
+            this.constants.CRYPTO_FACTORY_POOLS_DATA = await getCryptoFactoryPoolData.call(this);
+        }
     }
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {

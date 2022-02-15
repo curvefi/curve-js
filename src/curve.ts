@@ -2,6 +2,7 @@ import { ethers, Contract } from "ethers";
 import { Networkish } from "@ethersproject/networks";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
 import { getFactoryPoolData } from "./factory";
+import { getCryptoFactoryPoolData } from "./factory-crypto";
 import {PoolDataInterface, DictInterface} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
@@ -15,6 +16,7 @@ import depositAndStakeABI from './constants/abis/json/deposit_and_stake.json';
 import registryExchangeABI from './constants/abis/json/registry_exchange.json';
 import streamerABI from './constants/abis/json/streamer.json';
 import factoryABI from './constants/abis/json/factory.json';
+import cryptoFactoryABI from './constants/abis/json/factory-crypto.json';
 import { POOLS_DATA_ETHEREUM } from './constants/abis/abis-ethereum';
 import { POOLS_DATA_POLYGON } from './constants/abis/abis-polygon';
 import {
@@ -432,9 +434,16 @@ class Curve {
             contract: new Contract(ALIASES.factory, factoryABI, this.signer || this.provider),
             multicallContract: new MulticallContract(ALIASES.factory, factoryABI),
         };
-    }
 
-    async fetchFactoryPools(): Promise<void> {
+        this.contracts[ALIASES.crypto_factory] = {
+            contract: new Contract(ALIASES.crypto_factory, cryptoFactoryABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.crypto_factory, cryptoFactoryABI),
+        };
+        this.contracts[ALIASES.crypto_factory.toLowerCase()] = {
+            contract: new Contract(ALIASES.crypto_factory, cryptoFactoryABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(ALIASES.crypto_factory, cryptoFactoryABI),
+        };
+
         this.constants = {
             ALIASES,
             POOLS_DATA,
@@ -442,8 +451,14 @@ class Curve {
             LP_TOKENS,
             GAUGES,
         }
+    }
 
+    async fetchFactoryPools(): Promise<void> {
         this.constants.FACTORY_POOLS_DATA = await getFactoryPoolData.call(this);
+    }
+
+    async fetchCryptoFactoryPools(): Promise<void> {
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = await getCryptoFactoryPoolData.call(this);
     }
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {

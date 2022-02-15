@@ -781,37 +781,57 @@ Add liquidity and deposit into gauge in one transaction.
 
 ## Factory
 All the methods above can be used for factory pools. It's only needed to fetch them.
-
-### Stable factory pools
 ```ts
 import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { chainId: 1 });
     await curve.fetchFactoryPools();
+    await curve.fetchCryptoFactoryPools();
 
     const factoryPools = curve.getFactoryPoolList();
     // [
-    //     'ibEUR+sEUR',    'ibKRW+sKRW',    'ibEUR+sEUR-2',  'crvCRVsCRV',
-    //     'jGBP+TGBP',     '2CRV',          'crvCRV',        'ibbtc/sbtcCRV',
-    //     'OUSD3CRV',      'aUSDC+aDAI',    'FEI3CRV3CRV',   'GrapeFUSD3CRV',
-    //     'SifuETH3CRV',   'RC_INV3CRV',    'RC_xRULER3CRV', 'RC_xCOVER3CRV',
-    //     'nUSD3CRV',      'cvxcrv',        'USDM3CRV',      'mEUR',
-    //     'waUSD3CRV',     'waBTC/sbtcCRV', 'DOLA3POOL3CRV', 'ibJPY+sJPY',
-    //     'ibAUD+sAUD',    'ibGBP+sGBP',    'ibCHF+sCHF',    'OPEN MATIC',
-    //     'EURN/EURT',     'sdCRV',         'BTCpx/sbtcCRV', 'PWRD3CRV3CRV',
-    //     'sansUSDT',      'alETH+ETH',     '17PctCypt3CRV', '17PctCypt3CRV-2',
-    //     'tbtc2/sbtcCRV', 'kusd3pool3CRV', 'tusd3pool3CRV', 'PWRD3CRV',
-    //     'fUSD3CRV',      'TPD3CRV',       'DEI3CRV',       'MIM-UST',
-    //     'ETH/vETH2',     'QBITWELLS3CRV', 'QWell13CRV',    'bveCVX-CVX',
-    //     'UST_whv23CRV',  'DSU+3Crv3CRV',  'DSU3CRV',       'aETHb',
-    //     'D3',            'aMATICb',       'pax-usdp3CRV',  'ibbtc/sbtcCRV-2',
-    //     'fxEUR_CRV',     'ORK/sbtcCRV',   'agEUR/sEUR',    'ibZAR+ZARP',
-    //     '3DYDX3CRV',     '3EURpool',      'tWETH+WETH',    'XSTUSD3CRV',
-    //     'XIM3CRV3CRV',   'XIM3CRV',       'RAMP rUSD3CRV', 'bhome3CRV',
-    //     'JPYC+ibJPY',    'UST-FRAX',      'FEIPCV-1',      'bentcvx',
-    //     'USX3CRV3CRV',   'ag+ib-EUR',     'tFRAX+FRAX',    'ELONXSWAP3CRV',
-    //     'BEAN3CRV',      'USDV3CRV',      'PARUSDC3CRV',   'baoUSD-3CRV'
-    // ]
+    //     'ibEUR+sEUR-f',    'ibKRW+sKRW-f',      'ibEUR+sEUR-2-f',
+    //     'crvCRVsCRV-f',    'jGBP+TGBP-f',       '2CRV-f',
+    //     'crvCRV-f',        'ibbtc/sbtcCRV-f',   'OUSD3CRV-f',
+    //     'aUSDC+aDAI-f',    'FEI3CRV3CRV-f',     'GrapeFUSD3CRV-f',
+    //     'SifuETH3CRV-f',   'RC_INV3CRV-f',      'RC_xRULER3CRV-f',
+    //     'RC_xCOVER3CRV-f', 'nUSD3CRV-f',        'cvxcrv-f',
+    //     'USDM3CRV-f',      'mEUR-f',            'waUSD3CRV-f',
+    //     'waBTC/sbtcCRV-f', 'DOLA3POOL3CRV-f',   'ibJPY+sJPY-f',
+    //     'ibAUD+sAUD-f',    'ibGBP+sGBP-f',      'ibCHF+sCHF-f',
+    //     'OPEN MATIC-f',    'EURN/EURT-f',       'sdCRV-f',
+    //     'BTCpx/sbtcCRV-f', 'PWRD3CRV3CRV-f',    'sansUSDT-f',
+    //     'alETH+ETH-f',     '17PctCypt3CRV-f',   '17PctCypt3CRV-2-f',
+    //     'tbtc2/sbtcCRV-f', 'kusd3pool3CRV-f',   'tusd3pool3CRV-f',
+    //     'PWRD3CRV-f',      'fUSD3CRV-f',        'TPD3CRV-f',
+    //     'DEI3CRV-f',       'MIM-UST-f',         'ETH/vETH2-f',
+    //     'QBITWELLS3CRV-f', 'QWell13CRV-f',      'bveCVX-CVX-f',
+    //     'UST_whv23CRV-f',  'DSU+3Crv3CRV-f',    'DSU3CRV-f',
+    //     'aETHb-f',         'D3-f',              'aMATICb-f',
+    //     'pax-usdp3CRV-f',  'ibbtc/sbtcCRV-2-f', 'fxEUR_CRV-f',
+    //     'ORK/sbtcCRV-f',   'agEUR/sEUR-f',      'ibZAR+ZARP-f',
+    //     '3DYDX3CRV-f',     '3EURpool-f',        'tWETH+WETH-f',
+    //     'XSTUSD3CRV-f',    'XIM3CRV3CRV-f',     'XIM3CRV-f',
+    //     'RAMP rUSD3CRV-f', 'bhome3CRV-f',       'JPYC+ibJPY-f',
+    //     'UST-FRAX-f',      'FEIPCV-1-f',        'bentcvx-f',
+    //     'USX3CRV3CRV-f',   'ag+ib-EUR-f',       'tFRAX+FRAX-f',
+    //     'ELONXSWAP3CRV-f', 'BEAN3CRV-f',        'USDV3CRV-f',
+    //     'PARUSDC3CRV-f',   'baoUSD-3CRV-f',     'sUSD3CRV-f',
+    //     'AETHV13CRV-f',
+    // ];
 
+    const cryptoFactoryPools = curve.getCryptoFactoryPoolList()
+    // [
+    //     'FXSETH-fV2',     'FXSETH-2-fV2',
+    //     'FXSETH-3-fV2',   'FXSETH-4-fV2',
+    //     'BADGERWBTC-fV2', 'INVDOLA-fV2',
+    //     'RAIFRAX-fV2',    'RAIETH-fV2',
+    //     'YFIETH-fV2',     'palStkAAVE-fV2',
+    //     'DYDXETH-fV2',    'SDTETH-fV2',
+    //     'CADCUSDC-fV2',   'RAIAGEUR-fV2',
+    //     'rp-eth-fV2',     'PARUSDC-fV2',
+    //     'DUCKETH-fV2',    'BTRFLYETH-fV2',
+    // ];
 })()
+```

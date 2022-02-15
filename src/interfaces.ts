@@ -41,6 +41,7 @@ export interface PoolDataInterface {
     is_factory?: boolean,
     is_plain_factory?: boolean,
     is_meta_factory?: boolean,
+    is_crypto_factory?: boolean,
     adapter_abi?: any,
     old_adapter_address?: string,
     adapter_biconomy_address?: string,

@@ -312,7 +312,7 @@ export class Pool {
         const totalLiquidity = (balances as string[]).reduce(
             (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
 
-        return String(totalLiquidity)
+        return totalLiquidity.toFixed(8)
     }
 
     private _getPoolStats = async (): Promise<IPoolStats> => {

@@ -363,6 +363,7 @@ export class Pool {
         const gaugeControllerContract = curve.contracts[ALIASES.gauge_controller].multicallContract;
 
         const totalLiquidityUSD = await this.getTotalLiquidity();
+        if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
 
         const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
             gaugeContract.inflation_rate(),
@@ -370,6 +371,7 @@ export class Pool {
             gaugeContract.working_supply(),
             lpTokenContract.totalSupply(),
         ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
+        if (Number(workingSupply) === 0) return ["0", "0"];
 
         const rate = inflation.times(weight).times(31536000).times(0.4).div(workingSupply).times(totalSupply).div(Number(totalLiquidityUSD));
         const crvRate = await _getUsdRate(ALIASES.crv);

@@ -1,3 +1,5 @@
+import { ethers } from "ethers";
+
 export interface DictInterface<T> {
     [index: string]: T,
 }
@@ -75,4 +77,17 @@ export interface IPoolStats {
 
 export interface IStats {
     [index: string]: IPoolStats
+}
+
+export interface ISinglePoolSwapData {
+    poolName: string,
+    poolAddress: string,
+    i: number,
+    j: number,
+    swapType: 1 | 2 | 3 | 4,
+    swapAddress: string,  // for swapType == 4
+}
+
+export interface ISinglePoolSwapDataAndOutput extends ISinglePoolSwapData {
+    _output: ethers.BigNumber,
 }

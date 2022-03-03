@@ -22,7 +22,7 @@ import {
     _getFactoryStatsEthereum,
     _getFactoryStatsPolygon,
 } from './utils';
-import {DictInterface, IPoolStats, RewardsApyInterface} from './interfaces';
+import {DictInterface, IPoolStats, ISinglePoolSwapData, ISinglePoolSwapDataAndOutput, PoolDataInterface, RewardsApyInterface} from './interfaces';
 import {
     ALIASES,
     POOLS_DATA,
@@ -2461,24 +2461,20 @@ export class Pool {
 
 const _estimatedGasForPoolsCache: DictInterface<{ gas: ethers.BigNumber, time: number }> = {};
 
-const _estimateGasForPools = async (poolAddresses: string[], inputCoinAddress: string, outputCoinAddress: string, _amount: ethers.BigNumber): Promise<number[]> => {
+const _estimateGasForPools = async (pools: ISinglePoolSwapData[], inputCoinAddress: string, outputCoinAddress: string, _amount: ethers.BigNumber): Promise<number[]> => {
     const registryExchangeContract = curve.contracts[ALIASES.registry_exchange].contract;
     const sortedCoins = [inputCoinAddress, outputCoinAddress].sort();
 
     const gasPromises: Promise<ethers.BigNumber>[] = [];
-    for (const poolAddress of poolAddresses) {
-        const key = `${poolAddress}-${sortedCoins[0]}-${sortedCoins[1]}`;
+    for (const pool of pools) {
+        const key = `${pool.poolAddress}-${sortedCoins[0]}-${sortedCoins[1]}`;
         let gasPromise: Promise<ethers.BigNumber>;
 
+        const _route = [inputCoinAddress, pool.poolAddress, outputCoinAddress].concat(Array(6).fill(ethers.constants.AddressZero));
+        const _swapParams = [[pool.i, pool.j, pool.swapType]].concat(Array(3).fill([0, 0, 0]));
+        const _pools = [pool.swapAddress].concat(Array(3).fill(ethers.constants.AddressZero));
         if ((_estimatedGasForPoolsCache[key]?.time || 0) + 3600000 < Date.now()) {
-            gasPromise = registryExchangeContract.estimateGas.exchange(
-                poolAddress,
-                inputCoinAddress,
-                outputCoinAddress,
-                _amount,
-                0,
-                curve.constantOptions
-            );
+            gasPromise = registryExchangeContract.estimateGas.exchange_multiple(_route, _swapParams, _amount, 0, _pools, curve.constantOptions);
         } else {
             gasPromise = Promise.resolve(_estimatedGasForPoolsCache[key].gas);
         }
@@ -2489,112 +2485,170 @@ const _estimateGasForPools = async (poolAddresses: string[], inputCoinAddress: s
     try {
         const _gasAmounts: ethers.BigNumber[] = await Promise.all(gasPromises);
 
-        poolAddresses.forEach((poolAddress, i: number) => {
-            const key = `${poolAddress}-${sortedCoins[0]}-${sortedCoins[1]}`;
+        pools.forEach((pool, i: number) => {
+            const key = `${pool.poolAddress}-${sortedCoins[0]}-${sortedCoins[1]}`;
             _estimatedGasForPoolsCache[key] = { 'gas': _gasAmounts[i], 'time': Date.now() };
         })
 
         return _gasAmounts.map((_g) => Number(ethers.utils.formatUnits(_g, 0)));
     } catch (err) {
-        return poolAddresses.map(() => 0);
+        return pools.map(() => 0);
     }
+}
+
+const _getAvailablePools = (inputCoinAddress: string, outputCoinAddress: string): ISinglePoolSwapData[] => {
+    return Object.entries({
+        ...POOLS_DATA,
+        ...curve.constants.FACTORY_POOLS_DATA as DictInterface<PoolDataInterface>,
+        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as DictInterface<PoolDataInterface>,
+    }).map(([poolName, poolData]) => {
+        const coin_addresses = poolData.coin_addresses.map((a: string) => a.toLowerCase());
+        const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
+        const meta_coin_addresses = poolData.meta_coin_addresses?.map((a: string) => a.toLowerCase()) || [];
+
+        const inputCoinIndexes = {
+            coin: coin_addresses.indexOf(inputCoinAddress.toLowerCase()),
+            underlying_coin: underlying_coin_addresses.indexOf(inputCoinAddress.toLowerCase()),
+            meta_coin: meta_coin_addresses ? meta_coin_addresses.indexOf(inputCoinAddress.toLowerCase()) : -1,
+        }
+
+        const outputCoinIndexes = {
+            coin: coin_addresses.indexOf(outputCoinAddress.toLowerCase()),
+            underlying_coin: underlying_coin_addresses.indexOf(outputCoinAddress.toLowerCase()),
+            meta_coin: meta_coin_addresses ? meta_coin_addresses.indexOf(outputCoinAddress.toLowerCase()) : -1,
+        }
+
+        // Only for underlying swaps
+        const poolAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(poolName) ||
+        (curve.chainId === 137 && poolData.is_factory) ? poolData.deposit_address as string : poolData.swap_address;
+
+        if (inputCoinIndexes.coin >= 0 && outputCoinIndexes.coin >= 0 && poolName !== "atricrypto3") {
+            const swapType = poolData.is_crypto ? 3 : 1;
+            return {
+                poolName,
+                poolAddress: poolData.swap_address,
+                i: inputCoinIndexes.coin,
+                j: outputCoinIndexes.coin,
+                swapType,
+                swapAddress: ethers.constants.AddressZero,
+            }
+        } else if (
+            inputCoinIndexes.underlying_coin >= 0 &&
+            outputCoinIndexes.underlying_coin >= 0 &&
+            !(poolName === "atricrypto3" && (inputCoinIndexes.meta_coin >= 0 && outputCoinIndexes.meta_coin >= 0))
+        ) {
+            const swapType = poolData.is_crypto && (poolData.is_fake || poolData.is_meta) ? 4 : poolData.is_crypto ? 3 : 2;
+            return {
+                poolName,
+                poolAddress,
+                i: inputCoinIndexes.underlying_coin,
+                j: outputCoinIndexes.underlying_coin,
+                swapType,
+                swapAddress: ethers.constants.AddressZero,
+            }
+        } else if (inputCoinIndexes.coin === 0 && outputCoinIndexes.meta_coin >= 0  && poolName !== "atricrypto3") {
+            const swapType = (curve.chainId === 137 && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+            return {
+                poolName,
+                poolAddress,
+                i: inputCoinIndexes.coin,
+                j: outputCoinIndexes.meta_coin + 1,
+                swapType,
+                swapAddress: swapType === 5 ? poolData.swap_address : ethers.constants.AddressZero,
+            }
+        } else if (inputCoinIndexes.meta_coin >= 0 && outputCoinIndexes.coin === 0 && poolName !== "atricrypto3") {
+            const swapType = (curve.chainId === 137 && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+            return {
+                poolName,
+                poolAddress,
+                i: inputCoinIndexes.meta_coin + 1,
+                j: outputCoinIndexes.coin,
+                swapType,
+                swapAddress: swapType === 5 ? poolData.swap_address : ethers.constants.AddressZero,
+            }
+        } else {
+            return null
+        }
+    }).filter((pool) => pool !== null) as ISinglePoolSwapData[]
 }
 
 const _getBestPoolAndOutput = async (
     inputCoinAddress: string,
     outputCoinAddress: string,
     amount: string
-): Promise<{ poolAddress: string, _output: ethers.BigNumber }> => {
-    const availablePools: { poolAddress: string, _output: ethers.BigNumber, outputUsd: number, txCostUsd: number }[] = Object.entries(POOLS_DATA).map((pool)=> {
-        const coin_addresses = pool[1].coin_addresses.map((a: string) => a.toLowerCase());
-        const underlying_coin_addresses = pool[1].underlying_coin_addresses.map((a: string) => a.toLowerCase());
-        const meta_coin_addresses = pool[1].meta_coin_addresses?.map((a: string) => a.toLowerCase());
-
-        const inputCoinIndexes = [
-            coin_addresses.indexOf(inputCoinAddress.toLowerCase()),
-            underlying_coin_addresses.indexOf(inputCoinAddress.toLowerCase()),
-            meta_coin_addresses ? meta_coin_addresses.indexOf(inputCoinAddress.toLowerCase()) : -1,
-        ]
-
-        const outputCoinIndexes = [
-            coin_addresses.indexOf(outputCoinAddress.toLowerCase()),
-            underlying_coin_addresses.indexOf(outputCoinAddress.toLowerCase()),
-            meta_coin_addresses ? meta_coin_addresses.indexOf(outputCoinAddress.toLowerCase()) : -1,
-        ]
-
-        if (pool[0] === 'atricrypto3') {
-            return null
-        }
-
-        if (inputCoinIndexes[0] >= 0 && outputCoinIndexes[0] >= 0) {
-            return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else if (inputCoinIndexes[1] >= 0 && outputCoinIndexes[1] >= 0) {
-            return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else if (inputCoinIndexes[0] === 0 && outputCoinIndexes[2] >= 0 && !['eurtusd', "xautusd"].includes(pool[0])) {
-            return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else if (inputCoinIndexes[2] >= 0 && outputCoinIndexes[0] === 0 && !['eurtusd', "xautusd"].includes(pool[0])) {
-            return { poolAddress: pool[1].swap_address, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 }
-        } else {
-            return null
-        }
-    }).filter((pool) => pool !== null) as { poolAddress: string, _output: ethers.BigNumber, outputUsd: number, txCostUsd: number }[]
-
+): Promise<ISinglePoolSwapDataAndOutput> => {
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const _amount = ethers.utils.parseUnits(amount.toString(), inputCoinDecimals);
 
+    const availablePoolsRaw = _getAvailablePools(inputCoinAddress, outputCoinAddress).map(
+        (data) => ({ ...data, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 })
+    );
+
+
+    const availablePools = [];
+    for (const pool of availablePoolsRaw) {
+        const { poolName, poolAddress, i, j, swapType, swapAddress } = pool;
+        const contract = curve.contracts[swapAddress === ethers.constants.AddressZero ? poolAddress : swapAddress].contract;
+
+        try {
+            pool._output = [2, 4, 5].includes(swapType) ?
+                await contract.get_dy_underlying(i, j, _amount, curve.constantOptions) :
+                await contract.get_dy(i, j, _amount, curve.constantOptions);
+
+            availablePools.push(pool);
+        } catch (err) {
+            console.log(`Pool ${poolName} is empty or very imbalanced`)
+        }
+    }
+
     if (availablePools.length === 0) {
-        return { poolAddress: "0x0000000000000000000000000000000000000000", _output: ethers.BigNumber.from(0) }
+        return {
+            poolName: "",
+            poolAddress: ethers.constants.AddressZero,
+            i: 0,
+            j: 0,
+            swapType: 1,
+            swapAddress: ethers.constants.AddressZero,
+            _output: ethers.BigNumber.from(0),
+        }
     }
 
     if (availablePools.length === 1) {
-        const poolAddress = availablePools[0].poolAddress;
-        const registryExchangeContract = curve.contracts[ALIASES.registry_exchange].contract;
-        const _output = await registryExchangeContract.get_exchange_amount(poolAddress, inputCoinAddress, outputCoinAddress, _amount, curve.constantOptions);
-
-        return { poolAddress, _output }
+        const { poolName, poolAddress, i, j, swapType, _output, swapAddress } = availablePools[0];
+        return { poolName, poolAddress, i, j, swapType, _output, swapAddress }
     }
 
-    const registryExchangeMulticall = curve.contracts[ALIASES.registry_exchange].multicallContract;
-
-    const calls = [];
-    for (const pool of availablePools) {
-        calls.push(registryExchangeMulticall.get_exchange_amount(pool.poolAddress, inputCoinAddress, outputCoinAddress, _amount));
-    }
-
-    const [_expectedAmounts, gasAmounts, outputCoinUsdRate, gasData, ethUsdRate] = await Promise.all([
-        curve.multicallProvider.all(calls),
-        _estimateGasForPools(availablePools.map((pool) => pool.poolAddress), inputCoinAddress, outputCoinAddress, _amount),
+    const [gasAmounts, outputCoinUsdRate, gasData, ethUsdRate] = await Promise.all([
+        // curve.multicallProvider.all(calls),
+        _estimateGasForPools(availablePools, inputCoinAddress, outputCoinAddress, _amount),
         _getUsdRate(outputCoinAddress),
         axios.get("https://api.curve.fi/api/getGas"),
-        _getUsdRate(COINS.eth),
-    ])
+        _getUsdRate(curve.chainId === 137 ? COINS.matic : COINS.eth),
+    ]);
     const gasPrice = gasData.data.data.gas.standard;
-    const expectedAmounts = (_expectedAmounts as ethers.BigNumber[]).map(
-        (_amount) => Number(ethers.utils.formatUnits(_amount, outputCoinDecimals)));
+    const expectedAmounts = (availablePools).map(
+        (swapData) => Number(ethers.utils.formatUnits(swapData._output, outputCoinDecimals)));
 
     const expectedAmountsUsd = expectedAmounts.map((a) => a * outputCoinUsdRate);
     const txCostsUsd = gasAmounts.map((a) => ethUsdRate * a * gasPrice / 1e18);
 
     availablePools.forEach((pool, i) => {
-        pool._output = _expectedAmounts[i] as ethers.BigNumber;
         pool.outputUsd = expectedAmountsUsd[i];
         pool.txCostUsd = txCostsUsd[i]
     });
 
-    const bestPool = availablePools.reduce(
+    return  availablePools.reduce(
         (pool1, pool2) => (pool1.outputUsd - pool1.txCostUsd) - (pool2.outputUsd - pool2.txCostUsd) >= 0 ? pool1 : pool2
     );
-
-    return { poolAddress: bestPool.poolAddress, _output: bestPool._output }
 }
 
-export const getBestPoolAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ poolAddress: string, output: string }> => {
+export const getBestPoolAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ poolName: string, poolAddress: string, output: string }> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
 
-    const { poolAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const { poolName, poolAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
-    return { poolAddress, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }
+    return { poolName, poolAddress, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }
 }
 
 export const exchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
@@ -2616,12 +2670,15 @@ export const exchangeApprove = async (inputCoin: string, outputCoin: string, amo
 export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<number> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
-    const { poolAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const { poolAddress, i, j, swapType, swapAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
     if (poolAddress === "0x0000000000000000000000000000000000000000") {
         throw new Error("This pair can't be exchanged");
     }
 
+    const _route = [inputCoinAddress, poolAddress, outputCoinAddress].concat(Array(6).fill(ethers.constants.AddressZero));
+    const _swapParams = [[i, j, swapType]].concat(Array(3).fill([0, 0, 0]));
+    const _pools = [swapAddress].concat(Array(3).fill(ethers.constants.AddressZero));
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
     const minRecvAmountBN: BigNumber = toBN(_output, outputCoinDecimals).times(1 - maxSlippage);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
@@ -2630,7 +2687,7 @@ export const exchangeEstimateGas = async (inputCoin: string, outputCoin: string,
     const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
 
     await curve.updateFeeData();
-    return (await contract.estimateGas.exchange(poolAddress, inputCoinAddress, outputCoinAddress, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber()
+    return (await contract.estimateGas.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _pools, { ...curve.constantOptions, value })).toNumber()
 }
 
 export const exchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<string> => {
@@ -2638,12 +2695,15 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     
     await ensureAllowance([inputCoin], [amount], ALIASES.registry_exchange);
-    const { poolAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const { poolAddress, i, j, swapType, swapAddress, _output } = await _getBestPoolAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
     if (poolAddress === "0x0000000000000000000000000000000000000000") {
         throw new Error("This pair can't be exchanged");
     }
 
+    const _route = [inputCoinAddress, poolAddress, outputCoinAddress].concat(Array(6).fill(ethers.constants.AddressZero));
+    const _swapParams = [[i, j, swapType]].concat(Array(3).fill([0, 0, 0]));
+    const _pools = [swapAddress].concat(Array(3).fill(ethers.constants.AddressZero));
     const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
     const minRecvAmountBN: BigNumber = toBN(_output, outputCoinDecimals).times(1 - maxSlippage);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
@@ -2652,8 +2712,15 @@ export const exchange = async (inputCoin: string, outputCoin: string, amount: st
     const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
 
     await curve.updateFeeData();
-    const gasLimit = (await contract.estimateGas.exchange(poolAddress, inputCoinAddress, outputCoinAddress, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
-    return (await contract.exchange(poolAddress, inputCoinAddress, outputCoinAddress, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
+    const gasLimit = (await contract.estimateGas.exchange_multiple(
+        _route,
+        _swapParams,
+        _amount,
+        _minRecvAmount,
+        _pools,
+        { ...curve.constantOptions, value }
+    )).mul(130).div(100);
+    return (await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _pools, { ...curve.options, value, gasLimit })).hash
 }
 
 // --------- Cross-Asset Exchange ---------

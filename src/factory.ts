@@ -154,6 +154,14 @@ const basePoolAddressZapDictPolygon: DictInterface<string> = {
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "0xE2e6DC1708337A6e59f227921db08F21e3394723".toLowerCase(),     // ren
 }
 
+const blackListPolygon: string[] = [
+    "0x666dc3b4babfd063faf965bd020024af0dc51b64",
+    "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
+    "0x88c4d6534165510b2e2caf0a130d4f70aa4b6d71",
+];
+
+const blackListEthereum: string[] = [];
+
 interface CurveInterface {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
     multicallProvider: MulticallProvider,
@@ -182,7 +190,8 @@ async function getFactorySwapAddresses(this: CurveInterface): Promise<string[]> 
     const factorySwapAddresses: string[] = (await this.multicallProvider.all(calls) as string[]).map((addr) => addr.toLowerCase());
     const swapAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
 
-    return factorySwapAddresses.filter((addr) => !swapAddresses.includes(addr));
+    const blacklist = this.chainId === 137 ? blackListPolygon : blackListEthereum;
+    return factorySwapAddresses.filter((addr) => !swapAddresses.includes(addr) && !blacklist.includes(addr));
 }
 
 async function getFactorySwapABIs(this: CurveInterface, factorySwapAddresses: string[]): Promise<any[]> {

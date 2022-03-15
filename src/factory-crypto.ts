@@ -171,6 +171,8 @@ async function getCoinAddressNameDict(
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
             coinAddrNamesDict[addr] = existingCoinAddrNameDict[addr];
+        } else if (addr === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2") {
+            coinAddrNamesDict[addr] = "MKR";
         } else {
             newCoinAddresses.push(addr);
         }

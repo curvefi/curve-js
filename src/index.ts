@@ -17,6 +17,7 @@ import {
     crossAssetExchangeApprove,
     crossAssetExchangeEstimateGas,
     crossAssetExchange,
+    getUserPoolList,
 } from "./pools";
 import { curve as _curve } from "./curve";
 import {
@@ -99,6 +100,7 @@ const curve = {
     crossAssetExchangeIsApproved,
     crossAssetExchangeApprove,
     crossAssetExchange,
+    getUserPoolList,
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,
         exchangeApprove: exchangeApproveEstimateGas,

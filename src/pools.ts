@@ -21,6 +21,9 @@ import {
     _getStats,
     _getFactoryStatsEthereum,
     _getFactoryStatsPolygon,
+    getPoolList,
+    getFactoryPoolList,
+    getCryptoFactoryPoolList,
 } from './utils';
 import {DictInterface, IPoolStats, ISinglePoolSwapData, ISinglePoolSwapDataAndOutput, PoolDataInterface, RewardsApyInterface} from './interfaces';
 import {
@@ -2882,4 +2885,27 @@ export const crossAssetExchange = async (inputCoin: string, outputCoin: string, 
     await curve.updateFeeData();
     const gasLimit = (await routerContract.estimateGas.exchange(_amount, route, indices, _minRecvAmount, { ...curve.constantOptions, value })).mul(130).div(100);
     return (await routerContract.exchange(_amount, route, indices, _minRecvAmount, { ...curve.options, value, gasLimit })).hash;
+}
+
+
+export const getUserPoolList = async (address?: string): Promise<string[]> => {
+    if (!address) address = curve.signerAddress;
+    address = address as string;
+
+    const poolNames = [...getPoolList(), ...getFactoryPoolList(), ...getCryptoFactoryPoolList()];
+    const promises = [];
+    for (const poolName of poolNames) {
+        const pool = new Pool(poolName);
+        promises.push(pool.lpTokenBalances(address)) // TODO optimization
+    }
+
+    const userPoolList: string[] = []
+    const balances = (await Promise.all(promises)).map((lpBalance) => Object.values(lpBalance).map(Number).reduce((a, b) => a + b));
+    for (let i = 0; i < poolNames.length; i++) {
+        if (balances[i] > 0) {
+            userPoolList.push(poolNames[i]);
+        }
+    }
+
+    return userPoolList
 }

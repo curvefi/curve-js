@@ -450,6 +450,8 @@ class Curve {
             DECIMALS_LOWER_CASE,
             LP_TOKENS,
             GAUGES,
+            FACTORY_POOLS_DATA: [],
+            CRYPTO_FACTORY_POOLS_DATA: [],
         }
     }
 

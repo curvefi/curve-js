@@ -10,7 +10,7 @@ const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 interface CurveInterface {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
     multicallProvider: MulticallProvider,
-    signer: ethers.Signer,
+    signer: ethers.Signer | null,
     signerAddress: string,
     chainId: number,
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
@@ -171,6 +171,8 @@ async function getCoinAddressNameDict(
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
             coinAddrNamesDict[addr] = existingCoinAddrNameDict[addr];
+        } else if (addr === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2") {
+            coinAddrNamesDict[addr] = "MKR";
         } else {
             newCoinAddresses.push(addr);
         }

@@ -165,7 +165,7 @@ const blackListEthereum: string[] = [];
 interface CurveInterface {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
     multicallProvider: MulticallProvider,
-    signer: ethers.Signer,
+    signer: ethers.Signer | null,
     signerAddress: string,
     chainId: number,
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },

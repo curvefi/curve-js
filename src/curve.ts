@@ -93,7 +93,7 @@ export let ALIASES = {
 class Curve {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
-    signer: ethers.Signer;
+    signer: ethers.Signer | null;
     signerAddress: string;
     chainId: number;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
@@ -147,9 +147,12 @@ class Curve {
         } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.providers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
+            this.signer = null;
+        // Alchemy provider
         } else if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.providers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
+            this.signer = null;
         } else {
             throw Error('Wrong providerType');
         }

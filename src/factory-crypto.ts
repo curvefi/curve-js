@@ -10,7 +10,7 @@ const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 interface CurveInterface {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
     multicallProvider: MulticallProvider,
-    signer: ethers.Signer,
+    signer: ethers.Signer | null,
     signerAddress: string,
     chainId: number,
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },

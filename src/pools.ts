@@ -478,7 +478,7 @@ export class Pool {
 
 
         // Lending pools with zap
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.name)) {
+        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.name)) {
             return await this._addLiquidityZap(_amounts, true) as number;
         }
 

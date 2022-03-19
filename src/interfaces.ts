@@ -1,7 +1,21 @@
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
+import { Contract as MulticallContract, Provider as MulticallProvider } from "ethcall";
 
 export interface DictInterface<T> {
     [index: string]: T,
+}
+
+export interface ICurve {
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
+    multicallProvider: MulticallProvider,
+    signer: ethers.Signer | null,
+    signerAddress: string,
+    chainId: number,
+    contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
+    feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
+    constantOptions: { gasLimit: number },
+    options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber },
+    constants: DictInterface<any>;
 }
 
 export interface PoolDataInterface {

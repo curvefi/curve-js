@@ -3,7 +3,7 @@ import { Networkish } from "@ethersproject/networks";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
 import { getFactoryPoolData } from "./factory";
 import { getCryptoFactoryPoolData } from "./factory-crypto";
-import {PoolDataInterface, DictInterface} from "./interfaces";
+import {PoolDataInterface, DictInterface, ICurve} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import yERC20Abi from './constants/abis/json/yERC20.json';
@@ -90,7 +90,7 @@ export let ALIASES = {
     "registry_exchange": "",
 }
 
-class Curve {
+class Curve implements ICurve {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;

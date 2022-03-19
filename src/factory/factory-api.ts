@@ -115,7 +115,8 @@ export async function getFactoryPoolsDataFromApi(this: ICurve): Promise<DictInte
             const basePoolZap = basePoolAddressZapDict[basePoolAddress];
 
             FACTORY_POOLS_DATA[pool.id] = {
-                name: pool.name,
+                name: pool.name.split(": ")[1].trim(),
+                full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase(),
                 N_COINS: coinAddresses.length,
@@ -143,7 +144,8 @@ export async function getFactoryPoolsDataFromApi(this: ICurve): Promise<DictInte
             };
         } else {
             FACTORY_POOLS_DATA[pool.id] = {
-                name: pool.name,
+                name: pool.name.split(": ")[1].trim(),
+                full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase(),
                 N_COINS: coinAddresses.length,

@@ -20,6 +20,7 @@ export interface ICurve {
 
 export interface PoolDataInterface {
     name?: string,
+    full_name: string,
     symbol?: string,
     reference_asset: 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER',
     N_COINS: number,

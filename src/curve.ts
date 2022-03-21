@@ -2,6 +2,7 @@ import { ethers, Contract } from "ethers";
 import { Networkish } from "@ethersproject/networks";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
 import { getFactoryPoolData } from "./factory";
+import { getFactoryPoolsDataFromApi } from "./factory/factory-api";
 import { getCryptoFactoryPoolData } from "./factory-crypto";
 import {PoolDataInterface, DictInterface, ICurve} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
@@ -458,8 +459,12 @@ class Curve implements ICurve {
         }
     }
 
-    async fetchFactoryPools(): Promise<void> {
-        this.constants.FACTORY_POOLS_DATA = await getFactoryPoolData.call(this);
+    async fetchFactoryPools({ useApi } = { useApi: true }): Promise<void> {
+        if (useApi) {
+            this.constants.FACTORY_POOLS_DATA = await getFactoryPoolsDataFromApi.call(this);
+        } else {
+            this.constants.FACTORY_POOLS_DATA = await getFactoryPoolData.call(this);
+        }
     }
 
     async fetchCryptoFactoryPools(): Promise<void> {

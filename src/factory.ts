@@ -1,6 +1,6 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve } from "./interfaces";
+import { DictInterface, PoolDataInterface, ICurve, REFERENCE_ASSET } from "./interfaces";
 import ERC20ABI from "./constants/abis/json/ERC20.json";
 import factorySwapABI from "./constants/abis/json/factoryPools/swap.json";
 import factoryDepositABI from "./constants/abis/json/factoryPools/deposit.json";
@@ -164,7 +164,7 @@ const blackListEthereum: string[] = [];
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
-async function getFactorySwapAddresses(this: ICurve): Promise<string[]> {
+async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], string[]]> {
     const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
 
@@ -174,11 +174,14 @@ async function getFactorySwapAddresses(this: ICurve): Promise<string[]> {
         calls.push(factoryMulticallContract.pool_list(i));
     }
 
-    const factorySwapAddresses: string[] = (await this.multicallProvider.all(calls) as string[]).map((addr) => addr.toLowerCase());
+    let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
+        (addr, i) => ({ id: `factory-v2-${i}`, address: addr.toLowerCase()})
+    );
     const swapAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
-
     const blacklist = this.chainId === 137 ? blackListPolygon : blackListEthereum;
-    return factorySwapAddresses.filter((addr) => !swapAddresses.includes(addr) && !blacklist.includes(addr));
+    factories = factories.filter((f) => !swapAddresses.includes(f.address) && !blacklist.includes(f.address));
+
+    return [factories.map((f) => f.id), factories.map((f) => f.address)]
 }
 
 async function getFactorySwapABIs(this: ICurve, factorySwapAddresses: string[]): Promise<any[]> {
@@ -223,30 +226,25 @@ function setFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[])
     });
 }
 
-async function getFactoryPoolNames(this: ICurve, factorySwapAddresses: string[]): Promise<string[]> {
+async function getFactorySymbolsAndNames(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[]]> {
     const calls = [];
     for (const addr of factorySwapAddresses) {
-        calls.push(this.contracts[addr].multicallContract.symbol());
+        calls.push(this.contracts[addr].multicallContract.symbol(), this.contracts[addr].multicallContract.name());
     }
 
-    const names = (await this.multicallProvider.all(calls) as string[]);
-    const existingNames = Object.keys(this.constants.POOLS_DATA);
+    const res = (await this.multicallProvider.all(calls) as string[]);
 
-    // rename duplications
-    for (let i = 0; i < names.length; i++) {
-        if (names.indexOf(names[i]) !== i || existingNames.includes(names[i])) {
-            let n = 1;
-            do { n++ } while (
-                names.indexOf(names[i].slice(0, -2) + `-${n}` + "-f") !== -1 || existingNames.includes(names[i].slice(0, -2) + `-${n}` + "-f")
-            );
-            names[i] = names[i].slice(0, -2) + `-${n}` + "-f";
-        }
+    const symbols: string[] = [];
+    const names: string[] = [];
+    for (let i = 0; i < factorySwapAddresses.length; i++) {
+        symbols.push(res[2 * i]);
+        names.push(res[(2 * i) + 1]);
     }
 
-    return names
+    return [symbols, names]
 }
 
-async function getFactoryReferenceAssets(this: ICurve, factorySwapAddresses: string[]): Promise<('USD' | 'ETH' | 'BTC' | 'OTHER')[]> {
+async function getFactoryReferenceAssets(this: ICurve, factorySwapAddresses: string[]): Promise<REFERENCE_ASSET[]> {
     const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
 
     const calls = [];
@@ -260,7 +258,7 @@ async function getFactoryReferenceAssets(this: ICurve, factorySwapAddresses: str
             1: "ETH",
             2: "BTC",
         }[ethers.utils.formatUnits(t, 0)] || "OTHER"
-    }) as ('USD' | 'ETH' | 'BTC' | 'OTHER')[];
+    }) as REFERENCE_ASSET[];
 }
 
 async function getFactoryCoinAddresses(this: ICurve, factorySwapAddresses: string[]): Promise<string[][]> {
@@ -416,14 +414,14 @@ function setFactoryZapContracts(this: ICurve): void {
 }
 
 export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<PoolDataInterface>> {
-    const swapAddresses = await getFactorySwapAddresses.call(this);
+    const [poolIds, swapAddresses] = await getFactoryIdsAndSwapAddresses.call(this);
     const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
     this.constants.LP_TOKENS.push(...swapAddresses); // TODO move to another place
     const gaugeAddresses = await getFactoryGaugeAddresses.call(this, swapAddresses);
     setFactoryGaugeContracts.call(this, gaugeAddresses);
     this.constants.GAUGES.push(...gaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero));  // TODO move to another place
-    const poolNames = await getFactoryPoolNames.call(this, swapAddresses);
+    const [poolSymbols, poolNames] = await getFactorySymbolsAndNames.call(this, swapAddresses);
     const referenceAssets = await getFactoryReferenceAssets.call(this, swapAddresses);
     const coinAddresses = await getFactoryCoinAddresses.call(this, swapAddresses);
     setFactoryCoinsContracts.call(this, coinAddresses);
@@ -441,9 +439,12 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
     const basePoolAddressZapDict = this.chainId === 137 ? basePoolAddressZapDictPolygon : basePoolAddressZapDictEthereum;
 
     const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
-    for (let i = 0; i < poolNames.length; i++) {
+    for (let i = 0; i < poolIds.length; i++) {
         if (!isMeta[i]) {
-            FACTORY_POOLS_DATA[poolNames[i]] = {
+            FACTORY_POOLS_DATA[poolIds[i]] = {
+                name: poolNames[i].split(": ")[1].trim(),
+                full_name: poolNames[i],
+                symbol: poolSymbols[i],
                 reference_asset: referenceAssets[i],
                 N_COINS: coinAddresses[i].length,
                 underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
@@ -463,7 +464,10 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 is_plain_factory: true,
             };
         } else {
-            FACTORY_POOLS_DATA[poolNames[i]] = {
+            FACTORY_POOLS_DATA[poolIds[i]] = {
+                name: poolNames[i].split(": ")[1].trim(),
+                full_name: poolNames[i],
+                symbol: poolSymbols[i],
                 reference_asset: referenceAssets[i],
                 N_COINS: coinAddresses[i].length,
                 underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),

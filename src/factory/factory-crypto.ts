@@ -1,9 +1,9 @@
 import { Contract, ethers } from "ethers";
 import {Contract as MulticallContract, Provider as MulticallProvider} from "ethcall";
-import { DictInterface, PoolDataInterface } from "./interfaces";
-import ERC20ABI from "./constants/abis/json/ERC20.json";
-import cryptoFactorySwapABI from "./constants/abis/json/factory-crypto/factory-crypto-pool-2.json";
-import factoryGaugeABI from "./constants/abis/json/gauge_factory.json";
+import { DictInterface, PoolDataInterface } from "../interfaces";
+import ERC20ABI from "../constants/abis/json/ERC20.json";
+import cryptoFactorySwapABI from "../constants/abis/json/factory-crypto/factory-crypto-pool-2.json";
+import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
 
 const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 

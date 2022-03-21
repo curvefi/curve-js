@@ -24,8 +24,6 @@ import {
     basePoolAddressZapDictPolygon,
 } from "./constants";
 
-const url = "https://api.curve.fi/api/getPools/ethereum/factory";
-
 function setFactorySwapContracts(this: ICurve, rawPoolList: any[]): void {
     const implementationABIDict = this.chainId === 137 ? implementationABIDictPolygon : implementationABIDictEthereum;
     rawPoolList.forEach((pool) => {
@@ -34,32 +32,35 @@ function setFactorySwapContracts(this: ICurve, rawPoolList: any[]): void {
             contract: new Contract(addr, implementationABIDict[pool.implementationAddress], this.signer || this.provider),
             multicallContract: new MulticallContract(addr, implementationABIDict[pool.implementationAddress]),
         }
+        this.constants.LP_TOKENS.push(addr);
     });
 }
 
 function setFactoryGaugeContracts(this: ICurve, rawPoolList: any[]): void {
     rawPoolList.forEach((pool)  => {
-        if (pool.gaugeAddresses) {
-            const addr = pool.gaugeAddresses.toLowerCase()
+        if (pool.gaugeAddress) {
+            const addr = pool.gaugeAddress.toLowerCase();
             this.contracts[addr] = {
                 contract: new Contract(addr, factoryGaugeABI, this.signer || this.provider),
                 multicallContract: new MulticallContract(addr, factoryGaugeABI),
             }
+            this.constants.GAUGES.push(addr);
         }
     });
 }
 
 function setFactoryCoinsContracts(this: ICurve, rawPoolList: any[]): void {
-    const coinAddresses = Array.from(rawPoolList.reduce((coins: Set<string>, pool) => {
-        pool.coins.forEach((c) => coins.add(c.address.toLowerCase()))
-        return coins;
-    }, new Set([])));
+    for (const pool of rawPoolList) {
+        for (const coin of pool.coins) {
+            const addr = coin.address.toLowerCase();
+            if (addr in this.contracts) continue;
 
-    for (const addr of coinAddresses) {
-        if (addr in this.contracts) continue;
-        this.contracts[addr] = {
-            contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(addr, ERC20ABI),
+            this.contracts[addr] = {
+                contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
+                multicallContract: new MulticallContract(addr, ERC20ABI),
+            }
+
+            this.constants.DECIMALS_LOWER_CASE[addr] = Number(coin.decimals);
         }
     }
 }
@@ -86,6 +87,8 @@ function setFactoryZapContracts(this: ICurve): void {
 }
 
 export async function getFactoryPoolsDataFromApi(this: ICurve): Promise<DictInterface<PoolDataInterface>> {
+    const network = this.chainId === 137 ? "polygon" : "ethereum";
+    const url = `https://api.curve.fi/api/getPools/${network}/factory`;
     const response = await axios.get(url);
     const rawPoolList = response.data.data.poolData;
     setFactorySwapContracts.call(this, rawPoolList);

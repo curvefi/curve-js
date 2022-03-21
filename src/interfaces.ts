@@ -18,11 +18,13 @@ export interface ICurve {
     constants: DictInterface<any>;
 }
 
+export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
+
 export interface PoolDataInterface {
     name: string,
     full_name: string,
     symbol: string,
-    reference_asset: 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER',
+    reference_asset: REFERENCE_ASSET,
     N_COINS: number,
     underlying_decimals: number[],
     decimals: number[],
@@ -74,6 +76,24 @@ export interface PoolDataInterface {
     reward_tokens?: string[],
     pool_type?: string,
     reward_contract?: string,
+}
+
+export interface ICoinFromPoolDataApi {
+    address: string,
+    symbol: string,
+    decimals: string,
+}
+
+export interface IPoolDataFromApi {
+    id: string,
+    name: string,
+    symbol: string,
+    assetTypeName: string,
+    address: string,
+    gaugeAddress?: string,
+    implementation: string,
+    implementationAddress: string,
+    coins: ICoinFromPoolDataApi[],
 }
 
 export interface RewardsApyInterface {

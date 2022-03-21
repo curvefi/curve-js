@@ -103,7 +103,7 @@ export class Pool {
     }
 
     constructor(id: string) {
-        const poolData = { ...POOLS_DATA, ...(curve.constants.FACTORY_POOLS_DATA || {}), ...(curve.constants.CRYPTO_FACTORY_POOLS_DATA || {}) }[name];
+        const poolData = { ...POOLS_DATA, ...(curve.constants.FACTORY_POOLS_DATA || {}), ...(curve.constants.CRYPTO_FACTORY_POOLS_DATA || {}) }[id];
         
         this.id = id;
         this.name = poolData.name;

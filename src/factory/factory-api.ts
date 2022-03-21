@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {Contract, ethers} from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve } from "../interfaces";
+import { DictInterface, PoolDataInterface, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
 import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
 import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
 import ERC20ABI from "../constants/abis/json/ERC20.json";
@@ -24,7 +24,7 @@ import {
     basePoolAddressZapDictPolygon,
 } from "./constants";
 
-function setFactorySwapContracts(this: ICurve, rawPoolList: any[]): void {
+function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
     const implementationABIDict = this.chainId === 137 ? implementationABIDictPolygon : implementationABIDictEthereum;
     rawPoolList.forEach((pool) => {
         const addr = pool.address.toLowerCase();
@@ -36,7 +36,7 @@ function setFactorySwapContracts(this: ICurve, rawPoolList: any[]): void {
     });
 }
 
-function setFactoryGaugeContracts(this: ICurve, rawPoolList: any[]): void {
+function setFactoryGaugeContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
     rawPoolList.forEach((pool)  => {
         if (pool.gaugeAddress) {
             const addr = pool.gaugeAddress.toLowerCase();
@@ -49,7 +49,7 @@ function setFactoryGaugeContracts(this: ICurve, rawPoolList: any[]): void {
     });
 }
 
-function setFactoryCoinsContracts(this: ICurve, rawPoolList: any[]): void {
+function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
     for (const pool of rawPoolList) {
         for (const coin of pool.coins) {
             const addr = coin.address.toLowerCase();
@@ -90,7 +90,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve): Promise<DictInte
     const network = this.chainId === 137 ? "polygon" : "ethereum";
     const url = `https://api.curve.fi/api/getPools/${network}/factory`;
     const response = await axios.get(url);
-    const rawPoolList = response.data.data.poolData;
+    const rawPoolList: IPoolDataFromApi[] = response.data.data.poolData;
     setFactorySwapContracts.call(this, rawPoolList);
     setFactoryGaugeContracts.call(this, rawPoolList);
     setFactoryCoinsContracts.call(this, rawPoolList);
@@ -121,7 +121,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve): Promise<DictInte
                 name: pool.name.split(": ")[1].trim(),
                 full_name: pool.name,
                 symbol: pool.symbol,
-                reference_asset: pool.assetTypeName.toUpperCase(),
+                reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
                 N_COINS: coinAddresses.length,
                 underlying_decimals: coinDecimals,
                 decimals: coinDecimals,
@@ -150,7 +150,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve): Promise<DictInte
                 name: pool.name.split(": ")[1].trim(),
                 full_name: pool.name,
                 symbol: pool.symbol,
-                reference_asset: pool.assetTypeName.toUpperCase(),
+                reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
                 N_COINS: coinAddresses.length,
                 underlying_decimals: coinDecimals,
                 decimals: coinDecimals,

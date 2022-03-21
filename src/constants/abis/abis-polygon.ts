@@ -10,6 +10,9 @@ import {PoolDataInterface} from "../../interfaces";
 
 export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
     aave: {
+        name: "aave",
+        full_name: "aave",
+        symbol: "aave",
         reference_asset: 'USD',
         N_COINS: 3,
         is_aave: true,
@@ -42,6 +45,9 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
     },
 
     ren: {
+        name: "ren",
+        full_name: "ren",
+        symbol: "ren",
         reference_asset: 'BTC',
         N_COINS: 2,
         is_aave: true,
@@ -70,6 +76,9 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
     },
 
     atricrypto3: {
+        name: "atricrypto3",
+        full_name: "atricrypto3",
+        symbol: "atricrypto3",
         reference_asset: 'CRYPTO',
         swap_abi: atricrypto3Swap,
         deposit_abi: atricrypto3Zap,
@@ -112,6 +121,9 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
     },
 
     eurtusd: {
+        name: "eurtusd",
+        full_name: "eurtusd",
+        symbol: "eurtusd",
         reference_asset: 'CRYPTO',
         N_COINS: 2,
         underlying_decimals: [6, 18],

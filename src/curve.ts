@@ -1,9 +1,10 @@
 import { ethers, Contract } from "ethers";
 import { Networkish } from "@ethersproject/networks";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
-import { getFactoryPoolData } from "./factory";
-import { getCryptoFactoryPoolData } from "./factory-crypto";
-import {PoolDataInterface, DictInterface} from "./interfaces";
+import { getFactoryPoolData } from "./factory/factory";
+import { getFactoryPoolsDataFromApi } from "./factory/factory-api";
+import { getCryptoFactoryPoolData } from "./factory/factory-crypto";
+import {PoolDataInterface, DictInterface, ICurve} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import yERC20Abi from './constants/abis/json/yERC20.json';
@@ -90,7 +91,7 @@ export let ALIASES = {
     "registry_exchange": "",
 }
 
-class Curve {
+class Curve implements ICurve {
     provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
@@ -458,12 +459,20 @@ class Curve {
         }
     }
 
-    async fetchFactoryPools(): Promise<void> {
-        this.constants.FACTORY_POOLS_DATA = await getFactoryPoolData.call(this);
+    async fetchFactoryPools(useApi = true): Promise<void> {
+        if (useApi) {
+            this.constants.FACTORY_POOLS_DATA = await getFactoryPoolsDataFromApi.call(this, false);
+        } else {
+            this.constants.FACTORY_POOLS_DATA = await getFactoryPoolData.call(this);
+        }
     }
 
-    async fetchCryptoFactoryPools(): Promise<void> {
-        if (this.chainId === 1 || this.chainId === 1337) {
+    async fetchCryptoFactoryPools(useApi = true): Promise<void> {
+        if (this.chainId !== 1 && this.chainId !== 1337) return
+
+        if (useApi) {
+            this.constants.CRYPTO_FACTORY_POOLS_DATA = await getFactoryPoolsDataFromApi.call(this, true);
+        } else {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = await getCryptoFactoryPoolData.call(this);
         }
     }

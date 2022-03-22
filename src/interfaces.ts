@@ -1,11 +1,30 @@
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
+import { Contract as MulticallContract, Provider as MulticallProvider } from "ethcall";
 
 export interface DictInterface<T> {
     [index: string]: T,
 }
 
+export interface ICurve {
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
+    multicallProvider: MulticallProvider,
+    signer: ethers.Signer | null,
+    signerAddress: string,
+    chainId: number,
+    contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
+    feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
+    constantOptions: { gasLimit: number },
+    options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber },
+    constants: DictInterface<any>;
+}
+
+export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
+
 export interface PoolDataInterface {
-    reference_asset: 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER',
+    name: string,
+    full_name: string,
+    symbol: string,
+    reference_asset: REFERENCE_ASSET,
     N_COINS: number,
     underlying_decimals: number[],
     decimals: number[],
@@ -57,6 +76,25 @@ export interface PoolDataInterface {
     reward_tokens?: string[],
     pool_type?: string,
     reward_contract?: string,
+}
+
+export interface ICoinFromPoolDataApi {
+    address: string,
+    symbol: string,
+    decimals: string,
+}
+
+export interface IPoolDataFromApi {
+    id: string,
+    name: string,
+    symbol: string,
+    assetTypeName: string,
+    address: string,
+    lpTokenAddress?: string,
+    gaugeAddress?: string,
+    implementation: string,
+    implementationAddress: string,
+    coins: ICoinFromPoolDataApi[],
 }
 
 export interface RewardsApyInterface {

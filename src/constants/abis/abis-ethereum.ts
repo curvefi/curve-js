@@ -88,6 +88,9 @@ import { PoolDataInterface } from "../../interfaces";
 
 export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     compound: {
+        name: "compound",
+        full_name: "compound",
+        symbol: "compound",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 6],
@@ -119,6 +122,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdt: {
+        name: "usdt",
+        full_name: "usdt",
+        symbol: "usdt",
         reference_asset: 'USD',
         N_COINS: 3,
         underlying_decimals: [18, 6, 6],
@@ -148,6 +154,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     y: {
+        name: "y",
+        full_name: "y",
+        symbol: "Y",
         reference_asset: 'USD',
         N_COINS: 4,
         underlying_decimals: [18, 6, 6, 18],
@@ -182,6 +191,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeABI,
     },
     busd: {
+        name: "busd",
+        full_name: "busd",
+        symbol: "busd",
         reference_asset: 'USD',
         N_COINS: 4,
         underlying_decimals: [18, 6, 6, 18],
@@ -213,6 +225,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     susd: {
+        name: "susd",
+        full_name: "susd",
+        symbol: "susd",
         reference_asset: 'USD',
         swap_abi: susdv2SwapABI,
         deposit_abi: susdv2DepositABI,
@@ -247,6 +262,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     pax: {
+        name: "pax",
+        full_name: "pax",
+        symbol: "pax",
         reference_asset: 'USD',
         swap_abi: paxSwapABI,
         deposit_abi: paxDepositABI,
@@ -278,6 +296,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ren: {
+        name: "ren",
+        full_name: "ren",
+        symbol: "ren",
         reference_asset: 'BTC',
         N_COINS: 2,
         underlying_decimals: [8, 8],
@@ -307,6 +328,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     sbtc: {
+        name: "sbtc",
+        full_name: "sbtc",
+        symbol: "sbtc",
         reference_asset: 'BTC',
         N_COINS: 3,
         underlying_decimals: [8, 8, 18],
@@ -340,6 +364,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     hbtc: {
+        name: "hbtc",
+        full_name: "hbtc",
+        symbol: "hbtc",
         reference_asset: 'BTC',
         swap_abi: hbtcSwapABI,
         N_COINS: 2,
@@ -365,6 +392,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     '3pool': {
+        name: "3pool",
+        full_name: "3pool",
+        symbol: "3pool",
         reference_asset: 'USD',
         swap_abi: tripoolSwapABI,
         N_COINS: 3,
@@ -392,6 +422,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     gusd: {
+        name: "gusd",
+        full_name: "gusd",
+        symbol: "gusd",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [2, 18],
@@ -437,6 +470,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     husd: {
+        name: "husd",
+        full_name: "husd",
+        symbol: "husd",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [8, 18],
@@ -482,6 +518,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdk: {
+        name: "usdk",
+        full_name: "usdk",
+        symbol: "usdk",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -527,6 +566,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdn: {
+        name: "usdn",
+        full_name: "usdn",
+        symbol: "usdn",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -572,6 +614,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     musd: {
+        name: "musd",
+        full_name: "musd",
+        symbol: "musd",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -620,6 +665,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     rsv: {
+        name: "rsv",
+        full_name: "rsv",
+        symbol: "rsv",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -668,6 +716,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     tbtc: {
+        name: "tbtc",
+        full_name: "tbtc",
+        symbol: "tbtc",
         reference_asset: 'BTC',
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -715,6 +766,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     dusd: {
+        name: "dusd",
+        full_name: "dusd",
+        symbol: "dusd",
         reference_asset: 'USD',
         N_COINS: 2,
         underlying_decimals: [18, 18],
@@ -763,6 +817,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     pbtc: {
+        name: "pbtc",
+        full_name: "pbtc",
+        symbol: "pbtc",
         reference_asset: 'BTC',
         swap_abi: pbtcSwapABI,
         N_COINS: 2,
@@ -811,6 +868,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     bbtc: {
+        name: "bbtc",
+        full_name: "bbtc",
+        symbol: "bbtc",
         reference_asset: 'BTC',
         swap_abi: bbtcSwapABI,
         N_COINS: 2,
@@ -856,6 +916,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     obtc: {
+        name: "obtc",
+        full_name: "obtc",
+        symbol: "obtc",
         reference_asset: 'BTC',
         swap_abi: obtcSwapABI,
         N_COINS: 2,
@@ -904,6 +967,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     seth: {
+        name: "seth",
+        full_name: "seth",
+        symbol: "seth",
         reference_asset: 'ETH',
         swap_abi: sethSwapABI,
         N_COINS: 2,
@@ -930,6 +996,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     eurs: {
+        name: "eurs",
+        full_name: "eurs",
+        symbol: "eurs",
         reference_asset: 'EUR',
         swap_abi: eursSwapABI,
         N_COINS: 2,
@@ -958,6 +1027,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ust: {
+        name: "ust",
+        full_name: "ust",
+        symbol: "ust",
         reference_asset: 'USD',
         swap_abi: ustSwapABI,
         N_COINS: 2,
@@ -1003,6 +1075,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     aave: {
+        name: "aave",
+        full_name: "aave",
+        symbol: "aave",
         reference_asset: 'USD',
         N_COINS: 3,
         is_aave: true,
@@ -1034,6 +1109,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     steth: {
+        name: "steth",
+        full_name: "steth",
+        symbol: "steth",
         reference_asset: 'ETH',
         swap_abi: stethSwapABI,
         N_COINS: 2,
@@ -1063,6 +1141,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     saave: {
+        name: "saave",
+        full_name: "saave",
+        symbol: "saave",
         reference_asset: 'USD',
         N_COINS: 2,
         is_aave: true,
@@ -1092,6 +1173,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ankreth: {
+        name: "ankreth",
+        full_name: "ankreth",
+        symbol: "ankreth",
         reference_asset: 'ETH',
         swap_abi: ankrethSwapABI,
         N_COINS: 2,
@@ -1121,6 +1205,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     usdp: {
+        name: "usdp",
+        full_name: "usdp",
+        symbol: "usdp",
         reference_asset: 'USD',
         swap_abi: usdpSwapABI,
         N_COINS: 2,
@@ -1166,6 +1253,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     ib: {
+        name: "ib",
+        full_name: "ib",
+        symbol: "ib",
         reference_asset: 'USD',
         swap_abi: ibSwapABI,
         N_COINS: 3,
@@ -1194,6 +1284,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     link: {
+        name: "link",
+        full_name: "link",
+        symbol: "link",
         reference_asset: 'LINK',
         swap_abi: linkSwapABI,
         N_COINS: 2,
@@ -1218,6 +1311,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV2ABI,
     },
     tusd: {
+        name: "tusd",
+        full_name: "tusd",
+        symbol: "tusd",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
@@ -1263,6 +1359,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV2ABI,
     },
     frax: {
+        name: "frax",
+        full_name: "frax",
+        symbol: "frax",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
@@ -1311,6 +1410,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV2ABI,
     },
     lusd: {
+        name: "lusd",
+        full_name: "lusd",
+        symbol: "lusd",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
@@ -1359,6 +1461,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV2ABI,
     },
     busdv2: {
+        name: "busdv2",
+        full_name: "busdv2",
+        symbol: "busdv2",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
@@ -1404,6 +1509,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV2ABI,
     },
     reth: {
+        name: "reth",
+        full_name: "reth",
+        symbol: "reth",
         reference_asset: 'ETH',
         swap_abi: rethSwapABI,
         N_COINS: 2,
@@ -1432,6 +1540,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV3ABI,
     },
     alusd: {
+        name: "alusd",
+        full_name: "alusd",
+        symbol: "alusd",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
@@ -1480,6 +1591,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV3ABI,
     },
     mim: {
+        name: "mim",
+        full_name: "mim",
+        symbol: "mim",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
         N_COINS: 2,
@@ -1528,6 +1642,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeFactoryABI,
     },
     tricrypto2: {
+        name: "tricrypto2",
+        full_name: "tricrypto2",
+        symbol: "tricrypto2",
         reference_asset: 'CRYPTO',
         swap_abi: tricrypto2SwapABI,
         N_COINS: 3,
@@ -1558,6 +1675,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     eurt: {
+        name: "eurt",
+        full_name: "eurt",
+        symbol: "eurt",
         reference_asset: 'EUR',
         swap_abi: eurtSwapABI,
         N_COINS: 2,
@@ -1583,6 +1703,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     eurtusd: {
+        name: "eurtusd",
+        full_name: "eurtusd",
+        symbol: "eurtusd",
         reference_asset: 'CRYPTO',
         N_COINS: 2,
         underlying_decimals: [6, 18],
@@ -1629,6 +1752,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     crveth: {
+        name: "crveth",
+        full_name: "crveth",
+        symbol: "crveth",
         reference_asset: 'CRYPTO',
         swap_abi: crvethSwap,
         N_COINS: 2,
@@ -1655,6 +1781,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
     },
 
     cvxeth: {
+        name: "cvxeth",
+        full_name: "cvxeth",
+        symbol: "cvxeth",
         reference_asset: 'CRYPTO',
         swap_abi: crvethSwap,
         N_COINS: 2,
@@ -1680,6 +1809,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV4ABI,
     },
     xautusd: {
+        name: "xautusd",
+        full_name: "xautusd",
+        symbol: "xautusd",
         reference_asset: 'CRYPTO',
         N_COINS: 2,
         underlying_decimals: [6, 18],
@@ -1725,6 +1857,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV4ABI,
     },
     spelleth: {
+        name: "spelleth",
+        full_name: "spelleth",
+        symbol: "spelleth",
         reference_asset: 'CRYPTO',
         N_COINS: 2,
         is_crypto: true,
@@ -1750,6 +1885,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_abi: gaugeV4ABI,
     },
     teth: {
+        name: "teth",
+        full_name: "teth",
+        symbol: "teth",
         reference_asset: 'CRYPTO',
         N_COINS: 2,
         is_crypto: true,

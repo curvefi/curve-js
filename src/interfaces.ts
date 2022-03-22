@@ -90,6 +90,7 @@ export interface IPoolDataFromApi {
     symbol: string,
     assetTypeName: string,
     address: string,
+    lpTokenAddress?: string,
     gaugeAddress?: string,
     implementation: string,
     implementationAddress: string,

@@ -61,12 +61,12 @@ async function init (
     this.chainId = _curve.chainId;
 }
 
-async function fetchFactoryPools(): Promise<void> {
-    await _curve.fetchFactoryPools();
+async function fetchFactoryPools(useApi = true): Promise<void> {
+    await _curve.fetchFactoryPools(useApi);
 }
 
-async function fetchCryptoFactoryPools(): Promise<void> {
-    await _curve.fetchCryptoFactoryPools();
+async function fetchCryptoFactoryPools(useApi = true): Promise<void> {
+    await _curve.fetchCryptoFactoryPools(useApi);
 }
 
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {

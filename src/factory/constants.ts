@@ -173,3 +173,6 @@ export const blackListPolygon: string[] = [
     "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
     "0x88c4d6534165510b2e2caf0a130d4f70aa4b6d71",
 ];
+
+export const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
+export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

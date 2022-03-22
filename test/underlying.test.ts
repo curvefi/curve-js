@@ -10,33 +10,32 @@ const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', '
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
-const FACTORY_PLAIN_POOLS = ['ibEUR+sEUR-2-f', 'D3-f', 'crvCRV-f'];
-const FACTORY_META_POOLS = ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-2-f'];
-const FACTORY_CRYPTO_POOLS = ['YFIETH-fV2', 'BADGERWBTC-fV2'];
+const FACTORY_PLAIN_POOLS = ['factory-v2-3', 'factory-v2-57', 'factory-v2-7']; // ['ibEUR+sEUR-f(2)', 'D3-f', 'crvCRV-f'];
+const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)'];
+const FACTORY_CRYPTO_POOLS = ['factory-crypto-8', 'factory-crypto-4']; // ['YFIETH-fV2', 'BADGERWBTC-fV2'];
 
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
-const POLYGON_FACTORY_PLAIN_POOLS = ['CRVALRTO-f', '3EUR-f', '4eur-2-f'];
-const POLYGON_FACTORY_META_POOLS = ['FRAX3CRV-f3CRV'];
+const POLYGON_FACTORY_PLAIN_POOLS = ['factory-v2-113', 'factory-v2-4', 'factory-v2-37']; // ['CRVALRTO-f', '3EUR-f', '4eur-f(2)'];
+const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
-const ETHEREUM_POOLS = FACTORY_PLAIN_POOLS;
-const POLYGON_POOLS = POLYGON_FACTORY_META_POOLS;
+const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
+const POLYGON_POOLS = [...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS];
 
-const underlyingLiquidityTest = (name: string) => {
-    describe(`${name} add/remove liquidity`, function () {
+const underlyingLiquidityTest = (id: string) => {
+    describe(`${id} add/remove liquidity`, function () {
         let pool: Pool;
         let coinAddresses: string[];
 
         before(async function () {
-            pool = new curve.Pool(name);
+            pool = new curve.Pool(id);
             coinAddresses = pool.underlyingCoinAddresses;
         });
 
         it('Adds liquidity', async function () {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
-            if (name === "crvCRV") amounts[3] = '0';
-
+            if (id === 'factory-v2-7') amounts[3] = '0';
             const initialBalances = await pool.balances() as DictInterface<string>;
             const lpTokenExpected = await pool.addLiquidityExpected(amounts);
 
@@ -45,14 +44,14 @@ const underlyingLiquidityTest = (name: string) => {
             const balances = await pool.balances() as DictInterface<string>;
 
             pool.underlyingCoins.forEach((c, i) => {
-                if (name === 'steth' || pool.name === 'ibbtc/sbtcCRV') {
+                if (id === 'steth' || pool.id === 'factory-v2-8') {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amounts[i]).toString())), 1e-18);
                 } else {
                     assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amounts[i])));
                 }
             })
 
-            const delta = ['ELONXSWAP3CRV', 'CRVALRTO'].includes(name) ? 2 : 0.01
+            const delta = ['factory-v2-80', 'factory-v2-113'].includes(id) ? 2 : 0.01
             assert.approximately(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected), delta);
         });
 
@@ -99,7 +98,7 @@ const underlyingLiquidityTest = (name: string) => {
 
             assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
             pool.underlyingCoins.forEach((c: string, i: number) => {
-                const delta = ['gusd', '4eur-2'].includes(name) ? 0.011 : 0.01;
+                const delta = ['gusd', 'factory-v2-37'].includes(id) ? 0.011 : ['factory-v2-80'].includes(id) ? 1 : 0.01;
                 assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta);
             })
         });
@@ -111,7 +110,7 @@ const underlyingLiquidityTest = (name: string) => {
             } else {
                 const amount = '1';
                 const amounts = coinAddresses.map(() => amount);
-                if (name === "crvCRV") amounts[3] = '0.1';
+                if (id === "factory-v2-7") amounts[3] = '0.1';
                 const initialBalances = await pool.balances() as DictInterface<string>;
                 const lpTokenExpected = await pool.removeLiquidityImbalanceExpected(amounts);
 
@@ -119,12 +118,12 @@ const underlyingLiquidityTest = (name: string) => {
 
                 const balances = await pool.balances() as DictInterface<string>;
 
-                const delta = ['ELONXSWAP3CRV', 'CRVALRTO'].includes(name) ? 2 : 0.01
+                const delta = ['factory-v2-80', 'factory-v2-113'].includes(id) ? 2 : 0.01
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
                 pool.underlyingCoins.forEach((c, i) => {
-                    if (name === 'steth') {
+                    if (id === 'steth') {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 1e-18);
-                    } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(pool.name)) {
+                    } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(pool.id)) {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 3e-6);
                     } else {
                         assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amounts[i])));
@@ -154,15 +153,15 @@ const underlyingLiquidityTest = (name: string) => {
     });
 }
 
-const underlyingExchangeTest = (name: string) => {
-    describe(`${name} exchange`, function () {
+const underlyingExchangeTest = (id: string) => {
+    describe(`${id} exchange`, function () {
         for (let i = 0; i < 5; i++) {
             for (let j = 0; j < 5; j++) {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
-                        const pool = new curve.Pool(name);
+                        const pool = new curve.Pool(id);
                         const coinAddresses = pool.underlyingCoinAddresses;
-                        if (i >= coinAddresses.length || j >= coinAddresses.length || (name === "crvCRV" && i === 3)) {
+                        if (i >= coinAddresses.length || j >= coinAddresses.length || (id === "factory-v2-7" && i === 3)) {
                             console.log('Skip')
                         } else {
                             const swapAmount = '10';
@@ -173,7 +172,7 @@ const underlyingExchangeTest = (name: string) => {
 
                             const coinBalances = await pool.underlyingCoinBalances() as DictInterface<string>;
 
-                            if (pool.name === 'steth' || pool.name === 'ibbtc/sbtcCRV') {
+                            if (pool.id === 'steth' || pool.id === 'factory-v2-60') {
                                 assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)).toString()), 1e-18);
                             } else {
                                 assert.deepStrictEqual(BN(Object.values(coinBalances)[i]), BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)));
@@ -196,13 +195,13 @@ describe('Underlying test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolName of ETHEREUM_POOLS) {
-        underlyingLiquidityTest(poolName);
-        underlyingExchangeTest(poolName);
-    }
-
-    // for (const poolName of POLYGON_POOLS) {
-    //     underlyingLiquidityTest(poolName);
-    //     underlyingExchangeTest(poolName);
+    // for (const poolId of ETHEREUM_POOLS) {
+    //     underlyingLiquidityTest(poolId);
+    //     underlyingExchangeTest(poolId);
     // }
+
+    for (const poolId of POLYGON_POOLS) {
+        underlyingLiquidityTest(poolId);
+        underlyingExchangeTest(poolId);
+    }
 })

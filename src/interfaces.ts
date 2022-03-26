@@ -95,6 +95,7 @@ export interface IPoolDataFromApi {
     implementation: string,
     implementationAddress: string,
     coins: ICoinFromPoolDataApi[],
+    usdTotal: number,
 }
 
 export interface RewardsApyInterface {

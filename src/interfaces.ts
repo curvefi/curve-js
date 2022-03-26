@@ -82,6 +82,7 @@ export interface ICoinFromPoolDataApi {
     address: string,
     symbol: string,
     decimals: string,
+    usdPrice: number | string,
 }
 
 export interface IPoolDataFromApi {

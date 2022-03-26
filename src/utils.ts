@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js';
 import {DictInterface, IStats } from './interfaces';
 import { curve, POOLS_DATA, LP_TOKENS, GAUGES } from "./curve";
 import { COINS, DECIMALS_LOWER_CASE } from "./curve";
+import { _getPoolsFromApi } from "./external-api";
 
 
 const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
@@ -206,9 +207,33 @@ export const getPoolNameBySwapAddress = (swapAddress: string): string => {
     return Object.entries(POOLS_DATA).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
-const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
+export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => {
+    const network = curve.chainId === 137 ? "polygon" : "ethereum";
+    const promises = [
+        _getPoolsFromApi(network, "main"),
+        _getPoolsFromApi(network, "crypto"),
+        _getPoolsFromApi(network, "factory"),
+        _getPoolsFromApi(network, "factory-crypto"),
+    ];
+    const allTypesPoolsData = await Promise.all(promises);
+    const priceDict: DictInterface<number> = {};
 
+    for (const pools of allTypesPoolsData) {
+        for (const pool of pools) {
+            for (const coin of pool.coins) {
+                if (typeof coin.usdPrice === "number") priceDict[coin.address.toLowerCase()] = coin.usdPrice;
+            }
+        }
+    }
+
+    return priceDict
+}
+
+const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
 export const _getUsdRate = async (assetId: string): Promise<number> => {
+    const pricesFromApi = await _getUsdPricesFromApi();
+    if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
+
     if (assetId === 'USD' || (curve.chainId === 137 && (assetId.toLowerCase() === COINS.am3crv.toLowerCase()))) return 1
 
     let chainName = {

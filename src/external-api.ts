@@ -1,15 +1,15 @@
-import { IPoolDataFromApi } from "./interfaces";
+import { IExtendedPoolDataFromApi } from "./interfaces";
 import axios from "axios";
 import memoize from "memoizee";
 
 export const _getPoolsFromApi = memoize(
-    async (network: "ethereum" | "polygon", poolType: "main" | "crypto" | "factory" | "factory-crypto"): Promise<IPoolDataFromApi[]> => {
+    async (network: "ethereum" | "polygon", poolType: "main" | "crypto" | "factory" | "factory-crypto"): Promise<IExtendedPoolDataFromApi> => {
         const url = `https://api.curve.fi/api/getPools/${network}/${poolType}`;
         try {
             const response = await axios.get(url);
-            return response.data.data.poolData
+            return response.data.data;
         } catch (err) {
-            return [];
+            return { poolData: [], tvl: 0, tvlAll: 0 };
         }
     },
     {

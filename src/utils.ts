@@ -215,11 +215,11 @@ export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => 
         _getPoolsFromApi(network, "factory"),
         _getPoolsFromApi(network, "factory-crypto"),
     ];
-    const allTypesPoolsData = await Promise.all(promises);
+    const allTypesExtendedPoolData = await Promise.all(promises);
     const priceDict: DictInterface<number> = {};
 
-    for (const pools of allTypesPoolsData) {
-        for (const pool of pools) {
+    for (const extendedPoolData of allTypesExtendedPoolData) {
+        for (const pool of extendedPoolData.poolData) {
             for (const coin of pool.coins) {
                 if (typeof coin.usdPrice === "number") priceDict[coin.address.toLowerCase()] = coin.usdPrice;
             }
@@ -377,4 +377,18 @@ export const getCryptoFactoryPoolList = (): string[] => Object.keys(curve.consta
 export const getUsdRate = async (coin: string): Promise<number> => {
     const [coinAddress] = _getCoinAddresses(coin);
     return await _getUsdRate(coinAddress);
+}
+
+export const getTVL = async (chainId = curve.chainId): Promise<number> => {
+    const network = chainId === 137 ? "polygon" : "ethereum";
+
+    const promises = [
+        _getPoolsFromApi(network, "main"),
+        _getPoolsFromApi(network, "crypto"),
+        _getPoolsFromApi(network, "factory"),
+        _getPoolsFromApi(network, "factory-crypto"),
+    ];
+    const allTypesExtendedPoolData = await Promise.all(promises);
+
+    return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll), 0)
 }

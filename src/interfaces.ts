@@ -99,6 +99,12 @@ export interface IPoolDataFromApi {
     usdTotal: number,
 }
 
+export interface IExtendedPoolDataFromApi {
+    poolData: IPoolDataFromApi[],
+    tvl?: number,
+    tvlAll: number,
+}
+
 export interface RewardsApyInterface {
     token: string,
     symbol: string,

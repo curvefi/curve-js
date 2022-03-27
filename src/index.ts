@@ -47,6 +47,7 @@ import {
     getFactoryPoolList,
     getCryptoFactoryPoolList,
     getUsdRate,
+    getTVL,
 } from "./utils";
 
 async function init (
@@ -81,6 +82,7 @@ const curve = {
     getFactoryPoolList,
     getCryptoFactoryPoolList,
     getUsdRate,
+    getTVL,
     setCustomFeeData,
     signerAddress: '',
     chainId: 0,

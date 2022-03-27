@@ -315,11 +315,11 @@ export class Pool {
                 !this.isFactory ? "crypto" :
                 !this.isCryptoFactory ? "factory" :
                 "factory-crypto";
-            const poolsData = await _getPoolsFromApi(network, poolType);
+            const poolsData = (await _getPoolsFromApi(network, poolType)).poolData;
 
             try {
                 const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.swap.toLowerCase())[0].usdTotal;
-                return String(totalLiquidity)
+                return String(totalLiquidity);
             } catch (err) {
                 console.log((err as Error).message);
             }

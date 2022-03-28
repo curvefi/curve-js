@@ -1,5 +1,7 @@
+import axios from "axios";
 import { ethers } from "ethers";
-import BigNumber from 'bignumber.js'
+import BigNumber from 'bignumber.js';
+import { _getPoolsFromApi } from './external-api';
 import {
     _getCoinAddresses,
     _getCoinDecimals,
@@ -35,7 +37,6 @@ import {
     LINK_COINS_LOWER_CASE,
     COINS,
 } from "./curve";
-import axios from "axios";
 
 
 export class Pool {
@@ -95,7 +96,7 @@ export class Pool {
         getParameters: () => Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }>,
         getPoolBalances: () => Promise<string[]>,
         getPoolWrappedBalances: () => Promise<string[]>,
-        getTotalLiquidity: () => Promise<string>,
+        getTotalLiquidity: (useApi?: boolean) => Promise<string>,
         getVolume: () => Promise<string>,
         getBaseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
         getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
@@ -307,7 +308,22 @@ export class Pool {
         return _wrappedBalances.map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
     }
 
-    private getTotalLiquidity = async (): Promise<string> => {
+    private getTotalLiquidity = async (useApi = true): Promise<string> => {
+        if (useApi) {
+            const network = curve.chainId === 137 ? "polygon" : "ethereum";
+            const poolType = !this.isFactory && !this.isCrypto ? "main" :
+                !this.isFactory ? "crypto" :
+                !this.isCryptoFactory ? "factory" :
+                "factory-crypto";
+            const poolsData = (await _getPoolsFromApi(network, poolType)).poolData;
+
+            try {
+                const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.swap.toLowerCase())[0].usdTotal;
+                return String(totalLiquidity);
+            } catch (err) {
+                console.log((err as Error).message);
+            }
+        }
         const balances = await this.getPoolBalances();
 
         const promises = [];
@@ -342,7 +358,7 @@ export class Pool {
 
     private getVolume = async (): Promise<string> => {
         const volume = (await this._getPoolStats()).volume;
-        const usdRate = (this.isCrypto || (curve.chainId === 1 && this.isFactory)) ? 1 : await _getUsdRate(this.referenceAsset);
+        const usdRate = (this.isCrypto || (curve.chainId === 1 && this.isFactory)) ? 1 : await _getUsdRate(this.coinAddresses[0]);
 
         return String(volume * usdRate)
     }

@@ -241,6 +241,9 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+    
+    console.log(await curve.getTVL());
+    // 19281307454.671753
 
     const aave = new curve.Pool('aave');
 

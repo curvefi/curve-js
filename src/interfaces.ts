@@ -82,6 +82,7 @@ export interface ICoinFromPoolDataApi {
     address: string,
     symbol: string,
     decimals: string,
+    usdPrice: number | string,
 }
 
 export interface IPoolDataFromApi {
@@ -95,6 +96,13 @@ export interface IPoolDataFromApi {
     implementation: string,
     implementationAddress: string,
     coins: ICoinFromPoolDataApi[],
+    usdTotal: number,
+}
+
+export interface IExtendedPoolDataFromApi {
+    poolData: IPoolDataFromApi[],
+    tvl?: number,
+    tvlAll: number,
 }
 
 export interface RewardsApyInterface {

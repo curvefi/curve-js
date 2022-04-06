@@ -18,6 +18,13 @@ import {
     crossAssetExchangeEstimateGas,
     crossAssetExchange,
     getUserPoolList,
+    getBestRouteAndOutput,
+    routerExchangeExpected,
+    routerExchangeIsApproved,
+    routerExchangeApproveEstimateGas,
+    routerExchangeApprove,
+    routerExchangeEstimateGas,
+    routerExchange,
 } from "./pools";
 import { curve as _curve } from "./curve";
 import {
@@ -103,12 +110,19 @@ const curve = {
     crossAssetExchangeApprove,
     crossAssetExchange,
     getUserPoolList,
+    getBestRouteAndOutput,
+    routerExchangeExpected,
+    routerExchangeIsApproved,
+    routerExchangeApprove,
+    routerExchange,
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,
         exchangeApprove: exchangeApproveEstimateGas,
         exchange: exchangeEstimateGas,
         crossAssetExchangeApprove: crossAssetExchangeApproveEstimateGas,
         crossAssetExchange: crossAssetExchangeEstimateGas,
+        routerExchangeApprove: routerExchangeApproveEstimateGas,
+        routerExchange: routerExchangeEstimateGas,
     },
     boosting: {
         getCrv,

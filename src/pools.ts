@@ -1,6 +1,7 @@
 import axios from "axios";
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
+import memoize from "memoizee";
 import { _getPoolsFromApi } from './external-api';
 import {
     _getCoinAddresses,
@@ -27,7 +28,16 @@ import {
     getFactoryPoolList,
     getCryptoFactoryPoolList,
 } from './utils';
-import {DictInterface, IPoolStats, ISinglePoolSwapData, ISinglePoolSwapDataAndOutput, PoolDataInterface, RewardsApyInterface} from './interfaces';
+import {
+    DictInterface,
+    IPoolStats,
+    ISinglePoolSwapData,
+    ISinglePoolSwapDataAndOutput,
+    IRouteStep,
+    IRoute,
+    PoolDataInterface,
+    RewardsApyInterface,
+} from './interfaces';
 import {
     ALIASES,
     POOLS_DATA,
@@ -2930,4 +2940,420 @@ export const getUserPoolList = async (address?: string): Promise<string[]> => {
     }
 
     return userPoolList
+}
+
+// --------- Multi-Pool Exchange ---------
+
+const IMBALANCED_POOLS: string[] = [];
+
+// Inspired by Dijkstra's algorithm
+export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
+    inputCoinAddress = inputCoinAddress.toLowerCase();
+    outputCoinAddress = outputCoinAddress.toLowerCase();
+
+    const ALL_POOLS = Object.entries({
+        ...POOLS_DATA,
+        ...curve.constants.FACTORY_POOLS_DATA as DictInterface<PoolDataInterface>,
+        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as DictInterface<PoolDataInterface>,
+    });
+
+    // Coins for which all routes have already been found
+    const markedCoins: string[] = [];
+    // Coins we are searching routes for on the current step
+    let curCoins: string[] = [inputCoinAddress];
+    // Coins we will search routes for on the next step
+    let nextCoins: Set<string> = new Set();
+    // Routes for all coins found
+    const routes: DictInterface<IRouteStep[][]> = {
+        [inputCoinAddress]: [[]],
+    };
+
+    // No more than 4 steps (swaps)
+    for (let step = 0; step < 4; step++) {
+        for (const inCoin of curCoins) {
+            for (const [poolId, poolData] of ALL_POOLS) {
+                const coin_addresses = poolData.coin_addresses.map((a: string) => a.toLowerCase());
+                const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
+                const meta_coin_addresses = poolData.meta_coin_addresses?.map((a: string) => a.toLowerCase()) || [];
+
+                const inCoinIndexes = {
+                    coin: coin_addresses.indexOf(inCoin),
+                    underlying_coin: underlying_coin_addresses.indexOf(inCoin),
+                    meta_coin: meta_coin_addresses ? meta_coin_addresses.indexOf(inCoin) : -1,
+                }
+
+                // No input coin in this pool --> slip
+                if (inCoinIndexes.coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1) continue;
+
+                // Find all straight swaps
+                if (inCoinIndexes.coin >= 0 && poolId !== "atricrypto3") {
+                    for (let j = 0; j < coin_addresses.length; j++) {
+                        // If this coin already marked or will be marked on the current step, no need to consider it on the next step
+                        if (markedCoins.includes(coin_addresses[j]) || curCoins.includes(coin_addresses[j])) continue;
+                        // Looking for outputCoinAddress only on the final step
+                        if (step === 3 && coin_addresses[j] !== outputCoinAddress) continue;
+                        // Skip empty pools
+                        const tvl = Number(await (new Pool(poolId)).stats.getTotalLiquidity());
+                        if (tvl === 0) continue;
+                        // Skip imbalanced pools
+                        if (IMBALANCED_POOLS.includes(poolId)) continue;
+
+                        const swapType = poolData.is_crypto ? 3 : 1;
+                        for (const inCoinRoute of routes[inCoin]) {
+                            routes[coin_addresses[j]] = (routes[coin_addresses[j]] ?? []).concat(
+                                [[
+                                    ...inCoinRoute,
+                                    {
+                                        poolId,
+                                        poolAddress: poolData.swap_address,
+                                        outputCoinAddress: coin_addresses[j],
+                                        i: inCoinIndexes.coin,
+                                        j,
+                                        swapType,
+                                        swapAddress: ethers.constants.AddressZero,
+                                    },
+                                ]]
+                            );
+                        }
+
+                        nextCoins.add(coin_addresses[j]);
+                    }
+                }
+
+                // Only for underlying swaps
+                const poolAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(poolId) ||
+                (curve.chainId === 137 && poolData.is_factory) ? poolData.deposit_address as string : poolData.swap_address;
+
+                // Find all underlying swaps
+                if (coin_addresses.join("|") !== underlying_coin_addresses.join("|") && inCoinIndexes.underlying_coin >= 0) {
+                    for (let j = 0; j < underlying_coin_addresses.length; j++) {
+                        if (poolId === "atricrypto3" && inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
+                        // If this coin already marked or will be marked on the current step, no need to consider it on the next step
+                        if (markedCoins.includes(underlying_coin_addresses[j]) || curCoins.includes(underlying_coin_addresses[j])) continue;
+                        // Looking for outputCoinAddress only on the final step
+                        if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
+                        // Skip empty pools
+                        const tvl = Number(await (new Pool(poolId)).stats.getTotalLiquidity());
+                        if (tvl === 0) continue;
+                        // Skip imbalanced pools
+                        if (IMBALANCED_POOLS.includes(poolId)) continue;
+
+                        const swapType = poolData.is_crypto && (poolData.is_fake || poolData.is_meta) ? 4 : poolData.is_crypto ? 3 : 2;
+                        for (const inCoinRoute of routes[inCoin]) {
+                            routes[underlying_coin_addresses[j]] = (routes[underlying_coin_addresses[j]] ?? []).concat(
+                                [[
+                                    ...inCoinRoute,
+                                    {
+                                        poolId,
+                                        poolAddress,
+                                        outputCoinAddress: underlying_coin_addresses[j],
+                                        i: inCoinIndexes.underlying_coin,
+                                        j,
+                                        swapType,
+                                        swapAddress: ethers.constants.AddressZero,
+                                    },
+                                ]]
+                            );
+                        }
+
+                        nextCoins.add(underlying_coin_addresses[j]);
+                    }
+                }
+
+                // Find all meta swaps where input coin is NOT meta
+                if (inCoinIndexes.coin === 0 && meta_coin_addresses.length > 0 && poolId !== "atricrypto3") {
+                    for (let j = 0; j < meta_coin_addresses.length; j++) {
+                        // If this coin already marked or will be marked on the current step, no need to consider it on the next step
+                        if (markedCoins.includes(meta_coin_addresses[j]) || curCoins.includes(meta_coin_addresses[j])) continue;
+                        // Looking for outputCoinAddress only on the final step
+                        if (step === 3 && meta_coin_addresses[j] !== outputCoinAddress) continue;
+                        // Skip empty pools
+                        const tvl = Number(await (new Pool(poolId)).stats.getTotalLiquidity());
+                        if (tvl === 0) continue;
+                        // Skip imbalanced pools
+                        if (IMBALANCED_POOLS.includes(poolId)) continue;
+
+                        const swapType = (curve.chainId === 137 && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+                        for (const inCoinRoute of routes[inCoin]) {
+                            routes[meta_coin_addresses[j]] = (routes[meta_coin_addresses[j]] ?? []).concat(
+                                [[
+                                    ...inCoinRoute,
+                                    {
+                                        poolId,
+                                        poolAddress,
+                                        outputCoinAddress: meta_coin_addresses[j],
+                                        i: inCoinIndexes.coin,
+                                        j: j + 1,
+                                        swapType,
+                                        swapAddress: swapType === 5 ? poolData.swap_address : ethers.constants.AddressZero,
+                                    },
+                                ]]
+                            );
+                        }
+
+                        nextCoins.add(meta_coin_addresses[j]);
+                    }
+                }
+
+                // Find all meta swaps where input coin is meta
+                if (inCoinIndexes.meta_coin >= 0 && poolId !== "atricrypto3") {
+                    // If this coin already marked or will be marked on the current step, no need to consider it on the next step
+                    if (markedCoins.includes(coin_addresses[0]) || curCoins.includes(coin_addresses[0])) continue;
+                    // Looking for outputCoinAddress only on the final step
+                    if (step === 3 && coin_addresses[0] !== outputCoinAddress) continue;
+                    // Skip empty pools
+                    const tvl = Number(await (new Pool(poolId)).stats.getTotalLiquidity());
+                    if (tvl === 0) continue;
+                    // Skip imbalanced pools
+                    if (IMBALANCED_POOLS.includes(poolId)) continue;
+
+                    const swapType = (curve.chainId === 137 && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+                    for (const inCoinRoute of routes[inCoin]) {
+                        routes[coin_addresses[0]] = (routes[coin_addresses[0]] ?? []).concat(
+                            [[
+                                ...inCoinRoute,
+                                {
+                                    poolId,
+                                    poolAddress,
+                                    outputCoinAddress: coin_addresses[0],
+                                    i: inCoinIndexes.meta_coin + 1,
+                                    j: 0,
+                                    swapType,
+                                    swapAddress: swapType === 5 ? poolData.swap_address : ethers.constants.AddressZero,
+                                },
+                            ]]
+                        );
+
+                        nextCoins.add(coin_addresses[0]);
+                    }
+                }
+            }
+        }
+
+        // If target output coin is reached, search is finished. Assumption: the shorter route, the better.
+        if (outputCoinAddress in routes) break;
+
+        markedCoins.push(...curCoins);
+        curCoins = Array.from(nextCoins);
+        nextCoins = new Set();
+    }
+
+    return routes[outputCoinAddress] ?? []
+}
+
+const _getRouteKey = (route: IRoute, inputCoinAddress: string, outputCoinAddress: string): string => {
+    const sortedCoins = [inputCoinAddress, outputCoinAddress].sort();
+    let key = `${sortedCoins[0]}-->`;
+    for (const routeStep of route.steps) {
+        key += `${routeStep.poolId}-->`;
+    }
+    key += sortedCoins[1];
+
+    return key
+}
+
+const _getExchangeMultipleArgs = (inputCoinAddress: string, route: IRoute): { _route: string[], _swapParams: number[][], _factorySwapAddresses: string[] } => {
+    let _route = [inputCoinAddress];
+    let _swapParams = [];
+    let _factorySwapAddresses = [];
+    for (const routeStep of route.steps) {
+        _route.push(routeStep.poolAddress, routeStep.outputCoinAddress);
+        _swapParams.push([routeStep.i, routeStep.j, routeStep.swapType]);
+        _factorySwapAddresses.push(routeStep.swapAddress);
+    }
+    _route = _route.concat(Array(9 - _route.length).fill(ethers.constants.AddressZero));
+    _swapParams = _swapParams.concat(Array(4 - _swapParams.length).fill([0, 0, 0]));
+    _factorySwapAddresses = _factorySwapAddresses.concat(Array(4 - _factorySwapAddresses.length).fill(ethers.constants.AddressZero));
+
+    return { _route, _swapParams, _factorySwapAddresses }
+}
+
+const _estimatedGasForDifferentRoutesCache: DictInterface<{ gas: ethers.BigNumber, time: number }> = {};
+
+const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress: string, outputCoinAddress: string, _amount: ethers.BigNumber): Promise<number[]> => {
+    inputCoinAddress = inputCoinAddress.toLowerCase();
+    outputCoinAddress = outputCoinAddress.toLowerCase();
+    const registryExchangeContract = curve.contracts[ALIASES.registry_exchange].contract;
+
+    const gasPromises: Promise<ethers.BigNumber>[] = [];
+    for (const route of routes) {
+        const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
+        let gasPromise: Promise<ethers.BigNumber>;
+        const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
+
+        if ((_estimatedGasForDifferentRoutesCache[routeKey]?.time || 0) + 3600000 < Date.now()) {
+            gasPromise = registryExchangeContract.estimateGas.exchange_multiple(_route, _swapParams, _amount, 0, _factorySwapAddresses, curve.constantOptions);
+        } else {
+            gasPromise = Promise.resolve(_estimatedGasForDifferentRoutesCache[routeKey].gas);
+        }
+
+        gasPromises.push(gasPromise);
+    }
+
+    try {
+        const _gasAmounts: ethers.BigNumber[] = await Promise.all(gasPromises);
+
+        routes.forEach((route, i: number) => {
+            const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
+            _estimatedGasForDifferentRoutesCache[routeKey] = { 'gas': _gasAmounts[i], 'time': Date.now() };
+        })
+
+        return _gasAmounts.map((_g) => Number(ethers.utils.formatUnits(_g, 0)));
+    } catch (err) {
+        return routes.map(() => 0);
+    }
+}
+
+const _getBestRouteAndOutput = memoize(
+    async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<IRoute> => {
+        const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
+        const _amount = ethers.utils.parseUnits(amount.toString(), inputCoinDecimals);
+
+        const routesRaw: IRoute[] = (await _findAllRoutes(inputCoinAddress, outputCoinAddress)).map(
+            (steps) => ({ steps, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 })
+        );
+
+        const routes = [];
+
+        console.log("ROUTES:", routesRaw.length);
+        console.log("ROUTE LENGTH:", routesRaw[0].steps.length);
+        routesLoop:
+        for (const route of routesRaw) {
+            console.log(route.steps.map((r) => r.poolId));
+            // If one of pools in the route is imbalanced
+            if (route.steps.reduce((acc, step) => acc || IMBALANCED_POOLS.includes(step.poolId), false)) continue;
+
+            let _outputAmount = _amount;
+            for (const routeStep of route.steps) {
+                const { poolId, poolAddress, i, j, swapType, swapAddress } = routeStep;
+                const contract = curve.contracts[swapAddress === ethers.constants.AddressZero ? poolAddress : swapAddress].contract;
+
+                try {
+                    _outputAmount = [2, 4, 5].includes(swapType) ?
+                        await contract.get_dy_underlying(i, j, _outputAmount, curve.constantOptions) :
+                        await contract.get_dy(i, j, _outputAmount, curve.constantOptions);
+                } catch (err) {
+                    console.log(`Pool ${poolId} is empty or very imbalanced`)
+                    IMBALANCED_POOLS.push(poolId);
+                    continue routesLoop;
+                }
+            }
+            route._output = _outputAmount;
+            routes.push(route);
+        }
+
+        if (routes.length === 0) {
+            return {
+                steps: [],
+                _output: ethers.BigNumber.from(0),
+                outputUsd: 0,
+                txCostUsd: 0,
+            }
+        }
+        if (routes.length === 1) return routes[0];
+
+        const [gasAmounts, outputCoinUsdRate, gasData, ethUsdRate] = await Promise.all([
+            _estimateGasForDifferentRoutes(routes, inputCoinAddress, outputCoinAddress, _amount),
+            _getUsdRate(outputCoinAddress),
+            axios.get("https://api.curve.fi/api/getGas"),
+            _getUsdRate(curve.chainId === 137 ? COINS.matic : COINS.eth),
+        ]);
+        const gasPrice = gasData.data.data.gas.standard;
+        const expectedAmounts = (routes).map(
+            (route) => Number(ethers.utils.formatUnits(route._output, outputCoinDecimals))
+        );
+
+        const expectedAmountsUsd = expectedAmounts.map((a) => a * outputCoinUsdRate);
+        const txCostsUsd = gasAmounts.map((a) => ethUsdRate * a * gasPrice / 1e18);
+
+        routes.forEach((route, i) => {
+            route.outputUsd = expectedAmountsUsd[i];
+            route.txCostUsd = txCostsUsd[i]
+        });
+
+        return  routes.reduce(
+            (route1, route2) => (route1.outputUsd - route1.txCostUsd) - (route2.outputUsd - route2.txCostUsd) >= 0 ? route1 : route2
+        );
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
+
+export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ route: IRouteStep[], output: string }> => {
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+    const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
+
+    const { steps, _output } = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+
+    return { route: steps, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }
+}
+
+export const routerExchangeExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
+    return (await getBestRouteAndOutput(inputCoin, outputCoin, amount))['output'];
+}
+
+export const routerExchangeIsApproved = async (inputCoin: string, amount: string): Promise<boolean> => {
+    return await hasAllowance([inputCoin], [amount], curve.signerAddress, ALIASES.registry_exchange);
+}
+
+export const routerExchangeApproveEstimateGas = async (inputCoin: string, amount: string): Promise<number> => {
+    return await ensureAllowanceEstimateGas([inputCoin], [amount], ALIASES.registry_exchange);
+}
+
+export const routerExchangeApprove = async (inputCoin: string, amount: string): Promise<string[]> => {
+    return await ensureAllowance([inputCoin], [amount], ALIASES.registry_exchange);
+}
+
+export const routerExchangeEstimateGas = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<number> => {
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
+    const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+
+    if (route.steps.length === 0) {
+        throw new Error("This pair can't be exchanged");
+    }
+
+    const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
+    const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+    const minRecvAmountBN: BigNumber = toBN(route._output, outputCoinDecimals).times(1 - maxSlippage);
+    const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
+    const contract = curve.contracts[ALIASES.registry_exchange].contract;
+    const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
+
+    await curve.updateFeeData();
+    return (await contract.estimateGas.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.constantOptions, value })).toNumber()
+}
+
+export const routerExchange = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<string> => {
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
+
+    await ensureAllowance([inputCoin], [amount], ALIASES.registry_exchange);
+    const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+
+    if (route.steps.length === 0) {
+        throw new Error("This pair can't be exchanged");
+    }
+
+    const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
+    const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+    const minRecvAmountBN: BigNumber = toBN(route._output, outputCoinDecimals).times(1 - maxSlippage);
+    const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
+    const contract = curve.contracts[ALIASES.registry_exchange].contract;
+    const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
+
+    await curve.updateFeeData();
+    const gasLimit = (await contract.estimateGas.exchange_multiple(
+        _route,
+        _swapParams,
+        _amount,
+        _minRecvAmount,
+        _factorySwapAddresses,
+        { ...curve.constantOptions, value }
+    )).mul(130).div(100);
+    return (await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })).hash
 }

@@ -130,10 +130,27 @@ export interface ISinglePoolSwapData {
     poolAddress: string,
     i: number,
     j: number,
-    swapType: 1 | 2 | 3 | 4,
+    swapType: 1 | 2 | 3 | 4 | 5,
     swapAddress: string,  // for swapType == 4
 }
 
 export interface ISinglePoolSwapDataAndOutput extends ISinglePoolSwapData {
     _output: ethers.BigNumber,
+}
+
+export interface IRouteStep {
+    poolId: string,
+    poolAddress: string,
+    outputCoinAddress: string,
+    i: number,
+    j: number,
+    swapType: 1 | 2 | 3 | 4 | 5,
+    swapAddress: string,  // for swapType == 4
+}
+
+export interface IRoute {
+    steps: IRouteStep[],
+    _output: ethers.BigNumber,
+    outputUsd: number,
+    txCostUsd: number,
 }

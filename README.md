@@ -494,7 +494,66 @@ import curve from "@curvefi/api";
 })()
 ```
 
-## Exchange using all pools
+## Exchange
+
+### Router exchange
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+
+    console.log(await curve.getBalances(['DAI', 'CRV']));
+    // [ '9900.0', '100049.744832225238317557' ]
+
+    const { route, output } = await curve.getBestRouteAndOutput('DAI', 'CRV', '1000');
+    // OR await curve.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    const expected = await curve.routerExchangeExpected('DAI', 'CRV', '1000');
+    // OR await curve.exchangeExpected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+
+    console.log(route, output, expected);
+    // route = [
+    //     {
+    //         poolId: '3pool',
+    //         poolAddress: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',
+    //         outputCoinAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    //         i: 0,
+    //         j: 2,
+    //         swapType: 1,
+    //         swapAddress: '0x0000000000000000000000000000000000000000'
+    //     },
+    //     {
+    //         poolId: 'tricrypto2',
+    //         poolAddress: '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46',
+    //         outputCoinAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    //         i: 0,
+    //         j: 2,
+    //         swapType: 3,
+    //         swapAddress: '0x0000000000000000000000000000000000000000'
+    //     },
+    //     {
+    //         poolId: 'crveth',
+    //         poolAddress: '0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511',
+    //         outputCoinAddress: '0xd533a949740bb3306d119cc777fa900ba034cd52',
+    //         i: 0,
+    //         j: 1,
+    //         swapType: 3,
+    //         swapAddress: '0x0000000000000000000000000000000000000000'
+    //     }
+    // ]
+    // 
+    // output = expected = 378.881631202862354937
+
+    await curve.routerExchange('DAI', 'CRV', '1000')
+    // OR await curve.exchange('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+
+    console.log(await curve.getBalances(['DAI', 'CRV']));
+    // [ '8900.0', '100428.626463428100672494' ]
+})()
+```
+
+### Single-pool exchange
 
 ```ts
 import curve from "@curvefi/api";
@@ -521,7 +580,7 @@ import curve from "@curvefi/api";
 })()
 ```
 
-## Cross-Asset Exchange
+### Cross-Asset Exchange
 
 ```ts
 import curve from "@curvefi/api";

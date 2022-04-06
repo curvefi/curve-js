@@ -3215,11 +3215,8 @@ const _getBestRouteAndOutput = memoize(
 
         const routes = [];
 
-        console.log("ROUTES:", routesRaw.length);
-        console.log("ROUTE LENGTH:", routesRaw[0].steps.length);
         routesLoop:
         for (const route of routesRaw) {
-            console.log(route.steps.map((r) => r.poolId));
             // If one of pools in the route is imbalanced
             if (route.steps.reduce((acc, step) => acc || IMBALANCED_POOLS.includes(step.poolId), false)) continue;
 

@@ -136,6 +136,24 @@ const poolTest = async () => {
     console.log(await pool.balances());
 }
 
+const routerExchangeTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+
+    console.log(await curve.getBalances(['DAI', 'CRV']));
+
+    const { route, output } = await curve.getBestRouteAndOutput('DAI', 'CRV', '1000');
+    // OR await curve.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    const expected = await curve.routerExchangeExpected('DAI', 'CRV', '1000');
+    // OR await curve.exchangeExpected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+
+    console.log(route, output, expected);
+
+    await curve.routerExchange('DAI', 'CRV', '1000')
+    // OR await curve.exchange('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+
+    console.log(await curve.getBalances(['DAI', 'CRV']));
+}
+
 const exchangeTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
 

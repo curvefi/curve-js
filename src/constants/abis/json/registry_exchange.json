@@ -386,6 +386,36 @@
     "type": "function"
   },
   {
+    "gas": "278915",
+    "inputs": [
+      {
+        "name": "_route",
+        "type": "address[9]"
+      },
+      {
+        "name": "_swap_params",
+        "type": "uint256[3][4]"
+      },
+      {
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
+        "name": "_pools",
+        "type": "address[4]"
+      }
+    ],
+    "name": "get_exchange_multiple_amount",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "gas": "2654",
     "inputs": [
       {

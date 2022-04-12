@@ -3342,7 +3342,6 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
     const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
 
     const { steps, _output } = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
-    console.log(steps);
 
     return { route: steps, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }
 }

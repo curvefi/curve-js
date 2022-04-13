@@ -3284,18 +3284,48 @@ const _getBestRouteAndOutput = memoize(
         const routes: IRoute[] = [];
 
         const calls = [];
-        const contract = curve.contracts[ALIASES.registry_exchange].multicallContract;
+        const promises = [];
+        const multicallContract = curve.contracts[ALIASES.registry_exchange].multicallContract;
+        const contract = curve.contracts[ALIASES.registry_exchange].contract;
         for (const route of routesRaw) {
             const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
-            calls.push(contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses));
+            calls.push(multicallContract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses));
+            promises.push(contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
         }
 
-        // @ts-ignore
-        const _outputAmounts = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+        try {
+            const calls = [];
+            const multicallContract = curve.contracts[ALIASES.registry_exchange].multicallContract;
+            for (const route of routesRaw) {
+                const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
+                calls.push(multicallContract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses));
+            }
 
-        for (let i = 0; i < _outputAmounts.length; i++) {
-            routesRaw[i]._output = _outputAmounts[i];
-            routes.push(routesRaw[i]);
+            const _outputAmounts = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+
+            for (let i = 0; i < _outputAmounts.length; i++) {
+                routesRaw[i]._output = _outputAmounts[i];
+                routes.push(routesRaw[i]);
+            }
+        } catch (err) {
+            const promises = [];
+            const contract = curve.contracts[ALIASES.registry_exchange].contract;
+            for (const route of routesRaw) {
+                const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
+                promises.push(contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
+            }
+
+            // @ts-ignore
+            const res = await Promise.allSettled(promises);
+
+            for (let i = 0; i < res.length; i++) {
+                if (res[i].status === 'rejected') {
+                    console.log(`Route ${(routesRaw[i].steps.map((s) => s.poolId)).join(" --> ")} is anavailable`);
+                    continue;
+                }
+                routesRaw[i]._output = res[i].value;
+                routes.push(routesRaw[i]);
+            }
         }
 
         if (routes.length === 0) {
@@ -3399,6 +3429,6 @@ export const routerExchange = async (inputCoin: string, outputCoin: string, amou
         _minRecvAmount,
         _factorySwapAddresses,
         { ...curve.constantOptions, value }
-    )).mul(130).div(100);
+    )).mul(curve.chainId === 1 ? 130 : 160).div(100);
     return (await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })).hash
 }

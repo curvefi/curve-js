@@ -1568,13 +1568,13 @@ export class Pool {
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
         if (this.gauge === ethers.constants.AddressZero) {
             return await this._balances(
-                ['lpToken', ...this.underlyingCoins, ...this.coins],
+                ['lpToken', ...this.underlyingCoinAddresses, ...this.coinAddresses],
                 [this.lpToken, ...this.underlyingCoinAddresses, ...this.coinAddresses],
                 ...addresses
             );
         } else {
             return await this._balances(
-                ['lpToken', 'gauge', ...this.underlyingCoins, ...this.coins],
+                ['lpToken', 'gauge', ...this.underlyingCoinAddresses, ...this.coinAddresses],
                 [this.lpToken, this.gauge, ...this.underlyingCoinAddresses, ...this.coinAddresses],
                 ...addresses
             );
@@ -1590,16 +1590,16 @@ export class Pool {
     }
 
     public underlyingCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
-        return await this._balances(this.underlyingCoins, this.underlyingCoinAddresses, ...addresses)
+        return await this._balances(this.underlyingCoinAddresses, this.underlyingCoinAddresses, ...addresses)
     }
 
     public coinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
-        return await this._balances(this.coins, this.coinAddresses, ...addresses)
+        return await this._balances(this.coinAddresses, this.coinAddresses, ...addresses)
     }
 
     public allCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
         return await this._balances(
-            [...this.underlyingCoins, ...this.coins],
+            [...this.underlyingCoinAddresses, ...this.coinAddresses],
             [...this.underlyingCoinAddresses, ...this.coinAddresses],
             ...addresses
         )

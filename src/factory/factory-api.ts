@@ -115,7 +115,10 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     const factoryType = isCrypto ? "factory-crypto" : "factory";
     const url = `https://api.curve.fi/api/getPools/${network}/${factoryType}`;
     const response = await axios.get(url);
-    const rawPoolList: IPoolDataFromApi[] = response.data.data.poolData;
+    let rawPoolList: IPoolDataFromApi[] = response.data.data.poolData;
+    // Filter duplications
+    const mainAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
+    rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address.toLowerCase()));
 
     setFactorySwapContracts.call(this, rawPoolList, isCrypto);
     if (isCrypto) setCryptoFactoryTokenContracts.call(this, rawPoolList);

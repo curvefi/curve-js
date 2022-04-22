@@ -352,9 +352,6 @@ class Curve implements ICurve {
                     contract: new Contract(rewardTokenAddr, ERC20Abi, this.signer || this.provider),
                     multicallContract: new MulticallContract(rewardTokenAddr, ERC20Abi),
                 }
-
-                DECIMALS_LOWER_CASE[rewardTokenAddr.toLowerCase()] =
-                    Number(ethers.utils.formatUnits(await this.contracts[rewardTokenAddr].contract.decimals(), 0));
             }
         }
 

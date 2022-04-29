@@ -368,6 +368,8 @@ export class Pool {
 
     private getVolume = async (): Promise<string> => {
         const volume = (await this._getPoolStats()).volume;
+        if (volume === 0) return "0"
+
         const usdRate = (this.isCrypto || (curve.chainId === 1 && this.isFactory)) ? 1 : await _getUsdRate(this.coinAddresses[0]);
 
         return String(volume * usdRate)

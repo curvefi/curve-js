@@ -1,6 +1,6 @@
 {
   "name": "@curvefi/api",
-  "version": "1.24.4",
+  "version": "1.24.5",
   "description": "JavaScript library for curve.fi",
   "main": "lib/index.js",
   "author": "Macket",
@@ -31,7 +31,7 @@
     "vue-eslint-parser": "^7.6.0"
   },
   "dependencies": {
-    "@ethersproject/networks": "^5.6.0",
+    "@ethersproject/networks": "^5.5.0",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "ethcall": "^4.2.5",

@@ -174,41 +174,52 @@ export class PoolTemplate {
         }
     }
 
+    private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> => {
+        if (!this.isMeta && useUnderlying) {
+            // For lending pools. For others rate = 1
+            const _rates: ethers.BigNumber[] = await this._getRates();
+            _amounts = _amounts.map((_amount: ethers.BigNumber, i: number) =>
+                _amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
+        }
+
+        const contractAddress = this.isMeta && useUnderlying ? this.zap as string : this.swap;
+        const contract = curve.contracts[contractAddress].contract;
+
+        if (this.isMetaFactory && useUnderlying) {
+            return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
+        }
+
+        if (contract[`calc_token_amount(uint256[${_amounts.length}],bool)`]) {
+            return await contract.calc_token_amount(_amounts, isDeposit, curve.constantOptions);
+        }
+
+        return await contract.calc_token_amount(_amounts, curve.constantOptions);
+    }
+
     public calcLpTokenAmount = async (amounts: string[], isDeposit = true): Promise<string> => {
         if (amounts.length !== this.underlyingCoinAddresses.length) {
             throw Error(`${this.name} pool has ${this.underlyingCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
 
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
+        const _underlyingAmounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
             ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
-        let _expected: ethers.BigNumber;
-        if (
-            ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        ) {
-            _expected = await this._calcLpTokenAmountWithUnderlying(_amounts, isDeposit); // Lending pools
-        } else if (this.isMeta) {
-            _expected = await this._calcLpTokenAmountZap(_amounts, isDeposit); // Metapools
-        } else {
-            _expected = await this._calcLpTokenAmount(_amounts, isDeposit); // Plain pools
-        }
+        const _expected = await this._calcLpTokenAmount(_underlyingAmounts, isDeposit, true);
 
         return ethers.utils.formatUnits(_expected);
     }
 
     public calcLpTokenAmountWrapped = async (amounts: string[], isDeposit = true): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
         if (amounts.length !== this.coinAddresses.length) {
             throw Error(`${this.name} pool has ${this.coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
 
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
             ethers.utils.parseUnits(amount, this.decimals[i]));
-        const _expected = await this._calcLpTokenAmount(_amounts, isDeposit);
+        const _expected = await this._calcLpTokenAmount(_amounts, isDeposit, false);
 
         return ethers.utils.formatUnits(_expected);
     }
@@ -1065,15 +1076,12 @@ export class PoolTemplate {
 
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.id)) {
-            const _maxBurnAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts, false)).mul(101).div(100);
+        if (this.zap) {
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
             return await hasAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], curve.signerAddress, this.zap as string);
-        } else if (this.isMeta) {
-            const _maxBurnAmount = (await this._calcLpTokenAmountZap(_amounts, false)).mul(101).div(100);
-            return await hasAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], curve.signerAddress, this.zap as string);
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     private removeLiquidityImbalanceApproveEstimateGas = async (amounts: string[]): Promise<number> => {
@@ -1083,15 +1091,12 @@ export class PoolTemplate {
 
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.id)) {
-            const _maxBurnAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts, false)).mul(101).div(100);
+        if (this.zap) {
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
             return await ensureAllowanceEstimateGas([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
-        } else if (this.isMeta) {
-            const _maxBurnAmount = (await this._calcLpTokenAmountZap(_amounts, false)).mul(101).div(100);
-            return await ensureAllowanceEstimateGas([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 
     public removeLiquidityImbalanceApprove = async (amounts: string[]): Promise<string[]> => {
@@ -1101,15 +1106,12 @@ export class PoolTemplate {
 
         const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
 
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.id)) {
-            const _maxBurnAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts, false)).mul(101).div(100);
+        if (this.zap) {
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
             return await ensureAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
-        } else if (this.isMeta) {
-            const _maxBurnAmount = (await this._calcLpTokenAmountZap(_amounts, false)).mul(101).div(100);
-            return await ensureAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     private removeLiquidityImbalanceEstimateGas = async (amounts: string[]): Promise<number> => {
@@ -1214,7 +1216,7 @@ export class PoolTemplate {
         return await this._removeLiquidityImbalanceSwap(_amounts, true) as number;
     }
 
-    public removeLiquidityImbalanceWrapped = async (amounts: string[], estimateGas = false): Promise<string | number> => {
+    public removeLiquidityImbalanceWrapped = async (amounts: string[]): Promise<string | number> => {
         if (this.isCrypto) {
             throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
         }
@@ -1224,10 +1226,10 @@ export class PoolTemplate {
         await curve.updateFeeData();
 
         if (['aave', 'saave', 'ib'].includes(this.id) || (curve.chainId === 137 && this.id === 'ren')) {
-            return await this._removeLiquidityImbalance(_amounts, false, estimateGas);
+            return await this._removeLiquidityImbalance(_amounts, false);
         }
 
-        return await this._removeLiquidityImbalanceSwap(_amounts, estimateGas);
+        return await this._removeLiquidityImbalanceSwap(_amounts);
     }
 
     public removeLiquidityOneCoinExpected = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
@@ -2044,44 +2046,12 @@ export class PoolTemplate {
         return balancedAmountsForEachScenario[scenarioWithLowestBalances].map((a, i) => a.toFixed(decimals[i]))
     }
 
-    private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        const contract = curve.contracts[this.swap].contract;
-
-        if (["eurtusd", "xautusd", "crveth", "cvxeth", "spelleth", "teth"].includes(this.id) || this.isCryptoFactory) {
-            return await contract.calc_token_amount(_amounts, curve.constantOptions);
-        }
-
-        return await contract.calc_token_amount(_amounts, isDeposit, curve.constantOptions);
-    }
-
-    private _calcLpTokenAmountZap = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        const contract = curve.contracts[this.zap as string].contract;
-
-        if (this.isMetaFactory) {
-            return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
-        }
-
-        if (["eurtusd", "xautusd"].includes(this.id)) {
-            return await contract.calc_token_amount(_amounts, curve.constantOptions);
-        }
-
-        return await contract.calc_token_amount(_amounts, isDeposit, curve.constantOptions);
-    }
-
-    private _calcLpTokenAmountWithUnderlying = async (_underlying_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
-        const _rates: ethers.BigNumber[] = await this._getRates();
-        const _wrapped_amounts = _underlying_amounts.map((amount: ethers.BigNumber, i: number) =>
-            amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
-
-        return await this._calcLpTokenAmount(_wrapped_amounts, isDeposit);
-    }
-
     private _addLiquiditySwap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
         if (!estimateGas) {
             await _ensureAllowance(this.coinAddresses, _amounts, this.swap);
         }
 
-        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts, true, false)).mul(99).div(100);
         const ethIndex = getEthIndex(this.coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.swap].contract;
@@ -2101,7 +2071,7 @@ export class PoolTemplate {
             await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
         }
 
-        const _minMintAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts)).mul(99).div(100);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
@@ -2120,7 +2090,7 @@ export class PoolTemplate {
             await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
         }
 
-        const _minMintAmount = (await this._calcLpTokenAmountZap(_amounts)).mul(99).div(100);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses)
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
@@ -2150,7 +2120,7 @@ export class PoolTemplate {
             await _ensureAllowance(coinAddresses, _amounts, this.swap);
         }
 
-        let _minMintAmount = useUnderlying ? await this._calcLpTokenAmountWithUnderlying(_amounts) : await this._calcLpTokenAmount(_amounts);
+        let _minMintAmount = await this._calcLpTokenAmount(_amounts, true, useUnderlying);
         _minMintAmount = _minMintAmount.mul(99).div(100);
         const contract = curve.contracts[this.swap].contract;
 
@@ -2286,7 +2256,7 @@ export class PoolTemplate {
     }
 
     private _removeLiquidityImbalanceSwap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        const _maxBurnAmount =(await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
+        const _maxBurnAmount =(await this._calcLpTokenAmount(_amounts, false, false)).mul(101).div(100);
         const  contract = curve.contracts[this.swap].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
@@ -2299,7 +2269,7 @@ export class PoolTemplate {
     }
 
     private _removeLiquidityImbalanceZap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        const _maxBurnAmount = (await this._calcLpTokenAmountWithUnderlying(_amounts, false)).mul(101).div(100);
+        const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
 
         if (!estimateGas) {
             await _ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
@@ -2317,7 +2287,7 @@ export class PoolTemplate {
     }
 
     private _removeLiquidityImbalanceMetaZap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        const _maxBurnAmount = (await this._calcLpTokenAmountZap(_amounts, false)).mul(101).div(100);
+        const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
 
         if (!estimateGas) {
             await _ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
@@ -2343,9 +2313,7 @@ export class PoolTemplate {
     }
 
     private _removeLiquidityImbalance = async (_amounts: ethers.BigNumber[], useUnderlying = true, estimateGas = false): Promise<string | number> => {
-        let _maxBurnAmount = useUnderlying ?
-            await this._calcLpTokenAmountWithUnderlying(_amounts, false) :
-            await this._calcLpTokenAmount(_amounts, false);
+        let _maxBurnAmount = await this._calcLpTokenAmount(_amounts, false, useUnderlying);
         _maxBurnAmount = _maxBurnAmount.mul(101).div(100);
         const  contract = curve.contracts[this.swap].contract;
 

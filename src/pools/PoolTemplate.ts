@@ -435,19 +435,9 @@ export class PoolTemplate {
         return await this.calcLpTokenAmount(amounts);
     }
 
-    public addLiquiditySlippage = async (amounts: string[]): Promise<string> => {
-        if (this.isCrypto) {
-            const prices = await this._underlyingPrices();
-            const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
-            const expected = Number(await this.addLiquidityExpected(amounts));
-
-            return await this._addLiquidityCryptoSlippage(totalAmountUSD, expected);
-        }
-
-        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
-        const expected = Number(await this.addLiquidityExpected(amounts));
-
-        return await this._addLiquiditySlippage(totalAmount, expected);
+    // OVERRIDE
+    public async depositSlippage(amounts: string[]): Promise<string> {
+        throw Error(`depositSlippage method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public addLiquidityIsApproved = async (amounts: string[]): Promise<boolean> => {
@@ -556,7 +546,7 @@ export class PoolTemplate {
     }
 
     public depositAndStakeSlippage = async (amounts: string[]): Promise<string> => {
-        return await this.addLiquiditySlippage(amounts);
+        return await this.depositSlippage(amounts);
     }
 
     public depositAndStakeIsApproved = async (amounts: string[]): Promise<boolean> => {
@@ -724,23 +714,9 @@ export class PoolTemplate {
         return await this.calcLpTokenAmountWrapped(amounts);
     }
 
-    public addLiquidityWrappedSlippage = async (amounts: string[]): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        if (this.isCrypto) {
-            const prices = await this._wrappedPrices();
-            const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
-            const expected = Number(await this.addLiquidityWrappedExpected(amounts));
-
-            return await this._addLiquidityCryptoSlippage(totalAmountUSD, expected, false);
-        }
-
-        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
-        const expected = Number(await this.addLiquidityWrappedExpected(amounts));
-
-        return await this._addLiquiditySlippage(totalAmount, expected, false);
+    // OVERRIDE
+    public async depositWrappedSlippage(amounts: string[]): Promise<string> {
+        throw Error(`depositWrappedSlippage method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public addLiquidityWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
@@ -836,11 +812,7 @@ export class PoolTemplate {
     }
 
     public depositAndStakeWrappedSlippage = async (amounts: string[]): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        return await this.addLiquidityWrappedSlippage(amounts);
+        return await this.depositWrappedSlippage(amounts);
     }
 
     public depositAndStakeWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
@@ -1982,21 +1954,6 @@ export class PoolTemplate {
         const balancedAmountsUSD: number[] = poolBalancesRatios.map((r) => r * totalAmountUSD);
         const balancedAmounts: string[] = balancedAmountsUSD.map((a, i) => String(a / prices[i]));
 
-        const balancedExpected = useUnderlying ?
-            Number(await this.addLiquidityExpected(balancedAmounts)) :
-            Number(await this.addLiquidityWrappedExpected(balancedAmounts));
-
-        return String((balancedExpected - expected) / balancedExpected)
-    }
-
-    private _addLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
-        const poolBalances: number[] = useUnderlying ?
-            (await this.getPoolBalances()).map(Number) :
-            (await this.getPoolWrappedBalances()).map(Number);
-        const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
-        const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
-
-        const balancedAmounts: string[] = poolBalancesRatios.map((r) => String(r * totalAmount));
         const balancedExpected = useUnderlying ?
             Number(await this.addLiquidityExpected(balancedAmounts)) :
             Number(await this.addLiquidityWrappedExpected(balancedAmounts));

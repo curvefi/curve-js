@@ -9,7 +9,6 @@ export const poolBalancesAtricrypto3Mixin: PoolTemplate = {
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
-        _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
         const [_poolMetaCoinBalance, ..._poolNonMetaBalances] = _poolWrappedBalances;
 
         const basePool = new PoolTemplate(this.basePool);
@@ -27,6 +26,7 @@ export const poolBalancesMetaMixin: PoolTemplate = {
         const swapContract = curve.contracts[this.swap].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
         const [_poolMetaCoinBalance, ..._poolNonMetaBalance] = _poolWrappedBalances;
 
         const basePool = new PoolTemplate(this.basePool);

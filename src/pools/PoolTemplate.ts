@@ -66,10 +66,10 @@ export class PoolTemplate {
     estimateGas: {
         depositApprove: (amounts: string[]) => Promise<number>,
         deposit: (amounts: string[]) => Promise<number>,
+        depositWrappedApprove: (amounts: string[]) => Promise<number>,
+        depositWrapped: (amounts: string[]) => Promise<number>,
         depositAndStakeApprove: (amounts: string[]) => Promise<number>,
         depositAndStake: (amounts: string[]) => Promise<number>,
-        addLiquidityWrappedApprove: (amounts: string[]) => Promise<number>,
-        addLiquidityWrapped: (amounts: string[]) => Promise<number>,
         depositAndStakeWrappedApprove: (amounts: string[]) => Promise<number>,
         depositAndStakeWrapped: (amounts: string[]) => Promise<number>,
         gaugeDepositApprove: (lpTokenAmount: string) => Promise<number>,
@@ -132,10 +132,10 @@ export class PoolTemplate {
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),
+            depositWrappedApprove: this.depositWrappedApproveEstimateGas.bind(this),
+            depositWrapped: this.depositWrappedEstimateGas.bind(this),
             depositAndStakeApprove: this.depositAndStakeApproveEstimateGas,
             depositAndStake: this.depositAndStakeEstimateGas,
-            addLiquidityWrappedApprove: this.addLiquidityWrappedApproveEstimateGas,
-            addLiquidityWrapped: this.addLiquidityWrappedEstimateGas,
             depositAndStakeWrappedApprove: this.depositAndStakeWrappedApproveEstimateGas,
             depositAndStakeWrapped: this.depositAndStakeWrappedEstimateGas,
             gaugeDepositApprove: this.gaugeDepositApproveEstimateGas,
@@ -430,7 +430,10 @@ export class PoolTemplate {
         return ethers.utils.formatUnits(_expected);
     }
 
-    public balancedAmounts = async (): Promise<string[]> => {
+
+    // ---------------- DEPOSIT ----------------
+
+    public async balancedAmounts(): Promise<string[]> {
         const poolBalances = (await this.getPoolBalances()).map(Number);
         const walletBalances = Object.values(await this.underlyingCoinBalances()).map(Number);
 
@@ -446,9 +449,7 @@ export class PoolTemplate {
         return this._balancedAmounts(poolBalances, walletBalances, this.underlyingDecimals)
     }
 
-    // ---------------- DEPOSIT ----------------
-
-    public depositExpected = async (amounts: string[]): Promise<string> => {
+    public async depositExpected(amounts: string[]): Promise<string> {
         // TODO don't convert to Number
         amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmount(amounts);
@@ -479,6 +480,77 @@ export class PoolTemplate {
     // OVERRIDE
     public async deposit(amounts: string[]): Promise<string> {
         throw Error(`deposit method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
+    // ---------------- DEPOSIT WRAPPED ----------------
+
+    public async balancedWrappedAmounts(): Promise<string[]> {
+        if (this.isFake) {
+            throw Error(`balancedWrappedAmounts method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        }
+
+        const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
+        const walletBalances = Object.values(await this.coinBalances()).map(Number);
+
+        if (this.isCrypto) {
+            const prices = await this._wrappedPrices();
+            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
+            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
+            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.decimals);
+
+            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
+        }
+
+        return this._balancedAmounts(poolBalances, walletBalances, this.decimals)
+    }
+
+    public async depositWrappedExpected(amounts: string[]): Promise<string> {
+        if (this.isFake) {
+            throw Error(`depositWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        }
+
+        // TODO don't convert to Number
+        amounts = amounts.map((a, i) => Number(a).toFixed(this.decimals[i]));
+        return await this.calcLpTokenAmountWrapped(amounts);
+    }
+
+    // OVERRIDE
+    public async depositWrappedSlippage(amounts: string[]): Promise<string> {
+        throw Error(`depositWrappedSlippage method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
+    public async depositWrappedIsApproved(amounts: string[]): Promise<boolean> {
+        if (this.isFake) {
+            throw Error(`depositWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        }
+
+        return await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.swap);
+    }
+
+    private async depositWrappedApproveEstimateGas(amounts: string[]): Promise<number> {
+        if (this.isFake) {
+            throw Error(`depositWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        }
+
+        return await ensureAllowanceEstimateGas(this.coinAddresses, amounts, this.swap);
+    }
+
+    public async depositWrappedApprove(amounts: string[]): Promise<string[]> {
+        if (this.isFake) {
+            throw Error(`depositWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        }
+
+        return await ensureAllowance(this.coinAddresses, amounts, this.swap);
+    }
+
+    // OVERRIDE
+    private async depositWrappedEstimateGas(amounts: string[]): Promise<number> {
+        throw Error(`depositWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
+    // OVERRIDE
+    public async depositWrapped(amounts: string[]): Promise<string> {
+        throw Error(`depositWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     // ---------------- DEPOSIT & STAKE ----------------
@@ -627,130 +699,12 @@ export class PoolTemplate {
         )).hash
     }
 
-    public balancedWrappedAmounts = async (): Promise<string[]> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
-        const walletBalances = Object.values(await this.coinBalances()).map(Number);
-
-        if (this.isCrypto) {
-            const prices = await this._wrappedPrices();
-            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
-            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
-            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.decimals);
-
-            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
-        }
-
-        return this._balancedAmounts(poolBalances, walletBalances, this.decimals)
-    }
-
-    public addLiquidityWrappedExpected = async (amounts: string[]): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        amounts = amounts.map((a, i) => Number(a).toFixed(this.decimals[i]));
-        return await this.calcLpTokenAmountWrapped(amounts);
-    }
-
-    // OVERRIDE
-    public async depositWrappedSlippage(amounts: string[]): Promise<string> {
-        throw Error(`depositWrappedSlippage method doesn't exist for pool ${this.name} (id: ${this.name})`);
-    }
-
-    public addLiquidityWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        return await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.swap);
-    }
-
-    private addLiquidityWrappedApproveEstimateGas = async (amounts: string[]): Promise<number> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        return await ensureAllowanceEstimateGas(this.coinAddresses, amounts, this.swap);
-    }
-
-    public addLiquidityWrappedApprove = async (amounts: string[]): Promise<string[]> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        return await ensureAllowance(this.coinAddresses, amounts, this.swap);
-    }
-
-    private addLiquidityWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        if (amounts.length !== this.coinAddresses.length) {
-            throw Error(`${this.name} pool has ${this.coinAddresses.length} coins (amounts provided for ${amounts.length})`);
-        }
-
-        const balances = Object.values(await this.coinBalances());
-        for (let i = 0; i < balances.length; i++) {
-            if (Number(balances[i]) < Number(amounts[i])) {
-                throw Error(`Not enough ${this.coins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
-            }
-        }
-
-        if (!(await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.swap))) {
-            throw Error("Token allowance is needed to estimate gas")
-        }
-
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
-            ethers.utils.parseUnits(amount, this.decimals[i]));
-
-        // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        ) {
-            return await this._addLiquidity(_amounts, false, true) as number;
-        }
-
-        // Lending pools with zap and metapools
-        return await this._addLiquiditySwap(_amounts, true) as number;
-    }
-
-    public addLiquidityWrapped = async (amounts: string[]): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        if (amounts.length !== this.coinAddresses.length) {
-            throw Error(`${this.name} pool has ${this.coinAddresses.length} coins (amounts provided for ${amounts.length})`);
-        }
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) =>
-            ethers.utils.parseUnits(amount, this.decimals[i]));
-
-        await curve.updateFeeData();
-
-        // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        ) {
-            return await this._addLiquidity(_amounts, false) as string;
-        }
-
-        // Lending pools with zap and metapools
-        return await this._addLiquiditySwap(_amounts) as string;
-    }
-
     public depositAndStakeWrappedExpected = async (amounts: string[]): Promise<string> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
         }
 
-        return await this.addLiquidityWrappedExpected(amounts);
+        return await this.depositWrappedExpected(amounts);
     }
 
     public depositAndStakeWrappedSlippage = async (amounts: string[]): Promise<string> => {
@@ -1923,96 +1877,6 @@ export class PoolTemplate {
         const scenarioWithLowestBalances = firstCoinBalanceForEachScenario.indexOf(Math.min(...firstCoinBalanceForEachScenario));
 
         return balancedAmountsForEachScenario[scenarioWithLowestBalances].map((a, i) => a.toFixed(decimals[i]))
-    }
-
-    private _addLiquiditySwap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        if (!estimateGas) {
-            await _ensureAllowance(this.coinAddresses, _amounts, this.swap);
-        }
-
-        const _minMintAmount = (await this._calcLpTokenAmount(_amounts, true, false)).mul(99).div(100);
-        const ethIndex = getEthIndex(this.coinAddresses);
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-        const contract = curve.contracts[this.swap].contract;
-
-        const gas: ethers.BigNumber = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
-    }
-
-
-    private _addLiquidityZap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        if (!estimateGas) {
-            await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
-        }
-
-        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
-        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-        const contract = curve.contracts[this.zap as string].contract;
-
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
-    }
-
-    private _addLiquidityMetaZap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        if (!estimateGas) {
-            await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
-        }
-
-        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
-        const ethIndex = getEthIndex(this.underlyingCoinAddresses)
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-        const contract = curve.contracts[this.zap as string].contract;
-
-        if (this.isMetaFactory) {
-            const gas = await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.constantOptions, value });
-            if (estimateGas) {
-                return gas.toNumber()
-            }
-
-            const gasLimit = gas.mul(130).div(100);
-            return (await contract.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
-        }
-
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
-    }
-
-    private _addLiquidity = async (_amounts: ethers.BigNumber[], useUnderlying= true, estimateGas = false): Promise<string | number> => {
-        const coinAddresses = useUnderlying ? this.underlyingCoinAddresses : this.coinAddresses;
-        if (!estimateGas) {
-            await _ensureAllowance(coinAddresses, _amounts, this.swap);
-        }
-
-        let _minMintAmount = await this._calcLpTokenAmount(_amounts, true, useUnderlying);
-        _minMintAmount = _minMintAmount.mul(99).div(100);
-        const contract = curve.contracts[this.swap].contract;
-
-        const ethIndex = getEthIndex(useUnderlying ? this.underlyingCoinAddresses : this.coinAddresses);
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, useUnderlying, { ...curve.constantOptions, value });
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.add_liquidity(_amounts, _minMintAmount, useUnderlying, { ...curve.options, gasLimit, value })).hash;
     }
 
     private _calcExpectedAmounts = async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {

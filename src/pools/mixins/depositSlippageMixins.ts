@@ -26,7 +26,7 @@ export const depositSlippageMixin: PoolTemplate = {
 export const depositWrappedSlippageMixin: PoolTemplate = {
     async depositWrappedSlippage(amounts: string[]): Promise<string> {
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
-        const expected = Number(await this.addLiquidityWrappedExpected(amounts));
+        const expected = Number(await this.depositWrappedExpected(amounts));
 
         // @ts-ignore
         const poolBalances: number[] = (await this.getPoolWrappedBalances()).map(Number);
@@ -34,7 +34,7 @@ export const depositWrappedSlippageMixin: PoolTemplate = {
         const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
 
         const balancedAmounts: string[] = poolBalancesRatios.map((r) => String(r * totalAmount));
-        const balancedExpected = Number(await this.addLiquidityWrappedExpected(balancedAmounts));
+        const balancedExpected = Number(await this.depositWrappedExpected(balancedAmounts));
 
         return String((balancedExpected - expected) / balancedExpected)
     },
@@ -69,7 +69,7 @@ export const depositWrappedSlippageCryptoMixin: PoolTemplate = {
         // @ts-ignore
         const prices = await this._wrappedPrices();
         const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
-        const expected = Number(await this.addLiquidityWrappedExpected(amounts));
+        const expected = Number(await this.depositWrappedExpected(amounts));
 
         // @ts-ignore
         const poolBalances: number[] = (await this.getPoolWrappedBalances()).map(Number);
@@ -80,7 +80,7 @@ export const depositWrappedSlippageCryptoMixin: PoolTemplate = {
         const balancedAmountsUSD: number[] = poolBalancesRatios.map((r) => r * totalAmountUSD);
         const balancedAmounts: string[] = balancedAmountsUSD.map((a, i) => String(a / prices[i]));
 
-        const balancedExpected = Number(await this.addLiquidityWrappedExpected(balancedAmounts));
+        const balancedExpected = Number(await this.depositWrappedExpected(balancedAmounts));
 
         return String((balancedExpected - expected) / balancedExpected)
 

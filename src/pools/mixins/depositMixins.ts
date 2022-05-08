@@ -1,85 +1,176 @@
-import { PoolTemplate } from "../PoolTemplate";
-
+import {PoolTemplate} from "../PoolTemplate";
+import {_ensureAllowance, getEthIndex, hasAllowance} from "../../utils";
+import {curve} from "../../curve";
+import {ethers} from "ethers";
 
 // @ts-ignore
-export const depositSlippageMixin: PoolTemplate = {
-    async depositSlippage(amounts: string[]): Promise<string> {
-        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
-        const expected = Number(await this.addLiquidityExpected(amounts));
+async function _depositCheck(this: PoolTemplate, amounts: string[], estimateGas = false): Promise<ethers.BigNumber[]> {
+    if (amounts.length !== this.underlyingCoinAddresses.length) {
+        throw Error(`${this.name} pool has ${this.underlyingCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
+    }
+
+    const balances = Object.values(await this.underlyingCoinBalances());
+    for (let i = 0; i < balances.length; i++) {
+        if (Number(balances[i]) < Number(amounts[i])) {
+            throw Error(`Not enough ${this.underlyingCoins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
+        }
+    }
+
+    if (!(await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.swap)) && estimateGas) {
+        throw Error("Token allowance is needed to estimate gas")
+    }
+
+    return amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
+}
+
+// @ts-ignore
+export const depositLendingOrCryptoWithZapMixin: PoolTemplate = {
+    // @ts-ignore
+    async _deposit(_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> {
+        if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
 
         // @ts-ignore
-        const poolBalances: number[] = (await this.getPoolBalances()).map(Number);
-        const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
-        const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
+        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const contract = curve.contracts[this.zap as string].contract;
 
-        const balancedAmounts: string[] = poolBalancesRatios.map((r) => String(r * totalAmount));
-        const balancedExpected = Number(await this.addLiquidityExpected(balancedAmounts));
+        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
+        if (estimateGas) return gas.toNumber();
 
-        return String((balancedExpected - expected) / balancedExpected)
+        const gasLimit = gas.mul(130).div(100);
+        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
+    },
+
+    async depositEstimateGas(amounts: string[]): Promise<number> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts, true);
+
+        // @ts-ignore
+        return await this._deposit(_amounts, true);
+    },
+
+    async deposit(amounts: string[]): Promise<string> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts);
+
+        // @ts-ignore
+        return await this._deposit(_amounts);
     },
 }
 
 // @ts-ignore
-export const depositWrappedSlippageMixin: PoolTemplate = {
-    async depositWrappedSlippage(amounts: string[]): Promise<string> {
-        const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
-        const expected = Number(await this.addLiquidityWrappedExpected(amounts));
+export const depositLendingOrCryptoMixin: PoolTemplate = {
+    // @ts-ignore
+    async _deposit(_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> {
+        if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.swap);
 
         // @ts-ignore
-        const poolBalances: number[] = (await this.getPoolWrappedBalances()).map(Number);
-        const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
-        const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
+        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const contract = curve.contracts[this.swap].contract;
 
-        const balancedAmounts: string[] = poolBalancesRatios.map((r) => String(r * totalAmount));
-        const balancedExpected = Number(await this.addLiquidityWrappedExpected(balancedAmounts));
+        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, true, { ...curve.constantOptions, value });
+        if (estimateGas) return gas.toNumber();
 
-        return String((balancedExpected - expected) / balancedExpected)
+        const gasLimit = gas.mul(130).div(100);
+        return (await contract.add_liquidity(_amounts, _minMintAmount, true, { ...curve.options, gasLimit, value })).hash;
+    },
+
+    async depositEstimateGas(amounts: string[]): Promise<number> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts, true);
+
+        // @ts-ignore
+        return await this._deposit(_amounts, true);
+    },
+
+    async deposit(amounts: string[]): Promise<string> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts);
+
+        // @ts-ignore
+        return await this._deposit(_amounts);
     },
 }
 
 // @ts-ignore
-export const depositSlippageCryptoMixin: PoolTemplate = {
-    async depositSlippage(amounts: string[]): Promise<string> {
-        // @ts-ignore
-        const prices = await this._underlyingPrices();
-        const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
-        const expected = Number(await this.addLiquidityExpected(amounts));
+export const depositMetaMixin: PoolTemplate = {
+    // @ts-ignore
+    async _deposit(_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> {
+        if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
 
         // @ts-ignore
-        const poolBalances: number[] = (await this.getPoolBalances()).map(Number);
-        const poolBalancesUSD = poolBalances.map((b, i) => Number(b) * prices[i]);
-        const poolTotalBalance: number = poolBalancesUSD.reduce((a,b) => a + b);
-        const poolBalancesRatios: number[] = poolBalancesUSD.map((b) => b / poolTotalBalance);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts)).mul(99).div(100);
+        const ethIndex = getEthIndex(this.underlyingCoinAddresses)
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const contract = curve.contracts[this.zap as string].contract;
 
-        const balancedAmountsUSD: number[] = poolBalancesRatios.map((r) => r * totalAmountUSD);
-        const balancedAmounts: string[] = balancedAmountsUSD.map((a, i) => String(a / prices[i]));
+        if (this.isMetaFactory) {
+            const gas = await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.constantOptions, value });
+            if (estimateGas) return gas.toNumber();
 
-        const balancedExpected = Number(await this.addLiquidityExpected(balancedAmounts));
+            const gasLimit = gas.mul(130).div(100);
+            return (await contract.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
+        }
 
-        return String((balancedExpected - expected) / balancedExpected)
+        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
+        if (estimateGas) return gas.toNumber();
+
+        const gasLimit = gas.mul(130).div(100);
+        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
+    },
+
+    async depositEstimateGas(amounts: string[]): Promise<number> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts, true);
+
+        // @ts-ignore
+        return await this._deposit(_amounts, true);
+    },
+
+    async deposit(amounts: string[]): Promise<string> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts);
+
+        // @ts-ignore
+        return await this._deposit(_amounts);
     },
 }
 
 // @ts-ignore
-export const depositWrappedSlippageCryptoMixin: PoolTemplate = {
-    async depositWrappedSlippage(amounts: string[]): Promise<string> {
-        // @ts-ignore
-        const prices = await this._wrappedPrices();
-        const totalAmountUSD = amounts.reduce((s, a, i) => s + (Number(a) * prices[i]), 0);
-        const expected = Number(await this.addLiquidityWrappedExpected(amounts));
+export const depositPlainMixin: PoolTemplate = {
+    // @ts-ignore
+    async _deposit(_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> {
+        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.swap);
 
         // @ts-ignore
-        const poolBalances: number[] = (await this.getPoolWrappedBalances()).map(Number);
-        const poolBalancesUSD = poolBalances.map((b, i) => Number(b) * prices[i]);
-        const poolTotalBalance: number = poolBalancesUSD.reduce((a,b) => a + b);
-        const poolBalancesRatios: number[] = poolBalancesUSD.map((b) => b / poolTotalBalance);
+        const _minMintAmount = (await this._calcLpTokenAmount(_amounts, true, false)).mul(99).div(100);
+        const ethIndex = getEthIndex(this.coinAddresses);
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const contract = curve.contracts[this.swap].contract;
 
-        const balancedAmountsUSD: number[] = poolBalancesRatios.map((r) => r * totalAmountUSD);
-        const balancedAmounts: string[] = balancedAmountsUSD.map((a, i) => String(a / prices[i]));
+        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
+        if (estimateGas) return gas.toNumber();
 
-        const balancedExpected = Number(await this.addLiquidityWrappedExpected(balancedAmounts));
+        const gasLimit = gas.mul(130).div(100);
+        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
+    },
 
-        return String((balancedExpected - expected) / balancedExpected)
+    async depositEstimateGas(amounts: string[]): Promise<number> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts, true);
 
+        // @ts-ignore
+        return await this._deposit(_amounts, true);
+    },
+
+    async deposit(amounts: string[]): Promise<string> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts);
+
+        // @ts-ignore
+        return await this._deposit(_amounts);
     },
 }

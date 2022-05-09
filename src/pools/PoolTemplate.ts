@@ -141,10 +141,10 @@ export class PoolTemplate {
             unstake: this.unstakeEstimateGas.bind(this),
             claimCrv: this.claimCrvEstimateGas.bind(this),
             claimRewards: this.claimRewardsEstimateGas.bind(this),
-            depositAndStakeApprove: this.depositAndStakeApproveEstimateGas,
-            depositAndStake: this.depositAndStakeEstimateGas,
-            depositAndStakeWrappedApprove: this.depositAndStakeWrappedApproveEstimateGas,
-            depositAndStakeWrapped: this.depositAndStakeWrappedEstimateGas,
+            depositAndStakeApprove: this.depositAndStakeApproveEstimateGas.bind(this),
+            depositAndStake: this.depositAndStakeEstimateGas.bind(this),
+            depositAndStakeWrappedApprove: this.depositAndStakeWrappedApproveEstimateGas.bind(this),
+            depositAndStakeWrapped: this.depositAndStakeWrappedEstimateGas.bind(this),
             removeLiquidityApprove: this.removeLiquidityApproveEstimateGas,
             removeLiquidity: this.removeLiquidityEstimateGas,
             removeLiquidityWrapped: this.removeLiquidityWrappedEstimateGas,
@@ -557,7 +557,7 @@ export class PoolTemplate {
         throw Error(`depositWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    // ---------------- STAKE/UNSTAKE ----------------
+    // ---------------- STAKING ----------------
 
     public async stakeIsApproved(lpTokenAmount: string): Promise<boolean> {
         if (this.gauge === ethers.constants.AddressZero) {
@@ -713,15 +713,25 @@ export class PoolTemplate {
     // ---------------- DEPOSIT & STAKE ----------------
 
     public depositAndStakeExpected = async (amounts: string[]): Promise<string> => {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeExpected method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+
         return await this.depositExpected(amounts);
     }
 
-    public depositAndStakeSlippage = async (amounts: string[]): Promise<string> => {
+    public async depositAndStakeSlippage(amounts: string[]): Promise<string> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeSlippage method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+
         return await this.depositSlippage(amounts);
     }
 
-    public depositAndStakeIsApproved = async (amounts: string[]): Promise<boolean> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+    public async depositAndStakeIsApproved(amounts: string[]): Promise<boolean> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeIsApproved method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
         const coinsAllowance: boolean = await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, ALIASES.deposit_and_stake);
 
         const gaugeContract = curve.contracts[this.gauge].contract;
@@ -733,8 +743,10 @@ export class PoolTemplate {
         return coinsAllowance;
     }
 
-    private depositAndStakeApproveEstimateGas = async (amounts: string[]): Promise<number> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+    private async depositAndStakeApproveEstimateGas(amounts: string[]): Promise<number> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
         const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, ALIASES.deposit_and_stake);
 
         const gaugeContract = curve.contracts[this.gauge].contract;
@@ -749,8 +761,10 @@ export class PoolTemplate {
         return approveCoinsGas;
     }
 
-    public depositAndStakeApprove = async (amounts: string[]): Promise<string[]> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+    public async depositAndStakeApprove(amounts: string[]): Promise<string[]> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
         const approveCoinsTx: string[] = await ensureAllowance(this.underlyingCoinAddresses, amounts, ALIASES.deposit_and_stake);
 
         const gaugeContract = curve.contracts[this.gauge].contract;
@@ -766,16 +780,119 @@ export class PoolTemplate {
         return approveCoinsTx;
     }
 
-    private depositAndStakeEstimateGas = async (amounts: string[]): Promise<number> => {
+    private async depositAndStakeEstimateGas(amounts: string[]): Promise<number> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+
         return await this._depositAndStake(amounts, true, true) as number
     }
 
-    public depositAndStake = async (amounts: string[]): Promise<string> => {
+    public async depositAndStake(amounts: string[]): Promise<string> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+
         return await this._depositAndStake(amounts, true, false) as string
     }
 
-    private _depositAndStake = async (amounts: string[], isUnderlying: boolean, estimateGas: boolean): Promise<string | number> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+    // ---------------- DEPOSIT & STAKE WRAPPED ----------------
+
+    public async depositAndStakeWrappedExpected(amounts: string[]): Promise<string> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+        if (this.isFake) throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+
+        return await this.depositWrappedExpected(amounts);
+    }
+
+    public async depositAndStakeWrappedSlippage(amounts: string[]): Promise<string> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeWrappedSlippage method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+        if (this.isFake) throw Error(`depositAndStakeWrappedSlippage method doesn't exist for pool ${this.name} (id: ${this.name})`);
+
+        return await this.depositWrappedSlippage(amounts);
+    }
+
+    public async depositAndStakeWrappedIsApproved(amounts: string[]): Promise<boolean> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+        if (this.isFake) throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
+
+        const coinsAllowance: boolean = await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, ALIASES.deposit_and_stake);
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
+            return coinsAllowance && gaugeAllowance;
+        }
+
+        return coinsAllowance;
+    }
+
+    private async depositAndStakeWrappedApproveEstimateGas(amounts: string[]): Promise<number> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+        if (this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+
+        const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
+            if (!gaugeAllowance) {
+                const approveGaugeGas = (await gaugeContract.estimateGas.set_approve_deposit(ALIASES.deposit_and_stake, true, curve.constantOptions)).toNumber();
+                return approveCoinsGas + approveGaugeGas;
+            }
+        }
+
+        return approveCoinsGas;
+    }
+
+    public async depositAndStakeWrappedApprove(amounts: string[]): Promise<string[]> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+        if (this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+
+        const approveCoinsTx: string[] = await ensureAllowance(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
+            if (!gaugeAllowance) {
+                const gasLimit = (await gaugeContract.estimateGas.set_approve_deposit(ALIASES.deposit_and_stake, true, curve.constantOptions)).mul(130).div(100);
+                const approveGaugeTx: string = (await gaugeContract.set_approve_deposit(ALIASES.deposit_and_stake, true, { ...curve.options, gasLimit })).hash;
+                return [...approveCoinsTx, approveGaugeTx];
+            }
+        }
+
+        return approveCoinsTx;
+    }
+
+    private async depositAndStakeWrappedEstimateGas(amounts: string[]): Promise<number> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+        if (this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+
+        return await this._depositAndStake(amounts, false, true) as number
+    }
+
+    public async depositAndStakeWrapped(amounts: string[]): Promise<string> {
+        if (this.gauge === ethers.constants.AddressZero) {
+            throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+        }
+        if (this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+
+        return await this._depositAndStake(amounts, false, false) as string
+    }
+
+    private async _depositAndStake(amounts: string[], isUnderlying: boolean, estimateGas: boolean): Promise<string | number> {
         const coinAddresses = isUnderlying ? [...this.underlyingCoinAddresses] : [...this.coinAddresses];
         const coins = isUnderlying ? this.underlyingCoins : this.coinAddresses;
         const decimals = isUnderlying ? this.underlyingDecimals : this.decimals;
@@ -809,11 +926,8 @@ export class PoolTemplate {
             ethers.utils.parseUnits(amount, decimals[i]));
 
         const contract = curve.contracts[ALIASES.deposit_and_stake].contract;
-        const useUnderlying = isUnderlying && (
-            ['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        );
+        const isLending = this.useLending.reduce((a, b) => a || b)
+        const useUnderlying = isUnderlying && (isLending || this.isCrypto) && !this.zap;
         const _minMintAmount = isUnderlying ?
             ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)).mul(99).div(100) :
             ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts)).mul(99).div(100);
@@ -856,85 +970,7 @@ export class PoolTemplate {
         )).hash
     }
 
-    public depositAndStakeWrappedExpected = async (amounts: string[]): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        return await this.depositWrappedExpected(amounts);
-    }
-
-    public depositAndStakeWrappedSlippage = async (amounts: string[]): Promise<string> => {
-        return await this.depositWrappedSlippage(amounts);
-    }
-
-    public depositAndStakeWrappedIsApproved = async (amounts: string[]): Promise<boolean> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (this.isFake) throw Error(`${this.name} pool doesn't have this method`);
-
-        const coinsAllowance: boolean = await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, ALIASES.deposit_and_stake);
-
-        const gaugeContract = curve.contracts[this.gauge].contract;
-        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
-            return coinsAllowance && gaugeAllowance
-        }
-
-        return coinsAllowance;
-    }
-
-    private depositAndStakeWrappedApproveEstimateGas = async (amounts: string[]): Promise<number> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (this.isFake) throw Error(`${this.name} pool doesn't have this method`);
-
-        const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
-
-        const gaugeContract = curve.contracts[this.gauge].contract;
-        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
-            if (!gaugeAllowance) {
-                const approveGaugeGas = (await gaugeContract.estimateGas.set_approve_deposit(ALIASES.deposit_and_stake, true, curve.constantOptions)).toNumber();
-                return approveCoinsGas + approveGaugeGas;
-            }
-        }
-
-        return approveCoinsGas;
-    }
-
-    public depositAndStakeWrappedApprove = async (amounts: string[]): Promise<string[]> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (this.isFake) throw Error(`${this.name} pool doesn't have this method`);
-
-        const approveCoinsTx: string[] = await ensureAllowance(this.coinAddresses, amounts, ALIASES.deposit_and_stake);
-
-        const gaugeContract = curve.contracts[this.gauge].contract;
-        if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, ALIASES.deposit_and_stake, curve.constantOptions);
-            if (!gaugeAllowance) {
-                const gasLimit = (await gaugeContract.estimateGas.set_approve_deposit(ALIASES.deposit_and_stake, true, curve.constantOptions)).mul(130).div(100);
-                const approveGaugeTx: string = (await gaugeContract.set_approve_deposit(ALIASES.deposit_and_stake, true, { ...curve.options, gasLimit })).hash;
-                return [...approveCoinsTx, approveGaugeTx];
-            }
-        }
-
-        return approveCoinsTx;
-    }
-
-    private depositAndStakeWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        return await this._depositAndStake(amounts, false, true) as number
-    }
-
-    public depositAndStakeWrapped = async (amounts: string[]): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
-
-        return await this._depositAndStake(amounts, false, false) as string
-    }
+    // ---------------- WITHDRAW ----------------
 
     public removeLiquidityExpected = async (lpTokenAmount: string): Promise<string[]> => {
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);

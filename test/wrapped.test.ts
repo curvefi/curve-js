@@ -4,6 +4,8 @@ import curve from "../src";
 import { BN } from "../src/utils";
 import { DictInterface } from "../lib/interfaces";
 import { Pool } from "../src/pools";
+import { getPool } from "../src/pools/poolConstructor";
+import { PoolTemplate } from "../src/pools/PoolTemplate";
 
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
@@ -16,30 +18,31 @@ const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
 
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
+// const ETHEREUM_POOLS = ['compound', 'gusd', 'tricrypto2', 'crveth'];
 const ETHEREUM_POOLS = [...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
 const POLYGON_POOLS = POLYGON_FACTORY_META_POOLS;
 
 const wrappedLiquidityTest = (id: string) => {
-    describe(`${id} add/remove liquidity`, function () {
-        let pool: Pool;
+    describe(`${id} deposit-stake-unstake-withdraw`, function () {
+        let pool: PoolTemplate;
         let coinAddresses: string[];
 
         before(async function () {
-            pool = new curve.Pool(id);
+            pool = getPool(id);
             coinAddresses = pool.coinAddresses;
         });
 
-        it('Adds liquidity', async function () {
+        it('Deposit', async function () {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
             const initialBalances = await pool.balances() as DictInterface<string>;
-            const lpTokenExpected = await pool.addLiquidityWrappedExpected(amounts)
+            const lpTokenExpected = await pool.depositWrappedExpected(amounts)
 
-            await pool.addLiquidityWrapped(amounts);
+            await pool.depositWrapped(amounts);
 
             const balances = await pool.balances() as DictInterface<string>;
 
-            pool.coins.forEach((c: string) => {
+            coinAddresses.forEach((c: string) => {
                 if (['aave', 'saave'].includes(id) || (curve.chainId === 137 && pool.id === 'ren')) {
                     // Because of increasing quantity
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
@@ -54,7 +57,7 @@ const wrappedLiquidityTest = (id: string) => {
             assert.approximately(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected), delta);
         });
 
-        it('Deposits into gauge', async function () {
+        it('Stake', async function () {
             if (pool.gauge === ethers.constants.AddressZero) {
                 console.log('Skip');
                 return
@@ -62,7 +65,7 @@ const wrappedLiquidityTest = (id: string) => {
 
             const depositAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).lpToken;
 
-            await pool.gaugeDeposit(depositAmount);
+            await pool.stake(depositAmount);
 
             const balances = await pool.lpTokenBalances();
 
@@ -70,7 +73,7 @@ const wrappedLiquidityTest = (id: string) => {
             assert.strictEqual(Number(balances.lpToken), 0);
         });
 
-        it('Withdraws from gauge', async function () {
+        it('Unstake', async function () {
             if (pool.gauge === ethers.constants.AddressZero) {
                 console.log('Skip');
                 return
@@ -78,7 +81,7 @@ const wrappedLiquidityTest = (id: string) => {
 
             const withdrawAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).gauge;
 
-            await pool.gaugeWithdraw(withdrawAmount);
+            await pool.unstake(withdrawAmount);
 
             const balances = await pool.lpTokenBalances();
 
@@ -86,72 +89,72 @@ const wrappedLiquidityTest = (id: string) => {
             assert.strictEqual(Number(balances.gauge), 0);
         });
 
-        it('Removes liquidity', async function () {
-            const initialBalances = await pool.balances() as DictInterface<string>;
-            const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-            const coinsExpected = await pool.removeLiquidityWrappedExpected(lpTokenAmount);
-
-            await pool.removeLiquidityWrapped(lpTokenAmount);
-
-            const balances = await pool.balances() as DictInterface<string>;
-
-            assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-            pool.coins.forEach((c: string, i: number) => {
-                const delta = id == 'gusd' ? 0.011 : id === 'factory-v2-80' ? 2 : 0.01
-                assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta);
-            });
-        });
-
-        it('Removes liquidity imbalance', async function () {
-            if (pool.isCrypto) {
-                console.log("No such method")
-            } else {
-                const amount = '1';
-                const amounts = coinAddresses.map(() => amount);
-                const initialBalances = await pool.balances() as DictInterface<string>;
-                const lpTokenExpected = await pool.removeLiquidityImbalanceWrappedExpected(amounts);
-
-                await pool.removeLiquidityImbalanceWrapped(amounts);
-
-                const balances = await pool.balances() as DictInterface<string>;
-
-                const delta = id === 'factory-v2-80' ? 2 : 0.01
-                assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
-                pool.coins.forEach((c: string) => {
-                    if (['aave', 'saave'].includes(id) || (curve.chainId === 137 && pool.id === 'ren')) {
-                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
-                    } else {
-                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
-                    }
-                });
-            }
-        });
-
-        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(id)) {
-            it('Removes liquidity one coin', async function () {
-                const initialBalances = await pool.balances() as DictInterface<string>;
-                const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-                const expected = await pool.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, 0);
-
-                await pool.removeLiquidityOneCoinWrapped(lpTokenAmount, 0);
-
-                const balances = await pool.balances() as DictInterface<string>;
-
-                assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-                pool.coins.forEach((c: string, i: number) => {
-                    if (i === 0) {
-                        assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
-                    } else {
-                        if (['aave', 'saave'].includes(id)  || (curve.chainId === 137 && this.id === 'ren')) {
-                            // Because of increasing quantity
-                            assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
-                        } else {
-                            assert.strictEqual(balances[c], initialBalances[c]);
-                        }
-                    }
-                })
-            });
-        }
+        // it('Removes liquidity', async function () {
+        //     const initialBalances = await pool.balances() as DictInterface<string>;
+        //     const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
+        //     const coinsExpected = await pool.removeLiquidityWrappedExpected(lpTokenAmount);
+        //
+        //     await pool.removeLiquidityWrapped(lpTokenAmount);
+        //
+        //     const balances = await pool.balances() as DictInterface<string>;
+        //
+        //     assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
+        //     coinAddresses.forEach((c: string, i: number) => {
+        //         const delta = id == 'gusd' ? 0.011 : id === 'factory-v2-80' ? 2 : 0.01
+        //         assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta);
+        //     });
+        // });
+        //
+        // it('Removes liquidity imbalance', async function () {
+        //     if (pool.isCrypto) {
+        //         console.log("No such method")
+        //     } else {
+        //         const amount = '1';
+        //         const amounts = coinAddresses.map(() => amount);
+        //         const initialBalances = await pool.balances() as DictInterface<string>;
+        //         const lpTokenExpected = await pool.removeLiquidityImbalanceWrappedExpected(amounts);
+        //
+        //         await pool.removeLiquidityImbalanceWrapped(amounts);
+        //
+        //         const balances = await pool.balances() as DictInterface<string>;
+        //
+        //         const delta = id === 'factory-v2-80' ? 2 : 0.01
+        //         assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
+        //         coinAddresses.forEach((c: string) => {
+        //             if (['aave', 'saave'].includes(id) || (curve.chainId === 137 && pool.id === 'ren')) {
+        //                 assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
+        //             } else {
+        //                 assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
+        //             }
+        //         });
+        //     }
+        // });
+        //
+        // if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(id)) {
+        //     it('Removes liquidity one coin', async function () {
+        //         const initialBalances = await pool.balances() as DictInterface<string>;
+        //         const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
+        //         const expected = await pool.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, 0);
+        //
+        //         await pool.removeLiquidityOneCoinWrapped(lpTokenAmount, 0);
+        //
+        //         const balances = await pool.balances() as DictInterface<string>;
+        //
+        //         assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
+        //         coinAddresses.forEach((c: string, i: number) => {
+        //             if (i === 0) {
+        //                 assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
+        //             } else {
+        //                 if (['aave', 'saave'].includes(id)  || (curve.chainId === 137 && this.id === 'ren')) {
+        //                     // Because of increasing quantity
+        //                     assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
+        //                 } else {
+        //                     assert.strictEqual(balances[c], initialBalances[c]);
+        //                 }
+        //             }
+        //         })
+        //     });
+        // }
     });
 }
 
@@ -200,13 +203,13 @@ describe('Wrapped test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolId of ETHEREUM_POOLS) {
-    //     wrappedLiquidityTest(poolId);
-    //     wrappedExchangeTest(poolId);
-    // }
-
-    for (const poolId of POLYGON_POOLS) {
+    for (const poolId of ETHEREUM_POOLS) {
         wrappedLiquidityTest(poolId);
-        wrappedExchangeTest(poolId);
+        // wrappedExchangeTest(poolId);
     }
+
+    // for (const poolId of POLYGON_MAIN_POOLS) {
+    //     wrappedLiquidityTest(poolId);
+    //     // wrappedExchangeTest(poolId);
+    // }
 })

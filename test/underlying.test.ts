@@ -2,6 +2,8 @@ import { ethers } from "ethers";
 import { assert } from "chai";
 import curve from "../src";
 import { Pool } from "../src/pools";
+import { getPool } from "../src/pools/poolConstructor";
+import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { BN } from "../src/utils";
 import { DictInterface } from "../lib/interfaces";
 
@@ -19,31 +21,32 @@ const POLYGON_FACTORY_PLAIN_POOLS = ['factory-v2-113', 'factory-v2-4', 'factory-
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
-const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
+// const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
+const ETHEREUM_POOLS = ['3pool', 'compound', 'gusd', 'tricrypto2', 'crveth'];
 const POLYGON_POOLS = [...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS];
 
 const underlyingLiquidityTest = (id: string) => {
-    describe(`${id} add/remove liquidity`, function () {
-        let pool: Pool;
+    describe(`${id} deposit-stake-unstake-withdraw`, function () {
+        let pool: PoolTemplate;
         let coinAddresses: string[];
 
         before(async function () {
-            pool = new curve.Pool(id);
+            pool = getPool(id);
             coinAddresses = pool.underlyingCoinAddresses;
         });
 
-        it('Adds liquidity', async function () {
+        it('Deposit', async function () {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
             if (id === 'factory-v2-7') amounts[3] = '0';
             const initialBalances = await pool.balances() as DictInterface<string>;
-            const lpTokenExpected = await pool.addLiquidityExpected(amounts);
+            const lpTokenExpected = await pool.depositExpected(amounts);
 
-            await pool.addLiquidity(amounts);
+            await pool.deposit(amounts);
 
             const balances = await pool.balances() as DictInterface<string>;
 
-            pool.underlyingCoins.forEach((c, i) => {
+            coinAddresses.forEach((c, i) => {
                 if (id === 'steth' || pool.id === 'factory-v2-8') {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amounts[i]).toString())), 1e-18);
                 } else {
@@ -55,7 +58,7 @@ const underlyingLiquidityTest = (id: string) => {
             assert.approximately(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected), delta);
         });
 
-        it('Deposits into gauge', async function () {
+        it('Stake', async function () {
             if (pool.gauge === ethers.constants.AddressZero) {
                 console.log('Skip');
                 return
@@ -63,7 +66,7 @@ const underlyingLiquidityTest = (id: string) => {
 
             const depositAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).lpToken;
 
-            await pool.gaugeDeposit(depositAmount);
+            await pool.stake(depositAmount);
 
             const balances = await pool.lpTokenBalances();
 
@@ -71,7 +74,7 @@ const underlyingLiquidityTest = (id: string) => {
             assert.strictEqual(Number(balances.lpToken), 0);
         });
 
-        it('Withdraws from gauge', async function () {
+        it('Unstake', async function () {
             if (pool.gauge === ethers.constants.AddressZero) {
                 console.log('Skip');
                 return
@@ -79,7 +82,7 @@ const underlyingLiquidityTest = (id: string) => {
 
             const withdrawAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).gauge;
 
-            await pool.gaugeWithdraw(withdrawAmount);
+            await pool.unstake(withdrawAmount);
 
             const balances = await pool.lpTokenBalances();
 
@@ -87,69 +90,69 @@ const underlyingLiquidityTest = (id: string) => {
             assert.strictEqual(Number(balances.gauge), 0);
         });
 
-        it('Removes liquidity', async function () {
-            const initialBalances = await pool.balances() as DictInterface<string>;
-            const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-            const coinsExpected = await pool.removeLiquidityExpected(lpTokenAmount);
-
-            await pool.removeLiquidity(lpTokenAmount);
-
-            const balances = await pool.balances() as DictInterface<string>;
-
-            assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-            pool.underlyingCoins.forEach((c: string, i: number) => {
-                const delta = ['gusd', 'factory-v2-37'].includes(id) ? 0.011 : ['factory-v2-80'].includes(id) ? 1 : 0.01;
-                assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta);
-            })
-        });
-
-
-        it('Removes liquidity imbalance', async function () {
-            if (pool.isCrypto) {
-                console.log("No such method")
-            } else {
-                const amount = '1';
-                const amounts = coinAddresses.map(() => amount);
-                if (id === "factory-v2-7") amounts[3] = '0.1';
-                const initialBalances = await pool.balances() as DictInterface<string>;
-                const lpTokenExpected = await pool.removeLiquidityImbalanceExpected(amounts);
-
-                await pool.removeLiquidityImbalance(amounts);
-
-                const balances = await pool.balances() as DictInterface<string>;
-
-                const delta = ['factory-v2-80', 'factory-v2-113'].includes(id) ? 2 : 0.01
-                assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
-                pool.underlyingCoins.forEach((c, i) => {
-                    if (id === 'steth') {
-                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 1e-18);
-                    } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(pool.id)) {
-                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 3e-6);
-                    } else {
-                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amounts[i])));
-                    }
-                });
-            }
-        });
-
-        it('Removes liquidity one coin', async function () {
-            const initialBalances = await pool.balances() as DictInterface<string>;
-            const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-            const expected = await pool.removeLiquidityOneCoinExpected(lpTokenAmount, 0);
-
-            await pool.removeLiquidityOneCoin(lpTokenAmount, 0);
-
-            const balances = await pool.balances() as DictInterface<string>;
-
-            assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-            pool.underlyingCoins.forEach((c: string, i: number) => {
-                if (i === 0) {
-                    assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01)
-                } else {
-                    assert.strictEqual(balances[c], initialBalances[c]);
-                }
-            })
-        });
+        // it('Removes liquidity', async function () {
+        //     const initialBalances = await pool.balances() as DictInterface<string>;
+        //     const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
+        //     const coinsExpected = await pool.removeLiquidityExpected(lpTokenAmount);
+        //
+        //     await pool.removeLiquidity(lpTokenAmount);
+        //
+        //     const balances = await pool.balances() as DictInterface<string>;
+        //
+        //     assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
+        //     coinAddresses.forEach((c: string, i: number) => {
+        //         const delta = ['gusd', 'factory-v2-37'].includes(id) ? 0.011 : ['factory-v2-80'].includes(id) ? 1 : 0.01;
+        //         assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta);
+        //     })
+        // });
+        //
+        //
+        // it('Removes liquidity imbalance', async function () {
+        //     if (pool.isCrypto) {
+        //         console.log("No such method")
+        //     } else {
+        //         const amount = '1';
+        //         const amounts = coinAddresses.map(() => amount);
+        //         if (id === "factory-v2-7") amounts[3] = '0.1';
+        //         const initialBalances = await pool.balances() as DictInterface<string>;
+        //         const lpTokenExpected = await pool.removeLiquidityImbalanceExpected(amounts);
+        //
+        //         await pool.removeLiquidityImbalance(amounts);
+        //
+        //         const balances = await pool.balances() as DictInterface<string>;
+        //
+        //         const delta = ['factory-v2-80', 'factory-v2-113'].includes(id) ? 2 : 0.01
+        //         assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
+        //         coinAddresses.forEach((c, i) => {
+        //             if (id === 'steth') {
+        //                 assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 1e-18);
+        //             } else if (['compound', 'usdt', 'y', 'busd', 'pax', 'ib'].includes(pool.id)) {
+        //                 assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amounts[i])).toString()), 3e-6);
+        //             } else {
+        //                 assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amounts[i])));
+        //             }
+        //         });
+        //     }
+        // });
+        //
+        // it('Removes liquidity one coin', async function () {
+        //     const initialBalances = await pool.balances() as DictInterface<string>;
+        //     const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
+        //     const expected = await pool.removeLiquidityOneCoinExpected(lpTokenAmount, 0);
+        //
+        //     await pool.removeLiquidityOneCoin(lpTokenAmount, 0);
+        //
+        //     const balances = await pool.balances() as DictInterface<string>;
+        //
+        //     assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
+        //     coinAddresses.forEach((c: string, i: number) => {
+        //         if (i === 0) {
+        //             assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01)
+        //         } else {
+        //             assert.strictEqual(balances[c], initialBalances[c]);
+        //         }
+        //     })
+        // });
     });
 }
 
@@ -195,13 +198,13 @@ describe('Underlying test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolId of ETHEREUM_POOLS) {
+    for (const poolId of ETHEREUM_POOLS) {
+        underlyingLiquidityTest(poolId);
+        // underlyingExchangeTest(poolId);
+    }
+
+    // for (const poolId of POLYGON_POOLS) {
     //     underlyingLiquidityTest(poolId);
     //     underlyingExchangeTest(poolId);
     // }
-
-    for (const poolId of POLYGON_POOLS) {
-        underlyingLiquidityTest(poolId);
-        underlyingExchangeTest(poolId);
-    }
 })

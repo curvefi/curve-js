@@ -2087,7 +2087,7 @@ export class Pool {
     private _calcLpTokenAmount = async (_amounts: ethers.BigNumber[], isDeposit = true): Promise<ethers.BigNumber> => {
         const contract = curve.contracts[this.swap].contract;
 
-        if (["eurtusd", "xautusd", "crveth", "cvxeth", "spelleth", "teth"].includes(this.id) || this.isCryptoFactory) {
+        if (["eurtusd", "eursusd", "xautusd", "crveth", "cvxeth", "spelleth", "teth"].includes(this.id) || this.isCryptoFactory) {
             return await contract.calc_token_amount(_amounts, curve.constantOptions);
         }
 
@@ -2101,7 +2101,7 @@ export class Pool {
             return await contract.calc_token_amount(this.swap, _amounts, isDeposit, curve.constantOptions);
         }
 
-        if (["eurtusd", "xautusd"].includes(this.id)) {
+        if (["eurtusd", "eursusd", "xautusd"].includes(this.id)) {
             return await contract.calc_token_amount(_amounts, curve.constantOptions);
         }
 

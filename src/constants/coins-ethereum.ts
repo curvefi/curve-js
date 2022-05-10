@@ -92,6 +92,8 @@ export const USD_COINS_ETHEREUM: { [index: string]: string } = {
     busd: "0x4Fabb145d64652a948d72533023f6E7A623C7C53", // BUSD
     alusd: "0xbc6da0fe9ad5f3b0d58160288917aa56653660e9", // alUSD
     mim: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", // MIM
+    rai: "0x03ab458634910aad20ef5f1c8ee96f1d6ac54919", // RAI
+    wormholeust: "0xa693B19d2931d498c5B318dF961919BB4aee87a5", // UST
 
     '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
     crv: "0xD533a949740bb3306d119CC777fa900bA034cd52", // CRV
@@ -194,6 +196,8 @@ export const DECIMALS_ETHEREUM: { [index: string]: number } = {
     "0x68749665ff8d2d112fa859aa293f07a622782f38": 6,  // XAUt
     "0x090185f2135308bad17527004364ebcc2d37e5f6": 18, // SPELL
     "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5": 18, // T
+    "0xa693B19d2931d498c5B318dF961919BB4aee87a5": 6,  // Wormhole UST
+    "0x03ab458634910aad20ef5f1c8ee96f1d6ac54919": 18, // RAI
 
     // --- REWARD TOKENS ---
 

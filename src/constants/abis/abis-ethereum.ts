@@ -4,6 +4,7 @@ import gaugeSynthetixABI from "./json/gauge_synthetix.json";
 import gaugeV2ABI from "./json/gauge_v2.json";
 import gaugeV3ABI from "./json/gauge_v3.json";
 import gaugeV4ABI from "./json/gauge_v4.json";
+import gaugeV5ABI from "./json/gauge_v5.json";
 import gaugeFactoryABI from "./json/gauge_factory.json";
 import compoundDepositABI from './json/compound/deposit.json';
 import compoundMigrationABI from './json/compound/migration.json';
@@ -82,7 +83,12 @@ import tricrypto2DepositABI from './json/tricrypto2/deposit.json';
 import eurtSwapABI from './json/eurt/swap.json';
 import eurtusdSwapABI from './json/eurtusd/swap.json';
 import eurtusdDepositABI from './json/eurtusd/deposit.json';
-import crvethSwap from './json/crveth/swap.json';
+import eursusdSwapABI from './json/eursusd/swap.json';
+import crvethSwapABI from './json/crveth/swap.json';
+import raiSwapABI from './json/rai/swap.json';
+import raiDepositABI from './json/rai/deposit.json';
+import twopoolSwapABI from './json/2pool/swap.json';
+import fourpoolSwapABI from './json/4pool/swap.json';
 import { PoolDataInterface } from "../../interfaces";
 
 
@@ -1673,7 +1679,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x3993d34e7e99Abf6B6f367309975d1360222D446',
         gauge_abi: gaugeV3ABI,
     },
-
     eurt: {
         name: "eurt",
         full_name: "eurt",
@@ -1701,7 +1706,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         gauge_abi: gaugeV3ABI,
     },
-
     eurtusd: {
         name: "eurtusd",
         full_name: "eurtusd",
@@ -1750,13 +1754,40 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         gauge_abi: gaugeV4ABI,
     },
-
+    eursusd: {
+        name: "eursusd",
+        full_name: "eursusd",
+        symbol: "eursusd",
+        reference_asset: 'CRYPTO',
+        swap_abi: eursusdSwapABI,
+        N_COINS: 2,
+        is_crypto: true,
+        underlying_decimals: [6, 2],
+        decimals: [6, 2],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        underlying_coins: ['USDC', 'EURS'],
+        coins: ['USDC', 'EURS'],
+        swap_address: '0x98a7F18d4E56Cfe84E3D081B40001B3d5bD3eB8B',
+        token_address: '0x3D229E1B4faab62F621eF2F6A610961f7BD7b23B',
+        gauge_address: '0x65CA7Dc5CB661fC58De57B1E1aF404649a27AD35',
+        underlying_coin_addresses: [
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdB25f211AB05b1c97D595516F45794528a807ad8',
+        ],
+        coin_addresses: [
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdB25f211AB05b1c97D595516F45794528a807ad8',
+        ],
+        gauge_abi: gaugeV4ABI,
+    },
     crveth: {
         name: "crveth",
         full_name: "crveth",
         symbol: "crveth",
         reference_asset: 'CRYPTO',
-        swap_abi: crvethSwap,
+        swap_abi: crvethSwapABI,
         N_COINS: 2,
         is_crypto: true,
         underlying_decimals: [18, 18],
@@ -1779,13 +1810,60 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         gauge_abi: gaugeV4ABI,
     },
-
+    rai: {
+        name: "rai",
+        full_name: "rai",
+        symbol: "rai",
+        reference_asset: 'USD',
+        N_COINS: 2,
+        underlying_decimals: [18, 18],
+        decimals: [18, 18],
+        tethered: [false, false],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0x618788357D0EBd8A37e763ADab3bc575D54c2C7d',
+        token_address: '0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90',
+        gauge_address: '0x66ec719045bBD62db5eBB11184c18237D3Cc2E62',
+        underlying_coins: ['RAI', 'DAI', 'USDC', 'USDT'],
+        coins: ['RAI', '3Crv'],
+        underlying_coin_addresses: [
+            '0x03ab458634910aad20ef5f1c8ee96f1d6ac54919',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        coin_addresses: [
+            '0x03ab458634910aad20ef5f1c8ee96f1d6ac54919',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+        ],
+        deposit_address: '0xcB636B81743Bb8a7F1E355DEBb7D33b07009cCCC',
+        is_meta: true,
+        base_pool: '3pool',
+        meta_N: 5,
+        meta_decimals: [18, 18, 18, 6, 6],
+        meta_coin_decimals: [18, 18, 6, 6],
+        meta_wrapped_decimals: [18, 18],
+        meta_coin_addresses: [
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        all_coin_addresses: [
+            '0x03ab458634910aad20ef5f1c8ee96f1d6ac54919',
+            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        is_factory: false,
+        deposit_abi: raiDepositABI,
+        swap_abi: raiSwapABI,
+        gauge_abi: gaugeV4ABI,
+    },
     cvxeth: {
         name: "cvxeth",
         full_name: "cvxeth",
         symbol: "cvxeth",
         reference_asset: 'CRYPTO',
-        swap_abi: crvethSwap,
+        swap_abi: crvethSwapABI,
         N_COINS: 2,
         is_crypto: true,
         underlying_decimals: [18, 18],
@@ -1881,7 +1959,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             '0x090185f2135308bad17527004364ebcc2d37e5f6',
         ],
-        swap_abi: crvethSwap,
+        swap_abi: crvethSwapABI,
         gauge_abi: gaugeV4ABI,
     },
     teth: {
@@ -1909,7 +1987,65 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             '0xCdF7028ceAB81fA0C6971208e83fa7872994beE5',
         ],
-        swap_abi: crvethSwap,
+        swap_abi: crvethSwapABI,
         gauge_abi: gaugeV4ABI,
+    },
+    '2pool': {
+        name: "2pool",
+        full_name: "2pool",
+        symbol: "2pool",
+        reference_asset: 'USD',
+        N_COINS: 2,
+        underlying_decimals: [6, 6],
+        decimals: [6, 6],
+        tethered: [false, true],
+        use_lending: [false, false],
+        is_plain: [true, true],
+        swap_address: '0x1005f7406f32a61bd760cfa14accd2737913d546',
+        token_address: '0x1005f7406f32a61bd760cfa14accd2737913d546',
+        gauge_address: '0x9f330db38caaae5b61b410e2f0aad63fff2109d8',
+        underlying_coins: ['USDC', 'USDT'],
+        coins: ['USDC', 'USDT'],
+        underlying_coin_addresses: [
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        coin_addresses: [
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        ],
+        swap_abi: twopoolSwapABI,
+        gauge_abi: gaugeV5ABI,
+    },
+    '4pool': {
+        name: "4pool",
+        full_name: "4pool",
+        symbol: "4pool",
+        reference_asset: 'USD',
+        N_COINS: 4,
+        underlying_decimals: [6, 6, 6, 18],
+        decimals: [6, 6, 6, 18],
+        tethered: [false, true, false, false],
+        use_lending: [false, false, false, false],
+        is_plain: [true, true, true, true],
+        swap_address: '0x4e0915C88bC70750D68C481540F081fEFaF22273',
+        token_address: '0x4e0915C88bC70750D68C481540F081fEFaF22273',
+        gauge_address: '0x34883134a39b206a451c2d3b0e7cac44be4d9181',
+        underlying_coins: ['USDC', 'USDT', 'UST', 'FRAX'],
+        coins: ['USDC', 'USDT', 'UST', 'FRAX'],
+        underlying_coin_addresses: [
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+            '0xa693B19d2931d498c5B318dF961919BB4aee87a5',
+            '0x853d955acef822db058eb8505911ed77f175b99e',
+        ],
+        coin_addresses: [
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+            '0xa693B19d2931d498c5B318dF961919BB4aee87a5',
+            '0x853d955acef822db058eb8505911ed77f175b99e',
+        ],
+        swap_abi: fourpoolSwapABI,
+        gauge_abi: gaugeV5ABI,
     },
 };

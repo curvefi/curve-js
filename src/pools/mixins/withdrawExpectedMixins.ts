@@ -1,13 +1,13 @@
-import {PoolTemplate} from "../PoolTemplate";
-import { fromBN, toBN } from "../../utils";
-import {curve} from "../../curve";
-import {ethers} from "ethers";
+import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
+import { PoolTemplate } from "../PoolTemplate";
+import { curve } from "../../curve";
+import { fromBN, toBN, parseUnits } from "../../utils";
 
 async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> {
     const coinBalancesBN: BigNumber[] = [];
     for (let i = 0; i < this.coinAddresses.length; i++) {
-        const _balance: ethers.BigNumber = await curve.contracts[this.swap].contract.balances(i, curve.constantOptions);
+        const _balance: ethers.BigNumber = await curve.contracts[this.poolAddress].contract.balances(i, curve.constantOptions);
         coinBalancesBN.push(toBN(_balance, this.decimals[i]));
     }
     const totalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
@@ -22,8 +22,8 @@ async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: ethers.B
 
 // @ts-ignore
 export const withdrawExpectedMixin: PoolTemplate = {
-    async withdrawExpected(lpTokenAmount: string): Promise<string[]> {
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+    async withdrawExpected(lpTokenAmount: number | string): Promise<string[]> {
+        const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount);
 
         return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
@@ -32,8 +32,8 @@ export const withdrawExpectedMixin: PoolTemplate = {
 
 // @ts-ignore
 export const withdrawExpectedLendingOrCryptoMixin: PoolTemplate = {
-    async withdrawExpected(lpTokenAmount: string): Promise<string[]> {
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+    async withdrawExpected(lpTokenAmount: number | string): Promise<string[]> {
+        const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expectedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
         // @ts-ignore
         const _rates: ethers.BigNumber[] = await this._getRates();
@@ -45,8 +45,8 @@ export const withdrawExpectedLendingOrCryptoMixin: PoolTemplate = {
 
 // @ts-ignore
 export const withdrawExpectedMetaMixin: PoolTemplate = {
-    async withdrawExpected(lpTokenAmount: string): Promise<string[]> {
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+    async withdrawExpected(lpTokenAmount: number | string): Promise<string[]> {
+        const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expectedWrappedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
         _expectedWrappedAmounts.unshift(_expectedWrappedAmounts.pop() as ethers.BigNumber);
         const [_expectedMetaCoinAmount, ..._expectedUnderlyingAmounts] = _expectedWrappedAmounts;
@@ -60,8 +60,8 @@ export const withdrawExpectedMetaMixin: PoolTemplate = {
 
 // @ts-ignore
 export const withdrawExpectedAtricrypto3Mixin: PoolTemplate = {
-    async withdrawExpected(lpTokenAmount: string): Promise<string[]> {
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+    async withdrawExpected(lpTokenAmount: number | string): Promise<string[]> {
+        const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expectedWrappedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
         const [_expectedMetaCoinAmount, ..._expectedUnderlyingAmounts] = _expectedWrappedAmounts;
         const basePool = new PoolTemplate(this.basePool);
@@ -74,8 +74,8 @@ export const withdrawExpectedAtricrypto3Mixin: PoolTemplate = {
 
 // @ts-ignore
 export const withdrawWrappedExpectedMixin: PoolTemplate = {
-    async withdrawWrappedExpected(lpTokenAmount: string): Promise<string[]> {
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+    async withdrawWrappedExpected(lpTokenAmount: number | string): Promise<string[]> {
+        const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount)
 
         return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.decimals[i]));

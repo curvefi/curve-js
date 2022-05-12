@@ -3,6 +3,7 @@ import { poolBalancesAtricrypto3Mixin, poolBalancesMetaMixin, poolBalancesLendin
 import { depositSlippageMixin, depositWrappedSlippageMixin, depositSlippageCryptoMixin, depositWrappedSlippageCryptoMixin } from "./mixins/depositSlippageMixins";
 import { depositLendingOrCryptoWithZapMixin, depositLendingOrCryptoMixin, depositMetaMixin, depositPlainMixin } from "./mixins/depositMixins";
 import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins";
+import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin } from "./mixins/withdrawExpectedMixins";
 
 
 export const getPool = (poolId: string): PoolTemplate => {
@@ -46,6 +47,17 @@ export const getPool = (poolId: string): PoolTemplate => {
         Object.assign(Pool.prototype, depositWrapped3argsMixin);
     } else if ((isLending || poolDummy.isMeta || poolDummy.isCrypto) && !poolDummy.isFake) {
         Object.assign(Pool.prototype, depositWrapped2argsMixin);
+    }
+
+    // withdrawExpected
+    if (poolDummy.id === 'atricrypto3') {
+        Object.assign(Pool.prototype, withdrawExpectedAtricrypto3Mixin);
+    } else if (poolDummy.isMeta) {
+        Object.assign(Pool.prototype, withdrawExpectedMetaMixin);
+    } else if (isLending || poolDummy.isCrypto) {
+        Object.assign(Pool.prototype, withdrawExpectedLendingOrCryptoMixin);
+    } else {
+        Object.assign(Pool.prototype, withdrawExpectedMixin);
     }
 
     return new Pool(poolId);

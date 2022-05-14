@@ -1,16 +1,16 @@
-import { PoolTemplate } from "../PoolTemplate";
-import { fromBN, toBN } from "../../utils";
-import { curve } from "../../curve";
 import { ethers } from "ethers";
+import { PoolTemplate } from "../PoolTemplate";
+import { curve } from "../../curve";
+import { fromBN, toBN, parseUnits } from "../../utils";
 
 // @ts-ignore
-async function _withdrawWrappedCheck(this: PoolTemplate, lpTokenAmount: string): Promise<ethers.BigNumber> {
-    const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
+async function _withdrawWrappedCheck(this: PoolTemplate, lpTokenAmount: number | string): Promise<ethers.BigNumber> {
+    const lpTokenBalance = (await this.wallet.lpTokenBalances())['lpToken'];
     if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
-    return ethers.utils.parseUnits(lpTokenAmount);
+    return parseUnits(lpTokenAmount);
 }
 
 async function _withdrawWrappedMinAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber, maxSlippage = 0.005): Promise<ethers.BigNumber[]> {
@@ -26,7 +26,7 @@ export const withdrawWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawWrapped(_lpTokenAmount: ethers.BigNumber, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmounts = await _withdrawWrappedMinAmounts.call(this, _lpTokenAmount, maxSlippage);
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
@@ -35,7 +35,7 @@ export const withdrawWrapped2argsMixin: PoolTemplate = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawWrappedEstimateGas(lpTokenAmount: string): Promise<number> {
+    async withdrawWrappedEstimateGas(lpTokenAmount: number | string): Promise<number> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
 
@@ -43,7 +43,7 @@ export const withdrawWrapped2argsMixin: PoolTemplate = {
         return await this._withdrawWrapped(_lpTokenAmount, 0.1, true);
     },
 
-    async withdrawWrapped(lpTokenAmount: string, maxSlippage?: number): Promise<string> {
+    async withdrawWrapped(lpTokenAmount: number | string, maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
 
@@ -57,7 +57,7 @@ export const withdrawWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawWrapped(_lpTokenAmount: ethers.BigNumber, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmounts = await _withdrawWrappedMinAmounts.call(this, _lpTokenAmount, maxSlippage);
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, false, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
@@ -66,7 +66,7 @@ export const withdrawWrapped3argsMixin: PoolTemplate = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, false, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawWrappedEstimateGas(lpTokenAmount: string): Promise<number> {
+    async withdrawWrappedEstimateGas(lpTokenAmount: number | string): Promise<number> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
 
@@ -74,7 +74,7 @@ export const withdrawWrapped3argsMixin: PoolTemplate = {
         return await this._withdrawWrapped(_lpTokenAmount, 0.1, true);
     },
 
-    async withdrawWrapped(lpTokenAmount: string, maxSlippage?: number): Promise<string> {
+    async withdrawWrapped(lpTokenAmount: number | string, maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
 

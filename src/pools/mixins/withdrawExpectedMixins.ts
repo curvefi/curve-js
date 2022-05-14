@@ -71,3 +71,13 @@ export const withdrawExpectedAtricrypto3Mixin: PoolTemplate = {
         return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
     },
 }
+
+// @ts-ignore
+export const withdrawWrappedExpectedMixin: PoolTemplate = {
+    async withdrawWrappedExpected(lpTokenAmount: string): Promise<string[]> {
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount)
+
+        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.decimals[i]));
+    },
+}

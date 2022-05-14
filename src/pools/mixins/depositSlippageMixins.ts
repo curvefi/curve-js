@@ -1,7 +1,4 @@
 import { PoolTemplate } from "../PoolTemplate";
-import {hasAllowance} from "../../utils";
-import {curve} from "../../curve";
-import {ethers} from "ethers";
 
 
 // @ts-ignore

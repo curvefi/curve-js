@@ -6,6 +6,7 @@ import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/dep
 import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
 import { withdrawMetaFactoryMixin, withdrawZapMixin, withdrawLendingOrCryptoMixin, withdrawPlainMixin } from "./mixins/withdrawMixins";
 import { withdrawWrapped2argsMixin, withdrawWrapped3argsMixin } from "./mixins/withdrawWrappedMixins";
+import { withdrawImbalanceMetaFactoryMixin, withdrawImbalanceZapMixin, withdrawImbalanceLendingMixin, withdrawImbalancePlainMixin } from "./mixins/withdrawImbalanceMixins";
 
 
 export const getPool = (poolId: string): PoolTemplate => {
@@ -67,7 +68,7 @@ export const getPool = (poolId: string): PoolTemplate => {
         Object.assign(Pool.prototype, withdrawMetaFactoryMixin);
     } else if (poolDummy.zap) {
         Object.assign(Pool.prototype, withdrawZapMixin);
-    } else if (isLending && poolDummy.isCrypto) {
+    } else if (isLending || poolDummy.isCrypto) {
         Object.assign(Pool.prototype, withdrawLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, withdrawPlainMixin);
@@ -80,6 +81,19 @@ export const getPool = (poolId: string): PoolTemplate => {
     } else if ((isLending || poolDummy.isMeta || poolDummy.isCrypto) && !poolDummy.isFake) {
         Object.assign(Pool.prototype, withdrawWrapped2argsMixin);
         Object.assign(Pool.prototype, withdrawWrappedExpectedMixin);
+    }
+
+    // withdrawImbalance and withdrawImbalanceEstimateGas
+    if (!poolDummy.isCrypto) {
+        if (poolDummy.isMetaFactory) {
+            Object.assign(Pool.prototype, withdrawImbalanceMetaFactoryMixin);
+        } else if (poolDummy.zap) {
+            Object.assign(Pool.prototype, withdrawImbalanceZapMixin);
+        } else if (isLending) {
+            Object.assign(Pool.prototype, withdrawImbalanceLendingMixin);
+        } else {
+            Object.assign(Pool.prototype, withdrawImbalancePlainMixin);
+        }
     }
 
     return new Pool(poolId);

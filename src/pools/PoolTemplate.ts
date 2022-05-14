@@ -972,76 +972,42 @@ export class PoolTemplate {
 
     // ---------------- WITHDRAW ----------------
 
+    // OVERRIDE
     public async withdrawExpected(lpTokenAmount: string): Promise<string[]> {
         throw Error(`withdrawExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    public withdrawIsApproved = async (lpTokenAmount: string): Promise<boolean> => {
+    private async _withdrawMinAmounts(_lpTokenAmount: ethers.BigNumber, maxSlippage = 0.005): Promise<ethers.BigNumber[]> {
+        const expectedAmounts = await this.withdrawExpected(ethers.utils.formatUnits(_lpTokenAmount));
+        const _expectedAmounts = expectedAmounts.map((a, i) => ethers.utils.parseUnits(a, this.underlyingDecimals[i]));
+        const minRecvAmountsBN = _expectedAmounts.map((_a, i) => toBN(_a, this.underlyingDecimals[i]).times(1 - maxSlippage));
+
+        return minRecvAmountsBN.map((a, i) => fromBN(a, this.underlyingDecimals[i]));
+    }
+
+    public async withdrawIsApproved(lpTokenAmount: string): Promise<boolean> {
         if (!this.zap) return true
         return await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap as string);
     }
 
-    private withdrawApproveEstimateGas = async (lpTokenAmount: string): Promise<number> => {
+    private async withdrawApproveEstimateGas(lpTokenAmount: string): Promise<number> {
         if (!this.zap) return 0;
         return await ensureAllowanceEstimateGas([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 
-    public withdrawApprove = async (lpTokenAmount: string): Promise<string[]> => {
+    public async withdrawApprove(lpTokenAmount: string): Promise<string[]> {
         if (!this.zap) return [];
         return await ensureAllowance([this.lpToken], [lpTokenAmount], this.zap as string);
     }
 
-    private withdrawEstimateGas = async (lpTokenAmount: string): Promise<number> => {
-        const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
-        if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
-            throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
-        }
-
-        if (this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap))) {
-            throw Error("Token allowance is needed to estimate gas")
-        }
-
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.id)) {
-            return await this._removeLiquidityZap(_lpTokenAmount, true) as number;
-        }
-
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        ) {
-            return await this._removeLiquidity(_lpTokenAmount, true, true) as number;
-        }
-
-        if (this.isMeta) {
-            return await this._removeLiquidityMetaZap(_lpTokenAmount, true) as number;
-        }
-
-        return await this._removeLiquiditySwap(_lpTokenAmount, true) as number;
+    // OVERRIDE
+    private async withdrawEstimateGas(lpTokenAmount: string): Promise<number> {
+        throw Error(`withdraw method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    public withdraw = async (lpTokenAmount: string): Promise<string> => {
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-
-        await curve.updateFeeData();
-
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.id)) {
-            return await this._removeLiquidityZap(_lpTokenAmount) as string;
-        }
-
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        ) {
-            return await this._removeLiquidity(_lpTokenAmount, true) as string;
-        }
-
-        if (this.isMeta) {
-            return await this._removeLiquidityMetaZap(_lpTokenAmount) as string;
-        }
-
-        return await this._removeLiquiditySwap(_lpTokenAmount) as string;
+    // OVERRIDE
+    public async withdraw(lpTokenAmount: string, maxSlippage=0.005): Promise<string> {
+        throw Error(`withdraw method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     // ---------------- WITHDRAW WRAPPED ----------------
@@ -1981,25 +1947,6 @@ export class PoolTemplate {
         return (await this._calcExpectedUnderlyingAmounts(_lpTokenAmount)).map((a: ethers.BigNumber) => a.mul(99).div(100))
     }
 
-    private _calcExpectedUnderlyingAmountsMeta = async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
-        const _expectedWrappedAmounts = await this._calcExpectedAmounts(_lpTokenAmount);
-        if (this.id !== 'atricrypto3') {
-            _expectedWrappedAmounts.unshift(_expectedWrappedAmounts.pop() as ethers.BigNumber);
-        }
-        const [_expectedMetaCoinAmount, ..._expectedUnderlyingAmounts] = _expectedWrappedAmounts;
-
-        const basePool = new PoolTemplate(this.basePool);
-        const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_expectedMetaCoinAmount);
-
-        return  this.id !== 'atricrypto3' ?
-            [..._expectedUnderlyingAmounts, ..._basePoolExpectedAmounts] :
-            [..._basePoolExpectedAmounts, ..._expectedUnderlyingAmounts];
-    }
-
-    private _calcMinUnderlyingAmountsMeta= async (_lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> => {
-        return (await this._calcExpectedUnderlyingAmountsMeta(_lpTokenAmount)).map((a: ethers.BigNumber) => a.mul(99).div(100))
-    }
-
     private _removeLiquiditySwap = async (_lpTokenAmount: ethers.BigNumber, estimateGas = false): Promise<string | number> => {
         const _minAmounts = await this._calcMinAmounts(_lpTokenAmount);
         const contract = curve.contracts[this.swap].contract;
@@ -2008,50 +1955,6 @@ export class PoolTemplate {
         if (estimateGas) {
             return gas.toNumber()
         }
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
-    }
-
-    private _removeLiquidityZap = async (_lpTokenAmount: ethers.BigNumber, estimateGas = false): Promise<string | number> => {
-        if (!estimateGas) {
-            await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
-        }
-
-        const _minAmounts = await this._calcMinUnderlyingAmounts(_lpTokenAmount);
-        const contract = curve.contracts[this.zap as string].contract;
-
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
-
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
-    }
-
-    private _removeLiquidityMetaZap = async (_lpTokenAmount: ethers.BigNumber, estimateGas = false): Promise<string | number> => {
-        if (!estimateGas) {
-            await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
-        }
-
-        const _minAmounts = await this._calcMinUnderlyingAmountsMeta(_lpTokenAmount);
-        const contract = curve.contracts[this.zap as string].contract;
-
-        if (this.isMetaFactory) {
-            const gas = await contract.estimateGas.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, curve.constantOptions);
-            if (estimateGas) {
-                return gas.toNumber()
-            }
-            const gasLimit = gas.mul(130).div(100);
-            return (await contract.remove_liquidity(this.swap, _lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
-        }
-
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
         const gasLimit = gas.mul(130).div(100);
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
     }

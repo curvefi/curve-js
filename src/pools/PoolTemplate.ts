@@ -80,8 +80,8 @@ export class PoolTemplate {
         withdrawApprove: (lpTokenAmount: string) => Promise<number>,
         withdraw: (lpTokenAmount: string) => Promise<number>,
         withdrawWrapped: (lpTokenAmount: string) => Promise<number>,
-        removeLiquidityImbalanceApprove: (amounts: string[]) => Promise<number>,
-        removeLiquidityImbalance: (amounts: string[]) => Promise<number>,
+        withdrawImbalanceApprove: (amounts: string[]) => Promise<number>,
+        withdrawImbalance: (amounts: string[]) => Promise<number>,
         removeLiquidityImbalanceWrapped: (amounts: string[]) => Promise<number>,
         removeLiquidityOneCoinApprove: (lpTokenAmount: string, coin: string | number) => Promise<number>,
         removeLiquidityOneCoin: (lpTokenAmount: string, coin: string | number) => Promise<number>,
@@ -148,8 +148,8 @@ export class PoolTemplate {
             withdrawApprove: this.withdrawApproveEstimateGas.bind(this),
             withdraw: this.withdrawEstimateGas.bind(this),
             withdrawWrapped: this.withdrawWrappedEstimateGas.bind(this),
-            removeLiquidityImbalanceApprove: this.removeLiquidityImbalanceApproveEstimateGas,
-            removeLiquidityImbalance: this.removeLiquidityImbalanceEstimateGas,
+            withdrawImbalanceApprove: this.withdrawImbalanceApproveEstimateGas.bind(this),
+            withdrawImbalance: this.withdrawImbalanceEstimateGas.bind(this),
             removeLiquidityImbalanceWrapped: this.removeLiquidityImbalanceWrappedEstimateGas,
             removeLiquidityOneCoinApprove: this.removeLiquidityOneCoinApproveEstimateGas,
             removeLiquidityOneCoin: this.removeLiquidityOneCoinEstimateGas,
@@ -712,7 +712,7 @@ export class PoolTemplate {
 
     // ---------------- DEPOSIT & STAKE ----------------
 
-    public depositAndStakeExpected = async (amounts: string[]): Promise<string> => {
+    public async depositAndStakeExpected(amounts: string[]): Promise<string> {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeExpected method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
@@ -1021,34 +1021,33 @@ export class PoolTemplate {
 
     // ---------------- WITHDRAW IMBALANCE ----------------
 
-    public removeLiquidityImbalanceExpected = async (amounts: string[]): Promise<string> => {
+    public async withdrawImbalanceExpected(amounts: string[]): Promise<string> {
         if (this.isCrypto) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+            throw Error(`withdrawImbalanceExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
         amounts = amounts.map((a, i) => Number(a).toFixed(this.underlyingDecimals[i]));
         return await this.calcLpTokenAmount(amounts, false);
     }
 
-    public removeLiquidityImbalanceSlippage = async (amounts: string[]): Promise<string> => {
+    public async withdrawImbalanceSlippage(amounts: string[]): Promise<string> {
         if (this.isCrypto) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+            throw Error(`withdrawImbalanceSlippage method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
-        const expected = Number(await this.removeLiquidityImbalanceExpected(amounts));
+        const expected = Number(await this.withdrawImbalanceExpected(amounts));
 
-        return await this._removeLiquiditySlippage(totalAmount, expected);
+        return await this._withdrawSlippage(totalAmount, expected);
     }
 
-    public removeLiquidityImbalanceIsApproved = async (amounts: string[]): Promise<boolean> => {
+    public async withdrawImbalanceIsApproved(amounts: string[]): Promise<boolean> {
         if (this.isCrypto) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+            throw Error(`withdrawImbalanceIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
-
         if (this.zap) {
+            const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
             const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
             return await hasAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], curve.signerAddress, this.zap as string);
         }
@@ -1056,14 +1055,13 @@ export class PoolTemplate {
         return true;
     }
 
-    private removeLiquidityImbalanceApproveEstimateGas = async (amounts: string[]): Promise<number> => {
+    private async withdrawImbalanceApproveEstimateGas(amounts: string[]): Promise<number> {
         if (this.isCrypto) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+            throw Error(`withdrawImbalanceApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
-
         if (this.zap) {
+            const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
             const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
             return await ensureAllowanceEstimateGas([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
         }
@@ -1071,14 +1069,13 @@ export class PoolTemplate {
         return 0;
     }
 
-    public removeLiquidityImbalanceApprove = async (amounts: string[]): Promise<string[]> => {
+    public async withdrawImbalanceApprove(amounts: string[]): Promise<string[]> {
         if (this.isCrypto) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
+            throw Error(`withdrawImbalanceApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
-
         if (this.zap) {
+            const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
             const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
             return await ensureAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
         }
@@ -1086,67 +1083,17 @@ export class PoolTemplate {
         return [];
     }
 
-    private removeLiquidityImbalanceEstimateGas = async (amounts: string[]): Promise<number> => {
-        if (this.isCrypto) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
-        }
-
-        const lpTokenAmount = await this.removeLiquidityImbalanceExpected(amounts);
-        const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
-        if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
-            throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
-        }
-
-        if (this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap))) {
-            throw Error("Token allowance is needed to estimate gas")
-        }
-
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
-
-        // Lending pools with zap
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.id)) {
-            return await this._removeLiquidityImbalanceZap(_amounts, true) as number;
-        }
-
-        // Lending pools without zap
-        if (['aave', 'saave', 'ib'].includes(this.id) || (curve.chainId === 137 && this.id === 'ren')) {
-            return await this._removeLiquidityImbalance(_amounts, true, true) as number;
-        }
-
-        // Metapools
-        if (this.isMeta) {
-            return await this._removeLiquidityImbalanceMetaZap(_amounts, true) as number;
-        }
-
-        return await this._removeLiquidityImbalanceSwap(_amounts, true) as number;
+    // OVERRIDE
+    private async withdrawImbalanceEstimateGas(amounts: string[]): Promise<number> {
+        throw Error(`withdrawImbalance method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    public removeLiquidityImbalance = async (amounts: string[]): Promise<string> => {
-        if (this.isCrypto) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
-        }
-
-        const _amounts: ethers.BigNumber[] = amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.underlyingDecimals[i]));
-
-        await curve.updateFeeData();
-
-        // Lending pools with zap
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.id)) {
-            return await this._removeLiquidityImbalanceZap(_amounts) as string;
-        }
-
-        // Lending pools without zap
-        if (['aave', 'saave', 'ib'].includes(this.id) || (curve.chainId === 137 && this.id === 'ren')) {
-            return await this._removeLiquidityImbalance(_amounts, true) as string;
-        }
-
-        // Metapools
-        if (this.isMeta) {
-            return await this._removeLiquidityImbalanceMetaZap(_amounts) as string;
-        }
-
-        return await this._removeLiquidityImbalanceSwap(_amounts) as string;
+    // OVERRIDE
+    public async withdrawImbalance(amounts: string[], maxSlippage=0.005): Promise<string> {
+        throw Error(`withdrawImbalance method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
+
+    // ---------------- WITHDRAW IMBALANCE WRAPPED ----------------
 
     public removeLiquidityImbalanceWrappedExpected = async (amounts: string[]): Promise<string> => {
         if (this.isCrypto) {
@@ -1165,7 +1112,7 @@ export class PoolTemplate {
         const totalAmount = amounts.reduce((s, a) => s + Number(a), 0);
         const expected = Number(await this.removeLiquidityImbalanceWrappedExpected(amounts));
 
-        return await this._removeLiquiditySlippage(totalAmount, expected, false);
+        return await this._withdrawSlippage(totalAmount, expected, false);
     }
 
     private removeLiquidityImbalanceWrappedEstimateGas = async (amounts: string[]): Promise<number> => {
@@ -1173,7 +1120,7 @@ export class PoolTemplate {
             throw Error(`${this.name} pool doesn't have remove_liquidity_imbalance method`);
         }
 
-        const lpTokenAmount = await this.removeLiquidityImbalanceExpected(amounts);
+        const lpTokenAmount = await this.withdrawImbalanceExpected(amounts);
         const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
         if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
             throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
@@ -1228,7 +1175,7 @@ export class PoolTemplate {
             return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
         }
 
-        return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount));
+        return await this._withdrawSlippage(totalAmount, Number(lpTokenAmount));
     }
 
     public removeLiquidityOneCoinIsApproved = async (lpTokenAmount: string): Promise<boolean> => {
@@ -1333,7 +1280,7 @@ export class PoolTemplate {
             return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
         }
 
-        return await this._removeLiquiditySlippage(totalAmount, Number(lpTokenAmount), false);
+        return await this._withdrawSlippage(totalAmount, Number(lpTokenAmount), false);
     }
 
 
@@ -1842,7 +1789,7 @@ export class PoolTemplate {
         return String((balancedTotalAmountsUSD - totalAmountUSD) / balancedTotalAmountsUSD)
     }
 
-    private _removeLiquiditySlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
+    private _withdrawSlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
         const poolBalances: number[] = useUnderlying ?
             (await this.getPoolBalances()).map(Number) :
             (await this.getPoolWrappedBalances()).map(Number);
@@ -1851,7 +1798,7 @@ export class PoolTemplate {
 
         const balancedAmounts: string[] = poolBalancesRatios.map((r) => String(r * totalAmount));
         const balancedExpected = useUnderlying ?
-            Number(await this.removeLiquidityImbalanceExpected(balancedAmounts)) :
+            Number(await this.withdrawImbalanceExpected(balancedAmounts)) :
             Number(await this.removeLiquidityImbalanceWrappedExpected(balancedAmounts));
 
         return String((expected - balancedExpected) / expected)
@@ -1884,50 +1831,6 @@ export class PoolTemplate {
 
         const gasLimit = gas.mul(130).div(100);
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit })).hash;
-    }
-
-    private _removeLiquidityImbalanceZap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
-
-        if (!estimateGas) {
-            await _ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
-        }
-
-        const  contract = curve.contracts[this.zap as string].contract;
-
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
-    }
-
-    private _removeLiquidityImbalanceMetaZap = async (_amounts: ethers.BigNumber[], estimateGas = false): Promise<string | number> => {
-        const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
-
-        if (!estimateGas) {
-            await _ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
-        }
-
-        const contract = curve.contracts[this.zap as string].contract;
-
-        if (this.isMetaFactory) {
-            const gas = await contract.estimateGas.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, curve.constantOptions);
-            if (estimateGas) {
-                return gas.toNumber()
-            }
-            const gasLimit = gas.mul(130).div(100);
-            return (await contract.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
-        }
-
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions)
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
     }
 
     private _removeLiquidityImbalance = async (_amounts: ethers.BigNumber[], useUnderlying = true, estimateGas = false): Promise<string | number> => {

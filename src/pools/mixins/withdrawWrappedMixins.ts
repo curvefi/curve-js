@@ -37,7 +37,7 @@ export const withdrawWrapped2argsMixin: PoolTemplate = {
 
     async withdrawWrappedEstimateGas(lpTokenAmount: string): Promise<number> {
         // @ts-ignore
-        const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount, true);
+        const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
 
         // @ts-ignore
         return await this._withdrawWrapped(_lpTokenAmount, 0.1, true);
@@ -68,7 +68,7 @@ export const withdrawWrapped3argsMixin: PoolTemplate = {
 
     async withdrawWrappedEstimateGas(lpTokenAmount: string): Promise<number> {
         // @ts-ignore
-        const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount, true);
+        const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
 
         // @ts-ignore
         return await this._withdrawWrapped(_lpTokenAmount, 0.1, true);

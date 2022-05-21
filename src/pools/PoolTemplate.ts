@@ -85,7 +85,7 @@ export class PoolTemplate {
         withdrawImbalanceWrapped: (amounts: string[]) => Promise<number>,
         withdrawOneCoinApprove: (lpTokenAmount: string, coin: string | number) => Promise<number>,
         withdrawOneCoin: (lpTokenAmount: string, coin: string | number) => Promise<number>,
-        removeLiquidityOneCoinWrapped: (lpTokenAmount: string, coin: string | number) => Promise<number>,
+        withdrawOneCoinWrapped: (lpTokenAmount: string, coin: string | number) => Promise<number>,
         exchangeApprove: (inputCoin: string | number, amount: string) => Promise<number>,
         exchange: (inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage: number) => Promise<number>,
         exchangeWrappedApprove: (inputCoin: string | number, amount: string) => Promise<number>,
@@ -153,7 +153,7 @@ export class PoolTemplate {
             withdrawImbalanceWrapped: this.withdrawImbalanceWrappedEstimateGas.bind(this),
             withdrawOneCoinApprove: this.withdrawOneCoinApproveEstimateGas.bind(this),
             withdrawOneCoin: this.withdrawOneCoinEstimateGas.bind(this),
-            removeLiquidityOneCoinWrapped: this.removeLiquidityOneCoinWrappedEstimateGas,
+            withdrawOneCoinWrapped: this.withdrawOneCoinWrappedEstimateGas,
             exchangeApprove: this.exchangeApproveEstimateGas,
             exchange: this.exchangeEstimateGas,
             exchangeWrappedApprove: this.exchangeWrappedApproveEstimateGas,
@@ -1114,7 +1114,7 @@ export class PoolTemplate {
     // ---------------- WITHDRAW ONE COIN ----------------
 
     private async _withdrawOneCoinExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
-        throw Error(`_withdrawOneCoinExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        throw Error(`withdrawOneCoinExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public async withdrawOneCoinExpected(lpTokenAmount: string, coin: string | number): Promise<string> {
@@ -1161,34 +1161,25 @@ export class PoolTemplate {
 
     // ---------------- WITHDRAW ONE COIN WRAPPED ----------------
 
-    public removeLiquidityOneCoinWrappedExpected = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
-        if (this.isFake) {
-            throw Error(`${this.name} pool doesn't have this method`);
-        }
+    private async _withdrawOneCoinWrappedExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
+        throw Error(`withdrawOneCoinWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
 
-        if (['compound', 'usdt', 'y', 'busd', 'pax'].includes(this.id)) {
-            throw Error(`${this.name} pool doesn't have remove_liquidity_one_coin method for wrapped tokens`);
-        }
-
+    public async withdrawOneCoinWrappedExpected(lpTokenAmount: string, coin: string | number): Promise<string> {
         const i = this._getCoinIdx(coin, false);
         const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
 
-        let _expected: ethers.BigNumber;
-        if (this.id === 'ib') {
-            _expected = await this._calcWithdrawOneCoin(_lpTokenAmount, i, false); // ib
-        } else {
-            _expected = await this._calcWithdrawOneCoinSwap(_lpTokenAmount, i); // All other pools
-        }
+        const _expected = await this._withdrawOneCoinWrappedExpected(_lpTokenAmount, i);
 
         return ethers.utils.formatUnits(_expected, this.decimals[i]);
     }
 
-    public removeLiquidityOneCoinWrappedSlippage = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+    public async withdrawOneCoinWrappedSlippage(lpTokenAmount: string, coin: string | number): Promise<string> {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
         }
 
-        const totalAmount = Number(await this.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, coin));
+        const totalAmount = Number(await this.withdrawOneCoinWrappedExpected(lpTokenAmount, coin));
 
         if (this.isCrypto) {
             const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin, false)];
@@ -1199,7 +1190,7 @@ export class PoolTemplate {
     }
 
 
-    private removeLiquidityOneCoinWrappedEstimateGas = async (lpTokenAmount: string, coin: string | number): Promise<number> => {
+    private withdrawOneCoinWrappedEstimateGas = async (lpTokenAmount: string, coin: string | number): Promise<number> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
         }
@@ -1228,7 +1219,7 @@ export class PoolTemplate {
     }
 
 
-    public removeLiquidityOneCoinWrapped = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
+    public withdrawOneCoinWrapped = async (lpTokenAmount: string, coin: string | number): Promise<string> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
         }
@@ -1252,6 +1243,8 @@ export class PoolTemplate {
 
         return await this._removeLiquidityOneCoinSwap(_lpTokenAmount, i) as string;
     }
+
+    // ---------------- WALLET BALANCES ----------------
 
     public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
         if (this.gauge === ethers.constants.AddressZero) {

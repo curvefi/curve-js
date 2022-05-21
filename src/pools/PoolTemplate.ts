@@ -151,8 +151,8 @@ export class PoolTemplate {
             withdrawImbalanceApprove: this.withdrawImbalanceApproveEstimateGas.bind(this),
             withdrawImbalance: this.withdrawImbalanceEstimateGas.bind(this),
             withdrawImbalanceWrapped: this.withdrawImbalanceWrappedEstimateGas.bind(this),
-            withdrawOneCoinApprove: this.withdrawOneCoinApproveEstimateGas,
-            withdrawOneCoin: this.withdrawOneCoinEstimateGas,
+            withdrawOneCoinApprove: this.withdrawOneCoinApproveEstimateGas.bind(this),
+            withdrawOneCoin: this.withdrawOneCoinEstimateGas.bind(this),
             removeLiquidityOneCoinWrapped: this.removeLiquidityOneCoinWrappedEstimateGas,
             exchangeApprove: this.exchangeApproveEstimateGas,
             exchange: this.exchangeEstimateGas,
@@ -1107,14 +1107,22 @@ export class PoolTemplate {
         throw Error(`withdrawImbalanceWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    public async withdrawImbalanceWrapped(amounts: string[]): Promise<string> {
+    public async withdrawImbalanceWrapped(amounts: string[], maxSlippage=0.005): Promise<string> {
         throw Error(`withdrawImbalanceWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     // ---------------- WITHDRAW ONE COIN ----------------
 
+    private async _withdrawOneCoinExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
+        throw Error(`_withdrawOneCoinExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
     public async withdrawOneCoinExpected(lpTokenAmount: string, coin: string | number): Promise<string> {
-        throw Error(`withdrawOneCoinExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        const i = this._getCoinIdx(coin);
+        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
+        const _expected = await this._withdrawOneCoinExpected(_lpTokenAmount, i);
+
+        return ethers.utils.formatUnits(_expected, this.underlyingDecimals[i]);
     }
 
     public async withdrawOneCoinSlippage(lpTokenAmount: string, coin: string | number): Promise<string> {
@@ -1122,7 +1130,7 @@ export class PoolTemplate {
 
         if (this.isCrypto) {
             const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin)];
-            return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+            return await this._withdrawCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
         }
 
         return await this._withdrawSlippage(totalAmount, Number(lpTokenAmount));
@@ -1144,56 +1152,11 @@ export class PoolTemplate {
     }
 
     private async withdrawOneCoinEstimateGas(lpTokenAmount: string, coin: string | number): Promise<number> {
-        const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
-        if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
-            throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
-        }
-
-        if (this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap))) {
-            throw Error("Token allowance is needed to estimate gas")
-        }
-
-        const i = this._getCoinIdx(coin);
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-
-        // Lending pools with zap, susd and metapools
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.id) || this.id === 'susd' || this.isMeta) {
-            return await this._removeLiquidityOneCoinZap(_lpTokenAmount, i, true) as number;
-        }
-
-        // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        ) {
-            return await this._removeLiquidityOneCoin(_lpTokenAmount, i,true, true) as number;
-        }
-
-        // Plain pools
-        return await this._removeLiquidityOneCoinSwap(_lpTokenAmount, i, true) as number
+        throw Error(`withdrawOneCoin method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    public async withdrawOneCoin(lpTokenAmount: string, coin: string | number): Promise<string> {
-        const i = this._getCoinIdx(coin);
-        const _lpTokenAmount = ethers.utils.parseUnits(lpTokenAmount);
-
-        await curve.updateFeeData();
-
-        // Lending pools with zap, susd and metapools
-        if (['compound', 'usdt', 'y', 'busd', 'pax', 'tricrypto2'].includes(this.id) || this.id === 'susd' || this.isMeta) {
-            return await this._removeLiquidityOneCoinZap(_lpTokenAmount, i) as string;
-        }
-
-        // Lending pools without zap
-        if (['aave', 'saave', 'ib', 'crveth', "cvxeth", "spelleth", "teth"].includes(this.id) ||
-            this.isCryptoFactory ||
-            (curve.chainId === 137 && this.id === 'ren')
-        ) {
-            return await this._removeLiquidityOneCoin(_lpTokenAmount, i,true) as string;
-        }
-
-        // Plain pools
-        return await this._removeLiquidityOneCoinSwap(_lpTokenAmount, i) as string
+    public async withdrawOneCoin(lpTokenAmount: string, coin: string | number, maxSlippage=0.005): Promise<string> {
+        throw Error(`withdrawOneCoin method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     // ---------------- WITHDRAW ONE COIN WRAPPED ----------------
@@ -1229,7 +1192,7 @@ export class PoolTemplate {
 
         if (this.isCrypto) {
             const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin, false)];
-            return await this._removeLiquidityCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
+            return await this._withdrawCryptoSlippage(totalAmount * coinPrice, Number(lpTokenAmount));
         }
 
         return await this._withdrawSlippage(totalAmount, Number(lpTokenAmount), false);
@@ -1730,7 +1693,7 @@ export class PoolTemplate {
         return await Promise.all(promises)
     }
 
-    private _removeLiquidityCryptoSlippage = async (totalAmountUSD: number, lpTokenAmount: number, useUnderlying = true): Promise<string> => {
+    private _withdrawCryptoSlippage = async (totalAmountUSD: number, lpTokenAmount: number, useUnderlying = true): Promise<string> => {
         const prices: number[] = useUnderlying ? await this._underlyingPrices() : await this._wrappedPrices();
 
         const balancedAmounts = useUnderlying ?
@@ -1776,16 +1739,6 @@ export class PoolTemplate {
         return await curve.contracts[this.swap].contract.calc_withdraw_one_coin(_lpTokenAmount, i, curve.constantOptions);
     }
 
-    private _calcWithdrawOneCoinZap = async (_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> => {
-        const contract = curve.contracts[this.zap as string].contract;
-
-        if (this.isMetaFactory) {
-            return (await contract.calc_withdraw_one_coin(this.swap, _lpTokenAmount, i, curve.constantOptions));
-        }
-
-        return await contract.calc_withdraw_one_coin(_lpTokenAmount, i, curve.constantOptions);
-    }
-
     private _calcWithdrawOneCoin = async (_lpTokenAmount: ethers.BigNumber, i: number, useUnderlying = true): Promise<ethers.BigNumber> => {
         return await curve.contracts[this.swap].contract.calc_withdraw_one_coin(_lpTokenAmount, i, useUnderlying, curve.constantOptions);
     }
@@ -1793,36 +1746,6 @@ export class PoolTemplate {
     private _removeLiquidityOneCoinSwap = async (_lpTokenAmount: ethers.BigNumber, i: number, estimateGas = false): Promise<string | number> => {
         const _minAmount = (await this._calcWithdrawOneCoinSwap(_lpTokenAmount, i)).mul(99).div(100);
         const  contract = curve.contracts[this.swap].contract;
-
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
-        if (estimateGas) {
-            return gas.toNumber()
-        }
-
-        const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
-    }
-
-    private _removeLiquidityOneCoinZap = async (_lpTokenAmount: ethers.BigNumber, i: number, estimateGas = false): Promise<string | number> => {
-        if (!estimateGas) {
-            await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
-        }
-
-        let _minAmount = this.id === 'tricrypto2' ?
-            await this._calcWithdrawOneCoinSwap(_lpTokenAmount, i) :
-            await this._calcWithdrawOneCoinZap(_lpTokenAmount, i);
-        _minAmount = _minAmount.mul(99).div(100);
-
-        const  contract = curve.contracts[this.zap as string].contract;
-
-        if (this.isMetaFactory) {
-            const gas = await contract.estimateGas.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, curve.constantOptions);
-            if (estimateGas) {
-                return gas.toNumber()
-            }
-            const gasLimit = gas.mul(130).div(100);
-            return (await contract.remove_liquidity_one_coin(this.swap, _lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
-        }
 
         const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
         if (estimateGas) {

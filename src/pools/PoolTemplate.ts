@@ -482,7 +482,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async deposit(amounts: string[]): Promise<string> {
+    public async deposit(amounts: string[], maxSlippage = 0.005): Promise<string> {
         throw Error(`deposit method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -553,7 +553,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async depositWrapped(amounts: string[]): Promise<string> {
+    public async depositWrapped(amounts: string[], maxSlippage = 0.005): Promise<string> {
         throw Error(`depositWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 

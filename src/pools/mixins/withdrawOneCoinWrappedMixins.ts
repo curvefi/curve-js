@@ -22,9 +22,9 @@ async function _withdrawOneCoinWrappedCheck(this: PoolTemplate, lpTokenAmount: s
 async function _withdrawOneCoinWrappedMinAmount(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber, i: number, maxSlippage = 0.005): Promise<ethers.BigNumber> {
     // @ts-ignore
     const _expectedLpTokenAmount = await this._withdrawOneCoinWrappedExpected(_lpTokenAmount, i);
-    const maxBurnAmountBN = toBN(_expectedLpTokenAmount).times(1 - maxSlippage);
+    const minAmountBN = toBN(_expectedLpTokenAmount).times(1 - maxSlippage);
 
-    return fromBN(maxBurnAmountBN);
+    return fromBN(minAmountBN);
 }
 
 // @ts-ignore

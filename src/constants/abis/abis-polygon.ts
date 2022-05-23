@@ -39,7 +39,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         swap_abi: aaveSwapABI,
         sCurveRewards_abi: paaveRewardsabi,
         sCurveRewards_address: '0xBdFF0C27dd073C119ebcb1299a68A6A92aE607F0',
-        reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"],
+        reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         reward_contract: "0xC48f4653dd6a9509De44c92beb0604BEA3AEe714",
         gauge_abi: gaugeRewardsOnlyABI,
     },
@@ -71,7 +71,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         ],
         swap_abi: renSwapABI,
         reward_contract: "0x488E6ef919C2bB9de535C634a80afb0114DA8F62",
-        reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"],
+        reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         gauge_abi: gaugeRewardsOnlyABI,
     },
 
@@ -116,7 +116,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
         reward_contract: "0x060e386eCfBacf42Aa72171Af9EFe17b3993fC4F",
-        reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"],
+        reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         gauge_abi: gaugeRewardsOnlyABI,
     },
 

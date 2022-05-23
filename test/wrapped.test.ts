@@ -18,8 +18,8 @@ const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
 
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
-// const ETHEREUM_POOLS = ['aave', 'compound', 'gusd', 'tricrypto2', 'crveth'];
-const ETHEREUM_POOLS = [...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
+const ETHEREUM_POOLS = ['compound', 'aave', 'ib', 'gusd', 'tricrypto2', 'crveth'];
+// const ETHEREUM_POOLS = [...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
 const POLYGON_POOLS = POLYGON_FACTORY_META_POOLS;
 
 const wrappedLiquidityTest = (id: string) => {
@@ -94,7 +94,7 @@ const wrappedLiquidityTest = (id: string) => {
             const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
             const coinsExpected = await pool.withdrawWrappedExpected(lpTokenAmount);
 
-            await pool.withdrawWrapped(lpTokenAmount);
+            await pool.withdrawWrapped(lpTokenAmount, 0.01);
 
             const balances = await pool.balances() as DictInterface<string>;
 
@@ -130,31 +130,31 @@ const wrappedLiquidityTest = (id: string) => {
             }
         });
 
-        // if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(id)) {
-        //     it('Removes liquidity one coin', async function () {
-        //         const initialBalances = await pool.balances() as DictInterface<string>;
-        //         const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-        //         const expected = await pool.removeLiquidityOneCoinWrappedExpected(lpTokenAmount, 0);
-        //
-        //         await pool.removeLiquidityOneCoinWrapped(lpTokenAmount, 0);
-        //
-        //         const balances = await pool.balances() as DictInterface<string>;
-        //
-        //         assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-        //         coinAddresses.forEach((c: string, i: number) => {
-        //             if (i === 0) {
-        //                 assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
-        //             } else {
-        //                 if (['aave', 'saave'].includes(id)  || (curve.chainId === 137 && this.id === 'ren')) {
-        //                     // Because of increasing quantity
-        //                     assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
-        //                 } else {
-        //                     assert.strictEqual(balances[c], initialBalances[c]);
-        //                 }
-        //             }
-        //         })
-        //     });
-        // }
+        if (!['compound', 'usdt', 'y', 'busd', 'pax'].includes(id)) {
+            it('Withdraw one coin', async function () {
+                const initialBalances = await pool.balances() as DictInterface<string>;
+                const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
+                const expected = await pool.withdrawOneCoinWrappedExpected(lpTokenAmount, 0);
+
+                await pool.withdrawOneCoinWrapped(lpTokenAmount, 0);
+
+                const balances = await pool.balances() as DictInterface<string>;
+
+                assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
+                coinAddresses.forEach((c: string, i: number) => {
+                    if (i === 0) {
+                        assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
+                    } else {
+                        if (['aave', 'saave'].includes(id)  || (curve.chainId === 137 && this.id === 'ren')) {
+                            // Because of increasing quantity
+                            assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
+                        } else {
+                            assert.strictEqual(balances[c], initialBalances[c]);
+                        }
+                    }
+                })
+            });
+        }
     });
 }
 

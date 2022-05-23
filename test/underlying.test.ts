@@ -22,7 +22,7 @@ const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 // const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
-const ETHEREUM_POOLS = ['3pool', 'aave', 'compound', 'gusd', 'tricrypto2', 'crveth'];
+const ETHEREUM_POOLS = ['susd', '3pool', 'compound', 'aave', 'ib', 'gusd', 'tricrypto2', 'crveth'];
 const POLYGON_POOLS = [...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS];
 
 const underlyingLiquidityTest = (id: string) => {
@@ -134,24 +134,24 @@ const underlyingLiquidityTest = (id: string) => {
             }
         });
 
-        // it('Removes liquidity one coin', async function () {
-        //     const initialBalances = await pool.balances() as DictInterface<string>;
-        //     const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
-        //     const expected = await pool.removeLiquidityOneCoinExpected(lpTokenAmount, 0);
-        //
-        //     await pool.removeLiquidityOneCoin(lpTokenAmount, 0);
-        //
-        //     const balances = await pool.balances() as DictInterface<string>;
-        //
-        //     assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
-        //     coinAddresses.forEach((c: string, i: number) => {
-        //         if (i === 0) {
-        //             assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01)
-        //         } else {
-        //             assert.strictEqual(balances[c], initialBalances[c]);
-        //         }
-        //     })
-        // });
+        it('Withdraw one coin', async function () {
+            const initialBalances = await pool.balances() as DictInterface<string>;
+            const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
+            const expected = await pool.withdrawOneCoinExpected(lpTokenAmount, 0);
+
+            await pool.withdrawOneCoin(lpTokenAmount, 0);
+
+            const balances = await pool.balances() as DictInterface<string>;
+
+            assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
+            coinAddresses.forEach((c: string, i: number) => {
+                if (i === 0) {
+                    assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01)
+                } else {
+                    assert.strictEqual(balances[c], initialBalances[c]);
+                }
+            })
+        });
     });
 }
 

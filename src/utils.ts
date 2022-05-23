@@ -2,7 +2,7 @@ import axios from 'axios';
 import memoize from 'memoizee';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import {DictInterface, IStats } from './interfaces';
+import { DictInterface, IStats } from './interfaces';
 import { curve, POOLS_DATA, LP_TOKENS, GAUGES } from "./curve";
 import { COINS, DECIMALS_LOWER_CASE } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
@@ -222,6 +222,10 @@ export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => 
         for (const pool of extendedPoolData.poolData) {
             for (const coin of pool.coins) {
                 if (typeof coin.usdPrice === "number") priceDict[coin.address.toLowerCase()] = coin.usdPrice;
+            }
+
+            for (const coin of pool.gaugeRewards ?? []) {
+                if (typeof coin.tokenPrice === "number") priceDict[coin.tokenAddress.toLowerCase()] = coin.tokenPrice;
             }
         }
     }

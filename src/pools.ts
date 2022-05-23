@@ -2,7 +2,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getPoolsFromApi } from './external-api';
+import { _getMainPoolsGaugeRewards, _getPoolsFromApi } from './external-api';
 import {
     _getCoinAddresses,
     _getCoinDecimals,
@@ -36,7 +36,8 @@ import {
     IRouteStep,
     IRoute,
     PoolDataInterface,
-    RewardsApyInterface,
+    IReward,
+    IExtendedPoolDataFromApi,
 } from './interfaces';
 import {
     ALIASES,
@@ -110,7 +111,7 @@ export class Pool {
         getVolume: () => Promise<string>,
         getBaseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
         getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
-        getRewardsApy: () => Promise<RewardsApyInterface[]>,
+        getRewardsApy: () => Promise<IReward[]>,
     }
 
     constructor(id: string) {
@@ -418,9 +419,9 @@ export class Pool {
         return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
     }
 
-    private getRewardsApy = async (): Promise<RewardsApyInterface[]> => {
+    private getRewardsApy = async (): Promise<IReward[]> => {
         if (curve.chainId === 137) {
-            const apy: RewardsApyInterface[] = [];
+            const apy: IReward[] = [];
             for (const rewardToken of this.rewardTokens) {
                 const rewardContract = curve.contracts[this.rewardContract as string].contract;
 
@@ -434,29 +435,36 @@ export class Pool {
                 const symbol = await rewardTokenContract.symbol();
 
                 apy.push({
-                    token: rewardToken,
+                    gaugeAddress: this.gauge.toLowerCase(),
+                    tokenAddress: rewardToken,
                     symbol,
-                    apy: baseApy.times(100).toFixed(4),
+                    apy: Number(baseApy.times(100).toFixed(4)),
                 })
             }
 
             return apy
         }
 
-        const mainPoolsGaugeRewards = (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards;
-        // @ts-ignore
-        const mainPoolsGaugeRewardsLowerCase = Object.fromEntries(Object.entries(mainPoolsGaugeRewards).map((entry) => [entry[0].toLowerCase(), entry[1]]));
-        const apyData = mainPoolsGaugeRewardsLowerCase[this.gauge.toLowerCase()] || [];
-        const apy: RewardsApyInterface[] = [];
-        for (const data of apyData) {
-            apy.push({
-                token: data.tokenAddress,
-                symbol: data.symbol,
-                apy: String(data.apy),
-            })
+        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const promises = [
+            _getMainPoolsGaugeRewards(),
+            _getPoolsFromApi(network, "main"),
+            _getPoolsFromApi(network, "crypto"),
+            _getPoolsFromApi(network, "factory"),
+            _getPoolsFromApi(network, "factory-crypto"),
+        ];
+        const [mainPoolsRewards,...allTypesExtendedPoolData] = await Promise.all(promises);
+
+        const rewards = mainPoolsRewards as DictInterface<IReward[]>;
+        for (const extendedPoolData of allTypesExtendedPoolData as IExtendedPoolDataFromApi[]) {
+            for (const pool of extendedPoolData.poolData) {
+                if (pool.gaugeAddress && pool.gaugeRewards) {
+                    rewards[pool.gaugeAddress.toLowerCase()] = pool.gaugeRewards;
+                }
+            }
         }
 
-        return apy
+        return rewards[this.gauge.toLowerCase()] ?? []
     }
 
     public addLiquidityExpected = async (amounts: string[]): Promise<string> => {

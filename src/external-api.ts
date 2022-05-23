@@ -1,4 +1,4 @@
-import { IExtendedPoolDataFromApi } from "./interfaces";
+import { IExtendedPoolDataFromApi, IReward, DictInterface } from "./interfaces";
 import axios from "axios";
 import memoize from "memoizee";
 
@@ -13,3 +13,13 @@ export const _getPoolsFromApi = memoize(
         maxAge: 5 * 60 * 1000, // 5m
     }
 )
+
+export const _getMainPoolsGaugeRewards = memoize(async (): Promise<DictInterface<IReward[]>> => {
+    const url = "https://api.curve.fi/api/getMainPoolsGaugeRewards";
+    const response = await axios.get(url, { validateStatus: () => true });
+    return response.data.data.mainPoolsGaugeRewards;
+},
+{
+    promise: true,
+    maxAge: 5 * 60 * 1000, // 5m
+});

@@ -85,6 +85,16 @@ export interface ICoinFromPoolDataApi {
     usdPrice: number | string,
 }
 
+export interface IReward {
+    gaugeAddress: string,
+    tokenAddress: string,
+    tokenPrice?: number,
+    name?: string,
+    symbol: string,
+    decimals?: number,
+    apy: number
+}
+
 export interface IPoolDataFromApi {
     id: string,
     name: string,
@@ -96,6 +106,7 @@ export interface IPoolDataFromApi {
     implementation: string,
     implementationAddress: string,
     coins: ICoinFromPoolDataApi[],
+    gaugeRewards?: IReward[],
     usdTotal: number,
 }
 
@@ -103,12 +114,6 @@ export interface IExtendedPoolDataFromApi {
     poolData: IPoolDataFromApi[],
     tvl?: number,
     tvlAll: number,
-}
-
-export interface RewardsApyInterface {
-    token: string,
-    symbol: string,
-    apy: string,
 }
 
 export interface IPoolStats {

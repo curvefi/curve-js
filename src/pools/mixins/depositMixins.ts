@@ -9,7 +9,7 @@ async function _depositCheck(this: PoolTemplate, amounts: string[], estimateGas 
         throw Error(`${this.name} pool has ${this.underlyingCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
     }
 
-    const balances = Object.values(await this.underlyingCoinBalances());
+    const balances = Object.values(await this.wallet.underlyingCoinBalances());
     for (let i = 0; i < balances.length; i++) {
         if (Number(balances[i]) < Number(amounts[i])) {
             throw Error(`Not enough ${this.underlyingCoins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);

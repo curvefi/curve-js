@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 // @ts-ignore
 async function _withdrawImbalanceCheck(this: PoolTemplate, amounts: string[], estimateGas = false): Promise<ethers.BigNumbe[]> {
     const lpTokenAmount = await this.withdrawImbalanceExpected(amounts);
-    const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
+    const lpTokenBalance = (await this.wallet.lpTokenBalances())['lpToken'];
     if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }

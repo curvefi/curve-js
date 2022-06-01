@@ -7,7 +7,7 @@ import { ethers } from "ethers";
 async function _withdrawOneCoinCheck(this: PoolTemplate, lpTokenAmount: string, coin: string | number, estimateGas = false):
     Promise<[ethers.BigNumber, number]>
 {
-    const lpTokenBalance = (await this.lpTokenBalances())['lpToken'];
+    const lpTokenBalance = (await this.wallet.lpTokenBalances())['lpToken'];
     if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }

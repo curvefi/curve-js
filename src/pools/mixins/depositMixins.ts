@@ -16,7 +16,7 @@ async function _depositCheck(this: PoolTemplate, amounts: string[], estimateGas 
         }
     }
 
-    if (!(await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.swap)) && estimateGas) {
+    if (!(await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.poolAddress)) && estimateGas) {
         throw Error("Token allowance is needed to estimate gas")
     }
 
@@ -43,11 +43,11 @@ export const depositMetaFactoryMixin: PoolTemplate = {
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.constantOptions, value });
+        const gas = await contract.estimateGas.add_liquidity(this.poolAddress, _amounts, _minMintAmount, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.add_liquidity(this.swap, _amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
+        return (await contract.add_liquidity(this.poolAddress, _amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
     },
 
     async depositEstimateGas(amounts: string[]): Promise<number> {
@@ -107,13 +107,13 @@ export const depositZapMixin: PoolTemplate = {
 export const depositLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
     async _deposit(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.swap);
+        if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.poolAddress);
 
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, maxSlippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, true, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();
@@ -143,13 +143,13 @@ export const depositLendingOrCryptoMixin: PoolTemplate = {
 export const depositPlainMixin: PoolTemplate = {
     // @ts-ignore
     async _deposit(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.swap);
+        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.poolAddress);
 
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, maxSlippage);
         const ethIndex = getEthIndex(this.coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();

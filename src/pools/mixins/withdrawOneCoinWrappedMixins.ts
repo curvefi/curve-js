@@ -32,7 +32,7 @@ export const withdrawOneCoinWrappedLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawOneCoinWrapped(_lpTokenAmount: ethers.BigNumber, i: number, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, maxSlippage);
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, false, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
@@ -63,7 +63,7 @@ export const withdrawOneCoinWrappedMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawOneCoinWrapped(_lpTokenAmount: ethers.BigNumber, i: number, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, maxSlippage);
-        const  contract = curve.contracts[this.swap].contract;
+        const  contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
         if (estimateGas) return gas.toNumber();

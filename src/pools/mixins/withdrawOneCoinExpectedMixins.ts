@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 export const withdrawOneCoinExpectedMetaFactoryMixin: PoolTemplate = {
     async _withdrawOneCoinExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
         const contract = curve.contracts[this.zap as string].contract;
-        return await contract.calc_withdraw_one_coin(this.swap, _lpTokenAmount, i, curve.constantOptions);
+        return await contract.calc_withdraw_one_coin(this.poolAddress, _lpTokenAmount, i, curve.constantOptions);
     },
 }
 
@@ -21,7 +21,7 @@ export const withdrawOneCoinExpectedZapMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawOneCoinExpected3argsMixin: PoolTemplate = {
     async _withdrawOneCoinExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
         return await contract.calc_withdraw_one_coin(_lpTokenAmount, i, true, curve.constantOptions);
     },
 }
@@ -29,7 +29,7 @@ export const withdrawOneCoinExpected3argsMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawOneCoinExpected2argsMixin: PoolTemplate = {
     async _withdrawOneCoinExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
         return await contract.calc_withdraw_one_coin(_lpTokenAmount, i, curve.constantOptions);
     },
 }

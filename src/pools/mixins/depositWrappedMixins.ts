@@ -19,7 +19,7 @@ async function _depositWrappedCheck(this: PoolTemplate, amounts: string[], estim
         }
     }
 
-    if (!(await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.swap)) && estimateGas) {
+    if (!(await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.poolAddress)) && estimateGas) {
         throw Error("Token allowance is needed to estimate gas")
     }
 
@@ -38,13 +38,13 @@ async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: ethers.Big
 export const depositWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
     async _depositWrapped(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.swap);
+        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.poolAddress);
 
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, maxSlippage);
         const ethIndex = getEthIndex(this.coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();
@@ -75,13 +75,13 @@ export const depositWrapped2argsMixin: PoolTemplate = {
 export const depositWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
     async _depositWrapped(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.swap);
+        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.poolAddress);
 
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, maxSlippage);
         const ethIndex = getEthIndex(this.coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
-        const contract = curve.contracts[this.swap].contract;
+        const contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, false, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();

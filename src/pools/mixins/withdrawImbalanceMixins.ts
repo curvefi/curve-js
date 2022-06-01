@@ -34,11 +34,11 @@ export const withdrawImbalanceMetaFactoryMixin: PoolTemplate = {
         if (!estimateGas) await _ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
 
         const contract = curve.contracts[this.zap as string].contract;
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, curve.constantOptions);
+        const gas = await contract.estimateGas.remove_liquidity_imbalance(this.poolAddress, _amounts, _maxBurnAmount, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_imbalance(this.swap, _amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
+        return (await contract.remove_liquidity_imbalance(this.poolAddress, _amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
     },
 
     async withdrawImbalanceEstimateGas(amounts: string[]): Promise<number> {
@@ -95,7 +95,7 @@ export const withdrawImbalanceLendingMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawImbalance(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, maxSlippage);
-        const  contract = curve.contracts[this.swap].contract;
+        const  contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, true, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
@@ -126,7 +126,7 @@ export const withdrawImbalancePlainMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawImbalance(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, maxSlippage);
-        const  contract = curve.contracts[this.swap].contract;
+        const  contract = curve.contracts[this.poolAddress].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
         if (estimateGas) return gas.toNumber();

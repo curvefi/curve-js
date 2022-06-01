@@ -100,7 +100,14 @@ export class PoolTemplate {
         getBaseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
         getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
         getRewardsApy: () => Promise<RewardsApyInterface[]>,
-    }
+    };
+    wallet: {
+        balances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
+        lpTokenBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
+        underlyingCoinBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
+        coinBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
+        allCoinBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
+    };
 
     constructor(id: string) {
         const poolData = { ...POOLS_DATA, ...(curve.constants.FACTORY_POOLS_DATA || {}), ...(curve.constants.CRYPTO_FACTORY_POOLS_DATA || {}) }[id];
@@ -168,6 +175,13 @@ export class PoolTemplate {
             getBaseApy: this.getBaseApy,
             getTokenApy: this.getTokenApy,
             getRewardsApy: this.getRewardsApy,
+        }
+        this.wallet = {
+            balances: this.walletBalances.bind(this),
+            lpTokenBalances: this.walletLpTokenBalances.bind(this),
+            coinBalances: this.walletCoinBalances.bind(this),
+            underlyingCoinBalances: this.walletUnderlyingCoinBalances.bind(this),
+            allCoinBalances: this.walletAllCoinBalances.bind(this),
         }
 
         if (this.isMeta && !this.isFake) {
@@ -439,7 +453,7 @@ export class PoolTemplate {
 
     public async balancedAmounts(): Promise<string[]> {
         const poolBalances = (await this.getPoolBalances()).map(Number);
-        const walletBalances = Object.values(await this.underlyingCoinBalances()).map(Number);
+        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
 
         if (this.isCrypto) {
             const prices = await this._underlyingPrices();
@@ -494,7 +508,7 @@ export class PoolTemplate {
         }
 
         const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
-        const walletBalances = Object.values(await this.coinBalances()).map(Number);
+        const walletBalances = Object.values(await this.walletCoinBalances()).map(Number);
 
         if (this.isCrypto) {
             const prices = await this._wrappedPrices();
@@ -902,7 +916,7 @@ export class PoolTemplate {
             throw Error(`${this.name} pool has ${coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
 
-        const balances = isUnderlying ? Object.values(await this.underlyingCoinBalances()) : Object.values(await this.coinBalances());
+        const balances = isUnderlying ? Object.values(await this.walletUnderlyingCoinBalances()) : Object.values(await this.walletCoinBalances());
         for (let i = 0; i < balances.length; i++) {
             if (Number(balances[i]) < Number(amounts[i])) {
                 throw Error(`Not enough ${coins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
@@ -1207,7 +1221,7 @@ export class PoolTemplate {
 
     // ---------------- WALLET BALANCES ----------------
 
-    public balances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+    private async walletBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
         if (this.gauge === ethers.constants.AddressZero) {
             return await this._balances(
                 ['lpToken', ...this.underlyingCoinAddresses, ...this.coinAddresses],
@@ -1223,7 +1237,7 @@ export class PoolTemplate {
         }
     }
 
-    public lpTokenBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+    private async walletLpTokenBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
         if (this.gauge === ethers.constants.AddressZero) {
             return await this._balances(['lpToken'], [this.lpToken], ...addresses);
         } else {
@@ -1231,21 +1245,23 @@ export class PoolTemplate {
         }
     }
 
-    public underlyingCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+    private async walletUnderlyingCoinBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
         return await this._balances(this.underlyingCoinAddresses, this.underlyingCoinAddresses, ...addresses)
     }
 
-    public coinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+    private async walletCoinBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
         return await this._balances(this.coinAddresses, this.coinAddresses, ...addresses)
     }
 
-    public allCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
+    private walletAllCoinBalances = async (...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> =>  {
         return await this._balances(
             [...this.underlyingCoinAddresses, ...this.coinAddresses],
             [...this.underlyingCoinAddresses, ...this.coinAddresses],
             ...addresses
         )
     }
+
+    // ---------------- SWAP ----------------
 
     public exchangeExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
         const i = this._getCoinIdx(inputCoin);
@@ -1283,7 +1299,7 @@ export class PoolTemplate {
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
 
-        const inputCoinBalance = Object.values(await this.underlyingCoinBalances())[i];
+        const inputCoinBalance = Object.values(await this.walletUnderlyingCoinBalances())[i];
         if (Number(inputCoinBalance) < Number(amount)) {
             throw Error(`Not enough ${this.underlyingCoins[i]}. Actual: ${inputCoinBalance}, required: ${amount}`);
         }
@@ -1345,6 +1361,8 @@ export class PoolTemplate {
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     }
 
+    // ---------------- SWAP WRAPPED ----------------
+
     public exchangeWrappedExpected = async (inputCoin: string | number, outputCoin: string | number, amount: string): Promise<string> => {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
@@ -1393,7 +1411,7 @@ export class PoolTemplate {
         const i = this._getCoinIdx(inputCoin, false);
         const j = this._getCoinIdx(outputCoin, false);
 
-        const inputCoinBalance = Object.values(await this.coinBalances())[i];
+        const inputCoinBalance = Object.values(await this.walletCoinBalances())[i];
         if (Number(inputCoinBalance) < Number(amount)) {
             throw Error(`Not enough ${this.coins[i]}. Actual: ${inputCoinBalance}, required: ${amount}`);
         }

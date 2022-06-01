@@ -1304,70 +1304,12 @@ export class PoolTemplate {
         return await ensureAllowance([this.underlyingCoinAddresses[i]], [amount], contractAddress);
     }
 
-    private async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<number> {
-        const contractAddress = this._swapContractAddress();
-        const i = this._getCoinIdx(inputCoin);
-        const j = this._getCoinIdx(outputCoin);
-
-        const inputCoinBalance = Object.values(await this.walletUnderlyingCoinBalances())[i];
-        if (Number(inputCoinBalance) < Number(amount)) {
-            throw Error(`Not enough ${this.underlyingCoins[i]}. Actual: ${inputCoinBalance}, required: ${amount}`);
-        }
-
-        if (!(await hasAllowance([this.underlyingCoinAddresses[i]], [amount], curve.signerAddress, contractAddress))) {
-            throw Error("Token allowance is needed to estimate gas")
-        }
-
-        const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
-        const _expected: ethers.BigNumber = await this._swapExpected(i, j, _amount);
-        const [outputCoinDecimals] = _getCoinDecimals(this.underlyingCoinAddresses[j]);
-        const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
-        const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
-
-        const contract = curve.contracts[contractAddress].contract;
-        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
-        const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
-
-        if (this.id === "tricrypto2") {
-            return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).toNumber();
-        } else if (curve.chainId === 137 && this.isMetaFactory) {
-            return (await contract.estimateGas[exchangeMethod](this.poolAddress, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
-        }
-
-        return (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).toNumber();
+    private async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: string): Promise<number> {
+        throw Error(`swap method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    public async swap(inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.01): Promise<string> {
-        const contractAddress = this._swapContractAddress();
-        const i = this._getCoinIdx(inputCoin);
-        const j = this._getCoinIdx(outputCoin);
-
-        const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
-        const _expected: ethers.BigNumber = await this._swapExpected(i, j, _amount);
-        const [outputCoinDecimals] = _getCoinDecimals(this.underlyingCoinAddresses[j]);
-        const minRecvAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
-        const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
-
-        await _ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], contractAddress);
-        const contract = curve.contracts[contractAddress].contract;
-        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
-        const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
-
-        await curve.updateFeeData();
-
-        if (this.id === 'tricrypto2') {
-            const gasLimit = (await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value })).mul(130).div(100);
-            return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.options, value, gasLimit })).hash
-        } else if (curve.chainId === 137 && this.isMetaFactory) {
-            const gasLimit = (await contract.estimateGas[exchangeMethod](this.poolAddress, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value })).mul(140).div(100);
-            return (await contract[exchangeMethod](this.poolAddress, i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
-        }
-
-        const estimatedGas = await contract.estimateGas[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ?
-            estimatedGas.mul(160).div(100) :
-            estimatedGas.mul(130).div(100);
-        return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
+    public async swap(inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage = 0.005): Promise<string> {
+        throw Error(`swap method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     // ---------------- SWAP WRAPPED ----------------

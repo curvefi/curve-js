@@ -12,6 +12,8 @@ import { withdrawOneCoinExpectedMetaFactoryMixin, withdrawOneCoinExpectedZapMixi
 import { withdrawOneCoinMetaFactoryMixin, withdrawOneCoinZapMixin, withdrawOneCoinLendingOrCryptoMixin, withdrawOneCoinPlainMixin } from "./mixins/withdrawOneCoinMixins";
 import { withdrawOneCoinWrappedExpected2argsMixin, withdrawOneCoinWrappedExpected3argsMixin } from "./mixins/withdrawOneCoinWrappedExpectedMixins";
 import { withdrawOneCoinWrappedLendingOrCryptoMixin, withdrawOneCoinWrappedMixin } from "./mixins/withdrawOneCoinWrappedMixins";
+import { swapTricrypto2Mixin, swapMetaFactoryMixin, swapMixin } from "./mixins/swapMixins";
+import {curve} from "../curve";
 
 
 export const getPool = (poolId: string): PoolTemplate => {
@@ -147,6 +149,15 @@ export const getPool = (poolId: string): PoolTemplate => {
         } else {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedMixin);
         }
+    }
+
+    // swap and swapEstimateGas
+    if (poolId === 'tricrypto2') {
+        Object.assign(Pool.prototype, swapTricrypto2Mixin);
+    } else if (curve.chainId === 137 && poolDummy.isMetaFactory) {
+        Object.assign(Pool.prototype, swapMetaFactoryMixin);
+    } else {
+        Object.assign(Pool.prototype, swapMixin);
     }
 
     return new Pool(poolId);

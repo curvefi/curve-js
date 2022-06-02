@@ -29,7 +29,6 @@ export interface PoolDataInterface {
     decimals: number[],
     use_lending: boolean[],
     has_eth?: boolean,
-    is_aave?: boolean,
     is_new_underlying?: boolean,
     old_swap_address?: string,
     swap_address: string,

@@ -29,7 +29,6 @@ export interface PoolDataInterface {
     decimals: number[],
     tethered?: boolean[],
     use_lending: boolean[],
-    is_plain: boolean[],
     has_eth?: boolean,
     is_aave?: boolean,
     is_new_underlying?: boolean,

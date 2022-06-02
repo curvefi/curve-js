@@ -56,7 +56,6 @@ export interface PoolDataInterface {
     sCurveRewards_abi?: any,
     sCurveRewards_address?: string,
     reward_tokens?: string[],
-    pool_type?: string,
     reward_contract?: string,
 }
 

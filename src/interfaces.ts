@@ -28,7 +28,6 @@ export interface PoolDataInterface {
     underlying_decimals: number[],
     decimals: number[],
     use_lending: boolean[],
-    is_new_underlying?: boolean,
     swap_address: string,
     token_address: string,
     gauge_address: string,

@@ -1161,7 +1161,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         underlying_decimals: [18, 6, 6],
         decimals: [8, 8, 8],
         use_lending: [true, true, true],
-        is_new_underlying: true,
         swap_address: '0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF',
         token_address: '0x5282a4eF67D9C33135340fB3289cc1711c13638C',
         gauge_address: '0xF5194c3325202F456c95c1Cf0cA36f8475C1949F',

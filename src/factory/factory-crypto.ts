@@ -235,7 +235,6 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterf
             full_name: poolNames[i],
             symbol: poolSymbols[i],
             reference_asset: "CRYPTO",
-            N_COINS: coinAddresses[i].length,
             is_crypto: true,
             underlying_decimals: underlyingCoinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
             decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),

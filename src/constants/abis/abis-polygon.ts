@@ -145,13 +145,6 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
-        all_coin_addresses: [
-            '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f',
-            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
-            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
-            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
-            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
-        ],
         reward_contract: "0xAF78381216a8eCC7Ad5957f3cD12a431500E0B0D",
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         gauge_abi: gaugeRewardsOnlyABI,

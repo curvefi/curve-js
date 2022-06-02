@@ -48,7 +48,6 @@ export interface PoolDataInterface {
     meta_wrapped_decimals?: number[],
     base_pool?: string,
     meta_coin_addresses?: string[],
-    all_coin_addresses?: string[],
     is_factory?: boolean,
     is_plain_factory?: boolean,
     is_meta_factory?: boolean,

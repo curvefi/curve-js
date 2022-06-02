@@ -27,7 +27,27 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
     return ethers.utils.parseUnits(toStringFromBN(bn, decimals), decimals)
 }
 
+// Formatting numbers
+
+export const checkNumber = (n: number | string): number | string => {
+    if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
+
+    return n
+}
+
+export const formatNumber = (n: number | string, decimals = 18): string => {
+    if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
+    const [integer, fractional] = String(n).split(".");
+
+    return !fractional ? integer : integer + "." + fractional.slice(0, decimals);
+}
+
+export const parseUnits = (n: number | string, decimals = 18): ethers.BigNumber => {
+    return ethers.utils.parseUnits(formatNumber(n, decimals), decimals);
+}
+
 // -------------------
+
 
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
@@ -142,11 +162,11 @@ export const getAllowance = async (coins: string[], address: string, spender: st
 }
 
 // coins can be either addresses or symbols
-export const hasAllowance = async (coins: string[], amounts: string[], address: string, spender: string): Promise<boolean> => {
+export const hasAllowance = async (coins: string[], amounts: (number | string)[], address: string, spender: string): Promise<boolean> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
     const _allowance = await _getAllowance(coinAddresses, address, spender);
-    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+    const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
     return _allowance.map((a, i) => a.gte(_amounts[i])).reduce((a, b) => a && b);
 }
@@ -173,10 +193,10 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowanceEstimateGas = async (coins: string[], amounts: string[], spender: string): Promise<number> => {
+export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string): Promise<number> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
-    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+    const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     const address = curve.signerAddress;
     const allowance: ethers.BigNumber[] = await _getAllowance(coinAddresses, address, spender);
 
@@ -195,10 +215,10 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: strin
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowance = async (coins: string[], amounts: string[], spender: string): Promise<string[]> => {
+export const ensureAllowance = async (coins: string[], amounts: (number | string)[], spender: string): Promise<string[]> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
-    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+    const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
     return await _ensureAllowance(coinAddresses, _amounts, spender)
 }

@@ -1,17 +1,17 @@
 import { PoolTemplate } from "../PoolTemplate";
-import { fromBN, toBN } from "../../utils";
+import { fromBN, toBN, parseUnits } from "../../utils";
 import { curve } from "../../curve";
 import { ethers } from "ethers";
 
 // @ts-ignore
-async function _withdrawImbalanceWrappedCheck(this: PoolTemplate, amounts: string[]): Promise<ethers.BigNumbe[]> {
+async function _withdrawImbalanceWrappedCheck(this: PoolTemplate, amounts: (number | string)[]): Promise<ethers.BigNumbe[]> {
     const lpTokenAmount = await this.withdrawImbalanceWrappedExpected(amounts);
     const lpTokenBalance = (await this.wallet.lpTokenBalances())['lpToken'];
     if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
-    return  amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.decimals[i]));
+    return  amounts.map((amount, i) => parseUnits(amount, this.decimals[i]));
 }
 
 async function _withdrawImbalanceWrappedMaxBurnAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], maxSlippage = 0.005): Promise<ethers.BigNumber> {
@@ -36,7 +36,7 @@ export const withdrawImbalanceWrapped2argsMixin: PoolTemplate = {
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawImbalanceWrappedEstimateGas(amounts: string[]): Promise<number> {
+    async withdrawImbalanceWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceWrappedCheck.call(this, amounts);
 
@@ -44,7 +44,7 @@ export const withdrawImbalanceWrapped2argsMixin: PoolTemplate = {
         return await this._withdrawImbalanceWrapped(_amounts, 0.1, true);
     },
 
-    async withdrawImbalanceWrapped(amounts: string[], maxSlippage?: number): Promise<string> {
+    async withdrawImbalanceWrapped(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceWrappedCheck.call(this, amounts);
 
@@ -67,7 +67,7 @@ export const withdrawImbalanceWrapped3argsMixin: PoolTemplate = {
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, false, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawImbalanceWrappedEstimateGas(amounts: string[]): Promise<number> {
+    async withdrawImbalanceWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceWrappedCheck.call(this, amounts);
 
@@ -75,7 +75,7 @@ export const withdrawImbalanceWrapped3argsMixin: PoolTemplate = {
         return await this._withdrawImbalanceWrapped(_amounts, 0.1, true);
     },
 
-    async withdrawImbalanceWrapped(amounts: string[], maxSlippage?: number): Promise<string> {
+    async withdrawImbalanceWrapped(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceWrappedCheck.call(this, amounts);
 

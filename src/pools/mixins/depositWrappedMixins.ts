@@ -1,9 +1,9 @@
-import {PoolTemplate} from "../PoolTemplate";
-import {_ensureAllowance, fromBN, getEthIndex, hasAllowance, toBN} from "../../utils";
-import {curve} from "../../curve";
-import {ethers} from "ethers";
+import { PoolTemplate } from "../PoolTemplate";
+import { _ensureAllowance, fromBN, getEthIndex, hasAllowance, toBN, parseUnits } from "../../utils";
+import { curve } from "../../curve";
+import { ethers } from "ethers";
 
-async function _depositWrappedCheck(this: PoolTemplate, amounts: string[], estimateGas = false): Promise<ethers.BigNumber[]> {
+async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | string)[], estimateGas = false): Promise<ethers.BigNumber[]> {
     if (this.isFake) {
         throw Error(`depositWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
@@ -23,7 +23,7 @@ async function _depositWrappedCheck(this: PoolTemplate, amounts: string[], estim
         throw Error("Token allowance is needed to estimate gas")
     }
 
-    return  amounts.map((amount: string, i: number) => ethers.utils.parseUnits(amount, this.decimals[i]));
+    return  amounts.map((amount, i) => parseUnits(amount, this.decimals[i]));
 }
 
 async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], maxSlippage = 0.005): Promise<ethers.BigNumber> {
@@ -53,7 +53,7 @@ export const depositWrapped2argsMixin: PoolTemplate = {
         return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
     },
 
-    async depositWrappedEstimateGas(amounts: string[]): Promise<number> {
+    async depositWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
         // @ts-ignore
         const _amounts = await _depositWrappedCheck.call(this, amounts, true);
 
@@ -61,7 +61,7 @@ export const depositWrapped2argsMixin: PoolTemplate = {
         return await this._depositWrapped(_amounts, 0.1, true);
     },
 
-    async depositWrapped(amounts: string[], maxSlippage?: number): Promise<string> {
+    async depositWrapped(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _depositWrappedCheck.call(this, amounts);
 
@@ -90,7 +90,7 @@ export const depositWrapped3argsMixin: PoolTemplate = {
         return (await contract.add_liquidity(_amounts, _minMintAmount, false, { ...curve.options, gasLimit, value })).hash;
     },
 
-    async depositWrappedEstimateGas(amounts: string[]): Promise<number> {
+    async depositWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
         // @ts-ignore
         const _amounts = await _depositWrappedCheck.call(this, amounts, true);
 
@@ -98,7 +98,7 @@ export const depositWrapped3argsMixin: PoolTemplate = {
         return await this._depositWrapped(_amounts, 0.1, true);
     },
 
-    async depositWrapped(amounts: string[], maxSlippage?: number): Promise<string> {
+    async depositWrapped(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _depositWrappedCheck.call(this, amounts);
 

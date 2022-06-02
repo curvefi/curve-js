@@ -1,15 +1,15 @@
-import { PoolTemplate } from "../PoolTemplate";
-import {_ensureAllowance, _getCoinDecimals, fromBN, hasAllowance, isEth, toBN} from "../../utils";
-import { curve } from "../../curve";
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
+import { PoolTemplate } from "../PoolTemplate";
+import { curve } from "../../curve";
+import { _ensureAllowance, _getCoinDecimals, fromBN, hasAllowance, isEth, toBN, parseUnits } from "../../utils";
 
 // @ts-ignore
 async function _swapCheck(
     this: PoolTemplate,
     inputCoin: string | number,
     outputCoin: string | number,
-    amount: string,
+    amount: number | string,
     estimateGas = false
 ): Promise<[number, number, ethers.BigNumber]> {
     // @ts-ignore
@@ -30,7 +30,7 @@ async function _swapCheck(
 
     if (!estimateGas) await curve.updateFeeData();
 
-    const _amount = ethers.utils.parseUnits(amount, this.underlyingDecimals[i]);
+    const _amount = parseUnits(amount, this.underlyingDecimals[i]);
 
     return [i, j, _amount]
 }
@@ -64,7 +64,7 @@ export const swapTricrypto2Mixin: PoolTemplate = {
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...curve.options, value, gasLimit })).hash
     },
 
-    async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: string): Promise<number> {
+    async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
         // @ts-ignore
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
 
@@ -72,7 +72,7 @@ export const swapTricrypto2Mixin: PoolTemplate = {
         return await this._swap(i, j, _amount, 0.1, true);
     },
 
-    async swap(inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage?: number): Promise<string> {
+    async swap(inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
 
@@ -101,7 +101,7 @@ export const swapMetaFactoryMixin: PoolTemplate = {
         return (await contract[exchangeMethod](this.poolAddress, i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     },
 
-    async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: string): Promise<number> {
+    async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
         // @ts-ignore
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
 
@@ -109,7 +109,7 @@ export const swapMetaFactoryMixin: PoolTemplate = {
         return await this._swap(i, j, _amount, 0.1, true);
     },
 
-    async swap(inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage?: number): Promise<string> {
+    async swap(inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
 
@@ -139,7 +139,7 @@ export const swapMixin: PoolTemplate = {
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     },
 
-    async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: string): Promise<number> {
+    async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
         // @ts-ignore
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
 
@@ -147,7 +147,7 @@ export const swapMixin: PoolTemplate = {
         return await this._swap(i, j, _amount, 0.1, true);
     },
 
-    async swap(inputCoin: string | number, outputCoin: string | number, amount: string, maxSlippage?: number): Promise<string> {
+    async swap(inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage?: number): Promise<string> {
         // @ts-ignore
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
 

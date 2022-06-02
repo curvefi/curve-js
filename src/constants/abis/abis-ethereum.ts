@@ -179,8 +179,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_abi: iearnSwapABI,
         sCurveRewards_abi: iearnSCurveRewardsABI,
         sCurveRewards_address: '0x0001FB050Fe7312791bF6475b96569D83F695C9f',
-        aRewards_abi: aRewards_abi,
-        aRewards_address: '0xcc9efea3ac5df6ad6a656235ef955fbfef65b862',
         gauge_abi: gaugeABI,
     },
     busd: {

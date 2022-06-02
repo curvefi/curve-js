@@ -56,8 +56,6 @@ export interface PoolDataInterface {
     is_crypto_factory?: boolean,
     sCurveRewards_abi?: any,
     sCurveRewards_address?: string,
-    aRewards_abi?: any,
-    aRewards_address?: string,
     reward_tokens?: string[],
     pool_type?: string,
     reward_contract?: string,

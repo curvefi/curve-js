@@ -418,13 +418,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         gauge_abi: gaugeABI,
     },
 
@@ -459,13 +452,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [8, 18, 6, 6],
         meta_wrapped_decimals: [8, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0xdF574c24545E5FfEcb9a659c229253D4111d87e1',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -508,13 +494,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x1c48f86ae57291F7686349F12601910BD8D470bb',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         gauge_abi: gaugeABI,
     },
 
@@ -553,13 +532,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x674C6Ad92Fd080e4004b2312b45f796a192D27a0',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         gauge_abi: gaugeABI,
     },
 
@@ -594,13 +566,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0xe2f2a5C287993345a840Db3B0845fbC70f5935a5',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -646,13 +611,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         sCurveRewards_abi: rsvSCurveRewards_abi,
         sCurveRewards_address: "0xAD4768F408dD170e62E074188D81A29AE31B8Fd8",
         reward_tokens: ["0x8762db106B2c2A0bccB3A80d1Ed41273552616E8"],
@@ -694,13 +652,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
             '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
-        all_coin_addresses: [
-            '0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
-            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
-            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
-        ],
         sCurveRewards_abi: tbtcSCurveRewards_abi,
         sCurveRewards_address: '0xAF379f0228ad0d46bB7B4f38f9dc9bCC1ad0360c',
         gauge_abi: gaugeSynthetixABI,
@@ -737,13 +688,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0x5BC25f649fc4e26069dDF4cF4010F9f706c23831',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -789,13 +733,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
             '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
-        all_coin_addresses: [
-            '0x5228a22e72ccC52d415EcFd199F99D0665E7733b',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
-            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
-            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
-        ],
         sCurveRewards_abi: pbtcSCurveRewards_abi,
         sCurveRewards_address: "0xf7977edc1fa61aa9b5f90d70a74a3fbc46e9dad3",
         reward_tokens: ["0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD"],
@@ -837,13 +774,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
             '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
-        all_coin_addresses: [
-            '0x9be89d2a4cd102d8fecc6bf9da793be995c22541',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
-            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
-            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
-        ],
         gauge_abi: gaugeV2ABI,
     },
 
@@ -878,13 +808,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [18, 8, 8, 18],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
-            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
-            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
-        ],
-        all_coin_addresses: [
-            '0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
             '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
@@ -979,13 +902,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0xa47c8bf37f92abed4a126bda807a7b7498661acd',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -1142,13 +1058,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x1456688345527bE1f37E9e627DA0837D6f08C925',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         gauge_abi: gaugeV2ABI,
     },
 
@@ -1238,13 +1147,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x0000000000085d4780B73119b644AE5ecd22b376',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         is_meta_factory: true,
         gauge_abi: gaugeV2ABI,
     },
@@ -1279,13 +1181,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0x853d955acef822db058eb8505911ed77f175b99e',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -1331,13 +1226,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         is_meta_factory: true,
         sCurveRewards_abi: factoryRewardsABI,
         sCurveRewards_address: '0xeb31da939878d1d780fdbcc244531c0fb80a2cf3',
@@ -1375,13 +1263,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -1451,13 +1332,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0xbc6da0fe9ad5f3b0d58160288917aa56653660e9',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         is_meta_factory: true,
         sCurveRewards_abi: factoryRewardsABI,
         sCurveRewards_address: '0xb76256d1091e93976c61449d6e500d9f46d827d4',
@@ -1495,13 +1369,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -1601,13 +1468,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0xC581b735A1688071A1746c968e0798D642EDE491',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', //base pool lp
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         gauge_abi: gaugeV4ABI,
     },
     eursusd: {
@@ -1693,13 +1553,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
-        all_coin_addresses: [
-            '0x03ab458634910aad20ef5f1c8ee96f1d6ac54919',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
         is_factory: false,
         deposit_abi: raiDepositABI,
         swap_abi: raiSwapABI,
@@ -1762,13 +1615,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         meta_coin_decimals: [6, 18, 6, 6],
         meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [
-            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        ],
-        all_coin_addresses: [
-            '0x68749665ff8d2d112fa859aa293f07a622782f38',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', //base pool lp
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
             '0xdAC17F958D2ee523a2206206994597C13D831ec7',

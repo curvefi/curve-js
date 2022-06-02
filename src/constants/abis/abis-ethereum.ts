@@ -104,8 +104,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56',
         token_address: '0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2',
         gauge_address: '0x7ca5b0a2910B33e9759DC7dDB0413949071D7575',
-        old_token_address: '0x3740fb63ab7a09891d7c0d4299442A551D06F5fD',
-        migration_address: '0x54Ee22d5593FC76fB20EafAb66C45aAb3268B800',
         underlying_coins: ['DAI', 'USDC'],
         coins: ['cDAI', 'cUSDC'],
         underlying_coin_addresses: [
@@ -118,7 +116,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         ],
         deposit_address: '0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06',
         deposit_abi: compoundDepositABI,
-        migration_abi: compoundMigrationABI,
         swap_abi: compoundSwapABI,
         gauge_abi: gaugeABI,
     },

@@ -25,7 +25,6 @@ export interface PoolDataInterface {
     full_name: string,
     symbol: string,
     reference_asset: REFERENCE_ASSET,
-    N_COINS: number,
     underlying_decimals: number[],
     decimals: number[],
     tethered?: boolean[],

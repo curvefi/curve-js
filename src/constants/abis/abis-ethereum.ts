@@ -409,7 +409,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x64448B78561690B70E17CBE8029a3e5c1bB7136e',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [2, 18, 6, 6],
         meta_wrapped_decimals: [2, 18],
         meta_coin_addresses: [
@@ -446,7 +445,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x09672362833d8f703D5395ef3252D4Bfa51c15ca',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [8, 18, 6, 6],
         meta_wrapped_decimals: [8, 18],
         meta_coin_addresses: [
@@ -483,7 +481,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xF1f85a74AD6c64315F85af52d3d46bF715236ADc',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -520,7 +517,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x094d12e5b541784701FD8d65F11fc0598FBC6332',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -557,7 +553,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -597,7 +592,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -636,7 +630,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: tbtcDepositABI,
         deposit_address: '0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c',
         is_meta: true,
-        meta_N: 5,
         base_pool: 'sbtc',
         meta_coin_decimals: [18, 8, 8, 18],
         meta_wrapped_decimals: [18, 18],
@@ -676,7 +669,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x61E10659fe3aa93d036d099405224E4Ac24996d0',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -715,7 +707,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: pbtcDepositABI,
         deposit_address: '0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C',
         is_meta: true,
-        meta_N: 5,
         base_pool: 'sbtc',
         meta_coin_decimals: [18, 8, 8, 18],
         meta_wrapped_decimals: [18, 18],
@@ -755,7 +746,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: bbtcDepositABI,
         deposit_address: '0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756',
         is_meta: true,
-        meta_N: 5,
         base_pool: 'sbtc',
         meta_coin_decimals: [8, 8, 8, 18],
         meta_wrapped_decimals: [8, 18],
@@ -792,7 +782,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: obtcDepositABI,
         deposit_address: '0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D',
         is_meta: true,
-        meta_N: 5,
         base_pool: 'sbtc',
         meta_coin_decimals: [18, 8, 8, 18],
         meta_wrapped_decimals: [18, 18],
@@ -886,7 +875,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1037,7 +1025,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1125,7 +1112,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1162,7 +1148,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1202,7 +1187,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1242,7 +1226,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1306,7 +1289,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1346,7 +1328,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1440,7 +1421,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: eurtusdDepositABI,
         deposit_address: '0x5D0F47B32fDd343BfA74cE221808e2abE4A53827',
         is_meta: true,
-        meta_N: 5,
         meta_coin_decimals: [6, 18, 6, 6],
         meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [
@@ -1524,7 +1504,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xcB636B81743Bb8a7F1E355DEBb7D33b07009cCCC',
         is_meta: true,
         base_pool: '3pool',
-        meta_N: 5,
         meta_coin_decimals: [18, 18, 6, 6],
         meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
@@ -1589,7 +1568,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: eurtusdDepositABI,
         deposit_address: '0xc5FA220347375ac4f91f9E4A4AAb362F22801504',
         is_meta: true,
-        meta_N: 5,
         meta_coin_decimals: [6, 18, 6, 6],
         meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [

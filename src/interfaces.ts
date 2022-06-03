@@ -42,7 +42,6 @@ export interface PoolDataInterface {
     is_meta?: boolean,
     is_fake?: boolean,
     is_crypto?: boolean,
-    meta_N?: number,
     meta_coin_decimals?: number[],
     meta_wrapped_decimals?: number[],
     base_pool?: string,

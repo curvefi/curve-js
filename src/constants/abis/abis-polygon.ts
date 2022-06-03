@@ -137,7 +137,6 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x225FB4176f0E20CDb66b4a3DF70CA3063281E855',
         is_meta: true,
         meta_coin_decimals: [6, 18, 6, 6],
-        meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC

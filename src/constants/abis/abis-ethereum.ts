@@ -410,7 +410,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [2, 18, 6, 6],
-        meta_wrapped_decimals: [2, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -446,7 +445,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [8, 18, 6, 6],
-        meta_wrapped_decimals: [8, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -482,7 +480,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -518,7 +515,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -554,7 +550,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -593,7 +588,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -632,7 +626,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: 'sbtc',
         meta_coin_decimals: [18, 8, 8, 18],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -670,7 +663,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -709,7 +701,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: 'sbtc',
         meta_coin_decimals: [18, 8, 8, 18],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -748,7 +739,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: 'sbtc',
         meta_coin_decimals: [8, 8, 8, 18],
-        meta_wrapped_decimals: [8, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -784,7 +774,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: 'sbtc',
         meta_coin_decimals: [18, 8, 8, 18],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -876,7 +865,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1026,7 +1014,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1113,7 +1100,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1149,7 +1135,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1188,7 +1173,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1227,7 +1211,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1290,7 +1273,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1329,7 +1311,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1422,7 +1403,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x5D0F47B32fDd343BfA74cE221808e2abE4A53827',
         is_meta: true,
         meta_coin_decimals: [6, 18, 6, 6],
-        meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1505,7 +1485,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         is_meta: true,
         base_pool: '3pool',
         meta_coin_decimals: [18, 18, 6, 6],
-        meta_wrapped_decimals: [18, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1569,7 +1548,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xc5FA220347375ac4f91f9E4A4AAb362F22801504',
         is_meta: true,
         meta_coin_decimals: [6, 18, 6, 6],
-        meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

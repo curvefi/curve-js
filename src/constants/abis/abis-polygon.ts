@@ -136,7 +136,6 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         deposit_abi: eurtusdZap,
         deposit_address: '0x225FB4176f0E20CDb66b4a3DF70CA3063281E855',
         is_meta: true,
-        meta_N: 5,
         meta_coin_decimals: [6, 18, 6, 6],
         meta_wrapped_decimals: [6, 18],
         meta_coin_addresses: [

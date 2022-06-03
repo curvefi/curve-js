@@ -19,6 +19,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         gauge_address: '0x19793B454D3AfC7b454F206Ffe95aDE26cA6912c',
         sCurveRewards_address: '0xBdFF0C27dd073C119ebcb1299a68A6A92aE607F0',
         reward_contract: "0xC48f4653dd6a9509De44c92beb0604BEA3AEe714",
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         coins: ['amDAI', 'amUSDC', 'amUSDT'],
         underlying_coin_addresses: [
@@ -49,6 +50,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         token_address: '0xf8a57c1d3b9629b77b6726a042ca48990A84Fb49',
         gauge_address: '0xffbACcE0CC7C19d46132f1258FC16CF6871D153c',
         reward_contract: "0x488E6ef919C2bB9de535C634a80afb0114DA8F62",
+        is_lending: true,
         underlying_coins: ['WBTC', 'renBTC'],
         coins: ['amWBTC', 'renBTC'],
         underlying_coin_addresses: [

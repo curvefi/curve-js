@@ -20,7 +20,6 @@ import { swapWrappedExpectedAndApproveMixin, swapWrappedTricrypto2Mixin, swapWra
 export const getPool = (poolId: string): PoolTemplate => {
     const poolDummy = new PoolTemplate(poolId);
     class Pool extends PoolTemplate {}
-    const isLending = poolDummy.useLending.reduce((a, b) => a || b);
 
     // getPoolBalances
     if (poolId === "atricrypto3") {
@@ -45,14 +44,14 @@ export const getPool = (poolId: string): PoolTemplate => {
         Object.assign(Pool.prototype, depositMetaFactoryMixin);
     } else if (poolDummy.zap && poolId !== 'susd') {
         Object.assign(Pool.prototype, depositZapMixin);
-    } else if (isLending || poolDummy.isCrypto) {
+    } else if (poolDummy.isLending || poolDummy.isCrypto) {
         Object.assign(Pool.prototype, depositLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, depositPlainMixin);
     }
 
     // depositWrapped and depositWrappedEstimateGas
-    if ((isLending || poolDummy.isCrypto) && !poolDummy.zap) {
+    if ((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) {
         Object.assign(Pool.prototype, depositWrapped3argsMixin);
     } else if (!poolDummy.isPlain && !poolDummy.isFake) {
         Object.assign(Pool.prototype, depositWrapped2argsMixin);
@@ -63,7 +62,7 @@ export const getPool = (poolId: string): PoolTemplate => {
         Object.assign(Pool.prototype, withdrawExpectedAtricrypto3Mixin);
     } else if (poolDummy.isMeta) {
         Object.assign(Pool.prototype, withdrawExpectedMetaMixin);
-    } else if (isLending || poolDummy.isCrypto) {
+    } else if (poolDummy.isLending || poolDummy.isCrypto) {
         Object.assign(Pool.prototype, withdrawExpectedLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, withdrawExpectedMixin);
@@ -74,14 +73,14 @@ export const getPool = (poolId: string): PoolTemplate => {
         Object.assign(Pool.prototype, withdrawMetaFactoryMixin);
     } else if (poolDummy.zap && poolId !== 'susd') {
         Object.assign(Pool.prototype, withdrawZapMixin);
-    } else if (isLending || poolDummy.isCrypto) {
+    } else if (poolDummy.isLending || poolDummy.isCrypto) {
         Object.assign(Pool.prototype, withdrawLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, withdrawPlainMixin);
     }
 
     // withdrawWrapped and withdrawWrappedEstimateGas
-    if ((isLending || poolDummy.isCrypto) && !poolDummy.zap) {
+    if ((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) {
         Object.assign(Pool.prototype, withdrawWrapped3argsMixin);
         Object.assign(Pool.prototype, withdrawWrappedExpectedMixin);
     } else if (!poolDummy.isPlain && !poolDummy.isFake) {
@@ -95,7 +94,7 @@ export const getPool = (poolId: string): PoolTemplate => {
             Object.assign(Pool.prototype, withdrawImbalanceMetaFactoryMixin);
         } else if (poolDummy.zap && poolId !== 'susd') {
             Object.assign(Pool.prototype, withdrawImbalanceZapMixin);
-        } else if (isLending) {
+        } else if (poolDummy.isLending) {
             Object.assign(Pool.prototype, withdrawImbalanceLendingMixin);
         } else {
             Object.assign(Pool.prototype, withdrawImbalancePlainMixin);
@@ -104,7 +103,7 @@ export const getPool = (poolId: string): PoolTemplate => {
 
     // withdrawImbalanceWrapped and withdrawImbalanceWrappedEstimateGas
     if (!poolDummy.isCrypto) {
-        if (isLending && !poolDummy.zap) {
+        if (poolDummy.isLending && !poolDummy.zap) {
             Object.assign(Pool.prototype, withdrawImbalanceWrapped3argsMixin);
         } else if (!poolDummy.isPlain && !poolDummy.isFake) {
             Object.assign(Pool.prototype, withdrawImbalanceWrapped2argsMixin);
@@ -127,14 +126,14 @@ export const getPool = (poolId: string): PoolTemplate => {
         Object.assign(Pool.prototype, withdrawOneCoinMetaFactoryMixin);
     } else if (poolDummy.zap) { // including susd
         Object.assign(Pool.prototype, withdrawOneCoinZapMixin);
-    } else if (isLending || poolDummy.isCrypto) {
+    } else if (poolDummy.isLending || poolDummy.isCrypto) {
         Object.assign(Pool.prototype, withdrawOneCoinLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, withdrawOneCoinPlainMixin);
     }
 
     // withdrawOneCoinWrappedExpected
-    if (!poolDummy.isPlain && !poolDummy.isFake && !(isLending && poolDummy.zap)) {
+    if (!poolDummy.isPlain && !poolDummy.isFake && !(poolDummy.isLending && poolDummy.zap)) {
         if (poolId === "ib") {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedExpected3argsMixin);
         } else {
@@ -143,8 +142,8 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // withdrawOneCoinWrapped and withdrawOneCoinWrappedEstimateGas
-    if (!poolDummy.isPlain && !poolDummy.isFake && !(isLending && poolDummy.zap)) {
-        if ((isLending || poolDummy.isCrypto) && !poolDummy.zap) {
+    if (!poolDummy.isPlain && !poolDummy.isFake && !(poolDummy.isLending && poolDummy.zap)) {
+        if ((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedLendingOrCryptoMixin);
         } else {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedMixin);

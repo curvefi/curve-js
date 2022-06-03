@@ -466,7 +466,6 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 full_name: poolNames[i],
                 symbol: poolSymbols[i],
                 reference_asset: referenceAssets[i],
-                use_lending: coinAddresses[i].map(() => false),
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],

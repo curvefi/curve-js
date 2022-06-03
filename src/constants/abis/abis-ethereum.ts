@@ -102,6 +102,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2',
         gauge_address: '0x7ca5b0a2910B33e9759DC7dDB0413949071D7575',
         deposit_address: '0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06',
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC'],
         coins: ['cDAI', 'cUSDC'],
         underlying_coin_addresses: [
@@ -129,6 +130,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23',
         gauge_address: '0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53',
         deposit_address: '0xac795D2c97e60DF6a99ff1c814727302fD747a80',
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         coins: ['cDAI', 'cUSDC', 'USDT'],
         underlying_coin_addresses: [
@@ -159,6 +161,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_address: '0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1',
         deposit_address: '0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3',
         sCurveRewards_address: '0x0001FB050Fe7312791bF6475b96569D83F695C9f',
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT', 'TUSD'],
         coins: ['yDAI', 'yUSDC', 'yUSDT', 'yTUSD'],
         underlying_coin_addresses: [
@@ -190,6 +193,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B',
         gauge_address: '0x69Fb7c45726cfE2baDeE8317005d3F94bE838840',
         deposit_address: '0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB',
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT', 'BUSD'],
         coins: ['byDAI', 'byUSDC', 'byUSDT', 'yBUSD'],
         underlying_coin_addresses: [
@@ -255,6 +259,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8',
         gauge_address: '0x64E3C23bfc40722d3B649844055F1D51c1ac041d',
         deposit_address: '0xA50cCc70b6a011CffDdf45057E39679379187287',
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT', 'PAX'],
         coins: ['ycDAI', 'ycUSDC', 'ycUSDT', 'PAX'],
         underlying_coin_addresses: [
@@ -882,6 +887,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900',
         gauge_address: '0xd662908ADA2Ea1916B3318327A97eB18aD588b5d',
         sCurveRewards_address: "0x99ac10631F69C753DDb595D074422a0922D9056B",
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         coins: ['aDAI', 'aUSDC', 'aUSDT'],
         underlying_coin_addresses: [
@@ -940,6 +946,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x02d341CcB60fAaf662bC0554d13778015d1b285C',
         gauge_address: '0x462253b8F74B72304c145DB0e4Eebd326B22ca39',
         sCurveRewards_address: "0xe5f41acad47849c6eb28b93913ca81893fb5a2a6",
+        is_lending: true,
         underlying_coins: ['DAI', 'sUSD'],
         coins: ['aDAI', 'aSUSD'],
         underlying_coin_addresses: [
@@ -1030,6 +1037,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF',
         token_address: '0x5282a4eF67D9C33135340fB3289cc1711c13638C',
         gauge_address: '0xF5194c3325202F456c95c1Cf0cA36f8475C1949F',
+        is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         coins: ['cyDAI', 'cyUSDC', 'cyUSDT'],
         underlying_coin_addresses: [

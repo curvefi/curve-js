@@ -47,6 +47,7 @@ export class PoolTemplate {
     zap: string | null;
     rewardContract: string | null;
     isPlain: boolean;
+    isLending: boolean;
     isMeta: boolean;
     isFake: boolean;
     isCrypto: boolean;
@@ -122,6 +123,7 @@ export class PoolTemplate {
         this.zap = poolData.deposit_address || null;
         this.rewardContract = poolData.reward_contract || null;
         this.isPlain = poolData.is_plain || false;
+        this.isLending = poolData.is_lending || false;
         this.isMeta = poolData.is_meta || false;
         this.isCrypto = poolData.is_crypto || false;
         this.isFake = poolData.is_fake || false;
@@ -925,8 +927,7 @@ export class PoolTemplate {
         const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, decimals[i]));
 
         const contract = curve.contracts[ALIASES.deposit_and_stake].contract;
-        const isLending = this.useLending.reduce((a, b) => a || b)
-        const useUnderlying = isUnderlying && (isLending || this.isCrypto) && !this.zap;
+        const useUnderlying = isUnderlying && (this.isLending || this.isCrypto) && !this.zap;
         const _minMintAmount = isUnderlying ?
             ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)).mul(99).div(100) :
             ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts)).mul(99).div(100);

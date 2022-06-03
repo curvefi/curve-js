@@ -32,6 +32,7 @@ export interface PoolDataInterface {
     sCurveRewards_address?: string,
     reward_contract?: string,
     is_plain?: boolean,
+    is_lending?: boolean,
     is_meta?: boolean,
     is_crypto?: boolean,
     is_fake?: boolean,

@@ -89,22 +89,6 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
     }
 }
 
-function setFactoryRewardCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
-    for (const pool of rawPoolList) {
-        for (const rewardCoin of pool.gaugeRewards ?? []) {
-            const addr = rewardCoin.tokenAddress.toLowerCase();
-            if (addr in this.contracts) continue;
-
-            this.contracts[addr] = {
-                contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, ERC20ABI),
-            }
-
-            this.constants.DECIMALS_LOWER_CASE[addr] = Number(rewardCoin.decimals);
-        }
-    }
-}
-
 function setFactoryZapContracts(this: ICurve): void {
     if (this.chainId === 137) {
         const metaUsdZapAddress = "0x5ab5C56B9db92Ba45a0B46a207286cD83C15C939".toLowerCase();
@@ -140,7 +124,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     if (isCrypto) setCryptoFactoryTokenContracts.call(this, rawPoolList);
     setFactoryGaugeContracts.call(this, rawPoolList);
     setFactoryCoinsContracts.call(this, rawPoolList);
-    setFactoryRewardCoinsContracts.call(this, rawPoolList);
     if (!isCrypto) setFactoryZapContracts.call(this);
 
     const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
@@ -159,22 +142,19 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: "CRYPTO",
-                is_crypto: true,
-                underlying_decimals: coinDecimals,
-                decimals: coinDecimals,
-                use_lending: coinAddresses.map(() => false),
-                underlying_coins: underlyingCoinNames,
-                coins: cryptoCoinNames,
                 swap_address: pool.address.toLowerCase(),
                 token_address: (pool.lpTokenAddress as string).toLowerCase(),
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
+                is_crypto: true,
+                is_factory: true,
+                underlying_coins: underlyingCoinNames,
+                coins: cryptoCoinNames,
                 underlying_coin_addresses: underlyingCoinAddresses,
                 coin_addresses: coinAddresses,
-                reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
+                underlying_decimals: coinDecimals,
+                decimals: coinDecimals,
                 swap_abi: cryptoFactorySwapABI,
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_crypto_factory: true,
             };
         } else if (pool.implementation.startsWith("meta")) {
             const implementationABIDict = this.chainId === 137 ? implementationABIDictPolygon : implementationABIDictEthereum;
@@ -196,25 +176,22 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
-                underlying_decimals: [coinDecimals[0], ...basePoolDecimals],
-                decimals: coinDecimals,
-                use_lending: coinAddresses.map(() => false),
                 swap_address: pool.address.toLowerCase(),
                 token_address: pool.address.toLowerCase(),
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
+                deposit_address: basePoolZap,
+                is_meta: true,
+                is_factory: true,
+                base_pool: basePoolAddressNameDict[basePoolAddress],
                 underlying_coins: [coinNames[0], ...basePoolCoinNames],
                 coins: coinNames,
                 underlying_coin_addresses: [coinAddresses[0], ...basePoolCoinAddresses],
                 coin_addresses: coinAddresses,
-                reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
+                underlying_decimals: [coinDecimals[0], ...basePoolDecimals],
+                decimals: coinDecimals,
+                meta_coin_addresses: basePoolCoinAddresses,
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_meta_factory: true,
-                is_meta: true,
-                base_pool: basePoolAddressNameDict[basePoolAddress],
-                meta_coin_addresses: basePoolCoinAddresses,
-                deposit_address: basePoolZap,
                 deposit_abi: factoryDepositABI,
             };
         } else {
@@ -225,21 +202,19 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
-                underlying_decimals: coinDecimals,
-                decimals: coinDecimals,
-                use_lending: coinAddresses.map(() => false),
                 swap_address: pool.address.toLowerCase(),
                 token_address: pool.address.toLowerCase(),
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
+                is_plain: true,
+                is_factory: true,
                 underlying_coins: coinNames,
                 coins: coinNames,
                 underlying_coin_addresses: coinAddresses,
                 coin_addresses: coinAddresses,
-                reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
+                underlying_decimals: coinDecimals,
+                decimals: coinDecimals,
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_plain_factory: true,
             };
         }
     })

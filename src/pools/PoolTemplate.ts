@@ -42,17 +42,10 @@ export class PoolTemplate {
     symbol: string;
     referenceAsset: string;
     poolAddress: string;
-    zap: string | null;
     lpToken: string;
     gauge: string;
+    zap: string | null;
     rewardContract: string | null;
-    underlyingCoins: string[];
-    coins: string[];
-    underlyingCoinAddresses: string[];
-    coinAddresses: string[];
-    underlyingDecimals: number[];
-    decimals: number[];
-    useLending: boolean[];
     isMeta: boolean;
     isFake: boolean;
     isCrypto: boolean;
@@ -61,6 +54,13 @@ export class PoolTemplate {
     isMetaFactory: boolean;
     isPlainFactory: boolean;
     isCryptoFactory: boolean;
+    underlyingCoins: string[];
+    coins: string[];
+    underlyingCoinAddresses: string[];
+    coinAddresses: string[];
+    underlyingDecimals: number[];
+    decimals: number[];
+    useLending: boolean[];
     rewardTokens: string[];
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number>,
@@ -117,25 +117,25 @@ export class PoolTemplate {
         this.symbol = poolData.symbol;
         this.referenceAsset = poolData.reference_asset;
         this.poolAddress = poolData.swap_address;
-        this.zap = poolData.deposit_address || null;
         this.lpToken = poolData.token_address;
         this.gauge = poolData.gauge_address;
+        this.zap = poolData.deposit_address || null;
         this.rewardContract = poolData.reward_contract || null;
+        this.isMeta = poolData.is_meta || false;
+        this.isCrypto = poolData.is_crypto || false;
+        this.isFake = poolData.is_fake || false;
+        this.isFactory = poolData.is_factory || false;
+        this.isMetaFactory = poolData.is_meta_factory || false;
+        this.isPlainFactory = poolData.is_plain_factory || false;
+        this.isCryptoFactory = poolData.is_crypto_factory || false;
+        this.basePool = poolData.base_pool || '';
         this.underlyingCoins = poolData.underlying_coins;
         this.coins = poolData.coins;
         this.underlyingCoinAddresses = poolData.underlying_coin_addresses;
         this.coinAddresses = poolData.coin_addresses;
         this.underlyingDecimals = poolData.underlying_decimals;
         this.decimals = poolData.decimals;
-        this.useLending = poolData.use_lending;
-        this.isMeta = poolData.is_meta || false;
-        this.isFake = poolData.is_fake || false;
-        this.isCrypto = poolData.is_crypto || false;
-        this.isFactory = poolData.is_factory || false;
-        this.isMetaFactory = poolData.is_meta_factory || false;
-        this.isPlainFactory = poolData.is_plain_factory || false;
-        this.isCryptoFactory = poolData.is_crypto_factory || false;
-        this.basePool = poolData.base_pool || '';
+        this.useLending = poolData.use_lending || poolData.underlying_coin_addresses.map(() => false);
         this.rewardTokens = poolData.reward_tokens || [];
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),

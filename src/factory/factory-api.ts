@@ -147,7 +147,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
                 is_crypto: true,
                 is_factory: true,
-                is_crypto_factory: true,
                 underlying_coins: underlyingCoinNames,
                 coins: cryptoCoinNames,
                 underlying_coin_addresses: underlyingCoinAddresses,

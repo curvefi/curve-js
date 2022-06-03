@@ -49,12 +49,11 @@ export class PoolTemplate {
     isPlain: boolean;
     isLending: boolean;
     isMeta: boolean;
-    isFake: boolean;
     isCrypto: boolean;
-    basePool: string;
+    isFake: boolean;
     isFactory: boolean;
     isMetaFactory: boolean;
-    isCryptoFactory: boolean;
+    basePool: string;
     underlyingCoins: string[];
     coins: string[];
     underlyingCoinAddresses: string[];
@@ -129,7 +128,6 @@ export class PoolTemplate {
         this.isFake = poolData.is_fake || false;
         this.isFactory = poolData.is_factory || false;
         this.isMetaFactory = poolData.is_meta_factory || false;
-        this.isCryptoFactory = poolData.is_crypto_factory || false;
         this.basePool = poolData.base_pool || '';
         this.underlyingCoins = poolData.underlying_coins;
         this.coins = poolData.coins;
@@ -256,7 +254,7 @@ export class PoolTemplate {
             const network = curve.chainId === 137 ? "polygon" : "ethereum";
             const poolType = !this.isFactory && !this.isCrypto ? "main" :
                 !this.isFactory ? "crypto" :
-                !this.isCryptoFactory ? "factory" :
+                !(this.isCrypto && this.isFactory) ? "factory" :
                 "factory-crypto";
             const poolsData = (await _getPoolsFromApi(network, poolType)).poolData;
 

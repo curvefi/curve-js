@@ -240,7 +240,6 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterf
             gauge_address: gaugeAddresses[i],
             is_crypto: true,
             is_factory: true,
-            is_crypto_factory: true,
             underlying_coins: underlyingCoinAddresses[i].map((addr) => coinAddressNameDict[addr]),
             coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
             underlying_coin_addresses: underlyingCoinAddresses[i],

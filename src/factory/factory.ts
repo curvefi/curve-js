@@ -467,7 +467,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 full_name: poolNames[i],
                 symbol: poolSymbols[i],
                 reference_asset: referenceAssets[i],
-                underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
+                underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolAddressDecimalsDict[basePoolAddresses[i]]],
                 decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 use_lending: coinAddresses[i].map(() => false),
                 swap_address: swapAddresses[i],
@@ -484,7 +484,6 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 is_meta: true,
                 base_pool: basePoolAddressNameDict[basePoolAddresses[i]],
                 meta_coin_addresses: basePoolAddressCoinAddressesDict[basePoolAddresses[i]],
-                meta_coin_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolAddressDecimalsDict[basePoolAddresses[i]]],
                 deposit_address: basePoolAddressZapDict[basePoolAddresses[i]],
                 deposit_abi: factoryDepositABI,
             };

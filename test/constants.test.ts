@@ -29,29 +29,18 @@ describe('Checking constants', async function () {
 
     it('POOLS_DATA <-> DECIMALS match', async function () {
         for (const poolData of Object.values(POOLS_DATA)) {
-            let coinAddresses = [
+            const coinAddresses = [
                 ...poolData.underlying_coin_addresses,
                 ...poolData.coin_addresses,
             ]
-            let coinDecimals = [
+            const coinDecimals = [
                 ...poolData.underlying_decimals,
                 ...poolData.decimals,
             ]
 
-            if (poolData.is_meta && !poolData.is_fake) {
-                coinAddresses = [
-                    poolData.underlying_coin_addresses[0],
-                    ...poolData.meta_coin_addresses as string[],
-                    ...poolData.coin_addresses,
-                ]
-                coinDecimals = [
-                    ...poolData.meta_coin_decimals as number[],
-                    ...poolData.decimals,
-                ]
-            }
-            assert.equal(coinAddresses.length, coinDecimals.length);
+            assert.equal(coinAddresses.length, coinDecimals.length, `Pool: ${poolData.name}, swap addesss: ${poolData.swap_address}`);
             for (let i = 0; i < coinAddresses.length; i++) {
-                assert.equal(DECIMALS[coinAddresses[i]], coinDecimals[i], `Swap addesss: ${poolData.swap_address}`)
+                assert.equal(DECIMALS[coinAddresses[i]], coinDecimals[i], `Pool: ${poolData.name}, swap addesss: ${poolData.swap_address}`);
             }
         }
     });
@@ -72,17 +61,10 @@ describe('Checking constants', async function () {
                 ...poolData.underlying_coins,
                 ...poolData.coins,
             ]
-            let coinAddresses = [
+            const coinAddresses = [
                 ...poolData.underlying_coin_addresses,
                 ...poolData.coin_addresses,
             ]
-            if (poolData.is_meta && !poolData.is_fake) {
-                coinAddresses = [
-                    poolData.underlying_coin_addresses[0],
-                    ...poolData.meta_coin_addresses as string[],
-                    ...poolData.coin_addresses,
-                ]
-            }
 
             assert.equal(coins.length, coinAddresses.length, poolData.swap_address);
             for (let i = 0; i < coins.length; i++) {
@@ -92,7 +74,7 @@ describe('Checking constants', async function () {
                 if (coins[i] === "ankrETH") continue; // Actually aETHc
                 if (coins[i] === "PAX") continue; // Actually USDP
                 const contract = curve.contracts[coinAddresses[i]].contract;
-                assert.equal(coins[i], await contract.symbol())
+                assert.equal(coins[i], await contract.symbol(), `Pool: ${poolData.name}, swap addesss: ${poolData.swap_address}`)
             }
         }
     });

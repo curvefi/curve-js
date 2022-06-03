@@ -182,13 +182,6 @@ export class PoolTemplate {
             underlyingCoinBalances: this.walletUnderlyingCoinBalances.bind(this),
             allCoinBalances: this.walletAllCoinBalances.bind(this),
         }
-
-        if (this.isMeta && !this.isFake) {
-            const metaCoins = poolData.meta_coin_addresses as string[];
-            const metaCoinDecimals = poolData.meta_coin_decimals as number[];
-            this.underlyingCoinAddresses = [this.underlyingCoinAddresses[0], ...metaCoins];
-            this.underlyingDecimals = metaCoinDecimals;
-        }
     }
 
     private getParameters = async (): Promise<{

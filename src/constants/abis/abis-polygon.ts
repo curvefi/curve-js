@@ -114,7 +114,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         full_name: "eurtusd",
         symbol: "eurtusd",
         reference_asset: 'CRYPTO',
-        underlying_decimals: [6, 18],
+        underlying_decimals: [6, 18, 6, 6],
         decimals: [6, 18],
         use_lending: [false, false],
         swap_address: '0xB446BF7b8D6D4276d0c75eC0e3ee8dD7Fe15783A',
@@ -126,7 +126,9 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         coins: ['EURT', 'am3CRV'],
         underlying_coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
-            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
+            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
+            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
+            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
         coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
@@ -136,7 +138,6 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         deposit_abi: eurtusdZap,
         deposit_address: '0x225FB4176f0E20CDb66b4a3DF70CA3063281E855',
         is_meta: true,
-        meta_coin_decimals: [6, 18, 6, 6],
         meta_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC

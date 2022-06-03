@@ -388,7 +388,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "gusd",
         symbol: "gusd",
         reference_asset: 'USD',
-        underlying_decimals: [2, 18],
+        underlying_decimals: [2, 18, 6, 6],
         decimals: [2, 18],
         use_lending: [false, false],
         swap_address: '0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956',
@@ -398,7 +398,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['GUSD', '3Crv'],
         underlying_coin_addresses: [
             '0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd',
@@ -409,7 +411,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x64448B78561690B70E17CBE8029a3e5c1bB7136e',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [2, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -423,7 +424,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "husd",
         symbol: "husd",
         reference_asset: 'USD',
-        underlying_decimals: [8, 18],
+        underlying_decimals: [8, 18, 6, 6],
         decimals: [8, 18],
         use_lending: [false, false],
         swap_address: '0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604',
@@ -433,7 +434,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['HUSD', '3Crv'],
         underlying_coin_addresses: [
             '0xdF574c24545E5FfEcb9a659c229253D4111d87e1',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0xdF574c24545E5FfEcb9a659c229253D4111d87e1',
@@ -444,7 +447,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x09672362833d8f703D5395ef3252D4Bfa51c15ca',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [8, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -458,7 +460,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "usdk",
         symbol: "usdk",
         reference_asset: 'USD',
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb',
@@ -468,7 +470,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['USDK', '3Crv'],
         underlying_coin_addresses: [
             '0x1c48f86ae57291F7686349F12601910BD8D470bb',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x1c48f86ae57291F7686349F12601910BD8D470bb',
@@ -479,7 +483,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xF1f85a74AD6c64315F85af52d3d46bF715236ADc',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -493,7 +496,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "usdn",
         symbol: "usdn",
         reference_asset: 'USD',
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1',
@@ -503,7 +506,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['USDN', '3Crv'],
         underlying_coin_addresses: [
             '0x674C6Ad92Fd080e4004b2312b45f796a192D27a0',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x674C6Ad92Fd080e4004b2312b45f796a192D27a0',
@@ -514,7 +519,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x094d12e5b541784701FD8d65F11fc0598FBC6332',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -528,7 +532,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "musd",
         symbol: "musd",
         reference_asset: 'USD',
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6',
@@ -538,7 +542,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['mUSD', '3Crv'],
         underlying_coin_addresses: [
             '0xe2f2a5C287993345a840Db3B0845fbC70f5935a5',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0xe2f2a5C287993345a840Db3B0845fbC70f5935a5',
@@ -549,7 +555,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -566,7 +571,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "rsv",
         symbol: "rsv",
         reference_asset: 'USD',
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0xC18cC39da8b11dA8c3541C598eE022258F9744da',
@@ -576,7 +581,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['RSV', '3Crv'],
         underlying_coin_addresses: [
             '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
@@ -587,7 +594,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -604,7 +610,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "tbtc",
         symbol: "tbtc",
         reference_asset: 'BTC',
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 8, 8, 18],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0xC25099792E9349C7DD09759744ea681C7de2cb66',
@@ -614,7 +620,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['TBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
+            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
         coin_addresses: [
             '0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa',
@@ -625,7 +633,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c',
         is_meta: true,
         base_pool: 'sbtc',
-        meta_coin_decimals: [18, 8, 8, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -641,7 +648,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "dusd",
         symbol: "dusd",
         reference_asset: 'USD',
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c',
@@ -651,7 +658,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['DUSD', '3Crv'],
         underlying_coin_addresses: [
             '0x5BC25f649fc4e26069dDF4cF4010F9f706c23831',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x5BC25f649fc4e26069dDF4cF4010F9f706c23831',
@@ -662,7 +671,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x61E10659fe3aa93d036d099405224E4Ac24996d0',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -680,7 +688,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "pbtc",
         reference_asset: 'BTC',
         swap_abi: pbtcSwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 8, 8, 18],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF',
@@ -690,7 +698,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['pBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x5228a22e72ccC52d415EcFd199F99D0665E7733b',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
+            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
         coin_addresses: [
             '0x5228a22e72ccC52d415EcFd199F99D0665E7733b',
@@ -700,7 +710,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C',
         is_meta: true,
         base_pool: 'sbtc',
-        meta_coin_decimals: [18, 8, 8, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -718,7 +727,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "bbtc",
         reference_asset: 'BTC',
         swap_abi: bbtcSwapABI,
-        underlying_decimals: [8, 18],
+        underlying_decimals: [8, 8, 8, 18],
         decimals: [8, 18],
         use_lending: [false, false],
         swap_address: '0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b',
@@ -728,7 +737,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['BBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x9be89d2a4cd102d8fecc6bf9da793be995c22541',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
+            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
         coin_addresses: [
             '0x9be89d2a4cd102d8fecc6bf9da793be995c22541',
@@ -738,7 +749,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756',
         is_meta: true,
         base_pool: 'sbtc',
-        meta_coin_decimals: [8, 8, 8, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -753,7 +763,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "obtc",
         reference_asset: 'BTC',
         swap_abi: obtcSwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 8, 8, 18],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0xd81dA8D904b52208541Bade1bD6595D8a251F8dd',
@@ -763,7 +773,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['oBTC', 'sbtcCrv'],
         underlying_coin_addresses: [
             '0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68',
-            '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
+            '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
         ],
         coin_addresses: [
             '0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68',
@@ -773,7 +785,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D',
         is_meta: true,
         base_pool: 'sbtc',
-        meta_coin_decimals: [18, 8, 8, 18],
         meta_coin_addresses: [
             '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
             '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -844,7 +855,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "ust",
         reference_asset: 'USD',
         swap_abi: ustSwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x890f4e345B1dAED0367A877a1612f86A1f86985f',
@@ -854,7 +865,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['UST', '3Crv'],
         underlying_coin_addresses: [
             '0xa47c8bf37f92abed4a126bda807a7b7498661acd',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0xa47c8bf37f92abed4a126bda807a7b7498661acd',
@@ -864,7 +877,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -993,7 +1005,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "usdp",
         reference_asset: 'USD',
         swap_abi: usdpSwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x42d7025938bEc20B69cBae5A77421082407f053A',
@@ -1003,7 +1015,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['USDP', '3Crv'],
         underlying_coin_addresses: [
             '0x1456688345527bE1f37E9e627DA0837D6f08C925',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x1456688345527bE1f37E9e627DA0837D6f08C925',
@@ -1013,7 +1027,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1079,7 +1092,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "tusd",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0xecd5e75afb02efa118af914515d6521aabd189f1',
@@ -1089,7 +1102,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['TUSD', '3Crv'],
         underlying_coin_addresses: [
             '0x0000000000085d4780B73119b644AE5ecd22b376',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x0000000000085d4780B73119b644AE5ecd22b376',
@@ -1099,7 +1114,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1114,7 +1128,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "frax",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B',
@@ -1124,7 +1138,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['FRAX', '3Crv'],
         underlying_coin_addresses: [
             '0x853d955acef822db058eb8505911ed77f175b99e',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x853d955acef822db058eb8505911ed77f175b99e',
@@ -1134,7 +1150,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1152,7 +1167,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "lusd",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA',
@@ -1162,7 +1177,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['LUSD', '3Crv'],
         underlying_coin_addresses: [
             '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
@@ -1172,7 +1189,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1190,7 +1206,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "busdv2",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x4807862AA8b2bF68830e4C8dc86D0e9A998e085a',
@@ -1200,7 +1216,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['BUSD', '3Crv'],
         underlying_coin_addresses: [
             '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
@@ -1210,7 +1228,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1252,7 +1269,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "alusd",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c',
@@ -1262,7 +1279,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['alUSD', '3Crv'],
         underlying_coin_addresses: [
             '0xbc6da0fe9ad5f3b0d58160288917aa56653660e9',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0xbc6da0fe9ad5f3b0d58160288917aa56653660e9',
@@ -1272,7 +1291,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1290,7 +1308,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         symbol: "mim",
         reference_asset: 'USD',
         swap_abi: factorySwapABI,
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
@@ -1300,7 +1318,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['MIM', '3Crv'],
         underlying_coin_addresses: [
             '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
@@ -1310,7 +1330,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1380,7 +1399,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "eurtusd",
         symbol: "eurtusd",
         reference_asset: 'CRYPTO',
-        underlying_decimals: [6, 18],
+        underlying_decimals: [6, 18, 6, 6],
         decimals: [6, 18],
         use_lending: [false, false],
         swap_address: '0x9838eCcC42659FA8AA7daF2aD134b53984c9427b',
@@ -1392,7 +1411,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['EURT', '3Crv'],
         underlying_coin_addresses: [
             '0xC581b735A1688071A1746c968e0798D642EDE491',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0xC581b735A1688071A1746c968e0798D642EDE491',
@@ -1402,7 +1423,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: eurtusdDepositABI,
         deposit_address: '0x5D0F47B32fDd343BfA74cE221808e2abE4A53827',
         is_meta: true,
-        meta_coin_decimals: [6, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1465,7 +1485,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "rai",
         symbol: "rai",
         reference_asset: 'USD',
-        underlying_decimals: [18, 18],
+        underlying_decimals: [18, 18, 6, 6],
         decimals: [18, 18],
         use_lending: [false, false],
         swap_address: '0x618788357D0EBd8A37e763ADab3bc575D54c2C7d',
@@ -1475,7 +1495,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['RAI', '3Crv'],
         underlying_coin_addresses: [
             '0x03ab458634910aad20ef5f1c8ee96f1d6ac54919',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x03ab458634910aad20ef5f1c8ee96f1d6ac54919',
@@ -1484,7 +1506,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_address: '0xcB636B81743Bb8a7F1E355DEBb7D33b07009cCCC',
         is_meta: true,
         base_pool: '3pool',
-        meta_coin_decimals: [18, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -1525,7 +1546,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         full_name: "xautusd",
         symbol: "xautusd",
         reference_asset: 'CRYPTO',
-        underlying_decimals: [6, 18],
+        underlying_decimals: [6, 18, 6, 6],
         decimals: [6, 18],
         use_lending: [false, false],
         swap_address: '0xAdCFcf9894335dC340f6Cd182aFA45999F45Fc44',
@@ -1537,7 +1558,9 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         coins: ['XAUt', '3Crv'],
         underlying_coin_addresses: [
             '0x68749665ff8d2d112fa859aa293f07a622782f38',
-            '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         ],
         coin_addresses: [
             '0x68749665ff8d2d112fa859aa293f07a622782f38',
@@ -1547,7 +1570,6 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         deposit_abi: eurtusdDepositABI,
         deposit_address: '0xc5FA220347375ac4f91f9E4A4AAb362F22801504',
         is_meta: true,
-        meta_coin_decimals: [6, 18, 6, 6],
         meta_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

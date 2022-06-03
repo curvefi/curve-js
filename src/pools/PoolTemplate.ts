@@ -46,13 +46,13 @@ export class PoolTemplate {
     gauge: string;
     zap: string | null;
     rewardContract: string | null;
+    isPlain: boolean;
     isMeta: boolean;
     isFake: boolean;
     isCrypto: boolean;
     basePool: string;
     isFactory: boolean;
     isMetaFactory: boolean;
-    isPlainFactory: boolean;
     isCryptoFactory: boolean;
     underlyingCoins: string[];
     coins: string[];
@@ -121,12 +121,12 @@ export class PoolTemplate {
         this.gauge = poolData.gauge_address;
         this.zap = poolData.deposit_address || null;
         this.rewardContract = poolData.reward_contract || null;
+        this.isPlain = poolData.is_plain || false;
         this.isMeta = poolData.is_meta || false;
         this.isCrypto = poolData.is_crypto || false;
         this.isFake = poolData.is_fake || false;
         this.isFactory = poolData.is_factory || false;
         this.isMetaFactory = poolData.is_meta_factory || false;
-        this.isPlainFactory = poolData.is_plain_factory || false;
         this.isCryptoFactory = poolData.is_crypto_factory || false;
         this.basePool = poolData.base_pool || '';
         this.underlyingCoins = poolData.underlying_coins;

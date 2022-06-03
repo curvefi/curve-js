@@ -222,6 +222,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         gauge_address: '0xA90996896660DEcC6E997655E065b23788857849',
         deposit_address: '0xFCBa3E75865d2d561BE8D220616520c171F12851',
         sCurveRewards_address: '0xdcb6a51ea3ca5d3fd898fd6564757c7aaec3ca92',
+        is_plain: true,
         underlying_coins: ['DAI', 'USDC', 'USDT', 'sUSD'],
         coins: ['DAI', 'USDC', 'USDT', 'sUSD'],
         underlying_coin_addresses: [
@@ -284,6 +285,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0x93054188d876f558f4a66B2EF1d97d16eDf0895B',
         token_address: '0x49849C98ae39Fff122806C06791Fa73784FB3675',
         gauge_address: '0xB1F2cdeC61db658F091671F5f199635aEF202CAC',
+        is_plain: true,
         underlying_coins: ['renBTC', 'WBTC'],
         coins: ['renBTC', 'WBTC'],
         underlying_coin_addresses: [
@@ -309,6 +311,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3',
         gauge_address: '0x705350c4BcD35c9441419DdD5d2f097d7a55410F',
         sCurveRewards_address: '0x13C1542A468319688B89E323fe9A3Be3A90EBb27',
+        is_plain: true,
         underlying_coins: ['renBTC', 'WBTC', 'sBTC'],
         coins: ['renBTC', 'WBTC', 'sBTC'],
         underlying_coin_addresses: [
@@ -336,6 +339,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F',
         token_address: '0xb19059ebb43466C323583928285a49f558E572Fd',
         gauge_address: '0x4c18E409Dc8619bFb6a1cB56D114C3f592E0aE79',
+        is_plain: true,
         underlying_coins: ['HBTC', 'WBTC'],
         coins: ['HBTC', 'WBTC'],
         underlying_coin_addresses: [
@@ -360,6 +364,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',
         token_address: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490',
         gauge_address: '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A',
+        is_plain: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         coins: ['DAI', 'USDC', 'USDT'],
         underlying_coin_addresses: [
@@ -788,6 +793,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0xc5424b857f758e906013f3555dad202e4bdb4567',
         token_address: '0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c',
         gauge_address: '0x3C0FFFF15EA30C35d7A85B85c0782D6c94e1d238',
+        is_plain: true,
         underlying_coins: ['ETH', 'sETH'],
         coins: ['ETH', 'sETH'],
         underlying_coin_addresses: [
@@ -813,6 +819,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x194eBd173F6cDacE046C53eACcE9B953F28411d1',
         gauge_address: '0x90Bb609649E0451E5aD952683D64BD2d1f245840',
         sCurveRewards_address: "0xc0d8994cd78ee1980885df1a0c5470fc977b5cfe",
+        is_plain: true,
         underlying_coins: ['EURS', 'sEUR'],
         coins: ['EURS', 'sEUR'],
         underlying_coin_addresses: [
@@ -905,6 +912,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x06325440D014e39736583c165C2963BA99fAf14E',
         gauge_address: '0x182B723a58739a9c974cFDB385ceaDb237453c28',
         sCurveRewards_address: "0x99ac10631F69C753DDb595D074422a0922D9056B",
+        is_plain: true,
         underlying_coins: ['ETH', 'stETH'],
         coins: ['ETH', 'stETH'],
         underlying_coin_addresses: [
@@ -960,6 +968,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0xaA17A236F2bAdc98DDc0Cf999AbB47D47Fc0A6Cf',
         gauge_address: '0x6d10ed2cf043e6fcf51a0e7b4c2af3fa06695707',
         sCurveRewards_address: "0x3547DFCa04358540891149559e691B146c6B0043",
+        is_plain: true,
         underlying_coins: ['ETH', 'ankrETH'],
         coins: ['ETH', 'ankrETH'],
         underlying_coin_addresses: [
@@ -1048,6 +1057,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0xF178C0b5Bb7e7aBF4e12A4838C7b7c5bA2C623c0',
         token_address: '0xcee60cfa923170e4f8204ae08b4fa6a3f5656f3a',
         gauge_address: '0xfd4d8a17df4c27c1dd245d153ccf4499e806c87d',
+        is_plain: true,
         underlying_coins: ['LINK', 'sLINK'],
         coins: ['LINK', 'sLINK'],
         underlying_coin_addresses: [
@@ -1218,6 +1228,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         token_address: '0x53a901d48795C58f485cBB38df08FA96a24669D5',
         gauge_address: '0x824F13f1a2F29cFEEa81154b46C0fc820677A637',
         sCurveRewards_address: '0x3b7382805A1d887b73e98570796C5cEFeA32A462',
+        is_plain: true,
         underlying_coins: ['ETH', 'rETH'],
         coins: ['ETH', 'rETH'],
         underlying_coin_addresses: [
@@ -1347,6 +1358,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0xfd5db7463a3ab53fd211b4af195c5bccc1a03890',
         token_address: '0xfd5db7463a3ab53fd211b4af195c5bccc1a03890',
         gauge_address: '0xe8060Ad8971450E624d5289A10017dD30F5dA85F',
+        is_plain: true,
         underlying_coins: ['EURT', 'sEUR'],
         coins: ['EURT', 'sEUR'],
         underlying_coin_addresses: [
@@ -1594,6 +1606,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0x1005f7406f32a61bd760cfa14accd2737913d546',
         token_address: '0x1005f7406f32a61bd760cfa14accd2737913d546',
         gauge_address: '0x9f330db38caaae5b61b410e2f0aad63fff2109d8',
+        is_plain: true,
         underlying_coins: ['USDC', 'USDT'],
         coins: ['USDC', 'USDT'],
         underlying_coin_addresses: [
@@ -1617,6 +1630,7 @@ export const POOLS_DATA_ETHEREUM: { [index: string]: PoolDataInterface } = {
         swap_address: '0x4e0915C88bC70750D68C481540F081fEFaF22273',
         token_address: '0x4e0915C88bC70750D68C481540F081fEFaF22273',
         gauge_address: '0x34883134a39b206a451c2d3b0e7cac44be4d9181',
+        is_plain: true,
         underlying_coins: ['USDC', 'USDT', 'UST', 'FRAX'],
         coins: ['USDC', 'USDT', 'UST', 'FRAX'],
         underlying_coin_addresses: [

@@ -21,7 +21,6 @@ export const getPool = (poolId: string): PoolTemplate => {
     const poolDummy = new PoolTemplate(poolId);
     class Pool extends PoolTemplate {}
     const isLending = poolDummy.useLending.reduce((a, b) => a || b);
-    const isPlain = !isLending && !poolDummy.isMeta && !poolDummy.isCrypto;
 
     // getPoolBalances
     if (poolId === "atricrypto3") {
@@ -55,7 +54,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     // depositWrapped and depositWrappedEstimateGas
     if ((isLending || poolDummy.isCrypto) && !poolDummy.zap) {
         Object.assign(Pool.prototype, depositWrapped3argsMixin);
-    } else if (!isPlain && !poolDummy.isFake) {
+    } else if (!poolDummy.isPlain && !poolDummy.isFake) {
         Object.assign(Pool.prototype, depositWrapped2argsMixin);
     }
 
@@ -85,7 +84,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     if ((isLending || poolDummy.isCrypto) && !poolDummy.zap) {
         Object.assign(Pool.prototype, withdrawWrapped3argsMixin);
         Object.assign(Pool.prototype, withdrawWrappedExpectedMixin);
-    } else if (!isPlain && !poolDummy.isFake) {
+    } else if (!poolDummy.isPlain && !poolDummy.isFake) {
         Object.assign(Pool.prototype, withdrawWrapped2argsMixin);
         Object.assign(Pool.prototype, withdrawWrappedExpectedMixin);
     }
@@ -107,7 +106,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     if (!poolDummy.isCrypto) {
         if (isLending && !poolDummy.zap) {
             Object.assign(Pool.prototype, withdrawImbalanceWrapped3argsMixin);
-        } else if (!isPlain && !poolDummy.isFake) {
+        } else if (!poolDummy.isPlain && !poolDummy.isFake) {
             Object.assign(Pool.prototype, withdrawImbalanceWrapped2argsMixin);
         }
     }
@@ -135,7 +134,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // withdrawOneCoinWrappedExpected
-    if (!isPlain && !poolDummy.isFake && !(isLending && poolDummy.zap)) {
+    if (!poolDummy.isPlain && !poolDummy.isFake && !(isLending && poolDummy.zap)) {
         if (poolId === "ib") {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedExpected3argsMixin);
         } else {
@@ -144,7 +143,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // withdrawOneCoinWrapped and withdrawOneCoinWrappedEstimateGas
-    if (!isPlain && !poolDummy.isFake && !(isLending && poolDummy.zap)) {
+    if (!poolDummy.isPlain && !poolDummy.isFake && !(isLending && poolDummy.zap)) {
         if ((isLending || poolDummy.isCrypto) && !poolDummy.zap) {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedLendingOrCryptoMixin);
         } else {
@@ -162,7 +161,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // swapWrapped and swapWrappedEstimateGas
-    if (!isPlain && !poolDummy.isFake) {
+    if (!poolDummy.isPlain && !poolDummy.isFake) {
         Object.assign(Pool.prototype, swapWrappedExpectedAndApproveMixin);
         if (poolId === 'tricrypto2') {
             Object.assign(Pool.prototype, swapWrappedTricrypto2Mixin);

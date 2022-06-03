@@ -127,7 +127,7 @@ export class PoolTemplate {
         this.isCrypto = poolData.is_crypto || false;
         this.isFake = poolData.is_fake || false;
         this.isFactory = poolData.is_factory || false;
-        this.isMetaFactory = poolData.is_meta_factory || false;
+        this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xA79828DF1850E8a3A3064576f380D90aECDD3359';
         this.basePool = poolData.base_pool || '';
         this.underlyingCoins = poolData.underlying_coins;
         this.coins = poolData.coins;

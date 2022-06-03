@@ -472,7 +472,6 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 deposit_address: basePoolAddressZapDict[basePoolAddresses[i]],
                 is_meta: true,
                 is_factory: true,
-                is_meta_factory: true,
                 base_pool: basePoolAddressNameDict[basePoolAddresses[i]],
                 underlying_coins: [coinAddressNameDict[coinAddresses[i][0]], ...basePoolAddressCoinsDict[basePoolAddresses[i]]],
                 coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),

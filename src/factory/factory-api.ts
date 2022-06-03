@@ -182,7 +182,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 deposit_address: basePoolZap,
                 is_meta: true,
                 is_factory: true,
-                is_meta_factory: true,
                 base_pool: basePoolAddressNameDict[basePoolAddress],
                 underlying_coins: [coinNames[0], ...basePoolCoinNames],
                 coins: coinNames,

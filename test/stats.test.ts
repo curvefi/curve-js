@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import curve from "../src/";
 import { Pool } from "../src/pools";
+import { IReward } from "../src/interfaces";
 import {ethers} from "ethers";
 
 const MAIN_POOLS_ETHEREUM = [
@@ -75,8 +76,8 @@ const poolStatsTest = (name: string) => {
         it('Rewards APY', async function () {
             const rewardsApy = await pool.stats.getRewardsApy();
 
-            rewardsApy.forEach((item: { apy: string }) => {
-                assert.isTrue(checkNumber(item.apy));
+            rewardsApy.forEach((item: IReward) => {
+                assert.isTrue(checkNumber(String(item.apy)));
             })
         });
     })

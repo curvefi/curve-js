@@ -1,7 +1,6 @@
-import axios from "axios";
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
-import { _getPoolsFromApi } from '../external-api';
+import { _getMainPoolsGaugeRewards, _getPoolsFromApi } from '../external-api';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -26,7 +25,8 @@ import {
 import {
     DictInterface,
     IPoolStats,
-    RewardsApyInterface,
+    IReward,
+    IExtendedPoolDataFromApi,
 } from '../interfaces';
 import {
     ALIASES,
@@ -98,7 +98,7 @@ export class PoolTemplate {
         getVolume: () => Promise<string>,
         getBaseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
         getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
-        getRewardsApy: () => Promise<RewardsApyInterface[]>,
+        getRewardsApy: () => Promise<IReward[]>,
     };
     wallet: {
         balances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
@@ -254,8 +254,8 @@ export class PoolTemplate {
             const network = curve.chainId === 137 ? "polygon" : "ethereum";
             const poolType = !this.isFactory && !this.isCrypto ? "main" :
                 !this.isFactory ? "crypto" :
-                    !(this.isCrypto && this.isFactory) ? "factory" :
-                        "factory-crypto";
+                !(this.isCrypto && this.isFactory) ? "factory" :
+                "factory-crypto";
             const poolsData = (await _getPoolsFromApi(network, poolType)).poolData;
 
             try {
@@ -349,9 +349,9 @@ export class PoolTemplate {
         return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
     }
 
-    private getRewardsApy = async (): Promise<RewardsApyInterface[]> => {
+    private getRewardsApy = async (): Promise<IReward[]> => {
         if (curve.chainId === 137) {
-            const apy: RewardsApyInterface[] = [];
+            const apy: IReward[] = [];
             for (const rewardToken of this.rewardTokens) {
                 const rewardContract = curve.contracts[this.rewardContract as string].contract;
 
@@ -365,29 +365,37 @@ export class PoolTemplate {
                 const symbol = await rewardTokenContract.symbol();
 
                 apy.push({
-                    token: rewardToken,
+                    gaugeAddress: this.gauge.toLowerCase(),
+                    tokenAddress: rewardToken,
                     symbol,
-                    apy: baseApy.times(100).toFixed(4),
+                    apy: Number(baseApy.times(100).toFixed(4)),
                 })
             }
 
             return apy
         }
 
-        const mainPoolsGaugeRewards = (await axios.get("https://api.curve.fi/api/getMainPoolsGaugeRewards")).data.data.mainPoolsGaugeRewards;
+        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const promises = [
+            _getMainPoolsGaugeRewards(),
+            _getPoolsFromApi(network, "main"),
+            _getPoolsFromApi(network, "crypto"),
+            _getPoolsFromApi(network, "factory"),
+            _getPoolsFromApi(network, "factory-crypto"),
+        ];
         // @ts-ignore
-        const mainPoolsGaugeRewardsLowerCase = Object.fromEntries(Object.entries(mainPoolsGaugeRewards).map((entry) => [entry[0].toLowerCase(), entry[1]]));
-        const apyData = mainPoolsGaugeRewardsLowerCase[this.gauge.toLowerCase()] || [];
-        const apy: RewardsApyInterface[] = [];
-        for (const data of apyData) {
-            apy.push({
-                token: data.tokenAddress,
-                symbol: data.symbol,
-                apy: String(data.apy),
-            })
+        const [mainPoolsRewards,...allTypesExtendedPoolData] = await Promise.all(promises);
+
+        const rewards = mainPoolsRewards as DictInterface<IReward[]>;
+        for (const extendedPoolData of allTypesExtendedPoolData as IExtendedPoolDataFromApi[]) {
+            for (const pool of extendedPoolData.poolData) {
+                if (pool.gaugeAddress && pool.gaugeRewards) {
+                    rewards[pool.gaugeAddress.toLowerCase()] = pool.gaugeRewards;
+                }
+            }
         }
 
-        return apy
+        return rewards[this.gauge.toLowerCase()] ?? []
     }
 
     private async _calcLpTokenAmount(_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> {

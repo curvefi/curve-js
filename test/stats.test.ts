@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import curve from "../src/";
-import { Pool } from "../src/pools";
+import { getPool } from "../src/pools/poolConstructor";
+import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { IReward } from "../src/interfaces";
 import {ethers} from "ethers";
 
@@ -33,10 +34,10 @@ const checkNumber = (str: string) => {
 
 const poolStatsTest = (name: string) => {
     describe(`${name} stats test`, function () {
-        let pool: Pool;
+        let pool: PoolTemplate;
 
         before(async function () {
-            pool = new Pool(name);
+            pool = getPool(name);
         });
 
 

@@ -1,24 +1,7 @@
 import { ethers } from "ethers";
 import { Networkish } from "@ethersproject/networks";
-import {
-    Pool,
-    getBestPoolAndOutput,
-    exchangeExpected,
-    exchangeIsApproved,
-    exchangeApproveEstimateGas,
-    exchangeApprove,
-    exchangeEstimateGas,
-    exchange,
-    crossAssetExchangeAvailable,
-    crossAssetExchangeOutputAndSlippage,
-    crossAssetExchangeExpected,
-    crossAssetExchangeIsApproved,
-    crossAssetExchangeApproveEstimateGas,
-    crossAssetExchangeApprove,
-    crossAssetExchangeEstimateGas,
-    crossAssetExchange,
-    getUserPoolList,
-} from "./pools";
+import { PoolTemplate, getPool } from "./pools";
+import { getPoolList, getFactoryPoolList, getCryptoFactoryPoolList, getUserPoolList } from "./pools/utils";
 import {
     getBestRouteAndOutput,
     swapExpected,
@@ -52,9 +35,6 @@ import {
     hasAllowance,
     ensureAllowanceEstimateGas,
     ensureAllowance,
-    getPoolList,
-    getFactoryPoolList,
-    getCryptoFactoryPoolList,
     getUsdRate,
     getTVL,
 } from "./utils";
@@ -95,29 +75,15 @@ const curve = {
     setCustomFeeData,
     signerAddress: '',
     chainId: 0,
-    Pool,
+    PoolTemplate,
+    getPool,
     getBalances,
     getAllowance,
     hasAllowance,
     ensureAllowance,
-    getBestPoolAndOutput,
-    exchangeExpected,
-    exchangeIsApproved,
-    exchangeApprove,
-    exchange,
-    crossAssetExchangeAvailable,
-    crossAssetExchangeOutputAndSlippage,
-    crossAssetExchangeExpected,
-    crossAssetExchangeIsApproved,
-    crossAssetExchangeApprove,
-    crossAssetExchange,
     getUserPoolList,
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,
-        exchangeApprove: exchangeApproveEstimateGas,
-        exchange: exchangeEstimateGas,
-        crossAssetExchangeApprove: crossAssetExchangeApproveEstimateGas,
-        crossAssetExchange: crossAssetExchangeEstimateGas,
     },
     boosting: {
         getCrv,

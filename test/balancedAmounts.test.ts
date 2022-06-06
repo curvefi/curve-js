@@ -1,5 +1,6 @@
 import { assert } from "chai";
-import { Pool } from "../src/pools";
+import { getPool } from "../src/pools/poolConstructor";
+import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { curve } from "../src/curve";
 
 
@@ -12,10 +13,10 @@ const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
-        let pool: Pool;
+        let pool: PoolTemplate;
 
         before(async function () {
-            pool = new Pool(name);
+            pool = getPool(name);
         });
 
         it('underlying', async function () {

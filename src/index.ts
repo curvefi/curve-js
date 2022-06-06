@@ -18,14 +18,16 @@ import {
     crossAssetExchangeEstimateGas,
     crossAssetExchange,
     getUserPoolList,
-    getBestRouteAndOutput,
-    routerExchangeExpected,
-    routerExchangeIsApproved,
-    routerExchangeApproveEstimateGas,
-    routerExchangeApprove,
-    routerExchangeEstimateGas,
-    routerExchange,
 } from "./pools";
+import {
+    getBestRouteAndOutput,
+    swapExpected,
+    swapIsApproved,
+    swapApproveEstimateGas,
+    swapApprove,
+    swapEstimateGas,
+    swap,
+} from "./router";
 import { curve as _curve } from "./curve";
 import {
     getCrv,
@@ -110,19 +112,12 @@ const curve = {
     crossAssetExchangeApprove,
     crossAssetExchange,
     getUserPoolList,
-    getBestRouteAndOutput,
-    routerExchangeExpected,
-    routerExchangeIsApproved,
-    routerExchangeApprove,
-    routerExchange,
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,
         exchangeApprove: exchangeApproveEstimateGas,
         exchange: exchangeEstimateGas,
         crossAssetExchangeApprove: crossAssetExchangeApproveEstimateGas,
         crossAssetExchange: crossAssetExchangeEstimateGas,
-        routerExchangeApprove: routerExchangeApproveEstimateGas,
-        routerExchange: routerExchangeEstimateGas,
     },
     boosting: {
         getCrv,
@@ -141,6 +136,17 @@ const curve = {
             increaseAmount: increaseAmountEstimateGas,
             increaseUnlockTime: increaseUnlockTimeEstimateGas,
             withdrawLockedCrv: withdrawLockedCrvEstimateGas,
+        },
+    },
+    router: {
+        getBestRouteAndOutput,
+        expected: swapExpected,
+        isApproved: swapIsApproved,
+        approve: swapApprove,
+        swap,
+        estimateGas: {
+            approve: swapApproveEstimateGas,
+            swap: swapEstimateGas,
         },
     },
 }

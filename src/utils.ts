@@ -3,8 +3,7 @@ import memoize from 'memoizee';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 import { DictInterface, IStats } from './interfaces';
-import { curve, POOLS_DATA, LP_TOKENS, GAUGES } from "./curve";
-import { COINS, DECIMALS_LOWER_CASE } from "./curve";
+import { curve } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
 
 
@@ -57,15 +56,12 @@ export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => 
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
     coins = coins as string[];
 
-    const coinAddresses = coins.map((c) => COINS[c.toLowerCase()] || c);
-    const availableAddresses = [
-        ...Object.keys(DECIMALS_LOWER_CASE).filter((c) => c !== COINS['snx']?.toLowerCase()),
-        ...LP_TOKENS,
-        ...GAUGES,
-    ];
+    const coinAddresses = coins.map((c) => curve.constants.COINS[c.toLowerCase()] || c);
+    const availableAddresses = [...Object.keys(curve.constants.DECIMALS), ...curve.constants.GAUGES];
     for (const coinAddr of coinAddresses) {
         if (!availableAddresses.includes(coinAddr.toLowerCase())) throw Error(`Coin with address '${coinAddr}' is not available`);
     }
+
     return coinAddresses
 }
 
@@ -73,7 +69,7 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
     if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
     coinAddresses = coinAddresses as string[];
 
-    return coinAddresses.map((coinAddr) => DECIMALS_LOWER_CASE[coinAddr.toLowerCase()] ?? 18);
+    return coinAddresses.map((coinAddr) => curve.constants.DECIMALS[coinAddr.toLowerCase()] ?? 18); // 18 for gauges
 }
 
 export const _getBalances = async (coins: string[], addresses: string[]): Promise<DictInterface<string[]>> => {
@@ -224,7 +220,8 @@ export const ensureAllowance = async (coins: string[], amounts: (number | string
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {
-    return Object.entries(POOLS_DATA).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
+    const poolsData = { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA, ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };
+    return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
 export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => {
@@ -258,7 +255,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     const pricesFromApi = await _getUsdPricesFromApi();
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
 
-    if (assetId === 'USD' || (curve.chainId === 137 && (assetId.toLowerCase() === COINS.am3crv.toLowerCase()))) return 1
+    if (assetId === 'USD' || (curve.chainId === 137 && (assetId.toLowerCase() === curve.constants.COINS.am3crv.toLowerCase()))) return 1
 
     let chainName = {
         1: 'ethereum',
@@ -271,7 +268,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     }
 
     assetId = {
-        'EUR': COINS.eurt,
+        'EUR': curve.constants.COINS.eurt,
         'BTC': 'bitcoin',
         'ETH': 'ethereum',
         'LINK': 'link',
@@ -279,7 +276,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     assetId = isEth(assetId) ? "ethereum" : assetId.toLowerCase();
 
     // No EURT on Coingecko Polygon
-    if (assetId.toLowerCase() === COINS.eurt.toLowerCase()) {
+    if (assetId.toLowerCase() === curve.constants.COINS.eurt.toLowerCase()) {
         chainName = 'ethereum';
         assetId = '0xC581b735A1688071A1746c968e0798D642EDE491'.toLowerCase(); // EURT Ethereum
     }
@@ -392,7 +389,7 @@ export const _getFactoryStatsPolygon = memoize(
     }
 )
 
-export const getPoolList = (): string[] => Object.keys(POOLS_DATA);
+export const getPoolList = (): string[] => Object.keys(curve.constants.POOLS_DATA);
 
 export const getFactoryPoolList = (): string[] => Object.keys(curve.constants.FACTORY_POOLS_DATA);
 

@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { exchangeExpected, exchange } from "../src/pools";
 import { BN, getBalances } from "../src/utils";
-import { curve, COINS } from "../src/curve";
+import { curve } from "../src/curve";
 import { COINS_POLYGON } from "../src/constants/coins-polygon";
 import { COINS_ETHEREUM } from "../src/constants/coins-ethereum";
 

@@ -2,13 +2,13 @@ import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 import {_getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance} from "./utils";
 import { _ensureAllowance, toBN, toStringFromBN } from './utils';
-import { curve, ALIASES } from "./curve";
+import { curve } from "./curve";
 import { DictInterface } from "./interfaces";
 
 
 export const getCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
     addresses = _prepareAddresses(addresses);
-    const rawBalances = (await _getBalances([ALIASES.crv], addresses));
+    const rawBalances = (await _getBalances([curve.constants.ALIASES.crv], addresses));
 
     const balances: DictInterface<string> = {};
     for (const address of addresses) {
@@ -21,7 +21,7 @@ export const getCrv = async (...addresses: string[] | string[][]): Promise<DictI
 export const getLockedAmountAndUnlockTime = async (...addresses: string[] | string[][]):
     Promise<DictInterface<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {
     addresses = _prepareAddresses(addresses);
-    const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
+    const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
     const contractCalls = addresses.map((address: string) => veContract.locked(address));
 
     const response: (string | number)[][] = (await curve.multicallProvider.all(contractCalls) as ethers.BigNumber[][]).map(
@@ -38,7 +38,7 @@ export const getLockedAmountAndUnlockTime = async (...addresses: string[] | stri
 export const getVeCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
     addresses = _prepareAddresses(addresses);
 
-    const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
+    const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
     const contractCalls = addresses.map((address: string) => veContract.balanceOf(address));
     const response: string[] = (await curve.multicallProvider.all(contractCalls) as ethers.BigNumber[]).map(
         (value: ethers.BigNumber) => ethers.utils.formatUnits(value));
@@ -54,7 +54,7 @@ export const getVeCrv = async (...addresses: string[] | string[][]): Promise<Dic
 export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
     addresses = _prepareAddresses(addresses);
 
-    const veContract = curve.contracts[ALIASES.voting_escrow].multicallContract;
+    const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
     const contractCalls = [veContract.totalSupply()];
     addresses.forEach((address: string) => {
         contractCalls.push(veContract.balanceOf(address));
@@ -78,15 +78,15 @@ export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<
 }
 
 export const isApproved = async (amount: string): Promise<boolean> => {
-    return await hasAllowance([ALIASES.crv], [amount], curve.signerAddress, ALIASES.voting_escrow);
+    return await hasAllowance([curve.constants.ALIASES.crv], [amount], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
 }
 
 export const approveEstimateGas = async (amount: string): Promise<number> => {
-    return await ensureAllowanceEstimateGas([ALIASES.crv], [amount], ALIASES.voting_escrow);
+    return await ensureAllowanceEstimateGas([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow);
 }
 
 export const approve = async (amount: string): Promise<string[]> => {
-    return await ensureAllowance([ALIASES.crv], [amount], ALIASES.voting_escrow);
+    return await ensureAllowance([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow);
 }
 
 export const createLockEstimateGas = async (amount: string, days: number): Promise<number> => {
@@ -96,21 +96,21 @@ export const createLockEstimateGas = async (amount: string, days: number): Promi
         throw Error(`Not enough . Actual: ${crvBalance}, required: ${amount}`);
     }
 
-    if (!(await hasAllowance([ALIASES.crv], [amount], curve.signerAddress, ALIASES.voting_escrow))) {
+    if (!(await hasAllowance([curve.constants.ALIASES.crv], [amount], curve.signerAddress, curve.constants.ALIASES.voting_escrow))) {
         throw Error("Token allowance is needed to estimate gas")
     }
 
     const _amount = ethers.utils.parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
 
-    return (await curve.contracts[ALIASES.voting_escrow].contract.estimateGas.create_lock(_amount, unlockTime, curve.constantOptions)).toNumber()
+    return (await curve.contracts[curve.constants.ALIASES.voting_escrow].contract.estimateGas.create_lock(_amount, unlockTime, curve.constantOptions)).toNumber()
 }
 
 export const createLock = async (amount: string, days: number): Promise<string> => {
     const _amount = ethers.utils.parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
-    await _ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
-    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+    await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow);
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.create_lock(_amount, unlockTime, curve.constantOptions)).mul(130).div(100);
@@ -124,20 +124,20 @@ export const increaseAmountEstimateGas = async (amount: string): Promise<number>
         throw Error(`Not enough. Actual: ${crvBalance}, required: ${amount}`);
     }
 
-    if (!(await hasAllowance([ALIASES.crv], [amount], curve.signerAddress, ALIASES.voting_escrow))) {
+    if (!(await hasAllowance([curve.constants.ALIASES.crv], [amount], curve.signerAddress, curve.constants.ALIASES.voting_escrow))) {
         throw Error("Token allowance is needed to estimate gas")
     }
 
     const _amount = ethers.utils.parseUnits(amount);
-    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     return (await contract.estimateGas.increase_amount(_amount, curve.constantOptions)).toNumber()
 }
 
 export const increaseAmount = async (amount: string): Promise<string> => {
     const _amount = ethers.utils.parseUnits(amount);
-    await _ensureAllowance([ALIASES.crv], [_amount], ALIASES.voting_escrow);
-    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+    await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow);
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.increase_amount(_amount, curve.constantOptions)).mul(130).div(100);
@@ -147,7 +147,7 @@ export const increaseAmount = async (amount: string): Promise<string> => {
 export const increaseUnlockTimeEstimateGas = async (days: number): Promise<number> => {
     const { unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
-    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     return (await contract.estimateGas.increase_unlock_time(newUnlockTime, curve.constantOptions)).toNumber()
 }
@@ -155,7 +155,7 @@ export const increaseUnlockTimeEstimateGas = async (days: number): Promise<numbe
 export const increaseUnlockTime = async (days: number): Promise<string> => {
     const { unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
-    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.increase_unlock_time(newUnlockTime, curve.constantOptions)).mul(130).div(100);
@@ -163,13 +163,13 @@ export const increaseUnlockTime = async (days: number): Promise<string> => {
 }
 
 export const withdrawLockedCrvEstimateGas = async (): Promise<number> => {
-    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     return (await contract.estimateGas.withdraw(curve.constantOptions)).toNumber()
 }
 
 export const withdrawLockedCrv = async (): Promise<string> => {
-    const contract = curve.contracts[ALIASES.voting_escrow].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.withdraw(curve.constantOptions)).mul(130).div(100);

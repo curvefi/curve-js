@@ -208,7 +208,7 @@ describe('Wrapped test', async function () {
     }
 
     // for (const poolId of POLYGON_POOLS) {
-    //     // wrappedLiquidityTest(poolId);
+    //     wrappedLiquidityTest(poolId);
     //     wrappedSwapTest(poolId);
     // }
 })

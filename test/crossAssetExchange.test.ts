@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { crossAssetExchangeAvailable, crossAssetExchangeExpected, crossAssetExchange } from "../src/pools";
 import { BN, getBalances } from "../src/utils";
-import { curve, COINS } from "../src/curve";
+import { curve } from "../src/curve";
 
 const exchangeTest = async (coin1: string, coin2: string) => {
     const amount = '1';
@@ -29,7 +29,7 @@ describe('Exchange using all pools', async function () {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
     });
 
-    const coins = Object.keys(COINS).filter((c) => c !== 'snx' && c !== 'eurs'); // TODO remove eurs
+    const coins = Object.keys(curve.constants.COINS).filter((c) => c !== 'snx' && c !== 'eurs'); // TODO remove eurs
     for (const coin1 of coins) {
         for (const coin2 of coins) {
             if (coin1 !== coin2) {

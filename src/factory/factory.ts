@@ -364,7 +364,6 @@ async function getCoinAddressDecimalsDict(
 
     newCoinAddresses.forEach((addr, i) => {
         coinAddrNamesDict[addr] = decimals[i];
-        existingCoinAddressDecimalsDict[addr] = decimals[i];  // Add to DECIMALS_LOWER_CASE TODO move to another place
     });
 
     return coinAddrNamesDict
@@ -417,17 +416,15 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
     const [poolIds, swapAddresses] = await getFactoryIdsAndSwapAddresses.call(this);
     const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
-    this.constants.LP_TOKENS.push(...swapAddresses); // TODO move to another place
     const gaugeAddresses = await getFactoryGaugeAddresses.call(this, swapAddresses);
     setFactoryGaugeContracts.call(this, gaugeAddresses);
-    this.constants.GAUGES.push(...gaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero));  // TODO move to another place
     const [poolSymbols, poolNames] = await getFactorySymbolsAndNames.call(this, swapAddresses);
     const referenceAssets = await getFactoryReferenceAssets.call(this, swapAddresses);
     const coinAddresses = await getFactoryCoinAddresses.call(this, swapAddresses);
     setFactoryCoinsContracts.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
-    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS_LOWER_CASE);
+    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
     const isMeta = await getFactoryIsMeta.call(this, swapAddresses);
     const basePoolAddresses = await getFactoryBasePoolAddresses.call(this, swapAddresses);
     setFactoryZapContracts.call(this);
@@ -438,6 +435,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
     const basePoolAddressDecimalsDict = this.chainId === 137 ? basePoolAddressDecimalsDictPolygon : basePoolAddressDecimalsDictEthereum;
     const basePoolAddressZapDict = this.chainId === 137 ? basePoolAddressZapDictPolygon : basePoolAddressZapDictEthereum;
 
+    // TODO add reward_tokens and reward_decimals
     const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
     for (let i = 0; i < poolIds.length; i++) {
         if (!isMeta[i]) {

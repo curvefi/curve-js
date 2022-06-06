@@ -6,9 +6,11 @@ import atricrypto3Zap from './json/atricrypto3/zap.json';
 import eurtusdSwap from './json/eurtusd/swap.json';
 import eurtusdZap from './json/eurtusd/deposit.json';
 import gaugeRewardsOnlyABI from './json/gauge_rewards_only.json';
+import { lowerCasePoolDataAddresses, extractDecimals } from "../utils";
 import {PoolDataInterface} from "../../interfaces";
 
-export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
+
+export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = lowerCasePoolDataAddresses({
     aave: {
         name: "aave",
         full_name: "aave",
@@ -36,6 +38,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         decimals: [18, 6, 6],
         use_lending: [true, true, true],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
+        reward_decimals: [18],
         swap_abi: aaveSwapABI,
         gauge_abi: gaugeRewardsOnlyABI,
         sCurveRewards_abi: paaveRewardsabi,
@@ -65,6 +68,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         decimals: [8, 8],
         use_lending: [true, false],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
+        reward_decimals: [18],
         swap_abi: renSwapABI,
         gauge_abi: gaugeRewardsOnlyABI,
     },
@@ -105,6 +109,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
         underlying_decimals: [18, 6, 6, 8, 18],
         decimals: [18, 8, 18],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
+        reward_decimals: [18],
         swap_abi: atricrypto3Swap,
         gauge_abi: gaugeRewardsOnlyABI,
         deposit_abi: atricrypto3Zap,
@@ -143,8 +148,9 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = {
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
+        reward_decimals: [18],
         swap_abi: eurtusdSwap,
         gauge_abi: gaugeRewardsOnlyABI,
         deposit_abi: eurtusdZap,
     },
-};
+});

@@ -202,7 +202,7 @@ describe('Underlying test', async function () {
     }
 
     // for (const poolId of POLYGON_POOLS) {
-    //     // underlyingLiquidityTest(poolId);
+    //     underlyingLiquidityTest(poolId);
     //     underlyingSwapTest(poolId);
     // }
 })

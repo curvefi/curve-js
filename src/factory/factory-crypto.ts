@@ -201,7 +201,6 @@ async function getCoinAddressDecimalsDict(
 
     newCoinAddresses.forEach((addr, i) => {
         coinAddrNamesDict[addr] = decimals[i];
-        existingCoinAddressDecimalsDict[addr] = decimals[i];  // Add to DECIMALS_LOWER_CASE TODO move to another place
     });
 
     return coinAddrNamesDict
@@ -213,10 +212,8 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterf
     setCryptoFactorySwapContracts.call(this, swapAddresses);
     const tokenAddresses = await getCryptoFactoryTokenAddresses.call(this, swapAddresses);
     setCryptoFactoryTokenContracts.call(this, tokenAddresses);
-    this.constants.LP_TOKENS.push(...tokenAddresses); // TODO move to another place
     const gaugeAddresses = await getCryptoFactoryGaugeAddresses.call(this, swapAddresses);
     setCryptoFactoryGaugeContracts.call(this, gaugeAddresses);
-    this.constants.GAUGES.push(...gaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero));  // TODO move to another place
     const [poolSymbols, poolNames] = await getCryptoFactorySymbolsAndNames.call(this, tokenAddresses);
     const coinAddresses = await getCryptoFactoryCoinAddresses.call(this, swapAddresses);
     setCryptoFactoryCoinsContracts.call(this, coinAddresses);
@@ -224,10 +221,11 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterf
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
     coinAddressNameDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 'ETH';
-    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS_LOWER_CASE);
+    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
     coinAddressDecimalsDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 18;
 
 
+    // TODO add reward_tokens and reward_decimals
     const CRYPTO_FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
     for (let i = 0; i < poolIds.length; i++) {
         CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {

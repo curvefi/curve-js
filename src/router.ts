@@ -12,11 +12,12 @@ import {
     hasAllowance,
     isEth,
     toBN,
+    parseUnits,
 } from "./utils";
 import memoize from "memoizee";
 import axios from "axios";
 import BigNumber from "bignumber.js";
-import { getPool } from "./pools/poolConstructor";
+import { getPool } from "./pools";
 
 const IMBALANCED_POOLS: string[] = [];
 
@@ -348,9 +349,9 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
 }
 
 const _getBestRouteAndOutput = memoize(
-    async (inputCoinAddress: string, outputCoinAddress: string, amount: string): Promise<IRoute> => {
+    async (inputCoinAddress: string, outputCoinAddress: string, amount: number | string): Promise<IRoute> => {
         const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
-        const _amount = ethers.utils.parseUnits(amount.toString(), inputCoinDecimals);
+        const _amount = parseUnits(amount, inputCoinDecimals);
 
         const routesRaw: IRoute[] = (await _findAllRoutes(inputCoinAddress, outputCoinAddress)).map(
             (steps) => ({ steps, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 })
@@ -441,7 +442,7 @@ const _getBestRouteAndOutput = memoize(
     }
 )
 
-export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: string, amount: string): Promise<{ route: IRouteStep[], output: string }> => {
+export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<{ route: IRouteStep[], output: string }> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
 
@@ -450,33 +451,33 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
     return { route: steps, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }
 }
 
-export const swapExpected = async (inputCoin: string, outputCoin: string, amount: string): Promise<string> => {
+export const swapExpected = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<string> => {
     return (await getBestRouteAndOutput(inputCoin, outputCoin, amount))['output'];
 }
 
-export const swapIsApproved = async (inputCoin: string, amount: string): Promise<boolean> => {
+export const swapIsApproved = async (inputCoin: string, amount: number | string): Promise<boolean> => {
     return await hasAllowance([inputCoin], [amount], curve.signerAddress, curve.constants.ALIASES.registry_exchange);
 }
 
-export const swapApproveEstimateGas = async (inputCoin: string, amount: string): Promise<number> => {
+export const swapApproveEstimateGas = async (inputCoin: string, amount: number | string): Promise<number> => {
     return await ensureAllowanceEstimateGas([inputCoin], [amount], curve.constants.ALIASES.registry_exchange);
 }
 
-export const swapApprove = async (inputCoin: string, amount: string): Promise<string[]> => {
+export const swapApprove = async (inputCoin: string, amount: number | string): Promise<string[]> => {
     return await ensureAllowance([inputCoin], [amount], curve.constants.ALIASES.registry_exchange);
 }
 
-export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amount: string): Promise<number> => {
+export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
-    const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+    const _amount = parseUnits(amount, inputCoinDecimals);
     const [gas] = await _estimateGasForDifferentRoutes([route], inputCoinAddress, outputCoinAddress, _amount);
 
     return gas
 }
 
-export const swap = async (inputCoin: string, outputCoin: string, amount: string, maxSlippage = 0.01): Promise<string> => {
+export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, maxSlippage = 0.01): Promise<string> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
@@ -488,7 +489,7 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: string
     }
 
     const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
-    const _amount = ethers.utils.parseUnits(amount, inputCoinDecimals);
+    const _amount = parseUnits(amount, inputCoinDecimals);
     const minRecvAmountBN: BigNumber = toBN(route._output, outputCoinDecimals).times(1 - maxSlippage);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 

@@ -445,20 +445,8 @@ export class PoolTemplate {
 
     // ---------------- DEPOSIT ----------------
 
-    public async balancedAmounts(): Promise<string[]> {
-        const poolBalances = (await this.getPoolBalances()).map(Number);
-        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
-
-        if (this.isCrypto) {
-            const prices = await this._underlyingPrices();
-            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
-            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
-            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.underlyingDecimals);
-
-            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
-        }
-
-        return this._balancedAmounts(poolBalances, walletBalances, this.underlyingDecimals)
+    public async depositBalancedAmounts(): Promise<string[]> {
+        throw Error(`depositBalancedAmounts method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public async depositExpected(amounts: (number | string)[]): Promise<string> {
@@ -494,24 +482,8 @@ export class PoolTemplate {
 
     // ---------------- DEPOSIT WRAPPED ----------------
 
-    public async balancedWrappedAmounts(): Promise<string[]> {
-        if (this.isFake) {
-            throw Error(`balancedWrappedAmounts method doesn't exist for pool ${this.name} (id: ${this.name})`);
-        }
-
-        const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
-        const walletBalances = Object.values(await this.walletCoinBalances()).map(Number);
-
-        if (this.isCrypto) {
-            const prices = await this._wrappedPrices();
-            const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
-            const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
-            const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.decimals);
-
-            return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
-        }
-
-        return this._balancedAmounts(poolBalances, walletBalances, this.decimals)
+    public async depositWrappedBalancedAmounts(): Promise<string[]> {
+        throw Error(`depositWrappedBalancedAmounts method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public async depositWrappedExpected(amounts: (number | string)[]): Promise<string> {
@@ -1558,21 +1530,5 @@ export class PoolTemplate {
             Number(await this.withdrawImbalanceWrappedExpected(balancedAmounts));
 
         return String((expected - balancedExpected) / expected)
-    }
-
-    private _balancedAmounts = (poolBalances: number[], walletBalances: number[], decimals: number[]): string[] => {
-        const poolTotalLiquidity = poolBalances.reduce((a,b) => a + b);
-        const poolBalancesRatios = poolBalances.map((b) => b / poolTotalLiquidity);
-        // Cross factors for each wallet balance used as reference to see the
-        // max that can be used according to the lowest relative wallet balance
-        const balancedAmountsForEachScenario = walletBalances.map((_, i) => (
-            walletBalances.map((_, j) => (
-                poolBalancesRatios[j] * walletBalances[i] / poolBalancesRatios[i]
-            ))
-        ));
-        const firstCoinBalanceForEachScenario = balancedAmountsForEachScenario.map(([a]) => a);
-        const scenarioWithLowestBalances = firstCoinBalanceForEachScenario.indexOf(Math.min(...firstCoinBalanceForEachScenario));
-
-        return balancedAmountsForEachScenario[scenarioWithLowestBalances].map((a, i) => a.toFixed(decimals[i]))
     }
 }

@@ -201,7 +201,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 coin_addresses: coinAddresses,
                 underlying_decimals: [coinDecimals[0], ...basePoolDecimals],
                 decimals: coinDecimals,
-                meta_coin_addresses: basePoolCoinAddresses,
                 reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
                 reward_decimals: (pool.gaugeRewards ?? []).map((r) => r.decimals as number),
                 swap_abi: implementationABIDict[pool.implementationAddress],

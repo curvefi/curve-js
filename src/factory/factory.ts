@@ -477,7 +477,6 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 coin_addresses: coinAddresses[i],
                 underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolAddressDecimalsDict[basePoolAddresses[i]]],
                 decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-                meta_coin_addresses: basePoolAddressCoinAddressesDict[basePoolAddresses[i]],
                 swap_abi: swapABIs[i],
                 gauge_abi: factoryGaugeABI,
                 deposit_abi: factoryDepositABI,

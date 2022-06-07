@@ -101,11 +101,6 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = lowerC
             '0x5c2ed810328349100A66B82b78a1791B101C9D61', // amWBTC
             '0x28424507fefb6f7f8E9D3860F56504E4e5f5f390', // amWETH
         ],
-        meta_coin_addresses: [
-            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
-            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
-            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
-        ],
         underlying_decimals: [18, 6, 6, 8, 18],
         decimals: [18, 8, 18],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
@@ -142,11 +137,6 @@ export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = lowerC
         ],
         underlying_decimals: [6, 18, 6, 6],
         decimals: [6, 18],
-        meta_coin_addresses: [
-            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
-            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
-            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
-        ],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         reward_decimals: [18],
         swap_abi: eurtusdSwap,

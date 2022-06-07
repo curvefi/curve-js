@@ -45,7 +45,6 @@ export interface PoolDataInterface {
     underlying_decimals: number[],
     decimals: number[],
     use_lending?: boolean[],
-    meta_coin_addresses?: string[],
     reward_tokens?: string[],
     reward_decimals?: number[],
     swap_abi: any,

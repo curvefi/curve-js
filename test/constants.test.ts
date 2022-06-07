@@ -17,7 +17,6 @@ describe('Checking constants', async function () {
             const coinAddresses = [
                 ...poolData.underlying_coin_addresses,
                 ...poolData.coin_addresses,
-                ...(poolData.meta_coin_addresses || []),
             ]
             for (const coinAddr of coinAddresses) {
                 assert.isTrue(COIN_ADDRESSES.includes(coinAddr), `Addesss: ${coinAddr}`)

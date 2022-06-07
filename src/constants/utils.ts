@@ -14,7 +14,6 @@ export const lowerCasePoolDataAddresses = (poolsData: DictInterface<PoolDataInte
         if (poolData.reward_contract) poolData.reward_contract = poolData.reward_contract.toLowerCase();
         poolData.underlying_coin_addresses = poolData.underlying_coin_addresses.map((a) => a.toLowerCase());
         poolData.coin_addresses = poolData.coin_addresses.map((a) => a.toLowerCase());
-        if (poolData.meta_coin_addresses) poolData.meta_coin_addresses = poolData.meta_coin_addresses.map((a) => a.toLowerCase());
         if (poolData.reward_tokens) poolData.reward_tokens = poolData.reward_tokens.map((a) => a.toLowerCase());
     }
 

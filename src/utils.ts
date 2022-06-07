@@ -2,7 +2,7 @@ import axios from 'axios';
 import memoize from 'memoizee';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import { DictInterface, IStats } from './interfaces';
+import { IDict, IStats } from './interfaces';
 import { curve } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
 
@@ -72,7 +72,7 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
     return coinAddresses.map((coinAddr) => curve.constants.DECIMALS[coinAddr.toLowerCase()] ?? 18); // 18 for gauges
 }
 
-export const _getBalances = async (coins: string[], addresses: string[]): Promise<DictInterface<string[]>> => {
+export const _getBalances = async (coins: string[], addresses: string[]): Promise<IDict<string[]>> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
 
@@ -95,12 +95,12 @@ export const _getBalances = async (coins: string[], addresses: string[]): Promis
         _response.splice(ethIndex * addresses.length, 0, ...ethBalances);
     }
 
-    const _balances: DictInterface<ethers.BigNumber[]>  = {};
+    const _balances: IDict<ethers.BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
         _balances[address] = coins.map((_, j: number ) => _response[i + (j * addresses.length)]);
     });
 
-    const balances: DictInterface<string[]>  = {};
+    const balances: IDict<string[]>  = {};
     for (const address of addresses) {
         balances[address] = _balances[address].map((b, i: number ) => ethers.utils.formatUnits(b, decimals[i]));
     }
@@ -116,9 +116,9 @@ export const _prepareAddresses = (addresses: string[] | string[][]): string[] =>
     return addresses.filter((val, idx, arr) => arr.indexOf(val) === idx)
 }
 
-export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<DictInterface<string[]> | string[]> => {
+export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<IDict<string[]> | string[]> => {
     addresses = _prepareAddresses(addresses);
-    const balances: DictInterface<string[]> = await _getBalances(coins, addresses);
+    const balances: IDict<string[]> = await _getBalances(coins, addresses);
 
     return addresses.length === 1 ? balances[addresses[0]] : balances
 }
@@ -224,7 +224,7 @@ export const getPoolNameBySwapAddress = (swapAddress: string): string => {
     return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
-export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => {
+export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     const network = curve.chainId === 137 ? "polygon" : "ethereum";
     const promises = [
         _getPoolsFromApi(network, "main"),
@@ -233,7 +233,7 @@ export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => 
         _getPoolsFromApi(network, "factory-crypto"),
     ];
     const allTypesExtendedPoolData = await Promise.all(promises);
-    const priceDict: DictInterface<number> = {};
+    const priceDict: IDict<number> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
         for (const pool of extendedPoolData.poolData) {
@@ -250,7 +250,7 @@ export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => 
     return priceDict
 }
 
-const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
+const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export const _getUsdRate = async (assetId: string): Promise<number> => {
     const pricesFromApi = await _getUsdPricesFromApi();
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];

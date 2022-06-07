@@ -1,6 +1,6 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve } from "../interfaces";
+import { IDict, PoolDataInterface, ICurve } from "../interfaces";
 import ERC20ABI from "../constants/abis/json/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/json/factory-crypto/factory-crypto-pool-2.json";
 import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
@@ -123,9 +123,9 @@ async function getCryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddress
     return coinAddresses.map((coins: string[]) => coins.map((c) => c === WETH_ADDRESS ? "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" : c));
 }
 
-function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
-    const dict: DictInterface<string> = {}
-    for (const poolData of Object.values(this.constants.POOLS_DATA as DictInterface<PoolDataInterface>)) {
+function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
+    const dict: IDict<string> = {}
+    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<PoolDataInterface>)) {
         poolData.coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
                 dict[addr.toLowerCase()] = poolData.coins[i]
@@ -147,11 +147,11 @@ function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
 async function getCoinAddressNameDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddrNameDict: DictInterface<string>
-): Promise<DictInterface<string>> {
+    existingCoinAddrNameDict: IDict<string>
+): Promise<IDict<string>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<string> = {};
+    const coinAddrNamesDict: IDict<string> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
@@ -179,11 +179,11 @@ async function getCoinAddressNameDict(
 async function getCoinAddressDecimalsDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddressDecimalsDict: DictInterface<number>
-): Promise<DictInterface<number>> {
+    existingCoinAddressDecimalsDict: IDict<number>
+): Promise<IDict<number>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<number> = {};
+    const coinAddrNamesDict: IDict<number> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddressDecimalsDict) {
@@ -207,7 +207,7 @@ async function getCoinAddressDecimalsDict(
 }
 
 
-export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterface<PoolDataInterface>> {
+export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<PoolDataInterface>> {
     const [poolIds, swapAddresses] = await getCryptoFactoryIdsAndSwapAddresses.call(this);
     setCryptoFactorySwapContracts.call(this, swapAddresses);
     const tokenAddresses = await getCryptoFactoryTokenAddresses.call(this, swapAddresses);
@@ -226,7 +226,7 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterf
 
 
     // TODO add reward_tokens and reward_decimals
-    const CRYPTO_FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
+    const CRYPTO_FACTORY_POOLS_DATA: IDict<PoolDataInterface> = {};
     for (let i = 0; i < poolIds.length; i++) {
         CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
             name: poolNames[i].split(": ")[1].trim(),

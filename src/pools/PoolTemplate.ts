@@ -23,7 +23,7 @@ import {
     _getFactoryStatsPolygon,
 } from '../utils';
 import {
-    DictInterface,
+    IDict,
     IPoolStats,
     IReward,
     IExtendedPoolDataFromApi,
@@ -97,11 +97,11 @@ export class PoolTemplate {
         rewardsApy: () => Promise<IReward[]>,
     };
     wallet: {
-        balances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
-        lpTokenBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
-        underlyingCoinBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
-        coinBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
-        allCoinBalances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
+        balances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
+        lpTokenBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
+        underlyingCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
+        coinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
+        allCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
     };
 
     constructor(id: string) {
@@ -379,7 +379,7 @@ export class PoolTemplate {
         // @ts-ignore
         const [mainPoolsRewards,...allTypesExtendedPoolData] = await Promise.all(promises);
 
-        const rewards = mainPoolsRewards as DictInterface<IReward[]>;
+        const rewards = mainPoolsRewards as IDict<IReward[]>;
         for (const extendedPoolData of allTypesExtendedPoolData as IExtendedPoolDataFromApi[]) {
             for (const pool of extendedPoolData.poolData) {
                 if (pool.gaugeAddress && pool.gaugeRewards) {
@@ -1174,7 +1174,7 @@ export class PoolTemplate {
 
     // ---------------- WALLET BALANCES ----------------
 
-    private async walletBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
+    private async walletBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
         if (this.gauge === ethers.constants.AddressZero) {
             return await this._balances(
                 ['lpToken', ...this.underlyingCoinAddresses, ...this.coinAddresses],
@@ -1190,7 +1190,7 @@ export class PoolTemplate {
         }
     }
 
-    private async walletLpTokenBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
+    private async walletLpTokenBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
         if (this.gauge === ethers.constants.AddressZero) {
             return await this._balances(['lpToken'], [this.lpToken], ...addresses);
         } else {
@@ -1198,15 +1198,15 @@ export class PoolTemplate {
         }
     }
 
-    private async walletUnderlyingCoinBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
+    private async walletUnderlyingCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
         return await this._balances(this.underlyingCoinAddresses, this.underlyingCoinAddresses, ...addresses)
     }
 
-    private async walletCoinBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
+    private async walletCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
         return await this._balances(this.coinAddresses, this.coinAddresses, ...addresses)
     }
 
-    private async walletAllCoinBalances(...addresses: string[] | string[][]): Promise<DictInterface<DictInterface<string>> | DictInterface<string>> {
+    private async walletAllCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
         return await this._balances(
             [...this.underlyingCoinAddresses, ...this.coinAddresses],
             [...this.underlyingCoinAddresses, ...this.coinAddresses],
@@ -1305,7 +1305,7 @@ export class PoolTemplate {
 
     // ---------------- ... ----------------
 
-    public gaugeMaxBoostedDeposit = async (...addresses: string[]): Promise<DictInterface<string>> => {
+    public gaugeMaxBoostedDeposit = async (...addresses: string[]): Promise<IDict<string>> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
 
@@ -1322,12 +1322,12 @@ export class PoolTemplate {
 
         const [veTotalSupplyBN, gaugeTotalSupplyBN] = responseBN.splice(0, 2);
 
-        const resultBN: DictInterface<BigNumber> = {};
+        const resultBN: IDict<BigNumber> = {};
         addresses.forEach((acct: string, i: number) => {
             resultBN[acct] = responseBN[i].div(veTotalSupplyBN).times(gaugeTotalSupplyBN);
         });
 
-        const result: DictInterface<string> = {};
+        const result: IDict<string> = {};
         for (const entry of Object.entries(resultBN)) {
             result[entry[0]] = toStringFromBN(entry[1]);
         }
@@ -1335,7 +1335,7 @@ export class PoolTemplate {
         return result;
     }
 
-    public gaugeOptimalDeposits = async (...accounts: string[]): Promise<DictInterface<string>> => {
+    public gaugeOptimalDeposits = async (...accounts: string[]): Promise<IDict<string>> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
 
@@ -1356,7 +1356,7 @@ export class PoolTemplate {
 
         const [veTotalSupply, gaugeTotalSupply] = response.splice(0,2);
 
-        const votingPower: DictInterface<BigNumber> = {};
+        const votingPower: IDict<BigNumber> = {};
         let totalBalance = BN(0);
         for (const acct of accounts) {
             votingPower[acct] = response[0];
@@ -1366,7 +1366,7 @@ export class PoolTemplate {
 
         const totalPower = Object.values(votingPower).reduce((sum, item) => sum.plus(item));
         // @ts-ignore
-        const optimalBN: DictInterface<BigNumber> = Object.fromEntries(accounts.map((acc) => [acc, BN(0)]));
+        const optimalBN: IDict<BigNumber> = Object.fromEntries(accounts.map((acc) => [acc, BN(0)]));
         if (totalBalance.lt(gaugeTotalSupply.times(totalPower).div(veTotalSupply))) {
             for (const acct of accounts) {
                 // min(voting, lp)
@@ -1387,7 +1387,7 @@ export class PoolTemplate {
             optimalBN[accounts[0]] = optimalBN[accounts[0]].plus(totalBalance.minus(Object.values(optimalBN).reduce((sum, item) => sum.plus(item))));
         }
 
-        const optimal: DictInterface<string> = {};
+        const optimal: IDict<string> = {};
         for (const entry of Object.entries(optimalBN)) {
             optimal[entry[0]] = toStringFromBN(entry[1]);
         }
@@ -1459,7 +1459,7 @@ export class PoolTemplate {
     }
 
     private _balances = async (rawCoinNames: string[], rawCoinAddresses: string[], ...addresses: string[] | string[][]):
-        Promise<DictInterface<DictInterface<string>> | DictInterface<string>> => {
+        Promise<IDict<IDict<string>> | IDict<string>> => {
         const coinNames: string[] = [];
         const coinAddresses: string[] = [];
         // removing duplicates
@@ -1471,9 +1471,9 @@ export class PoolTemplate {
         }
 
         addresses = _prepareAddresses(addresses);
-        const rawBalances: DictInterface<string[]> = await _getBalances(coinAddresses, addresses);
+        const rawBalances: IDict<string[]> = await _getBalances(coinAddresses, addresses);
 
-        const balances: DictInterface<DictInterface<string>> = {};
+        const balances: IDict<IDict<string>> = {};
         for (const address of addresses) {
             balances[address] = {};
             for (const coinName of coinNames) {

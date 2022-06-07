@@ -1,6 +1,6 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve, REFERENCE_ASSET } from "../interfaces";
+import { IDict, PoolDataInterface, ICurve, REFERENCE_ASSET } from "../interfaces";
 import ERC20ABI from "../constants/abis/json/ERC20.json";
 import factorySwapABI from "../constants/abis/json/factoryPools/swap.json";
 import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
@@ -27,7 +27,7 @@ import Plain4ETHABI from "../constants/abis/json/factory-v2/Plain4ETH.json";
 import Plain4OptimizedABI from "../constants/abis/json/factory-v2/Plain4Optimized.json";
 
 
-const implementationABIDictEthereum: DictInterface<any> = {
+const implementationABIDictEthereum: IDict<any> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": factorySwapABI,
 
     "0x213be373FDff327658139C7df330817DAD2d5bBE": MetaUSDABI,
@@ -55,7 +55,7 @@ const implementationABIDictEthereum: DictInterface<any> = {
     "0xaD4753D045D3Aed5C1a6606dFb6a7D7AD67C1Ad7": Plain4OptimizedABI,
 }
 
-const implementationABIDictPolygon: DictInterface<any> = {
+const implementationABIDictPolygon: IDict<any> = {
     "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": MetaUSDABI,
     "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": MetaUSDBalancesABI,
 
@@ -78,29 +78,29 @@ const implementationABIDictPolygon: DictInterface<any> = {
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
 }
 
-const basePoolAddressNameDictEthereum: DictInterface<string> = {
+const basePoolAddressNameDictEthereum: IDict<string> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "3pool",
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "sbtc",
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "ren",
 }
 
-const basePoolAddressNameDictPolygon: DictInterface<string> = {
+const basePoolAddressNameDictPolygon: IDict<string> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": "aave",
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "ren",
 }
 
-const basePoolAddressCoinsDictEthereum: DictInterface<string[]> = {
+const basePoolAddressCoinsDictEthereum: IDict<string[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": ['DAI', 'USDC', 'USDT'],     // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": ['renBTC', 'WBTC', 'sBTC'],  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": ['renBTC', 'WBTC'],          // ren
 }
 
-const basePoolAddressCoinsDictPolygon: DictInterface<string[]> = {
+const basePoolAddressCoinsDictPolygon: IDict<string[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": ['DAI', 'USDC', 'USDT'],     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": ['WBTC', 'renBTC'],          // ren
 }
 
-const basePoolAddressCoinAddressesDictEthereum: DictInterface<string[]> = {
+const basePoolAddressCoinAddressesDictEthereum: IDict<string[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": [  // 3pool
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -119,7 +119,7 @@ const basePoolAddressCoinAddressesDictEthereum: DictInterface<string[]> = {
     ].map((addr) => addr.toLowerCase()),
 }
 
-const basePoolAddressCoinAddressesDictPolygon: DictInterface<string[]> = {
+const basePoolAddressCoinAddressesDictPolygon: IDict<string[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": [  // aave
         '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
         '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
@@ -132,24 +132,24 @@ const basePoolAddressCoinAddressesDictPolygon: DictInterface<string[]> = {
     ].map((addr) => addr.toLowerCase()),
 }
 
-const basePoolAddressDecimalsDictEthereum: DictInterface<number[]> = {
+const basePoolAddressDecimalsDictEthereum: IDict<number[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": [18, 6, 6],  // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": [8, 8, 18],  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": [8, 8],      // ren
 }
 
-const basePoolAddressDecimalsDictPolygon: DictInterface<number[]> = {
+const basePoolAddressDecimalsDictPolygon: IDict<number[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": [18, 6, 6],     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": [8, 8],         // ren
 }
 
-const basePoolAddressZapDictEthereum: DictInterface<string> = {
+const basePoolAddressZapDictEthereum: IDict<string> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),  // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),  // ren TODO CHECK!!!
 }
 
-const basePoolAddressZapDictPolygon: DictInterface<string> = {
+const basePoolAddressZapDictPolygon: IDict<string> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": "0x5ab5C56B9db92Ba45a0B46a207286cD83C15C939".toLowerCase(),     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "0xE2e6DC1708337A6e59f227921db08F21e3394723".toLowerCase(),     // ren
 }
@@ -288,9 +288,9 @@ function setFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void
     }
 }
 
-function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
-    const dict: DictInterface<string> = {}
-    for (const poolData of Object.values(this.constants.POOLS_DATA as DictInterface<PoolDataInterface>)) {
+function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
+    const dict: IDict<string> = {}
+    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<PoolDataInterface>)) {
         poolData.coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
                 dict[addr.toLowerCase()] = poolData.coins[i]
@@ -312,11 +312,11 @@ function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
 async function getCoinAddressNameDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddrNameDict: DictInterface<string>
-): Promise<DictInterface<string>> {
+    existingCoinAddrNameDict: IDict<string>
+): Promise<IDict<string>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<string> = {};
+    const coinAddrNamesDict: IDict<string> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
@@ -342,11 +342,11 @@ async function getCoinAddressNameDict(
 async function getCoinAddressDecimalsDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddressDecimalsDict: DictInterface<number>
-): Promise<DictInterface<number>> {
+    existingCoinAddressDecimalsDict: IDict<number>
+): Promise<IDict<number>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<number> = {};
+    const coinAddrNamesDict: IDict<number> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddressDecimalsDict) {
@@ -412,7 +412,7 @@ function setFactoryZapContracts(this: ICurve): void {
     }
 }
 
-export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<PoolDataInterface>> {
+export async function getFactoryPoolData(this: ICurve): Promise<IDict<PoolDataInterface>> {
     const [poolIds, swapAddresses] = await getFactoryIdsAndSwapAddresses.call(this);
     const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
@@ -436,7 +436,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
     const basePoolAddressZapDict = this.chainId === 137 ? basePoolAddressZapDictPolygon : basePoolAddressZapDictEthereum;
 
     // TODO add reward_tokens and reward_decimals
-    const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
+    const FACTORY_POOLS_DATA: IDict<PoolDataInterface> = {};
     for (let i = 0; i < poolIds.length; i++) {
         if (!isMeta[i]) {
             FACTORY_POOLS_DATA[poolIds[i]] = {

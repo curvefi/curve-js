@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
+import { IDict, PoolDataInterface, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
 import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
 import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
 import ERC20ABI from "../constants/abis/json/ERC20.json";
@@ -119,7 +119,7 @@ function setFactoryZapContracts(this: ICurve): void {
     }
 }
 
-export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<DictInterface<PoolDataInterface>> {
+export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<IDict<PoolDataInterface>> {
     const network = this.chainId === 137 ? "polygon" : "ethereum";
     const factoryType = isCrypto ? "factory-crypto" : "factory";
     const url = `https://api.curve.fi/api/getPools/${network}/${factoryType}`;
@@ -136,7 +136,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     setFactoryRewardCoinsContracts.call(this, rawPoolList);
     if (!isCrypto) setFactoryZapContracts.call(this);
 
-    const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
+    const FACTORY_POOLS_DATA: IDict<PoolDataInterface> = {};
     rawPoolList.forEach((pool) => {
         const coinAddresses = pool.coins.map((c) => c.address.toLowerCase());
         const coinNames = pool.coins.map((c) => c.symbol);

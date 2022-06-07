@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
-import { DictInterface, PoolDataInterface } from "../interfaces";
+import { IDict, PoolDataInterface } from "../interfaces";
 
 
-export const lowerCasePoolDataAddresses = (poolsData: DictInterface<PoolDataInterface>): DictInterface<PoolDataInterface> => {
+export const lowerCasePoolDataAddresses = (poolsData: IDict<PoolDataInterface>): IDict<PoolDataInterface> => {
     for (const poolId in poolsData) {
         if (!Object.prototype.hasOwnProperty.call(poolsData, poolId)) continue;
         const poolData = poolsData[poolId];
@@ -20,8 +20,8 @@ export const lowerCasePoolDataAddresses = (poolsData: DictInterface<PoolDataInte
     return poolsData
 }
 
-export const extractDecimals = (poolsData: DictInterface<PoolDataInterface>): DictInterface<number> => {
-    const DECIMALS: DictInterface<number> = {};
+export const extractDecimals = (poolsData: IDict<PoolDataInterface>): IDict<number> => {
+    const DECIMALS: IDict<number> = {};
     for (const poolId in poolsData) {
         if (!Object.prototype.hasOwnProperty.call(poolsData, poolId)) continue;
         const poolData = poolsData[poolId];
@@ -50,7 +50,7 @@ export const extractDecimals = (poolsData: DictInterface<PoolDataInterface>): Di
     return DECIMALS;
 }
 
-export const extractGauges = (poolsData: DictInterface<PoolDataInterface>): string[] => {
+export const extractGauges = (poolsData: IDict<PoolDataInterface>): string[] => {
     const GAUGES: string[] = [];
     for (const poolData of Object.values(poolsData)) {
         if (poolData.gauge_address === ethers.constants.AddressZero) continue;
@@ -60,7 +60,7 @@ export const extractGauges = (poolsData: DictInterface<PoolDataInterface>): stri
     return GAUGES;
 }
 
-export const lowerCaseValues = (dict: DictInterface<string>): DictInterface<string> => {
+export const lowerCaseValues = (dict: IDict<string>): IDict<string> => {
     // @ts-ignore
     return Object.fromEntries(Object.entries(dict).map((entry) => [entry[0], entry[1].toLowerCase()]))
 }

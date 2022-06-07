@@ -1,5 +1,5 @@
 import curve from "../src";
-import { DictInterface } from "../src/interfaces";
+import { IDict } from "../src/interfaces";
 
 
 const balancesTest = async () => {
@@ -68,7 +68,7 @@ const poolTest = async () => {
     const addLiquidityTx2 = await pool.addLiquidityWrapped(['100', '100', '100']);
     console.log(addLiquidityTx2);
 
-    const balances = await pool.balances() as DictInterface<string>;
+    const balances = await pool.balances() as IDict<string>;
     console.log(balances);
 
     console.log('// GAUGE DEPOSIT');

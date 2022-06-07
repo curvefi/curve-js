@@ -3,7 +3,7 @@ import curve from "../src";
 import { getPool } from "../src/pools/poolConstructor";
 import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { BN } from "../src/utils";
-import { DictInterface } from "../src/interfaces";
+import { IDict } from "../src/interfaces";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt'];
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
@@ -28,12 +28,12 @@ const underlyingDepositAndStakeTest = (name: string) => {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
 
-            const initialBalances = await pool.wallet.balances() as DictInterface<string>;
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositAndStakeExpected(amounts);
 
             await pool.depositAndStake(amounts);
 
-            const balances = await pool.wallet.balances() as DictInterface<string>;
+            const balances = await pool.wallet.balances() as IDict<string>;
 
             pool.underlyingCoins.forEach((c: string) => {
                 if (name === 'steth') {
@@ -64,12 +64,12 @@ const wrappedDepositAndStakeTest = (name: string) => {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
 
-            const initialBalances = await pool.wallet.balances() as DictInterface<string>;
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositAndStakeWrappedExpected(amounts);
 
             await pool.depositAndStakeWrapped(amounts);
 
-            const balances = await pool.wallet.balances() as DictInterface<string>;
+            const balances = await pool.wallet.balances() as IDict<string>;
 
             pool.coins.forEach((c: string) => {
                 if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {

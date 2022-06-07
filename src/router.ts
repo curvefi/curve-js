@@ -1,5 +1,5 @@
 // TODO make working or remove
-import { DictInterface, IRoute, IRouteStep, PoolDataInterface } from "./interfaces";
+import { IDict, IRoute, IRouteStep, PoolDataInterface } from "./interfaces";
 import { curve } from "./curve";
 import { ethers } from "ethers";
 import {
@@ -27,8 +27,8 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
 
     const ALL_POOLS = Object.entries({
         ...curve.constants.POOLS_DATA,
-        ...curve.constants.FACTORY_POOLS_DATA as DictInterface<PoolDataInterface>,
-        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as DictInterface<PoolDataInterface>,
+        ...curve.constants.FACTORY_POOLS_DATA as IDict<PoolDataInterface>,
+        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<PoolDataInterface>,
     });
 
     const basePoolsSet: Set<string> = new Set();
@@ -45,7 +45,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
     // Coins we will search routes for on the next step
     let nextCoins: Set<string> = new Set();
     // Routes for all coins found
-    const routes: DictInterface<IRouteStep[][]> = {
+    const routes: IDict<IRouteStep[][]> = {
         [inputCoinAddress]: [[]],
     };
 
@@ -310,7 +310,7 @@ const _getExchangeMultipleArgs = (inputCoinAddress: string, route: IRoute): { _r
     return { _route, _swapParams, _factorySwapAddresses }
 }
 
-const _estimatedGasForDifferentRoutesCache: DictInterface<{ gas: ethers.BigNumber, time: number }> = {};
+const _estimatedGasForDifferentRoutesCache: IDict<{ gas: ethers.BigNumber, time: number }> = {};
 
 const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress: string, outputCoinAddress: string, _amount: ethers.BigNumber): Promise<number[]> => {
     inputCoinAddress = inputCoinAddress.toLowerCase();

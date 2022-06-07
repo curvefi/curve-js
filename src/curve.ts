@@ -4,7 +4,7 @@ import { Provider as MulticallProvider, Contract as MulticallContract } from 'et
 import { getFactoryPoolData } from "./factory/factory";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto";
-import {PoolDataInterface, DictInterface, ICurve} from "./interfaces";
+import {PoolDataInterface, IDict, ICurve} from "./interfaces";
 import ERC20Abi from './constants/abis/json/ERC20.json';
 import cERC20Abi from './constants/abis/json/cERC20.json';
 import yERC20Abi from './constants/abis/json/yERC20.json';
@@ -57,12 +57,12 @@ class Curve implements ICurve {
     constantOptions: { gasLimit: number };
     options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
     constants: {
-        ALIASES: DictInterface<string>,
-        POOLS_DATA: DictInterface<PoolDataInterface>,
-        FACTORY_POOLS_DATA: DictInterface<PoolDataInterface>,
-        CRYPTO_FACTORY_POOLS_DATA: DictInterface<PoolDataInterface>,
-        COINS: DictInterface<string>,
-        DECIMALS: DictInterface<number>,
+        ALIASES: IDict<string>,
+        POOLS_DATA: IDict<PoolDataInterface>,
+        FACTORY_POOLS_DATA: IDict<PoolDataInterface>,
+        CRYPTO_FACTORY_POOLS_DATA: IDict<PoolDataInterface>,
+        COINS: IDict<string>,
+        DECIMALS: IDict<number>,
         GAUGES: string[],
     };
 

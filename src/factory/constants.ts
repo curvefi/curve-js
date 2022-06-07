@@ -1,4 +1,4 @@
-import {DictInterface} from "../interfaces";
+import {IDict} from "../interfaces";
 import factorySwapABI from "../constants/abis/json/factoryPools/swap.json";
 import MetaUSDABI from "../constants/abis/json/factory-v2/MetaUSD.json";
 import MetaUSDBalancesABI from "../constants/abis/json/factory-v2/MetaUSDBalances.json";
@@ -20,7 +20,7 @@ import Plain4ETHABI from "../constants/abis/json/factory-v2/Plain4ETH.json";
 import Plain4OptimizedABI from "../constants/abis/json/factory-v2/Plain4Optimized.json";
 
 
-export const implementationABIDictEthereum: DictInterface<any> = {
+export const implementationABIDictEthereum: IDict<any> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": factorySwapABI,
 
     "0x213be373FDff327658139C7df330817DAD2d5bBE": MetaUSDABI,
@@ -48,7 +48,7 @@ export const implementationABIDictEthereum: DictInterface<any> = {
     "0xaD4753D045D3Aed5C1a6606dFb6a7D7AD67C1Ad7": Plain4OptimizedABI,
 }
 
-export const implementationABIDictPolygon: DictInterface<any> = {
+export const implementationABIDictPolygon: IDict<any> = {
     "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": MetaUSDABI,
     "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": MetaUSDBalancesABI,
 
@@ -71,7 +71,7 @@ export const implementationABIDictPolygon: DictInterface<any> = {
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
 }
 
-export const implementationBasePoolAddressDictEthereum: DictInterface<any> = {
+export const implementationBasePoolAddressDictEthereum: IDict<any> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // 3pool
 
     "0x213be373FDff327658139C7df330817DAD2d5bBE": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // 3pool
@@ -84,7 +84,7 @@ export const implementationBasePoolAddressDictEthereum: DictInterface<any> = {
     "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B", // ren
 }
 
-export const implementationBasePoolAddressDictPolygon: DictInterface<any> = {
+export const implementationBasePoolAddressDictPolygon: IDict<any> = {
     "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": "0x445FE580eF8d70FF569aB36e80c647af338db351", // aave
     "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": "0x445FE580eF8d70FF569aB36e80c647af338db351", // aave
 
@@ -92,29 +92,29 @@ export const implementationBasePoolAddressDictPolygon: DictInterface<any> = {
     "0xD8336532f6ED7b94282fAF724fe41d6145E07Cfc": "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67", // ren
 }
 
-export const basePoolAddressNameDictEthereum: DictInterface<string> = {
+export const basePoolAddressNameDictEthereum: IDict<string> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "3pool",
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "sbtc",
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "ren",
 }
 
-export const basePoolAddressNameDictPolygon: DictInterface<string> = {
+export const basePoolAddressNameDictPolygon: IDict<string> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": "aave",
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "ren",
 }
 
-export const basePoolAddressCoinsDictEthereum: DictInterface<string[]> = {
+export const basePoolAddressCoinsDictEthereum: IDict<string[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": ['DAI', 'USDC', 'USDT'],     // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": ['renBTC', 'WBTC', 'sBTC'],  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": ['renBTC', 'WBTC'],          // ren
 }
 
-export const basePoolAddressCoinsDictPolygon: DictInterface<string[]> = {
+export const basePoolAddressCoinsDictPolygon: IDict<string[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": ['DAI', 'USDC', 'USDT'],     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": ['WBTC', 'renBTC'],          // ren
 }
 
-export const basePoolAddressCoinAddressesDictEthereum: DictInterface<string[]> = {
+export const basePoolAddressCoinAddressesDictEthereum: IDict<string[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": [  // 3pool
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -133,7 +133,7 @@ export const basePoolAddressCoinAddressesDictEthereum: DictInterface<string[]> =
     ].map((addr) => addr.toLowerCase()),
 }
 
-export const basePoolAddressCoinAddressesDictPolygon: DictInterface<string[]> = {
+export const basePoolAddressCoinAddressesDictPolygon: IDict<string[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": [  // aave
         '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
         '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
@@ -146,24 +146,24 @@ export const basePoolAddressCoinAddressesDictPolygon: DictInterface<string[]> = 
     ].map((addr) => addr.toLowerCase()),
 }
 
-export const basePoolAddressDecimalsDictEthereum: DictInterface<number[]> = {
+export const basePoolAddressDecimalsDictEthereum: IDict<number[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": [18, 6, 6],  // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": [8, 8, 18],  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": [8, 8],      // ren
 }
 
-export const basePoolAddressDecimalsDictPolygon: DictInterface<number[]> = {
+export const basePoolAddressDecimalsDictPolygon: IDict<number[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": [18, 6, 6],     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": [8, 8],         // ren
 }
 
-export const basePoolAddressZapDictEthereum: DictInterface<string> = {
+export const basePoolAddressZapDictEthereum: IDict<string> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),  // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),  // ren TODO CHECK!!!
 }
 
-export const basePoolAddressZapDictPolygon: DictInterface<string> = {
+export const basePoolAddressZapDictPolygon: IDict<string> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": "0x5ab5C56B9db92Ba45a0B46a207286cD83C15C939".toLowerCase(),     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "0xE2e6DC1708337A6e59f227921db08F21e3394723".toLowerCase(),     // ren
 }

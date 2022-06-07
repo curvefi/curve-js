@@ -3,14 +3,14 @@ import BigNumber from "bignumber.js";
 import {_getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance} from "./utils";
 import { _ensureAllowance, toBN, toStringFromBN } from './utils';
 import { curve } from "./curve";
-import { DictInterface } from "./interfaces";
+import { IDict } from "./interfaces";
 
 
-export const getCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
+export const getCrv = async (...addresses: string[] | string[][]): Promise<IDict<string> | string> => {
     addresses = _prepareAddresses(addresses);
     const rawBalances = (await _getBalances([curve.constants.ALIASES.crv], addresses));
 
-    const balances: DictInterface<string> = {};
+    const balances: IDict<string> = {};
     for (const address of addresses) {
         balances[address] = rawBalances[address].shift() as string;
     }
@@ -19,7 +19,7 @@ export const getCrv = async (...addresses: string[] | string[][]): Promise<DictI
 }
 
 export const getLockedAmountAndUnlockTime = async (...addresses: string[] | string[][]):
-    Promise<DictInterface<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {
+    Promise<IDict<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {
     addresses = _prepareAddresses(addresses);
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
     const contractCalls = addresses.map((address: string) => veContract.locked(address));
@@ -27,7 +27,7 @@ export const getLockedAmountAndUnlockTime = async (...addresses: string[] | stri
     const response: (string | number)[][] = (await curve.multicallProvider.all(contractCalls) as ethers.BigNumber[][]).map(
         (value: ethers.BigNumber[]) => [ethers.utils.formatUnits(value[0]), Number(ethers.utils.formatUnits(value[1], 0)) * 1000]);
 
-    const result: DictInterface<{ lockedAmount: string, unlockTime: number }> = {};
+    const result: IDict<{ lockedAmount: string, unlockTime: number }> = {};
     addresses.forEach((addr: string, i: number) => {
         result[addr] = { lockedAmount: response[i][0] as string, unlockTime: response[i][1] as number};
     });
@@ -35,7 +35,7 @@ export const getLockedAmountAndUnlockTime = async (...addresses: string[] | stri
     return addresses.length === 1 ? result[addresses[0]] : result
 }
 
-export const getVeCrv = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
+export const getVeCrv = async (...addresses: string[] | string[][]): Promise<IDict<string> | string> => {
     addresses = _prepareAddresses(addresses);
 
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
@@ -43,7 +43,7 @@ export const getVeCrv = async (...addresses: string[] | string[][]): Promise<Dic
     const response: string[] = (await curve.multicallProvider.all(contractCalls) as ethers.BigNumber[]).map(
         (value: ethers.BigNumber) => ethers.utils.formatUnits(value));
 
-    const result: DictInterface<string> = {};
+    const result: IDict<string> = {};
     addresses.forEach((addr: string, i: number) => {
         result[addr] = response[i];
     });
@@ -51,7 +51,7 @@ export const getVeCrv = async (...addresses: string[] | string[][]): Promise<Dic
     return addresses.length === 1 ? result[addresses[0]] : result
 }
 
-export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<DictInterface<string> | string> => {
+export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<IDict<string> | string> => {
     addresses = _prepareAddresses(addresses);
 
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
@@ -64,12 +64,12 @@ export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<
 
     const [veTotalSupply] = response.splice(0, 1);
 
-    const resultBN: DictInterface<BigNumber> = {};
+    const resultBN: IDict<BigNumber> = {};
     addresses.forEach((acct: string, i: number) => {
         resultBN[acct] = response[i].div(veTotalSupply).times(100);
     });
 
-    const result: DictInterface<string> = {};
+    const result: IDict<string> = {};
     for (const entry of Object.entries(resultBN)) {
         result[entry[0]] = toStringFromBN(entry[1]);
     }

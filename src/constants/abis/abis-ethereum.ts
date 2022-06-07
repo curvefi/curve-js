@@ -84,10 +84,10 @@ import raiDepositABI from './json/rai/deposit.json';
 import twopoolSwapABI from './json/2pool/swap.json';
 import fourpoolSwapABI from './json/4pool/swap.json';
 import { lowerCasePoolDataAddresses } from "../utils";
-import { DictInterface, PoolDataInterface } from "../../interfaces";
+import { IDict, PoolDataInterface } from "../../interfaces";
 
 
-export const POOLS_DATA_ETHEREUM: DictInterface<PoolDataInterface> = lowerCasePoolDataAddresses({
+export const POOLS_DATA_ETHEREUM: IDict<PoolDataInterface> = lowerCasePoolDataAddresses({
     compound: {
         name: "compound",
         full_name: "compound",

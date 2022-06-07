@@ -4,7 +4,7 @@ import curve from "../src";
 import { getPool } from "../src/pools/poolConstructor";
 import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { BN } from "../src/utils";
-import { DictInterface } from "../src/interfaces";
+import { IDict } from "../src/interfaces";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt'];
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
@@ -38,12 +38,12 @@ const underlyingLiquidityTest = (id: string) => {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
             if (id === 'factory-v2-7') amounts[3] = '0';
-            const initialBalances = await pool.wallet.balances() as DictInterface<string>;
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositExpected(amounts);
 
             await pool.deposit(amounts);
 
-            const balances = await pool.wallet.balances() as DictInterface<string>;
+            const balances = await pool.wallet.balances() as IDict<string>;
 
             coinAddresses.forEach((c, i) => {
                 if (id === 'steth' || pool.id === 'factory-v2-8') {
@@ -63,7 +63,7 @@ const underlyingLiquidityTest = (id: string) => {
                 return
             }
 
-            const depositAmount: string = (await pool.wallet.lpTokenBalances() as DictInterface<string>).lpToken;
+            const depositAmount: string = (await pool.wallet.lpTokenBalances() as IDict<string>).lpToken;
 
             await pool.stake(depositAmount);
 
@@ -79,7 +79,7 @@ const underlyingLiquidityTest = (id: string) => {
                 return
             }
 
-            const withdrawAmount: string = (await pool.wallet.lpTokenBalances() as DictInterface<string>).gauge;
+            const withdrawAmount: string = (await pool.wallet.lpTokenBalances() as IDict<string>).gauge;
 
             await pool.unstake(withdrawAmount);
 
@@ -90,13 +90,13 @@ const underlyingLiquidityTest = (id: string) => {
         });
 
         it('Withdraw', async function () {
-            const initialBalances = await pool.wallet.balances() as DictInterface<string>;
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
             const coinsExpected = await pool.withdrawExpected(lpTokenAmount);
 
             await pool.withdraw(lpTokenAmount);
 
-            const balances = await pool.wallet.balances() as DictInterface<string>;
+            const balances = await pool.wallet.balances() as IDict<string>;
 
             assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
             coinAddresses.forEach((c: string, i: number) => {
@@ -112,12 +112,12 @@ const underlyingLiquidityTest = (id: string) => {
                 const amount = '1';
                 const amounts = coinAddresses.map(() => amount);
                 if (id === "factory-v2-7") amounts[3] = '0.1';
-                const initialBalances = await pool.wallet.balances() as DictInterface<string>;
+                const initialBalances = await pool.wallet.balances() as IDict<string>;
                 const lpTokenExpected = await pool.withdrawImbalanceExpected(amounts);
 
                 await pool.withdrawImbalance(amounts, 0.02);
 
-                const balances = await pool.wallet.balances() as DictInterface<string>;
+                const balances = await pool.wallet.balances() as IDict<string>;
 
                 const delta = ['factory-v2-80', 'factory-v2-113'].includes(id) ? 2 : 0.01
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
@@ -134,13 +134,13 @@ const underlyingLiquidityTest = (id: string) => {
         });
 
         it('Withdraw one coin', async function () {
-            const initialBalances = await pool.wallet.balances() as DictInterface<string>;
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
             const expected = await pool.withdrawOneCoinExpected(lpTokenAmount, 0);
 
             await pool.withdrawOneCoin(lpTokenAmount, 0);
 
-            const balances = await pool.wallet.balances() as DictInterface<string>;
+            const balances = await pool.wallet.balances() as IDict<string>;
 
             assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
             coinAddresses.forEach((c: string, i: number) => {
@@ -166,12 +166,12 @@ const underlyingSwapTest = (id: string) => {
                             console.log('Skip')
                         } else {
                             const swapAmount = '10';
-                            const initialCoinBalances = await pool.wallet.underlyingCoinBalances() as DictInterface<string>;
+                            const initialCoinBalances = await pool.wallet.underlyingCoinBalances() as IDict<string>;
                             const expected = await pool.swapExpected(i, j, swapAmount);
 
                             await pool.swap(i, j, swapAmount, 0.05);
 
-                            const coinBalances = await pool.wallet.underlyingCoinBalances() as DictInterface<string>;
+                            const coinBalances = await pool.wallet.underlyingCoinBalances() as IDict<string>;
 
                             if (pool.id === 'steth' || pool.id === 'factory-v2-60') {
                                 assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount)).toString()), 1e-18);

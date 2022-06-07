@@ -1,7 +1,7 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract, Provider as MulticallProvider } from "ethcall";
 
-export interface DictInterface<T> {
+export interface IDict<T> {
     [index: string]: T,
 }
 
@@ -15,7 +15,7 @@ export interface ICurve {
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
     constantOptions: { gasLimit: number },
     options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber },
-    constants: DictInterface<any>;
+    constants: IDict<any>;
 }
 
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';

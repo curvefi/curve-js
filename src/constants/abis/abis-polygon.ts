@@ -6,7 +6,7 @@ import atricrypto3Zap from './json/atricrypto3/zap.json';
 import eurtusdSwap from './json/eurtusd/swap.json';
 import eurtusdZap from './json/eurtusd/deposit.json';
 import gaugeRewardsOnlyABI from './json/gauge_rewards_only.json';
-import { lowerCasePoolDataAddresses, extractDecimals } from "../utils";
+import { lowerCasePoolDataAddresses } from "../utils";
 import {PoolDataInterface} from "../../interfaces";
 
 

@@ -41,7 +41,7 @@ export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
         const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
         const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
         // @ts-ignore
-        const balancedAmountsUSD = _balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.underlyingDecimals);
+        const balancedAmountsUSD = _depositBalancedAmounts(poolBalancesUSD, walletBalancesUSD, this.underlyingDecimals);
 
         // @ts-ignore
         return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
@@ -72,7 +72,7 @@ export const depositWrappedBalancedAmountsCryptoMixin: PoolTemplate = {
         const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
         const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
         // @ts-ignore
-        const balancedAmountsUSD = this._balancedAmounts(poolBalancesUSD, walletBalancesUSD, this.decimals);
+        const balancedAmountsUSD = _depositBalancedAmounts(poolBalancesUSD, walletBalancesUSD, this.decimals);
 
         return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
     },

@@ -1,5 +1,6 @@
-import { curve } from "../../curve";
 import { ethers } from "ethers";
+import { curve } from "../../curve";
+import { _calcExpectedAmounts } from "./common";
 import { PoolTemplate } from "../PoolTemplate";
 
 
@@ -13,7 +14,7 @@ export const poolBalancesAtricrypto3Mixin: PoolTemplate = {
 
         const basePool = new PoolTemplate(this.basePool);
         // @ts-ignore
-        const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_poolMetaCoinBalance);
+        const _basePoolExpectedAmounts = await _calcExpectedAmounts.call(basePool, _poolMetaCoinBalance);
         const _poolUnderlyingBalances = [..._basePoolExpectedAmounts, ..._poolNonMetaBalances];
 
         return  _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => ethers.utils.formatUnits(_b, this.underlyingDecimals[i]))
@@ -31,7 +32,7 @@ export const poolBalancesMetaMixin: PoolTemplate = {
 
         const basePool = new PoolTemplate(this.basePool);
         // @ts-ignore
-        const _basePoolExpectedAmounts = await basePool._calcExpectedAmounts(_poolMetaCoinBalance);
+        const _basePoolExpectedAmounts = await _calcExpectedAmounts.call(basePool, _poolMetaCoinBalance);
         const _poolUnderlyingBalances = [..._poolNonMetaBalance, ..._basePoolExpectedAmounts];
 
         return  _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => ethers.utils.formatUnits(_b, this.underlyingDecimals[i]))

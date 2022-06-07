@@ -1,24 +1,8 @@
 import { ethers } from "ethers";
-import BigNumber from "bignumber.js";
+import { _calcExpectedAmounts } from "./common";
 import { PoolTemplate } from "../PoolTemplate";
-import { curve } from "../../curve";
-import { fromBN, toBN, parseUnits } from "../../utils";
+import { parseUnits } from "../../utils";
 
-async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> {
-    const coinBalancesBN: BigNumber[] = [];
-    for (let i = 0; i < this.coinAddresses.length; i++) {
-        const _balance: ethers.BigNumber = await curve.contracts[this.poolAddress].contract.balances(i, curve.constantOptions);
-        coinBalancesBN.push(toBN(_balance, this.decimals[i]));
-    }
-    const totalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
-
-    const expectedAmountsBN: BigNumber[] = [];
-    for (const coinBalance of coinBalancesBN) {
-        expectedAmountsBN.push(coinBalance.times(toBN(_lpTokenAmount)).div(totalSupplyBN));
-    }
-
-    return expectedAmountsBN.map((amount: BigNumber, i: number) => fromBN(amount, this.decimals[i]));
-}
 
 // @ts-ignore
 export const withdrawExpectedMixin: PoolTemplate = {

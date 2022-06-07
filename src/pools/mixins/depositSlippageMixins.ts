@@ -9,7 +9,7 @@ export const depositSlippageMixin: PoolTemplate = {
         const expected = Number(await this.depositExpected(amounts));
 
         // @ts-ignore
-        const poolBalances: number[] = (await this.getPoolBalances()).map(Number);
+        const poolBalances: number[] = (await this.stats.balances()).map(Number);
         const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
         const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
 
@@ -27,7 +27,7 @@ export const depositWrappedSlippageMixin: PoolTemplate = {
         const expected = Number(await this.depositWrappedExpected(amounts));
 
         // @ts-ignore
-        const poolBalances: number[] = (await this.getPoolWrappedBalances()).map(Number);
+        const poolBalances: number[] = (await this.stats.wrappedBalances()).map(Number);
         const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
         const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
 
@@ -47,7 +47,7 @@ export const depositSlippageCryptoMixin: PoolTemplate = {
         const expected = Number(await this.depositExpected(amounts));
 
         // @ts-ignore
-        const poolBalances = (await this.getPoolBalances()).map(Number);
+        const poolBalances = (await this.stats.balances()).map(Number);
         const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
         const poolTotalBalance = poolBalancesUSD.reduce((a,b) => a + b);
         const poolBalancesRatios = poolBalancesUSD.map((b) => b / poolTotalBalance);
@@ -70,7 +70,7 @@ export const depositWrappedSlippageCryptoMixin: PoolTemplate = {
         const expected = Number(await this.depositWrappedExpected(amounts));
 
         // @ts-ignore
-        const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
+        const poolBalances = (await this.stats.wrappedBalances()).map(Number);
         const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
         const poolTotalBalance = poolBalancesUSD.reduce((a,b) => a + b);
         const poolBalancesRatios = poolBalancesUSD.map((b) => b / poolTotalBalance);

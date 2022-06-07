@@ -21,7 +21,7 @@ function _depositBalancedAmounts(poolBalances: number[], walletBalances: number[
 export const depositBalancedAmountsMixin: PoolTemplate = {
     async depositBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.getPoolBalances()).map(Number);
+        const poolBalances = (await this.stats.balances()).map(Number);
         // @ts-ignore
         const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
 
@@ -33,7 +33,7 @@ export const depositBalancedAmountsMixin: PoolTemplate = {
 export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
     async depositBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.getPoolBalances()).map(Number);
+        const poolBalances = (await this.stats.balances()).map(Number);
         // @ts-ignore
         const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
         // @ts-ignore
@@ -52,7 +52,7 @@ export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
 export const depositWrappedBalancedAmountsMixin: PoolTemplate = {
     async depositWrappedBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
+        const poolBalances = (await this.stats.wrappedBalances()).map(Number);
         // @ts-ignore
         const walletBalances = Object.values(await this.walletCoinBalances()).map(Number);
 
@@ -64,7 +64,7 @@ export const depositWrappedBalancedAmountsMixin: PoolTemplate = {
 export const depositWrappedBalancedAmountsCryptoMixin: PoolTemplate = {
     async depositWrappedBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.getPoolWrappedBalances()).map(Number);
+        const poolBalances = (await this.stats.wrappedBalances()).map(Number);
         // @ts-ignore
         const walletBalances = Object.values(await this.walletCoinBalances()).map(Number);
         // @ts-ignore

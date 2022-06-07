@@ -2,7 +2,7 @@ import {ethers} from "ethers";
 import { assert } from "chai";
 import curve from "../src";
 import { BN } from "../src/utils";
-import { DictInterface } from "../lib/interfaces";
+import { DictInterface } from "../src/interfaces";
 import { getPool } from "../src/pools/poolConstructor";
 import { PoolTemplate } from "../src/pools/PoolTemplate";
 

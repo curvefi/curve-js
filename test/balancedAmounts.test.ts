@@ -20,7 +20,7 @@ const balancedAmountsTest = (name: string) => {
         });
 
         it('underlying', async function () {
-            const balancedAmounts = (await pool.balancedAmounts()).map(Number);
+            const balancedAmounts = (await pool.depositBalancedAmounts()).map(Number);
 
             assert.equal(balancedAmounts.length, pool.underlyingCoins.length);
             for (const amount of balancedAmounts) {
@@ -29,7 +29,7 @@ const balancedAmountsTest = (name: string) => {
         });
 
         it('wrapped', async function () {
-            const balancedWrappedAmounts = (await pool.balancedWrappedAmounts()).map(Number);
+            const balancedWrappedAmounts = (await pool.depositWrappedBalancedAmounts()).map(Number);
 
             assert.equal(balancedWrappedAmounts.length, pool.coins.length);
             for (const amount of balancedWrappedAmounts) {

@@ -135,7 +135,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                         // Looking for outputCoinAddress only on the final step
                         if (step === 3 && coin_addresses[j] !== outputCoinAddress) continue;
                         // Skip empty pools
-                        const tvl = Number(await (getPool(poolId)).stats.getTotalLiquidity());
+                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                         if (tvl === 0) continue;
                         // Skip imbalanced pools
                         if (IMBALANCED_POOLS.includes(poolId)) continue;
@@ -175,7 +175,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                         // Looking for outputCoinAddress only on the final step
                         if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
                         // Skip empty pools
-                        const tvl = Number(await (getPool(poolId)).stats.getTotalLiquidity());
+                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                         if (tvl === 0) continue;
                         // Skip imbalanced pools
                         if (IMBALANCED_POOLS.includes(poolId)) continue;
@@ -210,7 +210,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                         // Looking for outputCoinAddress only on the final step
                         if (step === 3 && meta_coin_addresses[j] !== outputCoinAddress) continue;
                         // Skip empty pools
-                        const tvl = Number(await (getPool(poolId)).stats.getTotalLiquidity());
+                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                         if (tvl === 0) continue;
                         // Skip imbalanced pools
                         if (IMBALANCED_POOLS.includes(poolId)) continue;
@@ -244,7 +244,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                     // Looking for outputCoinAddress only on the final step
                     if (step === 3 && coin_addresses[0] !== outputCoinAddress) continue;
                     // Skip empty pools
-                    const tvl = Number(await (getPool(poolId)).stats.getTotalLiquidity());
+                    const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                     if (tvl === 0) continue;
                     // Skip imbalanced pools
                     if (IMBALANCED_POOLS.includes(poolId)) continue;

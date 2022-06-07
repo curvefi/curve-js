@@ -3,7 +3,7 @@ import curve from "../src";
 import { getPool } from "../src/pools/poolConstructor";
 import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { BN } from "../src/utils";
-import { DictInterface } from "../lib/interfaces";
+import { DictInterface } from "../src/interfaces";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt'];
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs

@@ -87,14 +87,14 @@ export class PoolTemplate {
         swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage: number) => Promise<number>,
     };
     stats: {
-        getParameters: () => Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }>,
-        getPoolBalances: () => Promise<string[]>,
-        getPoolWrappedBalances: () => Promise<string[]>,
-        getTotalLiquidity: (useApi?: boolean) => Promise<string>,
-        getVolume: () => Promise<string>,
-        getBaseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
-        getTokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
-        getRewardsApy: () => Promise<IReward[]>,
+        parameters: () => Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }>,
+        balances: () => Promise<string[]>,
+        wrappedBalances: () => Promise<string[]>,
+        totalLiquidity: (useApi?: boolean) => Promise<string>,
+        volume: () => Promise<string>,
+        baseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
+        tokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
+        rewardsApy: () => Promise<IReward[]>,
     };
     wallet: {
         balances: (...addresses: string[] | string[][]) => Promise<DictInterface<DictInterface<string>> | DictInterface<string>>,
@@ -162,14 +162,14 @@ export class PoolTemplate {
             swapWrapped: this.swapWrappedEstimateGas.bind(this),
         }
         this.stats = {
-            getParameters: this.getParameters.bind(this),
-            getPoolBalances: this.getPoolBalances.bind(this),
-            getPoolWrappedBalances: this.getPoolWrappedBalances.bind(this),
-            getTotalLiquidity: this.getTotalLiquidity.bind(this),
-            getVolume: this.getVolume.bind(this),
-            getBaseApy: this.getBaseApy.bind(this),
-            getTokenApy: this.getTokenApy.bind(this),
-            getRewardsApy: this.getRewardsApy.bind(this),
+            parameters: this.statsParameters.bind(this),
+            balances: this.statsBalances.bind(this),
+            wrappedBalances: this.statsWrappedBalances.bind(this),
+            totalLiquidity: this.statsTotalLiquidity.bind(this),
+            volume: this.statsVolume.bind(this),
+            baseApy: this.statsBaseApy.bind(this),
+            tokenApy: this.statsTokenApy.bind(this),
+            rewardsApy: this.statsRewardsApy.bind(this),
         }
         this.wallet = {
             balances: this.walletBalances.bind(this),
@@ -180,7 +180,7 @@ export class PoolTemplate {
         }
     }
 
-    private getParameters = async (): Promise<{
+    private statsParameters = async (): Promise<{
         virtualPrice: string,
         fee: string,
         adminFee: string,
@@ -232,20 +232,20 @@ export class PoolTemplate {
         return { virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma };
     }
 
-    private async getPoolWrappedBalances(): Promise<string[]> {
+    private async statsWrappedBalances(): Promise<string[]> {
         const swapContract = curve.contracts[this.poolAddress].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
-
         const _wrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+
         return _wrappedBalances.map((_b, i) => ethers.utils.formatUnits(_b, this.decimals[i]));
     }
 
     // OVERRIDE
-    private async getPoolBalances(): Promise<string[]> {
-        return await this.getPoolWrappedBalances();
+    private async statsBalances(): Promise<string[]> {
+        return await this.statsWrappedBalances();
     }
 
-    private getTotalLiquidity = async (useApi = true): Promise<string> => {
+    private statsTotalLiquidity = async (useApi = true): Promise<string> => {
         if (useApi) {
             const network = curve.chainId === 137 ? "polygon" : "ethereum";
             const poolType = !this.isFactory && !this.isCrypto ? "main" :
@@ -261,16 +261,13 @@ export class PoolTemplate {
                 console.log((err as Error).message);
             }
         }
-        const balances = await this.getPoolBalances();
 
+        const balances = await this.statsBalances();
         const promises = [];
         for (const addr of this.underlyingCoinAddresses) {
             promises.push(_getUsdRate(addr))
         }
-
         const prices = await Promise.all(promises);
-
-
         const totalLiquidity = (balances as string[]).reduce(
             (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
 
@@ -293,7 +290,7 @@ export class PoolTemplate {
         return (await _getStats(statsUrl))[key];
     }
 
-    private getVolume = async (): Promise<string> => {
+    private statsVolume = async (): Promise<string> => {
         const volume = (await this._getPoolStats()).volume;
         if (volume === 0) return "0"
 
@@ -302,7 +299,7 @@ export class PoolTemplate {
         return String(volume * usdRate)
     }
 
-    private getBaseApy = async (): Promise<{day: string, week: string, month: string, total: string}> => {
+    private statsBaseApy = async (): Promise<{day: string, week: string, month: string, total: string}> => {
         const apy = (await this._getPoolStats()).apy;
 
         const multiplier = this.isFactory ? 1 : 100;
@@ -318,7 +315,7 @@ export class PoolTemplate {
         }
     }
 
-    private getTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
+    private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (curve.chainId === 137) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
 
@@ -326,7 +323,7 @@ export class PoolTemplate {
         const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
         const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
 
-        const totalLiquidityUSD = await this.getTotalLiquidity();
+        const totalLiquidityUSD = await this.statsTotalLiquidity();
         if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
 
         const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
@@ -345,13 +342,13 @@ export class PoolTemplate {
         return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
     }
 
-    private getRewardsApy = async (): Promise<IReward[]> => {
+    private statsRewardsApy = async (): Promise<IReward[]> => {
         if (curve.chainId === 137) {
             const apy: IReward[] = [];
             for (const rewardToken of this.rewardTokens) {
                 const rewardContract = curve.contracts[this.rewardContract as string].contract;
 
-                const totalLiquidityUSD = await this.getTotalLiquidity();
+                const totalLiquidityUSD = await this.statsTotalLiquidity();
                 const crvRate = await _getUsdRate(rewardToken);
 
                 const inflation = toBN((await rewardContract.reward_data(curve.constants.ALIASES.crv, curve.constantOptions)).rate);
@@ -1519,8 +1516,8 @@ export class PoolTemplate {
 
     private _withdrawSlippage = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
         const poolBalances: number[] = useUnderlying ?
-            (await this.getPoolBalances()).map(Number) :
-            (await this.getPoolWrappedBalances()).map(Number);
+            (await this.stats.balances()).map(Number) :
+            (await this.stats.wrappedBalances()).map(Number);
         const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
         const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
 

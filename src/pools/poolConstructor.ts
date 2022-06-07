@@ -22,7 +22,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     const poolDummy = new PoolTemplate(poolId);
     class Pool extends PoolTemplate {}
 
-    // getPoolBalances
+    // statsBalances
     if (poolId === "atricrypto3") {
         Object.assign(Pool.prototype, poolBalancesAtricrypto3Mixin);
     } else if (poolDummy.isMeta) {

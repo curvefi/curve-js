@@ -1,6 +1,6 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { IDict, PoolDataInterface, ICurve, REFERENCE_ASSET } from "../interfaces";
+import { IDict, IPoolData, ICurve, REFERENCE_ASSET } from "../interfaces";
 import ERC20ABI from "../constants/abis/json/ERC20.json";
 import factorySwapABI from "../constants/abis/json/factoryPools/swap.json";
 import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
@@ -177,7 +177,7 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], s
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
         (addr, i) => ({ id: `factory-v2-${i}`, address: addr.toLowerCase()})
     );
-    const swapAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
+    const swapAddresses = Object.values(this.constants.POOLS_DATA as IPoolData).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     const blacklist = this.chainId === 137 ? blackListPolygon : blackListEthereum;
     factories = factories.filter((f) => !swapAddresses.includes(f.address) && !blacklist.includes(f.address));
 
@@ -290,7 +290,7 @@ function setFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void
 
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     const dict: IDict<string> = {}
-    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<PoolDataInterface>)) {
+    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<IPoolData>)) {
         poolData.coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
                 dict[addr.toLowerCase()] = poolData.coins[i]
@@ -412,7 +412,7 @@ function setFactoryZapContracts(this: ICurve): void {
     }
 }
 
-export async function getFactoryPoolData(this: ICurve): Promise<IDict<PoolDataInterface>> {
+export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = await getFactoryIdsAndSwapAddresses.call(this);
     const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
@@ -436,7 +436,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<PoolDataIn
     const basePoolAddressZapDict = this.chainId === 137 ? basePoolAddressZapDictPolygon : basePoolAddressZapDictEthereum;
 
     // TODO add reward_tokens and reward_decimals
-    const FACTORY_POOLS_DATA: IDict<PoolDataInterface> = {};
+    const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
         if (!isMeta[i]) {
             FACTORY_POOLS_DATA[poolIds[i]] = {

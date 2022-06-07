@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
-import { IDict, PoolDataInterface } from "../interfaces";
+import { IDict, IPoolData } from "../interfaces";
 
 
-export const lowerCasePoolDataAddresses = (poolsData: IDict<PoolDataInterface>): IDict<PoolDataInterface> => {
+export const lowerCasePoolDataAddresses = (poolsData: IDict<IPoolData>): IDict<IPoolData> => {
     for (const poolId in poolsData) {
         if (!Object.prototype.hasOwnProperty.call(poolsData, poolId)) continue;
         const poolData = poolsData[poolId];
@@ -20,7 +20,7 @@ export const lowerCasePoolDataAddresses = (poolsData: IDict<PoolDataInterface>):
     return poolsData
 }
 
-export const extractDecimals = (poolsData: IDict<PoolDataInterface>): IDict<number> => {
+export const extractDecimals = (poolsData: IDict<IPoolData>): IDict<number> => {
     const DECIMALS: IDict<number> = {};
     for (const poolId in poolsData) {
         if (!Object.prototype.hasOwnProperty.call(poolsData, poolId)) continue;
@@ -50,7 +50,7 @@ export const extractDecimals = (poolsData: IDict<PoolDataInterface>): IDict<numb
     return DECIMALS;
 }
 
-export const extractGauges = (poolsData: IDict<PoolDataInterface>): string[] => {
+export const extractGauges = (poolsData: IDict<IPoolData>): string[] => {
     const GAUGES: string[] = [];
     for (const poolData of Object.values(poolsData)) {
         if (poolData.gauge_address === ethers.constants.AddressZero) continue;

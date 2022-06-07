@@ -20,7 +20,7 @@ export interface ICurve {
 
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
 
-export interface PoolDataInterface {
+export interface IPoolData {
     name: string,
     full_name: string,
     symbol: string,

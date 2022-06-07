@@ -7,10 +7,10 @@ import eurtusdSwap from './json/eurtusd/swap.json';
 import eurtusdZap from './json/eurtusd/deposit.json';
 import gaugeRewardsOnlyABI from './json/gauge_rewards_only.json';
 import { lowerCasePoolDataAddresses } from "../utils";
-import {PoolDataInterface} from "../../interfaces";
+import {IPoolData} from "../../interfaces";
 
 
-export const POOLS_DATA_POLYGON: { [index: string]: PoolDataInterface } = lowerCasePoolDataAddresses({
+export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolDataAddresses({
     aave: {
         name: "aave",
         full_name: "aave",

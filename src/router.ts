@@ -1,5 +1,5 @@
 // TODO make working or remove
-import { IDict, IRoute, IRouteStep, PoolDataInterface } from "./interfaces";
+import { IDict, IRoute, IRouteStep, IPoolData } from "./interfaces";
 import { curve } from "./curve";
 import { ethers } from "ethers";
 import {
@@ -27,8 +27,8 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
 
     const ALL_POOLS = Object.entries({
         ...curve.constants.POOLS_DATA,
-        ...curve.constants.FACTORY_POOLS_DATA as IDict<PoolDataInterface>,
-        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<PoolDataInterface>,
+        ...curve.constants.FACTORY_POOLS_DATA as IDict<IPoolData>,
+        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<IPoolData>,
     });
 
     const basePoolsSet: Set<string> = new Set();

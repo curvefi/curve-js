@@ -1,6 +1,6 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { IDict, PoolDataInterface, ICurve } from "../interfaces";
+import { IDict, IPoolData, ICurve } from "../interfaces";
 import ERC20ABI from "../constants/abis/json/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/json/factory-crypto/factory-crypto-pool-2.json";
 import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
@@ -23,7 +23,7 @@ async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve): Promise<[strin
         (addr, i) => ({ id: `factory-crypto-${i}`, address: addr.toLowerCase()})
     );
 
-    const swapAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
+    const swapAddresses = Object.values(this.constants.POOLS_DATA as IPoolData).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     factories = factories.filter((f) => !swapAddresses.includes(f.address));
 
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
@@ -125,7 +125,7 @@ async function getCryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddress
 
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     const dict: IDict<string> = {}
-    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<PoolDataInterface>)) {
+    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<IPoolData>)) {
         poolData.coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
                 dict[addr.toLowerCase()] = poolData.coins[i]
@@ -207,7 +207,7 @@ async function getCoinAddressDecimalsDict(
 }
 
 
-export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<PoolDataInterface>> {
+export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = await getCryptoFactoryIdsAndSwapAddresses.call(this);
     setCryptoFactorySwapContracts.call(this, swapAddresses);
     const tokenAddresses = await getCryptoFactoryTokenAddresses.call(this, swapAddresses);
@@ -226,7 +226,7 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<Pool
 
 
     // TODO add reward_tokens and reward_decimals
-    const CRYPTO_FACTORY_POOLS_DATA: IDict<PoolDataInterface> = {};
+    const CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
         CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
             name: poolNames[i].split(": ")[1].trim(),

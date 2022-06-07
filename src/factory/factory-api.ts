@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { IDict, PoolDataInterface, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
+import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
 import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
 import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
 import ERC20ABI from "../constants/abis/json/ERC20.json";
@@ -119,14 +119,14 @@ function setFactoryZapContracts(this: ICurve): void {
     }
 }
 
-export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<IDict<PoolDataInterface>> {
+export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<IDict<IPoolData>> {
     const network = this.chainId === 137 ? "polygon" : "ethereum";
     const factoryType = isCrypto ? "factory-crypto" : "factory";
     const url = `https://api.curve.fi/api/getPools/${network}/${factoryType}`;
     const response = await axios.get(url);
     let rawPoolList: IPoolDataFromApi[] = response.data.data.poolData;
     // Filter duplications
-    const mainAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
+    const mainAddresses = Object.values(this.constants.POOLS_DATA as IPoolData).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address.toLowerCase()));
 
     setFactorySwapContracts.call(this, rawPoolList, isCrypto);
@@ -136,7 +136,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     setFactoryRewardCoinsContracts.call(this, rawPoolList);
     if (!isCrypto) setFactoryZapContracts.call(this);
 
-    const FACTORY_POOLS_DATA: IDict<PoolDataInterface> = {};
+    const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     rawPoolList.forEach((pool) => {
         const coinAddresses = pool.coins.map((c) => c.address.toLowerCase());
         const coinNames = pool.coins.map((c) => c.symbol);

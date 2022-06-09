@@ -477,7 +477,7 @@ export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amo
     return gas
 }
 
-export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, maxSlippage = 0.01): Promise<string> => {
+export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<string> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
@@ -490,7 +490,7 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
 
     const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
     const _amount = parseUnits(amount, inputCoinDecimals);
-    const minRecvAmountBN: BigNumber = toBN(route._output, outputCoinDecimals).times(1 - maxSlippage);
+    const minRecvAmountBN: BigNumber = toBN(route._output, outputCoinDecimals).times(100 - slippage).div(100);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;

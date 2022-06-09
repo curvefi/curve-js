@@ -115,7 +115,7 @@ const underlyingLiquidityTest = (id: string) => {
                 const initialBalances = await pool.wallet.balances() as IDict<string>;
                 const lpTokenExpected = await pool.withdrawImbalanceExpected(amounts);
 
-                await pool.withdrawImbalance(amounts, 0.02);
+                await pool.withdrawImbalance(amounts, 2);
 
                 const balances = await pool.wallet.balances() as IDict<string>;
 

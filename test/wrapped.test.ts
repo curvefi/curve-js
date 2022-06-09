@@ -93,7 +93,7 @@ const wrappedLiquidityTest = (id: string) => {
             const lpTokenAmount: string = BN(initialBalances.lpToken).div(10).toFixed(18);
             const coinsExpected = await pool.withdrawWrappedExpected(lpTokenAmount);
 
-            await pool.withdrawWrapped(lpTokenAmount, 0.01);
+            await pool.withdrawWrapped(lpTokenAmount, 1);
 
             const balances = await pool.wallet.balances() as IDict<string>;
 

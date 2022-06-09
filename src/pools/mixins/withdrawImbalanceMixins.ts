@@ -20,10 +20,10 @@ async function _withdrawImbalanceCheck(this: PoolTemplate, amounts: (number | st
     return amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
 }
 
-async function _withdrawImbalanceMaxBurnAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], maxSlippage = 0.005): Promise<ethers.BigNumber> {
+async function _withdrawImbalanceMaxBurnAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], slippage = 0.5): Promise<ethers.BigNumber> {
     // @ts-ignore
     const _expectedLpTokenAmount = await this._calcLpTokenAmount(_amounts, false);
-    const maxBurnAmountBN = toBN(_expectedLpTokenAmount).times(1 + maxSlippage);
+    const maxBurnAmountBN = toBN(_expectedLpTokenAmount).times(100 + slippage).div(100);
 
     return fromBN(maxBurnAmountBN);
 }
@@ -31,8 +31,8 @@ async function _withdrawImbalanceMaxBurnAmount(this: PoolTemplate, _amounts: eth
 // @ts-ignore
 export const withdrawImbalanceMetaFactoryMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalance(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, maxSlippage);
+    async _withdrawImbalance(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, slippage);
         if (!estimateGas) await _ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
 
         const contract = curve.contracts[this.zap as string].contract;
@@ -51,20 +51,20 @@ export const withdrawImbalanceMetaFactoryMixin: PoolTemplate = {
         return await this._withdrawImbalance(_amounts, 0.1, true);
     },
 
-    async withdrawImbalance(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async withdrawImbalance(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._withdrawImbalance(_amounts, maxSlippage);
+        return await this._withdrawImbalance(_amounts, slippage);
     },
 }
 
 // @ts-ignore
 export const withdrawImbalanceZapMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalance(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, maxSlippage);
+    async _withdrawImbalance(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, slippage);
         if (!estimateGas) await _ensureAllowance([this.lpToken], [_maxBurnAmount], this.zap as string);
 
         const contract = curve.contracts[this.zap as string].contract;
@@ -83,20 +83,20 @@ export const withdrawImbalanceZapMixin: PoolTemplate = {
         return await this._withdrawImbalance(_amounts, 0.1, true);
     },
 
-    async withdrawImbalance(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async withdrawImbalance(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._withdrawImbalance(_amounts, maxSlippage);
+        return await this._withdrawImbalance(_amounts, slippage);
     },
 }
 
 // @ts-ignore
 export const withdrawImbalanceLendingMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalance(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, maxSlippage);
+    async _withdrawImbalance(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, slippage);
         const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, true, curve.constantOptions);
@@ -114,20 +114,20 @@ export const withdrawImbalanceLendingMixin: PoolTemplate = {
         return await this._withdrawImbalance(_amounts, 0.1, true);
     },
 
-    async withdrawImbalance(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async withdrawImbalance(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._withdrawImbalance(_amounts, maxSlippage);
+        return await this._withdrawImbalance(_amounts, slippage);
     },
 }
 
 // @ts-ignore
 export const withdrawImbalancePlainMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalance(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, maxSlippage);
+    async _withdrawImbalance(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+        const _maxBurnAmount = await _withdrawImbalanceMaxBurnAmount.call(this, _amounts, slippage);
         const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
@@ -145,11 +145,11 @@ export const withdrawImbalancePlainMixin: PoolTemplate = {
         return await this._withdrawImbalance(_amounts, 0.1, true);
     },
 
-    async withdrawImbalance(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async withdrawImbalance(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _withdrawImbalanceCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._withdrawImbalance(_amounts, maxSlippage);
+        return await this._withdrawImbalance(_amounts, slippage);
     },
 }

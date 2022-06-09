@@ -25,10 +25,10 @@ async function _depositCheck(this: PoolTemplate, amounts: (number | string)[], e
     return amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
 }
 
-async function _depositMinAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], maxSlippage = 0.005): Promise<ethers.BigNumber> {
+async function _depositMinAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], slippage = 0.5): Promise<ethers.BigNumber> {
     // @ts-ignore
     const _expectedLpTokenAmount = await this._calcLpTokenAmount(_amounts);
-    const minAmountBN = toBN(_expectedLpTokenAmount).times(1 - maxSlippage);
+    const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
 
     return fromBN(minAmountBN);
 }
@@ -36,11 +36,11 @@ async function _depositMinAmount(this: PoolTemplate, _amounts: ethers.BigNumber[
 // @ts-ignore
 export const depositMetaFactoryMixin: PoolTemplate = {
     // @ts-ignore
-    async _deposit(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
+    async _deposit(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
 
         // @ts-ignore
-        const _minMintAmount = await _depositMinAmount.call(this, _amounts, maxSlippage);
+        const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
@@ -60,23 +60,23 @@ export const depositMetaFactoryMixin: PoolTemplate = {
         return await this._deposit(_amounts, 0.1, true);
     },
 
-    async deposit(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async deposit(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._deposit(_amounts, maxSlippage);
+        return await this._deposit(_amounts, slippage);
     },
 }
 
 // @ts-ignore
 export const depositZapMixin: PoolTemplate = {
     // @ts-ignore
-    async _deposit(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
+    async _deposit(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
 
         // @ts-ignore
-        const _minMintAmount = await _depositMinAmount.call(this, _amounts, maxSlippage);
+        const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
@@ -96,23 +96,23 @@ export const depositZapMixin: PoolTemplate = {
         return await this._deposit(_amounts, 0.1, true);
     },
 
-    async deposit(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async deposit(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._deposit(_amounts, maxSlippage);
+        return await this._deposit(_amounts, slippage);
     },
 }
 
 // @ts-ignore
 export const depositLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
-    async _deposit(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
+    async _deposit(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
-        const _minMintAmount = await _depositMinAmount.call(this, _amounts, maxSlippage);
+        const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.address].contract;
@@ -132,23 +132,23 @@ export const depositLendingOrCryptoMixin: PoolTemplate = {
         return await this._deposit(_amounts, 0.1, true);
     },
 
-    async deposit(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async deposit(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._deposit(_amounts, maxSlippage);
+        return await this._deposit(_amounts, slippage);
     },
 }
 
 // @ts-ignore
 export const depositPlainMixin: PoolTemplate = {
     // @ts-ignore
-    async _deposit(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
+    async _deposit(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
-        const _minMintAmount = await _depositMinAmount.call(this, _amounts, maxSlippage);
+        const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.address].contract;
@@ -168,11 +168,11 @@ export const depositPlainMixin: PoolTemplate = {
         return await this._deposit(_amounts, 0.1, true);
     },
 
-    async deposit(amounts: (number | string)[], maxSlippage?: number): Promise<string> {
+    async deposit(amounts: (number | string)[], slippage?: number): Promise<string> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts);
 
         // @ts-ignore
-        return await this._deposit(_amounts, maxSlippage);
+        return await this._deposit(_amounts, slippage);
     },
 }

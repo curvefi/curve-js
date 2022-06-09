@@ -82,9 +82,9 @@ export class PoolTemplate {
         withdrawOneCoin: (lpTokenAmount: number | string, coin: string | number) => Promise<number>,
         withdrawOneCoinWrapped: (lpTokenAmount: number | string, coin: string | number) => Promise<number>,
         swapApprove: (inputCoin: string | number, amount: number | string) => Promise<number>,
-        swap: (inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage: number) => Promise<number>,
+        swap: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number>,
         swapWrappedApprove: (inputCoin: string | number, amount: number | string) => Promise<number>,
-        swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage: number) => Promise<number>,
+        swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number>,
     };
     stats: {
         parameters: () => Promise<{ virtualPrice: string, fee: string, adminFee: string, A: string, gamma?: string }>,
@@ -473,7 +473,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async deposit(amounts: (number | string)[], maxSlippage = 0.005): Promise<string> {
+    public async deposit(amounts: (number | string)[], slippage = 0.5): Promise<string> {
         throw Error(`deposit method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -526,7 +526,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async depositWrapped(amounts: (number | string)[], maxSlippage = 0.005): Promise<string> {
+    public async depositWrapped(amounts: (number | string)[], slippage = 0.5): Promise<string> {
         throw Error(`depositWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -969,7 +969,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async withdraw(lpTokenAmount: number | string, maxSlippage=0.005): Promise<string> {
+    public async withdraw(lpTokenAmount: number | string, slippage = 0.5): Promise<string> {
         throw Error(`withdraw method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -986,7 +986,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async withdrawWrapped(lpTokenAmount: number | string, maxSlippage=0.005): Promise<string> {
+    public async withdrawWrapped(lpTokenAmount: number | string, slippage = 0.5): Promise<string> {
         throw Error(`withdrawWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1049,7 +1049,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async withdrawImbalance(amounts: (number | string)[], maxSlippage=0.005): Promise<string> {
+    public async withdrawImbalance(amounts: (number | string)[], slippage = 0.5): Promise<string> {
         throw Error(`withdrawImbalance method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1076,7 +1076,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async withdrawImbalanceWrapped(amounts: (number | string)[], maxSlippage=0.005): Promise<string> {
+    public async withdrawImbalanceWrapped(amounts: (number | string)[], slippage = 0.5): Promise<string> {
         throw Error(`withdrawImbalanceWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1127,7 +1127,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async withdrawOneCoin(lpTokenAmount: number | string, coin: string | number, maxSlippage=0.005): Promise<string> {
+    public async withdrawOneCoin(lpTokenAmount: number | string, coin: string | number, slippage = 0.5): Promise<string> {
         throw Error(`withdrawOneCoin method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1168,7 +1168,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async withdrawOneCoinWrapped(lpTokenAmount: number | string, coin: string | number, maxSlippage=0.005): Promise<string> {
+    public async withdrawOneCoinWrapped(lpTokenAmount: number | string, coin: string | number, slippage = 0.5): Promise<string> {
         throw Error(`withdrawOneCoinWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1263,7 +1263,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async swap(inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage = 0.005): Promise<string> {
+    public async swap(inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.5): Promise<string> {
         throw Error(`swap method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1299,7 +1299,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async swapWrapped(inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage = 0.005): Promise<string> {
+    public async swapWrapped(inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.5): Promise<string> {
         throw Error(`swapWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 

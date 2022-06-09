@@ -21,10 +21,10 @@ async function _withdrawOneCoinWrappedCheck(this: PoolTemplate, lpTokenAmount: n
     return [_lpTokenAmount, i];
 }
 
-async function _withdrawOneCoinWrappedMinAmount(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber, i: number, maxSlippage = 0.005): Promise<ethers.BigNumber> {
+async function _withdrawOneCoinWrappedMinAmount(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber, i: number, slippage = 0.5): Promise<ethers.BigNumber> {
     // @ts-ignore
     const _expectedLpTokenAmount = await this._withdrawOneCoinWrappedExpected(_lpTokenAmount, i);
-    const minAmountBN = toBN(_expectedLpTokenAmount).times(1 - maxSlippage);
+    const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
 
     return fromBN(minAmountBN);
 }
@@ -32,8 +32,8 @@ async function _withdrawOneCoinWrappedMinAmount(this: PoolTemplate, _lpTokenAmou
 // @ts-ignore
 export const withdrawOneCoinWrappedLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoinWrapped(_lpTokenAmount: ethers.BigNumber, i: number, maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, maxSlippage);
+    async _withdrawOneCoinWrapped(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+        const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, slippage);
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, false, curve.constantOptions);
@@ -51,20 +51,20 @@ export const withdrawOneCoinWrappedLendingOrCryptoMixin: PoolTemplate = {
         return await this._withdrawOneCoinWrapped(_lpTokenAmount, i, 0.1, true);
     },
 
-    async withdrawOneCoinWrapped(lpTokenAmount: number | string, coin: string | number, maxSlippage?: number): Promise<string> {
+    async withdrawOneCoinWrapped(lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
         // @ts-ignore
         const [_lpTokenAmount, i] = await _withdrawOneCoinWrappedCheck.call(this, lpTokenAmount, coin);
 
         // @ts-ignore
-        return await this._withdrawOneCoinWrapped(_lpTokenAmount, i, maxSlippage);
+        return await this._withdrawOneCoinWrapped(_lpTokenAmount, i, slippage);
     },
 }
 
 // @ts-ignore
 export const withdrawOneCoinWrappedMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoinWrapped(_lpTokenAmount: ethers.BigNumber, i: number, maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, maxSlippage);
+    async _withdrawOneCoinWrapped(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+        const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, slippage);
         const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
@@ -82,11 +82,11 @@ export const withdrawOneCoinWrappedMixin: PoolTemplate = {
         return await this._withdrawOneCoinWrapped(_lpTokenAmount, i, 0.1, true);
     },
 
-    async withdrawOneCoinWrapped(lpTokenAmount: number | string, coin: string | number, maxSlippage?: number): Promise<string> {
+    async withdrawOneCoinWrapped(lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
         // @ts-ignore
         const [_lpTokenAmount, i] = await _withdrawOneCoinWrappedCheck.call(this, lpTokenAmount, coin);
 
         // @ts-ignore
-        return await this._withdrawOneCoinWrapped(_lpTokenAmount, i, maxSlippage);
+        return await this._withdrawOneCoinWrapped(_lpTokenAmount, i, slippage);
     },
 }

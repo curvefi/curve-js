@@ -43,11 +43,11 @@ async function _swapWrappedCheck(
     return [i, j, _amount]
 }
 
-async function _swapWrappedMinAmount(this: PoolTemplate, i: number, j: number, _amount: ethers.BigNumber, maxSlippage = 0.005): Promise<ethers.BigNumber> {
+async function _swapWrappedMinAmount(this: PoolTemplate, i: number, j: number, _amount: ethers.BigNumber, slippage = 0.5): Promise<ethers.BigNumber> {
     // @ts-ignore
     const _expected: ethers.BigNumber = await this._swapWrappedExpected(i, j, _amount);
     const [outputCoinDecimals] = _getCoinDecimals(this.wrappedCoinAddresses[j]);
-    const minAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(1 - maxSlippage);
+    const minAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(100 - slippage).div(100);
 
     return fromBN(minAmountBN, outputCoinDecimals);
 }
@@ -55,10 +55,10 @@ async function _swapWrappedMinAmount(this: PoolTemplate, i: number, j: number, _
 // @ts-ignore
 export const swapWrappedTricrypto2Mixin: PoolTemplate = {
     // @ts-ignore
-    async _swapWrapped(i: number, j: number, _amount: ethers.BigNumber, maxSlippage?: number, estimateGas = false): Promise<string | number> {
+    async _swapWrapped(i: number, j: number, _amount: ethers.BigNumber, slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance([this.wrappedCoinAddresses[i]], [_amount], this.address);
 
-        const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, maxSlippage);
+        const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[this.address].contract;
         const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
@@ -77,22 +77,22 @@ export const swapWrappedTricrypto2Mixin: PoolTemplate = {
         return await this._swapWrapped(i, j, _amount, 0.1, true);
     },
 
-    async swapWrapped(inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage?: number): Promise<string> {
+    async swapWrapped(inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
         // @ts-ignore
         const [i, j, _amount] = await _swapWrappedCheck.call(this, inputCoin, outputCoin, amount);
 
         // @ts-ignore
-        return await this._swapWrapped(i, j, _amount, maxSlippage);
+        return await this._swapWrapped(i, j, _amount, slippage);
     },
 }
 
 // @ts-ignore
 export const swapWrappedMixin: PoolTemplate = {
     // @ts-ignore
-    async _swapWrapped(i: number, j: number, _amount: ethers.BigNumber, maxSlippage?: number, estimateGas = false): Promise<string | number> {
+    async _swapWrapped(i: number, j: number, _amount: ethers.BigNumber, slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance([this.wrappedCoinAddresses[i]], [_amount], this.address);
 
-        const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, maxSlippage);
+        const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[this.address].contract;
         const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
@@ -111,12 +111,12 @@ export const swapWrappedMixin: PoolTemplate = {
         return await this._swapWrapped(i, j, _amount, 0.1, true);
     },
 
-    async swapWrapped(inputCoin: string | number, outputCoin: string | number, amount: number | string, maxSlippage?: number): Promise<string> {
+    async swapWrapped(inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
         // @ts-ignore
         const [i, j, _amount] = await _swapWrappedCheck.call(this, inputCoin, outputCoin, amount);
 
         // @ts-ignore
-        return await this._swapWrapped(i, j, _amount, maxSlippage);
+        return await this._swapWrapped(i, j, _amount, slippage);
     },
 }
 

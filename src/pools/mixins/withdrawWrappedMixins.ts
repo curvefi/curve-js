@@ -10,6 +10,8 @@ async function _withdrawWrappedCheck(this: PoolTemplate, lpTokenAmount: number |
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
+    await curve.updateFeeData();
+
     return parseUnits(lpTokenAmount);
 }
 

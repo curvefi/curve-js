@@ -12,6 +12,8 @@ async function _withdrawOneCoinWrappedCheck(this: PoolTemplate, lpTokenAmount: n
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
+    await curve.updateFeeData();
+
     // @ts-ignore
     const i = this._getCoinIdx(coin, false);
     const _lpTokenAmount = parseUnits(lpTokenAmount);

@@ -10,9 +10,11 @@ async function _withdrawCheck(this: PoolTemplate, lpTokenAmount: number | string
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
-    if (this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap)) && estimateGas) {
+    if (estimateGas && this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap))) {
         throw Error("Token allowance is needed to estimate gas")
     }
+
+    if (!estimateGas) await curve.updateFeeData();
 
     return parseUnits(lpTokenAmount);
 }

@@ -11,6 +11,8 @@ async function _withdrawImbalanceWrappedCheck(this: PoolTemplate, amounts: (numb
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
+    await curve.updateFeeData();
+
     return  amounts.map((amount, i) => parseUnits(amount, this.decimals[i]));
 }
 

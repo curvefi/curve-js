@@ -11,9 +11,11 @@ async function _withdrawImbalanceCheck(this: PoolTemplate, amounts: (number | st
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
-    if (this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap)) && estimateGas) {
+    if (estimateGas && this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap))) {
         throw Error("Token allowance is needed to estimate gas")
     }
+
+    if (!estimateGas) await curve.updateFeeData();
 
     return amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
 }

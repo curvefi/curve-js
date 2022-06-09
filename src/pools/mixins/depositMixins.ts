@@ -16,9 +16,11 @@ async function _depositCheck(this: PoolTemplate, amounts: (number | string)[], e
         }
     }
 
-    if (!(await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.poolAddress)) && estimateGas) {
+    if (estimateGas && !(await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.poolAddress))) {
         throw Error("Token allowance is needed to estimate gas")
     }
+
+    if (!estimateGas) await curve.updateFeeData();
 
     return amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
 }

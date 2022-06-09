@@ -19,9 +19,11 @@ async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | strin
         }
     }
 
-    if (!(await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.poolAddress)) && estimateGas) {
+    if (estimateGas && !(await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.poolAddress))) {
         throw Error("Token allowance is needed to estimate gas")
     }
+
+    if (!estimateGas) await curve.updateFeeData();
 
     return  amounts.map((amount, i) => parseUnits(amount, this.decimals[i]));
 }

@@ -20,11 +20,11 @@ const MAIN_POOLS_ETHEREUM = [
     'cvxeth',   'xautusd', 'spelleth',   'teth',
     '2pool',    '4pool',
 ];
-const FACTORY_POOLS_COUNT_ETHEREUM = 104;
-const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 38;
+const FACTORY_POOLS_COUNT_ETHEREUM = 127;
+const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 63;
 
 const MAIN_POOLS_POLYGON = [ 'aave', 'ren', 'atricrypto3', 'eurtusd' ];
-const FACTORY_POOLS_COUNT_POLYGON = 213;
+const FACTORY_POOLS_COUNT_POLYGON = 263;
 
 
 const checkNumber = (str: string) => {
@@ -59,8 +59,6 @@ const poolStatsTest = (name: string) => {
 
             assert.isTrue(checkNumber(apy.day));
             assert.isTrue(checkNumber(apy.week));
-            assert.isTrue(checkNumber(apy.month));
-            assert.isTrue(checkNumber(apy.total));
         });
 
         it('Token APY', async function () {

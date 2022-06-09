@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
-import { _getMainPoolsGaugeRewards, _getPoolsFromApi } from '../external-api';
+import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData } from '../external-api';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -16,15 +16,9 @@ import {
     checkNumber,
     parseUnits,
     getEthIndex,
-    _getStatsUrl,
-    _getFactoryStatsUrl,
-    _getStats,
-    _getFactoryStatsEthereum,
-    _getFactoryStatsPolygon,
 } from '../utils';
 import {
     IDict,
-    IPoolStats,
     IReward,
     IExtendedPoolDataFromApi,
 } from '../interfaces';
@@ -102,7 +96,7 @@ export class PoolTemplate {
         wrappedBalances: () => Promise<string[]>,
         totalLiquidity: (useApi?: boolean) => Promise<string>,
         volume: () => Promise<string>,
-        baseApy: () => Promise<{day: string, week: string, month: string, total: string}>,
+        baseApy: () => Promise<{ day: string, week: string }>,
         tokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
         rewardsApy: () => Promise<IReward[]>,
     };
@@ -284,44 +278,26 @@ export class PoolTemplate {
         return totalLiquidity.toFixed(8)
     }
 
-    private _getPoolStats = async (): Promise<IPoolStats> => {
-        const statsUrl = this.isFactory ? _getFactoryStatsUrl() : _getStatsUrl(this.isCrypto);
-        const name = (this.id === 'ren' && curve.chainId === 1) ? 'ren2' : this.id === 'sbtc' ? 'rens' : this.id;
-        const key = this.isFactory ? this.address.toLowerCase() : name;
-
-        if (this.isFactory) {
-            if (curve.chainId === 137) {
-                return (await _getFactoryStatsPolygon(statsUrl))[key];
-            } else {
-                return (await _getFactoryStatsEthereum(statsUrl))[key];
-            }
-        }
-
-        return (await _getStats(statsUrl))[key];
-    }
-
     private statsVolume = async (): Promise<string> => {
-        const volume = (await this._getPoolStats()).volume;
-        if (volume === 0) return "0"
+        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const poolsData = (await _getSubgraphData(network));
+        const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
-        const usdRate = (this.isCrypto || (curve.chainId === 1 && this.isFactory)) ? 1 : await _getUsdRate(this.wrappedCoinAddresses[0]);
+        if (!poolData) throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
 
-        return String(volume * usdRate)
+        return poolData.volumeUSD.toString()
     }
 
-    private statsBaseApy = async (): Promise<{day: string, week: string, month: string, total: string}> => {
-        const apy = (await this._getPoolStats()).apy;
+    private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
+        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const poolsData = (await _getSubgraphData(network));
+        const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
-        const multiplier = this.isFactory ? 1 : 100;
-        const formattedApy = [apy.day, apy.week, apy.month, apy.total].map(
-            (x: number) => (x * multiplier).toFixed(4)
-        ) as [daily: string, weekly: string, monthly: string, total: string]
+        if (!poolData) throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
 
         return {
-            day: formattedApy[0],
-            week: formattedApy[1],
-            month: formattedApy[2],
-            total: formattedApy[3],
+            day: poolData.latestDailyApy.toString(),
+            week: poolData.latestWeeklyApy.toString(),
         }
     }
 

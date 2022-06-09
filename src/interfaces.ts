@@ -85,24 +85,17 @@ export interface IPoolDataFromApi {
     usdTotal: number,
 }
 
+export interface ISubgraphPoolData {
+    address: string,
+    volumeUSD: number,
+    latestDailyApy: number,
+    latestWeeklyApy: number,
+}
+
 export interface IExtendedPoolDataFromApi {
     poolData: IPoolDataFromApi[],
     tvl?: number,
     tvlAll: number,
-}
-
-export interface IPoolStats {
-    volume: number,
-    apy: {
-        day: number,
-        week: number,
-        month: number,
-        total: number,
-    }
-}
-
-export interface IStats {
-    [index: string]: IPoolStats
 }
 
 export interface IRouteStep {

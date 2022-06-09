@@ -1,11 +1,11 @@
-import aaveSwapABI from './json/aave/swap.json';
-import paaveRewardsabi from './json/paave/rewards.json';
-import renSwapABI from './json/ren-polygon/swap.json';
-import atricrypto3Swap from './json/atricrypto3/swap.json';
-import atricrypto3Zap from './json/atricrypto3/zap.json';
-import eurtusdSwap from './json/eurtusd/swap.json';
-import eurtusdZap from './json/eurtusd/deposit.json';
-import gaugeRewardsOnlyABI from './json/gauge_rewards_only.json';
+import aaveSwapABI from '../abis/aave/swap.json';
+import paaveRewardsabi from '../abis/paave/rewards.json';
+import renSwapABI from '../abis/ren-polygon/swap.json';
+import atricrypto3Swap from '../abis/atricrypto3/swap.json';
+import atricrypto3Zap from '../abis/atricrypto3/zap.json';
+import eurtusdSwap from '../abis/eurtusd/swap.json';
+import eurtusdZap from '../abis/eurtusd/deposit.json';
+import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json';
 import { lowerCasePoolDataAddresses } from "../utils";
 import {IPoolData} from "../../interfaces";
 

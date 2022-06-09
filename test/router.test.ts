@@ -1,8 +1,8 @@
 import { assert } from "chai";
 import { BN } from "../src/utils";
 import curve from "../src";
-import { COINS_POLYGON } from "../src/constants/coins-polygon";
-import { COINS_ETHEREUM } from "../src/constants/coins-ethereum";
+import { COINS_POLYGON } from "../src/constants/coins/polygon";
+import { COINS_ETHEREUM } from "../src/constants/coins/ethereum";
 
 const routerSwapTest = async (coin1: string, coin2: string) => {
     const amount = '1';

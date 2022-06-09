@@ -2,12 +2,12 @@ import axios from 'axios';
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
 import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
-import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
-import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
-import ERC20ABI from "../constants/abis/json/ERC20.json";
-import MetaUsdZapPolygonABI from "../constants/abis/json/factory-v2/DepositZapMetaUsdPolygon.json";
-import MetaBtcZapPolygonABI from "../constants/abis/json/factory-v2/DepositZapMetaBtcPolygon.json";
-import cryptoFactorySwapABI from "../constants/abis/json/factory-crypto/factory-crypto-pool-2.json";
+import factoryGaugeABI from "../constants/abis/gauge_factory.json";
+import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
+import ERC20ABI from "../constants/abis/ERC20.json";
+import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json";
+import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
 import {
     implementationABIDictEthereum,
     implementationABIDictPolygon,

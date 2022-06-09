@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "./utils";
+import { lowerCaseValues } from "../utils";
 
 
 export const BTC_COINS_ETHEREUM: { [index: string]: string } = {

@@ -2,7 +2,7 @@ import { curve } from "../curve";
 import { PoolTemplate } from "./PoolTemplate";
 import { poolBalancesAtricrypto3Mixin, poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
 import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins";
-import { depositSlippageMixin, depositWrappedSlippageMixin, depositSlippageCryptoMixin, depositWrappedSlippageCryptoMixin } from "./mixins/depositSlippageMixins";
+import { depositPriceImpactMixin, depositWrappedPriceImpactMixin, depositPriceImpactCryptoMixin, depositWrappedPriceImpactCryptoMixin } from "./mixins/depositPriceImpactMixins";
 import { depositMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins";
 import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins";
 import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
@@ -49,13 +49,13 @@ export const getPool = (poolId: string): PoolTemplate => {
 
 
 
-    // depositSlippage and depositWrappedSlippage
+    // depositPriceImpact and depositWrappedPriceImpact
     if (poolDummy.isCrypto) {
-        Object.assign(Pool.prototype, depositSlippageCryptoMixin);
-        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedSlippageCryptoMixin);
+        Object.assign(Pool.prototype, depositPriceImpactCryptoMixin);
+        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedPriceImpactCryptoMixin);
     } else {
-        Object.assign(Pool.prototype, depositSlippageMixin);
-        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedSlippageMixin);
+        Object.assign(Pool.prototype, depositPriceImpactMixin);
+        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedPriceImpactMixin);
     }
 
     // deposit and depositEstimateGas

@@ -29,7 +29,7 @@ export const withdrawImbalanceWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawImbalanceWrapped(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _maxBurnAmount = await _withdrawImbalanceWrappedMaxBurnAmount.call(this, _amounts, maxSlippage);
-        const  contract = curve.contracts[this.poolAddress].contract;
+        const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
@@ -60,7 +60,7 @@ export const withdrawImbalanceWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawImbalanceWrapped(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _maxBurnAmount = await _withdrawImbalanceWrappedMaxBurnAmount.call(this, _amounts, maxSlippage);
-        const  contract = curve.contracts[this.poolAddress].contract;
+        const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, false, curve.constantOptions);
         if (estimateGas) return gas.toNumber();

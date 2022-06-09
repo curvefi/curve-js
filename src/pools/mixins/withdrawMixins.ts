@@ -36,11 +36,11 @@ export const withdrawMetaFactoryMixin: PoolTemplate = {
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, maxSlippage);
         const contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity(this.poolAddress, _lpTokenAmount, _minAmounts, curve.constantOptions);
+        const gas = await contract.estimateGas.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, curve.constantOptions);
         if (estimateGas) return gas.toNumber()
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity(this.poolAddress, _lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
     },
 
     async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
@@ -100,7 +100,7 @@ export const withdrawLendingOrCryptoMixin: PoolTemplate = {
     async _withdraw(_lpTokenAmount: ethers.BigNumber, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         // @ts-ignore
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, maxSlippage);
-        const contract = curve.contracts[this.poolAddress].contract;
+        const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, true, curve.constantOptions);
         if (estimateGas) return gas.toNumber()
@@ -132,7 +132,7 @@ export const withdrawPlainMixin: PoolTemplate = {
     async _withdraw(_lpTokenAmount: ethers.BigNumber, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         // @ts-ignore
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, maxSlippage);
-        const contract = curve.contracts[this.poolAddress].contract;
+        const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
         if (estimateGas) return gas.toNumber();

@@ -37,7 +37,7 @@ export class PoolTemplate {
     fullName: string;
     symbol: string;
     referenceAsset: string;
-    poolAddress: string;
+    address: string;
     lpToken: string;
     gauge: string;
     zap: string | null;
@@ -112,7 +112,7 @@ export class PoolTemplate {
         this.fullName = poolData.full_name;
         this.symbol = poolData.symbol;
         this.referenceAsset = poolData.reference_asset;
-        this.poolAddress = poolData.swap_address;
+        this.address = poolData.swap_address;
         this.lpToken = poolData.token_address;
         this.gauge = poolData.gauge_address;
         this.zap = poolData.deposit_address || null;
@@ -191,7 +191,7 @@ export class PoolTemplate {
         initial_A_time?: number,
         gamma?: string,
     }> => {
-        const multicallContract = curve.contracts[this.poolAddress].multicallContract;
+        const multicallContract = curve.contracts[this.address].multicallContract;
 
         const calls = [
             multicallContract.get_virtual_price(),
@@ -233,7 +233,7 @@ export class PoolTemplate {
     }
 
     private async statsWrappedBalances(): Promise<string[]> {
-        const swapContract = curve.contracts[this.poolAddress].multicallContract;
+        const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.coins.map((_, i) => swapContract.balances(i));
         const _wrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
 
@@ -255,7 +255,7 @@ export class PoolTemplate {
             const poolsData = (await _getPoolsFromApi(network, poolType)).poolData;
 
             try {
-                const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.poolAddress.toLowerCase())[0].usdTotal;
+                const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.address.toLowerCase())[0].usdTotal;
                 return String(totalLiquidity);
             } catch (err) {
                 console.log((err as Error).message);
@@ -277,7 +277,7 @@ export class PoolTemplate {
     private _getPoolStats = async (): Promise<IPoolStats> => {
         const statsUrl = this.isFactory ? _getFactoryStatsUrl() : _getStatsUrl(this.isCrypto);
         const name = (this.id === 'ren' && curve.chainId === 1) ? 'ren2' : this.id === 'sbtc' ? 'rens' : this.id;
-        const key = this.isFactory ? this.poolAddress.toLowerCase() : name;
+        const key = this.isFactory ? this.address.toLowerCase() : name;
 
         if (this.isFactory) {
             if (curve.chainId === 137) {
@@ -399,11 +399,11 @@ export class PoolTemplate {
                 _amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
         }
 
-        const contractAddress = this.isMeta && useUnderlying ? this.zap as string : this.poolAddress;
+        const contractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
         const contract = curve.contracts[contractAddress].contract;
 
         if (this.isMetaFactory && useUnderlying) {
-            return await contract.calc_token_amount(this.poolAddress, _amounts, isDeposit, curve.constantOptions);
+            return await contract.calc_token_amount(this.address, _amounts, isDeposit, curve.constantOptions);
         }
 
         if (contract[`calc_token_amount(uint256[${_amounts.length}],bool)`]) {
@@ -456,15 +456,15 @@ export class PoolTemplate {
     }
 
     public async depositIsApproved(amounts: (number | string)[]): Promise<boolean> {
-        return await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.poolAddress);
+        return await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, this.zap || this.address);
     }
 
     private async depositApproveEstimateGas(amounts: (number | string)[]): Promise<number> {
-        return await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, this.zap || this.poolAddress);
+        return await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, this.zap || this.address);
     }
 
     public async depositApprove(amounts: (number | string)[]): Promise<string[]> {
-        return await ensureAllowance(this.underlyingCoinAddresses, amounts, this.zap || this.poolAddress);
+        return await ensureAllowance(this.underlyingCoinAddresses, amounts, this.zap || this.address);
     }
 
     // OVERRIDE
@@ -501,7 +501,7 @@ export class PoolTemplate {
             throw Error(`depositWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
-        return await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.poolAddress);
+        return await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.address);
     }
 
     private async depositWrappedApproveEstimateGas(amounts: (number | string)[]): Promise<number> {
@@ -509,7 +509,7 @@ export class PoolTemplate {
             throw Error(`depositWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
-        return await ensureAllowanceEstimateGas(this.coinAddresses, amounts, this.poolAddress);
+        return await ensureAllowanceEstimateGas(this.coinAddresses, amounts, this.address);
     }
 
     public async depositWrappedApprove(amounts: (number | string)[]): Promise<string[]> {
@@ -517,7 +517,7 @@ export class PoolTemplate {
             throw Error(`depositWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
 
-        return await ensureAllowance(this.coinAddresses, amounts, this.poolAddress);
+        return await ensureAllowance(this.coinAddresses, amounts, this.address);
     }
 
     // OVERRIDE
@@ -869,7 +869,7 @@ export class PoolTemplate {
         const coinAddresses = isUnderlying ? [...this.underlyingCoinAddresses] : [...this.coinAddresses];
         const coins = isUnderlying ? this.underlyingCoins : this.coinAddresses;
         const decimals = isUnderlying ? this.underlyingDecimals : this.decimals;
-        const depositAddress = isUnderlying ? this.zap || this.poolAddress : this.poolAddress;
+        const depositAddress = isUnderlying ? this.zap || this.address : this.address;
 
         if (amounts.length !== coinAddresses.length) {
             throw Error(`${this.name} pool has ${coinAddresses.length} coins (amounts provided for ${amounts.length})`);
@@ -919,7 +919,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isMetaFactory && isUnderlying ? this.poolAddress : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.address : ethers.constants.AddressZero,
             { ...curve.constantOptions, value }
         ))
 
@@ -936,7 +936,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isMetaFactory && isUnderlying ? this.poolAddress : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.address : ethers.constants.AddressZero,
             { ...curve.options, gasLimit, value }
         )).hash
     }
@@ -1217,7 +1217,7 @@ export class PoolTemplate {
     // ---------------- SWAP ----------------
 
     private async _swapExpected(i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> {
-        const contractAddress = this.isCrypto && this.isMeta ? this.zap as string : this.poolAddress;
+        const contractAddress = this.isCrypto && this.isMeta ? this.zap as string : this.address;
         const contract = curve.contracts[contractAddress].contract;
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
             return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
@@ -1236,7 +1236,7 @@ export class PoolTemplate {
     }
 
     private _swapContractAddress(): string {
-        return (this.isCrypto && this.isMeta) || (curve.chainId === 137 && this.isMetaFactory) ? this.zap as string : this.poolAddress;
+        return (this.isCrypto && this.isMeta) || (curve.chainId === 137 && this.isMetaFactory) ? this.zap as string : this.address;
     }
 
     public async swapIsApproved(inputCoin: string | number, amount: number | string): Promise<boolean> {
@@ -1270,7 +1270,7 @@ export class PoolTemplate {
     // ---------------- SWAP WRAPPED ----------------
 
     private async _swapWrappedExpected(i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> {
-        return await curve.contracts[this.poolAddress].contract.get_dy(i, j, _amount, curve.constantOptions);
+        return await curve.contracts[this.address].contract.get_dy(i, j, _amount, curve.constantOptions);
     }
 
     // OVERRIDE

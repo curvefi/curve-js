@@ -94,11 +94,11 @@ export const swapMetaFactoryMixin: PoolTemplate = {
         const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
 
-        const gas = await contract.estimateGas[exchangeMethod](this.poolAddress, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
+        const gas = await contract.estimateGas[exchangeMethod](this.address, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(140).div(100);
-        return (await contract[exchangeMethod](this.poolAddress, i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
+        return (await contract[exchangeMethod](this.address, i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     },
 
     async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {

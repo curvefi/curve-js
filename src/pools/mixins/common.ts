@@ -7,7 +7,7 @@ import { fromBN, toBN } from "../../utils";
 export async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> {
     const coinBalancesBN: BigNumber[] = [];
     for (let i = 0; i < this.coinAddresses.length; i++) {
-        const _balance: ethers.BigNumber = await curve.contracts[this.poolAddress].contract.balances(i, curve.constantOptions);
+        const _balance: ethers.BigNumber = await curve.contracts[this.address].contract.balances(i, curve.constantOptions);
         coinBalancesBN.push(toBN(_balance, this.decimals[i]));
     }
     const totalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));

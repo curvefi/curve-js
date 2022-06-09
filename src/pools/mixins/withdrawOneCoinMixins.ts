@@ -42,11 +42,11 @@ export const withdrawOneCoinMetaFactoryMixin: PoolTemplate = {
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, maxSlippage);
         const  contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(this.poolAddress, _lpTokenAmount, i, _minAmount, curve.constantOptions);
+        const gas = await contract.estimateGas.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, curve.constantOptions);
         if (estimateGas) return gas.toNumber()
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_one_coin(this.poolAddress, _lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
+        return (await contract.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
     },
 
     async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number> {
@@ -104,7 +104,7 @@ export const withdrawOneCoinLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, maxSlippage);
-        const  contract = curve.contracts[this.poolAddress].contract;
+        const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, true, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
@@ -135,7 +135,7 @@ export const withdrawOneCoinPlainMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, maxSlippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, maxSlippage);
-        const  contract = curve.contracts[this.poolAddress].contract;
+        const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
         if (estimateGas) return gas.toNumber();

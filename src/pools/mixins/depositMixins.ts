@@ -145,11 +145,11 @@ export const depositLendingOrCryptoMixin: PoolTemplate = {
 export const depositPlainMixin: PoolTemplate = {
     // @ts-ignore
     async _deposit(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.address);
+        if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, maxSlippage);
-        const ethIndex = getEthIndex(this.coinAddresses);
+        const ethIndex = getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.address].contract;
 

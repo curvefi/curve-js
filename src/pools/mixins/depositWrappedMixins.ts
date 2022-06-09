@@ -8,24 +8,24 @@ async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | strin
         throw Error(`depositWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    if (amounts.length !== this.coinAddresses.length) {
-        throw Error(`${this.name} pool has ${this.coinAddresses.length} coins (amounts provided for ${amounts.length})`);
+    if (amounts.length !== this.wrappedCoinAddresses.length) {
+        throw Error(`${this.name} pool has ${this.wrappedCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
     }
 
     const balances = Object.values(await this.wallet.coinBalances());
     for (let i = 0; i < balances.length; i++) {
         if (Number(balances[i]) < Number(amounts[i])) {
-            throw Error(`Not enough ${this.coins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
+            throw Error(`Not enough ${this.wrappedCoins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
         }
     }
 
-    if (estimateGas && !(await hasAllowance(this.coinAddresses, amounts, curve.signerAddress, this.address))) {
+    if (estimateGas && !(await hasAllowance(this.wrappedCoinAddresses, amounts, curve.signerAddress, this.address))) {
         throw Error("Token allowance is needed to estimate gas")
     }
 
     if (!estimateGas) await curve.updateFeeData();
 
-    return  amounts.map((amount, i) => parseUnits(amount, this.decimals[i]));
+    return  amounts.map((amount, i) => parseUnits(amount, this.wrappedDecimals[i]));
 }
 
 async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], maxSlippage = 0.005): Promise<ethers.BigNumber> {
@@ -40,11 +40,11 @@ async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: ethers.Big
 export const depositWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
     async _depositWrapped(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.address);
+        if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, maxSlippage);
-        const ethIndex = getEthIndex(this.coinAddresses);
+        const ethIndex = getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.address].contract;
 
@@ -76,11 +76,11 @@ export const depositWrapped2argsMixin: PoolTemplate = {
 export const depositWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
     async _depositWrapped(_amounts: ethers.BigNumber[], maxSlippage?: number, estimateGas = false): Promise<string | number> {
-        if (!estimateGas) await _ensureAllowance(this.coinAddresses, _amounts, this.address);
+        if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, maxSlippage);
-        const ethIndex = getEthIndex(this.coinAddresses);
+        const ethIndex = getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.address].contract;
 

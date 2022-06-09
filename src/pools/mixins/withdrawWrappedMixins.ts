@@ -17,10 +17,10 @@ async function _withdrawWrappedCheck(this: PoolTemplate, lpTokenAmount: number |
 
 async function _withdrawWrappedMinAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber, maxSlippage = 0.005): Promise<ethers.BigNumber[]> {
     const expectedAmounts = await this.withdrawWrappedExpected(ethers.utils.formatUnits(_lpTokenAmount));
-    const _expectedAmounts = expectedAmounts.map((a, i) => ethers.utils.parseUnits(a, this.decimals[i]));
-    const minRecvAmountsBN = _expectedAmounts.map((_a, i) => toBN(_a, this.decimals[i]).times(1 - maxSlippage));
+    const _expectedAmounts = expectedAmounts.map((a, i) => ethers.utils.parseUnits(a, this.wrappedDecimals[i]));
+    const minRecvAmountsBN = _expectedAmounts.map((_a, i) => toBN(_a, this.wrappedDecimals[i]).times(1 - maxSlippage));
 
-    return minRecvAmountsBN.map((a, i) => fromBN(a, this.decimals[i]));
+    return minRecvAmountsBN.map((a, i) => fromBN(a, this.wrappedDecimals[i]));
 }
 
 // @ts-ignore

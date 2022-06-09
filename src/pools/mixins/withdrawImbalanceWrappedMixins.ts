@@ -13,7 +13,7 @@ async function _withdrawImbalanceWrappedCheck(this: PoolTemplate, amounts: (numb
 
     await curve.updateFeeData();
 
-    return  amounts.map((amount, i) => parseUnits(amount, this.decimals[i]));
+    return  amounts.map((amount, i) => parseUnits(amount, this.wrappedDecimals[i]));
 }
 
 async function _withdrawImbalanceWrappedMaxBurnAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], maxSlippage = 0.005): Promise<ethers.BigNumber> {

@@ -13,7 +13,7 @@ export const lowerCasePoolDataAddresses = (poolsData: IDict<IPoolData>): IDict<I
         if (poolData.sCurveRewards_address) poolData.sCurveRewards_address = poolData.sCurveRewards_address.toLowerCase();
         if (poolData.reward_contract) poolData.reward_contract = poolData.reward_contract.toLowerCase();
         poolData.underlying_coin_addresses = poolData.underlying_coin_addresses.map((a) => a.toLowerCase());
-        poolData.coin_addresses = poolData.coin_addresses.map((a) => a.toLowerCase());
+        poolData.wrapped_coin_addresses = poolData.wrapped_coin_addresses.map((a) => a.toLowerCase());
         if (poolData.reward_tokens) poolData.reward_tokens = poolData.reward_tokens.map((a) => a.toLowerCase());
     }
 
@@ -35,8 +35,8 @@ export const extractDecimals = (poolsData: IDict<IPoolData>): IDict<number> => {
         }
 
         // Wrapped coins
-        for (let i = 0; i < poolData.coin_addresses.length; i++) {
-            DECIMALS[poolData.coin_addresses[i]] = poolData.decimals[i];
+        for (let i = 0; i < poolData.wrapped_coin_addresses.length; i++) {
+            DECIMALS[poolData.wrapped_coin_addresses[i]] = poolData.wrapped_decimals[i];
         }
 
         // Wrapped coins

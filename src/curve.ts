@@ -211,7 +211,7 @@ class Curve implements ICurve {
                 }
             }
 
-            for (const coinAddr of pool.coin_addresses) {
+            for (const coinAddr of pool.wrapped_coin_addresses) {
                 if (customAbiTokens.includes(coinAddr)) continue;
 
                 this.contracts[coinAddr] = {
@@ -221,7 +221,7 @@ class Curve implements ICurve {
             }
 
             // TODO add all coins
-            for (const coinAddr of pool.coin_addresses) {
+            for (const coinAddr of pool.wrapped_coin_addresses) {
                 if (cTokens.includes(coinAddr)) {
                     this.contracts[coinAddr] = {
                         contract: new Contract(coinAddr, cERC20Abi, this.signer || this.provider),

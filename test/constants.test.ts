@@ -16,7 +16,7 @@ describe('Checking constants', async function () {
         for (const poolData of Object.values(curve.constants.POOLS_DATA)) {
             const coinAddresses = [
                 ...poolData.underlying_coin_addresses,
-                ...poolData.coin_addresses,
+                ...poolData.wrapped_coin_addresses,
             ]
             for (const coinAddr of coinAddresses) {
                 assert.isTrue(COIN_ADDRESSES.includes(coinAddr), `Addesss: ${coinAddr}`)
@@ -28,11 +28,11 @@ describe('Checking constants', async function () {
         for (const poolData of Object.values(curve.constants.POOLS_DATA)) {
             const coinAddresses = [
                 ...poolData.underlying_coin_addresses,
-                ...poolData.coin_addresses,
+                ...poolData.wrapped_coin_addresses,
             ]
             const coinDecimals = [
                 ...poolData.underlying_decimals,
-                ...poolData.decimals,
+                ...poolData.wrapped_decimals,
             ]
 
             assert.equal(coinAddresses.length, coinDecimals.length, `Pool: ${poolData.name}, swap addesss: ${poolData.swap_address}`);
@@ -56,11 +56,11 @@ describe('Checking constants', async function () {
         for (const poolData of Object.values(curve.constants.POOLS_DATA)) {
             const coins = [
                 ...poolData.underlying_coins,
-                ...poolData.coins,
+                ...poolData.wrapped_coins,
             ]
             const coinAddresses = [
                 ...poolData.underlying_coin_addresses,
-                ...poolData.coin_addresses,
+                ...poolData.wrapped_coin_addresses,
             ]
 
             assert.equal(coins.length, coinAddresses.length, poolData.swap_address);

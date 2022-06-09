@@ -57,7 +57,7 @@ const wrappedDepositAndStakeTest = (name: string) => {
 
         before(async function () {
             pool = getPool(name);
-            coinAddresses = pool.coinAddresses;
+            coinAddresses = pool.wrappedCoinAddresses;
         });
 
         it('Deposits and stakes', async function () {
@@ -71,7 +71,7 @@ const wrappedDepositAndStakeTest = (name: string) => {
 
             const balances = await pool.wallet.balances() as IDict<string>;
 
-            pool.coins.forEach((c: string) => {
+            pool.wrappedCoins.forEach((c: string) => {
                 if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else {

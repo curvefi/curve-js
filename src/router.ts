@@ -54,7 +54,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
     for (let step = 0; step < 4; step++) {
         for (const inCoin of curCoins) {
             for (const [poolId, poolData] of ALL_POOLS) {
-                const coin_addresses = poolData.coin_addresses.map((a: string) => a.toLowerCase());
+                const wrapped_coin_addresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
                 const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
                 const meta_coin_addresses = poolData.is_meta ? 
                     curve.constants.POOLS_DATA[poolData.base_pool as string].underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
@@ -62,7 +62,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 const is_lending = poolData.is_lending ?? false;
 
                 const inCoinIndexes = {
-                    coin: coin_addresses.indexOf(inCoin),
+                    wrapped_coin: wrapped_coin_addresses.indexOf(inCoin),
                     underlying_coin: underlying_coin_addresses.indexOf(inCoin),
                     meta_coin: meta_coin_addresses ? meta_coin_addresses.indexOf(inCoin) : -1,
                 }
@@ -126,15 +126,15 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 }
 
                 // No input coin in this pool --> skip
-                if (inCoinIndexes.coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1) continue;
+                if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1) continue;
 
                 // Find all straight swaps
-                if (inCoinIndexes.coin >= 0 && poolId !== "atricrypto3") {
-                    for (let j = 0; j < coin_addresses.length; j++) {
+                if (inCoinIndexes.wrapped_coin >= 0 && poolId !== "atricrypto3") {
+                    for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
-                        if (markedCoins.includes(coin_addresses[j]) || curCoins.includes(coin_addresses[j])) continue;
+                        if (markedCoins.includes(wrapped_coin_addresses[j]) || curCoins.includes(wrapped_coin_addresses[j])) continue;
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
                         // Skip empty pools
                         const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                         if (tvl === 0) continue;
@@ -143,14 +143,14 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
 
                         const swapType = poolData.is_crypto ? 3 : 1;
                         for (const inCoinRoute of routes[inCoin]) {
-                            routes[coin_addresses[j]] = (routes[coin_addresses[j]] ?? []).concat(
+                            routes[wrapped_coin_addresses[j]] = (routes[wrapped_coin_addresses[j]] ?? []).concat(
                                 [[
                                     ...inCoinRoute,
                                     {
                                         poolId,
                                         poolAddress: poolData.swap_address,
-                                        outputCoinAddress: coin_addresses[j],
-                                        i: inCoinIndexes.coin,
+                                        outputCoinAddress: wrapped_coin_addresses[j],
+                                        i: inCoinIndexes.wrapped_coin,
                                         j,
                                         swapType,
                                         swapAddress: ethers.constants.AddressZero,
@@ -159,7 +159,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                             );
                         }
 
-                        nextCoins.add(coin_addresses[j]);
+                        nextCoins.add(wrapped_coin_addresses[j]);
                     }
                 }
 
@@ -168,7 +168,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 (curve.chainId === 137 && poolData.is_factory) ? poolData.deposit_address as string : poolData.swap_address;
 
                 // Find all underlying swaps
-                if (coin_addresses.join("|") !== underlying_coin_addresses.join("|") && inCoinIndexes.underlying_coin >= 0) {
+                if (wrapped_coin_addresses.join("|") !== underlying_coin_addresses.join("|") && inCoinIndexes.underlying_coin >= 0) {
                     for (let j = 0; j < underlying_coin_addresses.length; j++) {
                         if (poolId === "atricrypto3" && inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
@@ -204,7 +204,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 }
 
                 // Find all meta swaps where input coin is NOT meta
-                if (inCoinIndexes.coin === 0 && meta_coin_addresses.length > 0 && poolId !== "atricrypto3") {
+                if (inCoinIndexes.wrapped_coin === 0 && meta_coin_addresses.length > 0 && poolId !== "atricrypto3") {
                     for (let j = 0; j < meta_coin_addresses.length; j++) {
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                         if (markedCoins.includes(meta_coin_addresses[j]) || curCoins.includes(meta_coin_addresses[j])) continue;
@@ -225,7 +225,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                                         poolId,
                                         poolAddress,
                                         outputCoinAddress: meta_coin_addresses[j],
-                                        i: inCoinIndexes.coin,
+                                        i: inCoinIndexes.wrapped_coin,
                                         j: j + 1,
                                         swapType,
                                         swapAddress: swapType === 5 ? poolData.swap_address : ethers.constants.AddressZero,
@@ -241,9 +241,9 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 // Find all meta swaps where input coin is meta
                 if (inCoinIndexes.meta_coin >= 0 && poolId !== "atricrypto3") {
                     // If this coin already marked or will be marked on the current step, no need to consider it on the next step
-                    if (markedCoins.includes(coin_addresses[0]) || curCoins.includes(coin_addresses[0])) continue;
+                    if (markedCoins.includes(wrapped_coin_addresses[0]) || curCoins.includes(wrapped_coin_addresses[0])) continue;
                     // Looking for outputCoinAddress only on the final step
-                    if (step === 3 && coin_addresses[0] !== outputCoinAddress) continue;
+                    if (step === 3 && wrapped_coin_addresses[0] !== outputCoinAddress) continue;
                     // Skip empty pools
                     const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                     if (tvl === 0) continue;
@@ -252,13 +252,13 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
 
                     const swapType = (curve.chainId === 137 && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
                     for (const inCoinRoute of routes[inCoin]) {
-                        routes[coin_addresses[0]] = (routes[coin_addresses[0]] ?? []).concat(
+                        routes[wrapped_coin_addresses[0]] = (routes[wrapped_coin_addresses[0]] ?? []).concat(
                             [[
                                 ...inCoinRoute,
                                 {
                                     poolId,
                                     poolAddress,
-                                    outputCoinAddress: coin_addresses[0],
+                                    outputCoinAddress: wrapped_coin_addresses[0],
                                     i: inCoinIndexes.meta_coin + 1,
                                     j: 0,
                                     swapType,
@@ -267,7 +267,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                             ]]
                         );
 
-                        nextCoins.add(coin_addresses[0]);
+                        nextCoins.add(wrapped_coin_addresses[0]);
                     }
                 }
             }

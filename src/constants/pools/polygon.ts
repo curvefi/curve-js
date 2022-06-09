@@ -23,19 +23,19 @@ export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolD
         reward_contract: "0xC48f4653dd6a9509De44c92beb0604BEA3AEe714",
         is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
-        coins: ['amDAI', 'amUSDC', 'amUSDT'],
+        wrapped_coins: ['amDAI', 'amUSDC', 'amUSDT'],
         underlying_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
         ],
-        coin_addresses: [
+        wrapped_coin_addresses: [
             '0x27F8D03b3a2196956ED754baDc28D73be8830A6e',
             '0x1a13F4Ca1d028320A707D99520AbFefca3998b7F',
             '0x60D55F02A771d515e077c9C2403a1ef324885CeC',
         ],
         underlying_decimals: [18, 6, 6],
-        decimals: [18, 6, 6],
+        wrapped_decimals: [18, 6, 6],
         use_lending: [true, true, true],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         reward_decimals: [18],
@@ -55,17 +55,17 @@ export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolD
         reward_contract: "0x488E6ef919C2bB9de535C634a80afb0114DA8F62",
         is_lending: true,
         underlying_coins: ['WBTC', 'renBTC'],
-        coins: ['amWBTC', 'renBTC'],
+        wrapped_coins: ['amWBTC', 'renBTC'],
         underlying_coin_addresses: [
             '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',
             '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
         ],
-        coin_addresses: [
+        wrapped_coin_addresses: [
             '0x5c2ed810328349100A66B82b78a1791B101C9D61',
             '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
         ],
         underlying_decimals: [8, 8],
-        decimals: [8, 8],
+        wrapped_decimals: [8, 8],
         use_lending: [true, false],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         reward_decimals: [18],
@@ -88,7 +88,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolD
         is_fake: true,
         base_pool: 'aave',
         underlying_coins: ['DAI', 'USDC', 'USDT', 'WBTC', 'WETH'],
-        coins: ['am3CRV', 'amWBTC', 'amWETH'],
+        wrapped_coins: ['am3CRV', 'amWBTC', 'amWETH'],
         underlying_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
@@ -96,13 +96,13 @@ export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolD
             '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6', // WBTC
             '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
         ],
-        coin_addresses: [
+        wrapped_coin_addresses: [
             '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
             '0x5c2ed810328349100A66B82b78a1791B101C9D61', // amWBTC
             '0x28424507fefb6f7f8E9D3860F56504E4e5f5f390', // amWETH
         ],
         underlying_decimals: [18, 6, 6, 8, 18],
-        decimals: [18, 8, 18],
+        wrapped_decimals: [18, 8, 18],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         reward_decimals: [18],
         swap_abi: atricrypto3Swap,
@@ -124,19 +124,19 @@ export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolD
         is_crypto: true,
         base_pool: 'aave',
         underlying_coins: ['EURT', 'DAI', 'USDC', 'USDT'],
-        coins: ['EURT', 'am3CRV'],
+        wrapped_coins: ['EURT', 'am3CRV'],
         underlying_coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
             '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
-        coin_addresses: [
+        wrapped_coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
             '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
         ],
         underlying_decimals: [6, 18, 6, 6],
-        decimals: [6, 18],
+        wrapped_decimals: [6, 18],
         reward_tokens: ["0x172370d5cd63279efa6d502dab29171933a610af"],
         reward_decimals: [18],
         swap_abi: eurtusdSwap,

@@ -28,7 +28,7 @@ const wrappedLiquidityTest = (id: string) => {
 
         before(async function () {
             pool = getPool(id);
-            coinAddresses = pool.coinAddresses;
+            coinAddresses = pool.wrappedCoinAddresses;
         });
 
         it('Deposit', async function () {
@@ -164,7 +164,7 @@ const wrappedSwapTest = (id: string) => {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
                         const pool = getPool(id);
-                        const coinAddresses = pool.coinAddresses;
+                        const coinAddresses = pool.wrappedCoinAddresses;
                         if (i >= coinAddresses.length || j >= coinAddresses.length) {
                             console.log('Skip')
                         } else {

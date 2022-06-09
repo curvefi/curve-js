@@ -291,9 +291,9 @@ function setFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     const dict: IDict<string> = {}
     for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<IPoolData>)) {
-        poolData.coin_addresses.forEach((addr, i) => {
+        poolData.wrapped_coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
-                dict[addr.toLowerCase()] = poolData.coins[i]
+                dict[addr.toLowerCase()] = poolData.wrapped_coins[i]
             }
         });
 
@@ -450,11 +450,11 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
                 is_plain: true,
                 is_factory: true,
                 underlying_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
-                coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
+                wrapped_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
                 underlying_coin_addresses: coinAddresses[i],
-                coin_addresses: coinAddresses[i],
+                wrapped_coin_addresses: coinAddresses[i],
                 underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-                decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
+                wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
                 gauge_abi: factoryGaugeABI,
             };
@@ -472,11 +472,11 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
                 is_factory: true,
                 base_pool: basePoolAddressNameDict[basePoolAddresses[i]],
                 underlying_coins: [coinAddressNameDict[coinAddresses[i][0]], ...basePoolAddressCoinsDict[basePoolAddresses[i]]],
-                coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
+                wrapped_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
                 underlying_coin_addresses: coinAddresses[i],
-                coin_addresses: coinAddresses[i],
+                wrapped_coin_addresses: coinAddresses[i],
                 underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolAddressDecimalsDict[basePoolAddresses[i]]],
-                decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
+                wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
                 gauge_abi: factoryGaugeABI,
                 deposit_abi: factoryDepositABI,

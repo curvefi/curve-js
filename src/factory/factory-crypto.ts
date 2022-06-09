@@ -126,9 +126,9 @@ async function getCryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddress
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     const dict: IDict<string> = {}
     for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<IPoolData>)) {
-        poolData.coin_addresses.forEach((addr, i) => {
+        poolData.wrapped_coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
-                dict[addr.toLowerCase()] = poolData.coins[i]
+                dict[addr.toLowerCase()] = poolData.wrapped_coins[i]
             }
         });
 
@@ -239,11 +239,11 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoo
             is_crypto: true,
             is_factory: true,
             underlying_coins: underlyingCoinAddresses[i].map((addr) => coinAddressNameDict[addr]),
-            coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
+            wrapped_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
             underlying_coin_addresses: underlyingCoinAddresses[i],
-            coin_addresses: coinAddresses[i],
+            wrapped_coin_addresses: coinAddresses[i],
             underlying_decimals: underlyingCoinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-            decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
+            wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
             swap_abi: cryptoFactorySwapABI,
             gauge_abi: factoryGaugeABI,
         };

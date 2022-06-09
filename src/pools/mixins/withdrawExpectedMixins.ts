@@ -62,6 +62,6 @@ export const withdrawWrappedExpectedMixin: PoolTemplate = {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount)
 
-        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.decimals[i]));
+        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.wrappedDecimals[i]));
     },
 }

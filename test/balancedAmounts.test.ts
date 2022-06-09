@@ -31,7 +31,7 @@ const balancedAmountsTest = (name: string) => {
         it('wrapped', async function () {
             const balancedWrappedAmounts = (await pool.depositWrappedBalancedAmounts()).map(Number);
 
-            assert.equal(balancedWrappedAmounts.length, pool.coins.length);
+            assert.equal(balancedWrappedAmounts.length, pool.wrappedCoins.length);
             for (const amount of balancedWrappedAmounts) {
                 assert.isAbove(amount, 0);
             }

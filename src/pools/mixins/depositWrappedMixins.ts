@@ -12,7 +12,7 @@ async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | strin
         throw Error(`${this.name} pool has ${this.wrappedCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
     }
 
-    const balances = Object.values(await this.wallet.coinBalances());
+    const balances = Object.values(await this.wallet.wrappedCoinBalances());
     for (let i = 0; i < balances.length; i++) {
         if (Number(balances[i]) < Number(amounts[i])) {
             throw Error(`Not enough ${this.wrappedCoins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);

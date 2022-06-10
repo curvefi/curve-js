@@ -27,7 +27,7 @@ async function _swapWrappedCheck(
     // @ts-ignore
     const j = this._getCoinIdx(outputCoin, false);
 
-    const inputCoinBalance = Object.values(await this.wallet.coinBalances())[i];
+    const inputCoinBalance = Object.values(await this.wallet.wrappedCoinBalances())[i];
     if (Number(inputCoinBalance) < Number(amount)) {
         throw Error(`Not enough ${this.wrappedCoins[i]}. Actual: ${inputCoinBalance}, required: ${amount}`);
     }

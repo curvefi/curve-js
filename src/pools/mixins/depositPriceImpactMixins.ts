@@ -9,7 +9,7 @@ export const depositPriceImpactMixin: PoolTemplate = {
         const expected = Number(await this.depositExpected(amounts));
 
         // @ts-ignore
-        const poolBalances: number[] = (await this.stats.balances()).map(Number);
+        const poolBalances: number[] = (await this.stats.underlyingBalances()).map(Number);
         const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
         const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);
 
@@ -47,7 +47,7 @@ export const depositPriceImpactCryptoMixin: PoolTemplate = {
         const expected = Number(await this.depositExpected(amounts));
 
         // @ts-ignore
-        const poolBalances = (await this.stats.balances()).map(Number);
+        const poolBalances = (await this.stats.underlyingBalances()).map(Number);
         const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
         const poolTotalBalance = poolBalancesUSD.reduce((a,b) => a + b);
         const poolBalancesRatios = poolBalancesUSD.map((b) => b / poolTotalBalance);

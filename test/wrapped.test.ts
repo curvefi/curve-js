@@ -169,12 +169,12 @@ const wrappedSwapTest = (id: string) => {
                             console.log('Skip')
                         } else {
                             const swapAmount = '10';
-                            const initialCoinBalances = await pool.wallet.coinBalances() as IDict<string>;
+                            const initialCoinBalances = await pool.wallet.wrappedCoinBalances() as IDict<string>;
                             const expected = await pool.swapWrappedExpected(i, j, swapAmount);
 
                             await pool.swapWrapped(i, j, swapAmount, 0.02);
 
-                            const coinBalances = await pool.wallet.coinBalances() as IDict<string>;
+                            const coinBalances = await pool.wallet.wrappedCoinBalances() as IDict<string>;
 
                             if (['aave', 'saave'].includes(pool.id) || (curve.chainId === 137 && pool.id === 'ren')) {
                                 // Because of increasing quantity

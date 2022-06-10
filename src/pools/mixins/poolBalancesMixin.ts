@@ -6,7 +6,7 @@ import { PoolTemplate } from "../PoolTemplate";
 
 // @ts-ignore
 export const poolBalancesAtricrypto3Mixin: PoolTemplate = {
-    async statsBalances(): Promise<string[]> {
+    async statsUnderlyingBalances(): Promise<string[]> {
         const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
@@ -23,7 +23,7 @@ export const poolBalancesAtricrypto3Mixin: PoolTemplate = {
 
 // @ts-ignore
 export const poolBalancesMetaMixin: PoolTemplate = {
-    async statsBalances(): Promise<string[]> {
+    async statsUnderlyingBalances(): Promise<string[]> {
         const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
@@ -41,7 +41,7 @@ export const poolBalancesMetaMixin: PoolTemplate = {
 
 // @ts-ignore
 export const poolBalancesLendingMixin: PoolTemplate = {
-    async statsBalances(): Promise<string[]> {
+    async statsUnderlyingBalances(): Promise<string[]> {
         const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);

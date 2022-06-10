@@ -21,7 +21,7 @@ function _depositBalancedAmounts(poolBalances: number[], walletBalances: number[
 export const depositBalancedAmountsMixin: PoolTemplate = {
     async depositBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.stats.balances()).map(Number);
+        const poolBalances = (await this.stats.underlyingBalances()).map(Number);
         // @ts-ignore
         const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
 
@@ -33,7 +33,7 @@ export const depositBalancedAmountsMixin: PoolTemplate = {
 export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
     async depositBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.stats.balances()).map(Number);
+        const poolBalances = (await this.stats.underlyingBalances()).map(Number);
         // @ts-ignore
         const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
         // @ts-ignore

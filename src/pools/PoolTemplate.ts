@@ -92,7 +92,7 @@ export class PoolTemplate {
             initial_A_time?: number,
             gamma?: string,
         }>,
-        balances: () => Promise<string[]>,
+        underlyingBalances: () => Promise<string[]>,
         wrappedBalances: () => Promise<string[]>,
         totalLiquidity: (useApi?: boolean) => Promise<string>,
         volume: () => Promise<string>,
@@ -167,7 +167,7 @@ export class PoolTemplate {
         }
         this.stats = {
             parameters: this.statsParameters.bind(this),
-            balances: this.statsBalances.bind(this),
+            underlyingBalances: this.statsUnderlyingBalances.bind(this),
             wrappedBalances: this.statsWrappedBalances.bind(this),
             totalLiquidity: this.statsTotalLiquidity.bind(this),
             volume: this.statsVolume.bind(this),
@@ -245,7 +245,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    private async statsBalances(): Promise<string[]> {
+    private async statsUnderlyingBalances(): Promise<string[]> {
         return await this.statsWrappedBalances();
     }
 
@@ -266,7 +266,7 @@ export class PoolTemplate {
             }
         }
 
-        const balances = await this.statsBalances();
+        const balances = await this.statsUnderlyingBalances();
         const promises = [];
         for (const addr of this.underlyingCoinAddresses) {
             promises.push(_getUsdRate(addr))
@@ -1502,7 +1502,7 @@ export class PoolTemplate {
 
     private _withdrawPriceImpact = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
         const poolBalances: number[] = useUnderlying ?
-            (await this.stats.balances()).map(Number) :
+            (await this.stats.underlyingBalances()).map(Number) :
             (await this.stats.wrappedBalances()).map(Number);
         const poolTotalBalance: number = poolBalances.reduce((a,b) => a + b);
         const poolBalancesRatios: number[] = poolBalances.map((b) => b / poolTotalBalance);

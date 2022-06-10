@@ -104,7 +104,7 @@ export class PoolTemplate {
         balances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
         lpTokenBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
         underlyingCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
-        coinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
+        wrappedCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
         allCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
     };
 
@@ -178,8 +178,8 @@ export class PoolTemplate {
         this.wallet = {
             balances: this.walletBalances.bind(this),
             lpTokenBalances: this.walletLpTokenBalances.bind(this),
-            coinBalances: this.walletCoinBalances.bind(this),
             underlyingCoinBalances: this.walletUnderlyingCoinBalances.bind(this),
+            wrappedCoinBalances: this.walletWrappedCoinBalances.bind(this),
             allCoinBalances: this.walletAllCoinBalances.bind(this),
         }
     }
@@ -861,7 +861,7 @@ export class PoolTemplate {
             throw Error(`${this.name} pool has ${coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
 
-        const balances = isUnderlying ? Object.values(await this.walletUnderlyingCoinBalances()) : Object.values(await this.walletCoinBalances());
+        const balances = isUnderlying ? Object.values(await this.walletUnderlyingCoinBalances()) : Object.values(await this.walletWrappedCoinBalances());
         for (let i = 0; i < balances.length; i++) {
             if (Number(balances[i]) < Number(amounts[i])) {
                 throw Error(`Not enough ${coins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
@@ -1188,7 +1188,7 @@ export class PoolTemplate {
         return await this._balances(this.underlyingCoinAddresses, this.underlyingCoinAddresses, ...addresses)
     }
 
-    private async walletCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
+    private async walletWrappedCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
         return await this._balances(this.wrappedCoinAddresses, this.wrappedCoinAddresses, ...addresses)
     }
 

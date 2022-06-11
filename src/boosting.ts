@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
 import {_getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance} from "./utils";
-import { _ensureAllowance, toBN, toStringFromBN } from './utils';
+import { _ensureAllowance, toBN, toStringFromBN, parseUnits } from './utils';
 import { curve } from "./curve";
 import { IDict } from "./interfaces";
 
@@ -77,19 +77,19 @@ export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<
     return addresses.length === 1 ? result[addresses[0]] : result
 }
 
-export const isApproved = async (amount: string): Promise<boolean> => {
+export const isApproved = async (amount: number | string): Promise<boolean> => {
     return await hasAllowance([curve.constants.ALIASES.crv], [amount], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
 }
 
-export const approveEstimateGas = async (amount: string): Promise<number> => {
+export const approveEstimateGas = async (amount: number | string): Promise<number> => {
     return await ensureAllowanceEstimateGas([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow);
 }
 
-export const approve = async (amount: string): Promise<string[]> => {
+export const approve = async (amount: number | string): Promise<string[]> => {
     return await ensureAllowance([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow);
 }
 
-export const createLockEstimateGas = async (amount: string, days: number): Promise<number> => {
+export const createLockEstimateGas = async (amount: number | string, days: number): Promise<number> => {
     const crvBalance = await getCrv() as string;
 
     if (Number(crvBalance) < Number(amount)) {
@@ -100,14 +100,14 @@ export const createLockEstimateGas = async (amount: string, days: number): Promi
         throw Error("Token allowance is needed to estimate gas")
     }
 
-    const _amount = ethers.utils.parseUnits(amount);
+    const _amount = parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
 
     return (await curve.contracts[curve.constants.ALIASES.voting_escrow].contract.estimateGas.create_lock(_amount, unlockTime, curve.constantOptions)).toNumber()
 }
 
-export const createLock = async (amount: string, days: number): Promise<string> => {
-    const _amount = ethers.utils.parseUnits(amount);
+export const createLock = async (amount: number | string, days: number): Promise<string> => {
+    const _amount = parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
     await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
@@ -117,7 +117,7 @@ export const createLock = async (amount: string, days: number): Promise<string> 
     return (await contract.create_lock(_amount, unlockTime, { ...curve.options, gasLimit })).hash
 }
 
-export const increaseAmountEstimateGas = async (amount: string): Promise<number> => {
+export const increaseAmountEstimateGas = async (amount: number | string): Promise<number> => {
     const crvBalance = await getCrv() as string;
 
     if (Number(crvBalance) < Number(amount)) {
@@ -128,14 +128,14 @@ export const increaseAmountEstimateGas = async (amount: string): Promise<number>
         throw Error("Token allowance is needed to estimate gas")
     }
 
-    const _amount = ethers.utils.parseUnits(amount);
+    const _amount = parseUnits(amount);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     return (await contract.estimateGas.increase_amount(_amount, curve.constantOptions)).toNumber()
 }
 
-export const increaseAmount = async (amount: string): Promise<string> => {
-    const _amount = ethers.utils.parseUnits(amount);
+export const increaseAmount = async (amount: number | string): Promise<string> => {
+    const _amount = parseUnits(amount);
     await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 

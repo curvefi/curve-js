@@ -695,7 +695,7 @@ export class PoolTemplate {
 
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, curve.constants.ALIASES.deposit_and_stake, curve.constantOptions);
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             return coinsAllowance && gaugeAllowance
         }
 
@@ -710,7 +710,7 @@ export class PoolTemplate {
 
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, curve.constants.ALIASES.deposit_and_stake, curve.constantOptions);
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
                 const approveGaugeGas = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).toNumber();
                 return approveCoinsGas + approveGaugeGas;
@@ -728,7 +728,7 @@ export class PoolTemplate {
 
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, curve.constants.ALIASES.deposit_and_stake, curve.constantOptions);
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
                 const gasLimit = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).mul(130).div(100);
                 const approveGaugeTx: string = (await gaugeContract.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, { ...curve.options, gasLimit })).hash;
@@ -785,7 +785,7 @@ export class PoolTemplate {
 
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, curve.constants.ALIASES.deposit_and_stake, curve.constantOptions);
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             return coinsAllowance && gaugeAllowance;
         }
 
@@ -802,7 +802,7 @@ export class PoolTemplate {
 
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, curve.constants.ALIASES.deposit_and_stake, curve.constantOptions);
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
                 const approveGaugeGas = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).toNumber();
                 return approveCoinsGas + approveGaugeGas;
@@ -822,7 +822,7 @@ export class PoolTemplate {
 
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
-            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.signerAddress, curve.constants.ALIASES.deposit_and_stake, curve.constantOptions);
+            const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
                 const gasLimit = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).mul(130).div(100);
                 const approveGaugeTx: string = (await gaugeContract.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, { ...curve.options, gasLimit })).hash;

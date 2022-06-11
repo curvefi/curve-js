@@ -40,7 +40,7 @@ export const withdrawImbalanceMetaFactoryMixin: PoolTemplate = {
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_imbalance(this.address, _amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
+        return (await contract.remove_liquidity_imbalance(this.address, _amounts, _maxBurnAmount, { ...curve.options, gasLimit })).hash;
     },
 
     async withdrawImbalanceEstimateGas(amounts: (number | string)[]): Promise<number> {
@@ -72,7 +72,7 @@ export const withdrawImbalanceZapMixin: PoolTemplate = {
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit }));
+        return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit })).hash;
     },
 
     async withdrawImbalanceEstimateGas(amounts: (number | string)[]): Promise<number> {

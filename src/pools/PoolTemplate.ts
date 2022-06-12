@@ -437,8 +437,8 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async depositPriceImpact(amounts: (number | string)[]): Promise<string> {
-        throw Error(`depositPriceImpact method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    public async depositBonus(amounts: (number | string)[]): Promise<string> {
+        throw Error(`depositBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public async depositIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -478,8 +478,8 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    public async depositWrappedPriceImpact(amounts: (number | string)[]): Promise<string> {
-        throw Error(`depositWrappedPriceImpact method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    public async depositWrappedBonus(amounts: (number | string)[]): Promise<string> {
+        throw Error(`depositWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public async depositWrappedIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -679,12 +679,12 @@ export class PoolTemplate {
         return await this.depositExpected(amounts);
     }
 
-    public async depositAndStakePriceImpact(amounts: (number | string)[]): Promise<string> {
+    public async depositAndStakeBonus(amounts: (number | string)[]): Promise<string> {
         if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`depositAndStakePriceImpact method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+            throw Error(`depositAndStakeBonus method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
-        return await this.depositPriceImpact(amounts);
+        return await this.depositBonus(amounts);
     }
 
     public async depositAndStakeIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -766,13 +766,13 @@ export class PoolTemplate {
         return await this.depositWrappedExpected(amounts);
     }
 
-    public async depositAndStakeWrappedPriceImpact(amounts: (number | string)[]): Promise<string> {
+    public async depositAndStakeWrappedBonus(amounts: (number | string)[]): Promise<string> {
         if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`depositAndStakeWrappedPriceImpact method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
+            throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedPriceImpact method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isFake) throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
-        return await this.depositWrappedPriceImpact(amounts);
+        return await this.depositWrappedBonus(amounts);
     }
 
     public async depositAndStakeWrappedIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -984,13 +984,13 @@ export class PoolTemplate {
         return await this.calcLpTokenAmount(amounts, false);
     }
 
-    public async withdrawImbalancePriceImpact(amounts: (number | string)[]): Promise<string> {
-        if (this.isCrypto) throw Error(`withdrawImbalancePriceImpact method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    public async withdrawImbalanceBonus(amounts: (number | string)[]): Promise<string> {
+        if (this.isCrypto) throw Error(`withdrawImbalanceBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const totalAmount = amounts.map(checkNumber).map(Number).reduce((a, b) => a + b);
         const expected = Number(await this.withdrawImbalanceExpected(amounts));
 
-        return await this._withdrawPriceImpact(totalAmount, expected);
+        return await this._withdrawBonus(totalAmount, expected);
     }
 
     public async withdrawImbalanceIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -1047,13 +1047,13 @@ export class PoolTemplate {
         return await this.calcLpTokenAmountWrapped(amounts, false);
     }
 
-    public async withdrawImbalanceWrappedPriceImpact(amounts: (number | string)[]): Promise<string> {
-        if (this.isCrypto) throw Error(`withdrawImbalanceWrappedPriceImpact method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    public async withdrawImbalanceWrappedBonus(amounts: (number | string)[]): Promise<string> {
+        if (this.isCrypto) throw Error(`withdrawImbalanceWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const totalAmount = amounts.map(checkNumber).map(Number).reduce((a, b) => a + b);
         const expected = Number(await this.withdrawImbalanceWrappedExpected(amounts));
 
-        return await this._withdrawPriceImpact(totalAmount, expected, false);
+        return await this._withdrawBonus(totalAmount, expected, false);
     }
 
     // OVERRIDE
@@ -1081,15 +1081,15 @@ export class PoolTemplate {
         return ethers.utils.formatUnits(_expected, this.underlyingDecimals[i]);
     }
 
-    public async withdrawOneCoinPriceImpact(lpTokenAmount: number | string, coin: string | number): Promise<string> {
+    public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
         const totalAmount = Number(await this.withdrawOneCoinExpected(lpTokenAmount, coin));
 
         if (this.isCrypto) {
             const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin)];
-            return await this._withdrawCryptoPriceImpact(totalAmount * coinPrice, Number(lpTokenAmount));
+            return await this._withdrawCryptoBonus(totalAmount * coinPrice, Number(lpTokenAmount));
         }
 
-        return await this._withdrawPriceImpact(totalAmount, Number(lpTokenAmount));
+        return await this._withdrawBonus(totalAmount, Number(lpTokenAmount));
     }
 
     public async withdrawOneCoinIsApproved(lpTokenAmount: number | string): Promise<boolean> {
@@ -1133,7 +1133,7 @@ export class PoolTemplate {
         return ethers.utils.formatUnits(_expected, this.wrappedDecimals[i]);
     }
 
-    public async withdrawOneCoinWrappedPriceImpact(lpTokenAmount: number | string, coin: string | number): Promise<string> {
+    public async withdrawOneCoinWrappedBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
         if (this.isFake) {
             throw Error(`${this.name} pool doesn't have this method`);
         }
@@ -1142,10 +1142,10 @@ export class PoolTemplate {
 
         if (this.isCrypto) {
             const coinPrice = (await this._underlyingPrices())[this._getCoinIdx(coin, false)];
-            return await this._withdrawCryptoPriceImpact(totalAmount * coinPrice, Number(lpTokenAmount));
+            return await this._withdrawCryptoBonus(totalAmount * coinPrice, Number(lpTokenAmount));
         }
 
-        return await this._withdrawPriceImpact(totalAmount, Number(lpTokenAmount), false);
+        return await this._withdrawBonus(totalAmount, Number(lpTokenAmount), false);
     }
 
     // OVERRIDE
@@ -1489,7 +1489,7 @@ export class PoolTemplate {
         return await Promise.all(promises)
     }
 
-    private _withdrawCryptoPriceImpact = async (totalAmountUSD: number, lpTokenAmount: number, useUnderlying = true): Promise<string> => {
+    private _withdrawCryptoBonus = async (totalAmountUSD: number, lpTokenAmount: number, useUnderlying = true): Promise<string> => {
         const prices: number[] = useUnderlying ? await this._underlyingPrices() : await this._wrappedPrices();
 
         const balancedAmounts = useUnderlying ?
@@ -1497,10 +1497,11 @@ export class PoolTemplate {
             await this.withdrawWrappedExpected(String(lpTokenAmount));
         const balancedTotalAmountsUSD = balancedAmounts.reduce((s, b, i) => s + (Number(b) * prices[i]), 0);
 
-        return String((balancedTotalAmountsUSD - totalAmountUSD) / balancedTotalAmountsUSD * 100)
+        return String((totalAmountUSD -  balancedTotalAmountsUSD) / totalAmountUSD * 100)
     }
 
-    private _withdrawPriceImpact = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
+    // TODO make the same as _withdrawCryptoBonus
+    private _withdrawBonus = async (totalAmount: number, expected: number, useUnderlying = true): Promise<string> => {
         const poolBalances: number[] = useUnderlying ?
             (await this.stats.underlyingBalances()).map(Number) :
             (await this.stats.wrappedBalances()).map(Number);
@@ -1512,6 +1513,6 @@ export class PoolTemplate {
             Number(await this.withdrawImbalanceExpected(balancedAmounts)) :
             Number(await this.withdrawImbalanceWrappedExpected(balancedAmounts));
 
-        return String((expected - balancedExpected) / expected * 100)
+        return String((balancedExpected - expected) / balancedExpected * 100)
     }
 }

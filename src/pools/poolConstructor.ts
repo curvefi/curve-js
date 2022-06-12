@@ -2,7 +2,7 @@ import { curve } from "../curve";
 import { PoolTemplate } from "./PoolTemplate";
 import { poolBalancesAtricrypto3Mixin, poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
 import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins";
-import { depositPriceImpactMixin, depositWrappedPriceImpactMixin, depositPriceImpactCryptoMixin, depositWrappedPriceImpactCryptoMixin } from "./mixins/depositPriceImpactMixins";
+import { depositBonusMixin, depositWrappedBonusMixin, depositBonusCryptoMixin, depositWrappedBonusCryptoMixin } from "./mixins/depositBonusMixins";
 import { depositMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins";
 import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins";
 import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
@@ -49,13 +49,13 @@ export const getPool = (poolId: string): PoolTemplate => {
 
 
 
-    // depositPriceImpact and depositWrappedPriceImpact
+    // depositBonus and depositWrappedBonus
     if (poolDummy.isCrypto) {
-        Object.assign(Pool.prototype, depositPriceImpactCryptoMixin);
-        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedPriceImpactCryptoMixin);
+        Object.assign(Pool.prototype, depositBonusCryptoMixin);
+        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedBonusCryptoMixin);
     } else {
-        Object.assign(Pool.prototype, depositPriceImpactMixin);
-        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedPriceImpactMixin);
+        Object.assign(Pool.prototype, depositBonusMixin);
+        if (!poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedBonusMixin);
     }
 
     // deposit and depositEstimateGas

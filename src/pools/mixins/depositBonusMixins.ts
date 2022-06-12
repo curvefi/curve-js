@@ -3,8 +3,8 @@ import { checkNumber } from "../../utils";
 
 
 // @ts-ignore
-export const depositPriceImpactMixin: PoolTemplate = {
-    async depositPriceImpact(amounts: (number | string)[]): Promise<string> {
+export const depositBonusMixin: PoolTemplate = {
+    async depositBonus(amounts: (number | string)[]): Promise<string> {
         const totalAmount = amounts.map(checkNumber).map(Number).reduce((a, b) => a + b);
         const expected = Number(await this.depositExpected(amounts));
 
@@ -16,13 +16,13 @@ export const depositPriceImpactMixin: PoolTemplate = {
         const balancedAmounts = poolBalancesRatios.map((r) => r * totalAmount);
         const balancedExpected = Number(await this.depositExpected(balancedAmounts));
 
-        return String((balancedExpected - expected) / balancedExpected * 100)
+        return String((expected - balancedExpected) / expected * 100)
     },
 }
 
 // @ts-ignore
-export const depositWrappedPriceImpactMixin: PoolTemplate = {
-    async depositWrappedPriceImpact(amounts: (number | string)[]): Promise<string> {
+export const depositWrappedBonusMixin: PoolTemplate = {
+    async depositWrappedBonus(amounts: (number | string)[]): Promise<string> {
         const totalAmount = amounts.map(checkNumber).map(Number).reduce((a, b) => a + b);
         const expected = Number(await this.depositWrappedExpected(amounts));
 
@@ -34,13 +34,13 @@ export const depositWrappedPriceImpactMixin: PoolTemplate = {
         const balancedAmounts = poolBalancesRatios.map((r) => r * totalAmount);
         const balancedExpected = Number(await this.depositWrappedExpected(balancedAmounts));
 
-        return String((balancedExpected - expected) / balancedExpected * 100)
+        return String((expected - balancedExpected) / expected * 100)
     },
 }
 
 // @ts-ignore
-export const depositPriceImpactCryptoMixin: PoolTemplate = {
-    async depositPriceImpact(amounts: (number | string)[]): Promise<string> {
+export const depositBonusCryptoMixin: PoolTemplate = {
+    async depositBonus(amounts: (number | string)[]): Promise<string> {
         // @ts-ignore
         const prices = await this._underlyingPrices();
         const totalAmountUSD = amounts.map(checkNumber).map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
@@ -57,13 +57,13 @@ export const depositPriceImpactCryptoMixin: PoolTemplate = {
 
         const balancedExpected = Number(await this.depositExpected(balancedAmounts));
 
-        return String((balancedExpected - expected) / balancedExpected * 100)
+        return String((expected - balancedExpected) / expected * 100)
     },
 }
 
 // @ts-ignore
-export const depositWrappedPriceImpactCryptoMixin: PoolTemplate = {
-    async depositWrappedPriceImpact(amounts: string[]): Promise<string> {
+export const depositWrappedBonusCryptoMixin: PoolTemplate = {
+    async depositWrappedBonus(amounts: string[]): Promise<string> {
         // @ts-ignore
         const prices = await this._wrappedPrices();
         const totalAmountUSD = amounts.map(checkNumber).map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
@@ -80,7 +80,7 @@ export const depositWrappedPriceImpactCryptoMixin: PoolTemplate = {
 
         const balancedExpected = Number(await this.depositWrappedExpected(balancedAmounts));
 
-        return String((balancedExpected - expected) / balancedExpected * 100)
+        return String((expected - balancedExpected) / expected * 100)
 
     },
 }

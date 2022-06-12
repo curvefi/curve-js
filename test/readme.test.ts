@@ -2,206 +2,418 @@ import curve from "../src";
 import { IDict } from "../src/interfaces";
 
 
-const balancesTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
 
-    console.log(await curve.getBalances(['DAI', 'sUSD']));
-    // OR console.log(await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']));
+const generalMethodsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
-    console.log(await curve.getBalances(['aDAI', 'aSUSD']));
-    // OR console.log(await curve.getBalances(['0x028171bCA77440897B824Ca71D1c56caC55b68A3', '0x6c5024cd4f8a59110119c56f8933403a539555eb']));
+    console.log(await curve.getTVL());
+    // 7867623953.766793
 
+    const balances1 = await curve.getBalances(['DAI', 'sUSD']);
+    // OR const balances1 = await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']);
+    console.log(balances1);
+    // [ '10000.0', '0.0' ]
 
-    // --- Pool ---
+    // You can specify addresses
+    const balances2 = await curve.getBalances(['aDAI', 'aSUSD'], "0x0063046686E46Dc6F15918b61AE2B121458534a5", "0x66aB6D9362d4F35596279692F0251Db635165871");
+    // OR const balances2 = await curve.getBalances(['0x028171bCA77440897B824Ca71D1c56caC55b68A3', '0x6c5024cd4f8a59110119c56f8933403a539555eb'], ["0x0063046686E46Dc6F15918b61AE2B121458534a5", "0x66aB6D9362d4F35596279692F0251Db635165871"]);
+    console.log(balances2);
 
-    const saave = new curve.Pool('saave');
+    const spender = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7" // 3pool swap address
 
-    // Current address balances (signer balances)
-    console.log(await saave.balances());
-    console.log(await saave.lpTokenBalances());
-    console.log(await saave.underlyingCoinBalances());
-    console.log(await saave.coinBalances());
-    console.log(await saave.allCoinBalances());
+    console.log(await curve.getAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], curve.signerAddress, spender));
+    // [ '0.0', '0.0' ]
+    console.log(await curve.hasAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], ['1000', '1000'], curve.signerAddress, spender));
+    // false
+    console.log(await curve.ensureAllowance(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], ['1000', '1000'], spender));
+    // [
+    //     '0xb0cada2a2983dc0ed85a26916d32b9caefe45fecde47640bd7d0e214ff22aed3',
+    //     '0x00ea7d827b3ad50ce933e96c579810cd7e70d66a034a86ec4e1e10005634d041'
+    // ]
+}
+
+const availablePoolsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+    await curve.fetchFactoryPools();
+    await curve.fetchCryptoFactoryPools();
+
+    console.log(curve.getPoolList());
+    console.log(curve.getFactoryPoolList());
+    console.log(curve.getCryptoFactoryPoolList());
+}
+
+const poolFieldsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+    await curve.fetchFactoryPools();
+    await curve.getCryptoFactoryPoolList();
+
+    const pool = curve.getPool('factory-v2-11');
+
+    console.log(pool.id);
+    console.log(pool.name);
+    console.log(pool.fullName);
+    console.log(pool.symbol);
+    console.log(pool.referenceAsset);
+    console.log(pool.address);
+    console.log(pool.lpToken);
+    console.log(pool.gauge);
+    console.log(pool.zap);
+    console.log(pool.rewardContract);
+    console.log(pool.isPlain);
+    console.log(pool.isLending);
+    console.log(pool.isMeta);
+    console.log(pool.isCrypto);
+    console.log(pool.isFake);
+    console.log(pool.isFactory);
+    console.log(pool.basePool);
+    console.log(pool.underlyingCoins);
+    console.log(pool.wrappedCoins);
+    console.log(pool.underlyingCoinAddresses);
+    console.log(pool.wrappedCoinAddresses);
+    console.log(pool.underlyingDecimals);
+    console.log(pool.wrappedDecimals);
+    console.log(pool.useLending);
+    console.log(pool.rewardTokens);
+}
+
+const walletBalancesTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const saave = curve.getPool('saave');
+
+    // Current address (signer) balances
+    console.log(await saave.wallet.balances());
+    console.log(await saave.wallet.lpTokenBalances());
+    console.log(await saave.wallet.underlyingCoinBalances());
+    console.log(await saave.wallet.wrappedCoinBalances());
+    console.log(await saave.wallet.allCoinBalances());
 
 
     // For every method above you can specify address
-    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5"));
+    console.log(await saave.wallet.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5"));
     // Or several addresses
-    console.log(await saave.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5", "0x66aB6D9362d4F35596279692F0251Db635165871"));
+    console.log(await saave.wallet.balances("0x0063046686E46Dc6F15918b61AE2B121458534a5", "0x66aB6D9362d4F35596279692F0251Db635165871"));
 }
 
 const statsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    // ------- COMPOUND -------
+
+    const compound = curve.getPool('compound');
+
+    console.log(await compound.stats.parameters());
+    console.log(await compound.stats.underlyingBalances());
+    console.log(await compound.stats.wrappedBalances());
+    console.log(await compound.stats.totalLiquidity());
+
+    // ------- STETH -------
+
+    const steth = curve.getPool('steth');
+
+    console.log(await steth.stats.volume());
+    console.log(await steth.stats.baseApy());
+    console.log(await steth.stats.tokenApy());
+    console.log(await steth.stats.rewardsApy());
+}
+
+const depositTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPool('mim');
+
+    console.log('--- UNDERLYING ---');
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    console.log(await pool.depositBalancedAmounts());
+    console.log(await pool.depositExpected([100, 100, 100, 100]));
+    console.log(await pool.depositBonus([100, 100, 100, 100]));
+    console.log(await pool.depositIsApproved([100, 100, 100, 100]));
+    console.log(await pool.depositApprove([100, 100, 100, 100]));
+
+    const depositTx = await pool.deposit(['100', '100', '100', '100'], 0.1); // slippage = 0.1%
+    console.log(depositTx);
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+
+    console.log('--- WRAPPED ---');
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    console.log(await pool.depositWrappedBalancedAmounts());
+    console.log(await pool.depositWrappedExpected(['100', '100']));
+    console.log(await pool.depositWrappedBonus([100, 100]));
+    console.log(await pool.depositWrappedIsApproved([100, 100]));
+    console.log(await pool.depositWrappedApprove([100, 100]));
+
+    const depositWrappedTx = await pool.depositWrapped([100, 100], 0.1); // slippage = 0.1%
+    console.log(depositWrappedTx);
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+}
+
+const stakingTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0 });
 
-    const aave = new curve.Pool('aave');
-
-    console.log(await aave.stats.getParameters());
-    console.log(await aave.stats.getPoolBalances());
-    console.log(await aave.stats.getPoolWrappedBalances());
-    console.log(await aave.stats.getTotalLiquidity());
-    console.log(await aave.stats.getVolume());
-    console.log(await aave.stats.getBaseApy());
-    console.log(await aave.stats.getTokenApy());
-    console.log(await aave.stats.getRewardsApy());
-}
-
-const poolTest = async () => {
-    await curve.init('JsonRpc', {url: 'http://localhost:8545/', privateKey: ''}, { gasPrice: 0, chainId: 1 });
-
-    const pool = new curve.Pool('aave');
-    console.log(pool.underlyingCoins);
-    console.log(pool.coins);
-
-    console.log(await pool.balances());
-
-    console.log('// ADD LIQUIDITY');
-    const expectedLpTokenAmount1 = await pool.addLiquidityExpected(['100', '100', '100']);
-    console.log(expectedLpTokenAmount1);
-    const addLiquidityTx1 = await pool.addLiquidity(['100', '100', '100']);
-    console.log(addLiquidityTx1);
-
-    console.log(await pool.balances());
-
-    console.log('// ADD LIQUIDITY WRAPPED');
-    const expectedLpTokenAmount2 = await pool.addLiquidityWrappedExpected(['100', '100', '100']);
-    console.log(expectedLpTokenAmount2);
-    const addLiquidityTx2 = await pool.addLiquidityWrapped(['100', '100', '100']);
-    console.log(addLiquidityTx2);
-
-    const balances = await pool.balances() as IDict<string>;
+    const pool = curve.getPool('mim');
+    
+    const balances = await pool.wallet.lpTokenBalances() as IDict<string>;
     console.log(balances);
+    console.log(await pool.stakeIsApproved(balances.lpToken));
+    console.log(await pool.stakeApprove(balances.lpToken));
+    console.log(await pool.stake(balances.lpToken));
 
-    console.log('// GAUGE DEPOSIT');
-    const gaugeDepositTx = await pool.gaugeDeposit(balances['lpToken']);
-    console.log(gaugeDepositTx);
+    console.log(await pool.wallet.lpTokenBalances());
 
-    console.log(await pool.balances());
+    console.log(await pool.unstake(balances.lpToken));
 
-    console.log('// GAUGE WITHDRAW');
-    const gaugeWithdrawTx = await pool.gaugeWithdraw(balances['lpToken']);
-    console.log(gaugeWithdrawTx);
-
-    console.log(await pool.balances());
-
-    console.log('// REMOVE LIQUIDITY');
-    const expectedUnderlyingCoinAmounts = await pool.removeLiquidityExpected('10');
-    console.log(expectedUnderlyingCoinAmounts);
-    const removeLiquidityTx = await pool.removeLiquidity('10');
-    console.log(removeLiquidityTx);
-
-    console.log(await pool.balances());
-
-    console.log('// REMOVE LIQUIDITY WRAPPED');
-    const expectedCoinAmounts = await pool.removeLiquidityWrappedExpected('10');
-    console.log(expectedCoinAmounts);
-    const removeLiquidityWrappedTx = await pool.removeLiquidityWrapped('10');
-    console.log(removeLiquidityWrappedTx);
-
-    console.log(await pool.balances());
-
-    console.log('// REMOVE LIQUIDITY IMBALANCE');
-    const expectedLpTokenAmount3 = await pool.removeLiquidityImbalanceExpected(['10', '10', '10']);
-    console.log(expectedLpTokenAmount3);
-    const removeLiquidityImbalanceTx = await pool.removeLiquidityImbalance(['10', '10', '10']);
-    console.log(removeLiquidityImbalanceTx);
-
-    console.log(await pool.balances());
-
-    console.log('// REMOVE LIQUIDITY IMBALANCE WRAPPED');
-    const expectedLpTokenAmount4 = await pool.removeLiquidityImbalanceWrappedExpected(['10', '10', '10']);
-    console.log(expectedLpTokenAmount4);
-    const removeLiquidityImbalanceWrappedTx = await pool.removeLiquidityImbalanceWrapped(['10', '10', '10']);
-    console.log(removeLiquidityImbalanceWrappedTx);
-
-    console.log(await pool.balances());
-
-    console.log('// REMOVE LIQUIDITY ONE COIN');
-    const expectedDAIAmount = await pool.removeLiquidityOneCoinExpected('10','DAI');
-    // OR const expectedDAIAmount = await pool.removeLiquidityOneCoinExpected('10', 0);
-    console.log(expectedDAIAmount);
-    const removeLiquidityOneCoinTx = await pool.removeLiquidityOneCoin('10', 'DAI');
-    // OR const removeLiquidityImbalanceTx = await pool.removeLiquidityOneCoin('10', 0);
-    console.log(removeLiquidityOneCoinTx);
-
-    console.log(await pool.balances());
-
-    console.log('// REMOVE LIQUIDITY ONE COIN WRAPPED');
-    const expectedADAIAmount = await pool.removeLiquidityOneCoinWrappedExpected('10', 'aUSDC');
-    // OR const expectedADAIAmount = await pool.removeLiquidityOneCoinWrappedExpected('10', 1);
-    console.log(expectedADAIAmount);
-    const removeLiquidityOneCoinWrappedTx = await pool.removeLiquidityOneCoinWrapped('10', 'aUSDC');
-    // OR const removeLiquidityImbalanceWrappedTx = await pool.removeLiquidityOneCoinWrapped('10', 1);
-    console.log(removeLiquidityOneCoinWrappedTx);
-
-    console.log(await pool.balances());
+    console.log(await pool.wallet.lpTokenBalances());
 }
 
-const routerExchangeTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+const withdrawTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPool('mim');
+
+    // --- UNDERLYING ---
+    console.log('--- UNDERLYING ---');
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    console.log(await pool.withdrawExpected(10));
+    console.log(await pool.withdrawIsApproved(10));
+    console.log(await pool.withdrawApprove(10));
+    const withdrawTx = await pool.withdraw('10', 0.1);
+    console.log(withdrawTx);
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    // --- WRAPPED ---
+    console.log('--- WRAPPED ---');
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+    
+    console.log(await pool.withdrawWrappedExpected('10'));
+    const withdrawWrappedTx = await pool.withdrawWrapped(10, 0.5);
+    console.log(withdrawWrappedTx);
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+}
+
+const withdrawImbalanceTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPool('mim');
+
+    // --- UNDERLYING ---
+    console.log('--- UNDERLYING ---');
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    console.log(await pool.withdrawImbalanceExpected(['10', '10', '10', '10']));
+    console.log(await pool.withdrawImbalanceBonus(['10', '10', '10', '10']));
+    console.log(await pool.withdrawImbalanceIsApproved(['10', '10', '10', '10']));
+    console.log(await pool.withdrawImbalanceApprove(['10', '10', '10', '10']));
+    const withdrawImbalanceTx = await pool.withdrawImbalance(['10', '10', '10', '10'], 0.1);
+    console.log(withdrawImbalanceTx);
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    // --- WRAPPED ---
+    console.log('--- WRAPPED ---');
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    console.log(await pool.withdrawImbalanceWrappedExpected(['10', '10']));
+    console.log(await pool.withdrawImbalanceWrappedBonus(['10', '10']));
+    const withdrawImbalanceWrappedTx = await pool.withdrawImbalanceWrapped(['10', '10'], 0.1);
+    console.log(withdrawImbalanceWrappedTx);
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+}
+
+const withdrawOneCoinTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPool('mim');
+
+    // --- UNDERLYING ---
+    console.log('--- UNDERLYING ---');
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    const underlyingExpected = await pool.withdrawOneCoinExpected(10, 'DAI');
+    // OR const underlyingExpected = await pool.withdrawOneCoinExpected('10', '0x6B175474E89094C44Da98b954EedeAC495271d0F');
+    // OR const underlyingExpected = await pool.withdrawOneCoinExpected('10', 1);
+    console.log(underlyingExpected);
+    console.log(await pool.withdrawOneCoinBonus(10,'DAI'));
+    console.log(await pool.withdrawOneCoinIsApproved(10));
+    console.log(await pool.withdrawOneCoinApprove(10));
+    const underlyingTx = await pool.withdrawOneCoin(10, 'DAI', 0.1);
+    // OR const underlyingTx = await pool.withdrawOneCoin('10', '0x6B175474E89094C44Da98b954EedeAC495271d0F');
+    // OR const underlyingTx = await pool.withdrawOneCoin('10', 1);
+    console.log(underlyingTx);
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    // --- WRAPPED ---
+    console.log('--- WRAPPED ---');
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    const wrappedExpected = await pool.withdrawOneCoinWrappedExpected('10', 'MIM');
+    // OR const wrappedExpected = await pool.withdrawOneCoinWrappedExpected('10', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3');
+    // OR const wrappedExpected = await pool.withdrawOneCoinWrappedExpected('10', 0);
+    console.log(wrappedExpected)
+    console.log(await pool.withdrawOneCoinWrappedBonus(10, 'MIM'));
+    const wrappedTx = await pool.withdrawOneCoinWrapped('10', 'MIM', 0.1);
+    // OR await pool.withdrawOneCoinWrapped('10', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3');
+    // OR await pool.withdrawOneCoinWrapped('10', 0);
+    console.log(wrappedTx);
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+}
+
+const poolSwapTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPool('mim');
+
+    // --- UNDERLYING ---
+    console.log('--- UNDERLYING ---');
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+
+    const underlyingExpected = await pool.swapExpected('MIM','DAI', 10);
+    // OR const underlyingExpected = await pool.swapExpected('0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '10');
+    // OR const underlyingExpected = await pool.swapExpected(0, 1, '10');
+    console.log(underlyingExpected);
+    console.log(await pool.swapIsApproved('MIM', 10));
+    console.log(await pool.swapApprove('MIM', 10));
+    const swapTx = await pool.swap('MIM','DAI', 10, 0.1);
+    // OR const swapTx = await pool.swap('0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '10');
+    // OR const swapTx = await pool.swap(0, 1, 10);
+    console.log(swapTx);
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+
+    // --- WRAPPED ---
+    console.log('--- WRAPPED ---');
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+
+    const wrappedExpected = await pool.swapWrappedExpected('3crv','MIM', 10);
+    // OR const wrappedExpected = await pool.swapWrappedExpected('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '10');
+    // OR const wrappedExpected = await pool.swapWrappedExpected(1, 0, '10');
+    console.log(wrappedExpected);
+    console.log(await pool.swapWrappedIsApproved('3crv', 10));
+    console.log(await pool.swapWrappedApprove('3crv', 10));
+    const swapWrappedTx = await pool.swapWrapped('3crv','MIM', 10, 0.1);
+    // OR const swapWrappedTx = await pool.swapWrapped('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '10');
+    // OR const swapWrappedTx = await pool.swapWrapped(1, 0, '10');
+    console.log(swapWrappedTx);
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+}
+
+const depositAndStakeTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPool('compound');
+    const amounts = [1000, 1000];
+
+
+    // --- UNDERLYING ---
+    console.log('--- UNDERLYING ---');
+
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    console.log(await pool.depositAndStakeExpected(amounts));
+    console.log(await pool.depositAndStakeBonus(amounts));
+    console.log(await pool.depositAndStakeIsApproved(amounts));
+    console.log(await pool.depositAndStakeApprove(amounts));
+    console.log(await pool.depositAndStake(amounts));
+
+    console.log(await pool.wallet.underlyingCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+
+    // --- WRAPPED ---
+    console.log('--- WRAPPED ---');
+
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+
+    console.log(await pool.depositAndStakeWrappedExpected(amounts));
+    console.log(await pool.depositAndStakeWrappedBonus(amounts));
+    console.log(await pool.depositAndStakeWrappedIsApproved(amounts));
+    console.log(await pool.depositAndStakeWrappedApprove(amounts));
+    console.log(await pool.depositAndStakeWrapped(amounts));
+
+    console.log(await pool.wallet.wrappedCoinBalances());
+    console.log(await pool.wallet.lpTokenBalances());
+}
+
+
+const routerSwapTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
     console.log(await curve.getBalances(['DAI', 'CRV']));
 
-    const { route, output } = await curve.getBestRouteAndOutput('DAI', 'CRV', '1000');
-    // OR await curve.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
-    const expected = await curve.routerExchangeExpected('DAI', 'CRV', '1000');
-    // OR await curve.exchangeExpected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    const { route, output } = await curve.router.getBestRouteAndOutput('DAI', 'CRV', 1000);
+    // OR await curve.router.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    const expected = await curve.router.expected('DAI', 'CRV', 1000);
+    // OR await curve.router.expected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
 
     console.log(route, output, expected);
 
-    await curve.routerExchange('DAI', 'CRV', '1000')
-    // OR await curve.exchange('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    console.log(await curve.router.isApproved('DAI', 1000));
+    console.log(await curve.router.approve('DAI', 1000));
+    const swapTx = await curve.router.swap('DAI', 'CRV', 1000);
+    // OR await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    console.log(swapTx);
 
     console.log(await curve.getBalances(['DAI', 'CRV']));
 }
 
-const exchangeTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
-
-    console.log(await curve.getBalances(['DAI', 'USDC']));
-
-    const { poolAddress, output } = await curve.getBestPoolAndOutput('DAI', 'USDC', '100');
-    // OR await curve.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '100');
-    const expected = await curve.exchangeExpected('DAI', 'USDC', '100');
-    // OR await curve.exchangeExpected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '100');
-
-    console.log(poolAddress, output, expected);
-
-    await curve.exchange('DAI', 'USDC', '100')
-    // OR await curve.exchange('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '100');
-
-    console.log(await curve.getBalances(['DAI', 'USDC']));
-}
-
-const crossAssetExchangeTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
-
-    console.log(await curve.getBalances(['DAI', 'WBTC']));
-
-    console.log(await curve.crossAssetExchangeAvailable('DAI', 'WBTC'));
-    console.log(await curve.crossAssetExchangeOutputAndSlippage('DAI', 'WBTC', '500'));
-    console.log(await curve.crossAssetExchangeExpected('DAI', 'WBTC', '500'));
-
-    const tx = await curve.crossAssetExchange('DAI', 'WBTC', '500');
-    console.log(tx);
-
-    console.log(await curve.getBalances(['DAI', 'WBTC']));
-}
-
 const boostingTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0, chainId: 1 });
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
     console.log(await curve.boosting.getCrv());
 
-    await curve.boosting.createLock('1000', 365);
-
+    console.log(await curve.boosting.isApproved(1000));
+    console.log(await curve.boosting.approve(1000));
+    await curve.boosting.createLock(1000, 365);
     console.log(await curve.boosting.getCrv());
+
     console.log(await curve.boosting.getLockedAmountAndUnlockTime());
     console.log(await curve.boosting.getVeCrv());
     console.log(await curve.boosting.getVeCrvPct());
 
     await curve.boosting.increaseAmount('500');
-
     console.log(await curve.boosting.getCrv());
+
     console.log(await curve.boosting.getLockedAmountAndUnlockTime());
     console.log(await curve.boosting.getVeCrv());
     console.log(await curve.boosting.getVeCrvPct());
@@ -216,53 +428,11 @@ const boostingTest = async () => {
 const rewardsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0 });
 
-    const pool = new curve.Pool('susd');
+    const pool = curve.getPool('susd');
 
-    console.log(await pool.gaugeClaimableTokens());
-    console.log(await pool.gaugeClaimTokens());
+    console.log(await pool.claimableCrv());
+    console.log(await pool.claimCrv());
 
-    console.log(await pool.gaugeClaimableRewards());
-    console.log(await pool.gaugeClaimRewards());
-}
-
-const depositAndStakeUnderlyingTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0 });
-
-    const pool = new curve.Pool('compound');
-    const amounts = ['1000', '1000'];
-
-    console.log(await pool.underlyingCoinBalances());
-    console.log(await pool.lpTokenBalances());
-
-    console.log(await pool.depositAndStakeExpected(amounts));
-    console.log(await pool.depositAndStakeSlippage(amounts));
-
-    console.log(await pool.depositAndStakeIsApproved(amounts));
-
-    await pool.depositAndStakeApprove(amounts);
-    await pool.depositAndStake(amounts);
-
-    console.log(await pool.underlyingCoinBalances());
-    console.log(await pool.lpTokenBalances());
-}
-
-const depositAndStakeWrappedTest = async () => {
-    await curve.init('JsonRpc', {}, { gasPrice: 0 });
-
-    const pool = new curve.Pool('compound');
-    const amounts = ['1000', '1000'];
-
-    console.log(await pool.coinBalances());
-    console.log(await pool.lpTokenBalances());
-
-    console.log(await pool.depositAndStakeWrappedExpected(amounts));
-    console.log(await pool.depositAndStakeWrappedSlippage(amounts));
-
-    console.log(await pool.depositAndStakeWrappedIsApproved(amounts));
-
-    await pool.depositAndStakeWrappedApprove(amounts);
-    await pool.depositAndStakeWrapped(amounts);
-
-    console.log(await pool.coinBalances());
-    console.log(await pool.lpTokenBalances());
+    console.log(await pool.claimableRewards());
+    console.log(await pool.claimRewards());
 }

@@ -32,13 +32,13 @@ describe('Claiming CRV', function() {
 
     for (const poolName of CRYPTO_POOLS) {
         it(`Claims CRV from ${poolName.toUpperCase()}`, async function () {
-            const pool = new curve.Pool(poolName);
+            const pool = curve.getPool(poolName);
 
             const [crvBalanceBefore] = await curve.getBalances(['crv']) as string[];
-            const expected = await pool.gaugeClaimableTokens();
+            const expected = await pool.claimableCrv();
 
             console.log(crvBalanceBefore, "+", expected, "=", Number(crvBalanceBefore) + Number(expected));
-            await pool.gaugeClaimTokens();
+            await pool.claimableCrv();
 
             const [crvBalanceAfter] = await curve.getBalances(['crv']) as string[];
             console.log(crvBalanceAfter);

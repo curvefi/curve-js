@@ -1,33 +1,33 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve, REFERENCE_ASSET } from "../interfaces";
-import ERC20ABI from "../constants/abis/json/ERC20.json";
-import factorySwapABI from "../constants/abis/json/factoryPools/swap.json";
-import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
-import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
-import MetaUsdZapPolygonABI from "../constants/abis/json/factory-v2/DepositZapMetaUsdPolygon.json";
-import MetaBtcZapPolygonABI from "../constants/abis/json/factory-v2/DepositZapMetaBtcPolygon.json";
-import MetaUSDABI from "../constants/abis/json/factory-v2/MetaUSD.json";
-import MetaUSDBalancesABI from "../constants/abis/json/factory-v2/MetaUSDBalances.json";
-import MetaBTCABI from "../constants/abis/json/factory-v2/MetaBTC.json";
-import MetaBTCBalancesABI from "../constants/abis/json/factory-v2/MetaBTCBalances.json";
-import MetaBTCRenABI from "../constants/abis/json/factory-v2/MetaBTCRen.json";
-import MetaBTCRenBalancesABI from "../constants/abis/json/factory-v2/MetaBTCBalancesRen.json";
-import Plain2BasicABI from "../constants/abis/json/factory-v2/Plain2Basic.json";
-import Plain2BalancesABI from "../constants/abis/json/factory-v2/Plain2Balances.json";
-import Plain2ETHABI from "../constants/abis/json/factory-v2/Plain2ETH.json";
-import Plain2OptimizedABI from "../constants/abis/json/factory-v2/Plain2Optimized.json";
-import Plain3BasicABI from "../constants/abis/json/factory-v2/Plain3Basic.json";
-import Plain3BalancesABI from "../constants/abis/json/factory-v2/Plain3Balances.json";
-import Plain3ETHABI from "../constants/abis/json/factory-v2/Plain3ETH.json";
-import Plain3OptimizedABI from "../constants/abis/json/factory-v2/Plain3Optimized.json";
-import Plain4BasicABI from "../constants/abis/json/factory-v2/Plain4Basic.json";
-import Plain4BalancesABI from "../constants/abis/json/factory-v2/Plain4Balances.json";
-import Plain4ETHABI from "../constants/abis/json/factory-v2/Plain4ETH.json";
-import Plain4OptimizedABI from "../constants/abis/json/factory-v2/Plain4Optimized.json";
+import { IDict, IPoolData, ICurve, REFERENCE_ASSET } from "../interfaces";
+import ERC20ABI from "../constants/abis/ERC20.json";
+import factorySwapABI from "../constants/abis/factoryPools/swap.json";
+import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
+import factoryGaugeABI from "../constants/abis/gauge_factory.json";
+import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json";
+import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
+import MetaUSDABI from "../constants/abis/factory-v2/MetaUSD.json";
+import MetaUSDBalancesABI from "../constants/abis/factory-v2/MetaUSDBalances.json";
+import MetaBTCABI from "../constants/abis/factory-v2/MetaBTC.json";
+import MetaBTCBalancesABI from "../constants/abis/factory-v2/MetaBTCBalances.json";
+import MetaBTCRenABI from "../constants/abis/factory-v2/MetaBTCRen.json";
+import MetaBTCRenBalancesABI from "../constants/abis/factory-v2/MetaBTCBalancesRen.json";
+import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json";
+import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json";
+import Plain2ETHABI from "../constants/abis/factory-v2/Plain2ETH.json";
+import Plain2OptimizedABI from "../constants/abis/factory-v2/Plain2Optimized.json";
+import Plain3BasicABI from "../constants/abis/factory-v2/Plain3Basic.json";
+import Plain3BalancesABI from "../constants/abis/factory-v2/Plain3Balances.json";
+import Plain3ETHABI from "../constants/abis/factory-v2/Plain3ETH.json";
+import Plain3OptimizedABI from "../constants/abis/factory-v2/Plain3Optimized.json";
+import Plain4BasicABI from "../constants/abis/factory-v2/Plain4Basic.json";
+import Plain4BalancesABI from "../constants/abis/factory-v2/Plain4Balances.json";
+import Plain4ETHABI from "../constants/abis/factory-v2/Plain4ETH.json";
+import Plain4OptimizedABI from "../constants/abis/factory-v2/Plain4Optimized.json";
 
 
-const implementationABIDictEthereum: DictInterface<any> = {
+const implementationABIDictEthereum: IDict<any> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": factorySwapABI,
 
     "0x213be373FDff327658139C7df330817DAD2d5bBE": MetaUSDABI,
@@ -55,7 +55,7 @@ const implementationABIDictEthereum: DictInterface<any> = {
     "0xaD4753D045D3Aed5C1a6606dFb6a7D7AD67C1Ad7": Plain4OptimizedABI,
 }
 
-const implementationABIDictPolygon: DictInterface<any> = {
+const implementationABIDictPolygon: IDict<any> = {
     "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": MetaUSDABI,
     "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": MetaUSDBalancesABI,
 
@@ -78,29 +78,29 @@ const implementationABIDictPolygon: DictInterface<any> = {
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
 }
 
-const basePoolAddressNameDictEthereum: DictInterface<string> = {
+const basePoolAddressNameDictEthereum: IDict<string> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "3pool",
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "sbtc",
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "ren",
 }
 
-const basePoolAddressNameDictPolygon: DictInterface<string> = {
+const basePoolAddressNameDictPolygon: IDict<string> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": "aave",
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "ren",
 }
 
-const basePoolAddressCoinsDictEthereum: DictInterface<string[]> = {
+const basePoolAddressCoinsDictEthereum: IDict<string[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": ['DAI', 'USDC', 'USDT'],     // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": ['renBTC', 'WBTC', 'sBTC'],  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": ['renBTC', 'WBTC'],          // ren
 }
 
-const basePoolAddressCoinsDictPolygon: DictInterface<string[]> = {
+const basePoolAddressCoinsDictPolygon: IDict<string[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": ['DAI', 'USDC', 'USDT'],     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": ['WBTC', 'renBTC'],          // ren
 }
 
-const basePoolAddressCoinAddressesDictEthereum: DictInterface<string[]> = {
+const basePoolAddressCoinAddressesDictEthereum: IDict<string[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": [  // 3pool
         '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -119,7 +119,7 @@ const basePoolAddressCoinAddressesDictEthereum: DictInterface<string[]> = {
     ].map((addr) => addr.toLowerCase()),
 }
 
-const basePoolAddressCoinAddressesDictPolygon: DictInterface<string[]> = {
+const basePoolAddressCoinAddressesDictPolygon: IDict<string[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": [  // aave
         '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
         '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
@@ -132,24 +132,24 @@ const basePoolAddressCoinAddressesDictPolygon: DictInterface<string[]> = {
     ].map((addr) => addr.toLowerCase()),
 }
 
-const basePoolAddressDecimalsDictEthereum: DictInterface<number[]> = {
+const basePoolAddressDecimalsDictEthereum: IDict<number[]> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": [18, 6, 6],  // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": [8, 8, 18],  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": [8, 8],      // ren
 }
 
-const basePoolAddressDecimalsDictPolygon: DictInterface<number[]> = {
+const basePoolAddressDecimalsDictPolygon: IDict<number[]> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": [18, 6, 6],     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": [8, 8],         // ren
 }
 
-const basePoolAddressZapDictEthereum: DictInterface<string> = {
+const basePoolAddressZapDictEthereum: IDict<string> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),  // 3pool
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),  // sbtc
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),  // ren TODO CHECK!!!
 }
 
-const basePoolAddressZapDictPolygon: DictInterface<string> = {
+const basePoolAddressZapDictPolygon: IDict<string> = {
     "0x445FE580eF8d70FF569aB36e80c647af338db351": "0x5ab5C56B9db92Ba45a0B46a207286cD83C15C939".toLowerCase(),     // aave
     "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "0xE2e6DC1708337A6e59f227921db08F21e3394723".toLowerCase(),     // ren
 }
@@ -177,7 +177,7 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], s
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
         (addr, i) => ({ id: `factory-v2-${i}`, address: addr.toLowerCase()})
     );
-    const swapAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
+    const swapAddresses = Object.values(this.constants.POOLS_DATA as IPoolData).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     const blacklist = this.chainId === 137 ? blackListPolygon : blackListEthereum;
     factories = factories.filter((f) => !swapAddresses.includes(f.address) && !blacklist.includes(f.address));
 
@@ -288,12 +288,12 @@ function setFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void
     }
 }
 
-function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
-    const dict: DictInterface<string> = {}
-    for (const poolData of Object.values(this.constants.POOLS_DATA as DictInterface<PoolDataInterface>)) {
-        poolData.coin_addresses.forEach((addr, i) => {
+function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
+    const dict: IDict<string> = {}
+    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<IPoolData>)) {
+        poolData.wrapped_coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
-                dict[addr.toLowerCase()] = poolData.coins[i]
+                dict[addr.toLowerCase()] = poolData.wrapped_coins[i]
             }
         });
 
@@ -312,11 +312,11 @@ function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
 async function getCoinAddressNameDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddrNameDict: DictInterface<string>
-): Promise<DictInterface<string>> {
+    existingCoinAddrNameDict: IDict<string>
+): Promise<IDict<string>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<string> = {};
+    const coinAddrNamesDict: IDict<string> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
@@ -342,11 +342,11 @@ async function getCoinAddressNameDict(
 async function getCoinAddressDecimalsDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddressDecimalsDict: DictInterface<number>
-): Promise<DictInterface<number>> {
+    existingCoinAddressDecimalsDict: IDict<number>
+): Promise<IDict<number>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<number> = {};
+    const coinAddrNamesDict: IDict<number> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddressDecimalsDict) {
@@ -364,7 +364,6 @@ async function getCoinAddressDecimalsDict(
 
     newCoinAddresses.forEach((addr, i) => {
         coinAddrNamesDict[addr] = decimals[i];
-        existingCoinAddressDecimalsDict[addr] = decimals[i];  // Add to DECIMALS_LOWER_CASE TODO move to another place
     });
 
     return coinAddrNamesDict
@@ -413,21 +412,19 @@ function setFactoryZapContracts(this: ICurve): void {
     }
 }
 
-export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<PoolDataInterface>> {
+export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = await getFactoryIdsAndSwapAddresses.call(this);
     const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
-    this.constants.LP_TOKENS.push(...swapAddresses); // TODO move to another place
     const gaugeAddresses = await getFactoryGaugeAddresses.call(this, swapAddresses);
     setFactoryGaugeContracts.call(this, gaugeAddresses);
-    this.constants.GAUGES.push(...gaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero));  // TODO move to another place
     const [poolSymbols, poolNames] = await getFactorySymbolsAndNames.call(this, swapAddresses);
     const referenceAssets = await getFactoryReferenceAssets.call(this, swapAddresses);
     const coinAddresses = await getFactoryCoinAddresses.call(this, swapAddresses);
     setFactoryCoinsContracts.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
-    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS_LOWER_CASE);
+    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
     const isMeta = await getFactoryIsMeta.call(this, swapAddresses);
     const basePoolAddresses = await getFactoryBasePoolAddresses.call(this, swapAddresses);
     setFactoryZapContracts.call(this);
@@ -438,7 +435,8 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
     const basePoolAddressDecimalsDict = this.chainId === 137 ? basePoolAddressDecimalsDictPolygon : basePoolAddressDecimalsDictEthereum;
     const basePoolAddressZapDict = this.chainId === 137 ? basePoolAddressZapDictPolygon : basePoolAddressZapDictEthereum;
 
-    const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
+    // TODO add reward_tokens and reward_decimals
+    const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
         if (!isMeta[i]) {
             FACTORY_POOLS_DATA[poolIds[i]] = {
@@ -446,22 +444,19 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 full_name: poolNames[i],
                 symbol: poolSymbols[i],
                 reference_asset: referenceAssets[i],
-                N_COINS: coinAddresses[i].length,
-                underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-                decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-                use_lending: coinAddresses[i].map(() => false),
-                is_plain: coinAddresses[i].map(() => true),
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
+                is_plain: true,
+                is_factory: true,
                 underlying_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
-                coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
+                wrapped_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
                 underlying_coin_addresses: coinAddresses[i],
-                coin_addresses: coinAddresses[i],
+                wrapped_coin_addresses: coinAddresses[i],
+                underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
+                wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_plain_factory: true,
             };
         } else {
             FACTORY_POOLS_DATA[poolIds[i]] = {
@@ -469,27 +464,21 @@ export async function getFactoryPoolData(this: ICurve): Promise<DictInterface<Po
                 full_name: poolNames[i],
                 symbol: poolSymbols[i],
                 reference_asset: referenceAssets[i],
-                N_COINS: coinAddresses[i].length,
-                underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-                decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-                use_lending: coinAddresses[i].map(() => false),
-                is_plain: coinAddresses[i].map(() => true),
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
+                deposit_address: basePoolAddressZapDict[basePoolAddresses[i]],
+                is_meta: true,
+                is_factory: true,
+                base_pool: basePoolAddressNameDict[basePoolAddresses[i]],
                 underlying_coins: [coinAddressNameDict[coinAddresses[i][0]], ...basePoolAddressCoinsDict[basePoolAddresses[i]]],
-                coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
+                wrapped_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
                 underlying_coin_addresses: coinAddresses[i],
-                coin_addresses: coinAddresses[i],
+                wrapped_coin_addresses: coinAddresses[i],
+                underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolAddressDecimalsDict[basePoolAddresses[i]]],
+                wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_meta_factory: true,
-                is_meta: true,
-                base_pool: basePoolAddressNameDict[basePoolAddresses[i]],
-                meta_coin_addresses: basePoolAddressCoinAddressesDict[basePoolAddresses[i]],
-                meta_coin_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolAddressDecimalsDict[basePoolAddresses[i]]],
-                deposit_address: basePoolAddressZapDict[basePoolAddresses[i]],
                 deposit_abi: factoryDepositABI,
             };
         }

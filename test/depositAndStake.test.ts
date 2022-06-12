@@ -1,8 +1,9 @@
 import { assert } from "chai";
 import curve from "../src";
-import { Pool } from "../src/pools";
+import { getPool } from "../src/pools/poolConstructor";
+import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { BN } from "../src/utils";
-import { DictInterface } from "../lib/interfaces";
+import { IDict } from "../src/interfaces";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt'];
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
@@ -15,11 +16,11 @@ const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
 const underlyingDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake underlying`, function () {
-        let pool: Pool;
+        let pool: PoolTemplate;
         let coinAddresses: string[];
 
         before(async function () {
-            pool = new curve.Pool(name);
+            pool = getPool(name);
             coinAddresses = pool.underlyingCoinAddresses;
         });
 
@@ -27,12 +28,12 @@ const underlyingDepositAndStakeTest = (name: string) => {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
 
-            const initialBalances = await pool.balances() as DictInterface<string>;
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositAndStakeExpected(amounts);
 
             await pool.depositAndStake(amounts);
 
-            const balances = await pool.balances() as DictInterface<string>;
+            const balances = await pool.wallet.balances() as IDict<string>;
 
             pool.underlyingCoins.forEach((c: string) => {
                 if (name === 'steth') {
@@ -51,26 +52,26 @@ const underlyingDepositAndStakeTest = (name: string) => {
 
 const wrappedDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake wrapped`, function () {
-        let pool: Pool;
+        let pool: PoolTemplate;
         let coinAddresses: string[];
 
         before(async function () {
-            pool = new curve.Pool(name);
-            coinAddresses = pool.coinAddresses;
+            pool = getPool(name);
+            coinAddresses = pool.wrappedCoinAddresses;
         });
 
         it('Deposits and stakes', async function () {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
 
-            const initialBalances = await pool.balances() as DictInterface<string>;
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositAndStakeWrappedExpected(amounts);
 
             await pool.depositAndStakeWrapped(amounts);
 
-            const balances = await pool.balances() as DictInterface<string>;
+            const balances = await pool.wallet.balances() as IDict<string>;
 
-            pool.coins.forEach((c: string) => {
+            pool.wrappedCoins.forEach((c: string) => {
                 if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else {

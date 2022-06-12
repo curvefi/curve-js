@@ -1,15 +1,15 @@
 import { assert } from "chai";
 import { BN } from "../src/utils";
 import curve from "../src";
-import { COINS_POLYGON } from "../src/constants/coins-polygon";
-import { COINS_ETHEREUM } from "../src/constants/coins-ethereum";
+import { COINS_POLYGON } from "../src/constants/coins/polygon";
+import { COINS_ETHEREUM } from "../src/constants/coins/ethereum";
 
-const routerExchangeTest = async (coin1: string, coin2: string) => {
+const routerSwapTest = async (coin1: string, coin2: string) => {
     const amount = '1';
     const initialBalances = await curve.getBalances([coin1, coin2]) as string[];
 
-    const output = await curve.routerExchangeExpected(coin1, coin2, amount);
-    await curve.routerExchange(coin1, coin2, amount);
+    const output = await curve.router.expected(coin1, coin2, amount);
+    await curve.router.swap(coin1, coin2, amount);
 
     const balances = await curve.getBalances([coin1, coin2]) as string[];
 
@@ -24,7 +24,7 @@ const routerExchangeTest = async (coin1: string, coin2: string) => {
     assert.isAtLeast(Number(balances[1]), Number(BN(initialBalances[1]).plus(BN(output).times(0.99)).toString()));
 }
 
-describe('Router exchange', async function () {
+describe('Router swap', async function () {
     this.timeout(240000);
 
     before(async function () {
@@ -43,7 +43,7 @@ describe('Router exchange', async function () {
             if (coin1 !== coin2) {
                 it(`${coin1} --> ${coin2}`, async function () {
                     try {
-                        await routerExchangeTest(coin1, coin2);
+                        await routerSwapTest(coin1, coin2);
                     } catch (err: any) {
                         console.log(err.message);
                         assert.equal(err.message, "This pair can't be exchanged");

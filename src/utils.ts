@@ -1,10 +1,8 @@
 import axios from 'axios';
-import memoize from 'memoizee';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import { DictInterface, IStats } from './interfaces';
-import { curve, POOLS_DATA, LP_TOKENS, GAUGES } from "./curve";
-import { COINS, DECIMALS_LOWER_CASE } from "./curve";
+import { IDict } from './interfaces';
+import { curve } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
 
 
@@ -27,7 +25,27 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
     return ethers.utils.parseUnits(toStringFromBN(bn, decimals), decimals)
 }
 
+// Formatting numbers
+
+export const checkNumber = (n: number | string): number | string => {
+    if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
+
+    return n
+}
+
+export const formatNumber = (n: number | string, decimals = 18): string => {
+    if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
+    const [integer, fractional] = String(n).split(".");
+
+    return !fractional ? integer : integer + "." + fractional.slice(0, decimals);
+}
+
+export const parseUnits = (n: number | string, decimals = 18): ethers.BigNumber => {
+    return ethers.utils.parseUnits(formatNumber(n, decimals), decimals);
+}
+
 // -------------------
+
 
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
@@ -37,15 +55,12 @@ export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => 
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
     coins = coins as string[];
 
-    const coinAddresses = coins.map((c) => COINS[c.toLowerCase()] || c);
-    const availableAddresses = [
-        ...Object.keys(DECIMALS_LOWER_CASE).filter((c) => c !== COINS['snx']?.toLowerCase()),
-        ...LP_TOKENS,
-        ...GAUGES,
-    ];
+    const coinAddresses = coins.map((c) => c.toLowerCase()).map((c) => curve.constants.COINS[c] || c);
+    const availableAddresses = [...Object.keys(curve.constants.DECIMALS), ...curve.constants.GAUGES];
     for (const coinAddr of coinAddresses) {
-        if (!availableAddresses.includes(coinAddr.toLowerCase())) throw Error(`Coin with address '${coinAddr}' is not available`);
+        if (!availableAddresses.includes(coinAddr)) throw Error(`Coin with address '${coinAddr}' is not available`);
     }
+
     return coinAddresses
 }
 
@@ -53,10 +68,10 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
     if (coinAddresses.length == 1 && Array.isArray(coinAddresses[0])) coinAddresses = coinAddresses[0];
     coinAddresses = coinAddresses as string[];
 
-    return coinAddresses.map((coinAddr) => DECIMALS_LOWER_CASE[coinAddr.toLowerCase()] ?? 18);
+    return coinAddresses.map((coinAddr) => curve.constants.DECIMALS[coinAddr.toLowerCase()] ?? 18); // 18 for gauges
 }
 
-export const _getBalances = async (coins: string[], addresses: string[]): Promise<DictInterface<string[]>> => {
+export const _getBalances = async (coins: string[], addresses: string[]): Promise<IDict<string[]>> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
 
@@ -79,12 +94,12 @@ export const _getBalances = async (coins: string[], addresses: string[]): Promis
         _response.splice(ethIndex * addresses.length, 0, ...ethBalances);
     }
 
-    const _balances: DictInterface<ethers.BigNumber[]>  = {};
+    const _balances: IDict<ethers.BigNumber[]>  = {};
     addresses.forEach((address: string, i: number) => {
         _balances[address] = coins.map((_, j: number ) => _response[i + (j * addresses.length)]);
     });
 
-    const balances: DictInterface<string[]>  = {};
+    const balances: IDict<string[]>  = {};
     for (const address of addresses) {
         balances[address] = _balances[address].map((b, i: number ) => ethers.utils.formatUnits(b, decimals[i]));
     }
@@ -100,9 +115,9 @@ export const _prepareAddresses = (addresses: string[] | string[][]): string[] =>
     return addresses.filter((val, idx, arr) => arr.indexOf(val) === idx)
 }
 
-export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<DictInterface<string[]> | string[]> => {
+export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<IDict<string[]> | string[]> => {
     addresses = _prepareAddresses(addresses);
-    const balances: DictInterface<string[]> = await _getBalances(coins, addresses);
+    const balances: IDict<string[]> = await _getBalances(coins, addresses);
 
     return addresses.length === 1 ? balances[addresses[0]] : balances
 }
@@ -142,11 +157,11 @@ export const getAllowance = async (coins: string[], address: string, spender: st
 }
 
 // coins can be either addresses or symbols
-export const hasAllowance = async (coins: string[], amounts: string[], address: string, spender: string): Promise<boolean> => {
+export const hasAllowance = async (coins: string[], amounts: (number | string)[], address: string, spender: string): Promise<boolean> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
     const _allowance = await _getAllowance(coinAddresses, address, spender);
-    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+    const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
     return _allowance.map((a, i) => a.gte(_amounts[i])).reduce((a, b) => a && b);
 }
@@ -173,10 +188,10 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowanceEstimateGas = async (coins: string[], amounts: string[], spender: string): Promise<number> => {
+export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string): Promise<number> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
-    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+    const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     const address = curve.signerAddress;
     const allowance: ethers.BigNumber[] = await _getAllowance(coinAddresses, address, spender);
 
@@ -195,19 +210,20 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: strin
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowance = async (coins: string[], amounts: string[], spender: string): Promise<string[]> => {
+export const ensureAllowance = async (coins: string[], amounts: (number | string)[], spender: string): Promise<string[]> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
-    const _amounts = amounts.map((a, i) => ethers.utils.parseUnits(a, decimals[i]));
+    const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
     return await _ensureAllowance(coinAddresses, _amounts, spender)
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {
-    return Object.entries(POOLS_DATA).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
+    const poolsData = { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA, ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };
+    return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
-export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => {
+export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     const network = curve.chainId === 137 ? "polygon" : "ethereum";
     const promises = [
         _getPoolsFromApi(network, "main"),
@@ -216,7 +232,7 @@ export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => 
         _getPoolsFromApi(network, "factory-crypto"),
     ];
     const allTypesExtendedPoolData = await Promise.all(promises);
-    const priceDict: DictInterface<number> = {};
+    const priceDict: IDict<number> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
         for (const pool of extendedPoolData.poolData) {
@@ -233,12 +249,12 @@ export const _getUsdPricesFromApi = async (): Promise<DictInterface<number>> => 
     return priceDict
 }
 
-const _usdRatesCache: DictInterface<{ rate: number, time: number }> = {}
+const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export const _getUsdRate = async (assetId: string): Promise<number> => {
     const pricesFromApi = await _getUsdPricesFromApi();
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
 
-    if (assetId === 'USD' || (curve.chainId === 137 && (assetId.toLowerCase() === COINS.am3crv.toLowerCase()))) return 1
+    if (assetId === 'USD' || (curve.chainId === 137 && (assetId.toLowerCase() === curve.constants.COINS.am3crv.toLowerCase()))) return 1
 
     let chainName = {
         1: 'ethereum',
@@ -251,7 +267,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     }
 
     assetId = {
-        'EUR': COINS.eurt,
+        'EUR': curve.constants.COINS.eurt,
         'BTC': 'bitcoin',
         'ETH': 'ethereum',
         'LINK': 'link',
@@ -259,7 +275,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     assetId = isEth(assetId) ? "ethereum" : assetId.toLowerCase();
 
     // No EURT on Coingecko Polygon
-    if (assetId.toLowerCase() === COINS.eurt.toLowerCase()) {
+    if (assetId.toLowerCase() === curve.constants.COINS.eurt.toLowerCase()) {
         chainName = 'ethereum';
         assetId = '0xC581b735A1688071A1746c968e0798D642EDE491'.toLowerCase(); // EURT Ethereum
     }
@@ -278,105 +294,6 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 
     return _usdRatesCache[assetId]['rate']
 }
-
-export const _getFactoryStatsUrl = (): string => {
-    if (curve.chainId === 1 || curve.chainId === 1337) {
-        return "https://curve-api-hplkiejxx-curvefi.vercel.app/api/getSubgraphData";
-    } else if (curve.chainId === 137) {
-        return "https://api.curve.fi/api/getFactoryAPYs-polygon"
-    } else {
-        throw Error(`Unsupported network id${curve.chainId}`)
-    }
-}
-
-export const _getStatsUrl = (isCrypto = false): string => {
-    if (curve.chainId === 1 || curve.chainId === 1337) {
-        return isCrypto ? "https://stats.curve.fi/raw-stats-crypto/apys.json" : "https://stats.curve.fi/raw-stats/apys.json";
-    } else if (curve.chainId === 137) {
-        return "https://stats.curve.fi/raw-stats-polygon/apys.json"
-    } else {
-        throw Error(`Unsupported network id${curve.chainId}`)
-    }
-}
-
-export const _getStats = memoize(
-    async (statsUrl: string): Promise<IStats> => {
-        const rawData = (await axios.get(statsUrl)).data;
-
-        const data: IStats = {};
-        Object.keys(rawData.apy.day).forEach((poolName) => {
-            data[poolName] = {
-                volume: rawData.volume[poolName] ?? 0,
-                apy: {
-                    day: rawData.apy.day[poolName],
-                    week: rawData.apy.week[poolName],
-                    month: rawData.apy.month[poolName],
-                    total: rawData.apy.total[poolName],
-                },
-            }
-        })
-
-        return data
-    },
-    {
-        promise: true,
-        maxAge: 10 * 60 * 1000, // 10m
-    }
-)
-
-export const _getFactoryStatsEthereum = memoize(
-    async (statsUrl: string): Promise<IStats> => {
-        const rawData = (await axios.get(statsUrl)).data.data.poolList;
-        const data: IStats = {};
-        rawData.forEach((item: { address: string, volumeUSD: number, latestDailyApy: number | null, latestWeeklyApy: number | null }) => {
-            data[item.address.toLowerCase()] = {
-                volume: item.volumeUSD ?? 0,
-                apy: {
-                    day: item.latestDailyApy ?? 0,
-                    week: item.latestWeeklyApy ?? 0,
-                    month: item.latestWeeklyApy ?? 0,
-                    total: item.latestWeeklyApy ?? 0,
-                },
-            }
-        })
-
-        return data;
-    },
-    {
-        promise: true,
-        maxAge: 10 * 60 * 1000, // 10m
-    }
-)
-
-export const _getFactoryStatsPolygon = memoize(
-    async (statsUrl: string): Promise<IStats> => {
-        const rawData = (await axios.get(statsUrl)).data.data.poolDetails;
-        const data: IStats = {};
-        rawData.forEach((item: { poolAddress: string, volume: number, apy: number }) => {
-            data[item.poolAddress.toLowerCase()] = {
-                volume: item.volume ?? 0,
-                apy: {
-                    day: item.apy ?? 0,
-                    week: item.apy ?? 0,
-                    month: item.apy ?? 0,
-                    total: item.apy ?? 0,
-                },
-            }
-        })
-
-        return data;
-    },
-    {
-        promise: true,
-        maxAge: 10 * 60 * 1000, // 10m
-    }
-)
-
-export const getPoolList = (): string[] => Object.keys(POOLS_DATA);
-
-export const getFactoryPoolList = (): string[] => Object.keys(curve.constants.FACTORY_POOLS_DATA);
-
-export const getCryptoFactoryPoolList = (): string[] => Object.keys(curve.constants.CRYPTO_FACTORY_POOLS_DATA);
 
 export const getUsdRate = async (coin: string): Promise<number> => {
     const [coinAddress] = _getCoinAddresses(coin);

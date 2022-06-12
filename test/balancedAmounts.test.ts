@@ -1,5 +1,6 @@
 import { assert } from "chai";
-import { Pool } from "../src/pools";
+import { getPool } from "../src/pools/poolConstructor";
+import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { curve } from "../src/curve";
 
 
@@ -12,14 +13,14 @@ const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
-        let pool: Pool;
+        let pool: PoolTemplate;
 
         before(async function () {
-            pool = new Pool(name);
+            pool = getPool(name);
         });
 
         it('underlying', async function () {
-            const balancedAmounts = (await pool.balancedAmounts()).map(Number);
+            const balancedAmounts = (await pool.depositBalancedAmounts()).map(Number);
 
             assert.equal(balancedAmounts.length, pool.underlyingCoins.length);
             for (const amount of balancedAmounts) {
@@ -28,9 +29,9 @@ const balancedAmountsTest = (name: string) => {
         });
 
         it('wrapped', async function () {
-            const balancedWrappedAmounts = (await pool.balancedWrappedAmounts()).map(Number);
+            const balancedWrappedAmounts = (await pool.depositWrappedBalancedAmounts()).map(Number);
 
-            assert.equal(balancedWrappedAmounts.length, pool.coins.length);
+            assert.equal(balancedWrappedAmounts.length, pool.wrappedCoins.length);
             for (const amount of balancedWrappedAmounts) {
                 assert.isAbove(amount, 0);
             }

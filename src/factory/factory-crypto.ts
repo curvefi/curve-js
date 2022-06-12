@@ -1,9 +1,9 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve } from "../interfaces";
-import ERC20ABI from "../constants/abis/json/ERC20.json";
-import cryptoFactorySwapABI from "../constants/abis/json/factory-crypto/factory-crypto-pool-2.json";
-import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
+import { IDict, IPoolData, ICurve } from "../interfaces";
+import ERC20ABI from "../constants/abis/ERC20.json";
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
+import factoryGaugeABI from "../constants/abis/gauge_factory.json";
 
 const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 
@@ -23,7 +23,7 @@ async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve): Promise<[strin
         (addr, i) => ({ id: `factory-crypto-${i}`, address: addr.toLowerCase()})
     );
 
-    const swapAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
+    const swapAddresses = Object.values(this.constants.POOLS_DATA as IPoolData).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     factories = factories.filter((f) => !swapAddresses.includes(f.address));
 
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
@@ -123,12 +123,12 @@ async function getCryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddress
     return coinAddresses.map((coins: string[]) => coins.map((c) => c === WETH_ADDRESS ? "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" : c));
 }
 
-function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
-    const dict: DictInterface<string> = {}
-    for (const poolData of Object.values(this.constants.POOLS_DATA as DictInterface<PoolDataInterface>)) {
-        poolData.coin_addresses.forEach((addr, i) => {
+function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
+    const dict: IDict<string> = {}
+    for (const poolData of Object.values(this.constants.POOLS_DATA as IDict<IPoolData>)) {
+        poolData.wrapped_coin_addresses.forEach((addr, i) => {
             if (!(addr.toLowerCase() in dict)) {
-                dict[addr.toLowerCase()] = poolData.coins[i]
+                dict[addr.toLowerCase()] = poolData.wrapped_coins[i]
             }
         });
 
@@ -147,11 +147,11 @@ function getExistingCoinAddressNameDict(this: ICurve): DictInterface<string> {
 async function getCoinAddressNameDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddrNameDict: DictInterface<string>
-): Promise<DictInterface<string>> {
+    existingCoinAddrNameDict: IDict<string>
+): Promise<IDict<string>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<string> = {};
+    const coinAddrNamesDict: IDict<string> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
@@ -179,11 +179,11 @@ async function getCoinAddressNameDict(
 async function getCoinAddressDecimalsDict(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddressDecimalsDict: DictInterface<number>
-): Promise<DictInterface<number>> {
+    existingCoinAddressDecimalsDict: IDict<number>
+): Promise<IDict<number>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: DictInterface<number> = {};
+    const coinAddrNamesDict: IDict<number> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddressDecimalsDict) {
@@ -201,22 +201,19 @@ async function getCoinAddressDecimalsDict(
 
     newCoinAddresses.forEach((addr, i) => {
         coinAddrNamesDict[addr] = decimals[i];
-        existingCoinAddressDecimalsDict[addr] = decimals[i];  // Add to DECIMALS_LOWER_CASE TODO move to another place
     });
 
     return coinAddrNamesDict
 }
 
 
-export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterface<PoolDataInterface>> {
+export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = await getCryptoFactoryIdsAndSwapAddresses.call(this);
     setCryptoFactorySwapContracts.call(this, swapAddresses);
     const tokenAddresses = await getCryptoFactoryTokenAddresses.call(this, swapAddresses);
     setCryptoFactoryTokenContracts.call(this, tokenAddresses);
-    this.constants.LP_TOKENS.push(...tokenAddresses); // TODO move to another place
     const gaugeAddresses = await getCryptoFactoryGaugeAddresses.call(this, swapAddresses);
     setCryptoFactoryGaugeContracts.call(this, gaugeAddresses);
-    this.constants.GAUGES.push(...gaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero));  // TODO move to another place
     const [poolSymbols, poolNames] = await getCryptoFactorySymbolsAndNames.call(this, tokenAddresses);
     const coinAddresses = await getCryptoFactoryCoinAddresses.call(this, swapAddresses);
     setCryptoFactoryCoinsContracts.call(this, coinAddresses);
@@ -224,34 +221,31 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<DictInterf
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
     coinAddressNameDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 'ETH';
-    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS_LOWER_CASE);
+    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
     coinAddressDecimalsDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 18;
 
 
-    const CRYPTO_FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
+    // TODO add reward_tokens and reward_decimals
+    const CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
         CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
             name: poolNames[i].split(": ")[1].trim(),
             full_name: poolNames[i],
             symbol: poolSymbols[i],
             reference_asset: "CRYPTO",
-            N_COINS: coinAddresses[i].length,
-            is_crypto: true,
-            underlying_decimals: underlyingCoinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-            decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
-            use_lending: coinAddresses[i].map(() => false),
-            is_plain: coinAddresses[i].map(() => true),
-            underlying_coins: underlyingCoinAddresses[i].map((addr) => coinAddressNameDict[addr]),
-            coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
             swap_address: swapAddresses[i],
             token_address: tokenAddresses[i],
             gauge_address: gaugeAddresses[i],
+            is_crypto: true,
+            is_factory: true,
+            underlying_coins: underlyingCoinAddresses[i].map((addr) => coinAddressNameDict[addr]),
+            wrapped_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
             underlying_coin_addresses: underlyingCoinAddresses[i],
-            coin_addresses: coinAddresses[i],
+            wrapped_coin_addresses: coinAddresses[i],
+            underlying_decimals: underlyingCoinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
+            wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
             swap_abi: cryptoFactorySwapABI,
             gauge_abi: factoryGaugeABI,
-            is_factory: true,
-            is_crypto_factory: true,
         };
     }
 

@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { DictInterface, PoolDataInterface, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
-import factoryGaugeABI from "../constants/abis/json/gauge_factory.json";
-import factoryDepositABI from "../constants/abis/json/factoryPools/deposit.json";
-import ERC20ABI from "../constants/abis/json/ERC20.json";
-import MetaUsdZapPolygonABI from "../constants/abis/json/factory-v2/DepositZapMetaUsdPolygon.json";
-import MetaBtcZapPolygonABI from "../constants/abis/json/factory-v2/DepositZapMetaBtcPolygon.json";
-import cryptoFactorySwapABI from "../constants/abis/json/factory-crypto/factory-crypto-pool-2.json";
+import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
+import factoryGaugeABI from "../constants/abis/gauge_factory.json";
+import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
+import ERC20ABI from "../constants/abis/ERC20.json";
+import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json";
+import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
 import {
     implementationABIDictEthereum,
     implementationABIDictPolygon,
@@ -44,7 +44,6 @@ function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], 
                 contract: new Contract(addr, implementationABIDict[pool.implementationAddress], this.signer || this.provider),
                 multicallContract: new MulticallContract(addr, implementationABIDict[pool.implementationAddress]),
             }
-            this.constants.LP_TOKENS.push(addr);
         });
     }
 }
@@ -56,7 +55,6 @@ function setCryptoFactoryTokenContracts(this: ICurve, rawPoolList: IPoolDataFrom
             contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
             multicallContract: new MulticallContract(addr, ERC20ABI),
         }
-        this.constants.LP_TOKENS.push(addr);
     });
 }
 
@@ -68,7 +66,6 @@ function setFactoryGaugeContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
                 contract: new Contract(addr, factoryGaugeABI, this.signer || this.provider),
                 multicallContract: new MulticallContract(addr, factoryGaugeABI),
             }
-            this.constants.GAUGES.push(addr);
         }
     });
 }
@@ -83,8 +80,6 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
                 contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
                 multicallContract: new MulticallContract(addr, ERC20ABI),
             }
-
-            this.constants.DECIMALS_LOWER_CASE[addr] = Number(coin.decimals);
         }
     }
 }
@@ -99,8 +94,6 @@ function setFactoryRewardCoinsContracts(this: ICurve, rawPoolList: IPoolDataFrom
                 contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
                 multicallContract: new MulticallContract(addr, ERC20ABI),
             }
-
-            this.constants.DECIMALS_LOWER_CASE[addr] = Number(rewardCoin.decimals);
         }
     }
 }
@@ -126,14 +119,14 @@ function setFactoryZapContracts(this: ICurve): void {
     }
 }
 
-export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<DictInterface<PoolDataInterface>> {
+export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<IDict<IPoolData>> {
     const network = this.chainId === 137 ? "polygon" : "ethereum";
     const factoryType = isCrypto ? "factory-crypto" : "factory";
     const url = `https://api.curve.fi/api/getPools/${network}/${factoryType}`;
     const response = await axios.get(url);
     let rawPoolList: IPoolDataFromApi[] = response.data.data.poolData;
     // Filter duplications
-    const mainAddresses = Object.values(this.constants.POOLS_DATA as PoolDataInterface).map((pool: PoolDataInterface) => pool.swap_address.toLowerCase());
+    const mainAddresses = Object.values(this.constants.POOLS_DATA as IPoolData).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address.toLowerCase()));
 
     setFactorySwapContracts.call(this, rawPoolList, isCrypto);
@@ -143,7 +136,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     setFactoryRewardCoinsContracts.call(this, rawPoolList);
     if (!isCrypto) setFactoryZapContracts.call(this);
 
-    const FACTORY_POOLS_DATA: DictInterface<PoolDataInterface> = {};
+    const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     rawPoolList.forEach((pool) => {
         const coinAddresses = pool.coins.map((c) => c.address.toLowerCase());
         const coinNames = pool.coins.map((c) => c.symbol);
@@ -159,24 +152,21 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: "CRYPTO",
-                N_COINS: coinAddresses.length,
-                is_crypto: true,
-                underlying_decimals: coinDecimals,
-                decimals: coinDecimals,
-                use_lending: coinAddresses.map(() => false),
-                is_plain: coinAddresses.map(() => true),
-                underlying_coins: underlyingCoinNames,
-                coins: cryptoCoinNames,
                 swap_address: pool.address.toLowerCase(),
                 token_address: (pool.lpTokenAddress as string).toLowerCase(),
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
+                is_crypto: true,
+                is_factory: true,
+                underlying_coins: underlyingCoinNames,
+                wrapped_coins: cryptoCoinNames,
                 underlying_coin_addresses: underlyingCoinAddresses,
-                coin_addresses: coinAddresses,
+                wrapped_coin_addresses: coinAddresses,
+                underlying_decimals: coinDecimals,
+                wrapped_decimals: coinDecimals,
                 reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
+                reward_decimals: (pool.gaugeRewards ?? []).map((r) => r.decimals as number),
                 swap_abi: cryptoFactorySwapABI,
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_crypto_factory: true,
             };
         } else if (pool.implementation.startsWith("meta")) {
             const implementationABIDict = this.chainId === 137 ? implementationABIDictPolygon : implementationABIDictEthereum;
@@ -198,28 +188,23 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
-                N_COINS: coinAddresses.length,
-                underlying_decimals: coinDecimals,
-                decimals: coinDecimals,
-                use_lending: coinAddresses.map(() => false),
-                is_plain: coinAddresses.map(() => true),
                 swap_address: pool.address.toLowerCase(),
                 token_address: pool.address.toLowerCase(),
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
+                deposit_address: basePoolZap,
+                is_meta: true,
+                is_factory: true,
+                base_pool: basePoolAddressNameDict[basePoolAddress],
                 underlying_coins: [coinNames[0], ...basePoolCoinNames],
-                coins: coinNames,
-                underlying_coin_addresses: coinAddresses,
-                coin_addresses: coinAddresses,
+                wrapped_coins: coinNames,
+                underlying_coin_addresses: [coinAddresses[0], ...basePoolCoinAddresses],
+                wrapped_coin_addresses: coinAddresses,
+                underlying_decimals: [coinDecimals[0], ...basePoolDecimals],
+                wrapped_decimals: coinDecimals,
                 reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
+                reward_decimals: (pool.gaugeRewards ?? []).map((r) => r.decimals as number),
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_meta_factory: true,
-                is_meta: true,
-                base_pool: basePoolAddressNameDict[basePoolAddress],
-                meta_coin_addresses: basePoolCoinAddresses,
-                meta_coin_decimals: [coinDecimals[0], ...basePoolDecimals],
-                deposit_address: basePoolZap,
                 deposit_abi: factoryDepositABI,
             };
         } else {
@@ -230,23 +215,21 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
-                N_COINS: coinAddresses.length,
-                underlying_decimals: coinDecimals,
-                decimals: coinDecimals,
-                use_lending: coinAddresses.map(() => false),
-                is_plain: coinAddresses.map(() => true),
                 swap_address: pool.address.toLowerCase(),
                 token_address: pool.address.toLowerCase(),
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
+                is_plain: true,
+                is_factory: true,
                 underlying_coins: coinNames,
-                coins: coinNames,
+                wrapped_coins: coinNames,
                 underlying_coin_addresses: coinAddresses,
-                coin_addresses: coinAddresses,
+                wrapped_coin_addresses: coinAddresses,
+                underlying_decimals: coinDecimals,
+                wrapped_decimals: coinDecimals,
                 reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
+                reward_decimals: (pool.gaugeRewards ?? []).map((r) => r.decimals as number),
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: factoryGaugeABI,
-                is_factory: true,
-                is_plain_factory: true,
             };
         }
     })

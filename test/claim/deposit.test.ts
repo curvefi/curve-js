@@ -1,5 +1,5 @@
 import curve from "../../src";
-import {DictInterface} from "../../lib/interfaces";
+import {IDict} from "../../src/interfaces";
 
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
@@ -13,13 +13,11 @@ const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
     await curve.init('JsonRpc', {},{ gasPrice: 0 });
 
     for (const poolName of ['susd']) {
-        const pool = new curve.Pool(poolName);
+        const pool = curve.getPool(poolName);
         const amounts = pool.underlyingCoinAddresses.map(() => '10');
 
-        await pool.addLiquidity(amounts);
+        await pool.depositAndStake(amounts);
 
-        const depositAmount: string = (await pool.lpTokenBalances() as DictInterface<string>).lpToken;
-        await pool.gaugeDeposit(depositAmount);
-        console.log(`Deposited ${depositAmount} LP tokens to ${poolName.toUpperCase()} gauge`);
+        console.log(`Deposited LP tokens to ${poolName.toUpperCase()} gauge`);
     }
 })()

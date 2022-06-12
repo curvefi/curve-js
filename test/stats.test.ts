@@ -1,27 +1,30 @@
 import { assert } from "chai";
 import curve from "../src/";
-import { Pool } from "../src/pools";
-import {ethers} from "ethers";
+import { getPool, PoolTemplate } from "../src/pools";
+import { IReward } from "../src/interfaces";
+import { ethers } from "ethers";
+
 
 const MAIN_POOLS_ETHEREUM = [
-    'compound', 'usdt',   'y',          'busd',
-    'susd',     'pax',    'ren',        'sbtc',
-    'hbtc',     '3pool',  'gusd',       'husd',
-    'usdk',     'usdn',   'musd',       'rsv',
-    'tbtc',     'dusd',   'pbtc',       'bbtc',
-    'obtc',     'seth',   'eurs',       'ust',
-    'aave',     'steth',  'saave',      'ankreth',
-    'usdp',     'ib',     'link',       'tusd',
-    'frax',     'lusd',   'busdv2',     'reth',
-    'alusd',    'mim',    'tricrypto2', 'eurt',
-    'eurtusd',  'crveth', 'cvxeth',     'xautusd',
-    'spelleth', 'teth',
+    'compound', 'usdt',    'y',          'busd',
+    'susd',     'pax',     'ren',        'sbtc',
+    'hbtc',     '3pool',   'gusd',       'husd',
+    'usdk',     'usdn',    'musd',       'rsv',
+    'tbtc',     'dusd',    'pbtc',       'bbtc',
+    'obtc',     'seth',    'eurs',       'ust',
+    'aave',     'steth',   'saave',      'ankreth',
+    'usdp',     'ib',      'link',       'tusd',
+    'frax',     'lusd',    'busdv2',     'reth',
+    'alusd',    'mim',     'tricrypto2', 'eurt',
+    'eurtusd',  'eursusd', 'crveth',     'rai',
+    'cvxeth',   'xautusd', 'spelleth',   'teth',
+    '2pool',    '4pool',
 ];
-const FACTORY_POOLS_COUNT_ETHEREUM = 104;
-const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 38;
+const FACTORY_POOLS_COUNT_ETHEREUM = 127;
+const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 63;
 
 const MAIN_POOLS_POLYGON = [ 'aave', 'ren', 'atricrypto3', 'eurtusd' ];
-const FACTORY_POOLS_COUNT_POLYGON = 213;
+const FACTORY_POOLS_COUNT_POLYGON = 263;
 
 
 const checkNumber = (str: string) => {
@@ -32,32 +35,30 @@ const checkNumber = (str: string) => {
 
 const poolStatsTest = (name: string) => {
     describe(`${name} stats test`, function () {
-        let pool: Pool;
+        let pool: PoolTemplate;
 
         before(async function () {
-            pool = new Pool(name);
+            pool = getPool(name);
         });
 
 
         it('Total liquidity', async function () {
-            const totalLiquidity = await pool.stats.getTotalLiquidity();
+            const totalLiquidity = await pool.stats.totalLiquidity();
 
             assert.isTrue(checkNumber(totalLiquidity));
         });
 
         it('Volume', async function () {
-            const volume = await pool.stats.getVolume();
+            const volume = await pool.stats.volume();
 
             assert.isTrue(checkNumber(volume));
         });
 
         it('Base APY', async function () {
-            const apy = await pool.stats.getBaseApy();
+            const apy = await pool.stats.baseApy();
 
             assert.isTrue(checkNumber(apy.day));
             assert.isTrue(checkNumber(apy.week));
-            assert.isTrue(checkNumber(apy.month));
-            assert.isTrue(checkNumber(apy.total));
         });
 
         it('Token APY', async function () {
@@ -66,17 +67,17 @@ const poolStatsTest = (name: string) => {
                 return
             }
 
-            const [apy, boostedApy] = await pool.stats.getTokenApy();
+            const [apy, boostedApy] = await pool.stats.tokenApy();
 
             assert.isTrue(checkNumber(apy));
             assert.isTrue(checkNumber(boostedApy));
         });
 
         it('Rewards APY', async function () {
-            const rewardsApy = await pool.stats.getRewardsApy();
+            const rewardsApy = await pool.stats.rewardsApy();
 
-            rewardsApy.forEach((item: { apy: string }) => {
-                assert.isTrue(checkNumber(item.apy));
+            rewardsApy.forEach((item: IReward) => {
+                assert.isTrue(checkNumber(String(item.apy)));
             })
         });
     })

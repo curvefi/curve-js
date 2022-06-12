@@ -1,4 +1,4 @@
-import { IExtendedPoolDataFromApi, IReward, DictInterface } from "./interfaces";
+import { IExtendedPoolDataFromApi, ISubgraphPoolData, IReward, IDict } from "./interfaces";
 import axios from "axios";
 import memoize from "memoizee";
 
@@ -14,7 +14,19 @@ export const _getPoolsFromApi = memoize(
     }
 )
 
-export const _getMainPoolsGaugeRewards = memoize(async (): Promise<DictInterface<IReward[]>> => {
+export const _getSubgraphData = memoize(
+    async (network: "ethereum" | "polygon"): Promise<ISubgraphPoolData[]> => {
+        const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
+        const response = await axios.get(url, { validateStatus: () => true });
+        return response.data.data.poolList ?? [];
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
+
+export const _getMainPoolsGaugeRewards = memoize(async (): Promise<IDict<IReward[]>> => {
     const url = "https://api.curve.fi/api/getMainPoolsGaugeRewards";
     const response = await axios.get(url, { validateStatus: () => true });
     return response.data.data.mainPoolsGaugeRewards;

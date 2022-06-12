@@ -55,10 +55,10 @@ export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => 
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
     coins = coins as string[];
 
-    const coinAddresses = coins.map((c) => curve.constants.COINS[c.toLowerCase()] || c);
+    const coinAddresses = coins.map((c) => c.toLowerCase()).map((c) => curve.constants.COINS[c] || c);
     const availableAddresses = [...Object.keys(curve.constants.DECIMALS), ...curve.constants.GAUGES];
     for (const coinAddr of coinAddresses) {
-        if (!availableAddresses.includes(coinAddr.toLowerCase())) throw Error(`Coin with address '${coinAddr}' is not available`);
+        if (!availableAddresses.includes(coinAddr)) throw Error(`Coin with address '${coinAddr}' is not available`);
     }
 
     return coinAddresses

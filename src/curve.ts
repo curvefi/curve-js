@@ -360,7 +360,7 @@ class Curve implements ICurve {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
         }
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = { ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
     }
 
     async fetchCryptoFactoryPools(useApi = true): Promise<void> {
@@ -372,7 +372,7 @@ class Curve implements ICurve {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = { ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
     }
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {

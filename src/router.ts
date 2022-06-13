@@ -452,10 +452,10 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
-    // Find k for which x * k = 10^6 or y * k = 10^6: k = max(1000000 / x, 1000000/y)
-    // For coins with d (decimals) <= 6: k = min(k, 0.2), and x0 = min(x * k. 10^d)
-    // x0 = min(x * min(max(1000000 / x, 1000000/y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-    const target = BN(1000000);
+    // Find k for which x * k = 10^12 or y * k = 10^12: k = max(10^12 / x, 10^12 / y)
+    // For coins with d (decimals) <= 12: k = min(k, 0.2), and x0 = min(x * k. 10^d)
+    // x0 = min(x * min(max(10^12 / x, 10^12 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
+    const target = BN(10 ** 12);
     const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
     const outputIntBN = toBN(route._output, 0);
     const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);

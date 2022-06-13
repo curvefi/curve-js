@@ -5,6 +5,7 @@ import { getPoolList, getFactoryPoolList, getCryptoFactoryPoolList, getUserPoolL
 import {
     getBestRouteAndOutput,
     swapExpected,
+    swapPriceImpact,
     swapIsApproved,
     swapApproveEstimateGas,
     swapApprove,
@@ -107,6 +108,7 @@ const curve = {
     router: {
         getBestRouteAndOutput,
         expected: swapExpected,
+        priceImpact: swapPriceImpact,
         isApproved: swapIsApproved,
         approve: swapApprove,
         swap,

@@ -16,6 +16,8 @@ import {
     checkNumber,
     parseUnits,
     getEthIndex,
+    fromBN,
+    _cutZeros,
 } from '../utils';
 import {
     IDict,
@@ -1219,6 +1221,39 @@ export class PoolTemplate {
         const _expected = await this._swapExpected(i, j, _amount);
 
         return ethers.utils.formatUnits(_expected, this.underlyingDecimals[j])
+    }
+
+    public async swapPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<string> {
+        const i = this._getCoinIdx(inputCoin);
+        const j = this._getCoinIdx(outputCoin);
+        const _amount = parseUnits(amount, this.underlyingDecimals[i]);
+        const _output = await this._swapExpected(i, j, _amount);
+        const [inputCoinDecimals, outputCoinDecimals] = [this.underlyingDecimals[i], this.underlyingDecimals[j]];
+
+        // Find k for which x * k = 10^6 or y * k = 10^6: k = max(1000000 / x, 1000000/y)
+        // For coins with d (decimals) <= 6: k = min(k, 0.2), and x0 = min(x * k. 10^d)
+        // x0 = min(x * min(max(1000000 / x, 1000000/y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
+        const target = BN(1000000);
+        const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
+        const outputIntBN = toBN(_output, 0);
+        const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);
+        const smallAmountIntBN = BigNumber.min(amountIntBN.times(k), BN(10 ** inputCoinDecimals));
+        if (smallAmountIntBN.toFixed(0) === '0') return '0';
+
+
+        const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
+        const _smallOutput = await this._swapExpected(i, j, _smallAmount);
+
+        const amountBN = BN(amount);
+        const outputBN = toBN(_output, outputCoinDecimals);
+        const smallAmountBN = toBN(_smallAmount, inputCoinDecimals);
+        const smallOutputBN = toBN(_smallOutput, outputCoinDecimals);
+
+        const rateBN = outputBN.div(amountBN);
+        const smallRateBN = smallOutputBN.div(smallAmountBN);
+        const slippageBN = BN(1).minus(rateBN.div(smallRateBN)).times(100);
+
+        return _cutZeros(slippageBN.toFixed(6)).replace('-', '')
     }
 
     private _swapContractAddress(): string {

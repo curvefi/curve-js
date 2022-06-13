@@ -27,6 +27,10 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 
 // Formatting numbers
 
+export const _cutZeros = (strn: string): string => {
+    return strn.replace(/0+$/gi, '').replace(/\.$/gi, '');
+}
+
 export const checkNumber = (n: number | string): number | string => {
     if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
 

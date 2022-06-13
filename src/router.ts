@@ -1,7 +1,9 @@
-// TODO make working or remove
-import { IDict, IRoute, IRouteStep, IPoolData } from "./interfaces";
-import { curve } from "./curve";
+import axios from "axios";
+import memoize from "memoizee";
+import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
+import { curve } from "./curve";
+import { IDict, IRoute, IRouteStep, IPoolData } from "./interfaces";
 import {
     _getCoinAddresses,
     _getCoinDecimals,
@@ -12,13 +14,13 @@ import {
     hasAllowance,
     isEth,
     toBN,
+    BN,
     parseUnits,
+    _cutZeros,
 } from "./utils";
-import memoize from "memoizee";
-import axios from "axios";
-import BigNumber from "bignumber.js";
 import { getPool } from "./pools";
 
+// TODO make working or remove
 const IMBALANCED_POOLS: string[] = [];
 
 // Inspired by Dijkstra's algorithm
@@ -358,16 +360,6 @@ const _getBestRouteAndOutput = memoize(
         );
         const routes: IRoute[] = [];
 
-        const calls = [];
-        const promises = [];
-        const multicallContract = curve.contracts[curve.constants.ALIASES.registry_exchange].multicallContract;
-        const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
-        for (const route of routesRaw) {
-            const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
-            calls.push(multicallContract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses));
-            promises.push(contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
-        }
-
         try {
             const calls = [];
             const multicallContract = curve.contracts[curve.constants.ALIASES.registry_exchange].multicallContract;
@@ -453,6 +445,38 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
 
 export const swapExpected = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<string> => {
     return (await getBestRouteAndOutput(inputCoin, outputCoin, amount))['output'];
+}
+
+export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<string> => {
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
+    const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+
+    // Find k for which x * k = 10^12 or y * k = 10^12: k = max(10^12 / x, 10^12 / y)
+    // For coins with d (decimals) <= 12: k = min(k, 0.2), and x0 = min(x * k. 10^d)
+    // x0 = min(x * min(max(10^12 / x, 10^12 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
+    const target = BN(10 ** 12);
+    const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
+    const outputIntBN = toBN(route._output, 0);
+    const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);
+    const smallAmountIntBN = BigNumber.min(amountIntBN.times(k), BN(10 ** inputCoinDecimals));
+    if (smallAmountIntBN.toFixed(0) === '0') return '0';
+
+    const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+    const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
+    const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
+    const _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
+
+    const amountBN = BN(amount);
+    const outputBN = toBN(route._output, outputCoinDecimals);
+    const smallAmountBN = toBN(_smallAmount, inputCoinDecimals);
+    const smallOutputBN = toBN(_smallOutput, outputCoinDecimals);
+
+    const rateBN = outputBN.div(amountBN);
+    const smallRateBN = smallOutputBN.div(smallAmountBN);
+    const slippageBN = BN(1).minus(rateBN.div(smallRateBN)).times(100);
+
+    return _cutZeros(slippageBN.toFixed(6)).replace('-', '')
 }
 
 export const swapIsApproved = async (inputCoin: string, amount: number | string): Promise<boolean> => {

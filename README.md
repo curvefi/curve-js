@@ -126,6 +126,13 @@ const WalletProvider: FunctionComponent = ({ children }) => {
     ...
 ```
 
+## Notes
+- 1 Amounts can be passed in args either as numbers or strings.
+- 2 depositOrWithdraw**Bonus** and swap**PriceImpact** methods return %, e. g. 0 < bonus/priceImpact <= 100
+- 3 Slippage arg should be passed as %, e. g. 0 < slippage <= 100
+
+
+
 ## General methods
 ```ts
 import curve from "@curvefi/api";
@@ -814,6 +821,11 @@ import curve from "@curvefi/api";
     // OR const underlyingExpected = await pool.swapExpected(0, 1, '10');
     console.log(underlyingExpected);
     // 9.984619933234026875
+    const underlyingPriceImpact = await pool.swapPriceImpact('MIM','DAI', 10);
+    // OR const underlyingPriceImpact = await pool.swapPriceImpact('0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '10');
+    // OR const underlyingPriceImpact = await pool.swapPriceImpact(0, 1, '10');
+    console.log(underlyingPriceImpact);
+    // 0.000026 (as %)
     await pool.swapIsApproved('MIM', 10);
     // true
     await pool.swapApprove('MIM', 10);
@@ -846,6 +858,11 @@ import curve from "@curvefi/api";
     // OR const wrappedExpected = await pool.swapWrappedExpected(1, 0, '10');
     console.log(wrappedExpected);
     // 10.217756467720521951
+    const wrappedPriceImpact = await pool.swapWrappedPriceImpact('3crv','MIM', 10);
+    // OR const wrappedPriceImpact = await pool.swapWrappedPriceImpact('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '10');
+    // OR const wrappedPriceImpact = await pool.swapWrappedPriceImpact(1, 0, '10');
+    console.log(wrappedPriceImpact);
+    // 0.000081 (as %)
     await pool.swapWrappedIsApproved('3crv', 10);
     // true
     await pool.swapWrappedApprove('3crv', 10);
@@ -868,7 +885,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     
-    const pool = new curve.Pool('compound');
+    const pool = curve.getPool('compound');
     const amounts = [1000, 1000];
 
     
@@ -918,7 +935,7 @@ import curve from "@curvefi/api";
 
     await pool.depositAndStakeWrappedExpected(amounts);
     // 40.328408669183101673
-    await pool.depositAndStakeWrappedPriceImpact(amounts);
+    await pool.depositAndStakeWrappedBonus(amounts);
     // 0.46040576921447873
     await pool.depositAndStakeWrappedIsApproved(amounts);
     // false
@@ -951,11 +968,13 @@ import curve from "@curvefi/api";
     // [ '9900.0', '100049.744832225238317557' ]
 
     const { route, output } = await curve.router.getBestRouteAndOutput('DAI', 'CRV', '1000');
-    // OR await curve.router.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    // OR await curve.router.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     const expected = await curve.router.expected('DAI', 'CRV', '1000');
-    // OR await curve.router.expected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    // OR await curve.router.expected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
+    const priceImpact = await curve.router.priceImpact('DAI', 'CRV', '1000');
+    // OR await curve.router.priceImpact('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
 
-    route, output, expected;
+    console.log(route, output, expected, priceImpact);
     // route = [
     //     {
     //         poolId: '3pool',
@@ -987,7 +1006,9 @@ import curve from "@curvefi/api";
     // ]
     // 
     // output = expected = 378.881631202862354937
-
+    // 
+    // priceImpact = 0.158012 %
+    
     await curve.router.isApproved('DAI', 1000);
     // false
     await curve.router.approve('DAI', 1000);
@@ -995,7 +1016,7 @@ import curve from "@curvefi/api";
     //     '0xc111e471715ae6f5437e12d3b94868a5b6542cd7304efca18b5782d315760ae5'
     // ]
     const swapTx = await curve.router.swap('DAI', 'CRV', '1000');
-    // OR const swapTx = await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    // OR const swapTx = await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     console.log(swapTx);
     // 0xc7ba1d60871c0295ac5471bb602c37ec0f00a71543b3a041308ebd91833f26ba
 

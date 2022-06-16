@@ -4,7 +4,7 @@ import { Provider as MulticallProvider, Contract as MulticallContract } from 'et
 import { getFactoryPoolData } from "./factory/factory";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto";
-import {IPoolData, IDict, ICurve} from "./interfaces";
+import { IPoolData, IDict, ICurve, INetworkName } from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json';
 import cERC20Abi from './constants/abis/cERC20.json';
 import yERC20Abi from './constants/abis/yERC20.json';
@@ -18,14 +18,17 @@ import registryExchangeABI from './constants/abis/registry_exchange.json';
 import streamerABI from './constants/abis/streamer.json';
 import factoryABI from './constants/abis/factory.json';
 import cryptoFactoryABI from './constants/abis/factory-crypto.json';
-import { POOLS_DATA_ETHEREUM, POOLS_DATA_POLYGON } from './constants/pools';
+import { POOLS_DATA_ETHEREUM, POOLS_DATA_POLYGON, POOLS_DATA_AVALANCHE } from './constants/pools';
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon";
-import { ALIASES_ETHEREUM, ALIASES_POLYGON } from "./constants/aliases";
+import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
+import { ALIASES_ETHEREUM, ALIASES_POLYGON, ALIASES_AVALANCHE } from "./constants/aliases";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
-const CONSTANTS: { [index: number]: any } = {
+
+export const NETWORK_CONSTANTS: { [index: number]: any } = {
     1: {
+        NAME: 'ethereum',
         ALIASES: ALIASES_ETHEREUM,
         POOLS_DATA: POOLS_DATA_ETHEREUM,
         COINS: COINS_ETHEREUM,
@@ -35,6 +38,7 @@ const CONSTANTS: { [index: number]: any } = {
         aTokens: aTokensEthereum,
     },
     137: {
+        NAME: 'polygon',
         ALIASES: ALIASES_POLYGON,
         POOLS_DATA: POOLS_DATA_POLYGON,
         COINS: COINS_POLYGON,
@@ -42,6 +46,16 @@ const CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensPolygon,
         ycTokens: ycTokensPolygon,
         aTokens: aTokensPolygon,
+    },
+    43114: {
+        NAME: 'avalanche',
+        ALIASES: ALIASES_AVALANCHE,
+        POOLS_DATA: POOLS_DATA_AVALANCHE,
+        COINS: COINS_AVALANCHE,
+        cTokens: cTokensAvalanche,
+        yTokens: yTokensAvalanche,
+        ycTokens: ycTokensAvalanche,
+        aTokens: aTokensAvalanche,
     },
 }
 
@@ -56,6 +70,7 @@ class Curve implements ICurve {
     constantOptions: { gasLimit: number };
     options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
     constants: {
+        NETWORK_NAME: INetworkName,
         ALIASES: IDict<string>,
         POOLS_DATA: IDict<IPoolData>,
         FACTORY_POOLS_DATA: IDict<IPoolData>,
@@ -79,6 +94,7 @@ class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.constants ={
+            NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
             FACTORY_POOLS_DATA: {},
@@ -107,6 +123,7 @@ class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.constants ={
+            NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
             FACTORY_POOLS_DATA: {},
@@ -154,16 +171,17 @@ class Curve implements ICurve {
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", network);
         this.chainId = network.chainId === 1337 ? 1 : network.chainId;
 
-        this.constants.ALIASES = CONSTANTS[this.chainId].ALIASES;
-        this.constants.POOLS_DATA = CONSTANTS[this.chainId].POOLS_DATA;
-        this.constants.COINS = CONSTANTS[this.chainId].COINS;
+        this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
+        this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
+        this.constants.POOLS_DATA = NETWORK_CONSTANTS[this.chainId].POOLS_DATA;
+        this.constants.COINS = NETWORK_CONSTANTS[this.chainId].COINS;
         this.constants.DECIMALS = extractDecimals(this.constants.POOLS_DATA);
         this.constants.GAUGES = extractGauges(this.constants.POOLS_DATA);
         const [cTokens, yTokens, ycTokens, aTokens] = [
-            CONSTANTS[this.chainId].cTokens,
-            CONSTANTS[this.chainId].yTokens,
-            CONSTANTS[this.chainId].ycTokens,
-            CONSTANTS[this.chainId].aTokens,
+            NETWORK_CONSTANTS[this.chainId].cTokens,
+            NETWORK_CONSTANTS[this.chainId].yTokens,
+            NETWORK_CONSTANTS[this.chainId].ycTokens,
+            NETWORK_CONSTANTS[this.chainId].aTokens,
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
 

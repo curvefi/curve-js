@@ -253,7 +253,7 @@ export class PoolTemplate {
 
     private statsTotalLiquidity = async (useApi = true): Promise<string> => {
         if (useApi) {
-            const network = curve.chainId === 137 ? "polygon" : "ethereum";
+            const network = curve.constants.NETWORK_NAME;
             const poolType = !this.isFactory && !this.isCrypto ? "main" :
                 !this.isFactory ? "crypto" :
                 !(this.isCrypto && this.isFactory) ? "factory" :
@@ -281,7 +281,7 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
-        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const network = curve.constants.NETWORK_NAME;
         const poolsData = (await _getSubgraphData(network));
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
@@ -291,7 +291,7 @@ export class PoolTemplate {
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const network = curve.constants.NETWORK_NAME;
         const poolsData = (await _getSubgraphData(network));
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
@@ -305,7 +305,7 @@ export class PoolTemplate {
 
     private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (curve.chainId === 137) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
+        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
 
         const gaugeContract = curve.contracts[this.gauge].multicallContract;
         const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
@@ -356,7 +356,7 @@ export class PoolTemplate {
             return apy
         }
 
-        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const network = curve.constants.NETWORK_NAME;
         const promises = [
             _getMainPoolsGaugeRewards(),
             _getPoolsFromApi(network, "main"),

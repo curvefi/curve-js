@@ -23,7 +23,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     class Pool extends PoolTemplate {}
 
     // statsBalances
-    if (poolId === "atricrypto3") {
+    if (poolDummy.isFake) {
         Object.assign(Pool.prototype, poolBalancesAtricrypto3Mixin);
     } else if (poolDummy.isMeta) {
         Object.assign(Pool.prototype, poolBalancesMetaMixin);
@@ -77,7 +77,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // withdrawExpected
-    if (poolId === 'atricrypto3') {
+    if (poolDummy.isFake) {
         Object.assign(Pool.prototype, withdrawExpectedAtricrypto3Mixin);
     } else if (poolDummy.isMeta) {
         Object.assign(Pool.prototype, withdrawExpectedMetaMixin);

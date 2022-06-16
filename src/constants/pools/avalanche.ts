@@ -18,6 +18,7 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         token_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
         gauge_address: '0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858',
         sCurveRewards_address: '0xB504b6EB06760019801a91B451d3f7BD9f027fC9',
+        is_lending: true,
         underlying_coins: ['DAI.e', 'USDC.e', 'USDT.e'],
         wrapped_coins: ['avDAI', 'avUSDC', 'avUSDT'],
         underlying_coin_addresses: [
@@ -48,6 +49,7 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         token_address: '0xC2b1DF84112619D190193E48148000e3990Bf627',
         gauge_address: '0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1',
         sCurveRewards_address: '0x75D05190f35567e79012c2F0a02330D3Ed8a1F74',
+        is_lending: true,
         underlying_coins: ['WBTC.e', 'renBTC'],
         wrapped_coins: ['avWBTC', 'renBTC'],
         underlying_coin_addresses: [
@@ -77,6 +79,7 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         gauge_address: '0x445FE580eF8d70FF569aB36e80c647af338db351',
         deposit_address: '0x58e57cA18B7A47112b877E31929798Cd3D703b0f',
         sCurveRewards_address: '0xa05E565cA0a103FcD999c7A7b8de7Bd15D5f6505',
+        is_meta: true,
         is_crypto: true,
         is_fake: true,
         base_pool: 'aave',

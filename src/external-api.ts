@@ -1,9 +1,9 @@
-import { IExtendedPoolDataFromApi, ISubgraphPoolData, IReward, IDict } from "./interfaces";
+import { IExtendedPoolDataFromApi, ISubgraphPoolData, IReward, IDict, INetworkName } from "./interfaces";
 import axios from "axios";
 import memoize from "memoizee";
 
 export const _getPoolsFromApi = memoize(
-    async (network: "ethereum" | "polygon", poolType: "main" | "crypto" | "factory" | "factory-crypto"): Promise<IExtendedPoolDataFromApi> => {
+    async (network: INetworkName, poolType: "main" | "crypto" | "factory" | "factory-crypto"): Promise<IExtendedPoolDataFromApi> => {
         const url = `https://api.curve.fi/api/getPools/${network}/${poolType}`;
         const response = await axios.get(url, { validateStatus: () => true });
         return response.data.data ?? { poolData: [], tvl: 0, tvlAll: 0 };
@@ -15,7 +15,7 @@ export const _getPoolsFromApi = memoize(
 )
 
 export const _getSubgraphData = memoize(
-    async (network: "ethereum" | "polygon"): Promise<ISubgraphPoolData[]> => {
+    async (network: INetworkName): Promise<ISubgraphPoolData[]> => {
         const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
         const response = await axios.get(url, { validateStatus: () => true });
         return response.data.data.poolList ?? [];

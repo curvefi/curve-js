@@ -18,6 +18,8 @@ export interface ICurve {
     constants: IDict<any>;
 }
 
+export type INetworkName = "ethereum" | "polygon" | "avalanche";
+
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
 
 export interface IPoolData {

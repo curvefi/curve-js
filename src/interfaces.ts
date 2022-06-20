@@ -5,19 +5,6 @@ export interface IDict<T> {
     [index: string]: T,
 }
 
-export interface ICurve {
-    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
-    multicallProvider: MulticallProvider,
-    signer: ethers.Signer | null,
-    signerAddress: string,
-    chainId: number,
-    contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
-    feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
-    constantOptions: { gasLimit: number },
-    options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber },
-    constants: IDict<any>;
-}
-
 export type INetworkName = "ethereum" | "polygon" | "avalanche";
 
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
@@ -53,6 +40,28 @@ export interface IPoolData {
     gauge_abi: any,
     deposit_abi?: any,
     sCurveRewards_abi?: any,
+}
+
+export interface ICurve {
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
+    multicallProvider: MulticallProvider,
+    signer: ethers.Signer | null,
+    signerAddress: string,
+    chainId: number,
+    contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
+    feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
+    constantOptions: { gasLimit: number },
+    options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber },
+    constants: {
+        NETWORK_NAME: INetworkName,
+        ALIASES: IDict<string>,
+        POOLS_DATA: IDict<IPoolData>,
+        FACTORY_POOLS_DATA: IDict<IPoolData>,
+        CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+        COINS: IDict<string>,
+        DECIMALS: IDict<number>,
+        GAUGES: string[],
+    };
 }
 
 export interface ICoinFromPoolDataApi {

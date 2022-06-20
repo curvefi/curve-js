@@ -1230,16 +1230,15 @@ export class PoolTemplate {
         const _amount = parseUnits(amount, inputCoinDecimals);
         const _output = await this._swapExpected(i, j, _amount);
 
-        // Find k for which x * k = 10^6 or y * k = 10^6: k = max(1000000 / x, 1000000/y)
-        // For coins with d (decimals) <= 6: k = min(k, 0.2), and x0 = min(x * k. 10^d)
-        // x0 = min(x * min(max(1000000 / x, 1000000/y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-        const target = BN(1000000);
+        // Find k for which x * k = 10^15 or y * k = 10^15: k = max(10^15 / x, 10^15 / y)
+        // For coins with d (decimals) <= 15: k = min(k, 0.2), and x0 = min(x * k, 10^d)
+        // x0 = min(x * min(max(10^15 / x, 10^15 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
+        const target = BN(10 ** 15);
         const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
         const outputIntBN = toBN(_output, 0);
         const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);
         const smallAmountIntBN = BigNumber.min(amountIntBN.times(k), BN(10 ** inputCoinDecimals));
         if (smallAmountIntBN.toFixed(0) === '0') return '0';
-
 
         const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
         const _smallOutput = await this._swapExpected(i, j, _smallAmount);
@@ -1310,10 +1309,10 @@ export class PoolTemplate {
         const _amount = parseUnits(amount, inputCoinDecimals);
         const _output = await this._swapWrappedExpected(i, j, _amount);
 
-        // Find k for which x * k = 10^6 or y * k = 10^6: k = max(1000000 / x, 1000000/y)
-        // For coins with d (decimals) <= 6: k = min(k, 0.2), and x0 = min(x * k. 10^d)
-        // x0 = min(x * min(max(1000000 / x, 1000000/y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-        const target = BN(1000000);
+        // Find k for which x * k = 10^15 or y * k = 10^15: k = max(10^15 / x, 10^15 / y)
+        // For coins with d (decimals) <= 15: k = min(k, 0.2), and x0 = min(x * k, 10^d)
+        // x0 = min(x * min(max(10^15 / x, 10^15 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
+        const target = BN(10 ** 15);
         const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
         const outputIntBN = toBN(_output, 0);
         const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);

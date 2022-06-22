@@ -172,7 +172,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     // swap and swapEstimateGas
     if (poolId === 'tricrypto2') {
         Object.assign(Pool.prototype, swapTricrypto2Mixin);
-    } else if (curve.chainId === 137 && poolDummy.isMetaFactory) {
+    } else if ([137, 43114].includes(curve.chainId) && poolDummy.isMetaFactory) {
         Object.assign(Pool.prototype, swapMetaFactoryMixin);
     } else {
         Object.assign(Pool.prototype, swapMixin);

@@ -11,6 +11,7 @@ export const COINS_AVALANCHE: { [index: string]: string } = lowerCaseValues({
     'avdai': '0x47AFa96Cdc9fAb46904A55a6ad4bf6660B53c38a',
     'avusdc': '0x46A51127C3ce23fb7AB1DE06226147F446e4a857',
     'avusdt': '0x532E6537FEA298397212F09A61e03311686f548e',
+    'av3crv': '0x1337bedc9d22ecbe766df105c9623922a27963ec',
 
     // --- BTC ---
 

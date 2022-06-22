@@ -17,6 +17,7 @@ import {
     BN,
     parseUnits,
     _cutZeros,
+    ETH_ADDRESS,
 } from "./utils";
 import { getPool } from "./pools";
 
@@ -131,7 +132,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1) continue;
 
                 // Find all straight swaps
-                if (inCoinIndexes.wrapped_coin >= 0 && poolId !== "atricrypto3") {
+                if (inCoinIndexes.wrapped_coin >= 0 && !poolData.is_fake) {
                     for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                         if (markedCoins.includes(wrapped_coin_addresses[j]) || curCoins.includes(wrapped_coin_addresses[j])) continue;
@@ -166,13 +167,13 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 }
 
                 // Only for underlying swaps
-                const poolAddress = ["eurtusd", "xautusd", "atricrypto3"].includes(poolId) ||
-                (curve.chainId === 137 && poolData.is_factory) ? poolData.deposit_address as string : poolData.swap_address;
+                const poolAddress = (poolData.is_crypto && poolData.is_meta) || ([137, 43114].includes(curve.chainId) && poolData.is_factory) ?
+                    poolData.deposit_address as string : poolData.swap_address;
 
                 // Find all underlying swaps
                 if (wrapped_coin_addresses.join("|") !== underlying_coin_addresses.join("|") && inCoinIndexes.underlying_coin >= 0) {
                     for (let j = 0; j < underlying_coin_addresses.length; j++) {
-                        if (poolId === "atricrypto3" && inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
+                        if (poolData.is_fake && inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                         if (markedCoins.includes(underlying_coin_addresses[j]) || curCoins.includes(underlying_coin_addresses[j])) continue;
                         // Looking for outputCoinAddress only on the final step
@@ -206,7 +207,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 }
 
                 // Find all meta swaps where input coin is NOT meta
-                if (inCoinIndexes.wrapped_coin === 0 && meta_coin_addresses.length > 0 && poolId !== "atricrypto3") {
+                if (inCoinIndexes.wrapped_coin === 0 && meta_coin_addresses.length > 0 && !poolData.is_fake) {
                     for (let j = 0; j < meta_coin_addresses.length; j++) {
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                         if (markedCoins.includes(meta_coin_addresses[j]) || curCoins.includes(meta_coin_addresses[j])) continue;
@@ -218,7 +219,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                         // Skip imbalanced pools
                         if (IMBALANCED_POOLS.includes(poolId)) continue;
 
-                        const swapType = (curve.chainId === 137 && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+                        const swapType = ([137, 43114].includes(curve.chainId) && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
                         for (const inCoinRoute of routes[inCoin]) {
                             routes[meta_coin_addresses[j]] = (routes[meta_coin_addresses[j]] ?? []).concat(
                                 [[
@@ -241,7 +242,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 }
 
                 // Find all meta swaps where input coin is meta
-                if (inCoinIndexes.meta_coin >= 0 && poolId !== "atricrypto3") {
+                if (inCoinIndexes.meta_coin >= 0 && !poolData.is_fake) {
                     // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                     if (markedCoins.includes(wrapped_coin_addresses[0]) || curCoins.includes(wrapped_coin_addresses[0])) continue;
                     // Looking for outputCoinAddress only on the final step
@@ -252,7 +253,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                     // Skip imbalanced pools
                     if (IMBALANCED_POOLS.includes(poolId)) continue;
 
-                    const swapType = (curve.chainId === 137 && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+                    const swapType = ([137, 43114].includes(curve.chainId) && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
                     for (const inCoinRoute of routes[inCoin]) {
                         routes[wrapped_coin_addresses[0]] = (routes[wrapped_coin_addresses[0]] ?? []).concat(
                             [[
@@ -409,7 +410,7 @@ const _getBestRouteAndOutput = memoize(
             _estimateGasForDifferentRoutes(routes, inputCoinAddress, outputCoinAddress, _amount),
             _getUsdRate(outputCoinAddress),
             axios.get("https://api.curve.fi/api/getGas"),
-            _getUsdRate(curve.chainId === 137 ? curve.constants.COINS.matic : curve.constants.COINS.eth),
+            _getUsdRate(ETH_ADDRESS),
         ]);
         const gasPrice = gasData.data.data.gas.standard;
         const expectedAmounts = (routes).map(

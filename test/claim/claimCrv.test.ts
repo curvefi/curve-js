@@ -38,7 +38,7 @@ describe('Claiming CRV', function() {
             const expected = await pool.claimableCrv();
 
             console.log(crvBalanceBefore, "+", expected, "=", Number(crvBalanceBefore) + Number(expected));
-            await pool.claimableCrv();
+            await pool.claimCrv();
 
             const [crvBalanceAfter] = await curve.getBalances(['crv']) as string[];
             console.log(crvBalanceAfter);

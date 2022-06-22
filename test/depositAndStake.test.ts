@@ -1,7 +1,6 @@
 import { assert } from "chai";
 import curve from "../src";
-import { getPool } from "../src/pools/poolConstructor";
-import { PoolTemplate } from "../src/pools/PoolTemplate";
+import { PoolTemplate, getPool } from "../src/pools";
 import { BN } from "../src/utils";
 import { IDict } from "../src/interfaces";
 
@@ -13,6 +12,7 @@ const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 's
 
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
+const AVALANCHE_POOLS = ['aave', 'ren', 'atricrypto'];
 
 const underlyingDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake underlying`, function () {
@@ -35,7 +35,7 @@ const underlyingDepositAndStakeTest = (name: string) => {
 
             const balances = await pool.wallet.balances() as IDict<string>;
 
-            pool.underlyingCoins.forEach((c: string) => {
+            coinAddresses.forEach((c: string) => {
                 if (name === 'steth') {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-18);
                 } else {
@@ -71,8 +71,8 @@ const wrappedDepositAndStakeTest = (name: string) => {
 
             const balances = await pool.wallet.balances() as IDict<string>;
 
-            pool.wrappedCoins.forEach((c: string) => {
-                if (['aave', 'saave'].includes(name) || (curve.chainId === 137 && pool.name === 'ren')) {
+            coinAddresses.forEach((c: string) => {
+                if (['aave', 'saave'].includes(name) || (pool.isLending && pool.id === 'ren')) {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else {
                     assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
@@ -92,17 +92,24 @@ describe('Deposit&Stake test', async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
     });
 
-    for (const poolName of ETHEREUM_POOLS) {
-        underlyingDepositAndStakeTest(poolName);
-        if (!PLAIN_POOLS.includes(poolName)) {
-            wrappedDepositAndStakeTest(poolName);
-        }
-    }
-
+    // for (const poolName of ETHEREUM_POOLS) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     if (!PLAIN_POOLS.includes(poolName)) {
+    //         wrappedDepositAndStakeTest(poolName);
+    //     }
+    // }
+    //
     // for (const poolName of POLYGON_POOLS) {
     //     underlyingDepositAndStakeTest(poolName);
     //     if (poolName !== 'atricrypto3') {
     //         wrappedDepositAndStakeTest(poolName);
     //     }
     // }
+    //
+    for (const poolName of AVALANCHE_POOLS) {
+        underlyingDepositAndStakeTest(poolName);
+        if (poolName !== 'atricrypto') {
+            wrappedDepositAndStakeTest(poolName);
+        }
+    }
 })

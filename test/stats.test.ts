@@ -26,6 +26,8 @@ const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 63;
 const MAIN_POOLS_POLYGON = [ 'aave', 'ren', 'atricrypto3', 'eurtusd' ];
 const FACTORY_POOLS_COUNT_POLYGON = 263;
 
+const MAIN_POOLS_AVALANCHE = [ 'aave', 'ren', 'atricrypto'];
+const FACTORY_POOLS_COUNT_AVALANCHE = 81;
 
 const checkNumber = (str: string) => {
     const re = /-?\d+(\.\d+)?(e-\d+)?/g
@@ -93,17 +95,17 @@ describe('Stats test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolName of MAIN_POOLS_ETHEREUM) {
-        poolStatsTest(poolName);
-    }
-
-    for (let i = 0; i < FACTORY_POOLS_COUNT_ETHEREUM; i++) {
-        poolStatsTest("factory-v2-" + i);
-    }
-
-    for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM; i++) {
-        poolStatsTest("factory-crypto-" + i);
-    }
+    // for (const poolName of MAIN_POOLS_ETHEREUM) {
+    //     poolStatsTest(poolName);
+    // }
+    //
+    // for (let i = 0; i < FACTORY_POOLS_COUNT_ETHEREUM; i++) {
+    //     poolStatsTest("factory-v2-" + i);
+    // }
+    //
+    // for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM; i++) {
+    //     poolStatsTest("factory-crypto-" + i);
+    // }
 
     // for (const poolName of MAIN_POOLS_POLYGON) {
     //     poolStatsTest(poolName);
@@ -115,4 +117,12 @@ describe('Stats test', async function () {
     //
     //     poolStatsTest("factory-v2-" + i);
     // }
+
+    for (const poolName of MAIN_POOLS_AVALANCHE) {
+        poolStatsTest(poolName);
+    }
+
+    for (let i = 0; i < FACTORY_POOLS_COUNT_AVALANCHE; i++) {
+        poolStatsTest("factory-v2-" + i);
+    }
 })

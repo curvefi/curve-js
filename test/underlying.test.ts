@@ -19,10 +19,16 @@ const POLYGON_MAIN_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 const POLYGON_FACTORY_PLAIN_POOLS = ['factory-v2-113', 'factory-v2-4', 'factory-v2-37']; // ['CRVALRTO-f', '3EUR-f', '4eur-f(2)'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
+const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'atricrypto'];
+const AVALANCHE_FACTORY_PLAIN_POOLS = ['factory-v2-30', 'factory-v2-4']; // ['USD Coin', '3poolV2'];
+const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
+
+
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 // const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
 const ETHEREUM_POOLS = ['susd', '3pool', 'compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
 const POLYGON_POOLS = [...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS];
+const AVALANCHE_POOLS = [...AVALANCHE_FACTORY_PLAIN_POOLS, ...AVALANCHE_FACTORY_META_POOLS];
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-unstake-withdraw`, function () {
@@ -196,13 +202,18 @@ describe('Underlying test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolId of ETHEREUM_POOLS) {
-        underlyingLiquidityTest(poolId);
-        underlyingSwapTest(poolId);
-    }
+    // for (const poolId of ETHEREUM_POOLS) {
+    //     underlyingLiquidityTest(poolId);
+    //     underlyingSwapTest(poolId);
+    // }
 
     // for (const poolId of POLYGON_POOLS) {
     //     underlyingLiquidityTest(poolId);
     //     underlyingSwapTest(poolId);
     // }
+
+    for (const poolId of AVALANCHE_POOLS) {
+        underlyingLiquidityTest(poolId);
+        underlyingSwapTest(poolId);
+    }
 })

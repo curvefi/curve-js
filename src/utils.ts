@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import { IDict } from './interfaces';
+import { IDict, INetworkName } from './interfaces';
 import { curve } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
 
 
-const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
 
 // bignumber.js
@@ -228,7 +228,7 @@ export const getPoolNameBySwapAddress = (swapAddress: string): string => {
 }
 
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
-    const network = curve.chainId === 137 ? "polygon" : "ethereum";
+    const network = curve.constants.NETWORK_NAME;
     const promises = [
         _getPoolsFromApi(network, "main"),
         _getPoolsFromApi(network, "crypto"),
@@ -263,8 +263,14 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     let chainName = {
         1: 'ethereum',
         137: 'polygon-pos',
-        1337: 'ethereum',
-    }[curve.chainId]
+        43114: 'avalanche',
+    }[curve.chainId];
+
+    const nativeTokenName = {
+        1: 'ethereum',
+        137: 'matic-network',
+        43114: 'avalanche-2',
+    }[curve.chainId] as string;
 
     if (chainName === undefined) {
         throw Error('curve object is not initialized')
@@ -276,7 +282,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         'ETH': 'ethereum',
         'LINK': 'link',
     }[assetId] || assetId
-    assetId = isEth(assetId) ? "ethereum" : assetId.toLowerCase();
+    assetId = isEth(assetId) ? nativeTokenName : assetId.toLowerCase();
 
     // No EURT on Coingecko Polygon
     if (assetId.toLowerCase() === curve.constants.COINS.eurt.toLowerCase()) {
@@ -285,7 +291,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     }
 
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
-        const url = ['bitcoin', 'ethereum', 'link'].includes(assetId.toLowerCase()) ?
+        const url = [nativeTokenName, 'bitcoin', 'link'].includes(assetId.toLowerCase()) ?
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
             `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
         const response = await axios.get(url);
@@ -305,7 +311,11 @@ export const getUsdRate = async (coin: string): Promise<number> => {
 }
 
 export const getTVL = async (chainId = curve.chainId): Promise<number> => {
-    const network = chainId === 137 ? "polygon" : "ethereum";
+    const network = {
+        1: "ethereum",
+        137: "polygon",
+        43114: "avalanche",
+    }[chainId] as INetworkName ?? "ethereum";
 
     const promises = [
         _getPoolsFromApi(network, "main"),

@@ -11,6 +11,8 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
+const AVALANCHE_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
+
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
         let pool: PoolTemplate;

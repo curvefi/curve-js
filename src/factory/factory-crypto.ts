@@ -4,8 +4,8 @@ import { IDict, IPoolData, ICurve } from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
+import { WETH_ADDRESS } from "./constants";
 
-const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
@@ -23,7 +23,7 @@ async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve): Promise<[strin
         (addr, i) => ({ id: `factory-crypto-${i}`, address: addr.toLowerCase()})
     );
 
-    const swapAddresses = Object.values(this.constants.POOLS_DATA as IPoolData).map((pool: IPoolData) => pool.swap_address.toLowerCase());
+    const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     factories = factories.filter((f) => !swapAddresses.includes(f.address));
 
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
@@ -139,7 +139,9 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
         });
     }
 
+    if (this.chainId === 1) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
     if (this.chainId === 137) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "MATIC"
+    if (this.chainId === 43114) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "AVAX"
 
     return dict
 }
@@ -203,6 +205,8 @@ async function getCoinAddressDecimalsDict(
         coinAddrNamesDict[addr] = decimals[i];
     });
 
+    coinAddrNamesDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 18
+
     return coinAddrNamesDict
 }
 
@@ -220,9 +224,7 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoo
     const underlyingCoinAddresses = await getCryptoFactoryUnderlyingCoinAddresses.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
-    coinAddressNameDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 'ETH';
     const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
-    coinAddressDecimalsDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 18;
 
 
     // TODO add reward_tokens and reward_decimals

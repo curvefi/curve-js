@@ -15,11 +15,14 @@ const FACTORY_CRYPTO_POOLS = ['factory-crypto-8']; // ['YFIETH-fV2'];
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
+const AVALANCHE_MAIN_POOLS = ['aave', 'ren'];
+const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const ETHEREUM_POOLS = ['compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
 // const ETHEREUM_POOLS = [...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
 const POLYGON_POOLS = POLYGON_FACTORY_META_POOLS;
+const AVALANCHE_POOLS = AVALANCHE_FACTORY_META_POOLS;
 
 const wrappedLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-unstake-withdraw`, function () {
@@ -42,7 +45,7 @@ const wrappedLiquidityTest = (id: string) => {
             const balances = await pool.wallet.balances() as IDict<string>;
 
             coinAddresses.forEach((c: string) => {
-                if (['aave', 'saave'].includes(id) || (curve.chainId === 137 && pool.id === 'ren')) {
+                if (['aave', 'saave'].includes(id) || (pool.isLending && pool.id === 'ren')) {
                     // Because of increasing quantity
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else if (pool.id === 'factory-v2-60') {
@@ -120,7 +123,7 @@ const wrappedLiquidityTest = (id: string) => {
                 const delta = id === 'factory-v2-80' ? 2 : 0.01
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
                 coinAddresses.forEach((c: string) => {
-                    if (['aave', 'saave'].includes(id) || (curve.chainId === 137 && pool.id === 'ren')) {
+                    if (['aave', 'saave'].includes(id) || (pool.isLending && pool.id === 'ren')) {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
                     } else {
                         assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
@@ -144,7 +147,7 @@ const wrappedLiquidityTest = (id: string) => {
                     if (i === 0) {
                         assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
                     } else {
-                        if (['aave', 'saave'].includes(id)  || (curve.chainId === 137 && this.id === 'ren')) {
+                        if (['aave', 'saave'].includes(id)  || (pool.isLending && pool.id === 'ren')) {
                             // Because of increasing quantity
                             assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
                         } else {
@@ -176,7 +179,7 @@ const wrappedSwapTest = (id: string) => {
 
                             const coinBalances = await pool.wallet.wrappedCoinBalances() as IDict<string>;
 
-                            if (['aave', 'saave'].includes(pool.id) || (curve.chainId === 137 && pool.id === 'ren')) {
+                            if (['aave', 'saave'].includes(pool.id) || (pool.isLending && pool.id === 'ren')) {
                                 // Because of increasing quantity
                                 assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount).toString())), 1e-2);
                             } else if (pool.id === 'factory-v2-60') {
@@ -202,13 +205,18 @@ describe('Wrapped test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolId of ETHEREUM_POOLS) {
-        wrappedLiquidityTest(poolId);
-        wrappedSwapTest(poolId);
-    }
+    // for (const poolId of ETHEREUM_POOLS) {
+    //     wrappedLiquidityTest(poolId);
+    //     wrappedSwapTest(poolId);
+    // }
 
     // for (const poolId of POLYGON_POOLS) {
     //     wrappedLiquidityTest(poolId);
     //     wrappedSwapTest(poolId);
     // }
+
+    for (const poolId of AVALANCHE_POOLS) {
+        wrappedLiquidityTest(poolId);
+        wrappedSwapTest(poolId);
+    }
 })

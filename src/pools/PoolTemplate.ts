@@ -253,7 +253,7 @@ export class PoolTemplate {
 
     private statsTotalLiquidity = async (useApi = true): Promise<string> => {
         if (useApi) {
-            const network = curve.chainId === 137 ? "polygon" : "ethereum";
+            const network = curve.constants.NETWORK_NAME;
             const poolType = !this.isFactory && !this.isCrypto ? "main" :
                 !this.isFactory ? "crypto" :
                 !(this.isCrypto && this.isFactory) ? "factory" :
@@ -281,7 +281,7 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
-        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const network = curve.constants.NETWORK_NAME;
         const poolsData = (await _getSubgraphData(network));
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
@@ -291,7 +291,7 @@ export class PoolTemplate {
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const network = curve.constants.NETWORK_NAME;
         const poolsData = (await _getSubgraphData(network));
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
@@ -305,7 +305,7 @@ export class PoolTemplate {
 
     private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (curve.chainId === 137) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
+        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
 
         const gaugeContract = curve.contracts[this.gauge].multicallContract;
         const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
@@ -356,7 +356,7 @@ export class PoolTemplate {
             return apy
         }
 
-        const network = curve.chainId === 137 ? "polygon" : "ethereum";
+        const network = curve.constants.NETWORK_NAME;
         const promises = [
             _getMainPoolsGaugeRewards(),
             _getPoolsFromApi(network, "main"),
@@ -1230,16 +1230,15 @@ export class PoolTemplate {
         const _amount = parseUnits(amount, inputCoinDecimals);
         const _output = await this._swapExpected(i, j, _amount);
 
-        // Find k for which x * k = 10^6 or y * k = 10^6: k = max(1000000 / x, 1000000/y)
-        // For coins with d (decimals) <= 6: k = min(k, 0.2), and x0 = min(x * k. 10^d)
-        // x0 = min(x * min(max(1000000 / x, 1000000/y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-        const target = BN(1000000);
+        // Find k for which x * k = 10^15 or y * k = 10^15: k = max(10^15 / x, 10^15 / y)
+        // For coins with d (decimals) <= 15: k = min(k, 0.2), and x0 = min(x * k, 10^d)
+        // x0 = min(x * min(max(10^15 / x, 10^15 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
+        const target = BN(10 ** 15);
         const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
         const outputIntBN = toBN(_output, 0);
         const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);
         const smallAmountIntBN = BigNumber.min(amountIntBN.times(k), BN(10 ** inputCoinDecimals));
         if (smallAmountIntBN.toFixed(0) === '0') return '0';
-
 
         const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
         const _smallOutput = await this._swapExpected(i, j, _smallAmount);
@@ -1257,7 +1256,7 @@ export class PoolTemplate {
     }
 
     private _swapContractAddress(): string {
-        return (this.isCrypto && this.isMeta) || (curve.chainId === 137 && this.isMetaFactory) ? this.zap as string : this.address;
+        return (this.isCrypto && this.isMeta) || ([137, 43114].includes(curve.chainId) && this.isMetaFactory) ? this.zap as string : this.address;
     }
 
     public async swapIsApproved(inputCoin: string | number, amount: number | string): Promise<boolean> {
@@ -1310,10 +1309,10 @@ export class PoolTemplate {
         const _amount = parseUnits(amount, inputCoinDecimals);
         const _output = await this._swapWrappedExpected(i, j, _amount);
 
-        // Find k for which x * k = 10^6 or y * k = 10^6: k = max(1000000 / x, 1000000/y)
-        // For coins with d (decimals) <= 6: k = min(k, 0.2), and x0 = min(x * k. 10^d)
-        // x0 = min(x * min(max(1000000 / x, 1000000/y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-        const target = BN(1000000);
+        // Find k for which x * k = 10^15 or y * k = 10^15: k = max(10^15 / x, 10^15 / y)
+        // For coins with d (decimals) <= 15: k = min(k, 0.2), and x0 = min(x * k, 10^d)
+        // x0 = min(x * min(max(10^15 / x, 10^15 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
+        const target = BN(10 ** 15);
         const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
         const outputIntBN = toBN(_output, 0);
         const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);

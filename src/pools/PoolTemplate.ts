@@ -37,6 +37,7 @@ export class PoolTemplate {
     lpToken: string;
     gauge: string;
     zap: string | null;
+    sRewardContract: string | null;
     rewardContract: string | null;
     isPlain: boolean;
     isLending: boolean;
@@ -122,6 +123,7 @@ export class PoolTemplate {
         this.lpToken = poolData.token_address;
         this.gauge = poolData.gauge_address;
         this.zap = poolData.deposit_address || null;
+        this.sRewardContract = poolData.sCurveRewards_address || null;
         this.rewardContract = poolData.reward_contract || null;
         this.isPlain = poolData.is_plain || false;
         this.isLending = poolData.is_lending || false;

@@ -284,6 +284,8 @@ import curve from "@curvefi/api";
     // 0xdc69d4cb5b86388fff0b51885677e258883534ae
     pool.zap;
     // 0xa79828df1850e8a3a3064576f380d90aecdd3359
+    pool.sRewardContract;
+    // null
     pool.rewardContract;
     // null
     pool.isPlain;

@@ -1216,7 +1216,6 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         token_address: '0x5a6A4D54456819380173272A5E8E9B9904BdF41B',
         gauge_address: '0xd8b712d29381748dB89c36BCa0138d7c75866ddF',
         deposit_address: '0xA79828DF1850E8a3A3064576f380D90aECDD3359',
-        sCurveRewards_address: '0xb76256d1091e93976c61449d6e500d9f46d827d4', //not needed anymore???
         is_meta: true,
         base_pool: '3pool',
         underlying_coins: ['MIM', 'DAI', 'USDC', 'USDT'],

@@ -37,6 +37,7 @@ export class PoolTemplate {
     lpToken: string;
     gauge: string;
     zap: string | null;
+    sRewardContract: string | null;
     rewardContract: string | null;
     isPlain: boolean;
     isLending: boolean;
@@ -122,6 +123,7 @@ export class PoolTemplate {
         this.lpToken = poolData.token_address;
         this.gauge = poolData.gauge_address;
         this.zap = poolData.deposit_address || null;
+        this.sRewardContract = poolData.sCurveRewards_address || null;
         this.rewardContract = poolData.reward_contract || null;
         this.isPlain = poolData.is_plain || false;
         this.isLending = poolData.is_lending || false;
@@ -331,7 +333,7 @@ export class PoolTemplate {
     }
 
     private statsRewardsApy = async (): Promise<IReward[]> => {
-        if (curve.chainId === 137) {
+        if ([137, 43114].includes(curve.chainId)) {
             const apy: IReward[] = [];
             for (const rewardToken of this.rewardTokens) {
                 const rewardContract = curve.contracts[this.rewardContract as string].contract;
@@ -634,16 +636,17 @@ export class PoolTemplate {
                     amount: amount,
                 })
             }
-        } else if ('claimable_reward(address)' in gaugeContract && this.rewardTokens.length > 0) {
+        } else if ('claimable_reward(address)' in gaugeContract && this.rewardTokens.length > 0) { // Synthetix Gauge
             const rewardToken = this.rewardTokens[0];
             const rewardTokenContract = curve.contracts[rewardToken].contract;
             const symbol = await rewardTokenContract.symbol();
             const decimals = await rewardTokenContract.decimals();
-            const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, curve.constantOptions), decimals);
+            const _totalAmount = await gaugeContract.claimable_reward(address, curve.constantOptions);
+            const _claimedAmount = await gaugeContract.claimed_rewards_for(address, curve.constantOptions);
             rewards.push({
                 token: rewardToken,
                 symbol: symbol,
-                amount: amount,
+                amount: ethers.utils.formatUnits(_totalAmount.sub(_claimedAmount), decimals),
             })
         }
 

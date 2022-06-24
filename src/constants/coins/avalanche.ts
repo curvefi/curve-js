@@ -1,6 +1,7 @@
 import { lowerCaseValues } from "../utils";
 
 export const COINS_AVALANCHE: { [index: string]: string } = lowerCaseValues({
+    'crv': '0x47536F17F4fF30e64A96a7555826b8f9e66ec468',
     'crv.e': '0x249848BeCA43aC405b8102Ec90Dd5F22CA513c06',
 
     // --- USD ---

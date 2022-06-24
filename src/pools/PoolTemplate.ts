@@ -634,16 +634,17 @@ export class PoolTemplate {
                     amount: amount,
                 })
             }
-        } else if ('claimable_reward(address)' in gaugeContract && this.rewardTokens.length > 0) {
+        } else if ('claimable_reward(address)' in gaugeContract && this.rewardTokens.length > 0) { // Synthetix Gauge
             const rewardToken = this.rewardTokens[0];
             const rewardTokenContract = curve.contracts[rewardToken].contract;
             const symbol = await rewardTokenContract.symbol();
             const decimals = await rewardTokenContract.decimals();
-            const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, curve.constantOptions), decimals);
+            const _totalAmount = await gaugeContract.claimable_reward(address, curve.constantOptions);
+            const _claimedAmount = await gaugeContract.claimed_rewards_for(address, curve.constantOptions);
             rewards.push({
                 token: rewardToken,
                 symbol: symbol,
-                amount: amount,
+                amount: ethers.utils.formatUnits(_totalAmount.sub(_claimedAmount), decimals),
             })
         }
 

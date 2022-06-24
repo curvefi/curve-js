@@ -28,7 +28,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
 });
 
 export const ALIASES_AVALANCHE = lowerCaseValues({
-    "crv": "0x249848BeCA43aC405b8102Ec90Dd5F22CA513c06",
+    "crv": "0x47536F17F4fF30e64A96a7555826b8f9e66ec468",
     "minter": "0xd061D61a4d941c39E5453435B6345Dc261C2fcE0",
     "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",

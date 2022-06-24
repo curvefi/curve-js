@@ -333,7 +333,7 @@ export class PoolTemplate {
     }
 
     private statsRewardsApy = async (): Promise<IReward[]> => {
-        if (curve.chainId === 137) {
+        if ([137, 43114].includes(curve.chainId)) {
             const apy: IReward[] = [];
             for (const rewardToken of this.rewardTokens) {
                 const rewardContract = curve.contracts[this.rewardContract as string].contract;

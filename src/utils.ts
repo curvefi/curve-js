@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { ethers } from 'ethers';
+import { ethers, Contract } from 'ethers';
 import BigNumber from 'bignumber.js';
 import { IDict, INetworkName } from './interfaces';
 import { curve } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
+import {Contract as MulticallContract} from "ethcall";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -331,4 +332,11 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
     const allTypesExtendedPoolData = await Promise.all(promises);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll), 0)
+}
+
+export const _setContracts = (address: string, abi: any): void => {
+    curve.contracts[address] = {
+        contract: new Contract(address, abi, curve.signer || curve.provider),
+        multicallContract: new MulticallContract(address, abi),
+    }
 }

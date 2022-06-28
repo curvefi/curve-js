@@ -269,6 +269,13 @@ class Curve implements ICurve {
                 }
             }
 
+            if (pool.sCurveRewards_address) {
+                this.contracts[pool.sCurveRewards_address] = {
+                    contract: new Contract(pool.sCurveRewards_address, pool.sCurveRewards_abi, this.signer || this.provider),
+                    multicallContract: new MulticallContract(pool.sCurveRewards_address, pool.sCurveRewards_abi),
+                }
+            }
+
             for (const rewardTokenAddr of pool.reward_tokens || []) {
                 this.contracts[rewardTokenAddr] = {
                     contract: new Contract(rewardTokenAddr, ERC20Abi, this.signer || this.provider),

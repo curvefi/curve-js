@@ -226,8 +226,6 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoo
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
     const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
 
-
-    // TODO add reward_tokens and reward_decimals
     const CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
         CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {

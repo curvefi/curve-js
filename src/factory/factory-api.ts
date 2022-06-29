@@ -125,8 +125,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 wrapped_coin_addresses: coinAddresses,
                 underlying_decimals: coinDecimals,
                 wrapped_decimals: coinDecimals,
-                reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
-                reward_decimals: (pool.gaugeRewards ?? []).map((r) => r.decimals as number),
                 swap_abi: cryptoFactorySwapABI,
                 gauge_abi: factoryGaugeABI,
             };
@@ -169,8 +167,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 wrapped_coin_addresses: coinAddresses,
                 underlying_decimals: [coinDecimals[0], ...basePoolDecimals],
                 wrapped_decimals: coinDecimals,
-                reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
-                reward_decimals: (pool.gaugeRewards ?? []).map((r) => r.decimals as number),
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: factoryGaugeABI,
                 deposit_abi: factoryDepositABI,
@@ -194,8 +190,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 wrapped_coin_addresses: coinAddresses,
                 underlying_decimals: coinDecimals,
                 wrapped_decimals: coinDecimals,
-                reward_tokens: (pool.gaugeRewards ?? []).map((r) => r.tokenAddress),
-                reward_decimals: (pool.gaugeRewards ?? []).map((r) => r.decimals as number),
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: factoryGaugeABI,
             };

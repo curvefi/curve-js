@@ -343,15 +343,17 @@ export class PoolTemplate {
                 const totalLiquidityUSD = await this.statsTotalLiquidity();
                 const rewardRate = await _getUsdRate(rewardToken.token);
 
-                const inflation = toBN((await rewardContract.reward_data(rewardToken.token, curve.constantOptions)).rate);
-                const baseApy = inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD))
+                const rewardData = await rewardContract.reward_data(rewardToken.token, curve.constantOptions);
+                const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
+                const inflation = toBN(rewardData.rate, rewardToken.decimals);
+                const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
 
                 apy.push({
                     gaugeAddress: this.gauge.toLowerCase(),
                     tokenAddress: rewardToken.token,
                     symbol: rewardToken.symbol,
                     apy: Number(baseApy.times(100).toFixed(4)),
-                })
+                });
             }
 
             return apy

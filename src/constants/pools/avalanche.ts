@@ -1,11 +1,10 @@
 import { lowerCasePoolDataAddresses } from "../utils";
 import { IPoolData } from "../../interfaces";
 import aaveSwapABI from '../abis/aave/swap.json';
-import paaveRewardsabi from '../abis/paave/rewards.json';
 import renSwapABI from '../abis/ren-polygon/swap.json';
 import atricrypto3Swap from '../abis/atricrypto3/swap.json';
 import atricrypto3Zap from '../abis/atricrypto3/zap.json';
-import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json';
+import gaugeChildABI from '../abis/gauge_child.json';
 
 
 export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoolDataAddresses({
@@ -16,8 +15,9 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         reference_asset: 'USD',
         swap_address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
         token_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
-        gauge_address: '0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858',
-        reward_contract: '0xB504b6EB06760019801a91B451d3f7BD9f027fC9',
+        gauge_address: '0x4620D46b4db7fB04a01A75fFed228Bc027C9A899',
+        // gauge_address: '0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858',
+        // reward_contract: '0xB504b6EB06760019801a91B451d3f7BD9f027fC9',
         is_lending: true,
         underlying_coins: ['DAI.e', 'USDC.e', 'USDT.e'],
         wrapped_coins: ['avDAI', 'avUSDC', 'avUSDT'],
@@ -35,8 +35,7 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         wrapped_decimals: [18, 6, 6],
         use_lending: [true, true, true],
         swap_abi: aaveSwapABI,
-        gauge_abi: gaugeRewardsOnlyABI,
-        sCurveRewards_abi: paaveRewardsabi,
+        gauge_abi: gaugeChildABI,
     },
     ren: {
         name: "ren",
@@ -45,8 +44,9 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         reference_asset: 'BTC',
         swap_address: '0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90',
         token_address: '0xC2b1DF84112619D190193E48148000e3990Bf627',
-        gauge_address: '0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1',
-        reward_contract: '0x75D05190f35567e79012c2F0a02330D3Ed8a1F74',
+        gauge_address: '0x00F7d467ef51E44f11f52a0c0Bef2E56C271b264',
+        // gauge_address: '0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1',
+        // reward_contract: '0x75D05190f35567e79012c2F0a02330D3Ed8a1F74',
         is_lending: true,
         underlying_coins: ['WBTC.e', 'renBTC'],
         wrapped_coins: ['avWBTC', 'renBTC'],
@@ -62,8 +62,7 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         wrapped_decimals: [8, 8],
         use_lending: [true, false],
         swap_abi: renSwapABI,
-        gauge_abi: gaugeRewardsOnlyABI,
-        sCurveRewards_abi: paaveRewardsabi,
+        gauge_abi: gaugeChildABI,
     },
     atricrypto: {
         name: "atricrypto",
@@ -72,9 +71,10 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         reference_asset: 'CRYPTO',
         swap_address: '0xB755B949C126C04e0348DD881a5cF55d424742B2',
         token_address: '0x1daB6560494B04473A0BE3E7D83CF3Fdf3a51828',
-        gauge_address: '0x445FE580eF8d70FF569aB36e80c647af338db351',
+        gauge_address: '0x1879075f1c055564CB968905aC404A5A01a1699A',
         deposit_address: '0x58e57cA18B7A47112b877E31929798Cd3D703b0f',
-        reward_contract: '0xa05E565cA0a103FcD999c7A7b8de7Bd15D5f6505',
+        // gauge_address: '0x445FE580eF8d70FF569aB36e80c647af338db351',
+        // reward_contract: '0xa05E565cA0a103FcD999c7A7b8de7Bd15D5f6505',
         is_meta: true,
         is_crypto: true,
         is_fake: true,
@@ -97,8 +97,7 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         wrapped_decimals: [18, 8, 18],
         use_lending: [false, false, false, false, false],
         swap_abi: atricrypto3Swap,
-        gauge_abi: gaugeRewardsOnlyABI,
+        gauge_abi: gaugeChildABI,
         deposit_abi: atricrypto3Zap,
-        sCurveRewards_abi: paaveRewardsabi,
     },
 });

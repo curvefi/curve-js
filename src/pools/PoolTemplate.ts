@@ -338,12 +338,12 @@ export class PoolTemplate {
             const apy: IReward[] = [];
             const rewardTokens = await this.rewardTokens();
             for (const rewardToken of rewardTokens) {
-                const rewardContract = curve.contracts[this.rewardContract as string].contract;
+                const gaugeContract = curve.contracts[this.gauge].contract;
 
                 const totalLiquidityUSD = await this.statsTotalLiquidity();
                 const rewardRate = await _getUsdRate(rewardToken.token);
 
-                const rewardData = await rewardContract.reward_data(rewardToken.token, curve.constantOptions);
+                const rewardData = await gaugeContract.reward_data(rewardToken.token, curve.constantOptions);
                 const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
                 const inflation = toBN(rewardData.rate, rewardToken.decimals);
                 const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
@@ -618,10 +618,11 @@ export class PoolTemplate {
         const gaugeContract = curve.contracts[this.gauge].contract;
         const gaugeMulticallContract = curve.contracts[this.gauge].multicallContract;
         if ("reward_tokens(uint256)" in gaugeContract) {
-            let rewardCount = 8; // gauge_v2, gauge_v3, gauge_rewards_only
+            let rewardCount = 8; // gauge_v2, gauge_v3, gauge_rewards_only, gauge_child
             if ("reward_count()" in gaugeContract) { // gauge_v4, gauge_v5, gauge_factory
                 rewardCount = Number(ethers.utils.formatUnits(await gaugeContract.reward_count(curve.constantOptions), 0));
             }
+            console.log(rewardCount);
 
             const tokenCalls = [];
             for (let i = 0; i < rewardCount; i++) {

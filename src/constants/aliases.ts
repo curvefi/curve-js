@@ -12,6 +12,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4', // <--- CHANGE
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- CHANGE
     "registry_exchange": "",
+    "gauge_child_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5", // MOCK
 });
 
 export const ALIASES_POLYGON = lowerCaseValues({
@@ -25,6 +26,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "factory": '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "gauge_child_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
 });
 
 export const ALIASES_AVALANCHE = lowerCaseValues({
@@ -38,4 +40,5 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "factory": '0xb17b674D9c5CB2e441F8e196a2f048A81355d031',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "gauge_child_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
 });

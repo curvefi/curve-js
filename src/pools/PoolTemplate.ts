@@ -690,8 +690,7 @@ export class PoolTemplate {
         const rewards = [];
         if ('claimable_reward(address,address)' in gaugeContract) {
             for (const rewardToken of rewardTokens) {
-                const method = curve.chainId === 1 ? "claimable_reward" : "claimable_reward_write";
-                const amount = ethers.utils.formatUnits(await gaugeContract[method](address, rewardToken, curve.constantOptions), rewardToken.decimals);
+                const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, rewardToken, curve.constantOptions), rewardToken.decimals);
                 rewards.push({
                     token: rewardToken.token,
                     symbol: rewardToken.symbol,

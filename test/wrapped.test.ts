@@ -8,7 +8,7 @@ import { PoolTemplate } from "../src/pools/PoolTemplate";
 
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
-const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
+const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth', 'euroc'];
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8']; // ['YFIETH-fV2'];
 
@@ -205,18 +205,18 @@ describe('Wrapped test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolId of ETHEREUM_POOLS) {
-    //     wrappedLiquidityTest(poolId);
-    //     wrappedSwapTest(poolId);
-    // }
+    for (const poolId of ETHEREUM_POOLS) {
+        wrappedLiquidityTest(poolId);
+        wrappedSwapTest(poolId);
+    }
 
     // for (const poolId of POLYGON_POOLS) {
     //     wrappedLiquidityTest(poolId);
     //     wrappedSwapTest(poolId);
     // }
 
-    for (const poolId of AVALANCHE_POOLS) {
-        wrappedLiquidityTest(poolId);
-        wrappedSwapTest(poolId);
-    }
+    // for (const poolId of AVALANCHE_POOLS) {
+    //     wrappedLiquidityTest(poolId);
+    //     wrappedSwapTest(poolId);
+    // }
 })

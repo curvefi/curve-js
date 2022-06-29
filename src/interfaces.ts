@@ -34,8 +34,6 @@ export interface IPoolData {
     underlying_decimals: number[],
     wrapped_decimals: number[],
     use_lending?: boolean[],
-    reward_tokens?: string[],
-    reward_decimals?: number[],
     swap_abi: any,
     gauge_abi: any,
     deposit_abi?: any,

@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
+import memoize from "memoizee";
 import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData } from '../external-api';
 import {
     _getCoinAddresses,
@@ -18,6 +19,7 @@ import {
     getEthIndex,
     fromBN,
     _cutZeros,
+    _setContracts,
 } from '../utils';
 import {
     IDict,
@@ -25,6 +27,7 @@ import {
     IExtendedPoolDataFromApi,
 } from '../interfaces';
 import { curve } from "../curve";
+import ERC20Abi from '../constants/abis/ERC20.json';
 
 
 export class PoolTemplate {
@@ -54,7 +57,6 @@ export class PoolTemplate {
     underlyingDecimals: number[];
     wrappedDecimals: number[];
     useLending: boolean[];
-    rewardTokens: string[];
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number>,
         deposit: (amounts: (number | string)[]) => Promise<number>,
@@ -140,7 +142,6 @@ export class PoolTemplate {
         this.underlyingDecimals = poolData.underlying_decimals;
         this.wrappedDecimals = poolData.wrapped_decimals;
         this.useLending = poolData.use_lending || poolData.underlying_coin_addresses.map(() => false);
-        this.rewardTokens = poolData.reward_tokens || [];
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),
@@ -307,14 +308,29 @@ export class PoolTemplate {
 
     private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
+
+        const totalLiquidityUSD = await this.statsTotalLiquidity();
+        if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
+
+        if (curve.chainId !== 1) {
+            const gaugeContract = curve.contracts[this.gauge].contract;
+            const crvContract = curve.contracts[curve.constants.ALIASES.crv].contract;
+
+            const week = 7 * 86400;
+            const currentWeek = Math.floor(Date.now() / 1000 / week);
+            let inflationRateBN = toBN(await gaugeContract.inflation_rate(currentWeek, curve.constantOptions));
+            if (inflationRateBN.eq(0)) {
+                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(week);
+            }
+            const crvRate = await _getUsdRate(curve.constants.ALIASES.crv);
+            const apy = inflationRateBN.times(31536000).times(crvRate).div(Number(totalLiquidityUSD));
+
+            return [apy.times(100).toFixed(4), apy.times(100).toFixed(4)];
+        }
 
         const gaugeContract = curve.contracts[this.gauge].multicallContract;
         const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
         const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
-
-        const totalLiquidityUSD = await this.statsTotalLiquidity();
-        if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
 
         const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
             gaugeContract.inflation_rate(),
@@ -335,24 +351,24 @@ export class PoolTemplate {
     private statsRewardsApy = async (): Promise<IReward[]> => {
         if ([137, 43114].includes(curve.chainId)) {
             const apy: IReward[] = [];
-            for (const rewardToken of this.rewardTokens) {
-                const rewardContract = curve.contracts[this.rewardContract as string].contract;
+            const rewardTokens = await this.rewardTokens();
+            for (const rewardToken of rewardTokens) {
+                const gaugeContract = curve.contracts[this.gauge].contract;
 
                 const totalLiquidityUSD = await this.statsTotalLiquidity();
-                const crvRate = await _getUsdRate(rewardToken);
+                const rewardRate = await _getUsdRate(rewardToken.token);
 
-                const inflation = toBN((await rewardContract.reward_data(curve.constants.ALIASES.crv, curve.constantOptions)).rate);
-                const baseApy = inflation.times(31536000).times(crvRate).div(Number(totalLiquidityUSD))
-
-                const rewardTokenContract = curve.contracts[rewardToken].contract;
-                const symbol = await rewardTokenContract.symbol();
+                const rewardData = await gaugeContract.reward_data(rewardToken.token, curve.constantOptions);
+                const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
+                const inflation = toBN(rewardData.rate, rewardToken.decimals);
+                const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
 
                 apy.push({
                     gaugeAddress: this.gauge.toLowerCase(),
-                    tokenAddress: rewardToken,
-                    symbol,
+                    tokenAddress: rewardToken.token,
+                    symbol: rewardToken.symbol,
                     apy: Number(baseApy.times(100).toFixed(4)),
-                })
+                });
             }
 
             return apy
@@ -584,7 +600,6 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimableCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use claimableRewards instead`)
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -596,7 +611,6 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use claimRewards instead`)
 
         return (await curve.contracts[curve.constants.ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).toNumber();
     }
@@ -605,14 +619,65 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use claimRewards instead`)
+        const contract = curve.contracts[curve.constants.ALIASES.minter].contract;
 
-        const gasLimit = (await curve.contracts[curve.constants.ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
-        return (await curve.contracts[curve.constants.ALIASES.minter].contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
+        const gasLimit = (await contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
+        return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
 
+    public rewardTokens = memoize(async (): Promise<{token: string, symbol: string, decimals: number}[]> => {
+        if (this.gauge === ethers.constants.AddressZero) return []
+
+        const gaugeContract = curve.contracts[this.gauge].contract;
+        const gaugeMulticallContract = curve.contracts[this.gauge].multicallContract;
+        if ("reward_tokens(uint256)" in gaugeContract) {
+            let rewardCount = 8; // gauge_v2, gauge_v3, gauge_rewards_only, gauge_child
+            if ("reward_count()" in gaugeContract) { // gauge_v4, gauge_v5, gauge_factory
+                rewardCount = Number(ethers.utils.formatUnits(await gaugeContract.reward_count(curve.constantOptions), 0));
+            }
+
+            const tokenCalls = [];
+            for (let i = 0; i < rewardCount; i++) {
+                tokenCalls.push(gaugeMulticallContract.reward_tokens(i));
+            }
+            const tokens = (await curve.multicallProvider.all(tokenCalls) as string[])
+                .filter((addr) => addr !== ethers.constants.AddressZero)
+                .map((addr) => addr.toLowerCase());
+
+            const tokenInfoCalls = [];
+            for (const token of tokens) {
+                _setContracts(token, ERC20Abi);
+                const tokenMulticallContract = curve.contracts[token].multicallContract;
+                tokenInfoCalls.push(tokenMulticallContract.symbol(), tokenMulticallContract.decimals());
+            }
+            const tokenInfo = await curve.multicallProvider.all(tokenInfoCalls);
+            for (let i = 0; i < tokens.length; i++) {
+                curve.constants.DECIMALS[tokens[i]] = tokenInfo[(i * 2) + 1] as number;
+            }
+
+            return tokens.map((token, i) => ({ token, symbol: tokenInfo[i * 2] as string, decimals: tokenInfo[(i * 2) + 1] as number }));
+        } else if ('claimable_reward(address)' in gaugeContract) { // gauge_synthetix
+            const rewardContract = curve.contracts[this.sRewardContract as string].contract;
+            const method = "snx()" in rewardContract ? "snx" : "rewardsToken" // susd, tbtc : dusd, musd, rsv, sbtc
+            const token = (await rewardContract[method](curve.constantOptions) as string).toLowerCase();
+            _setContracts(token, ERC20Abi);
+            const tokenMulticallContract = curve.contracts[token].multicallContract;
+            const [symbol, decimals] = await curve.multicallProvider.all([
+                tokenMulticallContract.symbol(),
+                tokenMulticallContract.decimals(),
+            ]);
+
+            return [{ token, symbol, decimals }]
+        }
+
+        return [] // gauge
+    },
+    {
+        promise: true,
+        maxAge: 30 * 60 * 1000, // 30m
+    });
+
     // TODO 1. Fix aave and saave error
-    // TODO 2. Figure out Synthetix cumulative results
     public async claimableRewards(address = ""): Promise<{token: string, symbol: string, amount: string}[]> {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimableRewards method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
@@ -621,32 +686,25 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const gaugeContract = curve.contracts[this.gauge].contract;
+        const rewardTokens = await this.rewardTokens();
         const rewards = [];
         if ('claimable_reward(address,address)' in gaugeContract) {
-            for (const rewardToken of this.rewardTokens) {
-                const rewardTokenContract = curve.contracts[rewardToken].contract;
-                const symbol = await rewardTokenContract.symbol();
-                const decimals = await rewardTokenContract.decimals();
-
-                const method = curve.chainId === 1 ? "claimable_reward" : "claimable_reward_write";
-                const amount = ethers.utils.formatUnits(await gaugeContract[method](address, rewardToken, curve.constantOptions), decimals);
+            for (const rewardToken of rewardTokens) {
+                const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, rewardToken, curve.constantOptions), rewardToken.decimals);
                 rewards.push({
-                    token: rewardToken,
-                    symbol: symbol,
+                    token: rewardToken.token,
+                    symbol: rewardToken.symbol,
                     amount: amount,
                 })
             }
-        } else if ('claimable_reward(address)' in gaugeContract && this.rewardTokens.length > 0) { // Synthetix Gauge
-            const rewardToken = this.rewardTokens[0];
-            const rewardTokenContract = curve.contracts[rewardToken].contract;
-            const symbol = await rewardTokenContract.symbol();
-            const decimals = await rewardTokenContract.decimals();
+        } else if ('claimable_reward(address)' in gaugeContract && rewardTokens.length > 0) { // Synthetix Gauge
+            const rewardToken = rewardTokens[0];
             const _totalAmount = await gaugeContract.claimable_reward(address, curve.constantOptions);
             const _claimedAmount = await gaugeContract.claimed_rewards_for(address, curve.constantOptions);
             rewards.push({
-                token: rewardToken,
-                symbol: symbol,
-                amount: ethers.utils.formatUnits(_totalAmount.sub(_claimedAmount), decimals),
+                token: rewardToken.token,
+                symbol: rewardToken.symbol,
+                amount: ethers.utils.formatUnits(_totalAmount.sub(_claimedAmount), rewardToken.decimals),
             })
         }
 

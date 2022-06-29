@@ -280,7 +280,6 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
         (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_decimals]));
     const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
 
-    // TODO add reward_tokens and reward_decimals
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
         if (!isMeta[i]) {

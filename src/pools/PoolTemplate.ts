@@ -635,7 +635,6 @@ export class PoolTemplate {
             if ("reward_count()" in gaugeContract) { // gauge_v4, gauge_v5, gauge_factory
                 rewardCount = Number(ethers.utils.formatUnits(await gaugeContract.reward_count(curve.constantOptions), 0));
             }
-            console.log(rewardCount);
 
             const tokenCalls = [];
             for (let i = 0; i < rewardCount; i++) {
@@ -650,9 +649,11 @@ export class PoolTemplate {
                 _setContracts(token, ERC20Abi);
                 const tokenMulticallContract = curve.contracts[token].multicallContract;
                 tokenInfoCalls.push(tokenMulticallContract.symbol(), tokenMulticallContract.decimals());
-
             }
             const tokenInfo = await curve.multicallProvider.all(tokenInfoCalls);
+            for (let i = 0; i < tokens.length; i++) {
+                curve.constants.DECIMALS[tokens[i]] = tokenInfo[(i * 2) + 1] as number;
+            }
 
             return tokens.map((token, i) => ({ token, symbol: tokenInfo[i * 2] as string, decimals: tokenInfo[(i * 2) + 1] as number }));
         } else if ('claimable_reward(address)' in gaugeContract) { // gauge_synthetix

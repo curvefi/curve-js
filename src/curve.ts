@@ -9,6 +9,7 @@ import ERC20Abi from './constants/abis/ERC20.json';
 import cERC20Abi from './constants/abis/cERC20.json';
 import yERC20Abi from './constants/abis/yERC20.json';
 import minterABI from './constants/abis/minter.json';
+import minterChildABI from './constants/abis/minter_child.json';
 import votingEscrowABI from './constants/abis/votingescrow.json';
 import addressProviderABI from './constants/abis/address_provider.json';
 import gaugeControllerABI from './constants/abis/gaugecontroller.json';
@@ -285,14 +286,16 @@ class Curve implements ICurve {
             contract: new Contract(this.constants.ALIASES.crv, ERC20Abi, this.signer || this.provider),
             multicallContract: new MulticallContract(this.constants.ALIASES.crv, ERC20Abi),
         };
+        this.constants.DECIMALS[this.constants.ALIASES.crv] = 18;
 
+        const _minterABI = this.chainId === 1 ? minterABI : minterChildABI
         this.contracts[this.constants.ALIASES.minter] = {
-            contract: new Contract(this.constants.ALIASES.minter, minterABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(this.constants.ALIASES.minter, minterABI),
+            contract: new Contract(this.constants.ALIASES.minter, _minterABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(this.constants.ALIASES.minter, _minterABI),
         };
         this.contracts[this.constants.ALIASES.minter.toLowerCase()] = {
-            contract: new Contract(this.constants.ALIASES.minter, minterABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(this.constants.ALIASES.minter, minterABI),
+            contract: new Contract(this.constants.ALIASES.minter, _minterABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(this.constants.ALIASES.minter, _minterABI),
         };
 
         this.contracts[this.constants.ALIASES.voting_escrow] = {

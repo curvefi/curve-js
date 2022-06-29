@@ -308,14 +308,29 @@ export class PoolTemplate {
 
     private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use getRewardsApy instead`);
+
+        const totalLiquidityUSD = await this.statsTotalLiquidity();
+        if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
+
+        if (curve.chainId !== 1) {
+            const gaugeContract = curve.contracts[this.gauge].contract;
+            const crvContract = curve.contracts[curve.constants.ALIASES.crv].contract;
+
+            const week = 7 * 86400;
+            const currentWeek = Math.floor(Date.now() / 1000 / week);
+            let inflationRateBN = toBN(await gaugeContract.inflation_rate(currentWeek, curve.constantOptions));
+            if (inflationRateBN.eq(0)) {
+                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(week);
+            }
+            const crvRate = await _getUsdRate(curve.constants.ALIASES.crv);
+            const apy = inflationRateBN.times(31536000).times(crvRate).div(Number(totalLiquidityUSD));
+
+            return [apy.times(100).toFixed(4), apy.times(100).toFixed(4)];
+        }
 
         const gaugeContract = curve.contracts[this.gauge].multicallContract;
         const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
         const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
-
-        const totalLiquidityUSD = await this.statsTotalLiquidity();
-        if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
 
         const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
             gaugeContract.inflation_rate(),
@@ -585,7 +600,6 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimableCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use claimableRewards instead`)
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -597,7 +611,6 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use claimRewards instead`)
 
         return (await curve.contracts[curve.constants.ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).toNumber();
     }
@@ -606,10 +619,10 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (curve.chainId !== 1) throw Error(`No such method on network with id ${curve.chainId}. Use claimRewards instead`)
+        const contract = curve.contracts[curve.constants.ALIASES.minter].contract;
 
-        const gasLimit = (await curve.contracts[curve.constants.ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
-        return (await curve.contracts[curve.constants.ALIASES.minter].contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
+        const gasLimit = (await contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
+        return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
 
     public rewardTokens = memoize(async (): Promise<{token: string, symbol: string, decimals: number}[]> => {

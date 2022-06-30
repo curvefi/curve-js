@@ -39,17 +39,15 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], s
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
 }
 
-async function getFactorySwapABIs(this: ICurve, factorySwapAddresses: string[]): Promise<any[]> {
-    const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
+async function getFactoryImplementations(this: ICurve, factorySwapAddresses: string[]): Promise<any[]> {
     const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
 
     const calls = [];
     for (const addr of factorySwapAddresses) {
         calls.push(factoryMulticallContract.get_implementation_address(addr));
     }
-    const implementationAddresses: string[] = await this.multicallProvider.all(calls);
 
-    return implementationAddresses.map((addr: string) => implementationABIDict[addr]);
+    return await this.multicallProvider.all(calls) as string[]
 }
 
 function setFactorySwapContracts(this: ICurve, factorySwapAddresses: string[], factorySwapABIs: any[]): void {
@@ -239,20 +237,11 @@ async function getFactoryIsMeta(this: ICurve, factorySwapAddresses: string[]): P
     return await this.multicallProvider.all(calls);
 }
 
-async function getFactoryBasePoolAddresses(this: ICurve, factorySwapAddresses: string[]): Promise<string[]> {
-    const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
-
-    const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_base_pool(addr));
-    }
-
-    return await this.multicallProvider.all(calls);
-}
-
 export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = await getFactoryIdsAndSwapAddresses.call(this);
-    const swapABIs = await getFactorySwapABIs.call(this, swapAddresses);
+    const implementations = await getFactoryImplementations.call(this, swapAddresses);
+    const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
+    const swapABIs = implementations.map((addr: string) => implementationABIDict[addr]);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
     const gaugeAddresses = await getFactoryGaugeAddresses.call(this, swapAddresses);
     setFactoryGaugeContracts.call(this, gaugeAddresses);
@@ -264,19 +253,18 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
     const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
     const isMeta = await getFactoryIsMeta.call(this, swapAddresses);
-    const basePoolAddresses = await getFactoryBasePoolAddresses.call(this, swapAddresses);
+    const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
+    const basePoolIds = implementations.map((addr: string) => implementationBasePoolIdDict[addr]);
     setFactoryZapContracts.call(this);
 
-    const basePoolAddressIdDict = FACTORY_CONSTANTS[this.chainId].basePoolAddressIdDict as IDict<string>;
-    const basePoolIds = basePoolAddresses.map((addr) => basePoolAddressIdDict[addr]);
     // @ts-ignore
-    const basePoolIdCoinsDict = Object.fromEntries(Object.values(basePoolAddressIdDict).map(
+    const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
         (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coins]));
     // @ts-ignore
-    const basePoolIdCoinAddressesDict = Object.fromEntries(Object.values(basePoolAddressIdDict).map(
+    const basePoolIdCoinAddressesDict = Object.fromEntries(basePoolIds.map(
         (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coin_addresses]));
     // @ts-ignore
-    const basePoolIdDecimalsDict = Object.fromEntries(Object.values(basePoolAddressIdDict).map(
+    const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
         (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_decimals]));
     const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
 

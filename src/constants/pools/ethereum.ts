@@ -83,6 +83,7 @@ import raiSwapABI from '../abis/rai/swap.json';
 import raiDepositABI from '../abis/rai/deposit.json';
 import twopoolSwapABI from '../abis/2pool/swap.json';
 import fourpoolSwapABI from '../abis/4pool/swap.json';
+import fraxusdcSwapABI from '../abis/fraxusdc/swap.json';
 import { lowerCasePoolDataAddresses } from "../utils";
 import { IDict, IPoolData } from "../../interfaces";
 
@@ -1518,6 +1519,30 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         underlying_decimals: [6, 6, 6, 18],
         wrapped_decimals: [6, 6, 6, 18],
         swap_abi: fourpoolSwapABI,
+        gauge_abi: gaugeV5ABI,
+    },
+    fraxusdc: {
+        name: "fraxusdc",
+        full_name: "fraxusdc",
+        symbol: "fraxusdc",
+        reference_asset: 'USD',
+        swap_address: '0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2',
+        token_address: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
+        gauge_address: '0xCFc25170633581Bf896CB6CDeE170e3E3Aa59503',
+        is_plain: true,
+        underlying_coins: ['FRAX', 'USDC'],
+        wrapped_coins: ['FRAX', 'USDC'],
+        underlying_coin_addresses: [
+            '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        ],
+        wrapped_coin_addresses: [
+            '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+            '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        ],
+        underlying_decimals: [18, 6],
+        wrapped_decimals: [18, 6],
+        swap_abi: fraxusdcSwapABI,
         gauge_abi: gaugeV5ABI,
     },
     euroc: {

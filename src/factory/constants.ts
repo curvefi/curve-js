@@ -99,55 +99,37 @@ export const implementationABIDictAvalanche: IDict<any> = {
     "0xCE94D3E5b0D80565D7B713A687b39a3Dc81780BA": Plain4OptimizedABI,
 }
 
-export const implementationBasePoolAddressDictEthereum: IDict<any> = {
-    "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // 3pool
+export const implementationBasePoolIdDictEthereum: IDict<string> = {
+    "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
-    "0x213be373FDff327658139C7df330817DAD2d5bBE": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // 3pool
-    "0x55Aa9BF126bCABF0bDC17Fa9E39Ec9239e1ce7A9": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // 3pool
+    "0x213be373FDff327658139C7df330817DAD2d5bBE": "3pool",
+    "0x55Aa9BF126bCABF0bDC17Fa9E39Ec9239e1ce7A9": "3pool",
 
-    "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2", // fraxusdc
-    "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2", // fraxusdc
+    "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": "fraxusdc",
+    "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": "fraxusdc",
 
-    "0xC6A8466d128Fbfd34AdA64a9FFFce325D57C9a52": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714", // sbtc
-    "0xc4C78b08fA0c3d0a312605634461A88184Ecd630": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714", // sbtc
+    "0xC6A8466d128Fbfd34AdA64a9FFFce325D57C9a52": "sbtc",
+    "0xc4C78b08fA0c3d0a312605634461A88184Ecd630": "sbtc",
 
-    "0xECAaecd9d2193900b424774133B1f51ae0F29d9E": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B", // ren
-    "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": "0x93054188d876f558f4a66B2EF1d97d16eDf0895B", // ren
+    "0xECAaecd9d2193900b424774133B1f51ae0F29d9E": "ren",
+    "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": "ren",
 }
 
-export const implementationBasePoolAddressDictPolygon: IDict<any> = {
-    "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": "0x445FE580eF8d70FF569aB36e80c647af338db351", // aave
-    "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": "0x445FE580eF8d70FF569aB36e80c647af338db351", // aave
+export const implementationBasePoolIdDictPolygon: IDict<string> = {
+    "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": "aave",
+    "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": "aave",
 
-    "0xC05EB760A135d3D0c839f1141423002681157a17": "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67", // ren
-    "0xD8336532f6ED7b94282fAF724fe41d6145E07Cfc": "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67", // ren
+    "0xC05EB760A135d3D0c839f1141423002681157a17": "ren",
+    "0xD8336532f6ED7b94282fAF724fe41d6145E07Cfc": "ren",
 }
 
-export const implementationBasePoolAddressDictAvalanche: IDict<any> = {
-    "0xA237034249290De2B07988Ac64b96f22c0E76fE0": "0x7f90122BF0700F9E7e1F688fe926940E8839F353", // aave
-    "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": "0x7f90122BF0700F9E7e1F688fe926940E8839F353", // aave
+export const implementationBasePoolIdDictAvalanche: IDict<string> = {
+    "0xA237034249290De2B07988Ac64b96f22c0E76fE0": "aave",
+    "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": "aave",
 
-    "0xa27f39E9C21b3376F43266E13Ad5A5d6E9BdB320": "0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90", // ren
-    "0x505C34ED8dBE96d2D5C7D83158aA844887770970": "0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90", // ren
+    "0xa27f39E9C21b3376F43266E13Ad5A5d6E9BdB320": "ren",
+    "0x505C34ED8dBE96d2D5C7D83158aA844887770970": "ren",
 }
-
-export const basePoolAddressIdDictEthereum: IDict<string> = {
-    "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "3pool",
-    "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2": "fraxusdc",
-    "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "sbtc",
-    "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "ren",
-}
-
-export const basePoolAddressIdDictPolygon: IDict<string> = {
-    "0x445FE580eF8d70FF569aB36e80c647af338db351": "aave",
-    "0xC2d95EEF97Ec6C17551d45e77B590dc1F9117C67": "ren",
-}
-
-export const basePoolAddressIdDictAvalanche: IDict<string> = {
-    "0x7f90122BF0700F9E7e1F688fe926940E8839F353": "aave",
-    "0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90": "ren",
-}
-
 
 export const basePoolIdZapDictEthereum: IDict<string> = {
     '3pool': "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
@@ -169,23 +151,20 @@ export const basePoolIdZapDictAvalanche: IDict<string> = {
 export const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
-export const FACTORY_CONSTANTS: { [index: number]: any } = {
+export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<string> } } = {
     1: {
         implementationABIDict: implementationABIDictEthereum,
-        implementationBasePoolAddressDict: implementationBasePoolAddressDictEthereum,
-        basePoolAddressIdDict: basePoolAddressIdDictEthereum,
+        implementationBasePoolIdDict: implementationBasePoolIdDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,
     },
     137: {
         implementationABIDict: implementationABIDictPolygon,
-        implementationBasePoolAddressDict: implementationBasePoolAddressDictPolygon,
-        basePoolAddressIdDict: basePoolAddressIdDictPolygon,
+        implementationBasePoolIdDict: implementationBasePoolIdDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
     },
     43114: {
         implementationABIDict: implementationABIDictAvalanche,
-        implementationBasePoolAddressDict: implementationBasePoolAddressDictAvalanche,
-        basePoolAddressIdDict: basePoolAddressIdDictAvalanche,
+        implementationBasePoolIdDict: implementationBasePoolIdDictAvalanche,
         basePoolIdZapDict: basePoolIdZapDictAvalanche,
     },
 }

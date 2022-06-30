@@ -690,12 +690,12 @@ export class PoolTemplate {
         const rewards = [];
         if ('claimable_reward(address,address)' in gaugeContract) {
             for (const rewardToken of rewardTokens) {
-                const amount = ethers.utils.formatUnits(await gaugeContract.claimable_reward(address, rewardToken, curve.constantOptions), rewardToken.decimals);
+                const _amount = await gaugeContract.claimable_reward(address, rewardToken.token, curve.constantOptions);
                 rewards.push({
                     token: rewardToken.token,
                     symbol: rewardToken.symbol,
-                    amount: amount,
-                })
+                    amount: ethers.utils.formatUnits(_amount, rewardToken.decimals),
+                });
             }
         } else if ('claimable_reward(address)' in gaugeContract && rewardTokens.length > 0) { // Synthetix Gauge
             const rewardToken = rewardTokens[0];

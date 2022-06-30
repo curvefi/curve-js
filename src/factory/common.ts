@@ -2,11 +2,17 @@ import { Contract } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
 import { ICurve } from "../interfaces";
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
+import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/metaZap.json";
 import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json";
 import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
 
 export function setFactoryZapContracts(this: ICurve): void {
     if (this.chainId === 1) {
+        const fraxusdcMetaZapAddress = "0x08780fb7E580e492c1935bEe4fA5920b94AA95Da".toLowerCase();
+        this.contracts[fraxusdcMetaZapAddress] = {
+            contract: new Contract(fraxusdcMetaZapAddress, fraxusdcMetaZapABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(fraxusdcMetaZapAddress, fraxusdcMetaZapABI),
+        };
         const metaSBtcZapAddress = "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase();
         this.contracts[metaSBtcZapAddress] = {
             contract: new Contract(metaSBtcZapAddress, factoryDepositABI, this.signer || this.provider),

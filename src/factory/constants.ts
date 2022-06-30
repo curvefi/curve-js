@@ -2,6 +2,8 @@ import {IDict} from "../interfaces";
 import factorySwapABI from "../constants/abis/factoryPools/swap.json";
 import MetaUSDABI from "../constants/abis/factory-v2/MetaUSD.json";
 import MetaUSDBalancesABI from "../constants/abis/factory-v2/MetaUSDBalances.json";
+import MetaFraxUSDABI from "../constants/abis/factory-v2/MetaFraxUSD.json";
+import MetaFraxUSDBalancesABI from "../constants/abis/factory-v2/MetaFraxUSDBalances.json";
 import MetaBTCABI from "../constants/abis/factory-v2/MetaBTC.json";
 import MetaBTCBalancesABI from "../constants/abis/factory-v2/MetaBTCBalances.json";
 import MetaBTCRenABI from "../constants/abis/factory-v2/MetaBTCRen.json";
@@ -25,6 +27,9 @@ export const implementationABIDictEthereum: IDict<any> = {
 
     "0x213be373FDff327658139C7df330817DAD2d5bBE": MetaUSDABI,
     "0x55Aa9BF126bCABF0bDC17Fa9E39Ec9239e1ce7A9": MetaUSDBalancesABI,
+
+    "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": MetaFraxUSDABI,
+    "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": MetaFraxUSDBalancesABI,
 
     "0xC6A8466d128Fbfd34AdA64a9FFFce325D57C9a52": MetaBTCABI,
     "0xc4C78b08fA0c3d0a312605634461A88184Ecd630": MetaBTCBalancesABI,
@@ -100,6 +105,9 @@ export const implementationBasePoolAddressDictEthereum: IDict<any> = {
     "0x213be373FDff327658139C7df330817DAD2d5bBE": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // 3pool
     "0x55Aa9BF126bCABF0bDC17Fa9E39Ec9239e1ce7A9": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // 3pool
 
+    "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2", // fraxusdc
+    "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2", // fraxusdc
+
     "0xC6A8466d128Fbfd34AdA64a9FFFce325D57C9a52": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714", // sbtc
     "0xc4C78b08fA0c3d0a312605634461A88184Ecd630": "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714", // sbtc
 
@@ -125,6 +133,7 @@ export const implementationBasePoolAddressDictAvalanche: IDict<any> = {
 
 export const basePoolAddressIdDictEthereum: IDict<string> = {
     "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7": "3pool",
+    "0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2": "fraxusdc",
     "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714": "sbtc",
     "0x93054188d876f558f4a66B2EF1d97d16eDf0895B": "ren",
 }
@@ -142,6 +151,7 @@ export const basePoolAddressIdDictAvalanche: IDict<string> = {
 
 export const basePoolIdZapDictEthereum: IDict<string> = {
     '3pool': "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
+    fraxusdc: "0x08780fb7E580e492c1935bEe4fA5920b94AA95Da".toLowerCase(),
     sbtc: "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),
     ren: "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(), // TODO CHECK!!!
 }

@@ -130,20 +130,20 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
             };
         } else if (pool.implementation.startsWith("meta")) {
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
-            const implementationBasePoolAddressDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolAddressDict;
-            const basePoolAddressIdDict = FACTORY_CONSTANTS[this.chainId].basePoolAddressIdDict as IDict<string>;// @ts-ignore
-            const basePoolIdCoinsDict = Object.fromEntries(Object.values(basePoolAddressIdDict).map(
+            const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
+            const basePoolIds = Object.values(implementationBasePoolIdDict).filter((poolId, i, arr) => arr.indexOf(poolId) === i);
+            // @ts-ignore
+            const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
                 (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coins]));
             // @ts-ignore
-            const basePoolIdCoinAddressesDict = Object.fromEntries(Object.values(basePoolAddressIdDict).map(
+            const basePoolIdCoinAddressesDict = Object.fromEntries(basePoolIds.map(
                 (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coin_addresses]));
             // @ts-ignore
-            const basePoolIdDecimalsDict = Object.fromEntries(Object.values(basePoolAddressIdDict).map(
+            const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
                 (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_decimals]));
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
 
-            const basePoolAddress = implementationBasePoolAddressDict[pool.implementationAddress];
-            const basePoolId = basePoolAddressIdDict[basePoolAddress];
+            const basePoolId = implementationBasePoolIdDict[pool.implementationAddress];
             const basePoolCoinNames = basePoolIdCoinsDict[basePoolId];
             const basePoolCoinAddresses = basePoolIdCoinAddressesDict[basePoolId];
             const basePoolDecimals = basePoolIdDecimalsDict[basePoolId];

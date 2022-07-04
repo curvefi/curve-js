@@ -424,6 +424,7 @@ import curve from "@curvefi/api";
     
     await compound.stats.parameters();
     // {
+    //     lpTokenSupply: '66658430.461661546713781772',
     //     virtualPrice: '1.107067773320466717',
     //     fee: '0.04',
     //     adminFee: '0.02',

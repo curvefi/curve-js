@@ -190,9 +190,10 @@ export class PoolTemplate {
     }
 
     private statsParameters = async (): Promise<{
+        lpTokenSupply: string,
         virtualPrice: string,
-        fee: string,
-        adminFee: string,
+        fee: string, // %
+        adminFee: string, // %
         A: string,
         future_A?: string,
         initial_A?: string,
@@ -201,8 +202,10 @@ export class PoolTemplate {
         gamma?: string,
     }> => {
         const multicallContract = curve.contracts[this.address].multicallContract;
+        const lpMulticallContract = curve.contracts[this.lpToken].multicallContract;
 
         const calls = [
+            lpMulticallContract.totalSupply(),
             multicallContract.get_virtual_price(),
             multicallContract.fee(),
             multicallContract.admin_fee(),
@@ -219,8 +222,9 @@ export class PoolTemplate {
             );
         }
 
-        const [_virtualPrice, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
-        const [virtualPrice, fee, adminFee, A, gamma] = [
+        const [_lpTokenSupply, _virtualPrice, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+        const [lpTokenSupply, virtualPrice, fee, adminFee, A, gamma] = [
+            ethers.utils.formatUnits(_lpTokenSupply),
             ethers.utils.formatUnits(_virtualPrice),
             ethers.utils.formatUnits(_fee, 8),
             ethers.utils.formatUnits(_adminFee.mul(_fee)),
@@ -238,7 +242,7 @@ export class PoolTemplate {
             _initial_A_time ? Number(ethers.utils.formatUnits(_initial_A_time, 0)) * 1000 : undefined,
         ]
 
-        return { virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma };
+        return { lpTokenSupply, virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma };
     }
 
     private async statsWrappedBalances(): Promise<string[]> {

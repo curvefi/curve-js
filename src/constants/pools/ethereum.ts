@@ -815,7 +815,7 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         swap_address: '0xDeBF20617708857ebe4F679508E7b7863a8A8EeE',
         token_address: '0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900',
         gauge_address: '0xd662908ADA2Ea1916B3318327A97eB18aD588b5d',
-        sCurveRewards_address: "0x99ac10631F69C753DDb595D074422a0922D9056B",
+        sCurveRewards_address: "0x96d7bc17912e4f320c4894194564cf8425cfe8d9",
         is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         wrapped_coins: ['aDAI', 'aUSDC', 'aUSDT'],

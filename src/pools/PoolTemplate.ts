@@ -600,6 +600,62 @@ export class PoolTemplate {
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
+    public crvIncome = async (address = ""): Promise<{ day: string, week: string, month: string, year: string }> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const day = 86400;
+        const week = 7 * day;
+        const month = 30 * day;
+        const year = 365 * day;
+
+        let inflationRateBN, workingSupplyBN, workingBalanceBN;
+        if (curve.chainId !== 1) {
+            const gaugeContract = curve.contracts[this.gauge].multicallContract;
+            const crvContract = curve.contracts[curve.constants.ALIASES.crv].contract;
+
+            const currentWeek = Math.floor(Date.now() / 1000 / week);
+            [inflationRateBN, workingBalanceBN, workingSupplyBN] = (await curve.multicallProvider.all([
+                gaugeContract.inflation_rate(currentWeek),
+                gaugeContract.working_balances(address),
+                gaugeContract.working_supply(),
+            ]) as ethers.BigNumber[]).map((value) => toBN(value));
+
+            if (inflationRateBN.eq(0)) {
+                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(week);
+            }
+        } else {
+            const gaugeContract = curve.contracts[this.gauge].multicallContract;
+            const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
+
+            let weightBN;
+            [inflationRateBN, weightBN, workingBalanceBN, workingSupplyBN] = (await curve.multicallProvider.all([
+                gaugeContract.inflation_rate(),
+                gaugeControllerContract.gauge_relative_weight(this.gauge),
+                gaugeContract.working_balances(address),
+                gaugeContract.working_supply(),
+            ]) as ethers.BigNumber[]).map((value) => toBN(value));
+
+            inflationRateBN = inflationRateBN.times(weightBN);
+        }
+
+        if (workingSupplyBN.eq(0)) return { day: "0.0", week: "0.0", month: "0.0", year: "0.0" };
+
+        const dailyIncome = inflationRateBN.times(day).times(workingBalanceBN).div(workingSupplyBN);
+        const weeklyIncome = inflationRateBN.times(week).times(workingBalanceBN).div(workingSupplyBN);
+        const monthlyIncome = inflationRateBN.times(month).times(workingBalanceBN).div(workingSupplyBN);
+        const annualIncome = inflationRateBN.times(year).times(workingBalanceBN).div(workingSupplyBN);
+
+        return {
+            day: dailyIncome.toString(),
+            week: weeklyIncome.toString(),
+            month: monthlyIncome.toString(),
+            year: annualIncome.toString(),
+        };
+    }
+
     public async claimableCrv (address = ""): Promise<string> {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`claimableCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);

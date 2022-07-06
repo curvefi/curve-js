@@ -25,10 +25,16 @@ import {
     IDict,
     IReward,
     IExtendedPoolDataFromApi,
+    IProfit,
 } from '../interfaces';
-import { curve } from "../curve";
+import { curve as _curve, curve } from "../curve";
 import ERC20Abi from '../constants/abis/ERC20.json';
 
+
+const DAY = 86400;
+const WEEK = 7 * DAY;
+const MONTH = 30 * DAY;
+const YEAR = 365 * DAY;
 
 export class PoolTemplate {
     id: string;
@@ -600,23 +606,18 @@ export class PoolTemplate {
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
-    public crvIncome = async (address = ""): Promise<{ day: string, week: string, month: string, year: string }> => {
+    public crvProfit = async (address = ""): Promise<IProfit> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
-
-        const day = 86400;
-        const week = 7 * day;
-        const month = 30 * day;
-        const year = 365 * day;
 
         let inflationRateBN, workingSupplyBN, workingBalanceBN;
         if (curve.chainId !== 1) {
             const gaugeContract = curve.contracts[this.gauge].multicallContract;
             const crvContract = curve.contracts[curve.constants.ALIASES.crv].contract;
 
-            const currentWeek = Math.floor(Date.now() / 1000 / week);
+            const currentWeek = Math.floor(Date.now() / 1000 / WEEK);
             [inflationRateBN, workingBalanceBN, workingSupplyBN] = (await curve.multicallProvider.all([
                 gaugeContract.inflation_rate(currentWeek),
                 gaugeContract.working_balances(address),
@@ -624,7 +625,7 @@ export class PoolTemplate {
             ]) as ethers.BigNumber[]).map((value) => toBN(value));
 
             if (inflationRateBN.eq(0)) {
-                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(week);
+                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(WEEK);
             }
         } else {
             const gaugeContract = curve.contracts[this.gauge].multicallContract;
@@ -640,19 +641,31 @@ export class PoolTemplate {
 
             inflationRateBN = inflationRateBN.times(weightBN);
         }
+        const crvPrice = await _getUsdRate('CRV');
 
-        if (workingSupplyBN.eq(0)) return { day: "0.0", week: "0.0", month: "0.0", year: "0.0" };
+        if (workingSupplyBN.eq(0)) return {
+            day: "0.0",
+            week: "0.0",
+            month: "0.0",
+            year: "0.0",
+            token: curve.constants.ALIASES.crv,
+            symbol: 'CRV',
+            price: crvPrice,
+        };
 
-        const dailyIncome = inflationRateBN.times(day).times(workingBalanceBN).div(workingSupplyBN);
-        const weeklyIncome = inflationRateBN.times(week).times(workingBalanceBN).div(workingSupplyBN);
-        const monthlyIncome = inflationRateBN.times(month).times(workingBalanceBN).div(workingSupplyBN);
-        const annualIncome = inflationRateBN.times(year).times(workingBalanceBN).div(workingSupplyBN);
+        const dailyIncome = inflationRateBN.times(DAY).times(workingBalanceBN).div(workingSupplyBN);
+        const weeklyIncome = inflationRateBN.times(WEEK).times(workingBalanceBN).div(workingSupplyBN);
+        const monthlyIncome = inflationRateBN.times(MONTH).times(workingBalanceBN).div(workingSupplyBN);
+        const annualIncome = inflationRateBN.times(YEAR).times(workingBalanceBN).div(workingSupplyBN);
 
         return {
             day: dailyIncome.toString(),
             week: weeklyIncome.toString(),
             month: monthlyIncome.toString(),
             year: annualIncome.toString(),
+            token: curve.constants.ALIASES.crv,
+            symbol: 'CRV',
+            price: crvPrice,
         };
     }
 
@@ -736,6 +749,90 @@ export class PoolTemplate {
         promise: true,
         maxAge: 30 * 60 * 1000, // 30m
     });
+
+    public rewardsProfit = async (address = ""): Promise<IProfit[]> => {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const rewardTokens = await this.rewardTokens();
+        const gaugeContract = curve.contracts[this.gauge].multicallContract;
+
+        const result = [];
+        if ('reward_data(address)' in curve.contracts[this.gauge].contract) {
+            const calls = [gaugeContract.balanceOf(address), gaugeContract.totalSupply()];
+            for (const rewardToken of rewardTokens) {
+                calls.push(gaugeContract.reward_data(rewardToken.token));
+            }
+            const res = await curve.multicallProvider.all(calls);
+
+            const balanceBN = toBN(res.shift() as ethers.BigNumber);
+            const totalSupplyBN = toBN(res.shift() as ethers.BigNumber);
+            for (const rewardToken of rewardTokens) {
+                const _rewardData = res.shift() as { period_finish: ethers.BigNumber, rate: ethers.BigNumber };
+                const periodFinish = Number(ethers.utils.formatUnits(_rewardData.period_finish, 0)) * 1000;
+                const inflationRateBN = periodFinish > Date.now() ? toBN(_rewardData.rate, rewardToken.decimals) : BN(0);
+                const tokenPrice = await _getUsdRate(rewardToken.token);
+
+                result.push(
+                    {
+                        day: inflationRateBN.times(DAY).times(balanceBN).div(totalSupplyBN).toString(),
+                        week: inflationRateBN.times(WEEK).times(balanceBN).div(totalSupplyBN).toString(),
+                        month: inflationRateBN.times(MONTH).times(balanceBN).div(totalSupplyBN).toString(),
+                        year: inflationRateBN.times(YEAR).times(balanceBN).div(totalSupplyBN).toString(),
+                        token: rewardToken.token,
+                        symbol: rewardToken.symbol,
+                        price: tokenPrice,
+                    }
+                )
+            }
+        } else if (this.sRewardContract && "rewardRate()" in _curve.contracts[this.sRewardContract].contract && "periodFinish()" && rewardTokens.length === 1) {
+            const rewardToken = rewardTokens[0];
+            const sRewardContract = curve.contracts[this.sRewardContract].multicallContract;
+            const [_inflationRate, _periodFinish, _balance, _totalSupply] = await curve.multicallProvider.all([
+                sRewardContract.rewardRate(),
+                sRewardContract.periodFinish(),
+                gaugeContract.balanceOf(address),
+                gaugeContract.totalSupply(),
+            ])
+
+            const periodFinish = Number(ethers.utils.formatUnits(_periodFinish, 0)) * 1000;
+            const inflationRateBN = periodFinish > Date.now() ? toBN(_inflationRate, rewardToken.decimals) : BN(0);
+            const balanceBN = toBN(_balance);
+            const totalSupplyBN = toBN(_totalSupply);
+            const tokenPrice = await _getUsdRate(rewardToken.token);
+
+            result.push(
+                {
+                    day: inflationRateBN.times(DAY).times(balanceBN).div(totalSupplyBN).toString(),
+                    week: inflationRateBN.times(WEEK).times(balanceBN).div(totalSupplyBN).toString(),
+                    month: inflationRateBN.times(MONTH).times(balanceBN).div(totalSupplyBN).toString(),
+                    year: inflationRateBN.times(YEAR).times(balanceBN).div(totalSupplyBN).toString(),
+                    token: rewardToken.token,
+                    symbol: rewardToken.symbol,
+                    price: tokenPrice,
+                }
+            )
+        } else if (['aave', 'saave', 'ankreth'].includes(this.id)) {
+            for (const rewardToken of rewardTokens) {
+                const tokenPrice = await _getUsdRate(rewardToken.token);
+                result.push(
+                    {
+                        day: "0",
+                        week: "0",
+                        month: "0",
+                        year: "0",
+                        token: rewardToken.token,
+                        symbol: rewardToken.symbol,
+                        price: tokenPrice,
+                    }
+                )
+            }
+        }
+
+        return result;
+    }
 
     // TODO 1. Fix aave and saave error
     public async claimableRewards(address = ""): Promise<{token: string, symbol: string, amount: string}[]> {

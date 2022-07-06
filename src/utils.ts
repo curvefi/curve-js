@@ -278,6 +278,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     }
 
     assetId = {
+        'CRV': 'curve-dao-token',
         'EUR': curve.constants.COINS.eurt,
         'BTC': 'bitcoin',
         'ETH': 'ethereum',

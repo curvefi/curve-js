@@ -123,3 +123,13 @@ export interface IRoute {
     outputUsd: number,
     txCostUsd: number,
 }
+
+export interface IProfit {
+    day: string,
+    week: string,
+    month: string,
+    year: string,
+    token: string,
+    symbol: string,
+    price: number,
+}

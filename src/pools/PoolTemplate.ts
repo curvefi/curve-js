@@ -1490,6 +1490,98 @@ export class PoolTemplate {
         )
     }
 
+    // ---------------- USER BALANCES, BASE PROFIT AND SHARE ----------------
+
+    private async _userLpTotalBalance(address: string): Promise<string> {
+        const lpBalances = await this.walletLpTokenBalances(address);
+        let lpTotalBalanceBN = BN(lpBalances.lpToken as string);
+        if ('gauge' in lpBalances) lpTotalBalanceBN = lpTotalBalanceBN.plus(BN(lpBalances.gauge as string));
+
+        return lpTotalBalanceBN.toString()
+    }
+
+    public async userBalances(address = ""): Promise<string[]> {
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const lpTotalBalanceBN = await this._userLpTotalBalance(address);
+
+        return await this.withdrawExpected(lpTotalBalanceBN.toString());
+    }
+
+    public async userWrappedBalances(address = ""): Promise<string[]> {
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const lpTotalBalanceBN = await this._userLpTotalBalance(address);
+
+        return await this.withdrawWrappedExpected(lpTotalBalanceBN.toString());
+    }
+
+    public async userLiquidityUSD(address = ""): Promise<string> {
+        const balances = await this.userBalances(address);
+        const promises = [];
+        for (const addr of this.underlyingCoinAddresses) {
+            promises.push(_getUsdRate(addr))
+        }
+        const prices = await Promise.all(promises);
+        const totalLiquidity = (balances as string[]).reduce(
+            (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
+
+        return totalLiquidity.toFixed(8)
+    }
+
+    public async baseProfit(address = ""): Promise<{ day: string, week: string, month: string, year: string }> {
+        const apyData = await this.statsBaseApy();
+        if (!('week' in apyData)) return { day: "0", week: "0", month: "0", year: "0" };
+
+        const apyBN = BN(apyData.week).div(100);
+        const totalLiquidityBN = BN(await this.userLiquidityUSD(address));
+
+        const annualProfitBN = apyBN.times(totalLiquidityBN);
+        const monthlyProfitBN = annualProfitBN.div(12);
+        const weeklyProfitBN = annualProfitBN.div(52);
+        const daylyProfitBN = annualProfitBN.div(365);
+
+        return {
+            day: daylyProfitBN.toString(),
+            week: weeklyProfitBN.toString(),
+            month: monthlyProfitBN.toString(),
+            year: annualProfitBN.toString(),
+        }
+    }
+
+    public async userShare(address = ""):
+        Promise<{ lpUser: string, lpTotal: string, lpShare: string, gaugeUser?: string, gaugeTotal?: string, gaugeShare?: string }>
+    {
+        const withGauge = this.gauge !== ethers.constants.AddressZero;
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const userLpBalance = await this.walletLpTokenBalances(address) as IDict<string>;
+        let userLpTotalBalanceBN = BN(userLpBalance.lpToken);
+        if (withGauge) userLpTotalBalanceBN = userLpTotalBalanceBN.plus(BN(userLpBalance.gauge as string));
+
+        let totalLp, gaugeLp;
+        if (withGauge) {
+            [totalLp, gaugeLp] = (await curve.multicallProvider.all([
+                curve.contracts[this.lpToken].multicallContract.totalSupply(),
+                curve.contracts[this.gauge].multicallContract.totalSupply(),
+            ]) as ethers.BigNumber[]).map((_supply) => ethers.utils.formatUnits(_supply));
+        } else {
+            totalLp = ethers.utils.formatUnits(await curve.contracts[this.lpToken].contract.totalSupply());
+        }
+
+        return {
+            lpUser: userLpTotalBalanceBN.toString(),
+            lpTotal: totalLp,
+            lpShare: userLpTotalBalanceBN.div(totalLp).times(100).toString(),
+            gaugeUser: userLpBalance.gauge,
+            gaugeTotal: gaugeLp,
+            gaugeShare: withGauge ? BN(userLpBalance.gauge).div(BN(gaugeLp as string)).times(100).toString() : undefined,
+        }
+    }
+
     // ---------------- SWAP ----------------
 
     private async _swapExpected(i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> {

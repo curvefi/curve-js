@@ -718,6 +718,20 @@ export class PoolTemplate {
         return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
     }
 
+    public currentCrvApy = async (address = ""): Promise<string> => {
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const [baseApy, maxApy] = await this.statsTokenApy();
+        if (curve.chainId !== 1) return baseApy;
+
+        const boost = await this.boost(address);
+        if (boost == "2.5") return maxApy;
+        if (boost === "NaN") return "NaN";
+
+        return BN(baseApy).times(BN(boost)).toFixed(4).replace(/([0-9])0+$/, '$1');
+    }
+
     public maxBoostedStake = async (...addresses: string[]): Promise<IDict<string> | string> => {
         if (curve.chainId !== 1) throw Error("Boosting is available only on Ethereum network");
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);

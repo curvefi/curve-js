@@ -156,7 +156,7 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         token_address: '0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8',
         gauge_address: '0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1',
         deposit_address: '0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3',
-        sCurveRewards_address: '0x0001FB050Fe7312791bF6475b96569D83F695C9f',
+        // sCurveRewards_address: '0x0001FB050Fe7312791bF6475b96569D83F695C9f',
         is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT', 'TUSD'],
         wrapped_coins: ['yDAI', 'yUSDC', 'yUSDT', 'yTUSD'],
@@ -178,7 +178,7 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         swap_abi: iearnSwapABI,
         gauge_abi: gaugeABI,
         deposit_abi: iearnDepositABI,
-        sCurveRewards_abi: iearnSCurveRewardsABI,
+        // sCurveRewards_abi: iearnSCurveRewardsABI,
     },
     busd: {
         name: "busd",

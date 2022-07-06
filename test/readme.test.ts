@@ -425,14 +425,61 @@ const boostingTest = async () => {
     console.log(await curve.boosting.getVeCrvPct());
 }
 
+const crvTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = curve.getPool('compound');
+
+    console.log(await pool.depositAndStake([1000, 1000]));
+    console.log(await pool.crvProfit());
+    console.log(await pool.stats.tokenApy());
+    console.log(await pool.currentCrvApy());
+    console.log(await pool.boost());
+
+    await curve.boosting.createLock(10000, 365 * 4);
+    console.log(await pool.depositAndStake([1000, 1000]));
+    console.log(await pool.crvProfit());
+    console.log(await pool.stats.tokenApy());
+    console.log(await pool.currentCrvApy());
+    console.log(await pool.boost());
+    console.log(await pool.wallet.lpTokenBalances());
+    console.log(await pool.maxBoostedStake());
+
+    // ------ Wait some time... ------
+
+    console.log(await pool.claimableCrv());
+    console.log(await pool.claimCrv());
+    console.log(await pool.claimableCrv());
+}
+
 const rewardsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0 });
 
     const pool = curve.getPool('susd');
 
-    console.log(await pool.claimableCrv());
-    console.log(await pool.claimCrv());
+    console.log(await pool.rewardTokens());
+    console.log(await pool.depositAndStake([1000, 1000, 1000, 1000]));
+    console.log(await pool.rewardsProfit());
+
+    // ------ Wait some time... ------
 
     console.log(await pool.claimableRewards());
     console.log(await pool.claimRewards());
+    console.log(await pool.claimableRewards());
+}
+
+const userBalancesBaseProfitAndShareTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = curve.getPool('frax');
+
+    // console.log(await pool.deposit([1000, 1000, 1000, 1000]));
+    console.log(await pool.wallet.lpTokenBalances());
+    // console.log(await pool.stake(2000));
+    // console.log(await pool.wallet.lpTokenBalances());
+    // console.log(await pool.userBalances());
+    // console.log(await pool.userWrappedBalances());
+    // console.log(await pool.userLiquidityUSD());
+    // console.log(await pool.baseProfit());
+    // console.log(await pool.userShare());
 }

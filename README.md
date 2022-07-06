@@ -424,6 +424,7 @@ import curve from "@curvefi/api";
     
     await compound.stats.parameters();
     // {
+    //     lpTokenSupply: '66658430.461661546713781772',
     //     virtualPrice: '1.107067773320466717',
     //     fee: '0.04',
     //     adminFee: '0.02',
@@ -1070,7 +1071,62 @@ import curve from "@curvefi/api";
 })()
 ```
 
-## Rewards
+## CRV. Profit, claim, boosting
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = curve.getPool('compound');
+
+    await pool.depositAndStake([1000, 1000]);
+    await pool.crvProfit();
+    // {
+    //     day: '0.01861607837347995222',
+    //     week: '0.13031254861435966551',
+    //     month: '0.55848235120439856649',
+    //     year: '6.79486860632018255891',
+    //     token: '0xd533a949740bb3306d119cc777fa900ba034cd52',
+    //     symbol: 'CRV',
+    //     price: 0.978134
+    // }
+    await pool.stats.tokenApy();
+    // [ '0.3324', '0.8309' ]
+    await pool.currentCrvApy();
+    // 0.3324
+    await pool.boost();
+    // 1.0
+
+    await curve.boosting.createLock(10000, 365 * 4);
+    await pool.depositAndStake([1000, 1000]);
+    // crvProfit = {
+    //     day: '0.05703837081508656944',
+    //     week: '0.39926859570560598606',
+    //     month: '1.7111511244525970831',
+    //     year: '20.81900534750659784443',
+    //     token: '0xd533a949740bb3306d119cc777fa900ba034cd52',
+    //     symbol: 'CRV',
+    //     price: 0.978134
+    // }
+    //
+    // currentApy = 0.5092
+    // boost = 1.532
+
+    await pool.wallet.lpTokenBalances();
+    // { lpToken: '0.0', gauge: '3610.795806899650569624' }
+    await pool.maxBoostedStake();
+    // 1281.660714834072909477
+
+    // ------ Wait some time... ------
+    await pool.claimableCrv();
+    // 0.4085482040149887
+    await pool.claimCrv();
+    // claimableCrv = 0.0
+})()
+```
+
+## Rewards. Profit and claim
 ```ts
 import curve from "@curvefi/api";
 
@@ -1079,12 +1135,30 @@ import curve from "@curvefi/api";
     
     const pool = curve.getPool('susd');
 
-    // CRV
-    await pool.claimableCrv();
-    // 0.006296257916265276
-    await pool.claimCrv();
-
-    // Additional rewards
+    await pool.rewardTokens();
+    // [
+    //     {
+    //         token: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
+    //         symbol: 'SNX',
+    //         decimals: 18
+    //     }
+    // ]
+    await pool.depositAndStake([1000, 1000, 1000, 1000]);
+    await pool.rewardsProfit();
+    // [
+    //     {
+    //         day: '0.02387645750842563304',
+    //         week: '0.16713520255897943129',
+    //         month: '0.71629372525276899123',
+    //         year: '8.71490699057535605995',
+    //         token: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
+    //         symbol: 'SNX',
+    //         price: 2.61
+    //     }
+    // ]
+    
+    // ------ Wait some time... ------
+    
     await pool.claimableRewards();
     // [
     //     {
@@ -1094,8 +1168,56 @@ import curve from "@curvefi/api";
     //     }
     // ]
     await pool.claimRewards();
+    // claimableRewards = [
+    //     {
+    //         token: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
+    //         symbol: 'SNX',
+    //         amount: '0.0'
+    //     }
+    // ]
 })()
 ```
+## User balances, base profit and share
+```ts
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const pool = curve.getPool('frax');
+
+    await pool.deposit([1000, 1000, 1000, 1000]);
+    // { lpToken: '3967.761942945398518479', gauge: '0.0' }
+    await pool.stake(2000);
+    // { lpToken: '1967.761942945398518479', gauge: '2000.0' }
+
+    await pool.userBalances();
+    // [
+    //     '2489.266644542275414077',
+    //     '276.21290758040371998',
+    //     '280.160024',
+    //     '955.058471'
+    // ]
+    await pool.userWrappedBalances();
+    // [ '2489.266644542275414077', '1479.135765218522838249' ]
+    await pool.userLiquidityUSD();
+    // 4003.16466431
+    await pool.baseProfit();
+    // {
+    //     day: '0.01476134356908610233',
+    //     week: '0.1036132769753159106',
+    //     month: '0.44899086689303561258',
+    //     year: '5.38789040271642735101374407'
+    // }
+    await pool.userShare();
+    // {
+    //     lpUser: '3967.761942945398518479',
+    //     lpTotal: '1124490985.047288488832152598',
+    //     lpShare: '0.000352849600015116',
+    //     gaugeUser: '2000.0',
+    //     gaugeTotal: '1123703753.306098922471106555',
+    //     gaugeShare: '0.000177982853053192'
+    // }
+})()
+````
 
 ## Gas estimation
 Every non-constant method has corresponding gas estimation method. Rule: ```obj.method -> obj.estimateGas.method```

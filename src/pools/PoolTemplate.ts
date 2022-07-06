@@ -606,6 +606,8 @@ export class PoolTemplate {
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
+    // ---------------- CRV PROFIT, CLAIM, BOOSTING ----------------
+
     public crvProfit = async (address = ""): Promise<IProfit> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
 
@@ -697,6 +699,60 @@ export class PoolTemplate {
         const gasLimit = (await contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
         return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
+
+    public boost = async (address = ""): Promise<string> => {
+        if (curve.chainId !== 1) throw Error("Boosting is available only on Ethereum network");
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const gaugeContract = curve.contracts[this.gauge].multicallContract;
+        const [workingBalanceBN, balanceBN] = (await curve.multicallProvider.all([
+            gaugeContract.working_balances(address),
+            gaugeContract.balanceOf(address),
+        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
+
+        const boostBN = workingBalanceBN.div(0.4).div(balanceBN);
+
+        return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
+    }
+
+    public maxBoostedStake = async (...addresses: string[]): Promise<IDict<string> | string> => {
+        if (curve.chainId !== 1) throw Error("Boosting is available only on Ethereum network");
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
+        if (addresses.length === 0 && curve.signerAddress !== '') addresses = [curve.signerAddress];
+
+        if (addresses.length === 0) throw Error("Need to connect wallet or pass addresses into args");
+
+        const votingEscrowContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
+        const gaugeContract = curve.contracts[this.gauge].multicallContract;
+
+        const contractCalls = [votingEscrowContract.totalSupply(), gaugeContract.totalSupply()];
+        addresses.forEach((account: string) => {
+            contractCalls.push(votingEscrowContract.balanceOf(account));
+        });
+
+        const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        const responseBN: BigNumber[] = _response.map((value: ethers.BigNumber) => toBN(value));
+
+        const [veTotalSupplyBN, gaugeTotalSupplyBN] = responseBN.splice(0, 2);
+
+        const resultBN: IDict<BigNumber> = {};
+        addresses.forEach((acct: string, i: number) => {
+            resultBN[acct] = responseBN[i].div(veTotalSupplyBN).times(gaugeTotalSupplyBN);
+        });
+
+        const result: IDict<string> = {};
+        for (const entry of Object.entries(resultBN)) {
+            result[entry[0]] = toStringFromBN(entry[1]);
+        }
+
+        return addresses.length === 1 ? result[addresses[0]] : result
+    }
+
+    // ---------------- REWARDS PROFIT, CLAIM ----------------
 
     public rewardTokens = memoize(async (): Promise<{token: string, symbol: string, decimals: number}[]> => {
         if (this.gauge === ethers.constants.AddressZero) return []
@@ -1580,36 +1636,6 @@ export class PoolTemplate {
 
     // ---------------- ... ----------------
 
-    public gaugeMaxBoostedDeposit = async (...addresses: string[]): Promise<IDict<string>> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
-
-        const votingEscrowContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
-        const gaugeContract = curve.contracts[this.gauge].multicallContract;
-
-        const contractCalls = [votingEscrowContract.totalSupply(), gaugeContract.totalSupply()];
-        addresses.forEach((account: string) => {
-            contractCalls.push(votingEscrowContract.balanceOf(account));
-        });
-
-        const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
-        const responseBN: BigNumber[] = _response.map((value: ethers.BigNumber) => toBN(value));
-
-        const [veTotalSupplyBN, gaugeTotalSupplyBN] = responseBN.splice(0, 2);
-
-        const resultBN: IDict<BigNumber> = {};
-        addresses.forEach((acct: string, i: number) => {
-            resultBN[acct] = responseBN[i].div(veTotalSupplyBN).times(gaugeTotalSupplyBN);
-        });
-
-        const result: IDict<string> = {};
-        for (const entry of Object.entries(resultBN)) {
-            result[entry[0]] = toStringFromBN(entry[1]);
-        }
-
-        return result;
-    }
-
     public gaugeOptimalDeposits = async (...accounts: string[]): Promise<IDict<string>> => {
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
@@ -1668,19 +1694,6 @@ export class PoolTemplate {
         }
 
         return optimal
-    }
-
-    public boost = async (address: string): Promise<string> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
-        const gaugeContract = curve.contracts[this.gauge].multicallContract;
-        const [workingBalance, balance] = (await curve.multicallProvider.all([
-            gaugeContract.working_balances(address),
-            gaugeContract.balanceOf(address),
-        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => Number(ethers.utils.formatUnits(value)));
-
-        const boost = workingBalance / (0.4 * balance);
-
-        return boost.toFixed(4).replace(/([0-9])0+$/, '$1')
     }
 
     private _getCoinIdx = (coin: string | number, useUnderlying = true): number => {

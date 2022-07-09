@@ -1174,7 +1174,7 @@ export class PoolTemplate {
         const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, decimals[i]));
 
         const contract = curve.contracts[curve.constants.ALIASES.deposit_and_stake].contract;
-        const useUnderlying = isUnderlying && (this.isLending || this.isCrypto) && !this.zap;
+        const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && !this.zap;
         const _minMintAmount = isUnderlying ?
             ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)).mul(99).div(100) :
             ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts)).mul(99).div(100);
@@ -1424,7 +1424,7 @@ export class PoolTemplate {
     }
 
     public async withdrawOneCoinWrappedBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
-        if (this.isFake) {
+        if (this.isFake || this.isPlain) {
             throw Error(`${this.name} pool doesn't have this method`);
         }
 

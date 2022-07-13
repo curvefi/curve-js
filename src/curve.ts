@@ -385,7 +385,7 @@ class Curve implements ICurve {
     }
 
     async fetchCryptoFactoryPools(useApi = true): Promise<void> {
-        if (this.chainId !== 1 && this.chainId !== 1337) return
+        if (this.chainId !== 1 && this.chainId !== 137) return
 
         if (useApi) {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, true));

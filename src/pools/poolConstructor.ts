@@ -8,6 +8,7 @@ import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/dep
 import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
 import { withdrawMetaFactoryMixin, withdrawZapMixin, withdrawLendingOrCryptoMixin, withdrawPlainMixin } from "./mixins/withdrawMixins";
 import { withdrawWrapped2argsMixin, withdrawWrapped3argsMixin } from "./mixins/withdrawWrappedMixins";
+import { withdrawImbalanceBonusMixin, withdrawOneCoinBonusMixin, withdrawOneCoinCryptoBonusMixin, withdrawImbalanceWrappedBonusMixin, withdrawOneCoinWrappedBonusMixin, withdrawOneCoinWrappedCryptoBonusMixin } from "./mixins/withdrawBonusMixins";
 import { withdrawImbalanceMetaFactoryMixin, withdrawImbalanceZapMixin, withdrawImbalanceLendingMixin, withdrawImbalancePlainMixin } from "./mixins/withdrawImbalanceMixins";
 import { withdrawImbalanceWrapped2argsMixin, withdrawImbalanceWrapped3argsMixin } from "./mixins/withdrawImbalanceWrappedMixins";
 import { withdrawOneCoinExpectedMetaFactoryMixin, withdrawOneCoinExpectedZapMixin, withdrawOneCoinExpected3argsMixin, withdrawOneCoinExpected2argsMixin } from "./mixins/withdrawOneCoinExpectedMixins";
@@ -96,6 +97,24 @@ export const getPool = (poolId: string): PoolTemplate => {
         Object.assign(Pool.prototype, withdrawLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, withdrawPlainMixin);
+    }
+
+    // withdrawImbalanceBonus and withdrawOneCoinBonus
+    if (!poolDummy.isCrypto) {
+        Object.assign(Pool.prototype, withdrawImbalanceBonusMixin);
+        Object.assign(Pool.prototype, withdrawOneCoinBonusMixin);
+    } else {
+        Object.assign(Pool.prototype, withdrawOneCoinCryptoBonusMixin);
+    }
+
+    // withdrawImbalanceWrappedBonus and withdrawOneCoinWrappedBonus
+    if (!poolDummy.isPlain && !poolDummy.isFake) {
+        if (!poolDummy.isCrypto) {
+            Object.assign(Pool.prototype, withdrawImbalanceWrappedBonusMixin);
+            Object.assign(Pool.prototype, withdrawOneCoinWrappedBonusMixin);
+        } else {
+            Object.assign(Pool.prototype, withdrawOneCoinWrappedCryptoBonusMixin);
+        }
     }
 
     // withdrawWrapped and withdrawWrappedEstimateGas

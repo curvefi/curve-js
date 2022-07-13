@@ -4,7 +4,7 @@ import { IDict, IPoolData, ICurve } from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
-import { WETH_ADDRESS } from "./constants";
+import { NATIVE_TOKENS, NATIVE_TOKEN_ADDRESS } from "./constants";
 
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -120,7 +120,7 @@ function setCryptoFactoryCoinsContracts(this: ICurve, coinAddresses: string[][])
 }
 
 async function getCryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddresses: string[][]): Promise<string[][]> {
-    return coinAddresses.map((coins: string[]) => coins.map((c) => c === WETH_ADDRESS ? "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" : c));
+    return coinAddresses.map((coins: string[]) => coins.map((c) => c === NATIVE_TOKENS[this.chainId].wrappedAddress ? NATIVE_TOKEN_ADDRESS : c));
 }
 
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
@@ -139,9 +139,9 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
         });
     }
 
-    if (this.chainId === 1) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
-    if (this.chainId === 137) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "MATIC"
-    if (this.chainId === 43114) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "AVAX"
+    if (this.chainId === 1) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
+    if (this.chainId === 137) dict[NATIVE_TOKEN_ADDRESS] = "MATIC"
+    if (this.chainId === 43114) dict[NATIVE_TOKEN_ADDRESS] = "AVAX"
 
     return dict
 }
@@ -175,6 +175,8 @@ async function getCoinAddressNameDict(
         coinAddrNamesDict[addr] = names[i];
     });
 
+    coinAddrNamesDict[NATIVE_TOKEN_ADDRESS] = NATIVE_TOKENS[this.chainId].symbol;
+
     return coinAddrNamesDict
 }
 
@@ -185,11 +187,11 @@ async function getCoinAddressDecimalsDict(
 ): Promise<IDict<number>> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
-    const coinAddrNamesDict: IDict<number> = {};
+    const coinAddressDecimalsDict: IDict<number> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddressDecimalsDict) {
-            coinAddrNamesDict[addr] = existingCoinAddressDecimalsDict[addr];
+            coinAddressDecimalsDict[addr] = existingCoinAddressDecimalsDict[addr];
         } else {
             newCoinAddresses.push(addr);
         }
@@ -202,12 +204,12 @@ async function getCoinAddressDecimalsDict(
     const decimals = (await this.multicallProvider.all(calls) as ethers.BigNumber[]).map((_d) => Number(ethers.utils.formatUnits(_d, 0)));
 
     newCoinAddresses.forEach((addr, i) => {
-        coinAddrNamesDict[addr] = decimals[i];
+        coinAddressDecimalsDict[addr] = decimals[i];
     });
 
-    coinAddrNamesDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 18
+    coinAddressDecimalsDict[NATIVE_TOKEN_ADDRESS] = 18
 
-    return coinAddrNamesDict
+    return coinAddressDecimalsDict
 }
 
 

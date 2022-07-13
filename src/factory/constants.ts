@@ -148,8 +148,19 @@ export const basePoolIdZapDictAvalanche: IDict<string> = {
     ren: "0xEeB3DDBcc4174e0b3fd1C13aD462b95D11Ef42C3".toLowerCase(),
 }
 
-export const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
+    1: {
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    },
+    137: {
+        symbol: 'MATIC',
+        wrappedSymbol: 'WMATIC',
+        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+    },
+}
 
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<string> } } = {
     1: {

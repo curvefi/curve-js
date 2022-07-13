@@ -6,7 +6,7 @@ import factoryGaugeABI from "../constants/abis/gauge_factory.json";
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
-import { FACTORY_CONSTANTS, WETH_ADDRESS, ETH_ADDRESS } from "./constants";
+import { FACTORY_CONSTANTS, NATIVE_TOKEN_ADDRESS, NATIVE_TOKENS } from "./constants";
 import { setFactoryZapContracts } from "./common";
 
 
@@ -103,11 +103,12 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
         const coinAddresses = pool.coins.map((c) => c.address.toLowerCase());
         const coinNames = pool.coins.map((c) => c.symbol);
         const coinDecimals = pool.coins.map((c) => Number(c.decimals));
+        const nativeToken = NATIVE_TOKENS[this.chainId];
 
         if (isCrypto) {
-            const cryptoCoinNames = pool.coins.map((c) => c.symbol === "ETH" ? "WETH" : c.symbol);
-            const underlyingCoinNames = pool.coins.map((c) => c.symbol === "WETH" ? "ETH" : c.symbol);
-            const underlyingCoinAddresses = pool.coins.map((c) => c.address.toLowerCase() === WETH_ADDRESS ? ETH_ADDRESS : c.address.toLowerCase());
+            const cryptoCoinNames = pool.coins.map((c) => c.symbol === nativeToken.symbol ? nativeToken.wrappedSymbol : c.symbol);
+            const underlyingCoinNames = pool.coins.map((c) => c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol);
+            const underlyingCoinAddresses = coinAddresses.map((addr) => addr === nativeToken.wrappedAddress ? NATIVE_TOKEN_ADDRESS : addr);
 
             FACTORY_POOLS_DATA[pool.id] = {
                 name: pool.name.split(": ")[1].trim(),

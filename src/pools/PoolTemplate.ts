@@ -194,6 +194,13 @@ export class PoolTemplate {
         }
     }
 
+    public rewardsOnly(): boolean {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        const gaugeContract = curve.contracts[this.gauge].contract;
+
+        return !('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
+    }
+
     private statsParameters = async (): Promise<{
         lpTokenSupply: string,
         virtualPrice: string,
@@ -316,7 +323,7 @@ export class PoolTemplate {
     }
 
     private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use getRewardsApy instead`);
 
         const totalLiquidityUSD = await this.statsTotalLiquidity();
         if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
@@ -358,7 +365,9 @@ export class PoolTemplate {
     }
 
     private statsRewardsApy = async (): Promise<IReward[]> => {
-        if ([137, 43114].includes(curve.chainId)) {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+
+        if ([137, 250, 43114].includes(curve.chainId)) {
             const apy: IReward[] = [];
             const rewardTokens = await this.rewardTokens();
             for (const rewardToken of rewardTokens) {
@@ -608,7 +617,7 @@ export class PoolTemplate {
     // ---------------- CRV PROFIT, CLAIM, BOOSTING ----------------
 
     public crvProfit = async (address = ""): Promise<IProfit> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use rewardsProfit instead`);
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -671,9 +680,7 @@ export class PoolTemplate {
     }
 
     public async claimableCrv (address = ""): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`claimableCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
-        }
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimableRewards instead`);
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -682,17 +689,13 @@ export class PoolTemplate {
     }
 
     public async claimCrvEstimateGas(): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
-        }
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
 
         return (await curve.contracts[curve.constants.ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).toNumber();
     }
 
     public async claimCrv(): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
-        }
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
         const contract = curve.contracts[curve.constants.ALIASES.minter].contract;
 
         const gasLimit = (await contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);

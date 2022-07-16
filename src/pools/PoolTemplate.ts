@@ -14,7 +14,6 @@ import {
     BN,
     toBN,
     toStringFromBN,
-    checkNumber,
     parseUnits,
     getEthIndex,
     fromBN,
@@ -1051,7 +1050,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this.depositWrappedExpected(amounts);
     }
@@ -1060,7 +1059,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this.depositWrappedBonus(amounts);
     }
@@ -1069,7 +1068,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const coinsAllowance: boolean = await hasAllowance(this.wrappedCoinAddresses, amounts, curve.signerAddress, curve.constants.ALIASES.deposit_and_stake);
 
@@ -1086,7 +1085,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.wrappedCoinAddresses, amounts, curve.constants.ALIASES.deposit_and_stake);
 
@@ -1106,7 +1105,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const approveCoinsTx: string[] = await ensureAllowance(this.wrappedCoinAddresses, amounts, curve.constants.ALIASES.deposit_and_stake);
 
@@ -1127,7 +1126,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this._depositAndStake(amounts, false, true) as number
     }
@@ -1136,7 +1135,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this._depositAndStake(amounts, false, false) as string
     }

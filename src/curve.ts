@@ -19,11 +19,12 @@ import registryExchangeABI from './constants/abis/registry_exchange.json';
 import streamerABI from './constants/abis/streamer.json';
 import factoryABI from './constants/abis/factory.json';
 import cryptoFactoryABI from './constants/abis/factory-crypto.json';
-import { POOLS_DATA_ETHEREUM, POOLS_DATA_POLYGON, POOLS_DATA_AVALANCHE } from './constants/pools';
+import { POOLS_DATA_ETHEREUM, POOLS_DATA_POLYGON, POOLS_DATA_FANTOM, POOLS_DATA_AVALANCHE } from './constants/pools';
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon";
+import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom";
 import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
-import { ALIASES_ETHEREUM, ALIASES_POLYGON, ALIASES_AVALANCHE } from "./constants/aliases";
+import { ALIASES_ETHEREUM, ALIASES_POLYGON, ALIASES_FANTOM, ALIASES_AVALANCHE } from "./constants/aliases";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
 
@@ -47,6 +48,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensPolygon,
         ycTokens: ycTokensPolygon,
         aTokens: aTokensPolygon,
+    },
+    250: {
+        NAME: 'fantom',
+        ALIASES: ALIASES_FANTOM,
+        POOLS_DATA: POOLS_DATA_FANTOM,
+        COINS: COINS_FANTOM,
+        cTokens: cTokensFantom,
+        yTokens: yTokensFantom,
+        ycTokens: ycTokensFantom,
+        aTokens: aTokensFantom,
     },
     43114: {
         NAME: 'avalanche',
@@ -232,6 +243,7 @@ class Curve implements ICurve {
 
             for (const coinAddr of pool.wrapped_coin_addresses) {
                 if (customAbiTokens.includes(coinAddr)) continue;
+                if (coinAddr in this.contracts) continue;
 
                 this.contracts[coinAddr] = {
                     contract: new Contract(coinAddr, ERC20Abi, this.signer || this.provider),
@@ -385,7 +397,7 @@ class Curve implements ICurve {
     }
 
     async fetchCryptoFactoryPools(useApi = true): Promise<void> {
-        if (this.chainId !== 1 && this.chainId !== 137) return
+        if (![1, 137, 250].includes(this.chainId)) return
 
         if (useApi) {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, true));

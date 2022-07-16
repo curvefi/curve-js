@@ -1614,7 +1614,7 @@ export class PoolTemplate {
     }
 
     private _swapContractAddress(): string {
-        return (this.isCrypto && this.isMeta) || ([137, 43114].includes(curve.chainId) && this.isMetaFactory) ? this.zap as string : this.address;
+        return (this.isCrypto && this.isMeta) || (this.isMetaFactory && (new PoolTemplate(this.basePool).isLending)) ? this.zap as string : this.address;
     }
 
     public async swapIsApproved(inputCoin: string | number, amount: number | string): Promise<boolean> {

@@ -1,4 +1,3 @@
-import { curve } from "../curve";
 import { PoolTemplate } from "./PoolTemplate";
 import { poolBalancesAtricrypto3Mixin, poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
 import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins";
@@ -193,7 +192,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     // swap and swapEstimateGas
     if (poolId === 'tricrypto2') {
         Object.assign(Pool.prototype, swapTricrypto2Mixin);
-    } else if ([137, 43114].includes(curve.chainId) && poolDummy.isMetaFactory) {
+    } else if (poolDummy.isMetaFactory && getPool(poolDummy.basePool).isLending) {
         Object.assign(Pool.prototype, swapMetaFactoryMixin);
     } else {
         Object.assign(Pool.prototype, swapMixin);

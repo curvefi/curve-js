@@ -201,7 +201,11 @@ class Curve implements ICurve {
         await this.multicallProvider.init(this.provider);
 
         if (this.signer) {
-            this.signerAddress = await this.signer.getAddress();
+            try {
+                this.signerAddress = await this.signer.getAddress();
+            } catch (err) {
+                this.signer = null;
+            }
         } else {
             this.signerAddress = '';
         }

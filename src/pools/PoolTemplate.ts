@@ -365,18 +365,18 @@ export class PoolTemplate {
     }
 
     private statsRewardsApy = async (): Promise<IReward[]> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.gauge === ethers.constants.AddressZero) return [];
 
         if ([137, 250, 43114].includes(curve.chainId)) {
             const apy: IReward[] = [];
             const rewardTokens = await this.rewardTokens();
             for (const rewardToken of rewardTokens) {
-                const gaugeContract = curve.contracts[this.gauge].contract;
+                const contract = curve.contracts[this.sRewardContract || this.gauge].contract;
 
                 const totalLiquidityUSD = await this.statsTotalLiquidity();
                 const rewardRate = await _getUsdRate(rewardToken.token);
 
-                const rewardData = await gaugeContract.reward_data(rewardToken.token, curve.constantOptions);
+                const rewardData = await contract.reward_data(rewardToken.token, curve.constantOptions);
                 const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
                 const inflation = toBN(rewardData.rate, rewardToken.decimals);
                 const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);

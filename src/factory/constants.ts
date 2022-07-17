@@ -204,6 +204,11 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WMATIC',
         wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
     },
+    250: {
+        symbol: 'FTM',
+        wrappedSymbol: 'WFTM',
+        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    },
 }
 
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<string> } } = {

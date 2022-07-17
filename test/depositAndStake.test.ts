@@ -3,6 +3,7 @@ import curve from "../src";
 import { PoolTemplate, getPool } from "../src/pools";
 import { BN } from "../src/utils";
 import { IDict } from "../src/interfaces";
+import {ethers} from "ethers";
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt'];
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
@@ -13,6 +14,12 @@ const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 's
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 const AVALANCHE_POOLS = ['aave', 'ren', 'atricrypto'];
+
+const FANTOM_MAIN_POOLS = ['2pool', 'fusdt', 'ren', 'tricrypto', 'ib', 'geist'];
+const FANTOM_FACTORY_PLAIN_POOLS = ['factory-v2-85', 'factory-v2-1', 'factory-v2-7']; // ['axlUSDC/USDC', '3poolV2', '4pool'];
+const FANTOM_FACTORY_META_POOLS = ['factory-v2-16', 'factory-v2-40']; // ['FRAX2pool', 'Geist Frax'];
+const FANTOM_FACTORY_CRYPTO_POOLS = ['factory-crypto-3']; // ['aCRV/CRV'];
+const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_PLAIN_POOLS, ...FANTOM_FACTORY_META_POOLS, ...FANTOM_FACTORY_CRYPTO_POOLS];
 
 const underlyingDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake underlying`, function () {
@@ -25,6 +32,11 @@ const underlyingDepositAndStakeTest = (name: string) => {
         });
 
         it('Deposits and stakes', async function () {
+            if (pool.gauge === ethers.constants.AddressZero) {
+                console.log('Skip');
+                return;
+            }
+
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
 
@@ -61,6 +73,11 @@ const wrappedDepositAndStakeTest = (name: string) => {
         });
 
         it('Deposits and stakes', async function () {
+            if (pool.isPlain || pool.isFake || pool.gauge === ethers.constants.AddressZero) {
+                console.log('Skip');
+                return;
+            }
+
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
 
@@ -72,7 +89,7 @@ const wrappedDepositAndStakeTest = (name: string) => {
             const balances = await pool.wallet.balances() as IDict<string>;
 
             coinAddresses.forEach((c: string) => {
-                if (['aave', 'saave'].includes(name) || (pool.isLending && pool.id === 'ren')) {
+                if (['aave', 'saave', 'geist'].includes(name) || (pool.isLending && pool.id === 'ren')) {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else {
                     assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
@@ -90,6 +107,8 @@ describe('Deposit&Stake test', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
+        await curve.fetchFactoryPools();
+        await curve.fetchCryptoFactoryPools();
     });
 
     // for (const poolName of ETHEREUM_POOLS) {
@@ -106,10 +125,15 @@ describe('Deposit&Stake test', async function () {
     //     }
     // }
     //
-    for (const poolName of AVALANCHE_POOLS) {
+    // for (const poolName of AVALANCHE_POOLS) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     if (poolName !== 'atricrypto') {
+    //         wrappedDepositAndStakeTest(poolName);
+    //     }
+    // }
+
+    for (const poolName of FANTOM_POOLS) {
         underlyingDepositAndStakeTest(poolName);
-        if (poolName !== 'atricrypto') {
-            wrappedDepositAndStakeTest(poolName);
-        }
+        wrappedDepositAndStakeTest(poolName);
     }
 })

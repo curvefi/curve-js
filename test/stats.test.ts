@@ -29,6 +29,10 @@ const FACTORY_POOLS_COUNT_POLYGON = 263;
 const MAIN_POOLS_AVALANCHE = [ 'aave', 'ren', 'atricrypto'];
 const FACTORY_POOLS_COUNT_AVALANCHE = 81;
 
+const MAIN_POOLS_FANTOM = ['2pool', 'fusdt', 'ren', 'tricrypto', 'ib', 'geist'];;
+const FACTORY_POOLS_COUNT_FANTOM = 110;
+const CRYPTO_FACTORY_POOLS_COUNT_FANTOM = 6;
+
 const checkNumber = (str: string) => {
     const re = /-?\d+(\.\d+)?(e-\d+)?/g
     const match = str.match(re);
@@ -118,11 +122,23 @@ describe('Stats test', async function () {
     //     poolStatsTest("factory-v2-" + i);
     // }
 
-    for (const poolName of MAIN_POOLS_AVALANCHE) {
+    // for (const poolName of MAIN_POOLS_AVALANCHE) {
+    //     poolStatsTest(poolName);
+    // }
+    //
+    // for (let i = 0; i < FACTORY_POOLS_COUNT_AVALANCHE; i++) {
+    //     poolStatsTest("factory-v2-" + i);
+    // }
+
+    for (const poolName of MAIN_POOLS_FANTOM) {
         poolStatsTest(poolName);
     }
 
-    for (let i = 0; i < FACTORY_POOLS_COUNT_AVALANCHE; i++) {
+    for (let i = 0; i < FACTORY_POOLS_COUNT_FANTOM; i++) {
         poolStatsTest("factory-v2-" + i);
+    }
+
+    for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT_FANTOM; i++) {
+        poolStatsTest("factory-crypto-" + i);
     }
 })

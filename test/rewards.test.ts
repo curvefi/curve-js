@@ -18,6 +18,10 @@ describe('Checking constants', async function () {
         for (const poolId of pools) {
             console.log(poolId);
             const pool = curve.getPool(poolId);
+            if (pool.rewardsOnly()) {
+                console.log('Rewards-Only');
+                continue;
+            }
             try {
                 const crvProfit = await pool.crvProfit();
                 console.log(crvProfit, '\n');

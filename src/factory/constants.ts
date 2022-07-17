@@ -8,6 +8,7 @@ import MetaBTCABI from "../constants/abis/factory-v2/MetaBTC.json";
 import MetaBTCBalancesABI from "../constants/abis/factory-v2/MetaBTCBalances.json";
 import MetaBTCRenABI from "../constants/abis/factory-v2/MetaBTCRen.json";
 import MetaBTCRenBalancesABI from "../constants/abis/factory-v2/MetaBTCBalancesRen.json";
+import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json";
 import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json";
 import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json";
 import Plain2ETHABI from "../constants/abis/factory-v2/Plain2ETH.json";
@@ -76,6 +77,32 @@ export const implementationABIDictPolygon: IDict<any> = {
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
 }
 
+export const implementationABIDictFantom: IDict<any> = {
+    "0xfCE359115dFe1533a2458650123F86C454BC0213": MetaUSDABI,
+    "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": MetaUSDBalancesABI,
+
+    "0xC9438d8928486bD9621D326002F4672bF684187A": MetaBTCRenABI,
+    "0x2b70A5B878665FfDB4A06Ba40a264d6c70f68F4B": MetaBTCRenBalancesABI,
+
+    "0x210C806F6AE850279f7E298dE749EC4B427d00DD": MetaUSDGeistABI,
+    "0xf82162bB68aD5a168345bb7EFb2faA0EDCCA5177": MetaUSDBalancesABI,
+
+    "0x61E10659fe3aa93d036d099405224E4Ac24996d0": Plain2BasicABI,
+    "0xd9Acb0BAeeD77C99305017821167674Cc7e82f7a": Plain2BalancesABI,
+    "0xE6358f6a45B502477e83CC1CDa759f540E4459ee": Plain2ETHABI,
+    "0xAD4768F408dD170e62E074188D81A29AE31B8Fd8": Plain2OptimizedABI,
+
+    "0x3cABd83bCa606768939B843f91df8f4963dBC079": Plain3BasicABI,
+    "0xD1602F68CC7C4c7B59D686243EA35a9C73B0c6a2": Plain3BalancesABI,
+    "0x5d58Eb45e97B43e471AF05cD2b11CeB4106E1b1a": Plain3ETHABI,
+    "0x7Ee25A34C921E4009B726cC6be0643fd6a39DbfE": Plain3OptimizedABI,
+
+    "0xABE216918fFDa43B44e3FC09639Fd82fD3527D89": Plain4BasicABI,
+    "0x775A21E0dfE25aF30FF2FCAC37512EbD8fD36471": Plain4BalancesABI,
+    "0xb11Dc44A9f981fAF1669dca6DD40c3cc2554A2ce": Plain4ETHABI,
+    "0x9D7C28226AA7142cBF234ab9aa9C203D095c528B": Plain4OptimizedABI,
+}
+
 export const implementationABIDictAvalanche: IDict<any> = {
     "0xA237034249290De2B07988Ac64b96f22c0E76fE0": MetaUSDABI,
     "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": MetaUSDBalancesABI, // 0x7f90122BF0700F9E7e1F688fe926940E8839F353
@@ -123,6 +150,17 @@ export const implementationBasePoolIdDictPolygon: IDict<string> = {
     "0xD8336532f6ED7b94282fAF724fe41d6145E07Cfc": "ren",
 }
 
+export const implementationBasePoolIdDictFantom: IDict<string> = {
+    "0xfCE359115dFe1533a2458650123F86C454BC0213": "2pool",
+    "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": "2pool",
+
+    "0xC9438d8928486bD9621D326002F4672bF684187A": "ren",
+    "0x2b70A5B878665FfDB4A06Ba40a264d6c70f68F4B": "ren",
+
+    "0x210C806F6AE850279f7E298dE749EC4B427d00DD": "geist",
+    "0xf82162bB68aD5a168345bb7EFb2faA0EDCCA5177": "geist",
+}
+
 export const implementationBasePoolIdDictAvalanche: IDict<string> = {
     "0xA237034249290De2B07988Ac64b96f22c0E76fE0": "aave",
     "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": "aave",
@@ -143,6 +181,12 @@ export const basePoolIdZapDictPolygon: IDict<string> = {
     ren: "0xE2e6DC1708337A6e59f227921db08F21e3394723".toLowerCase(),
 }
 
+export const basePoolIdZapDictFantom: IDict<string> = {
+    '2pool': "0x78D51EB71a62c081550EfcC0a9F9Ea94B2Ef081c".toLowerCase(),
+    ren: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
+    geist: "0x247aEB220E87f24c40C9F86b65d6bd5d3c987B55".toLowerCase(),
+}
+
 export const basePoolIdZapDictAvalanche: IDict<string> = {
     aave: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
     ren: "0xEeB3DDBcc4174e0b3fd1C13aD462b95D11Ef42C3".toLowerCase(),
@@ -160,6 +204,11 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WMATIC',
         wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
     },
+    250: {
+        symbol: 'FTM',
+        wrappedSymbol: 'WFTM',
+        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    },
 }
 
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<string> } } = {
@@ -172,6 +221,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         implementationABIDict: implementationABIDictPolygon,
         implementationBasePoolIdDict: implementationBasePoolIdDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
+    },
+    250: {
+        implementationABIDict: implementationABIDictFantom,
+        implementationBasePoolIdDict: implementationBasePoolIdDictFantom,
+        basePoolIdZapDict: basePoolIdZapDictFantom,
     },
     43114: {
         implementationABIDict: implementationABIDictAvalanche,

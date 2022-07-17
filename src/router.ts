@@ -59,8 +59,8 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
             for (const [poolId, poolData] of ALL_POOLS) {
                 const wrapped_coin_addresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
                 const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
-                const meta_coin_addresses = poolData.is_meta ? 
-                    curve.constants.POOLS_DATA[poolData.base_pool as string].underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
+                const base_pool = poolData.is_meta ? curve.constants.POOLS_DATA[poolData.base_pool as string] : null;
+                const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
                 const token_address = poolData.token_address.toLowerCase();
                 const is_lending = poolData.is_lending ?? false;
 
@@ -167,7 +167,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 }
 
                 // Only for underlying swaps
-                const poolAddress = (poolData.is_crypto && poolData.is_meta) || ([137, 43114].includes(curve.chainId) && poolData.is_factory) ?
+                const poolAddress = (poolData.is_crypto && poolData.is_meta) || (base_pool && base_pool.is_meta && poolData.is_factory) ?
                     poolData.deposit_address as string : poolData.swap_address;
 
                 // Find all underlying swaps
@@ -219,7 +219,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                         // Skip imbalanced pools
                         if (IMBALANCED_POOLS.includes(poolId)) continue;
 
-                        const swapType = ([137, 43114].includes(curve.chainId) && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+                        const swapType = (base_pool && base_pool.is_meta && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
                         for (const inCoinRoute of routes[inCoin]) {
                             routes[meta_coin_addresses[j]] = (routes[meta_coin_addresses[j]] ?? []).concat(
                                 [[
@@ -253,7 +253,7 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                     // Skip imbalanced pools
                     if (IMBALANCED_POOLS.includes(poolId)) continue;
 
-                    const swapType = ([137, 43114].includes(curve.chainId) && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
+                    const swapType = (base_pool && base_pool.is_meta && poolData.is_factory) ? 5 : poolData.is_crypto ? 4 : 2;
                     for (const inCoinRoute of routes[inCoin]) {
                         routes[wrapped_coin_addresses[0]] = (routes[wrapped_coin_addresses[0]] ?? []).concat(
                             [[

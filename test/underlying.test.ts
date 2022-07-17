@@ -21,12 +21,17 @@ const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'atricrypto'];
 const AVALANCHE_FACTORY_PLAIN_POOLS = ['factory-v2-30', 'factory-v2-4']; // ['USD Coin', '3poolV2'];
 const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 
+const FANTOM_MAIN_POOLS = ['2pool', 'fusdt', 'ren', 'tricrypto', 'ib', 'geist'];
+const FANTOM_FACTORY_PLAIN_POOLS = ['factory-v2-85', 'factory-v2-1', 'factory-v2-7']; // ['axlUSDC/USDC', '3poolV2', '4pool'];
+const FANTOM_FACTORY_META_POOLS = ['factory-v2-16', 'factory-v2-40']; // ['FRAX2pool', 'Geist Frax'];
+const FANTOM_FACTORY_CRYPTO_POOLS = ['factory-crypto-3']; // ['aCRV/CRV'];
 
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 // const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
 const ETHEREUM_POOLS = ['eursusd']// ['susd', '3pool', 'compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
 const POLYGON_POOLS = [...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS];
 const AVALANCHE_POOLS = [...AVALANCHE_FACTORY_PLAIN_POOLS, ...AVALANCHE_FACTORY_META_POOLS];
+const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_PLAIN_POOLS, ...FANTOM_FACTORY_META_POOLS, ...FANTOM_FACTORY_CRYPTO_POOLS];
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-unstake-withdraw`, function () {
@@ -41,7 +46,7 @@ const underlyingLiquidityTest = (id: string) => {
         it('Deposit', async function () {
             const amount = '10';
             const amounts = coinAddresses.map(() => amount);
-            if (id === 'factory-v2-7') amounts[3] = '0';
+            if (id === 'factory-v2-7' && curve.chainId === 1) amounts[3] = '0';
             const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositExpected(amounts);
 
@@ -200,10 +205,10 @@ describe('Underlying test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolId of ETHEREUM_POOLS) {
-        underlyingLiquidityTest(poolId);
-        underlyingSwapTest(poolId);
-    }
+    // for (const poolId of ETHEREUM_POOLS) {
+    //     underlyingLiquidityTest(poolId);
+    //     underlyingSwapTest(poolId);
+    // }
 
     // for (const poolId of POLYGON_POOLS) {
     //     underlyingLiquidityTest(poolId);
@@ -214,4 +219,9 @@ describe('Underlying test', async function () {
     //     underlyingLiquidityTest(poolId);
     //     underlyingSwapTest(poolId);
     // }
+
+    for (const poolId of FANTOM_POOLS) {
+        underlyingLiquidityTest(poolId);
+        underlyingSwapTest(poolId);
+    }
 })

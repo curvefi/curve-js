@@ -4,6 +4,8 @@ import curve from "../src";
 import { COINS_POLYGON } from "../src/constants/coins/polygon";
 import { COINS_ETHEREUM } from "../src/constants/coins/ethereum";
 
+const AAVE_TOKENS = ['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc', 'amdai', 'amusdt', 'amusdc', 'amwbtc', 'avdai', 'avusdt', 'avusdc', 'avwbtc', 'gdai', 'gusdc', 'gfusdt'];
+
 const routerSwapTest = async (coin1: string, coin2: string) => {
     const amount = '1';
     const initialBalances = await curve.getBalances([coin1, coin2]) as string[];
@@ -15,8 +17,7 @@ const routerSwapTest = async (coin1: string, coin2: string) => {
 
     if (coin1 === 'steth' || coin2 === 'steth') {
         assert.approximately(Number(Object.values(balances)[0]), Number(BN(Object.values(initialBalances)[0]).minus(BN(amount)).toString()), 1e-18);
-    } else if (['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc', 'amdai', 'amusdt', 'amusdc', 'amwbtc', 'avdai', 'avusdt', 'avusdc', 'avwbtc'].includes(coin1) ||
-        ['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc', 'amdai', 'amusdt', 'amusdc', 'amwbtc', 'avdai', 'avusdt', 'avusdc', 'avwbtc'].includes(coin2)) {
+    } else if (AAVE_TOKENS.includes(coin1) || AAVE_TOKENS.includes(coin2)) {
         assert.approximately(Number(Object.values(balances)[0]), Number(BN(Object.values(initialBalances)[0]).minus(BN(amount)).toString()), 1e-2);
     } else {
         assert.deepStrictEqual(BN(balances[0]), BN(initialBalances[0]).minus(BN(amount)));
@@ -42,7 +43,10 @@ describe('Router swap', async function () {
     // const coins = ['crv', 'dai', 'usdc', 'usdt', 'eurt', 'weth', 'wbtc', 'renbtc', 'amdai', 'amusdc', 'amusdt', 'am3crv', 'matic', '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89']; // frax
 
     // AVALANCHE
-    const coins = ['dai.e', 'usdc.e', 'usdt.e', 'weth.e', 'wbtc.e', 'renbtc', 'avdai', 'avusdc', 'avusdt', 'avwbtc', 'av3crv', '0x130966628846bfd36ff31a822705796e8cb8c18d']; // mim
+    // const coins = ['dai.e', 'usdc.e', 'usdt.e', 'weth.e', 'wbtc.e', 'renbtc', 'avdai', 'avusdc', 'avusdt', 'avwbtc', 'av3crv', '0x130966628846bfd36ff31a822705796e8cb8c18d']; // mim
+
+    // FANTOM
+    const coins = ['dai', 'usdc', 'fusdt', 'idai', 'iusdc', 'ifusdt', 'gdai', 'gusdc', 'gfusdt', 'dai+usdc', 'eth', 'btc', 'renbtc', 'frax', 'crv', '0x666a3776b3e82f171cb1dff7428b6808d2cd7d02']; // aCRV
     for (const coin1 of coins) {
         for (const coin2 of coins) {
             if (coin1 !== coin2) {

@@ -5,6 +5,8 @@ import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/metaZap.json";
 import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json";
 import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
+import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json";
+import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json";
 
 export function setFactoryZapContracts(this: ICurve): void {
     if (this.chainId === 1) {
@@ -28,6 +30,22 @@ export function setFactoryZapContracts(this: ICurve): void {
         this.contracts[metaBtcZapAddress] = {
             contract: new Contract(metaBtcZapAddress, MetaBtcZapPolygonABI, this.signer || this.provider),
             multicallContract: new MulticallContract(metaBtcZapAddress, MetaBtcZapPolygonABI),
+        };
+    } else if (this.chainId === 250) {
+        const metaUsdZapAddress = "0x78D51EB71a62c081550EfcC0a9F9Ea94B2Ef081c".toLowerCase();
+        this.contracts[metaUsdZapAddress] = {
+            contract: new Contract(metaUsdZapAddress, MetaZapFantomABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaUsdZapAddress, MetaZapFantomABI),
+        };
+        const metaRenBtcZapAddress = "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase();
+        this.contracts[metaRenBtcZapAddress] = {
+            contract: new Contract(metaRenBtcZapAddress, MetaZapFantomABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaRenBtcZapAddress, MetaZapFantomABI),
+        };
+        const metaGeistUsdZapAddress = "0x247aEB220E87f24c40C9F86b65d6bd5d3c987B55".toLowerCase();
+        this.contracts[metaGeistUsdZapAddress] = {
+            contract: new Contract(metaGeistUsdZapAddress, MetaGeistUsdZapFantomABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaGeistUsdZapAddress, MetaGeistUsdZapFantomABI),
         };
     } else if (this.chainId === 43114) {
         const metaUsdZapAddress = "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase();

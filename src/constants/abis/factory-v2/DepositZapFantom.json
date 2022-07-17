@@ -33,35 +33,6 @@
   {
     "stateMutability": "nonpayable",
     "type": "function",
-    "name": "add_liquidity",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      },
-      {
-        "name": "_deposit_amounts",
-        "type": "uint256[3]"
-      },
-      {
-        "name": "_min_mint_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "_receiver",
-        "type": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
     "name": "remove_liquidity",
     "inputs": [
       {
@@ -75,35 +46,6 @@
       {
         "name": "_min_amounts",
         "type": "uint256[3]"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256[3]"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "remove_liquidity",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      },
-      {
-        "name": "_burn_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "_min_amounts",
-        "type": "uint256[3]"
-      },
-      {
-        "name": "_receiver",
-        "type": "address"
       }
     ],
     "outputs": [
@@ -145,39 +87,6 @@
   {
     "stateMutability": "nonpayable",
     "type": "function",
-    "name": "remove_liquidity_one_coin",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      },
-      {
-        "name": "_burn_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "i",
-        "type": "int128"
-      },
-      {
-        "name": "_min_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "_receiver",
-        "type": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
     "name": "remove_liquidity_imbalance",
     "inputs": [
       {
@@ -191,35 +100,6 @@
       {
         "name": "_max_burn_amount",
         "type": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "remove_liquidity_imbalance",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      },
-      {
-        "name": "_amounts",
-        "type": "uint256[3]"
-      },
-      {
-        "name": "_max_burn_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "_receiver",
-        "type": "address"
       }
     ],
     "outputs": [

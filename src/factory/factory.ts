@@ -14,6 +14,7 @@ const BLACK_LIST: { [index: number]: any } = {
         "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
         "0x88c4d6534165510b2e2caf0a130d4f70aa4b6d71",
     ],
+    250: [],
     43114: [],
 }
 
@@ -159,6 +160,7 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
 
     if (this.chainId === 1) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
     if (this.chainId === 137) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "MATIC"
+    if (this.chainId === 250) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "FTM"
     if (this.chainId === 43114) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "AVAX"
 
     return dict

@@ -14,7 +14,6 @@ import {
     BN,
     toBN,
     toStringFromBN,
-    checkNumber,
     parseUnits,
     getEthIndex,
     fromBN,
@@ -195,6 +194,13 @@ export class PoolTemplate {
         }
     }
 
+    public rewardsOnly(): boolean {
+        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        const gaugeContract = curve.contracts[this.gauge].contract;
+
+        return !('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
+    }
+
     private statsParameters = async (): Promise<{
         lpTokenSupply: string,
         virtualPrice: string,
@@ -317,7 +323,7 @@ export class PoolTemplate {
     }
 
     private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use getRewardsApy instead`);
 
         const totalLiquidityUSD = await this.statsTotalLiquidity();
         if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
@@ -359,16 +365,18 @@ export class PoolTemplate {
     }
 
     private statsRewardsApy = async (): Promise<IReward[]> => {
-        if ([137, 43114].includes(curve.chainId)) {
+        if (this.gauge === ethers.constants.AddressZero) return [];
+
+        if ([137, 250, 43114].includes(curve.chainId)) {
             const apy: IReward[] = [];
             const rewardTokens = await this.rewardTokens();
             for (const rewardToken of rewardTokens) {
-                const gaugeContract = curve.contracts[this.gauge].contract;
+                const contract = curve.contracts[this.sRewardContract || this.gauge].contract;
 
                 const totalLiquidityUSD = await this.statsTotalLiquidity();
                 const rewardRate = await _getUsdRate(rewardToken.token);
 
-                const rewardData = await gaugeContract.reward_data(rewardToken.token, curve.constantOptions);
+                const rewardData = await contract.reward_data(rewardToken.token, curve.constantOptions);
                 const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
                 const inflation = toBN(rewardData.rate, rewardToken.decimals);
                 const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
@@ -609,7 +617,7 @@ export class PoolTemplate {
     // ---------------- CRV PROFIT, CLAIM, BOOSTING ----------------
 
     public crvProfit = async (address = ""): Promise<IProfit> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use rewardsProfit instead`);
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -672,9 +680,7 @@ export class PoolTemplate {
     }
 
     public async claimableCrv (address = ""): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`claimableCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
-        }
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimableRewards instead`);
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -683,17 +689,13 @@ export class PoolTemplate {
     }
 
     public async claimCrvEstimateGas(): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
-        }
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
 
         return (await curve.contracts[curve.constants.ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).toNumber();
     }
 
     public async claimCrv(): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
-            throw Error(`claimCrv method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
-        }
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
         const contract = curve.contracts[curve.constants.ALIASES.minter].contract;
 
         const gasLimit = (await contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
@@ -1051,7 +1053,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this.depositWrappedExpected(amounts);
     }
@@ -1060,7 +1062,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this.depositWrappedBonus(amounts);
     }
@@ -1069,7 +1071,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const coinsAllowance: boolean = await hasAllowance(this.wrappedCoinAddresses, amounts, curve.signerAddress, curve.constants.ALIASES.deposit_and_stake);
 
@@ -1086,7 +1088,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.wrappedCoinAddresses, amounts, curve.constants.ALIASES.deposit_and_stake);
 
@@ -1106,7 +1108,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         const approveCoinsTx: string[] = await ensureAllowance(this.wrappedCoinAddresses, amounts, curve.constants.ALIASES.deposit_and_stake);
 
@@ -1127,7 +1129,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this._depositAndStake(amounts, false, true) as number
     }
@@ -1136,7 +1138,7 @@ export class PoolTemplate {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
-        if (this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this._depositAndStake(amounts, false, false) as string
     }
@@ -1612,7 +1614,7 @@ export class PoolTemplate {
     }
 
     private _swapContractAddress(): string {
-        return (this.isCrypto && this.isMeta) || ([137, 43114].includes(curve.chainId) && this.isMetaFactory) ? this.zap as string : this.address;
+        return (this.isCrypto && this.isMeta) || (this.isMetaFactory && (new PoolTemplate(this.basePool).isLending)) ? this.zap as string : this.address;
     }
 
     public async swapIsApproved(inputCoin: string | number, amount: number | string): Promise<boolean> {

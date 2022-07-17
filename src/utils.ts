@@ -264,12 +264,14 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     let chainName = {
         1: 'ethereum',
         137: 'polygon-pos',
+        250: 'fantom',
         43114: 'avalanche',
     }[curve.chainId];
 
     const nativeTokenName = {
         1: 'ethereum',
         137: 'matic-network',
+        250: 'fantom',
         43114: 'avalanche-2',
     }[curve.chainId] as string;
 
@@ -321,6 +323,7 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
     const network = {
         1: "ethereum",
         137: "polygon",
+        250: "fantom",
         43114: "avalanche",
     }[chainId] as INetworkName ?? "ethereum";
 

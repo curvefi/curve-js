@@ -17,6 +17,9 @@ export const COINS_FANTOM: { [index: string]: string } = lowerCaseValues({
     'gusdc': '0xe578c856933d8e1082740bf7661e379aa2a30b26',
     'gfusdt': '0x940f41f0ec9ba1a34cf001cc03347ac092f5f6b5',
 
+    'dai+usdc': '0x27e611fd27b276acbd5ffd632e5eaebec9761e40', // LP token
+    'frax': '0xdc301622e621166bd8e82f2ca0a26c13ad0be355',
+
     // --- BTC ---
 
     'btc': '0x321162Cd933E2Be498Cd2267a90534A804051b11',

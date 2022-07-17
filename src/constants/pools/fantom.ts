@@ -10,6 +10,7 @@ import aaveSwapABI from '../abis/aave/swap.json';
 // import paaveRewardsabi from '../abis/paave/rewards.json';
 import gaugeChildABI from '../abis/gauge_child.json';
 import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json';
+import streamerABI from '../abis/streamer.json';
 
 
 export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDataAddresses({
@@ -49,6 +50,7 @@ export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDa
         // old_gauge: '0x4f3E8F405CF5aFC05D68142F3783bDfE13811522', // Unused
         gauge_address: '0x06e3C4da96fd076b97b7ca3Ae23527314b6140dF', // Old non-cross-chain gauge
         deposit_address: '0xa42bd395f183726d1a8774cfa795771f8acfd777',
+        sCurveRewards_address: '0xfe1a3dd8b169fb5bf0d5dbfe813d956f39ff6310',
         is_meta: true,
         base_pool: '2pool',
         underlying_coins: ['fUSDT', 'DAI', 'USDC'],
@@ -67,6 +69,7 @@ export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDa
         swap_abi: fusdtSwapABI,
         gauge_abi: gaugeRewardsOnlyABI,
         deposit_abi: fusdtZapABI,
+        sCurveRewards_abi: streamerABI,
     },
     ren: {
         name: "ren",
@@ -130,6 +133,7 @@ export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDa
         swap_address: '0x4FC8D635c3cB1d0aa123859e2B2587d0FF2707b1',
         token_address: '0xDf38ec60c0eC001142a33eAa039e49E9b84E64ED',
         gauge_address: '0xDee85272EAe1aB4afBc6433F4d819BaBC9c7045A', // Old non-cross-chain gauge
+        sCurveRewards_address: '0x92bbf58c2a4514d44343b987d608627eb7d1d24f',
         is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'fUSDT'],
         wrapped_coins: ['iDAI', 'iUSDC', 'iFUSDT'],
@@ -148,6 +152,7 @@ export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDa
         use_lending: [true, true, true],
         swap_abi: ibSwapABI,
         gauge_abi: gaugeRewardsOnlyABI,
+        sCurveRewards_abi: streamerABI,
     },
     geist: {
         name: "geist",

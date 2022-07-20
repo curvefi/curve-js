@@ -11,7 +11,7 @@ const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 's
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', 'factory-v2-136']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)', 'sUSDFRAXBP'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8']; // ['YFIETH-fV2'];
 
-const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd'];
+const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd', 'eursusd'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 
 const AVALANCHE_MAIN_POOLS = ['aave', 'ren'];
@@ -20,7 +20,7 @@ const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const ETHEREUM_POOLS = ['factory-v2-136']//['compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
 // const ETHEREUM_POOLS = [...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
-const POLYGON_POOLS = POLYGON_FACTORY_META_POOLS;
+const POLYGON_POOLS = ['eursusd'];
 const AVALANCHE_POOLS = AVALANCHE_FACTORY_META_POOLS;
 
 const FANTOM_MAIN_POOLS = ['fusdt', 'ib', 'geist'];
@@ -213,18 +213,18 @@ describe('Wrapped test', async function () {
     //     wrappedSwapTest(poolId);
     // }
 
-    // for (const poolId of POLYGON_POOLS) {
-    //     wrappedLiquidityTest(poolId);
-    //     wrappedSwapTest(poolId);
-    // }
+    for (const poolId of POLYGON_POOLS) {
+        wrappedLiquidityTest(poolId);
+        wrappedSwapTest(poolId);
+    }
 
     // for (const poolId of AVALANCHE_POOLS) {
     //     wrappedLiquidityTest(poolId);
     //     wrappedSwapTest(poolId);
     // }
 
-    for (const poolId of FANTOM_POOLS) {
-        wrappedLiquidityTest(poolId);
-        wrappedSwapTest(poolId);
-    }
+    // for (const poolId of FANTOM_POOLS) {
+    //     wrappedLiquidityTest(poolId);
+    //     wrappedSwapTest(poolId);
+    // }
 })

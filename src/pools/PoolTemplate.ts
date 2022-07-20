@@ -82,7 +82,7 @@ export class PoolTemplate {
         withdrawImbalanceApprove: (amounts: (number | string)[]) => Promise<number>,
         withdrawImbalance: (amounts: (number | string)[]) => Promise<number>,
         withdrawImbalanceWrapped: (amounts: (number | string)[]) => Promise<number>,
-        withdrawOneCoinApprove: (lpTokenAmount: number | string, coin: string | number) => Promise<number>,
+        withdrawOneCoinApprove: (lpTokenAmount: number | string) => Promise<number>,
         withdrawOneCoin: (lpTokenAmount: number | string, coin: string | number) => Promise<number>,
         withdrawOneCoinWrapped: (lpTokenAmount: number | string, coin: string | number) => Promise<number>,
         swapApprove: (inputCoin: string | number, amount: number | string) => Promise<number>,

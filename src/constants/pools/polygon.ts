@@ -139,4 +139,35 @@ export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolD
         gauge_abi: gaugeChildABI,
         deposit_abi: eurtusdZap,
     },
+
+    eursusd: {
+        name: "eursusd",
+        full_name: "eursusd",
+        symbol: "eursusd",
+        reference_asset: 'CRYPTO',
+        swap_address: '0x9b3d675FDbe6a0935E8B7d1941bc6f78253549B7',
+        token_address: '0x7BD9757FbAc089d60DaFF1Fa6bfE3BC99b0F5735',
+        gauge_address: '0x18006c6A7955Bf6Db72DE34089B975f733601660',
+        deposit_address: '0x4DF7eF55E99a56851187822d96B4E17D98A47DeD',
+        is_meta: true,
+        is_crypto: true,
+        base_pool: 'aave',
+        underlying_coins: ['EURS', 'DAI', 'USDC', 'USDT'],
+        wrapped_coins: ['EURS', 'am3CRV'],
+        underlying_coin_addresses: [
+            '0xe111178a87a3bff0c8d18decba5798827539ae99', // EURS
+            '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
+            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
+            '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
+        ],
+        wrapped_coin_addresses: [
+            '0xe111178a87a3bff0c8d18decba5798827539ae99', // EURS
+            '0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171', // am3CRV
+        ],
+        underlying_decimals: [2, 18, 6, 6],
+        wrapped_decimals: [2, 18],
+        swap_abi: eurtusdSwap,
+        gauge_abi: gaugeChildABI,
+        deposit_abi: eurtusdZap,
+    },
 });

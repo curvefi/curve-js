@@ -21,6 +21,11 @@ const FANTOM_FACTORY_META_POOLS = ['factory-v2-16', 'factory-v2-40']; // ['FRAX2
 const FANTOM_FACTORY_CRYPTO_POOLS = ['factory-crypto-3']; // ['aCRV/CRV'];
 const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_PLAIN_POOLS, ...FANTOM_FACTORY_META_POOLS, ...FANTOM_FACTORY_CRYPTO_POOLS];
 
+const ARBITRUM_MAIN_POOLS = ['2pool', 'tricrypto', 'ren', 'eursusd'];
+const ARBITRUM_FACTORY_PLAIN_POOLS = ['factory-v2-15', 'factory-v2-29']; // ['deBridge-ETH', 'Aave aDAI+aUSC+aUSDT USDFACTORY'];
+const ARBITRUM_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
+const ARBITRUM_POOLS = [...ARBITRUM_MAIN_POOLS, ...ARBITRUM_FACTORY_PLAIN_POOLS, ...ARBITRUM_FACTORY_META_POOLS];
+
 const underlyingDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake underlying`, function () {
         let pool: PoolTemplate;
@@ -131,8 +136,13 @@ describe('Deposit&Stake test', async function () {
     //         wrappedDepositAndStakeTest(poolName);
     //     }
     // }
+    //
+    // for (const poolName of FANTOM_POOLS) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     wrappedDepositAndStakeTest(poolName);
+    // }
 
-    for (const poolName of FANTOM_POOLS) {
+    for (const poolName of ARBITRUM_POOLS) {
         underlyingDepositAndStakeTest(poolName);
         wrappedDepositAndStakeTest(poolName);
     }

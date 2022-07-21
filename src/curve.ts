@@ -19,12 +19,25 @@ import registryExchangeABI from './constants/abis/registry_exchange.json';
 import streamerABI from './constants/abis/streamer.json';
 import factoryABI from './constants/abis/factory.json';
 import cryptoFactoryABI from './constants/abis/factory-crypto.json';
-import { POOLS_DATA_ETHEREUM, POOLS_DATA_POLYGON, POOLS_DATA_FANTOM, POOLS_DATA_AVALANCHE } from './constants/pools';
+import {
+    POOLS_DATA_ETHEREUM,
+    POOLS_DATA_POLYGON,
+    POOLS_DATA_FANTOM,
+    POOLS_DATA_AVALANCHE,
+    POOLS_DATA_ARBITRUM,
+} from './constants/pools';
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon";
 import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom";
 import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
-import { ALIASES_ETHEREUM, ALIASES_POLYGON, ALIASES_FANTOM, ALIASES_AVALANCHE } from "./constants/aliases";
+import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum";
+import {
+    ALIASES_ETHEREUM,
+    ALIASES_POLYGON,
+    ALIASES_FANTOM,
+    ALIASES_AVALANCHE,
+    ALIASES_ARBITRUM
+} from "./constants/aliases";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
 
@@ -68,6 +81,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensAvalanche,
         ycTokens: ycTokensAvalanche,
         aTokens: aTokensAvalanche,
+    },
+    42161: {
+        NAME: 'arbitrum',
+        ALIASES: ALIASES_ARBITRUM,
+        POOLS_DATA: POOLS_DATA_ARBITRUM,
+        COINS: COINS_ARBITRUM,
+        cTokens: cTokensArbitrum,
+        yTokens: yTokensArbitrum,
+        ycTokens: ycTokensArbitrum,
+        aTokens: aTokensArbitrum,
     },
 }
 

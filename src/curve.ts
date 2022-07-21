@@ -36,7 +36,7 @@ import {
     ALIASES_POLYGON,
     ALIASES_FANTOM,
     ALIASES_AVALANCHE,
-    ALIASES_ARBITRUM
+    ALIASES_ARBITRUM,
 } from "./constants/aliases";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 

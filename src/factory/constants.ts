@@ -126,6 +126,29 @@ export const implementationABIDictAvalanche: IDict<any> = {
     "0xCE94D3E5b0D80565D7B713A687b39a3Dc81780BA": Plain4OptimizedABI,
 }
 
+export const implementationABIDictArbitrum: IDict<any> = {
+    "0x09672362833d8f703D5395ef3252D4Bfa51c15ca": MetaUSDABI,
+    "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5": MetaUSDBalancesABI,
+
+    "0x094d12e5b541784701FD8d65F11fc0598FBC6332": MetaBTCRenABI,
+    "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc": MetaBTCRenBalancesABI,
+
+    "0x54e8A25d0Ac0E4945b697C80b8372445FEA17A62": Plain2BasicABI,
+    "0xD68970e266cE1A015953897C7055a5E0bC657Af8": Plain2BalancesABI,
+    "0x7DA64233Fefb352f8F501B357c018158ED8aA455": Plain2ETHABI,
+    "0x0100fBf414071977B19fC38e6fc7c32FE444F5C9": Plain2OptimizedABI,
+
+    "0xe381C25de995d62b453aF8B931aAc84fcCaa7A62": Plain3BasicABI,
+    "0xc379bA7b8e1c6C48D64e1cf9dD602C97c9fD0F40": Plain3BalancesABI,
+    "0xAAe75FAebCae43b9d541Fd875622BE48D9B4f5D0": Plain3ETHABI,
+    "0x8866414733F22295b7563f9C5299715D2D76CAf4": Plain3OptimizedABI,
+
+    "0x8d53E5De033078367Ad91527c53abfd1Eb6bfa86": Plain4BasicABI,
+    "0x2ac56cEBc2D27c9bB51a11773355E44371Eb88D3": Plain4BalancesABI,
+    "0x89287c32c2CAC1C76227F6d300B2DBbab6b75C08": Plain4ETHABI,
+    "0x06e3C4da96fd076b97b7ca3Ae23527314b6140dF": Plain4OptimizedABI,
+}
+
 export const implementationBasePoolIdDictEthereum: IDict<string> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
@@ -169,6 +192,14 @@ export const implementationBasePoolIdDictAvalanche: IDict<string> = {
     "0x505C34ED8dBE96d2D5C7D83158aA844887770970": "ren",
 }
 
+export const implementationBasePoolIdDictArbitrum: IDict<string> = {
+    "0x09672362833d8f703D5395ef3252D4Bfa51c15ca": "2pool",
+    "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5": "2pool",
+
+    "0x094d12e5b541784701FD8d65F11fc0598FBC6332": "ren",
+    "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc": "ren",
+}
+
 export const basePoolIdZapDictEthereum: IDict<string> = {
     '3pool': "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
     fraxusdc: "0x08780fb7E580e492c1935bEe4fA5920b94AA95Da".toLowerCase(),
@@ -192,44 +223,59 @@ export const basePoolIdZapDictAvalanche: IDict<string> = {
     ren: "0xEeB3DDBcc4174e0b3fd1C13aD462b95D11Ef42C3".toLowerCase(),
 }
 
+export const basePoolIdZapDictArbitrum: IDict<string> = {
+    "2pool": "0x7544Fe3d184b6B55D6B36c3FCA1157eE0Ba30287".toLowerCase(),
+    ren: "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2".toLowerCase(),
+}
+
 export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
-    1: {
+    1: {  // ETH
         symbol: 'ETH',
         wrappedSymbol: 'WETH',
-        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
     },
-    137: {
+    137: {  // POLYGON
         symbol: 'MATIC',
         wrappedSymbol: 'WMATIC',
-        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
     },
-    250: {
+    250: {  // FANTOM
         symbol: 'FTM',
         wrappedSymbol: 'WFTM',
-        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
+    },
+    42161: {  // ARBITRUM
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
     },
 }
 
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<string> } } = {
-    1: {
+    1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
         implementationBasePoolIdDict: implementationBasePoolIdDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,
     },
-    137: {
+    137: {  // POLYGON
         implementationABIDict: implementationABIDictPolygon,
         implementationBasePoolIdDict: implementationBasePoolIdDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
     },
-    250: {
+    250: {  // FANTOM
         implementationABIDict: implementationABIDictFantom,
         implementationBasePoolIdDict: implementationBasePoolIdDictFantom,
         basePoolIdZapDict: basePoolIdZapDictFantom,
     },
-    43114: {
+    43114: {  // AVALANCHE
         implementationABIDict: implementationABIDictAvalanche,
         implementationBasePoolIdDict: implementationBasePoolIdDictAvalanche,
         basePoolIdZapDict: basePoolIdZapDictAvalanche,
+    },
+    42161: {  // ARBITRUM
+        implementationABIDict: implementationABIDictArbitrum,
+        implementationBasePoolIdDict: implementationBasePoolIdDictArbitrum,
+        basePoolIdZapDict: basePoolIdZapDictArbitrum,
     },
 }

@@ -16,6 +16,7 @@ const BLACK_LIST: { [index: number]: any } = {
     ],
     250: [],
     43114: [],
+    42161: [],
 }
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -162,6 +163,7 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     if (this.chainId === 137) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "MATIC"
     if (this.chainId === 250) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "FTM"
     if (this.chainId === 43114) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "AVAX"
+    if (this.chainId === 42161) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
 
     return dict
 }

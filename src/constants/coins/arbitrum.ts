@@ -7,6 +7,7 @@ export const COINS_ARBITRUM: { [index: string]: string } = lowerCaseValues({
 
     'usdc': '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
     'usdt': '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
+    '2crv': '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
 
     // --- EUR ---
 
@@ -19,7 +20,9 @@ export const COINS_ARBITRUM: { [index: string]: string } = lowerCaseValues({
 
     // --- ETH ---
 
-    '2crv': '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
+    "eth": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "weth": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+
 })
 
 export const cTokensArbitrum = []; //.map((a) => a.toLowerCase());

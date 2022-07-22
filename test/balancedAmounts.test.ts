@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { getPool } from "../src/pools/poolConstructor";
 import { PoolTemplate } from "../src/pools/PoolTemplate";
 import { curve } from "../src/curve";
+import {ethers} from "ethers";
 
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth'];
@@ -12,6 +13,11 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
 const AVALANCHE_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
+
+const ARBITRUM_MAIN_POOLS = ['2pool', 'tricrypto', 'ren', 'eursusd'];
+const ARBITRUM_FACTORY_PLAIN_POOLS = ['factory-v2-15', 'factory-v2-29']; // ['deBridge-ETH', 'Aave aDAI+aUSC+aUSDT USDFACTORY'];
+const ARBITRUM_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
+const ARBITRUM_POOLS = [...ARBITRUM_MAIN_POOLS, ...ARBITRUM_FACTORY_PLAIN_POOLS, ...ARBITRUM_FACTORY_META_POOLS];
 
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
@@ -31,6 +37,11 @@ const balancedAmountsTest = (name: string) => {
         });
 
         it('wrapped', async function () {
+            if (pool.isPlain || pool.isFake || pool.gauge === ethers.constants.AddressZero) {
+                console.log('Skip');
+                return;
+            }
+
             const balancedWrappedAmounts = (await pool.depositWrappedBalancedAmounts()).map(Number);
 
             assert.equal(balancedWrappedAmounts.length, pool.wrappedCoins.length);
@@ -47,21 +58,31 @@ describe('Underlying test', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
+        await curve.fetchFactoryPools();
+        await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolName of PLAIN_POOLS) {
-        balancedAmountsTest(poolName);
-    }
+    // for (const poolName of PLAIN_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+    //
+    // for (const poolName of LENDING_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+    //
+    // for (const poolName of META_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+    //
+    // for (const poolName of POLYGON_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+    //
+    // for (const poolName of AVALANCHE_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
 
-    for (const poolName of LENDING_POOLS) {
-        balancedAmountsTest(poolName);
-    }
-
-    for (const poolName of META_POOLS) {
-        balancedAmountsTest(poolName);
-    }
-
-    for (const poolName of POLYGON_POOLS) {
+    for (const poolName of ARBITRUM_POOLS) {
         balancedAmountsTest(poolName);
     }
 })

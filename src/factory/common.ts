@@ -58,5 +58,16 @@ export function setFactoryZapContracts(this: ICurve): void {
             contract: new Contract(metaBtcZapAddress, MetaBtcZapPolygonABI, this.signer || this.provider),
             multicallContract: new MulticallContract(metaBtcZapAddress, MetaBtcZapPolygonABI),
         };
+    } else if (this.chainId === 42161) {
+        const metaUsdZapAddress = "0x7544Fe3d184b6B55D6B36c3FCA1157eE0Ba30287".toLowerCase();
+        this.contracts[metaUsdZapAddress] = {
+            contract: new Contract(metaUsdZapAddress, MetaZapFantomABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaUsdZapAddress, MetaZapFantomABI),
+        };
+        const metaBtcZapAddress = "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2".toLowerCase();
+        this.contracts[metaBtcZapAddress] = {
+            contract: new Contract(metaBtcZapAddress, MetaZapFantomABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaBtcZapAddress, MetaZapFantomABI),
+        };
     }
 }

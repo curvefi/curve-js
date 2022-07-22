@@ -22,6 +22,8 @@ const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYP
 
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
+const ARBITRUM_POOLS = ['2pool', 'tricrypto', 'ren', 'eursusd'];
+
 
 describe('Claiming CRV', function() {
     this.timeout(120000);
@@ -30,7 +32,7 @@ describe('Claiming CRV', function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
     });
 
-    for (const poolName of CRYPTO_POOLS) {
+    for (const poolName of ARBITRUM_POOLS) {
         it(`Claims CRV from ${poolName.toUpperCase()}`, async function () {
             const pool = curve.getPool(poolName);
 

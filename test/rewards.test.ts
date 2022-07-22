@@ -9,8 +9,8 @@ describe('Checking constants', async function () {
 
     before(async function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
-        await curve.fetchCryptoFactoryPools();
         await curve.fetchFactoryPools();
+        await curve.fetchCryptoFactoryPools();
     });
 
     it('crvProfit', async function () {
@@ -18,14 +18,15 @@ describe('Checking constants', async function () {
         for (const poolId of pools) {
             console.log(poolId);
             const pool = curve.getPool(poolId);
-            if (pool.rewardsOnly()) {
-                console.log('Rewards-Only');
-                continue;
-            }
+
             try {
+                if (pool.rewardsOnly()) {
+                    console.log('Rewards-Only');
+                    continue;
+                }
+
                 const crvProfit = await pool.crvProfit();
                 console.log(crvProfit, '\n');
-
                 assert.isTrue(checkNumber(crvProfit.day));
                 assert.isTrue(checkNumber(crvProfit.week));
                 assert.isTrue(checkNumber(crvProfit.month));

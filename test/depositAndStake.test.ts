@@ -26,6 +26,11 @@ const ARBITRUM_FACTORY_PLAIN_POOLS = ['factory-v2-15', 'factory-v2-29']; // ['de
 const ARBITRUM_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 const ARBITRUM_POOLS = [...ARBITRUM_MAIN_POOLS, ...ARBITRUM_FACTORY_PLAIN_POOLS, ...ARBITRUM_FACTORY_META_POOLS];
 
+const OPTIMISM_MAIN_POOLS = ['3pool'];
+const OPTIMISM_FACTORY_PLAIN_POOLS = ['factory-v2-10']; // ['sETH/ETH'];
+const OPTIMISM_FACTORY_META_POOLS = ['factory-v2-0']; // ['sUSD Synthetix'];
+const OPTIMISM_POOLS = [...OPTIMISM_MAIN_POOLS, ...OPTIMISM_FACTORY_PLAIN_POOLS, ...OPTIMISM_FACTORY_META_POOLS];
+
 const underlyingDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake underlying`, function () {
         let pool: PoolTemplate;
@@ -142,7 +147,12 @@ describe('Deposit&Stake test', async function () {
     //     wrappedDepositAndStakeTest(poolName);
     // }
 
-    for (const poolName of ARBITRUM_POOLS) {
+    // for (const poolName of ARBITRUM_POOLS) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     wrappedDepositAndStakeTest(poolName);
+    // }
+
+    for (const poolName of OPTIMISM_POOLS) {
         underlyingDepositAndStakeTest(poolName);
         wrappedDepositAndStakeTest(poolName);
     }

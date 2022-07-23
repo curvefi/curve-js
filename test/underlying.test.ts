@@ -26,10 +26,16 @@ const FANTOM_FACTORY_PLAIN_POOLS = ['factory-v2-85', 'factory-v2-1', 'factory-v2
 const FANTOM_FACTORY_META_POOLS = ['factory-v2-16', 'factory-v2-40']; // ['FRAX2pool', 'Geist Frax'];
 const FANTOM_FACTORY_CRYPTO_POOLS = ['factory-crypto-3']; // ['aCRV/CRV'];
 
+
 const ARBITRUM_MAIN_POOLS = ['2pool', 'tricrypto', 'ren', 'eursusd'];
 const ARBITRUM_FACTORY_PLAIN_POOLS = ['factory-v2-15', 'factory-v2-29']; // ['deBridge-ETH', 'Aave aDAI+aUSC+aUSDT USDFACTORY'];
 const ARBITRUM_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 const ARBITRUM_POOLS = [...ARBITRUM_MAIN_POOLS, ...ARBITRUM_FACTORY_PLAIN_POOLS, ...ARBITRUM_FACTORY_META_POOLS];
+
+const OPTIMISM_MAIN_POOLS = ['3pool'];
+const OPTIMISM_FACTORY_PLAIN_POOLS = ['factory-v2-10']; // ['sETH/ETH'];
+const OPTIMISM_FACTORY_META_POOLS = ['factory-v2-0']; // ['sUSD Synthetix'];
+const OPTIMISM_POOLS = [...OPTIMISM_MAIN_POOLS, ...OPTIMISM_FACTORY_PLAIN_POOLS, ...OPTIMISM_FACTORY_META_POOLS];
 
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 // const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
@@ -67,7 +73,7 @@ const underlyingLiquidityTest = (id: string) => {
                 }
             })
 
-            const delta = ['factory-v2-80', 'factory-v2-113'].includes(id) ? 2 : 0.01
+            const delta = ['factory-v2-80', 'factory-v2-113'].includes(id) ? 2 : ['factory-v2-10'].includes(id) && curve.chainId === 10 ? 0.1 : 0.01
             assert.approximately(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected), delta);
         });
 
@@ -230,7 +236,12 @@ describe('Underlying test', async function () {
     //     underlyingSwapTest(poolId);
     // }
 
-    for (const poolId of ARBITRUM_POOLS) {
+    // for (const poolId of ARBITRUM_POOLS) {
+    //     underlyingLiquidityTest(poolId);
+    //     underlyingSwapTest(poolId);
+    // }
+
+    for (const poolId of OPTIMISM_POOLS) {
         underlyingLiquidityTest(poolId);
         underlyingSwapTest(poolId);
     }

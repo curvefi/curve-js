@@ -19,6 +19,11 @@ const ARBITRUM_FACTORY_PLAIN_POOLS = ['factory-v2-15', 'factory-v2-29']; // ['de
 const ARBITRUM_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 const ARBITRUM_POOLS = [...ARBITRUM_MAIN_POOLS, ...ARBITRUM_FACTORY_PLAIN_POOLS, ...ARBITRUM_FACTORY_META_POOLS];
 
+const OPTIMISM_MAIN_POOLS = ['3pool'];
+const OPTIMISM_FACTORY_PLAIN_POOLS = ['factory-v2-10']; // ['sETH/ETH'];
+const OPTIMISM_FACTORY_META_POOLS = ['factory-v2-0']; // ['sUSD Synthetix'];
+const OPTIMISM_POOLS = [...OPTIMISM_MAIN_POOLS, ...OPTIMISM_FACTORY_PLAIN_POOLS, ...OPTIMISM_FACTORY_META_POOLS];
+
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
         let pool: PoolTemplate;
@@ -37,7 +42,7 @@ const balancedAmountsTest = (name: string) => {
         });
 
         it('wrapped', async function () {
-            if (pool.isPlain || pool.isFake || pool.gauge === ethers.constants.AddressZero) {
+            if (pool.isPlain || pool.isFake) {
                 console.log('Skip');
                 return;
             }
@@ -82,7 +87,11 @@ describe('Underlying test', async function () {
     //     balancedAmountsTest(poolName);
     // }
 
-    for (const poolName of ARBITRUM_POOLS) {
+    // for (const poolName of ARBITRUM_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+
+    for (const poolName of OPTIMISM_POOLS) {
         balancedAmountsTest(poolName);
     }
 })

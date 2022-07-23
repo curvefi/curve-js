@@ -74,7 +74,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
-    "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4', // <--- CHANGE
-    "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- CHANGE
+    "factory": '0x2db0E83599a91b508Ac268a6197b8B14F5e72840',
+    "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
 });

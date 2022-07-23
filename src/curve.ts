@@ -25,14 +25,17 @@ import {
     POOLS_DATA_FANTOM,
     POOLS_DATA_AVALANCHE,
     POOLS_DATA_ARBITRUM,
+    POOLS_DATA_OPTIMISM,
 } from './constants/pools';
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
+import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
 import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon";
 import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom";
 import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
 import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum";
 import {
     ALIASES_ETHEREUM,
+    ALIASES_OPTIMISM,
     ALIASES_POLYGON,
     ALIASES_FANTOM,
     ALIASES_AVALANCHE,
@@ -51,6 +54,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensEthereum,
         ycTokens: ycTokensEthereum,
         aTokens: aTokensEthereum,
+    },
+    10: {
+        NAME: 'optimism',
+        ALIASES: ALIASES_OPTIMISM,
+        POOLS_DATA: POOLS_DATA_OPTIMISM,
+        COINS: COINS_OPTIMISM,
+        cTokens: cTokensOptimism,
+        yTokens: yTokensOptimism,
+        ycTokens: ycTokensOptimism,
+        aTokens: aTokensOptimism,
     },
     137: {
         NAME: 'polygon',

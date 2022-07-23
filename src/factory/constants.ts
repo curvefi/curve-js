@@ -149,6 +149,26 @@ export const implementationABIDictArbitrum: IDict<any> = {
     "0x06e3C4da96fd076b97b7ca3Ae23527314b6140dF": Plain4OptimizedABI,
 }
 
+export const implementationABIDictOptimism: IDict<any> = {
+    "0x78CF256256C8089d68Cde634Cf7cDEFb39286470": MetaUSDABI,
+    "0xADf698e4d8Df08b3E2c79682891636eF00F6e205": MetaUSDBalancesABI,
+
+    "0xC2b1DF84112619D190193E48148000e3990Bf627": Plain2BasicABI,
+    "0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90": Plain2BalancesABI,
+    "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522": Plain2ETHABI,
+    "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1": Plain2OptimizedABI,
+
+    "0x78D0fC2B9D5AE65512DB242e424a9c683F18c243": Plain3BasicABI,
+    "0x35796DAc54f144DFBAD1441Ec7C32313A7c29F39": Plain3BalancesABI,
+    "0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb": Plain3ETHABI,
+    "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F": Plain3OptimizedABI,
+
+    "0x445FE580eF8d70FF569aB36e80c647af338db351": Plain4BasicABI,
+    "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9": Plain4BalancesABI,
+    "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6": Plain4ETHABI,
+    "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6": Plain4OptimizedABI,
+}
+
 export const implementationBasePoolIdDictEthereum: IDict<string> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
@@ -200,6 +220,11 @@ export const implementationBasePoolIdDictArbitrum: IDict<string> = {
     "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc": "ren",
 }
 
+export const implementationBasePoolIdDictOptimism: IDict<string> = {
+    "0x78CF256256C8089d68Cde634Cf7cDEFb39286470": "3pool",
+    "0xADf698e4d8Df08b3E2c79682891636eF00F6e205": "3pool",
+}
+
 export const basePoolIdZapDictEthereum: IDict<string> = {
     '3pool': "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
     fraxusdc: "0x08780fb7E580e492c1935bEe4fA5920b94AA95Da".toLowerCase(),
@@ -228,12 +253,21 @@ export const basePoolIdZapDictArbitrum: IDict<string> = {
     ren: "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2".toLowerCase(),
 }
 
+export const basePoolIdZapDictOptimism: IDict<string> = {
+    "3pool": "0x167e42a1c7ab4be03764a2222aac57f5f6754411".toLowerCase(),
+}
+
 export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
     1: {  // ETH
         symbol: 'ETH',
         wrappedSymbol: 'WETH',
         wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
+    },
+    10: { // OPTIMISM
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
     },
     137: {  // POLYGON
         symbol: 'MATIC',
@@ -257,6 +291,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         implementationABIDict: implementationABIDictEthereum,
         implementationBasePoolIdDict: implementationBasePoolIdDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,
+    },
+    10: {  // OPTIMISM
+        implementationABIDict: implementationABIDictOptimism,
+        implementationBasePoolIdDict: implementationBasePoolIdDictOptimism,
+        basePoolIdZapDict: basePoolIdZapDictOptimism,
     },
     137: {  // POLYGON
         implementationABIDict: implementationABIDictPolygon,

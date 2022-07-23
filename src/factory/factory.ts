@@ -9,6 +9,7 @@ import { FACTORY_CONSTANTS } from "./constants";
 
 const BLACK_LIST: { [index: number]: any } = {
     1: [],
+    10: [],
     137: [
         "0x666dc3b4babfd063faf965bd020024af0dc51b64",
         "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
@@ -160,6 +161,7 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     }
 
     if (this.chainId === 1) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
+    if (this.chainId === 10) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
     if (this.chainId === 137) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "MATIC"
     if (this.chainId === 250) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "FTM"
     if (this.chainId === 43114) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "AVAX"

@@ -36,6 +36,9 @@ const CRYPTO_FACTORY_POOLS_COUNT_FANTOM = 6;
 const MAIN_POOLS_ARBITRUM = ['2pool', 'tricrypto', 'ren', 'eursusd'];
 const FACTORY_POOLS_COUNT_ARBITRUM = 40;
 
+const MAIN_POOLS_OPTIMISM = ['3pool'];
+const FACTORY_POOLS_COUNT_OPTIMISM = 16;
+
 const checkNumber = (str: string) => {
     const re = /-?\d+(\.\d+)?(e-\d+)?/g
     const match = str.match(re);
@@ -71,7 +74,7 @@ const poolStatsTest = (name: string) => {
         });
 
         it('Token APY', async function () {
-            if (pool.gauge === ethers.constants.AddressZero) {
+            if (pool.gauge === ethers.constants.AddressZero || pool.rewardsOnly()) {
                 console.log("Skip");
                 return
             }
@@ -145,11 +148,19 @@ describe('Stats test', async function () {
     //     poolStatsTest("factory-crypto-" + i);
     // }
 
-    for (const poolName of MAIN_POOLS_ARBITRUM) {
+    // for (const poolName of MAIN_POOLS_ARBITRUM) {
+    //     poolStatsTest(poolName);
+    // }
+    //
+    // for (let i = 0; i < FACTORY_POOLS_COUNT_ARBITRUM; i++) {
+    //     poolStatsTest("factory-v2-" + i);
+    // }
+
+    for (const poolName of MAIN_POOLS_OPTIMISM) {
         poolStatsTest(poolName);
     }
 
-    for (let i = 0; i < FACTORY_POOLS_COUNT_ARBITRUM; i++) {
+    for (let i = 0; i < FACTORY_POOLS_COUNT_OPTIMISM; i++) {
         poolStatsTest("factory-v2-" + i);
     }
 })

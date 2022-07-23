@@ -140,6 +140,7 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     }
 
     if (this.chainId === 1) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
+    if (this.chainId === 10) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
     if (this.chainId === 137) dict[NATIVE_TOKEN_ADDRESS] = "MATIC"
     if (this.chainId === 250) dict[NATIVE_TOKEN_ADDRESS] = "FTM"
     if (this.chainId === 43114) dict[NATIVE_TOKEN_ADDRESS] = "AVAX"

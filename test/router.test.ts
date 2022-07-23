@@ -48,8 +48,11 @@ describe('Router swap', async function () {
     // FANTOM
     // const coins = ['dai', 'usdc', 'fusdt', 'idai', 'iusdc', 'ifusdt', 'gdai', 'gusdc', 'gfusdt', 'dai+usdc', 'eth', 'btc', 'renbtc', 'frax', 'crv', '0x666a3776b3e82f171cb1dff7428b6808d2cd7d02']; // aCRV
 
-    // ARBITRUM
-    const coins = ['usdc', 'usdt', 'wbtc', 'renbtc', 'eth', 'eurs', '2crv', '0xcab86f6fb6d1c2cbeeb97854a0c023446a075fe3']; // deETH
+    // // ARBITRUM
+    // const coins = ['dai', 'usdc', 'usdt', 'wbtc', 'renbtc', 'eth', 'eurs', '2crv', '0xcab86f6fb6d1c2cbeeb97854a0c023446a075fe3']; // deETH
+
+    // OPTIMISM
+    const coins = ['dai', 'usdc', 'usdt', 'susd', '3crv', 'eth', 'seth'];
     for (const coin1 of coins) {
         for (const coin2 of coins) {
             if (coin1 !== coin2) {

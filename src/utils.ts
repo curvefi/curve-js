@@ -138,7 +138,7 @@ export const _getAllowance = async (coins: string[], address: string, spender: s
 
     let allowance: ethers.BigNumber[];
     if (_coins.length === 1) {
-        allowance = [await curve.contracts[_coins[0]].contract.allowance(address, spender)];
+        allowance = [await curve.contracts[_coins[0]].contract.allowance(address, spender, curve.constantOptions)];
     } else {
         const contractCalls = _coins.map((coinAddr) => curve.contracts[coinAddr].multicallContract.allowance(address, spender));
         allowance = await curve.multicallProvider.all(contractCalls);

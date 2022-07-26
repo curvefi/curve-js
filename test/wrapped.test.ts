@@ -24,6 +24,10 @@ const ARBITRUM_POOLS = [...ARBITRUM_MAIN_POOLS, ...ARBITRUM_FACTORY_META_POOLS];
 const OPTIMISM_FACTORY_META_POOLS = ['factory-v2-0']; // ['sUSD Synthetix'];
 const OPTIMISM_POOLS = [...OPTIMISM_FACTORY_META_POOLS];
 
+const XDAI_MAIN_POOLS = ['rai'];
+const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
+const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
+
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const ETHEREUM_POOLS = ['factory-v2-136']//['compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
 // const ETHEREUM_POOLS = [...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
@@ -240,7 +244,12 @@ describe('Wrapped test', async function () {
     //     wrappedSwapTest(poolId);
     // }
 
-    for (const poolId of OPTIMISM_POOLS) {
+    // for (const poolId of OPTIMISM_POOLS) {
+    //     wrappedLiquidityTest(poolId);
+    //     wrappedSwapTest(poolId);
+    // }
+
+    for (const poolId of XDAI_POOLS) {
         wrappedLiquidityTest(poolId);
         wrappedSwapTest(poolId);
     }

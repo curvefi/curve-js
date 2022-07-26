@@ -26,13 +26,8 @@ import {
     POOLS_DATA_AVALANCHE,
     POOLS_DATA_ARBITRUM,
     POOLS_DATA_OPTIMISM,
+    POOLS_DATA_XDAI,
 } from './constants/pools';
-import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
-import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
-import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon";
-import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom";
-import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
-import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum";
 import {
     ALIASES_ETHEREUM,
     ALIASES_OPTIMISM,
@@ -40,7 +35,15 @@ import {
     ALIASES_FANTOM,
     ALIASES_AVALANCHE,
     ALIASES_ARBITRUM,
+    ALIASES_XDAI,
 } from "./constants/aliases";
+import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
+import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
+import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon";
+import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom";
+import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
+import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum";
+import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
 
@@ -64,6 +67,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensOptimism,
         ycTokens: ycTokensOptimism,
         aTokens: aTokensOptimism,
+    },
+    100: {
+        NAME: 'xdai',
+        ALIASES: ALIASES_XDAI,
+        POOLS_DATA: POOLS_DATA_XDAI,
+        COINS: COINS_XDAI,
+        cTokens: cTokensXDai,
+        yTokens: yTokensXDai,
+        ycTokens: ycTokensXDai,
+        aTokens: aTokensXDai,
     },
     137: {
         NAME: 'polygon',
@@ -262,9 +275,11 @@ class Curve implements ICurve {
                 }
             }
 
-            this.contracts[pool.gauge_address] = {
-                contract: new Contract(pool.gauge_address, pool.gauge_abi, this.signer || this.provider),
-                multicallContract: new MulticallContract(pool.gauge_address, pool.gauge_abi),
+            if (pool.gauge_address !== ethers.constants.AddressZero) {
+                this.contracts[pool.gauge_address] = {
+                    contract: new Contract(pool.gauge_address, pool.gauge_abi, this.signer || this.provider),
+                    multicallContract: new MulticallContract(pool.gauge_address, pool.gauge_abi),
+                }
             }
 
             if (pool.deposit_address && !this.contracts[pool.deposit_address]) {

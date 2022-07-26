@@ -4,6 +4,7 @@ import { POOLS_DATA_FANTOM } from "./fantom";
 import { POOLS_DATA_AVALANCHE } from "./avalanche";
 import { POOLS_DATA_ARBITRUM } from "./arbitrum";
 import { POOLS_DATA_OPTIMISM } from "./optimism";
+import { POOLS_DATA_XDAI } from "./xdai";
 
 export {
     POOLS_DATA_ETHEREUM,
@@ -12,4 +13,5 @@ export {
     POOLS_DATA_AVALANCHE,
     POOLS_DATA_ARBITRUM,
     POOLS_DATA_OPTIMISM,
+    POOLS_DATA_XDAI,
 };

@@ -5,11 +5,12 @@ import ERC20ABI from "../constants/abis/ERC20.json";
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
 import { setFactoryZapContracts } from "./common";
-import { FACTORY_CONSTANTS } from "./constants";
+import { FACTORY_CONSTANTS, NATIVE_TOKEN_ADDRESS } from "./constants";
 
 const BLACK_LIST: { [index: number]: any } = {
     1: [],
     10: [],
+    100: [],
     137: [
         "0x666dc3b4babfd063faf965bd020024af0dc51b64",
         "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
@@ -160,12 +161,13 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
         });
     }
 
-    if (this.chainId === 1) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
-    if (this.chainId === 10) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
-    if (this.chainId === 137) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "MATIC"
-    if (this.chainId === 250) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "FTM"
-    if (this.chainId === 43114) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "AVAX"
-    if (this.chainId === 42161) dict["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"] = "ETH"
+    if (this.chainId === 1) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
+    if (this.chainId === 10) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
+    if (this.chainId === 100) dict[NATIVE_TOKEN_ADDRESS] = "XDAI"
+    if (this.chainId === 137) dict[NATIVE_TOKEN_ADDRESS] = "MATIC"
+    if (this.chainId === 250) dict[NATIVE_TOKEN_ADDRESS] = "FTM"
+    if (this.chainId === 43114) dict[NATIVE_TOKEN_ADDRESS] = "AVAX"
+    if (this.chainId === 42161) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
 
     return dict
 }
@@ -227,7 +229,7 @@ async function getCoinAddressDecimalsDict(
         coinAddrNamesDict[addr] = decimals[i];
     });
 
-    coinAddrNamesDict['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'] = 18
+    coinAddrNamesDict[NATIVE_TOKEN_ADDRESS] = 18
 
     return coinAddrNamesDict
 }

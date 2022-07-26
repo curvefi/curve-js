@@ -26,6 +26,12 @@ export function setFactoryZapContracts(this: ICurve): void {
             contract: new Contract(metaUsdZapAddress, factoryDepositABI, this.signer || this.provider),
             multicallContract: new MulticallContract(metaUsdZapAddress, factoryDepositABI),
         };
+    } else if (this.chainId === 100) {
+        const metaUsdZapAddress = "0x87C067fAc25f123554a0E76596BF28cFa37fD5E9".toLowerCase();
+        this.contracts[metaUsdZapAddress] = {
+            contract: new Contract(metaUsdZapAddress, factoryDepositABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaUsdZapAddress, factoryDepositABI),
+        };
     } else if (this.chainId === 137) {
         const metaUsdZapAddress = "0x5ab5C56B9db92Ba45a0B46a207286cD83C15C939".toLowerCase();
         this.contracts[metaUsdZapAddress] = {

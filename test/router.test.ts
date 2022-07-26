@@ -52,7 +52,10 @@ describe('Router swap', async function () {
     // const coins = ['dai', 'usdc', 'usdt', 'wbtc', 'renbtc', 'eth', 'eurs', '2crv', '0xcab86f6fb6d1c2cbeeb97854a0c023446a075fe3']; // deETH
 
     // OPTIMISM
-    const coins = ['dai', 'usdc', 'usdt', 'susd', '3crv', 'eth', 'seth'];
+    // const coins = ['dai', 'usdc', 'usdt', 'susd', '3crv', 'eth', 'seth'];
+
+    // XDAI
+    const coins = ['wxdai', 'usdc', 'usdt', 'rai', 'x3crv', '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb', '0xa4ef9da5ba71cc0d2e5e877a910a37ec43420445']; // GNO, sGNO
     for (const coin1 of coins) {
         for (const coin2 of coins) {
             if (coin1 !== coin2) {

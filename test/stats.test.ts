@@ -39,6 +39,9 @@ const FACTORY_POOLS_COUNT_ARBITRUM = 40;
 const MAIN_POOLS_OPTIMISM = ['3pool'];
 const FACTORY_POOLS_COUNT_OPTIMISM = 16;
 
+const MAIN_POOLS_XDAI = ['3pool', 'rai'];
+const FACTORY_POOLS_COUNT_XDAI = 7;
+
 const checkNumber = (str: string) => {
     const re = /-?\d+(\.\d+)?(e-\d+)?/g
     const match = str.match(re);
@@ -156,11 +159,19 @@ describe('Stats test', async function () {
     //     poolStatsTest("factory-v2-" + i);
     // }
 
-    for (const poolName of MAIN_POOLS_OPTIMISM) {
+    // for (const poolName of MAIN_POOLS_OPTIMISM) {
+    //     poolStatsTest(poolName);
+    // }
+    //
+    // for (let i = 0; i < FACTORY_POOLS_COUNT_OPTIMISM; i++) {
+    //     poolStatsTest("factory-v2-" + i);
+    // }
+
+    for (const poolName of MAIN_POOLS_XDAI) {
         poolStatsTest(poolName);
     }
 
-    for (let i = 0; i < FACTORY_POOLS_COUNT_OPTIMISM; i++) {
+    for (let i = 0; i < FACTORY_POOLS_COUNT_XDAI; i++) {
         poolStatsTest("factory-v2-" + i);
     }
 })

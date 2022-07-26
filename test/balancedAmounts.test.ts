@@ -24,6 +24,11 @@ const OPTIMISM_FACTORY_PLAIN_POOLS = ['factory-v2-10']; // ['sETH/ETH'];
 const OPTIMISM_FACTORY_META_POOLS = ['factory-v2-0']; // ['sUSD Synthetix'];
 const OPTIMISM_POOLS = [...OPTIMISM_MAIN_POOLS, ...OPTIMISM_FACTORY_PLAIN_POOLS, ...OPTIMISM_FACTORY_META_POOLS];
 
+const XDAI_MAIN_POOLS = ['3pool', 'rai'];
+const XDAI_FACTORY_PLAIN_POOLS = ['factory-v2-0']; // ['sGNO/GNO'];
+const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
+const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_PLAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
+
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
         let pool: PoolTemplate;
@@ -91,7 +96,11 @@ describe('Underlying test', async function () {
     //     balancedAmountsTest(poolName);
     // }
 
-    for (const poolName of OPTIMISM_POOLS) {
+    // for (const poolName of OPTIMISM_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+
+    for (const poolName of XDAI_POOLS) {
         balancedAmountsTest(poolName);
     }
 })

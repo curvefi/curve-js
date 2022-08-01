@@ -356,6 +356,12 @@ const _getBestRouteAndOutput = memoize(
     async (inputCoinAddress: string, outputCoinAddress: string, amount: number | string): Promise<IRoute> => {
         const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
         const _amount = parseUnits(amount, inputCoinDecimals);
+        if (_amount.eq(0)) return {
+            steps: [],
+            _output: ethers.BigNumber.from(0),
+            outputUsd: 0,
+            txCostUsd: 0,
+        }
 
         const routesRaw: IRoute[] = (await _findAllRoutes(inputCoinAddress, outputCoinAddress)).map(
             (steps) => ({ steps, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 })
@@ -497,9 +503,10 @@ export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amo
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    if (route.steps.length === 0) return 0
+
     const _amount = parseUnits(amount, inputCoinDecimals);
     const [gas] = await _estimateGasForDifferentRoutes([route], inputCoinAddress, outputCoinAddress, _amount);
-
     return gas
 }
 

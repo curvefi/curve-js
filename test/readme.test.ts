@@ -73,7 +73,6 @@ const poolFieldsTest = async () => {
     console.log(pool.underlyingDecimals);
     console.log(pool.wrappedDecimals);
     console.log(pool.useLending);
-    console.log(pool.rewardTokens);
 }
 
 const walletBalancesTest = async () => {
@@ -473,13 +472,13 @@ const userBalancesBaseProfitAndShareTest = async () => {
 
     const pool = curve.getPool('frax');
 
-    // console.log(await pool.deposit([1000, 1000, 1000, 1000]));
+    console.log(await pool.deposit([1000, 1000, 1000, 1000]));
     console.log(await pool.wallet.lpTokenBalances());
-    // console.log(await pool.stake(2000));
-    // console.log(await pool.wallet.lpTokenBalances());
-    // console.log(await pool.userBalances());
-    // console.log(await pool.userWrappedBalances());
-    // console.log(await pool.userLiquidityUSD());
-    // console.log(await pool.baseProfit());
-    // console.log(await pool.userShare());
+    console.log(await pool.stake(2000));
+    console.log(await pool.wallet.lpTokenBalances());
+    console.log(await pool.userBalances());
+    console.log(await pool.userWrappedBalances());
+    console.log(await pool.userLiquidityUSD());
+    console.log(await pool.baseProfit());
+    console.log(await pool.userShare());
 }

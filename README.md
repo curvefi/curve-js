@@ -324,8 +324,6 @@ import curve from "@curvefi/api";
     // [ 18, 18 ]
     pool.useLending;
     // [ false, false, false, false ]
-    pool.rewardTokens;
-    // []
 })()
 ````
 

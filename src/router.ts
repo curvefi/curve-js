@@ -170,10 +170,11 @@ export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress
                 const poolAddress = (poolData.is_crypto && poolData.is_meta) || (base_pool && base_pool.is_meta && poolData.is_factory) ?
                     poolData.deposit_address as string : poolData.swap_address;
 
-                // Find all underlying swaps
-                if (wrapped_coin_addresses.join("|") !== underlying_coin_addresses.join("|") && inCoinIndexes.underlying_coin >= 0) {
+                // Find all non-meta underlying swaps
+                if (!poolData.is_plain && inCoinIndexes.underlying_coin >= 0) {
                     for (let j = 0; j < underlying_coin_addresses.length; j++) {
-                        if (poolData.is_fake && inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
+                        // Don't swap metacoins since they can be swapped directly in base pool
+                        if (inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                         if (markedCoins.includes(underlying_coin_addresses[j]) || curCoins.includes(underlying_coin_addresses[j])) continue;
                         // Looking for outputCoinAddress only on the final step
@@ -355,6 +356,12 @@ const _getBestRouteAndOutput = memoize(
     async (inputCoinAddress: string, outputCoinAddress: string, amount: number | string): Promise<IRoute> => {
         const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
         const _amount = parseUnits(amount, inputCoinDecimals);
+        if (_amount.eq(0)) return {
+            steps: [],
+            _output: ethers.BigNumber.from(0),
+            outputUsd: 0,
+            txCostUsd: 0,
+        }
 
         const routesRaw: IRoute[] = (await _findAllRoutes(inputCoinAddress, outputCoinAddress)).map(
             (steps) => ({ steps, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 })
@@ -388,7 +395,7 @@ const _getBestRouteAndOutput = memoize(
 
             for (let i = 0; i < res.length; i++) {
                 if (res[i].status === 'rejected') {
-                    console.log(`Route ${(routesRaw[i].steps.map((s) => s.poolId)).join(" --> ")} is anavailable`);
+                    console.log(`Route ${(routesRaw[i].steps.map((s) => s.poolId)).join(" --> ")} is unavailable`);
                     continue;
                 }
                 routesRaw[i]._output = res[i].value;
@@ -496,9 +503,10 @@ export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amo
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    if (route.steps.length === 0) return 0
+
     const _amount = parseUnits(amount, inputCoinDecimals);
     const [gas] = await _estimateGasForDifferentRoutes([route], inputCoinAddress, outputCoinAddress, _amount);
-
     return gas
 }
 

@@ -431,7 +431,7 @@ export class PoolTemplate {
         return await contract.calc_token_amount(_amounts, curve.constantOptions);
     }
 
-    private _calcLpTokenAmount = memoize(async (_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> {
+    private _calcLpTokenAmount = memoize(async (_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> => {
         if (!this.isMeta && useUnderlying) {
             // For lending pools. For others rate = 1
             const _rates: ethers.BigNumber[] = await this._getRates();

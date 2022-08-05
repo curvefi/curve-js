@@ -1530,12 +1530,12 @@ export class PoolTemplate {
 
     // ---------------- USER BALANCES, BASE PROFIT AND SHARE ----------------
 
-    private async _userLpTotalBalance(address: string): Promise<string> {
+    private async _userLpTotalBalance(address: string): Promise<BigNumber> {
         const lpBalances = await this.walletLpTokenBalances(address);
         let lpTotalBalanceBN = BN(lpBalances.lpToken as string);
         if ('gauge' in lpBalances) lpTotalBalanceBN = lpTotalBalanceBN.plus(BN(lpBalances.gauge as string));
 
-        return lpTotalBalanceBN.toString()
+        return lpTotalBalanceBN
     }
 
     public async userBalances(address = ""): Promise<string[]> {
@@ -1543,8 +1543,9 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const lpTotalBalanceBN = await this._userLpTotalBalance(address);
+        if (lpTotalBalanceBN.eq(0)) return this.underlyingCoins.map(() => "0");
 
-        return await this.withdrawExpected(lpTotalBalanceBN.toString());
+        return await this.withdrawExpected(lpTotalBalanceBN.toFixed(18));
     }
 
     public async userWrappedBalances(address = ""): Promise<string[]> {
@@ -1552,8 +1553,9 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const lpTotalBalanceBN = await this._userLpTotalBalance(address);
+        if (lpTotalBalanceBN.eq(0)) return this.underlyingCoins.map(() => "0");
 
-        return await this.withdrawWrappedExpected(lpTotalBalanceBN.toString());
+        return await this.withdrawWrappedExpected(lpTotalBalanceBN.toFixed(18));
     }
 
     public async userLiquidityUSD(address = ""): Promise<string> {

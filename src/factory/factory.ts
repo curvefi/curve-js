@@ -4,6 +4,7 @@ import { IDict, IPoolData, ICurve, REFERENCE_ASSET } from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
+import gaugeChildABI from "../constants/abis/gauge_child.json";
 import { setFactoryZapContracts } from "./common";
 import { FACTORY_CONSTANTS, NATIVE_TOKEN_ADDRESS } from "./constants";
 
@@ -77,8 +78,8 @@ async function getFactoryGaugeAddresses(this: ICurve, factorySwapAddresses: stri
 function setFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[]): void {
     factoryGaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero).forEach((addr, i) => {
         this.contracts[addr] = {
-            contract: new Contract(addr, factoryGaugeABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(addr, factoryGaugeABI),
+            contract: new Contract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI),
         }
     });
 }
@@ -287,7 +288,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
                 underlying_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
-                gauge_abi: factoryGaugeABI,
+                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
             };
         } else {
             const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
@@ -321,7 +322,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
                 underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolIdDecimalsDict[basePoolIds[i]]],
                 wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
-                gauge_abi: factoryGaugeABI,
+                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 deposit_abi: factoryDepositABI,
             };
         }

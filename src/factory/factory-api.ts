@@ -3,6 +3,7 @@ import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
 import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
+import gaugeChildABI from "../constants/abis/gauge_child.json";
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
@@ -46,8 +47,8 @@ function setFactoryGaugeContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
         if (pool.gaugeAddress) {
             const addr = pool.gaugeAddress.toLowerCase();
             this.contracts[addr] = {
-                contract: new Contract(addr, factoryGaugeABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, factoryGaugeABI),
+                contract: new Contract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI, this.signer || this.provider),
+                multicallContract: new MulticallContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI),
             }
         }
     });
@@ -138,7 +139,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 underlying_decimals: coinDecimals,
                 wrapped_decimals: coinDecimals,
                 swap_abi: cryptoFactorySwapABI,
-                gauge_abi: factoryGaugeABI,
+                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
             };
         } else if (pool.implementation.startsWith("meta")) {
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
@@ -181,7 +182,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 underlying_decimals: [coinDecimals[0], ...basePoolDecimals],
                 wrapped_decimals: coinDecimals,
                 swap_abi: implementationABIDict[pool.implementationAddress],
-                gauge_abi: factoryGaugeABI,
+                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 deposit_abi: factoryDepositABI,
             };
         } else {
@@ -204,7 +205,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 underlying_decimals: coinDecimals,
                 wrapped_decimals: coinDecimals,
                 swap_abi: implementationABIDict[pool.implementationAddress],
-                gauge_abi: factoryGaugeABI,
+                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
             };
         }
     })

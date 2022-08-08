@@ -90,6 +90,17 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     // Filter duplications
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address.toLowerCase()));
+    if (this.chainId !== 1) {
+        const url = `https://api.curve.fi/api/getFactoGauges/${network}`;
+        const response = await axios.get(url);
+        const poolGaugeDict: IDict<string> = {};
+        for (const gaugeData of response.data.data.gauges) {
+            poolGaugeDict[gaugeData.swap] = gaugeData.gauge;
+        }
+        for (let i = 0; i < rawPoolList.length; i++) {
+            rawPoolList[i].gaugeAddress = poolGaugeDict[rawPoolList[i].address];
+        }
+    }
 
     setFactorySwapContracts.call(this, rawPoolList, isCrypto);
     if (isCrypto) setCryptoFactoryTokenContracts.call(this, rawPoolList);

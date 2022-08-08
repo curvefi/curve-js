@@ -133,15 +133,16 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
             const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
             const basePoolIds = Object.values(implementationBasePoolIdDict).filter((poolId, i, arr) => arr.indexOf(poolId) === i);
+            const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
             // @ts-ignore
             const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
-                (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coins]));
+                (poolId) => [poolId, allPoolsData[poolId]?.underlying_coins]));
             // @ts-ignore
             const basePoolIdCoinAddressesDict = Object.fromEntries(basePoolIds.map(
-                (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coin_addresses]));
+                (poolId) => [poolId, allPoolsData[poolId]?.underlying_coin_addresses]));
             // @ts-ignore
             const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
-                (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_decimals]));
+                (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
 
             const basePoolId = implementationBasePoolIdDict[pool.implementationAddress];

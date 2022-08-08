@@ -207,7 +207,7 @@ async function getCoinAddressDecimalsDict(
     coinAddresses: string[][],
     existingCoinAddressDecimalsDict: IDict<number>
 ): Promise<IDict<number>> {
-    const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
+    const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses))).filter((addr) => addr !== NATIVE_TOKEN_ADDRESS);
     const newCoinAddresses = [];
     const coinAddrNamesDict: IDict<number> = {};
 
@@ -265,16 +265,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
     const basePoolIds = implementations.map((addr: string) => implementationBasePoolIdDict[addr]);
     setFactoryZapContracts.call(this);
 
-    // @ts-ignore
-    const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
-        (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coins]));
-    // @ts-ignore
-    const basePoolIdCoinAddressesDict = Object.fromEntries(basePoolIds.map(
-        (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_coin_addresses]));
-    // @ts-ignore
-    const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
-        (poolId) => [poolId, this.constants.POOLS_DATA[poolId].underlying_decimals]));
-    const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+
 
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
@@ -299,6 +290,18 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
                 gauge_abi: factoryGaugeABI,
             };
         } else {
+            const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
+            // @ts-ignore
+            const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
+                (poolId) => [poolId, allPoolsData[poolId]?.underlying_coins]));
+            // @ts-ignore
+            const basePoolIdCoinAddressesDict = Object.fromEntries(basePoolIds.map(
+                (poolId) => [poolId, allPoolsData[poolId]?.underlying_coin_addresses]));
+            // @ts-ignore
+            const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
+                (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
+            const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+
             FACTORY_POOLS_DATA[poolIds[i]] = {
                 name: poolNames[i].split(": ")[1].trim(),
                 full_name: poolNames[i],

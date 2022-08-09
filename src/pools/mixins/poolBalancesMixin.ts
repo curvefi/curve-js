@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { curve } from "../../curve";
-import { _calcExpectedAmounts } from "./common";
+import { _calcExpectedAmounts, _atricrypto3CalcExpectedAmounts } from "./common";
 import { PoolTemplate } from "../PoolTemplate";
 
 
@@ -32,7 +32,9 @@ export const poolBalancesMetaMixin: PoolTemplate = {
 
         const basePool = new PoolTemplate(this.basePool);
         // @ts-ignore
-        const _basePoolExpectedAmounts = await _calcExpectedAmounts.call(basePool, _poolMetaCoinBalance);
+        const _basePoolExpectedAmounts = this.basePool === "atricrypto3" ?
+            await _atricrypto3CalcExpectedAmounts.call(basePool, _poolMetaCoinBalance) :
+            await _calcExpectedAmounts.call(basePool, _poolMetaCoinBalance);
         const _poolUnderlyingBalances = [..._poolNonMetaBalance, ..._basePoolExpectedAmounts];
 
         return  _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => ethers.utils.formatUnits(_b, this.underlyingDecimals[i]))

@@ -419,9 +419,12 @@ export class PoolTemplate {
         const calcContractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
         const N_coins = useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
         const contract = curve.contracts[calcContractAddress].contract;
-        
+
         if (this.isMetaFactory && useUnderlying) {
-            return await contract.calc_token_amount(this.address, _amounts, isDeposit, curve.constantOptions);
+            if (contract[`calc_token_amount(address,uint256[${N_coins}],bool)`]) {
+                return await contract.calc_token_amount(this.address, _amounts, isDeposit, curve.constantOptions);
+            }
+            return await contract.calc_token_amount(this.address, _amounts, curve.constantOptions);
         }
 
         if (contract[`calc_token_amount(uint256[${N_coins}],bool)`]) {
@@ -494,7 +497,7 @@ export class PoolTemplate {
     {
         primitive: true,
         promise: true,
-        maxAge: 1 * 60 * 1000, // 1m
+        maxAge: 60 * 1000, // 1m
     });
 
     private async calcLpTokenAmount(amounts: (number | string)[], isDeposit = true): Promise<string> {
@@ -1530,12 +1533,12 @@ export class PoolTemplate {
 
     // ---------------- USER BALANCES, BASE PROFIT AND SHARE ----------------
 
-    private async _userLpTotalBalance(address: string): Promise<string> {
+    private async _userLpTotalBalance(address: string): Promise<BigNumber> {
         const lpBalances = await this.walletLpTokenBalances(address);
         let lpTotalBalanceBN = BN(lpBalances.lpToken as string);
         if ('gauge' in lpBalances) lpTotalBalanceBN = lpTotalBalanceBN.plus(BN(lpBalances.gauge as string));
 
-        return lpTotalBalanceBN.toString()
+        return lpTotalBalanceBN
     }
 
     public async userBalances(address = ""): Promise<string[]> {
@@ -1543,8 +1546,9 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const lpTotalBalanceBN = await this._userLpTotalBalance(address);
+        if (lpTotalBalanceBN.eq(0)) return this.underlyingCoins.map(() => "0");
 
-        return await this.withdrawExpected(lpTotalBalanceBN.toString());
+        return await this.withdrawExpected(lpTotalBalanceBN.toFixed(18));
     }
 
     public async userWrappedBalances(address = ""): Promise<string[]> {
@@ -1552,8 +1556,9 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const lpTotalBalanceBN = await this._userLpTotalBalance(address);
+        if (lpTotalBalanceBN.eq(0)) return this.underlyingCoins.map(() => "0");
 
-        return await this.withdrawWrappedExpected(lpTotalBalanceBN.toString());
+        return await this.withdrawWrappedExpected(lpTotalBalanceBN.toFixed(18));
     }
 
     public async userLiquidityUSD(address = ""): Promise<string> {
@@ -1628,6 +1633,9 @@ export class PoolTemplate {
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
             return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
         } else {
+            if ('get_dy(address,uint256,uint256,uint256)' in contract) {  // atricrypto3 based metapools
+                return await contract.get_dy(this.address, i, j, _amount, curve.constantOptions);
+            }
             return await contract.get_dy(i, j, _amount, curve.constantOptions);
         }
     }

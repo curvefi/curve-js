@@ -287,11 +287,11 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 
     assetId = {
         'CRV': 'curve-dao-token',
-        'EUR': curve.constants.COINS.eurt,
+        'EUR': 'stasis-eurs',
         'BTC': 'bitcoin',
         'ETH': 'ethereum',
         'LINK': 'link',
-    }[assetId] || assetId
+    }[assetId.toUpperCase()] || assetId
     assetId = isEth(assetId) ? nativeTokenName : assetId.toLowerCase();
 
     // No EURT on Coingecko Polygon
@@ -306,7 +306,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     }
 
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
-        const url = [nativeTokenName, 'bitcoin', 'link', 'curve-dao-token'].includes(assetId.toLowerCase()) ?
+        const url = [nativeTokenName, 'ethereum', 'bitcoin', 'link', 'curve-dao-token', 'stasis-eurs'].includes(assetId.toLowerCase()) ?
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
             `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
         const response = await axios.get(url);

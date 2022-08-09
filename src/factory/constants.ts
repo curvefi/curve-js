@@ -153,6 +153,9 @@ export const implementationABIDictOptimism: IDict<any> = {
     "0x78CF256256C8089d68Cde634Cf7cDEFb39286470": MetaUSDABI,
     "0xADf698e4d8Df08b3E2c79682891636eF00F6e205": MetaUSDBalancesABI,
 
+    "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": MetaFraxUSDABI,
+    "0x114C4042B11a2b16F58Fe1BFe847589a122F678a": MetaFraxUSDBalancesABI,
+
     "0xC2b1DF84112619D190193E48148000e3990Bf627": Plain2BasicABI,
     "0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90": Plain2BalancesABI,
     "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522": Plain2ETHABI,
@@ -243,6 +246,9 @@ export const implementationBasePoolIdDictArbitrum: IDict<string> = {
 export const implementationBasePoolIdDictOptimism: IDict<string> = {
     "0x78CF256256C8089d68Cde634Cf7cDEFb39286470": "3pool",
     "0xADf698e4d8Df08b3E2c79682891636eF00F6e205": "3pool",
+
+    "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": "factory-v2-16", // fraxusdc
+    "0x114C4042B11a2b16F58Fe1BFe847589a122F678a": "factory-v2-16", // fraxusdc
 }
 
 export const implementationBasePoolIdDictXDai: IDict<string> = {
@@ -280,6 +286,7 @@ export const basePoolIdZapDictArbitrum: IDict<string> = {
 
 export const basePoolIdZapDictOptimism: IDict<string> = {
     "3pool": "0x167e42a1c7ab4be03764a2222aac57f5f6754411".toLowerCase(),
+    "factory-v2-16": "'0x4244eB811D6e0Ef302326675207A95113dB4E1F8'".toLowerCase(),
 }
 
 export const basePoolIdZapDictXDai: IDict<string> = {

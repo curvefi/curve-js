@@ -183,7 +183,7 @@ class Curve implements ICurve {
         this.feeData = {}
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
-        this.constants ={
+        this.constants = {
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},

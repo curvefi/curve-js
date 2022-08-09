@@ -7,6 +7,7 @@ import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsd
 import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
 import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json";
 import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json";
+import atricrypto3ZapABI from "../constants/abis/atricrypto3/base_pool_zap.json";
 
 export function setFactoryZapContracts(this: ICurve): void {
     if (this.chainId === 1) {
@@ -80,6 +81,16 @@ export function setFactoryZapContracts(this: ICurve): void {
         this.contracts[metaBtcZapAddress] = {
             contract: new Contract(metaBtcZapAddress, MetaZapFantomABI, this.signer || this.provider),
             multicallContract: new MulticallContract(metaBtcZapAddress, MetaZapFantomABI),
+        };
+    }
+}
+
+export function setCryptoFactoryZapContracts(this: ICurve): void {
+    if (this.chainId === 137) {
+        const atricrypto3ZapAddress = "0x3d8EADb739D1Ef95dd53D718e4810721837c69c1".toLowerCase();
+        this.contracts[atricrypto3ZapAddress] = {
+            contract: new Contract(atricrypto3ZapAddress, atricrypto3ZapABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(atricrypto3ZapAddress, atricrypto3ZapABI),
         };
     }
 }

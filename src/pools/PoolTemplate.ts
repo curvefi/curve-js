@@ -419,9 +419,12 @@ export class PoolTemplate {
         const calcContractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
         const N_coins = useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
         const contract = curve.contracts[calcContractAddress].contract;
-        
+
         if (this.isMetaFactory && useUnderlying) {
-            return await contract.calc_token_amount(this.address, _amounts, isDeposit, curve.constantOptions);
+            if (contract[`calc_token_amount(address,uint256[${N_coins}],bool)`]) {
+                return await contract.calc_token_amount(this.address, _amounts, isDeposit, curve.constantOptions);
+            }
+            return await contract.calc_token_amount(this.address, _amounts, curve.constantOptions);
         }
 
         if (contract[`calc_token_amount(uint256[${N_coins}],bool)`]) {
@@ -494,7 +497,7 @@ export class PoolTemplate {
     {
         primitive: true,
         promise: true,
-        maxAge: 1 * 60 * 1000, // 1m
+        maxAge: 60 * 1000, // 1m
     });
 
     private async calcLpTokenAmount(amounts: (number | string)[], isDeposit = true): Promise<string> {
@@ -1630,6 +1633,9 @@ export class PoolTemplate {
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
             return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
         } else {
+            if ('get_dy(address,uint256,uint256,uint256)' in contract) {  // atricrypto3 based metapools
+                return await contract.get_dy(this.address, i, j, _amount, curve.constantOptions);
+            }
             return await contract.get_dy(i, j, _amount, curve.constantOptions);
         }
     }

@@ -193,7 +193,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     // swap and swapEstimateGas
     if ('exchange(uint256,uint256,uint256,uint256,bool)' in curve.contracts[poolDummy.address].contract) { // tricrypto2 (eth), tricrypto (arbitrum)
         Object.assign(Pool.prototype, swapTricrypto2Mixin);
-    } else if (poolDummy.isMetaFactory && getPool(poolDummy.basePool).isLending) {
+    } else if (poolDummy.isMetaFactory && (getPool(poolDummy.basePool).isLending || getPool(poolDummy.basePool).isFake)) {
         Object.assign(Pool.prototype, swapMetaFactoryMixin);
     } else {
         Object.assign(Pool.prototype, swapMixin);

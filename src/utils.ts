@@ -56,11 +56,14 @@ export const isEth = (address: string): boolean => address.toLowerCase() === ETH
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 
 // coins can be either addresses or symbols
-export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => {
+export const _getCoinAddressesNoCheck = (...coins: string[] | string[][]): string[] => {
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
     coins = coins as string[];
+    return coins.map((c) => c.toLowerCase()).map((c) => curve.constants.COINS[c] || c);
+}
 
-    const coinAddresses = coins.map((c) => c.toLowerCase()).map((c) => curve.constants.COINS[c] || c);
+export const _getCoinAddresses = (...coins: string[] | string[][]): string[] => {
+    const coinAddresses = _getCoinAddressesNoCheck(...coins);
     const availableAddresses = [...Object.keys(curve.constants.DECIMALS), ...curve.constants.GAUGES];
     for (const coinAddr of coinAddresses) {
         if (!availableAddresses.includes(coinAddr)) throw Error(`Coin with address '${coinAddr}' is not available`);
@@ -321,7 +324,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 }
 
 export const getUsdRate = async (coin: string): Promise<number> => {
-    const [coinAddress] = _getCoinAddresses(coin);
+    const [coinAddress] = _getCoinAddressesNoCheck(coin);
     return await _getUsdRate(coinAddress);
 }
 

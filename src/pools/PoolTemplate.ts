@@ -870,10 +870,12 @@ export class PoolTemplate {
             const token = (await rewardContract[method](curve.constantOptions) as string).toLowerCase();
             _setContracts(token, ERC20Abi);
             const tokenMulticallContract = curve.contracts[token].multicallContract;
-            const [symbol, decimals] = await curve.multicallProvider.all([
+            const res = await curve.multicallProvider.all([
                 tokenMulticallContract.symbol(),
                 tokenMulticallContract.decimals(),
             ]);
+            const symbol = res[0] as string;
+            const decimals = (res[0] as ethers.BigNumber).toNumber();
 
             return [{ token, symbol, decimals }]
         }
@@ -930,9 +932,9 @@ export class PoolTemplate {
                 sRewardContract.periodFinish(),
                 gaugeContract.balanceOf(address),
                 gaugeContract.totalSupply(),
-            ])
+            ]) as ethers.BigNumber[];
 
-            const periodFinish = Number(ethers.utils.formatUnits(_periodFinish, 0)) * 1000;
+            const periodFinish = _periodFinish.toNumber() * 1000;
             const inflationRateBN = periodFinish > Date.now() ? toBN(_inflationRate, rewardToken.decimals) : BN(0);
             const balanceBN = toBN(_balance);
             const totalSupplyBN = toBN(_totalSupply);

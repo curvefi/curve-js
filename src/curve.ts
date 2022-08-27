@@ -206,7 +206,7 @@ class Curve implements ICurve {
 
             if (providerSettings.privateKey) {
                 this.signer = new ethers.Wallet(providerSettings.privateKey, this.provider);
-            } else {
+            } else if (!providerSettings.url?.startsWith("https://rpc.gnosischain.com")) {
                 this.signer = this.provider.getSigner();
             }
         // Web3 provider

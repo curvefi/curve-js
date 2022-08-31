@@ -27,6 +27,11 @@ export function setFactoryZapContracts(this: ICurve): void {
             contract: new Contract(metaUsdZapAddress, factoryDepositABI, this.signer || this.provider),
             multicallContract: new MulticallContract(metaUsdZapAddress, factoryDepositABI),
         };
+        const metaUsd2ZapAddress = "0x4244eB811D6e0Ef302326675207A95113dB4E1F8".toLowerCase();
+        this.contracts[metaUsd2ZapAddress] = {
+            contract: new Contract(metaUsd2ZapAddress, MetaZapFantomABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaUsd2ZapAddress, MetaZapFantomABI),
+        };
     } else if (this.chainId === 100) {
         const metaUsdZapAddress = "0x87C067fAc25f123554a0E76596BF28cFa37fD5E9".toLowerCase();
         this.contracts[metaUsdZapAddress] = {
@@ -81,6 +86,11 @@ export function setFactoryZapContracts(this: ICurve): void {
         this.contracts[metaBtcZapAddress] = {
             contract: new Contract(metaBtcZapAddress, MetaZapFantomABI, this.signer || this.provider),
             multicallContract: new MulticallContract(metaBtcZapAddress, MetaZapFantomABI),
+        };
+        const metaUsd2ZapAddress = "0x58AC91f5BE7dC0c35b24B96B19BAc55FBB8E705e".toLowerCase();
+        this.contracts[metaUsd2ZapAddress] = {
+            contract: new Contract(metaUsd2ZapAddress, MetaZapFantomABI, this.signer || this.provider),
+            multicallContract: new MulticallContract(metaUsd2ZapAddress, MetaZapFantomABI),
         };
     }
 }

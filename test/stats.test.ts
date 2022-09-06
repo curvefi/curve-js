@@ -39,7 +39,7 @@ const FACTORY_POOLS_COUNT_ARBITRUM = 40;
 const MAIN_POOLS_OPTIMISM = ['3pool'];
 const FACTORY_POOLS_COUNT_OPTIMISM = 16;
 
-const MAIN_POOLS_XDAI = ['3pool', 'rai'];
+const MAIN_POOLS_XDAI = ['3pool', 'rai', 'tricrypto'];
 const FACTORY_POOLS_COUNT_XDAI = 7;
 
 const checkNumber = (str: string) => {

@@ -37,7 +37,7 @@ const OPTIMISM_FACTORY_PLAIN_POOLS = ['factory-v2-10']; // ['sETH/ETH'];
 const OPTIMISM_FACTORY_META_POOLS = ['factory-v2-0']; // ['sUSD Synthetix'];
 const OPTIMISM_POOLS = [...OPTIMISM_MAIN_POOLS, ...OPTIMISM_FACTORY_PLAIN_POOLS, ...OPTIMISM_FACTORY_META_POOLS];
 
-const XDAI_MAIN_POOLS = ['3pool', 'rai'];
+const XDAI_MAIN_POOLS = ['3pool', 'rai', 'tricrypto'];
 const XDAI_FACTORY_PLAIN_POOLS = ['factory-v2-0']; // ['sGNO/GNO'];
 const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
 const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_PLAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
@@ -190,7 +190,7 @@ const underlyingSwapTest = (id: string) => {
                         if (i >= coinAddresses.length || j >= coinAddresses.length || (id === "factory-v2-7" && i === 3)) {
                             console.log('Skip')
                         } else {
-                            const swapAmount = '10';
+                            const swapAmount = '1';
                             const initialCoinBalances = await pool.wallet.underlyingCoinBalances() as IDict<string>;
                             const expected = await pool.swapExpected(i, j, swapAmount);
 

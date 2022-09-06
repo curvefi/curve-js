@@ -347,7 +347,7 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
     ];
     const allTypesExtendedPoolData = await Promise.all(promises);
 
-    return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll), 0)
+    return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }
 
 export const _setContracts = (address: string, abi: any): void => {

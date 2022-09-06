@@ -339,7 +339,7 @@ export class PoolTemplate {
                 inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(week);
             }
             const crvRate = await _getUsdRate(curve.constants.ALIASES.crv);
-            const apy = inflationRateBN.times(31536000).times(crvRate).div(Number(totalLiquidityUSD));
+            const apy = inflationRateBN.times(31536000).times(0.4).times(crvRate).div(Number(totalLiquidityUSD));
 
             return [apy.times(100).toFixed(4), apy.times(100).toFixed(4)];
         }

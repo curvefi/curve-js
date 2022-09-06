@@ -1,6 +1,8 @@
 import tripoolSwapABI from '../abis/3pool/swap.json';
 import raiSwapABI from '../abis/rai/swap.json';
 import raiZapABI from '../abis/rai/deposit.json';
+import tricryptoSwapABI from '../abis/tricrypto-xdai/swap.json';
+import tricryptoZapABI from '../abis/tricrypto-xdai/zap.json';
 import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json';
 import streamerABI from '../abis/streamer.json';
 import { lowerCasePoolDataAddresses } from "../utils";
@@ -64,4 +66,37 @@ export const POOLS_DATA_XDAI: { [index: string]: IPoolData } = lowerCasePoolData
         gauge_abi: gaugeRewardsOnlyABI,
         deposit_abi: raiZapABI,
     },
+    tricrypto: {
+        name: "tricrypto",
+        full_name: "tricrypto",
+        symbol: "tricrypto",
+        reference_asset: 'CRYPTO',
+        swap_address: '0x5633E00994896D0F472926050eCb32E38bef3e65',
+        token_address: '0x02E7e2dd3BA409148A49D5cc9a9034D2f884F245',
+        gauge_address: '0x0000000000000000000000000000000000000000', // NO GAUGE FOR THIS POOL BUT NECESSARY TO AVOID REVERTS
+        deposit_address: '0xF182926A64C0A19234E7E1FCDfE772aA7A1CA351',
+        is_crypto: true,
+        is_meta: true,
+        base_pool: '3pool',
+        underlying_coins: ['WXDAI', 'USDC', 'USDT', 'WBTC', 'WETH'],
+        wrapped_coins: ['x3CRV', 'WBTC', 'WETH'],
+        underlying_coin_addresses: [
+            '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+            '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+            '0x4ECaBa5870353805a9F068101A40E0f32ed605C6',
+            '0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252',
+            '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+        ],
+        wrapped_coin_addresses: [
+            '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
+            '0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252',
+            '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+        ],
+        underlying_decimals: [18, 6, 6, 8, 18],
+        wrapped_decimals: [18, 8, 18],
+        swap_abi: tricryptoSwapABI,
+        gauge_abi: gaugeRewardsOnlyABI, // No use
+        deposit_abi: tricryptoZapABI,
+    },
+
 });

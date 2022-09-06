@@ -24,7 +24,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     class Pool extends PoolTemplate {}
 
     // statsBalances
-    if (poolDummy.isFake) {
+    if (poolDummy.isFake || (curve.chainId === 100 && poolDummy.id === "tricrypto")) {  // 100 is xDAI
         Object.assign(Pool.prototype, poolBalancesAtricrypto3Mixin);
     } else if (poolDummy.isMeta) {
         Object.assign(Pool.prototype, poolBalancesMetaMixin);
@@ -78,7 +78,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // withdrawExpected
-    if (poolDummy.isFake) {
+    if (poolDummy.isFake || (curve.chainId === 100 && poolDummy.id === "tricrypto")) {  // 100 is xDAI
         Object.assign(Pool.prototype, withdrawExpectedAtricrypto3Mixin);
     } else if (poolDummy.isMeta) {
         Object.assign(Pool.prototype, withdrawExpectedMetaMixin);
@@ -191,7 +191,8 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // swap and swapEstimateGas
-    if ('exchange(uint256,uint256,uint256,uint256,bool)' in curve.contracts[poolDummy.address].contract) { // tricrypto2 (eth), tricrypto (arbitrum)
+    if ('exchange(uint256,uint256,uint256,uint256,bool)' in curve.contracts[poolDummy.address].contract &&
+        !(curve.chainId === 100 && poolDummy.id === "tricrypto")) { // tricrypto2 (eth), tricrypto (arbitrum); 100 is xDAI
         Object.assign(Pool.prototype, swapTricrypto2Mixin);
     } else if (poolDummy.isMetaFactory && (getPool(poolDummy.basePool).isLending || getPool(poolDummy.basePool).isFake)) {
         Object.assign(Pool.prototype, swapMetaFactoryMixin);

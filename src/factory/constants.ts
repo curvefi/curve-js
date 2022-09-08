@@ -202,6 +202,23 @@ export const implementationABIDictXDai: IDict<any> = {
     "0x0E2615ce69Cd3Dc3Ff6f66a975bEa0655F3bA7b9": Plain4OptimizedABI,
 }
 
+export const implementationABIDictMoonbeam: IDict<any> = {
+    "0x6842E0412AC1c00464dc48961330156a07268d14": Plain2BasicABI,
+    "0x9fAe78C4bBB649deB7b2295dDB8A03adA7eB660F": Plain2BalancesABI,
+    "0xfCE359115dFe1533a2458650123F86C454BC0213": Plain2ETHABI,
+    "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": Plain2OptimizedABI,
+
+    "0xD19Baeadc667Cf2015e395f2B08668Ef120f41F5": Plain3BasicABI,
+    "0x04e39EF8332e979Cf8e4f8891E64934FF65F231b": Plain3BalancesABI,
+    "0xC9438d8928486bD9621D326002F4672bF684187A": Plain3ETHABI,
+    "0x2b70A5B878665FfDB4A06Ba40a264d6c70f68F4B": Plain3OptimizedABI,
+
+    "0x2D036f0Ff6F440dB623e0D9D3B5Daa509e5500C3": Plain4BasicABI,
+    "0x7Bb707085905c9D80854652809A1ba8480C11789": Plain4BalancesABI,
+    "0xec9cEBE650E181079576C1b6d0d2e092B1EdfF13": Plain4ETHABI,
+    "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": Plain4OptimizedABI,
+}
+
 export const implementationBasePoolIdDictEthereum: IDict<string> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
@@ -268,6 +285,8 @@ export const implementationBasePoolIdDictXDai: IDict<string> = {
     "0x4A5bF7Ab9A8202692051c19B102d3eDD62aaBAE6": "3pool",
     "0x0B4dc7A945695D11FD83e40B2DfC2B896A02395F": "3pool",
 }
+
+export const implementationBasePoolIdDictMoonbeam: IDict<string> = {}
 
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
@@ -358,6 +377,8 @@ export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {
     },
 }
 
+export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {}
+
 export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
     1: {  // ETH
@@ -384,6 +405,11 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         symbol: 'FTM',
         wrappedSymbol: 'WFTM',
         wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
+    },
+    1284: {  // MOONBEAM
+        symbol: 'GLMR',
+        wrappedSymbol: 'WGLMR',
+        wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
     },
     42161: {  // ARBITRUM
         symbol: 'ETH',
@@ -417,6 +443,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         implementationABIDict: implementationABIDictFantom,
         implementationBasePoolIdDict: implementationBasePoolIdDictFantom,
         basePoolIdZapDict: basePoolIdZapDictFantom,
+    },
+    1284: {  // MOONBEAM
+        implementationABIDict: implementationABIDictMoonbeam,
+        implementationBasePoolIdDict: implementationBasePoolIdDictMoonbeam,
+        basePoolIdZapDict: basePoolIdZapDictMoonbeam,
     },
     43114: {  // AVALANCHE
         implementationABIDict: implementationABIDictAvalanche,

@@ -454,6 +454,13 @@ class Curve implements ICurve {
         };
     }
 
+    setContract(address: string, abi: any): void {
+        this.contracts[address] = {
+            contract: new Contract(address, abi, this.signer || this.provider),
+            multicallContract: new MulticallContract(address, abi),
+        }
+    }
+
     async fetchFactoryPools(useApi = true): Promise<void> {
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, false));

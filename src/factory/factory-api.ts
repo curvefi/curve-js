@@ -204,7 +204,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
             const basePoolCoinNames = basePoolIdCoinsDict[basePoolId];
             const basePoolCoinAddresses = basePoolIdCoinAddressesDict[basePoolId];
             const basePoolDecimals = basePoolIdDecimalsDict[basePoolId];
-            const basePoolZap = basePoolIdZapDict[basePoolId];
+            const basePoolZap = basePoolIdZapDict[basePoolId].address;
 
             FACTORY_POOLS_DATA[pool.id] = {
                 name: pool.name.split(": ")[1].trim(),

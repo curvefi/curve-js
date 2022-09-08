@@ -309,7 +309,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
-                deposit_address: basePoolIdZapDict[basePoolIds[i]],
+                deposit_address: basePoolIdZapDict[basePoolIds[i]].address,
                 is_meta: true,
                 is_factory: true,
                 base_pool: basePoolIds[i],

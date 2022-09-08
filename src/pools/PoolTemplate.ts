@@ -367,7 +367,7 @@ export class PoolTemplate {
     private statsRewardsApy = async (): Promise<IReward[]> => {
         if (this.gauge === ethers.constants.AddressZero) return [];
 
-        if ([10, 100, 137, 250, 43114, 42161].includes(curve.chainId)) {
+        if ([10, 100, 137, 250, 1284, 43114, 42161].includes(curve.chainId)) {
             const apy: IReward[] = [];
             const rewardTokens = await this.rewardTokens();
             for (const rewardToken of rewardTokens) {

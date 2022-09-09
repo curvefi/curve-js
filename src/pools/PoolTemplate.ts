@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData } from '../external-api';
+import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData, _getMoonbeamFactoryAPYsAndVolumes, _getMoonbeamLegacyAPYsAndVolumes } from '../external-api';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -300,16 +300,48 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
+        if (curve.chainId === 1284) {  // Moonbeam
+            const [mainPoolsData, factoryPoolsData] = await Promise.all([
+                _getMoonbeamLegacyAPYsAndVolumes(),
+                _getMoonbeamFactoryAPYsAndVolumes(),
+            ]);
+            if (this.id in mainPoolsData) {
+                return mainPoolsData[this.id].volume.toString();
+            }
+            const poolData = factoryPoolsData.find((d) => d.poolAddress.toLowerCase() === this.address);
+            if (!poolData) throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
+            const lpPrice = await _getUsdRate(this.lpToken);
+
+            return (poolData.volume * lpPrice).toString()
+        }
         const network = curve.constants.NETWORK_NAME;
         const poolsData = (await _getSubgraphData(network));
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
-
-        if (!poolData) throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
+        if (!poolData) throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
 
         return poolData.volumeUSD.toString()
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
+        if (curve.chainId === 1284) {  // Moonbeam
+            const [mainPoolsData, factoryPoolsData] = await Promise.all([
+                _getMoonbeamLegacyAPYsAndVolumes(),
+                _getMoonbeamFactoryAPYsAndVolumes(),
+            ]);
+            if (this.id in mainPoolsData) {
+                return {
+                    day: mainPoolsData[this.id].apy.day.toString(),
+                    week: mainPoolsData[this.id].apy.week.toString(),
+                }
+            }
+            const poolData = factoryPoolsData.find((d) => d.poolAddress.toLowerCase() === this.address);
+            if (!poolData) throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
+
+            return {
+                day: poolData.apy.toString(),
+                week: poolData.apy.toString(),
+            }
+        }
         const network = curve.constants.NETWORK_NAME;
         const poolsData = (await _getSubgraphData(network));
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);

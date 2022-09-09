@@ -42,6 +42,12 @@ const XDAI_FACTORY_PLAIN_POOLS = ['factory-v2-0']; // ['sGNO/GNO'];
 const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
 const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_PLAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
 
+const MOONBEAM_MAIN_POOLS = ['3pool'];
+const MOONBEAM_FACTORY_PLAIN_POOLS = ['factory-v2-6']; // ['DAI Multi Nomad'];
+// const MOONBEAM_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
+// const MOONBEAM_POOLS = [...MOONBEAM_MAIN_POOLS];
+const MOONBEAM_POOLS = [...MOONBEAM_FACTORY_PLAIN_POOLS];
+
 // const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 // const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
 const ETHEREUM_POOLS = ['susd', '3pool', 'compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
@@ -251,7 +257,12 @@ describe('Underlying test', async function () {
     //     underlyingSwapTest(poolId);
     // }
 
-    for (const poolId of XDAI_POOLS) {
+    // for (const poolId of XDAI_POOLS) {
+    //     underlyingLiquidityTest(poolId);
+    //     underlyingSwapTest(poolId);
+    // }
+
+    for (const poolId of MOONBEAM_POOLS) {
         underlyingLiquidityTest(poolId);
         underlyingSwapTest(poolId);
     }

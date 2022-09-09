@@ -21,6 +21,13 @@ import Plain4BasicABI from "../constants/abis/factory-v2/Plain4Basic.json";
 import Plain4BalancesABI from "../constants/abis/factory-v2/Plain4Balances.json";
 import Plain4ETHABI from "../constants/abis/factory-v2/Plain4ETH.json";
 import Plain4OptimizedABI from "../constants/abis/factory-v2/Plain4Optimized.json";
+// --- ZAPS --
+import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
+import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/metaZap.json";
+import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json";
+import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
+import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json";
+import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json";
 
 
 export const implementationABIDictEthereum: IDict<any> = {
@@ -195,6 +202,23 @@ export const implementationABIDictXDai: IDict<any> = {
     "0x0E2615ce69Cd3Dc3Ff6f66a975bEa0655F3bA7b9": Plain4OptimizedABI,
 }
 
+export const implementationABIDictMoonbeam: IDict<any> = {
+    "0x6842E0412AC1c00464dc48961330156a07268d14": Plain2BasicABI,
+    "0x9fAe78C4bBB649deB7b2295dDB8A03adA7eB660F": Plain2BalancesABI,
+    "0xfCE359115dFe1533a2458650123F86C454BC0213": Plain2ETHABI,
+    "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": Plain2OptimizedABI,
+
+    "0xD19Baeadc667Cf2015e395f2B08668Ef120f41F5": Plain3BasicABI,
+    "0x04e39EF8332e979Cf8e4f8891E64934FF65F231b": Plain3BalancesABI,
+    "0xC9438d8928486bD9621D326002F4672bF684187A": Plain3ETHABI,
+    "0x2b70A5B878665FfDB4A06Ba40a264d6c70f68F4B": Plain3OptimizedABI,
+
+    "0x2D036f0Ff6F440dB623e0D9D3B5Daa509e5500C3": Plain4BasicABI,
+    "0x7Bb707085905c9D80854652809A1ba8480C11789": Plain4BalancesABI,
+    "0xec9cEBE650E181079576C1b6d0d2e092B1EdfF13": Plain4ETHABI,
+    "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": Plain4OptimizedABI,
+}
+
 export const implementationBasePoolIdDictEthereum: IDict<string> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
@@ -262,43 +286,98 @@ export const implementationBasePoolIdDictXDai: IDict<string> = {
     "0x0B4dc7A945695D11FD83e40B2DfC2B896A02395F": "3pool",
 }
 
-export const basePoolIdZapDictEthereum: IDict<string> = {
-    '3pool': "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
-    fraxusdc: "0x08780fb7E580e492c1935bEe4fA5920b94AA95Da".toLowerCase(),
-    sbtc: "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),
-    ren: "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(), // TODO CHECK!!!
+export const implementationBasePoolIdDictMoonbeam: IDict<string> = {}
+
+export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
+    '3pool': {
+        address: "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
+        ABI: factoryDepositABI,
+    },
+    fraxusdc: {
+        address: "0x08780fb7E580e492c1935bEe4fA5920b94AA95Da".toLowerCase(),
+        ABI: fraxusdcMetaZapABI,
+    },
+    sbtc: {
+        address: "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),
+        ABI: factoryDepositABI,
+    },
+    ren: {
+        address: "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),
+        ABI: factoryDepositABI,
+    }, // TODO MUST BE CHANGED!!!
 }
 
-export const basePoolIdZapDictPolygon: IDict<string> = {
-    aave: "0x5ab5C56B9db92Ba45a0B46a207286cD83C15C939".toLowerCase(),
-    ren: "0xE2e6DC1708337A6e59f227921db08F21e3394723".toLowerCase(),
+export const basePoolIdZapDictPolygon: IDict<{ address: string, ABI: any }> = {
+    aave: {
+        address: "0x5ab5C56B9db92Ba45a0B46a207286cD83C15C939".toLowerCase(),
+        ABI: MetaUsdZapPolygonABI,
+    },
+    ren: {
+        address: "0xE2e6DC1708337A6e59f227921db08F21e3394723".toLowerCase(),
+        ABI: MetaBtcZapPolygonABI,
+    },
 }
 
-export const basePoolIdZapDictFantom: IDict<string> = {
-    '2pool': "0x78D51EB71a62c081550EfcC0a9F9Ea94B2Ef081c".toLowerCase(),
-    ren: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
-    geist: "0x247aEB220E87f24c40C9F86b65d6bd5d3c987B55".toLowerCase(),
+export const basePoolIdZapDictFantom: IDict<{ address: string, ABI: any }> = {
+    '2pool': {
+        address: "0x78D51EB71a62c081550EfcC0a9F9Ea94B2Ef081c".toLowerCase(),
+        ABI: MetaZapFantomABI,
+    },
+    ren: {
+        address: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
+        ABI: MetaZapFantomABI,
+    },
+    geist: {
+        address: "0x247aEB220E87f24c40C9F86b65d6bd5d3c987B55".toLowerCase(),
+        ABI: MetaGeistUsdZapFantomABI,
+    },
 }
 
-export const basePoolIdZapDictAvalanche: IDict<string> = {
-    aave: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
-    ren: "0xEeB3DDBcc4174e0b3fd1C13aD462b95D11Ef42C3".toLowerCase(),
+export const basePoolIdZapDictAvalanche: IDict<{ address: string, ABI: any }> = {
+    aave: {
+        address: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
+        ABI: MetaUsdZapPolygonABI,
+    },
+    ren: {
+        address: "0xEeB3DDBcc4174e0b3fd1C13aD462b95D11Ef42C3".toLowerCase(),
+        ABI: MetaBtcZapPolygonABI,
+    },
 }
 
-export const basePoolIdZapDictArbitrum: IDict<string> = {
-    "2pool": "0x7544Fe3d184b6B55D6B36c3FCA1157eE0Ba30287".toLowerCase(),
-    ren: "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2".toLowerCase(),
-    "factory-v2-41": "0x58AC91f5BE7dC0c35b24B96B19BAc55FBB8E705e".toLowerCase(),
+export const basePoolIdZapDictArbitrum: IDict<{ address: string, ABI: any }> = {
+    "2pool": {
+        address: "0x7544Fe3d184b6B55D6B36c3FCA1157eE0Ba30287".toLowerCase(),
+        ABI: MetaZapFantomABI,
+    },
+    ren: {
+        address: "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2".toLowerCase(),
+        ABI: MetaZapFantomABI,
+    },
+    "factory-v2-41": {
+        address: "0x58AC91f5BE7dC0c35b24B96B19BAc55FBB8E705e".toLowerCase(),
+        ABI: MetaZapFantomABI,
+    },
 }
 
-export const basePoolIdZapDictOptimism: IDict<string> = {
-    "3pool": "0x167e42a1c7ab4be03764a2222aac57f5f6754411".toLowerCase(),
-    "factory-v2-16": "0x4244eB811D6e0Ef302326675207A95113dB4E1F8".toLowerCase(),
+export const basePoolIdZapDictOptimism: IDict<{ address: string, ABI: any }> = {
+    "3pool": {
+        address: "0x167e42a1c7ab4be03764a2222aac57f5f6754411".toLowerCase(),
+        ABI: factoryDepositABI,
+    },
+    "factory-v2-16": {
+        address: "0x4244eB811D6e0Ef302326675207A95113dB4E1F8".toLowerCase(),
+        ABI: MetaZapFantomABI,
+    },
 }
 
-export const basePoolIdZapDictXDai: IDict<string> = {
-    "3pool": "0x87C067fAc25f123554a0E76596BF28cFa37fD5E9".toLowerCase(),
+export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {
+    "3pool": {
+        address: "0x87C067fAc25f123554a0E76596BF28cFa37fD5E9".toLowerCase(),
+        ABI: factoryDepositABI,
+    },
 }
+
+export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {}
 
 export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
@@ -327,6 +406,11 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WFTM',
         wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
     },
+    1284: {  // MOONBEAM
+        symbol: 'GLMR',
+        wrappedSymbol: 'WGLMR',
+        wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
+    },
     42161: {  // ARBITRUM
         symbol: 'ETH',
         wrappedSymbol: 'WETH',
@@ -334,7 +418,7 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
     },
 }
 
-export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<string> } } = {
+export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
         implementationBasePoolIdDict: implementationBasePoolIdDictEthereum,
@@ -359,6 +443,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         implementationABIDict: implementationABIDictFantom,
         implementationBasePoolIdDict: implementationBasePoolIdDictFantom,
         basePoolIdZapDict: basePoolIdZapDictFantom,
+    },
+    1284: {  // MOONBEAM
+        implementationABIDict: implementationABIDictMoonbeam,
+        implementationBasePoolIdDict: implementationBasePoolIdDictMoonbeam,
+        basePoolIdZapDict: basePoolIdZapDictMoonbeam,
     },
     43114: {  // AVALANCHE
         implementationABIDict: implementationABIDictAvalanche,

@@ -60,6 +60,7 @@ export interface ICurve {
         DECIMALS: IDict<number>,
         GAUGES: string[],
     };
+    setContract: (address: string, abi: any) => void,
 }
 
 export interface ICoinFromPoolDataApi {
@@ -92,6 +93,7 @@ export interface IPoolDataFromApi {
     coins: ICoinFromPoolDataApi[],
     gaugeRewards?: IReward[],
     usdTotal: number,
+    totalSupply: number,
 }
 
 export interface ISubgraphPoolData {

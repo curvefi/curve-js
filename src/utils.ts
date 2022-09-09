@@ -244,6 +244,10 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
         for (const pool of extendedPoolData.poolData) {
+            const lpTokenAddress = pool.lpTokenAddress ?? pool.address;
+            const totalSupply = pool.totalSupply / (10 ** 18);
+            priceDict[lpTokenAddress.toLowerCase()] = pool.usdTotal && totalSupply ? pool.usdTotal / totalSupply : 0;
+
             for (const coin of pool.coins) {
                 if (typeof coin.usdPrice === "number") priceDict[coin.address.toLowerCase()] = coin.usdPrice;
             }
@@ -270,6 +274,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         100: 'xdai',
         137: 'polygon-pos',
         250: 'fantom',
+        1284: 'moonbeam',
         43114: 'avalanche',
         42161: 'arbitrum-one',
     }[curve.chainId];
@@ -280,6 +285,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         100: 'xdai',
         137: 'matic-network',
         250: 'fantom',
+        1284: 'moonbeam',
         43114: 'avalanche-2',
         42161: 'ethereum',
     }[curve.chainId] as string;
@@ -335,6 +341,7 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
         100: 'xdai',
         137: "polygon",
         250: "fantom",
+        1284: "moonbeam",
         43114: "avalanche",
         42161: "arbitrum",
     }[chainId] as INetworkName ?? "ethereum";

@@ -18,6 +18,7 @@ const BLACK_LIST: { [index: number]: any } = {
         "0x88c4d6534165510b2e2caf0a130d4f70aa4b6d71",
     ],
     250: [],
+    1284: [],
     43114: [],
     42161: [],
 }
@@ -167,6 +168,7 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     if (this.chainId === 100) dict[NATIVE_TOKEN_ADDRESS] = "XDAI"
     if (this.chainId === 137) dict[NATIVE_TOKEN_ADDRESS] = "MATIC"
     if (this.chainId === 250) dict[NATIVE_TOKEN_ADDRESS] = "FTM"
+    if (this.chainId === 1284) dict[NATIVE_TOKEN_ADDRESS] = "GLMR"
     if (this.chainId === 43114) dict[NATIVE_TOKEN_ADDRESS] = "AVAX"
     if (this.chainId === 42161) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
 
@@ -309,7 +311,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
-                deposit_address: basePoolIdZapDict[basePoolIds[i]],
+                deposit_address: basePoolIdZapDict[basePoolIds[i]].address,
                 is_meta: true,
                 is_factory: true,
                 base_pool: basePoolIds[i],

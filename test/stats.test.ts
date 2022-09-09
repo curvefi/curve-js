@@ -42,6 +42,9 @@ const FACTORY_POOLS_COUNT_OPTIMISM = 16;
 const MAIN_POOLS_XDAI = ['3pool', 'rai', 'tricrypto'];
 const FACTORY_POOLS_COUNT_XDAI = 7;
 
+const MAIN_POOLS_MOONBEAM = ['3pool'];
+const FACTORY_POOLS_COUNT_MOONBEAM = 16;
+
 const checkNumber = (str: string) => {
     const re = /-?\d+(\.\d+)?(e-\d+)?/g
     const match = str.match(re);
@@ -167,11 +170,19 @@ describe('Stats test', async function () {
     //     poolStatsTest("factory-v2-" + i);
     // }
 
-    for (const poolName of MAIN_POOLS_XDAI) {
+    // for (const poolName of MAIN_POOLS_XDAI) {
+    //     poolStatsTest(poolName);
+    // }
+    //
+    // for (let i = 0; i < FACTORY_POOLS_COUNT_XDAI; i++) {
+    //     poolStatsTest("factory-v2-" + i);
+    // }
+
+    for (const poolName of MAIN_POOLS_MOONBEAM) {
         poolStatsTest(poolName);
     }
 
-    for (let i = 0; i < FACTORY_POOLS_COUNT_XDAI; i++) {
+    for (let i = 0; i < FACTORY_POOLS_COUNT_MOONBEAM; i++) {
         poolStatsTest("factory-v2-" + i);
     }
 })

@@ -27,6 +27,7 @@ import {
     POOLS_DATA_ARBITRUM,
     POOLS_DATA_OPTIMISM,
     POOLS_DATA_XDAI,
+    POOLS_DATA_MOONBEAM,
 } from './constants/pools';
 import {
     ALIASES_ETHEREUM,
@@ -36,6 +37,7 @@ import {
     ALIASES_AVALANCHE,
     ALIASES_ARBITRUM,
     ALIASES_XDAI,
+    ALIASES_MOONBEAM,
 } from "./constants/aliases";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
@@ -44,6 +46,7 @@ import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFan
 import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
 import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum";
 import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai";
+import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
 
@@ -97,6 +100,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensFantom,
         ycTokens: ycTokensFantom,
         aTokens: aTokensFantom,
+    },
+    1284: {
+        NAME: 'moonbeam',
+        ALIASES: ALIASES_MOONBEAM,
+        POOLS_DATA: POOLS_DATA_MOONBEAM,
+        COINS: COINS_MOONBEAM,
+        cTokens: cTokensMoonbeam,
+        yTokens: yTokensMoonbeam,
+        ycTokens: ycTokensMoonbeam,
+        aTokens: aTokensMoonbeam,
     },
     43114: {
         NAME: 'avalanche',
@@ -439,6 +452,13 @@ class Curve implements ICurve {
             contract: new Contract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI, this.signer || this.provider),
             multicallContract: new MulticallContract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI),
         };
+    }
+
+    setContract(address: string, abi: any): void {
+        this.contracts[address] = {
+            contract: new Contract(address, abi, this.signer || this.provider),
+            multicallContract: new MulticallContract(address, abi),
+        }
     }
 
     async fetchFactoryPools(useApi = true): Promise<void> {

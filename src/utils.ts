@@ -244,6 +244,10 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
         for (const pool of extendedPoolData.poolData) {
+            const lpTokenAddress = pool.lpTokenAddress ?? pool.address;
+            const totalSupply = pool.totalSupply / (10 ** 18);
+            priceDict[lpTokenAddress.toLowerCase()] = pool.usdTotal && totalSupply ? pool.usdTotal / totalSupply : 0;
+
             for (const coin of pool.coins) {
                 if (typeof coin.usdPrice === "number") priceDict[coin.address.toLowerCase()] = coin.usdPrice;
             }

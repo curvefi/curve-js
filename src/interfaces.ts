@@ -93,6 +93,7 @@ export interface IPoolDataFromApi {
     coins: ICoinFromPoolDataApi[],
     gaugeRewards?: IReward[],
     usdTotal: number,
+    totalSupply: number,
 }
 
 export interface ISubgraphPoolData {

@@ -480,10 +480,12 @@ export class PoolTemplate {
         // --- Calculating new amounts (old amounts minus fees) ---
 
         // fees[i] = | expected1/total_supply * balances[i] - amounts[i] | * fee
-        const feesBN: BigNumber[] = [];
-        for (let i = 0; i < N_coins; i++) {
-            feesBN[i] = balancesBN[i].times(lpTokenAmountBN).div(totalSupplyBN).minus(amountsBN[i]).times(feeBN);
-            if (feesBN[i].lt(0)) feesBN[i] = feesBN[i].times(-1);
+        const feesBN: BigNumber[] = Array(N_coins).fill(BN(0));
+        if (totalSupplyBN.gt(0)) {
+            for (let i = 0; i < N_coins; i++) {
+                feesBN[i] = balancesBN[i].times(lpTokenAmountBN).div(totalSupplyBN).minus(amountsBN[i]).times(feeBN);
+                if (feesBN[i].lt(0)) feesBN[i] = feesBN[i].times(-1);
+            }
         }
         const _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
 

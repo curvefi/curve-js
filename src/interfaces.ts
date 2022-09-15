@@ -112,11 +112,17 @@ export interface IExtendedPoolDataFromApi {
 export interface IRouteStep {
     poolId: string,
     poolAddress: string,
+    inputCoinAddress: string,
     outputCoinAddress: string,
     i: number,
     j: number,
     swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
     swapAddress: string,  // for swapType == 4
+}
+
+export interface IRoute_ {
+    steps: IRouteStep[],
+    minTvl: number,
 }
 
 export interface IRoute {

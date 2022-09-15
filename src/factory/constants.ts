@@ -1,4 +1,4 @@
-import {IDict} from "../interfaces";
+import { IDict } from "../interfaces";
 import factorySwapABI from "../constants/abis/factoryPools/swap.json";
 import MetaUSDABI from "../constants/abis/factory-v2/MetaUSD.json";
 import MetaUSDBalancesABI from "../constants/abis/factory-v2/MetaUSDBalances.json";
@@ -379,6 +379,7 @@ export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {
 
 export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {}
 
+// TODO Move to another place
 export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
     1: {  // ETH

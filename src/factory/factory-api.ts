@@ -125,6 +125,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
             const cryptoCoinNames = pool.coins.map((c) => c.symbol === nativeToken.symbol ? nativeToken.wrappedSymbol : c.symbol);
             const underlyingCoinNames = pool.coins.map((c) => c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol);
             const underlyingCoinAddresses = coinAddresses.map((addr) => addr === nativeToken.wrappedAddress ? NATIVE_TOKEN_ADDRESS : addr);
+            const isPlain = !coinAddresses.includes(nativeToken.wrappedAddress);
             const isMeta = this.chainId === 137 && coinAddresses[1].toLowerCase() === atricrypto3Lp;
 
             if (isMeta) {
@@ -173,6 +174,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                     token_address: (pool.lpTokenAddress as string).toLowerCase(),
                     gauge_address: pool.gaugeAddress ? pool.gaugeAddress.toLowerCase() : ethers.constants.AddressZero,
                     is_crypto: true,
+                    is_plain: isPlain,
                     is_factory: true,
                     underlying_coins: underlyingCoinNames,
                     wrapped_coins: cryptoCoinNames,

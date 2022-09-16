@@ -412,6 +412,11 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WGLMR',
         wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
     },
+    43114: {  // AVALANCHE
+        symbol: 'AVAX',
+        wrappedSymbol: 'WAVAX',
+        wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
+    },
     42161: {  // ARBITRUM
         symbol: 'ETH',
         wrappedSymbol: 'WETH',

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData, _getMoonbeamFactoryAPYsAndVolumes, _getMoonbeamLegacyAPYsAndVolumes } from '../external-api';
+import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData, _getMoonbeamFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -300,13 +300,13 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
-        if (curve.chainId === 1284) {  // Moonbeam
+        if (curve.chainId === 1284 || curve.chainId === 1313161554) {  // Moonbeam || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
-                _getMoonbeamLegacyAPYsAndVolumes(),
+                _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
                 _getMoonbeamFactoryAPYsAndVolumes(),
             ]);
             if (this.id in mainPoolsData) {
-                return mainPoolsData[this.id].volume.toString();
+                return (mainPoolsData[this.id].volume ?? 0).toString();
             }
             const poolData = factoryPoolsData.find((d) => d.poolAddress.toLowerCase() === this.address);
             if (!poolData) throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
@@ -323,9 +323,9 @@ export class PoolTemplate {
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        if (curve.chainId === 1284) {  // Moonbeam
+        if (curve.chainId === 1284 || curve.chainId === 1313161554) {  // Moonbeam || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
-                _getMoonbeamLegacyAPYsAndVolumes(),
+                _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
                 _getMoonbeamFactoryAPYsAndVolumes(),
             ]);
             if (this.id in mainPoolsData) {
@@ -399,7 +399,7 @@ export class PoolTemplate {
     private statsRewardsApy = async (): Promise<IReward[]> => {
         if (this.gauge === ethers.constants.AddressZero) return [];
 
-        if ([10, 100, 137, 250, 1284, 43114, 42161].includes(curve.chainId)) {
+        if (curve.chainId !== 1) {
             const apy: IReward[] = [];
             const rewardTokens = await this.rewardTokens();
             for (const rewardToken of rewardTokens) {

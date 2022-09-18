@@ -28,6 +28,7 @@ import {
     POOLS_DATA_OPTIMISM,
     POOLS_DATA_XDAI,
     POOLS_DATA_MOONBEAM,
+    POOLS_DATA_AURORA,
 } from './constants/pools';
 import {
     ALIASES_ETHEREUM,
@@ -38,6 +39,7 @@ import {
     ALIASES_ARBITRUM,
     ALIASES_XDAI,
     ALIASES_MOONBEAM,
+    ALIASES_AURORA,
 } from "./constants/aliases";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
@@ -47,6 +49,7 @@ import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche
 import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum";
 import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai";
 import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam";
+import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
 
@@ -130,6 +133,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensArbitrum,
         ycTokens: ycTokensArbitrum,
         aTokens: aTokensArbitrum,
+    },
+    1313161554: {
+        NAME: 'aurora',
+        ALIASES: ALIASES_AURORA,
+        POOLS_DATA: POOLS_DATA_AURORA,
+        COINS: COINS_AURORA,
+        cTokens: cTokensAurora,
+        yTokens: yTokensAurora,
+        ycTokens: ycTokensAurora,
+        aTokens: aTokensAurora,
     },
 }
 
@@ -462,6 +475,8 @@ class Curve implements ICurve {
     }
 
     async fetchFactoryPools(useApi = true): Promise<void> {
+        if (this.chainId === 1313161554) return;
+
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, false));
         } else {
@@ -472,7 +487,7 @@ class Curve implements ICurve {
     }
 
     async fetchCryptoFactoryPools(useApi = true): Promise<void> {
-        if (![1, 137, 250].includes(this.chainId)) return
+        if (![1, 137, 250].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, true));

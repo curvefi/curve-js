@@ -8,7 +8,7 @@ import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
 import atricrypto3ZapABI from "../constants/abis/atricrypto3/base_pool_zap.json";
-import { FACTORY_CONSTANTS, NATIVE_TOKEN_ADDRESS, NATIVE_TOKENS } from "./constants";
+import { FACTORY_CONSTANTS } from "./constants";
 import { setFactoryZapContracts, setCryptoFactoryZapContracts } from "./common";
 
 
@@ -119,12 +119,12 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
         const coinAddresses = pool.coins.map((c) => c.address.toLowerCase());
         const coinNames = pool.coins.map((c) => c.symbol);
         const coinDecimals = pool.coins.map((c) => Number(c.decimals));
-        const nativeToken = NATIVE_TOKENS[this.chainId];
+        const nativeToken = this.constants.NATIVE_TOKEN;
 
         if (isCrypto) {
             const cryptoCoinNames = pool.coins.map((c) => c.symbol === nativeToken.symbol ? nativeToken.wrappedSymbol : c.symbol);
             const underlyingCoinNames = pool.coins.map((c) => c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol);
-            const underlyingCoinAddresses = coinAddresses.map((addr) => addr === nativeToken.wrappedAddress ? NATIVE_TOKEN_ADDRESS : addr);
+            const underlyingCoinAddresses = coinAddresses.map((addr) => addr === nativeToken.wrappedAddress ? nativeToken.address : addr);
             const isPlain = !coinAddresses.includes(nativeToken.wrappedAddress);
             const isMeta = this.chainId === 137 && coinAddresses[1].toLowerCase() === atricrypto3Lp;
 

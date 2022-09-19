@@ -51,6 +51,7 @@ export interface ICurve {
     constantOptions: { gasLimit: number },
     options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber },
     constants: {
+        NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
         NETWORK_NAME: INetworkName,
         ALIASES: IDict<string>,
         POOLS_DATA: IDict<IPoolData>,

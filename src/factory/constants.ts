@@ -379,56 +379,6 @@ export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {
 
 export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {}
 
-// TODO Move to another place
-export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
-    1: {  // ETH
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
-    },
-    10: { // OPTIMISM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
-    },
-    100: { // XDAI
-        symbol: 'XDAi',
-        wrappedSymbol: 'WXDAI',
-        wrappedAddress: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'.toLowerCase(),
-    },
-    137: {  // POLYGON
-        symbol: 'MATIC',
-        wrappedSymbol: 'WMATIC',
-        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
-    },
-    250: {  // FANTOM
-        symbol: 'FTM',
-        wrappedSymbol: 'WFTM',
-        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
-    },
-    1284: {  // MOONBEAM
-        symbol: 'GLMR',
-        wrappedSymbol: 'WGLMR',
-        wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
-    },
-    43114: {  // AVALANCHE
-        symbol: 'AVAX',
-        wrappedSymbol: 'WAVAX',
-        wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
-    },
-    42161: {  // ARBITRUM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
-    },
-    1313161554: {  // AURORA
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'.toLowerCase(),
-    },
-}
-
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,

@@ -35,6 +35,8 @@ const MOONBEAM_FACTORY_PLAIN_POOLS = ['factory-v2-6']; // ['DAI Multi Nomad'];
 const MOONBEAM_POOLS = [...MOONBEAM_MAIN_POOLS, ...MOONBEAM_FACTORY_PLAIN_POOLS];
 
 
+const AURORA_POOLS = ['3pool'];
+
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
         let pool: PoolTemplate;
@@ -110,7 +112,11 @@ describe('Underlying test', async function () {
     //     balancedAmountsTest(poolName);
     // }
 
-    for (const poolName of MOONBEAM_POOLS) {
+    // for (const poolName of MOONBEAM_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+
+    for (const poolName of AURORA_POOLS) {
         balancedAmountsTest(poolName);
     }
 })

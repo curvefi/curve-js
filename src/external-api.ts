@@ -1,6 +1,7 @@
 import { IExtendedPoolDataFromApi, ISubgraphPoolData, IReward, IDict, INetworkName } from "./interfaces";
 import axios from "axios";
 import memoize from "memoizee";
+import {curve} from "./curve";
 
 export const _getPoolsFromApi = memoize(
     async (network: INetworkName, poolType: "main" | "crypto" | "factory" | "factory-crypto"): Promise<IExtendedPoolDataFromApi> => {
@@ -36,9 +37,9 @@ export const _getMainPoolsGaugeRewards = memoize(async (): Promise<IDict<IReward
     maxAge: 5 * 60 * 1000, // 5m
 });
 
-export const _getMoonbeamLegacyAPYsAndVolumes = memoize(
-    async (): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {
-        const url = "https://stats.curve.fi/raw-stats-moonbeam/apys.json";
+export const _getLegacyAPYsAndVolumes = memoize(
+    async (network: string): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {
+        const url = `https://stats.curve.fi/raw-stats-${network}/apys.json`;
         const data = (await axios.get(url, { validateStatus: () => true })).data;
         const result: IDict<{ apy: { day: number, week: number }, volume: number }> = {};
         Object.keys(data.apy.day).forEach((poolId) => {
@@ -58,6 +59,8 @@ export const _getMoonbeamLegacyAPYsAndVolumes = memoize(
 
 export const _getMoonbeamFactoryAPYsAndVolumes = memoize(
     async (): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
+        if (curve.chainId !== 1284) return [];
+
         const url = "https://api.curve.fi/api/getFactoryAPYs-moonbeam";
         const response = await axios.get(url, { validateStatus: () => true });
 

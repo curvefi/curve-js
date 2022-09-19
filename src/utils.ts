@@ -277,6 +277,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         1284: 'moonbeam',
         43114: 'avalanche',
         42161: 'arbitrum-one',
+        1313161554: 'aurora',
     }[curve.chainId];
 
     const nativeTokenName = {
@@ -288,6 +289,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         1284: 'moonbeam',
         43114: 'avalanche-2',
         42161: 'ethereum',
+        1313161554: 'ethereum',
     }[curve.chainId] as string;
 
     if (chainName === undefined) {
@@ -344,6 +346,7 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
         1284: "moonbeam",
         43114: "avalanche",
         42161: "arbitrum",
+        1313161554: "aurora",
     }[chainId] as INetworkName ?? "ethereum";
 
     const promises = [

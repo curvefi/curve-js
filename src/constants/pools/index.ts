@@ -6,6 +6,7 @@ import { POOLS_DATA_ARBITRUM } from "./arbitrum";
 import { POOLS_DATA_OPTIMISM } from "./optimism";
 import { POOLS_DATA_XDAI } from "./xdai";
 import { POOLS_DATA_MOONBEAM } from "./moonbeam";
+import { POOLS_DATA_AURORA } from "./aurora";
 
 export {
     POOLS_DATA_ETHEREUM,
@@ -16,4 +17,5 @@ export {
     POOLS_DATA_OPTIMISM,
     POOLS_DATA_XDAI,
     POOLS_DATA_MOONBEAM,
+    POOLS_DATA_AURORA,
 };

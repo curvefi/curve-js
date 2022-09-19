@@ -64,6 +64,11 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WETH',
         wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
     },
+    1313161554: {  // AURORA
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        wrappedAddress: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'.toLowerCase(),
+    },
 }
 
 const MAX_ROUTES_FOR_ONE_COIN = 3;

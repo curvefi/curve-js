@@ -36,6 +36,10 @@ const XDAI_FACTORY_PLAIN_POOLS = ['factory-v2-0']; // ['sGNO/GNO'];
 const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
 const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_PLAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
 
+const MAIN_POOLS_AURORA = ['3pool'];
+
+const MAIN_POOLS_KAVA = ['factory-v2-0'];
+
 const underlyingDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake underlying`, function () {
         let pool: PoolTemplate;
@@ -162,8 +166,18 @@ describe('Deposit&Stake test', async function () {
     //     wrappedDepositAndStakeTest(poolName);
     // }
 
-    for (const poolName of XDAI_POOLS) {
+    // for (const poolName of XDAI_POOLS) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     wrappedDepositAndStakeTest(poolName);
+    // }
+
+    for (const poolName of MAIN_POOLS_AURORA) {
         underlyingDepositAndStakeTest(poolName);
         wrappedDepositAndStakeTest(poolName);
     }
+
+    // for (const poolName of MAIN_POOLS_KAVA) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     wrappedDepositAndStakeTest(poolName);
+    // }
 })

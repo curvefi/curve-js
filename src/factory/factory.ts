@@ -6,7 +6,7 @@ import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
 import gaugeChildABI from "../constants/abis/gauge_child.json";
 import { setFactoryZapContracts } from "./common";
-import { FACTORY_CONSTANTS, NATIVE_TOKEN_ADDRESS } from "./constants";
+import { FACTORY_CONSTANTS } from "./constants";
 
 const BLACK_LIST: { [index: number]: any } = {
     1: [],
@@ -19,6 +19,7 @@ const BLACK_LIST: { [index: number]: any } = {
     ],
     250: [],
     1284: [],
+    2222: [],
     43114: [],
     42161: [],
 }
@@ -163,14 +164,15 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
         });
     }
 
-    if (this.chainId === 1) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
-    if (this.chainId === 10) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
-    if (this.chainId === 100) dict[NATIVE_TOKEN_ADDRESS] = "XDAI"
-    if (this.chainId === 137) dict[NATIVE_TOKEN_ADDRESS] = "MATIC"
-    if (this.chainId === 250) dict[NATIVE_TOKEN_ADDRESS] = "FTM"
-    if (this.chainId === 1284) dict[NATIVE_TOKEN_ADDRESS] = "GLMR"
-    if (this.chainId === 43114) dict[NATIVE_TOKEN_ADDRESS] = "AVAX"
-    if (this.chainId === 42161) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
+    if (this.chainId === 1) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
+    if (this.chainId === 10) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
+    if (this.chainId === 100) dict[this.constants.NATIVE_TOKEN.address] = "XDAI"
+    if (this.chainId === 137) dict[this.constants.NATIVE_TOKEN.address] = "MATIC"
+    if (this.chainId === 250) dict[this.constants.NATIVE_TOKEN.address] = "FTM"
+    if (this.chainId === 1284) dict[this.constants.NATIVE_TOKEN.address] = "GLMR"
+    if (this.chainId === 2222) dict[this.constants.NATIVE_TOKEN.address] = "KAVA"
+    if (this.chainId === 43114) dict[this.constants.NATIVE_TOKEN.address] = "AVAX"
+    if (this.chainId === 42161) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
 
     return dict
 }
@@ -210,7 +212,7 @@ async function getCoinAddressDecimalsDict(
     coinAddresses: string[][],
     existingCoinAddressDecimalsDict: IDict<number>
 ): Promise<IDict<number>> {
-    const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses))).filter((addr) => addr !== NATIVE_TOKEN_ADDRESS);
+    const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses))).filter((addr) => addr !== this.constants.NATIVE_TOKEN.address);
     const newCoinAddresses = [];
     const coinAddrNamesDict: IDict<number> = {};
 
@@ -232,7 +234,7 @@ async function getCoinAddressDecimalsDict(
         coinAddrNamesDict[addr] = decimals[i];
     });
 
-    coinAddrNamesDict[NATIVE_TOKEN_ADDRESS] = 18
+    coinAddrNamesDict[this.constants.NATIVE_TOKEN.address] = 18
 
     return coinAddrNamesDict
 }

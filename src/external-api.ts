@@ -37,8 +37,10 @@ export const _getMainPoolsGaugeRewards = memoize(async (): Promise<IDict<IReward
     maxAge: 5 * 60 * 1000, // 5m
 });
 
+// Moonbeam and Aurora only
 export const _getLegacyAPYsAndVolumes = memoize(
     async (network: string): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {
+        if (curve.chainId === 2222) return {}; // Exclude Kava
         const url = `https://stats.curve.fi/raw-stats-${network}/apys.json`;
         const data = (await axios.get(url, { validateStatus: () => true })).data;
         const result: IDict<{ apy: { day: number, week: number }, volume: number }> = {};
@@ -57,11 +59,12 @@ export const _getLegacyAPYsAndVolumes = memoize(
     }
 )
 
-export const _getMoonbeamFactoryAPYsAndVolumes = memoize(
-    async (): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
-        if (curve.chainId !== 1284) return [];
+// Moonbeam and Kava only
+export const _getFactoryAPYsAndVolumes = memoize(
+    async (network: string): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
+        if (curve.chainId !== 1284 && curve.chainId !== 2222) return [];
 
-        const url = "https://api.curve.fi/api/getFactoryAPYs-moonbeam";
+        const url = `https://api.curve.fi/api/getFactoryAPYs-${network}`;
         const response = await axios.get(url, { validateStatus: () => true });
 
         return response.data.data.poolDetails ?? [];

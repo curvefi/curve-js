@@ -41,7 +41,7 @@ export interface IPoolData {
 }
 
 export interface ICurve {
-    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider | ethers.providers.StaticJsonRpcProvider,
     multicallProvider: MulticallProvider,
     signer: ethers.Signer | null,
     signerAddress: string,

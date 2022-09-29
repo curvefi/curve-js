@@ -147,7 +147,7 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
 }
 
 class Curve implements ICurve {
-    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider | ethers.providers.StaticJsonRpcProvider;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
     signerAddress: string;
@@ -193,7 +193,7 @@ class Curve implements ICurve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
+        providerType: 'StaticJsonRpc' | 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
         providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
@@ -220,8 +220,23 @@ class Curve implements ICurve {
             GAUGES: [],
         };
 
+        // StaticJsonRpc provider
+        if (providerType.toLowerCase() === 'StaticJsonRpc'.toLowerCase()) {
+            providerSettings = providerSettings as { url: string, privateKey: string };
+
+            if (providerSettings.url) {
+                this.provider = this.provider = new ethers.providers.StaticJsonRpcProvider(providerSettings.url);
+            } else {
+                this.provider = new ethers.providers.StaticJsonRpcProvider('http://localhost:8545/');
+            }
+
+            if (providerSettings.privateKey) {
+                this.signer = new ethers.Wallet(providerSettings.privateKey, this.provider);
+            } else if (!providerSettings.url?.startsWith("https://rpc.gnosischain.com")) {
+                this.signer = this.provider.getSigner();
+            }
         // JsonRpc provider
-        if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
+        } else if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
             providerSettings = providerSettings as { url: string, privateKey: string };
 
             if (providerSettings.url) {

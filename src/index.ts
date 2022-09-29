@@ -41,7 +41,7 @@ import {
 } from "./utils";
 
 async function init (
-    providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
+    providerType: 'StaticJsonRpc' | 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
     providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
     options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {}
 ): Promise<void> {

@@ -6,7 +6,6 @@ import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypt
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
 import gaugeChildABI from "../constants/abis/gauge_child.json";
 import atricrypto3ZapABI from "../constants/abis/atricrypto3/base_pool_zap.json";
-import { NATIVE_TOKENS, NATIVE_TOKEN_ADDRESS } from "./constants";
 import { setCryptoFactoryZapContracts } from "./common";
 
 
@@ -123,7 +122,7 @@ function setCryptoFactoryCoinsContracts(this: ICurve, coinAddresses: string[][])
 }
 
 async function getCryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddresses: string[][]): Promise<string[][]> {
-    return coinAddresses.map((coins: string[]) => coins.map((c) => c === NATIVE_TOKENS[this.chainId].wrappedAddress ? NATIVE_TOKEN_ADDRESS : c));
+    return coinAddresses.map((coins: string[]) => coins.map((c) => c === this.constants.NATIVE_TOKEN.wrappedAddress ? this.constants.NATIVE_TOKEN.address : c));
 }
 
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
@@ -142,14 +141,15 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
         });
     }
 
-    if (this.chainId === 1) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
-    if (this.chainId === 10) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
-    if (this.chainId === 100) dict[NATIVE_TOKEN_ADDRESS] = "XDAI"
-    if (this.chainId === 137) dict[NATIVE_TOKEN_ADDRESS] = "MATIC"
-    if (this.chainId === 250) dict[NATIVE_TOKEN_ADDRESS] = "FTM"
-    if (this.chainId === 1284) dict[NATIVE_TOKEN_ADDRESS] = "GLMR"
-    if (this.chainId === 43114) dict[NATIVE_TOKEN_ADDRESS] = "AVAX"
-    if (this.chainId === 42161) dict[NATIVE_TOKEN_ADDRESS] = "ETH"
+    if (this.chainId === 1) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
+    if (this.chainId === 10) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
+    if (this.chainId === 100) dict[this.constants.NATIVE_TOKEN.address] = "XDAI"
+    if (this.chainId === 137) dict[this.constants.NATIVE_TOKEN.address] = "MATIC"
+    if (this.chainId === 250) dict[this.constants.NATIVE_TOKEN.address] = "FTM"
+    if (this.chainId === 1284) dict[this.constants.NATIVE_TOKEN.address] = "GLMR"
+    if (this.chainId === 2222) dict[this.constants.NATIVE_TOKEN.address] = "KAVA"
+    if (this.chainId === 43114) dict[this.constants.NATIVE_TOKEN.address] = "AVAX"
+    if (this.chainId === 42161) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
 
     return dict
 }
@@ -183,7 +183,7 @@ async function getCoinAddressNameDict(
         coinAddrNamesDict[addr] = names[i];
     });
 
-    coinAddrNamesDict[NATIVE_TOKEN_ADDRESS] = NATIVE_TOKENS[this.chainId].symbol;
+    coinAddrNamesDict[this.constants.NATIVE_TOKEN.address] = this.constants.NATIVE_TOKEN.symbol;
 
     return coinAddrNamesDict
 }
@@ -215,7 +215,7 @@ async function getCoinAddressDecimalsDict(
         coinAddressDecimalsDict[addr] = decimals[i];
     });
 
-    coinAddressDecimalsDict[NATIVE_TOKEN_ADDRESS] = 18
+    coinAddressDecimalsDict[this.constants.NATIVE_TOKEN.address] = 18
 
     return coinAddressDecimalsDict
 }

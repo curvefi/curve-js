@@ -47,6 +47,8 @@ const FACTORY_POOLS_COUNT_MOONBEAM = 16;
 
 const MAIN_POOLS_AURORA = ['3pool'];
 
+const MAIN_POOLS_KAVA = ['factory-v2-0'];
+
 const checkNumber = (str: string) => {
     const re = /-?\d+(\.\d+)?(e-\d+)?/g
     const match = str.match(re);
@@ -188,7 +190,11 @@ describe('Stats test', async function () {
     //     poolStatsTest("factory-v2-" + i);
     // }
 
-    for (const poolName of MAIN_POOLS_AURORA) {
+    // for (const poolName of MAIN_POOLS_AURORA) {
+    //     poolStatsTest(poolName);
+    // }
+
+    for (const poolName of MAIN_POOLS_KAVA) {
         poolStatsTest(poolName);
     }
 })

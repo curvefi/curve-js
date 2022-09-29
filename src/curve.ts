@@ -29,6 +29,7 @@ import {
     POOLS_DATA_XDAI,
     POOLS_DATA_MOONBEAM,
     POOLS_DATA_AURORA,
+    POOLS_DATA_KAVA,
 } from './constants/pools';
 import {
     ALIASES_ETHEREUM,
@@ -40,6 +41,7 @@ import {
     ALIASES_XDAI,
     ALIASES_MOONBEAM,
     ALIASES_AURORA,
+    ALIASES_KAVA,
 } from "./constants/aliases";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
@@ -50,8 +52,71 @@ import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aT
 import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai";
 import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam";
 import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora";
+import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
+export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string }} = {
+    1: {  // ETH
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
+    },
+    10: { // OPTIMISM
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
+    },
+    100: { // XDAI
+        symbol: 'XDAi',
+        wrappedSymbol: 'WXDAI',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'.toLowerCase(),
+    },
+    137: {  // POLYGON
+        symbol: 'MATIC',
+        wrappedSymbol: 'WMATIC',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
+    },
+    250: {  // FANTOM
+        symbol: 'FTM',
+        wrappedSymbol: 'WFTM',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
+    },
+    1284: {  // MOONBEAM
+        symbol: 'GLMR',
+        wrappedSymbol: 'WGLMR',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
+    },
+    2222: {  // KAVA
+        symbol: 'KAVA',
+        wrappedSymbol: 'WKAVA',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b'.toLowerCase(),
+    },
+    43114: {  // AVALANCHE
+        symbol: 'AVAX',
+        wrappedSymbol: 'WAVAX',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
+    },
+    42161: {  // ARBITRUM
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
+    },
+    1313161554: {  // AURORA
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'.toLowerCase(),
+    },
+}
 
 export const NETWORK_CONSTANTS: { [index: number]: any } = {
     1: {
@@ -114,6 +179,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         ycTokens: ycTokensMoonbeam,
         aTokens: aTokensMoonbeam,
     },
+    2222: {
+        NAME: 'kava',
+        ALIASES: ALIASES_KAVA,
+        POOLS_DATA: POOLS_DATA_KAVA,
+        COINS: COINS_KAVA,
+        cTokens: cTokensKava,
+        yTokens: yTokensKava,
+        ycTokens: ycTokensKava,
+        aTokens: aTokensKava,
+    },
     43114: {
         NAME: 'avalanche',
         ALIASES: ALIASES_AVALANCHE,
@@ -157,6 +232,7 @@ class Curve implements ICurve {
     constantOptions: { gasLimit: number };
     options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
     constants: {
+        NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
         NETWORK_NAME: INetworkName,
         ALIASES: IDict<string>,
         POOLS_DATA: IDict<IPoolData>,
@@ -181,6 +257,7 @@ class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.constants ={
+            NATIVE_TOKEN: NATIVE_TOKENS[1],
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
@@ -210,6 +287,7 @@ class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.constants = {
+            NATIVE_TOKEN: NATIVE_TOKENS[1],
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
@@ -258,6 +336,7 @@ class Curve implements ICurve {
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", network);
         this.chainId = network.chainId === 1337 ? 1 : network.chainId;
 
+        this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
         this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
         this.constants.POOLS_DATA = NETWORK_CONSTANTS[this.chainId].POOLS_DATA;

@@ -219,6 +219,24 @@ export const implementationABIDictMoonbeam: IDict<any> = {
     "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": Plain4OptimizedABI,
 }
 
+export const implementationABIDictKava: IDict<any> = {
+    "0x2632679f5ca396a1bd2647092d9dbf7ec5d7b263": Plain2BasicABI,
+    "0x12f196251efcaca0fd73d5b58132b16760ba96a8": Plain2BalancesABI,
+    "0xafdab4f8f6e6992b16e3906295fba390aab59ca5": Plain2ETHABI,
+    "0x50d7a3e0d5350d52e9e08a1b58eefd1db8759d7d": Plain2OptimizedABI,
+
+    "0xc8913d486a42459e6b34db33f0c660fca61306b9": Plain3BasicABI,
+    "0xc8913D486a42459e6B34db33F0C660FCa61306b9": Plain3BasicABI,  // TODO lowercase all implementation addresses
+    "0xc5ec776a55ea062fa3173c6c76703e9c9fa91c47": Plain3BalancesABI,
+    "0xed2c5f2c4cab6e82630d5615ea15dd47d8b29983": Plain3ETHABI,
+    "0xe7d5293c01685a414ddde527eb5effbf92b52648": Plain3OptimizedABI,
+
+    "0x77016d2de65de15a3c36bebbddc90804f670d2d0": Plain4BasicABI,
+    "0xd59c875dccb6cdcb3a75b91b58a363b5e4b0ca9a": Plain4BalancesABI,
+    "0x6378dd741b24bd884f3590d7bc7555fdb2f5b003": Plain4ETHABI,
+    "0x509495dfeec3a53acb2f60669985d868131ad9a5": Plain4OptimizedABI,
+}
+
 export const implementationBasePoolIdDictEthereum: IDict<string> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
@@ -287,6 +305,8 @@ export const implementationBasePoolIdDictXDai: IDict<string> = {
 }
 
 export const implementationBasePoolIdDictMoonbeam: IDict<string> = {}
+
+export const implementationBasePoolIdDictKava: IDict<string> = {}
 
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
@@ -379,55 +399,7 @@ export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {
 
 export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {}
 
-// TODO Move to another place
-export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
-    1: {  // ETH
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
-    },
-    10: { // OPTIMISM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
-    },
-    100: { // XDAI
-        symbol: 'XDAi',
-        wrappedSymbol: 'WXDAI',
-        wrappedAddress: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'.toLowerCase(),
-    },
-    137: {  // POLYGON
-        symbol: 'MATIC',
-        wrappedSymbol: 'WMATIC',
-        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
-    },
-    250: {  // FANTOM
-        symbol: 'FTM',
-        wrappedSymbol: 'WFTM',
-        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
-    },
-    1284: {  // MOONBEAM
-        symbol: 'GLMR',
-        wrappedSymbol: 'WGLMR',
-        wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
-    },
-    43114: {  // AVALANCHE
-        symbol: 'AVAX',
-        wrappedSymbol: 'WAVAX',
-        wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
-    },
-    42161: {  // ARBITRUM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
-    },
-    1313161554: {  // AURORA
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'.toLowerCase(),
-    },
-}
+export const basePoolIdZapDictKava: IDict<{ address: string, ABI: any }> = {}
 
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
@@ -459,6 +431,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         implementationABIDict: implementationABIDictMoonbeam,
         implementationBasePoolIdDict: implementationBasePoolIdDictMoonbeam,
         basePoolIdZapDict: basePoolIdZapDictMoonbeam,
+    },
+    2222: {  // KAVA
+        implementationABIDict: implementationABIDictKava,
+        implementationBasePoolIdDict: implementationBasePoolIdDictKava,
+        basePoolIdZapDict: basePoolIdZapDictKava,
     },
     43114: {  // AVALANCHE
         implementationABIDict: implementationABIDictAvalanche,

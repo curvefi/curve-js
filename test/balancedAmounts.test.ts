@@ -37,6 +37,8 @@ const MOONBEAM_POOLS = [...MOONBEAM_MAIN_POOLS, ...MOONBEAM_FACTORY_PLAIN_POOLS]
 
 const AURORA_POOLS = ['3pool'];
 
+const KAVA_POOLS = ['factory-v2-0'];
+
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
         let pool: PoolTemplate;
@@ -116,7 +118,11 @@ describe('Underlying test', async function () {
     //     balancedAmountsTest(poolName);
     // }
 
-    for (const poolName of AURORA_POOLS) {
+    // for (const poolName of AURORA_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
+
+    for (const poolName of KAVA_POOLS) {
         balancedAmountsTest(poolName);
     }
 })

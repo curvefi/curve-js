@@ -21,56 +21,6 @@ import {
 } from "./utils";
 import { getPool } from "./pools";
 
-// TODO Move to another place
-export const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, wrappedAddress: string }} = {
-    1: {  // ETH
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
-    },
-    10: { // OPTIMISM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
-    },
-    100: { // XDAI
-        symbol: 'XDAi',
-        wrappedSymbol: 'WXDAI',
-        wrappedAddress: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'.toLowerCase(),
-    },
-    137: {  // POLYGON
-        symbol: 'MATIC',
-        wrappedSymbol: 'WMATIC',
-        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
-    },
-    250: {  // FANTOM
-        symbol: 'FTM',
-        wrappedSymbol: 'WFTM',
-        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
-    },
-    1284: {  // MOONBEAM
-        symbol: 'GLMR',
-        wrappedSymbol: 'WGLMR',
-        wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
-    },
-    43114: {  // AVALANCHE
-        symbol: 'AVAX',
-        wrappedSymbol: 'WAVAX',
-        wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
-    },
-    42161: {  // ARBITRUM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
-    },
-    1313161554: {  // AURORA
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        wrappedAddress: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'.toLowerCase(),
-    },
-}
-
 const MAX_ROUTES_FOR_ONE_COIN = 3;
 
 // Inspired by Dijkstra's algorithm
@@ -188,7 +138,7 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                         if (markedCoins.includes(wrapped_coin_addresses[j]) || curCoins.includes(wrapped_coin_addresses[j])) continue;
                         // Native swaps spend less gas
-                        if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === NATIVE_TOKENS[curve.chainId].wrappedAddress) continue;
+                        if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === curve.constants.NATIVE_TOKEN.wrappedAddress) continue;
                         // Looking for outputCoinAddress only on the final step
                         if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
                         // Skip empty pools
@@ -235,7 +185,7 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                         const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                         if (tvl === 0) continue;
 
-                        const hasEth = (inCoin === NATIVE_TOKEN_ADDRESS || underlying_coin_addresses[j] === NATIVE_TOKEN_ADDRESS);
+                        const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
                         const swapType = (base_pool?.is_lending && poolData.is_factory) ? 5 : hasEth ? 3 : poolData.is_crypto ? 4 : 2;
                         for (const inCoinRoute of routes[inCoin]) {
                             routes[underlying_coin_addresses[j]] = (routes[underlying_coin_addresses[j]] ?? []).concat(
@@ -413,7 +363,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                     for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         if (j === inCoinIndexes.wrapped_coin) continue;
                         // Native swaps spend less gas
-                        if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === NATIVE_TOKENS[curve.chainId].wrappedAddress) continue;
+                        if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === curve.constants.NATIVE_TOKEN.wrappedAddress) continue;
                         // Looking for outputCoinAddress only on the final step
                         if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
@@ -481,7 +431,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                         const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                         if (tvl === 0) continue;
 
-                        const hasEth = (inCoin === NATIVE_TOKEN_ADDRESS || underlying_coin_addresses[j] === NATIVE_TOKEN_ADDRESS);
+                        const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
                         const swapType = (base_pool?.is_lending && poolData.is_factory) ? 5 : hasEth ? 3 : poolData.is_crypto ? 4 : 2;
                         const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
                             const routePoolIds = route.steps.map((s) => s.poolId);

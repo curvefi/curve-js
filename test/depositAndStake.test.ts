@@ -171,8 +171,13 @@ describe('Deposit&Stake test', async function () {
     //     wrappedDepositAndStakeTest(poolName);
     // }
 
-    for (const poolName of MAIN_POOLS_KAVA) {
+    for (const poolName of MAIN_POOLS_AURORA) {
         underlyingDepositAndStakeTest(poolName);
         wrappedDepositAndStakeTest(poolName);
     }
+
+    // for (const poolName of MAIN_POOLS_KAVA) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     wrappedDepositAndStakeTest(poolName);
+    // }
 })

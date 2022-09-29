@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData, _getMoonbeamFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api';
+import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData, _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -300,10 +300,10 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
-        if (curve.chainId === 1284 || curve.chainId === 1313161554) {  // Moonbeam || Aurora
+        if ([1284, 2222, 1313161554].includes(curve.chainId)) {  // Moonbeam || Kava || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
-                _getMoonbeamFactoryAPYsAndVolumes(),
+                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),
             ]);
             if (this.id in mainPoolsData) {
                 return (mainPoolsData[this.id].volume ?? 0).toString();
@@ -323,10 +323,10 @@ export class PoolTemplate {
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        if (curve.chainId === 1284 || curve.chainId === 1313161554) {  // Moonbeam || Aurora
+        if ([1284, 2222, 1313161554].includes(curve.chainId)) {  // Moonbeam || Kava || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
-                _getMoonbeamFactoryAPYsAndVolumes(),
+                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),
             ]);
             if (this.id in mainPoolsData) {
                 return {

@@ -29,6 +29,7 @@ import {
     POOLS_DATA_XDAI,
     POOLS_DATA_MOONBEAM,
     POOLS_DATA_AURORA,
+    POOLS_DATA_KAVA,
 } from './constants/pools';
 import {
     ALIASES_ETHEREUM,
@@ -40,6 +41,7 @@ import {
     ALIASES_XDAI,
     ALIASES_MOONBEAM,
     ALIASES_AURORA,
+    ALIASES_KAVA,
 } from "./constants/aliases";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
@@ -50,6 +52,7 @@ import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aT
 import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai";
 import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam";
 import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora";
+import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string }} = {
@@ -175,6 +178,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensMoonbeam,
         ycTokens: ycTokensMoonbeam,
         aTokens: aTokensMoonbeam,
+    },
+    2222: {
+        NAME: 'kava',
+        ALIASES: ALIASES_KAVA,
+        POOLS_DATA: POOLS_DATA_KAVA,
+        COINS: COINS_KAVA,
+        cTokens: cTokensKava,
+        yTokens: yTokensKava,
+        ycTokens: ycTokensKava,
+        aTokens: aTokensKava,
     },
     43114: {
         NAME: 'avalanche',

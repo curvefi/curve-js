@@ -4,6 +4,7 @@ import { Contract as MulticallContract } from "ethcall";
 import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
 import gaugeChildABI from "../constants/abis/gauge_child.json";
+import gaugeRewardsOnlyABI from "../constants/abis/gauge_rewards_only.json";
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
@@ -47,9 +48,9 @@ function setFactoryGaugeContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
     rawPoolList.forEach((pool)  => {
         if (pool.gaugeAddress) {
             const addr = pool.gaugeAddress.toLowerCase();
-            this.contracts[addr] = {
-                contract: new Contract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI),
+            this.contracts[addr] = { // TODO Remove RewardsOnly for Kava
+                contract: new Contract(addr, this.chainId === 1 ? factoryGaugeABI : this.chainId === 2222 ? gaugeRewardsOnlyABI : gaugeChildABI, this.signer || this.provider),
+                multicallContract: new MulticallContract(addr, this.chainId === 1 ? factoryGaugeABI : this.chainId === 2222 ? gaugeRewardsOnlyABI : gaugeChildABI),
             }
         }
     });
@@ -250,7 +251,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 underlying_decimals: coinDecimals,
                 wrapped_decimals: coinDecimals,
                 swap_abi: implementationABIDict[pool.implementationAddress],
-                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
+                gauge_abi: this.chainId === 1 ? factoryGaugeABI : this.chainId === 2222 ? gaugeRewardsOnlyABI : gaugeChildABI, // TODO remove RewardsOnly for Kava
             };
         }
     })

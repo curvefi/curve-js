@@ -60,7 +60,7 @@ describe('Router swap', async function () {
     // MOONBEAM
     // const coins = ['dai', 'usdc', 'usdt', '3crv', '0x765277EebeCA2e31912C9946eAe1021199B39C61']; // DAI2
 
-    // AURORA
+    // AURORA && KAVA TODO add Kava registry_exchange
     const coins = ['dai', 'usdc', 'usdt'];
     for (const coin1 of coins) {
         for (const coin2 of coins) {

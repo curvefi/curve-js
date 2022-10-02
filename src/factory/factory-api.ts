@@ -187,7 +187,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 };
             }
-        } else if (pool.implementation.startsWith("meta")) {
+        } else if (pool.implementation.includes("meta")) {
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
             const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
             const basePoolIds = Object.values(implementationBasePoolIdDict).filter((poolId, i, arr) => arr.indexOf(poolId) === i);

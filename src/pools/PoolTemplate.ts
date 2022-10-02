@@ -909,7 +909,7 @@ export class PoolTemplate {
                 tokenMulticallContract.decimals(),
             ]);
             const symbol = res[0] as string;
-            const decimals = (res[0] as ethers.BigNumber).toNumber();
+            const decimals = res[1] as number;
 
             return [{ token, symbol, decimals }]
         }

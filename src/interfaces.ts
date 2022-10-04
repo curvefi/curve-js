@@ -117,7 +117,7 @@ export interface IRouteStep {
     outputCoinAddress: string,
     i: number,
     j: number,
-    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
+    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11,
     swapAddress: string,  // for swapType == 4
 }
 

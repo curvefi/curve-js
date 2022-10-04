@@ -5,8 +5,8 @@ import ERC20ABI from "../constants/abis/ERC20.json";
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
 import gaugeChildABI from "../constants/abis/gauge_child.json";
-import atricrypto3ZapABI from "../constants/abis/atricrypto3/base_pool_zap.json";
-import { setCryptoFactoryZapContracts } from "./common";
+import { setFactoryZapContracts } from "./common";
+import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto";
 
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -220,8 +220,6 @@ async function getCoinAddressDecimalsDict(
     return coinAddressDecimalsDict
 }
 
-const atricrypto3Lp = "0xdAD97F7713Ae9437fa9249920eC8507e5FbB23d3".toLowerCase();
-
 export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = await getCryptoFactoryIdsAndSwapAddresses.call(this);
     setCryptoFactorySwapContracts.call(this, swapAddresses);
@@ -236,24 +234,20 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoo
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
     const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
-    setCryptoFactoryZapContracts.call(this);
+    setFactoryZapContracts.call(this, true);
 
     const CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
-        const isMeta = this.chainId === 137 && coinAddresses[i][1].toLowerCase() === atricrypto3Lp;
+        const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].lpTokenBasePoolIdDict;
+        const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+        const basePoolId = lpTokenBasePoolIdDict[coinAddresses[i][1].toLowerCase()];
 
-        if (isMeta) {
-            const basePoolId = "atricrypto3";
-            const basePoolCoinNames = ['DAI', 'USDC', 'USDT', 'WBTC', 'WETH'];
-            const basePoolCoinAddresses = [
-                '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
-                '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
-                '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
-                '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6', // WBTC
-                '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
-            ];
-            const basePoolDecimals = [18, 6, 6, 8, 18];
-            const basePoolZap = "0x3d8EADb739D1Ef95dd53D718e4810721837c69c1";
+        if (basePoolId) {  // isMeta
+            const allPoolsData = {...this.constants.POOLS_DATA, ...CRYPTO_FACTORY_POOLS_DATA};
+            const basePoolCoinNames = [...allPoolsData[basePoolId].underlying_coins];
+            const basePoolCoinAddresses = [...allPoolsData[basePoolId].underlying_coin_addresses];
+            const basePoolDecimals = [...allPoolsData[basePoolId].underlying_decimals];
+            const basePoolZap = basePoolIdZapDict[basePoolId];
 
             CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
                 name: poolNames[i].split(": ")[1].trim(),
@@ -263,20 +257,20 @@ export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoo
                 swap_address: swapAddresses[i],
                 token_address: tokenAddresses[i],
                 gauge_address: gaugeAddresses[i],
-                deposit_address: basePoolZap,
+                deposit_address: basePoolZap.address,
                 is_meta: true,
                 is_crypto: true,
                 is_factory: true,
                 base_pool: basePoolId,
-                underlying_coins: [coinAddressNameDict[coinAddresses[i][0]], ...basePoolCoinNames],
+                underlying_coins: [coinAddressNameDict[underlyingCoinAddresses[i][0]], ...basePoolCoinNames],
                 wrapped_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
-                underlying_coin_addresses: [coinAddresses[i][0], ...basePoolCoinAddresses],
+                underlying_coin_addresses: [underlyingCoinAddresses[i][0], ...basePoolCoinAddresses],
                 wrapped_coin_addresses: coinAddresses[i],
-                underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolDecimals],
+                underlying_decimals: [coinAddressDecimalsDict[underlyingCoinAddresses[i][0]], ...basePoolDecimals],
                 wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: cryptoFactorySwapABI,
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
-                deposit_abi: atricrypto3ZapABI,
+                deposit_abi: basePoolZap.ABI,
             };
         } else {
             CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {

@@ -268,7 +268,7 @@ export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>
     const isMeta = await getFactoryIsMeta.call(this, swapAddresses);
     const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
     const basePoolIds = implementations.map((addr: string) => implementationBasePoolIdDict[addr]);
-    setFactoryZapContracts.call(this);
+    setFactoryZapContracts.call(this, false);
 
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {

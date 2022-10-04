@@ -9,6 +9,7 @@ import {ethers} from "ethers";
 const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth']; // Without eurs
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
+const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
 
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
 
@@ -49,6 +50,7 @@ const balancedAmountsTest = (name: string) => {
 
         it('underlying', async function () {
             const balancedAmounts = (await pool.depositBalancedAmounts()).map(Number);
+            console.log(balancedAmounts);
 
             assert.equal(balancedAmounts.length, pool.underlyingCoins.length);
             for (const amount of balancedAmounts) {
@@ -63,6 +65,7 @@ const balancedAmountsTest = (name: string) => {
             }
 
             const balancedWrappedAmounts = (await pool.depositWrappedBalancedAmounts()).map(Number);
+            console.log(balancedWrappedAmounts);
 
             assert.equal(balancedWrappedAmounts.length, pool.wrappedCoins.length);
             for (const amount of balancedWrappedAmounts) {
@@ -93,7 +96,11 @@ describe('Underlying test', async function () {
     // for (const poolName of META_POOLS) {
     //     balancedAmountsTest(poolName);
     // }
-    //
+
+    for (const poolName of FACTORY_CRYPTO_META_POOLS) {
+        balancedAmountsTest(poolName);
+    }
+
     // for (const poolName of POLYGON_POOLS) {
     //     balancedAmountsTest(poolName);
     // }
@@ -122,7 +129,7 @@ describe('Underlying test', async function () {
     //     balancedAmountsTest(poolName);
     // }
 
-    for (const poolName of KAVA_POOLS) {
-        balancedAmountsTest(poolName);
-    }
+    // for (const poolName of KAVA_POOLS) {
+    //     balancedAmountsTest(poolName);
+    // }
 })

@@ -10,6 +10,7 @@ const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', '
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
+const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
 
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
@@ -130,13 +131,13 @@ describe('Deposit&Stake test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolName of ETHEREUM_POOLS) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     if (!PLAIN_POOLS.includes(poolName)) {
-    //         wrappedDepositAndStakeTest(poolName);
-    //     }
-    // }
-    //
+    for (const poolName of FACTORY_CRYPTO_META_POOLS) {
+        underlyingDepositAndStakeTest(poolName);
+        if (!PLAIN_POOLS.includes(poolName)) {
+            wrappedDepositAndStakeTest(poolName);
+        }
+    }
+
     // for (const poolName of POLYGON_POOLS) {
     //     underlyingDepositAndStakeTest(poolName);
     //     if (poolName !== 'atricrypto3') {
@@ -171,10 +172,10 @@ describe('Deposit&Stake test', async function () {
     //     wrappedDepositAndStakeTest(poolName);
     // }
 
-    for (const poolName of MAIN_POOLS_AURORA) {
-        underlyingDepositAndStakeTest(poolName);
-        wrappedDepositAndStakeTest(poolName);
-    }
+    // for (const poolName of MAIN_POOLS_AURORA) {
+    //     underlyingDepositAndStakeTest(poolName);
+    //     wrappedDepositAndStakeTest(poolName);
+    // }
 
     // for (const poolName of MAIN_POOLS_KAVA) {
     //     underlyingDepositAndStakeTest(poolName);

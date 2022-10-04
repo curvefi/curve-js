@@ -21,7 +21,7 @@ const MAIN_POOLS_ETHEREUM = [
     '2pool',    '4pool',
 ];
 const FACTORY_POOLS_COUNT_ETHEREUM = 127;
-const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 63;
+const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 132;
 
 const MAIN_POOLS_POLYGON = [ 'aave', 'ren', 'atricrypto3', 'eurtusd' ];
 const FACTORY_POOLS_COUNT_POLYGON = 263;
@@ -123,9 +123,9 @@ describe('Stats test', async function () {
     //     poolStatsTest("factory-v2-" + i);
     // }
     //
-    // for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM; i++) {
-    //     poolStatsTest("factory-crypto-" + i);
-    // }
+    for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM; i++) {
+        poolStatsTest("factory-crypto-" + i);
+    }
 
     // for (const poolName of MAIN_POOLS_POLYGON) {
     //     poolStatsTest(poolName);
@@ -194,7 +194,7 @@ describe('Stats test', async function () {
     //     poolStatsTest(poolName);
     // }
 
-    for (const poolName of MAIN_POOLS_KAVA) {
-        poolStatsTest(poolName);
-    }
+    // for (const poolName of MAIN_POOLS_KAVA) {
+    //     poolStatsTest(poolName);
+    // }
 })

@@ -14,6 +14,7 @@ const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; /
 
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd', 'eursusd'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
+const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1']; // ['CRV/TRICRYPTO'];
 
 const AVALANCHE_MAIN_POOLS = ['aave', 'ren'];
 const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
@@ -220,15 +221,15 @@ describe('Wrapped test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolId of FACTORY_CRYPTO_META_POOLS) {
-        wrappedLiquidityTest(poolId);
-        // wrappedSwapTest(poolId);
-    }
-
-    // for (const poolId of POLYGON_POOLS) {
+    // for (const poolId of FACTORY_CRYPTO_META_POOLS) {
     //     wrappedLiquidityTest(poolId);
-    //     wrappedSwapTest(poolId);
+    //     // wrappedSwapTest(poolId);
     // }
+
+    for (const poolId of POLYGON_FACTORY_CRYPTO_META_POOLS) {
+        wrappedLiquidityTest(poolId);
+        wrappedSwapTest(poolId);
+    }
 
     // for (const poolId of AVALANCHE_POOLS) {
     //     wrappedLiquidityTest(poolId);

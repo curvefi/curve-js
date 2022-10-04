@@ -77,7 +77,7 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                         // Looking for outputCoinAddress only on the final step
                         if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
 
-                        const swapType = poolId === 'aave' ? 10 : 9;
+                        const swapType = poolId === 'aave' ? 11 : 10;
                         for (const inCoinRoute of routes[inCoin]) {
                             routes[underlying_coin_addresses[j]] = (routes[underlying_coin_addresses[j]] ?? []).concat(
                                 [[
@@ -107,7 +107,7 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                     // Looking for outputCoinAddress only on the final step
                     if (step === 3 && token_address !== outputCoinAddress) continue;
 
-                    const swapType = is_lending ? 8 : underlying_coin_addresses.length === 2 ? 6 : 7;
+                    const swapType = is_lending ? 9 : underlying_coin_addresses.length === 2 ? 7 : 8;
                     for (const inCoinRoute of routes[inCoin]) {
                         routes[token_address] = (routes[token_address] ?? []).concat(
                             [[
@@ -186,7 +186,11 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                         if (tvl === 0) continue;
 
                         const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
-                        const swapType = (base_pool?.is_lending && poolData.is_factory) ? 5 : hasEth ? 3 : poolData.is_crypto ? 4 : 2;
+                        const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) ? 6
+                            : (base_pool?.is_lending && poolData.is_factory) ? 5
+                            : hasEth ? 3
+                            : poolData.is_crypto ? 4
+                            : 2;
                         for (const inCoinRoute of routes[inCoin]) {
                             routes[underlying_coin_addresses[j]] = (routes[underlying_coin_addresses[j]] ?? []).concat(
                                 [[
@@ -199,7 +203,7 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                                         i: inCoinIndexes.underlying_coin,
                                         j,
                                         swapType,
-                                        swapAddress: ethers.constants.AddressZero,
+                                        swapAddress: (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
                                     },
                                 ]]
                             );
@@ -279,7 +283,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
                         const tvl = Number(await (getPool(poolId)).stats.totalLiquidity()); // Base pool tvl can't be 0
-                        const swapType = poolId === 'aave' ? 10 : 9;
+                        const swapType = poolId === 'aave' ? 11 : 10;
                         const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
                             const routePoolIds = route.steps.map((s) => s.poolId);
                             // Steps <= 4
@@ -322,7 +326,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                     if (step === 3 && token_address !== outputCoinAddress) continue;
 
                     const tvl = Number(await (getPool(poolId)).stats.totalLiquidity()); // Base pool tvl can't be 0
-                    const swapType = is_lending ? 8 : underlying_coin_addresses.length === 2 ? 6 : 7;
+                    const swapType = is_lending ? 9 : underlying_coin_addresses.length === 2 ? 7 : 8;
                     const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
                         const routePoolIds = route.steps.map((s) => s.poolId);
                         // Steps <= 4
@@ -432,7 +436,11 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                         if (tvl === 0) continue;
 
                         const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
-                        const swapType = (base_pool?.is_lending && poolData.is_factory) ? 5 : hasEth ? 3 : poolData.is_crypto ? 4 : 2;
+                        const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) ? 6
+                            : (base_pool?.is_lending && poolData.is_factory) ? 5
+                            : hasEth ? 3
+                            : poolData.is_crypto ? 4
+                            : 2;
                         const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
                             const routePoolIds = route.steps.map((s) => s.poolId);
                             // Steps <= 4
@@ -450,7 +458,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                                         i: inCoinIndexes.underlying_coin,
                                         j,
                                         swapType,
-                                        swapAddress: swapType === 5 ? poolData.swap_address : ethers.constants.AddressZero,
+                                        swapAddress: (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
                                     },
                                 ],
                                 minTvl: Math.min(tvl, route.minTvl),

@@ -37,7 +37,7 @@ describe('Router swap', async function () {
     // const coins = Object.keys(COINS_POLYGON).filter((c) => c !== 'snx' && c !== 'eurs'); // TODO remove eurs
 
     // ETHEREUM
-    // const coins = ['susd', 'dai', 'mim', 'usdn', 'crv', 'cvx', 'eth', 'xaut', 'eurt', '3crv', '0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7']; // cvxCRV
+    const coins = ['susd', 'dai', 'mim', 'frax', 'crv', 'cvx', 'eth', 'xaut', 'eurt', '3crv', '0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7', '0x045da4bfe02b320f4403674b3b7d121737727a36']; // cvxCRV, DCHF
 
     // POLYGON
     // const coins = ['crv', 'dai', 'usdc', 'usdt', 'eurt', 'weth', 'wbtc', 'renbtc', 'amdai', 'amusdc', 'amusdt', 'am3crv', 'matic', '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89']; // frax
@@ -61,7 +61,7 @@ describe('Router swap', async function () {
     // const coins = ['dai', 'usdc', 'usdt', '3crv', '0x765277EebeCA2e31912C9946eAe1021199B39C61']; // DAI2
 
     // AURORA && KAVA TODO add Kava registry_exchange
-    const coins = ['dai', 'usdc', 'usdt'];
+    // const coins = ['dai', 'usdc', 'usdt'];
     for (const coin1 of coins) {
         for (const coin2 of coins) {
             if (coin1 !== coin2) {

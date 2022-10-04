@@ -23,7 +23,7 @@ import Plain4ETHABI from "../constants/abis/factory-v2/Plain4ETH.json";
 import Plain4OptimizedABI from "../constants/abis/factory-v2/Plain4Optimized.json";
 // --- ZAPS --
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
-import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/metaZap.json";
+import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/meta_zap.json";
 import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json";
 import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
 import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json";

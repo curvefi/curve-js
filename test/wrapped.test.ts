@@ -10,9 +10,11 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth', 'euroc'];
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', 'factory-v2-136']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)', 'sUSDFRAXBP'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8']; // ['YFIETH-fV2'];
+const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
 
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd', 'eursusd'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
+const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1']; // ['CRV/TRICRYPTO'];
 
 const AVALANCHE_MAIN_POOLS = ['aave', 'ren'];
 const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
@@ -219,15 +221,15 @@ describe('Wrapped test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolId of ETHEREUM_POOLS) {
+    // for (const poolId of FACTORY_CRYPTO_META_POOLS) {
     //     wrappedLiquidityTest(poolId);
-    //     wrappedSwapTest(poolId);
+    //     // wrappedSwapTest(poolId);
     // }
 
-    // for (const poolId of POLYGON_POOLS) {
-    //     wrappedLiquidityTest(poolId);
-    //     wrappedSwapTest(poolId);
-    // }
+    for (const poolId of POLYGON_FACTORY_CRYPTO_META_POOLS) {
+        wrappedLiquidityTest(poolId);
+        wrappedSwapTest(poolId);
+    }
 
     // for (const poolId of AVALANCHE_POOLS) {
     //     wrappedLiquidityTest(poolId);
@@ -249,8 +251,8 @@ describe('Wrapped test', async function () {
     //     wrappedSwapTest(poolId);
     // }
 
-    for (const poolId of XDAI_POOLS) {
-        wrappedLiquidityTest(poolId);
-        wrappedSwapTest(poolId);
-    }
+    // for (const poolId of XDAI_POOLS) {
+    //     wrappedLiquidityTest(poolId);
+    //     wrappedSwapTest(poolId);
+    // }
 })

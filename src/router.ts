@@ -18,6 +18,8 @@ import {
     parseUnits,
     _cutZeros,
     ETH_ADDRESS,
+    _get_small_x,
+    _get_price_impact,
 } from "./utils";
 import { getPool } from "./pools";
 
@@ -326,7 +328,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                     if (step === 3 && token_address !== outputCoinAddress) continue;
 
                     const tvl = Number(await (getPool(poolId)).stats.totalLiquidity()); // Base pool tvl can't be 0
-                    const swapType = is_lending ? 9 : underlying_coin_addresses.length === 2 ? 7 : 8;
+                    const swapType = is_lending ? 9 : underlying_coin_addresses.length === 2 ? 7 : 8;  // TODO change for atricrypto3 base pool
                     const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
                         const routePoolIds = route.steps.map((s) => s.poolId);
                         // Steps <= 4
@@ -660,36 +662,24 @@ export const swapExpected = async (inputCoin: string, outputCoin: string, amount
     return (await getBestRouteAndOutput(inputCoin, outputCoin, amount))['output'];
 }
 
-export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<string> => {
+export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const route = await _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const _amount = parseUnits(amount, inputCoinDecimals);
+    const _output = route._output;
 
-    // Find k for which x * k = 10^15 or y * k = 10^15: k = max(10^15 / x, 10^15 / y)
-    // For coins with d (decimals) <= 15: k = min(k, 0.2), and x0 = min(x * k, 10^d)
-    // x0 = min(x * min(max(10^15 / x, 10^15 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-    const target = BN(10 ** 15);
-    const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
-    const outputIntBN = toBN(route._output, 0);
-    const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);
-    const smallAmountIntBN = BigNumber.min(amountIntBN.times(k), BN(10 ** inputCoinDecimals));
-    if (smallAmountIntBN.toFixed(0) === '0') return '0';
+    const smallAmountIntBN = _get_small_x(_amount, _output, inputCoinDecimals, outputCoinDecimals)
+    const amountIntBN = toBN(_amount, 0);
+    if (smallAmountIntBN.gte(amountIntBN)) return 0;
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
     const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
     const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
     const _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
+    const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals);
 
-    const amountBN = BN(amount);
-    const outputBN = toBN(route._output, outputCoinDecimals);
-    const smallAmountBN = toBN(_smallAmount, inputCoinDecimals);
-    const smallOutputBN = toBN(_smallOutput, outputCoinDecimals);
-
-    const rateBN = outputBN.div(amountBN);
-    const smallRateBN = smallOutputBN.div(smallAmountBN);
-    const slippageBN = BN(1).minus(rateBN.div(smallRateBN)).times(100);
-
-    return _cutZeros(slippageBN.toFixed(6)).replace('-', '')
+    return Number(_cutZeros(priceImpactBN.toFixed(4)).replace('-', ''))
 }
 
 export const swapIsApproved = async (inputCoin: string, amount: number | string): Promise<boolean> => {

@@ -369,3 +369,34 @@ export const _setContracts = (address: string, abi: any): void => {
         multicallContract: new MulticallContract(address, abi),
     }
 }
+
+// Find k for which x * k = target_x or y * k = target_y
+// k = max(target_x / x, target_y / y)
+// small_x = x * k
+export const _get_small_x = (_x: ethers.BigNumber, _y: ethers.BigNumber, x_decimals: number, y_decimals: number): BigNumber => {
+    const target_x = BN(10 ** (x_decimals > 5 ? x_decimals - 3 : x_decimals));
+    const target_y = BN(10 ** (y_decimals > 5 ? y_decimals - 3 : y_decimals));
+    const x_int_BN = toBN(_x, 0);
+    const y_int_BN = toBN(_y, 0);
+    const k = BigNumber.max(target_x.div(x_int_BN), target_y.div(y_int_BN));
+
+    return BigNumber.min(x_int_BN.times(k), BN(10 ** x_decimals));
+}
+
+export const _get_price_impact = (
+    _x: ethers.BigNumber,
+    _y: ethers.BigNumber,
+    _small_x: ethers.BigNumber,
+    _small_y: ethers.BigNumber,
+    x_decimals: number,
+    y_decimals: number
+): BigNumber => {
+    const x_BN = toBN(_x, x_decimals);
+    const y_BN = toBN(_y, y_decimals);
+    const small_x_BN = toBN(_small_x, x_decimals);
+    const small_y_BN = toBN(_small_y, y_decimals);
+    const rateBN = y_BN.div(x_BN);
+    const smallRateBN = small_y_BN.div(small_x_BN);
+
+    return BN(1).minus(rateBN.div(smallRateBN)).times(100);
+}

@@ -19,6 +19,8 @@ import {
     fromBN,
     _cutZeros,
     _setContracts,
+    _get_small_x,
+    _get_price_impact,
 } from '../utils';
 import {
     IDict,
@@ -1685,36 +1687,22 @@ export class PoolTemplate {
         return ethers.utils.formatUnits(_expected, this.underlyingDecimals[j])
     }
 
-    public async swapPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<string> {
+    public async swapPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
         const [inputCoinDecimals, outputCoinDecimals] = [this.underlyingDecimals[i], this.underlyingDecimals[j]];
         const _amount = parseUnits(amount, inputCoinDecimals);
         const _output = await this._swapExpected(i, j, _amount);
 
-        // Find k for which x * k = 10^15 or y * k = 10^15: k = max(10^15 / x, 10^15 / y)
-        // For coins with d (decimals) <= 15: k = min(k, 0.2), and x0 = min(x * k, 10^d)
-        // x0 = min(x * min(max(10^15 / x, 10^15 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-        const target = BN(10 ** 15);
-        const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
-        const outputIntBN = toBN(_output, 0);
-        const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);
-        const smallAmountIntBN = BigNumber.min(amountIntBN.times(k), BN(10 ** inputCoinDecimals));
-        if (smallAmountIntBN.toFixed(0) === '0') return '0';
+        const smallAmountIntBN = _get_small_x(_amount, _output, inputCoinDecimals, outputCoinDecimals);
+        const amountIntBN = toBN(_amount, 0);
+        if (smallAmountIntBN.gte(amountIntBN)) return 0;
 
         const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
         const _smallOutput = await this._swapExpected(i, j, _smallAmount);
+        const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals)
 
-        const amountBN = BN(amount);
-        const outputBN = toBN(_output, outputCoinDecimals);
-        const smallAmountBN = toBN(_smallAmount, inputCoinDecimals);
-        const smallOutputBN = toBN(_smallOutput, outputCoinDecimals);
-
-        const rateBN = outputBN.div(amountBN);
-        const smallRateBN = smallOutputBN.div(smallAmountBN);
-        const slippageBN = BN(1).minus(rateBN.div(smallRateBN)).times(100);
-
-        return _cutZeros(slippageBN.toFixed(6)).replace('-', '')
+        return Number(_cutZeros(priceImpactBN.toFixed(4)).replace('-', ''))
     }
 
     private _swapContractAddress(): string {
@@ -1760,7 +1748,7 @@ export class PoolTemplate {
         throw Error(`swapWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    public async swapWrappedPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<string> {
+    public async swapWrappedPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
         if (this.isPlain || this.isFake) {
             throw Error(`swapWrappedPriceImpact method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
@@ -1771,30 +1759,15 @@ export class PoolTemplate {
         const _amount = parseUnits(amount, inputCoinDecimals);
         const _output = await this._swapWrappedExpected(i, j, _amount);
 
-        // Find k for which x * k = 10^15 or y * k = 10^15: k = max(10^15 / x, 10^15 / y)
-        // For coins with d (decimals) <= 15: k = min(k, 0.2), and x0 = min(x * k, 10^d)
-        // x0 = min(x * min(max(10^15 / x, 10^15 / y), 0.2), 10^d), if x0 == 0 then priceImpact = 0
-        const target = BN(10 ** 15);
-        const amountIntBN = BN(amount).times(10 ** inputCoinDecimals);
-        const outputIntBN = toBN(_output, 0);
-        const k = BigNumber.min(BigNumber.max(target.div(amountIntBN), target.div(outputIntBN)), 0.2);
-        const smallAmountIntBN = BigNumber.min(amountIntBN.times(k), BN(10 ** inputCoinDecimals));
-        if (smallAmountIntBN.toFixed(0) === '0') return '0';
-
+        const smallAmountIntBN = _get_small_x(_amount, _output, inputCoinDecimals, outputCoinDecimals);
+        const amountIntBN = toBN(_amount, 0);
+        if (smallAmountIntBN.gte(amountIntBN)) return 0;
 
         const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
         const _smallOutput = await this._swapWrappedExpected(i, j, _smallAmount);
+        const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals)
 
-        const amountBN = BN(amount);
-        const outputBN = toBN(_output, outputCoinDecimals);
-        const smallAmountBN = toBN(_smallAmount, inputCoinDecimals);
-        const smallOutputBN = toBN(_smallOutput, outputCoinDecimals);
-
-        const rateBN = outputBN.div(amountBN);
-        const smallRateBN = smallOutputBN.div(smallAmountBN);
-        const slippageBN = BN(1).minus(rateBN.div(smallRateBN)).times(100);
-
-        return _cutZeros(slippageBN.toFixed(6)).replace('-', '')
+        return Number(_cutZeros(priceImpactBN.toFixed(4)).replace('-', ''))
     }
 
     // OVERRIDE

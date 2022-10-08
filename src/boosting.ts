@@ -182,3 +182,12 @@ export const claimableFees = async (address = ""): Promise<string> => {
     const contract = new Contract(curve.constants.ALIASES.fee_distributor, feeDistributorViewABI, curve.provider)
     return ethers.utils.formatUnits(await contract.claim(address, curve.constantOptions));
 }
+
+export const claimFees = async (address = ""): Promise<string> => {
+    address = address || curve.signerAddress;
+    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
+
+    await curve.updateFeeData();
+    const gasLimit = (await contract.estimateGas.claim(address, curve.constantOptions)).mul(130).div(100);
+    return (await contract.claim(address, { ...curve.options, gasLimit })).hash
+}

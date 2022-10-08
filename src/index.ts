@@ -29,6 +29,9 @@ import {
     increaseUnlockTime,
     withdrawLockedCrvEstimateGas,
     withdrawLockedCrv,
+    claimableFees,
+    claimFeesEstimateGas,
+    claimFees,
 } from "./boosting";
 import {
     getBalances,
@@ -97,12 +100,15 @@ const curve = {
         increaseAmount,
         increaseUnlockTime,
         withdrawLockedCrv,
+        claimableFees,
+        claimFees,
         estimateGas: {
             approve: approveEstimateGas,
             createLock: createLockEstimateGas,
             increaseAmount: increaseAmountEstimateGas,
             increaseUnlockTime: increaseUnlockTimeEstimateGas,
             withdrawLockedCrv: withdrawLockedCrvEstimateGas,
+            claimFees: claimFeesEstimateGas,
         },
     },
     router: {

@@ -183,6 +183,13 @@ export const claimableFees = async (address = ""): Promise<string> => {
     return ethers.utils.formatUnits(await contract.claim(address, curve.constantOptions));
 }
 
+export const claimFeesEstimateGas = async (address = ""): Promise<number> => {
+    address = address || curve.signerAddress;
+    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
+
+    return (await contract.estimateGas.claim(address, curve.constantOptions)).toNumber();
+}
+
 export const claimFees = async (address = ""): Promise<string> => {
     address = address || curve.signerAddress;
     const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;

@@ -11,6 +11,7 @@ import yERC20Abi from './constants/abis/yERC20.json';
 import minterABI from './constants/abis/minter.json';
 import minterChildABI from './constants/abis/minter_child.json';
 import votingEscrowABI from './constants/abis/votingescrow.json';
+import feeDistributorABI from './constants/abis/fee_distributor.json';
 import addressProviderABI from './constants/abis/address_provider.json';
 import gaugeControllerABI from './constants/abis/gaugecontroller.json';
 import routerABI from './constants/abis/router.json';
@@ -478,6 +479,8 @@ class Curve implements ICurve {
             contract: new Contract(this.constants.ALIASES.voting_escrow, votingEscrowABI, this.signer || this.provider),
             multicallContract: new MulticallContract(this.constants.ALIASES.voting_escrow, votingEscrowABI),
         };
+
+        this.setContract(this.constants.ALIASES.fee_distributor, feeDistributorABI);
 
         this.contracts[this.constants.ALIASES.address_provider] = {
             contract: new Contract(this.constants.ALIASES.address_provider, addressProviderABI, this.signer || this.provider),

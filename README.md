@@ -1027,6 +1027,8 @@ import curve from "@curvefi/api";
 ```
 
 ## Boosting
+
+### Lock
 ```ts
 import curve from "@curvefi/api";
 
@@ -1066,6 +1068,26 @@ import curve from "@curvefi/api";
     // { lockedAmount: '1500.0', unlockTime: 1688601600000 }
     // 746.262271689452535192 veCRV
     // 0.000018613852077810 veCRV %
+})()
+```
+### Claim fees
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {});
+
+    await curve.getBalances(['3crv']);
+    // ['0.0']
+    await curve.boosting.claimableFees();
+    // 1.30699696445248888
+
+    await curve.boosting.claimFees();
+
+    await curve.getBalances(['3crv']);
+    // ['1.30699696445248888']
+    await curve.boosting.claimableFees();
+    // 0.0
 })()
 ```
 

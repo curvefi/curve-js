@@ -424,6 +424,22 @@ const boostingTest = async () => {
     console.log(await curve.boosting.getVeCrvPct());
 }
 
+const claimFeesTest = async () => {
+    await curve.init('JsonRpc', {});
+
+    console.log(await curve.getBalances(['3crv']));
+    // ['0.0']
+    console.log(await curve.boosting.claimableFees());
+    // 1.30699696445248888
+
+    console.log(await curve.boosting.claimFees());
+
+    console.log(await curve.getBalances(['3crv']));
+    // ['1.30699696445248888']
+    console.log(await curve.boosting.claimableFees());
+    // 0.0
+}
+
 const crvTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0 });
 

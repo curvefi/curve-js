@@ -1,9 +1,10 @@
-import { ethers } from "ethers";
+import { ethers, Contract } from "ethers";
 import BigNumber from "bignumber.js";
-import {_getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance} from "./utils";
-import { _ensureAllowance, toBN, toStringFromBN, parseUnits } from './utils';
 import { curve } from "./curve";
 import { IDict } from "./interfaces";
+import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json";
+import {_getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance} from "./utils";
+import { _ensureAllowance, toBN, toStringFromBN, parseUnits } from './utils';
 
 
 export const getCrv = async (...addresses: string[] | string[][]): Promise<IDict<string> | string> => {
@@ -174,4 +175,26 @@ export const withdrawLockedCrv = async (): Promise<string> => {
     await curve.updateFeeData();
     const gasLimit = (await contract.estimateGas.withdraw(curve.constantOptions)).mul(130).div(100);
     return (await contract.withdraw({ ...curve.options, gasLimit })).hash
+}
+
+export const claimableFees = async (address = ""): Promise<string> => {
+    address = address || curve.signerAddress;
+    const contract = new Contract(curve.constants.ALIASES.fee_distributor, feeDistributorViewABI, curve.provider)
+    return ethers.utils.formatUnits(await contract.claim(address, curve.constantOptions));
+}
+
+export const claimFeesEstimateGas = async (address = ""): Promise<number> => {
+    address = address || curve.signerAddress;
+    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
+
+    return (await contract.estimateGas.claim(address, curve.constantOptions)).toNumber();
+}
+
+export const claimFees = async (address = ""): Promise<string> => {
+    address = address || curve.signerAddress;
+    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
+
+    await curve.updateFeeData();
+    const gasLimit = (await contract.estimateGas.claim(address, curve.constantOptions)).mul(130).div(100);
+    return (await contract.claim(address, { ...curve.options, gasLimit })).hash
 }

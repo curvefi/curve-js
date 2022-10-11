@@ -97,7 +97,7 @@ export const withdrawOneCoinWrappedCryptoBonusMixin: PoolTemplate = {
         }
 
         // @ts-ignore
-        const prices: number[] = (await this._wrappedPrices()).map((p, i) => i === prices.length - 1 ? p * vp : p);
+        const prices: number[] = (await this._wrappedPrices()).map((p, i, arr) => i === arr.length - 1 ? p * vp : p); // TODO check for gnosis tricrypto
         // @ts-ignore
         const coinPrice = prices[this._getCoinIdx(coin)];
 

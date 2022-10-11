@@ -1,31 +1,36 @@
+import BigNumber from 'bignumber.js';
 import { PoolTemplate } from "../PoolTemplate";
+import { BN } from "../../utils";
 
 
-function _depositBalancedAmounts(poolBalances: number[], walletBalances: number[], decimals: number[]): string[] {
-    const poolTotalLiquidity = poolBalances.reduce((a,b) => a + b);
-    const poolBalancesRatios = poolBalances.map((b) => b / poolTotalLiquidity);
+function _depositBalancedAmounts(poolBalances: string[], walletBalances: string[], decimals: number[]): string[] {
+    const poolBalancesBN = poolBalances.map(BN);
+    const walletBalancesBN = walletBalances.map(BN);
+    const poolTotalLiquidityBN = poolBalancesBN.reduce((a,b) => a.plus(b));
+    const poolBalancesRatiosBN = poolBalancesBN.map((b) => b.div(poolTotalLiquidityBN));
     // Cross factors for each wallet balance used as reference to see the
     // max that can be used according to the lowest relative wallet balance
-    const balancedAmountsForEachScenario = walletBalances.map((_, i) => (
-        walletBalances.map((_, j) => (
-            poolBalancesRatios[j] * walletBalances[i] / poolBalancesRatios[i]
+    const balancedAmountsForEachScenarioBN = walletBalancesBN.map((_, i) => (
+        walletBalancesBN.map((_, j) => (
+            poolBalancesRatiosBN[j].times(walletBalancesBN[i]).div(poolBalancesRatiosBN[i])
         ))
     ));
-    const firstCoinBalanceForEachScenario = balancedAmountsForEachScenario.map(([a]) => a);
-    const scenarioWithLowestBalances = firstCoinBalanceForEachScenario.indexOf(Math.min(...firstCoinBalanceForEachScenario));
+    const firstCoinBalanceForEachScenarioBN = balancedAmountsForEachScenarioBN.map(([a]) => a);
+    const scenarioWithLowestBalancesBN = firstCoinBalanceForEachScenarioBN.map(String).indexOf(BigNumber.min(...firstCoinBalanceForEachScenarioBN).toString());
 
-    return balancedAmountsForEachScenario[scenarioWithLowestBalances].map((a, i) => a.toFixed(decimals[i]))
+    return balancedAmountsForEachScenarioBN[scenarioWithLowestBalancesBN].map((a, i) => a.toFixed(decimals[i]))
 }
 
 // @ts-ignore
 export const depositBalancedAmountsMixin: PoolTemplate = {
     async depositBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.stats.underlyingBalances()).map(Number);
+        const poolBalances = await this.stats.underlyingBalances();
         // @ts-ignore
-        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
+        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances());
+        const balancedAmountsBN = (_depositBalancedAmounts(poolBalances, walletBalances, this.underlyingDecimals));
 
-        return _depositBalancedAmounts(poolBalances, walletBalances, this.underlyingDecimals)
+        return balancedAmountsBN.map((b, i) => BigNumber.min(BN(b), BN(walletBalances[i])).toString());
     },
 }
 
@@ -33,18 +38,16 @@ export const depositBalancedAmountsMixin: PoolTemplate = {
 export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
     async depositBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.stats.underlyingBalances()).map(Number);
+        const poolBalances = await this.stats.underlyingBalances();
         // @ts-ignore
-        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances()).map(Number);
+        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances());
         // @ts-ignore
         const prices = await this._underlyingPrices();
-        const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
-        const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
-        // @ts-ignore
+        const poolBalancesUSD = poolBalances.map((b, i) => BN(b).times(prices[i]).toString());
+        const walletBalancesUSD = walletBalances.map((b, i) => BN(b).times(prices[i]).toString());
         const balancedAmountsUSD = _depositBalancedAmounts(poolBalancesUSD, walletBalancesUSD, this.underlyingDecimals);
 
-        // @ts-ignore
-        return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
+        return balancedAmountsUSD.map((b, i) => BigNumber.min(BN(BN(b).div(prices[i]).toFixed(this.underlyingDecimals[i])), BN(walletBalances[i])).toString());
     },
 }
 
@@ -52,11 +55,12 @@ export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
 export const depositWrappedBalancedAmountsMixin: PoolTemplate = {
     async depositWrappedBalancedAmounts(): Promise<string[]> {
         // @ts-ignore
-        const poolBalances = (await this.stats.wrappedBalances()).map(Number);
+        const poolBalances = await this.stats.wrappedBalances();
         // @ts-ignore
-        const walletBalances = Object.values(await this.walletWrappedCoinBalances()).map(Number);
+        const walletBalances = Object.values(await this.walletWrappedCoinBalances());
+        const balancedAmountsBN = (_depositBalancedAmounts(poolBalances, walletBalances, this.underlyingDecimals));
 
-        return _depositBalancedAmounts(poolBalances, walletBalances, this.wrappedDecimals)
+        return balancedAmountsBN.map((b, i) => BigNumber.min(BN(b), BN(walletBalances[i])).toString());
     },
 }
 
@@ -69,11 +73,10 @@ export const depositWrappedBalancedAmountsCryptoMixin: PoolTemplate = {
         const walletBalances = Object.values(await this.walletWrappedCoinBalances()).map(Number);
         // @ts-ignore
         const prices = await this._wrappedPrices();
-        const poolBalancesUSD = poolBalances.map((b, i) => b * prices[i]);
-        const walletBalancesUSD = walletBalances.map((b, i) => b * prices[i]);
-        // @ts-ignore
+        const poolBalancesUSD = poolBalances.map((b, i) => BN(b).times(prices[i]).toString());
+        const walletBalancesUSD = walletBalances.map((b, i) => BN(b).times(prices[i]).toString());
         const balancedAmountsUSD = _depositBalancedAmounts(poolBalancesUSD, walletBalancesUSD, this.wrappedDecimals);
 
-        return balancedAmountsUSD.map((b, i) => String(Math.min(Number(b) / prices[i], poolBalances[i])));
+        return balancedAmountsUSD.map((b, i) => BigNumber.min(BN(BN(b).div(prices[i]).toFixed(this.wrappedDecimals[i])), BN(walletBalances[i])).toString());
     },
 }

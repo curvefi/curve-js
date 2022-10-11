@@ -7,6 +7,7 @@ import eursusdSwapABI from '../abis/eursusd2/swap.json';
 import eursusdZapABI from '../abis/eursusd2/zap.json';
 import renSwapABI from '../abis/ren-arbitrum/swap.json';
 import gaugeChildABI from '../abis/gauge_child.json';
+import wstETHSwapABI from "../abis/wsteth/swap.json";
 
 
 export const POOLS_DATA_ARBITRUM: { [index: string]: IPoolData } = lowerCasePoolDataAddresses({
@@ -121,5 +122,29 @@ export const POOLS_DATA_ARBITRUM: { [index: string]: IPoolData } = lowerCasePool
         swap_abi: eursusdSwapABI,
         gauge_abi: gaugeChildABI,
         deposit_abi: eursusdZapABI,
+    },
+    wsteth: {
+        name: "wsteth",
+        full_name: "wsteth",
+        symbol: "wsteth",
+        reference_asset: 'ETH',
+        is_plain: true,
+        swap_address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
+        token_address: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+        gauge_address: '0x098EF55011B6B8c99845128114A9D9159777d697',
+        underlying_coins: ['ETH', 'wstETH'],
+        wrapped_coins: ['ETH', 'wstETH'],
+        underlying_coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0x5979D7b546E38E414F7E9822514be443A4800529',
+        ],
+        wrapped_coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0x5979D7b546E38E414F7E9822514be443A4800529',
+        ],
+        underlying_decimals: [18, 18],
+        wrapped_decimals: [18, 18],
+        swap_abi: wstETHSwapABI,
+        gauge_abi: gaugeChildABI,
     },
 });

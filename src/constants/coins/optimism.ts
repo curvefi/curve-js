@@ -16,6 +16,7 @@ export const COINS_OPTIMISM: { [index: string]: string } = lowerCaseValues({
     'eth': '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     'weth': '0x4200000000000000000000000000000000000006',
     'seth': '0xe405de8f52ba7559f9df3c368500b6e6ae6cee49',
+    'wsteth': '0x1f32b1c2345538c0c6f582fcb022739c4a194ebb',
 })
 
 export const cTokensOptimism = []; //.map((a) => a.toLowerCase());

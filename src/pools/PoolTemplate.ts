@@ -537,13 +537,14 @@ export class PoolTemplate {
             const _lpTotalSupply: ethers.BigNumber = await lpContract.totalSupply(curve.constantOptions);
             if (_lpTotalSupply.gt(0)) throw e; // Already seeded
 
-            _amounts.forEach((_a) => {
-                if (!_a.eq(_amounts[0])) throw Error("Initial deposit amounts must be the same");
+            const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
+            const amounts = _amounts.map((_a, i) => ethers.utils.formatUnits(_a, decimals[i]));
+            amounts.forEach((a) => {
+                if (a !== amounts[0]) throw Error("Initial deposit amounts must be the same");
             });
             if (_amounts[0].lte(0)) throw Error("Initial deposit amounts must be >0");
 
-            const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
-            const _underlyingAmounts18Decimals: ethers.BigNumber[] = _amounts.map((_a, i) => parseUnits(ethers.utils.formatUnits(_a, decimals[i])));
+            const _underlyingAmounts18Decimals: ethers.BigNumber[] = amounts.map((a) => parseUnits(a));
             return _underlyingAmounts18Decimals.reduce((_a, _b) => _a.add(_b));
         }
     },

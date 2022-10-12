@@ -1881,7 +1881,7 @@ export class PoolTemplate {
 
         const idx = lowerCaseCoinAddresses.indexOf(coinAddress.toLowerCase());
         if (idx === -1) {
-            throw Error(`There is no ${coin} in ${this.name} pool`); // TODO add wrapped or underlying
+            throw Error(`There is no ${coin} among ${this.name} pool ${useUnderlying ? 'underlying' : 'wrapped'} coins`);
         }
 
         return idx

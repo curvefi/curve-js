@@ -477,58 +477,93 @@ export class PoolTemplate {
         }
 
         if (this.isCrypto) {
-            return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);   
-        }
+            try {
+                return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
+            } catch (e) {
+                const lpContract = curve.contracts[this.lpToken].contract;
+                const _lpTotalSupply: ethers.BigNumber = await lpContract.totalSupply(curve.constantOptions);
+                if (_lpTotalSupply.gt(0)) throw e; // Already seeded
 
-        // --- Getting lpAmount before fees and pool params ---
+                if (this.isMeta && useUnderlying) throw Error("Initial deposit for crypto meta pools must be in wrapped coins");
 
-        const N_coins = useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
-        const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
-        const calcContractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
-        const calcContract = curve.contracts[calcContractAddress].multicallContract;
-        const poolContract = curve.contracts[this.address].multicallContract;
-        const lpContract = curve.contracts[this.lpToken].multicallContract;
+                const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
+                const amounts = _amounts.map((_a, i) => ethers.utils.formatUnits(_a, decimals[i]));
+                const seedAmounts = await this.cryptoSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
+                amounts.forEach((a, i) => {
+                    if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
+                });
 
-        // totalSupply and fee
-        const calls = [lpContract.totalSupply(), poolContract.fee()];
-
-        // lpAmount before fees
-        if (this.isMetaFactory && useUnderlying) {
-            calls.push(calcContract.calc_token_amount(this.address, _amounts, isDeposit));
-        } else if (calcContract[`calc_token_amount(uint256[${N_coins}],bool)`]) {
-            calls.push(calcContract.calc_token_amount(_amounts, isDeposit, curve.constantOptions));
-        } else {
-            calls.push(calcContract.calc_token_amount(_amounts, curve.constantOptions));
-        }
-
-        const res = await Promise.all([
-            curve.multicallProvider.all(calls),
-            useUnderlying ? this.stats.underlyingBalances() : this.stats.wrappedBalances(),
-        ]);
-        const [_totalSupply, _fee, _lpTokenAmount] = res[0] as ethers.BigNumber[];
-        const balances = res[1] as string[];
-        const [totalSupplyBN, feeBN, lpTokenAmountBN] = [toBN(_totalSupply), toBN(_fee, 10).times(N_coins).div(4 * (N_coins - 1)), toBN(_lpTokenAmount)];
-        const balancesBN = balances.map((b) => BN(b));
-        const amountsBN = _amounts.map((_a, i) => toBN(_a, decimals[i]));
-
-        // --- Calculating new amounts (old amounts minus fees) ---
-
-        // fees[i] = | expected1/total_supply * balances[i] - amounts[i] | * fee
-        const feesBN: BigNumber[] = Array(N_coins).fill(BN(0));
-        if (totalSupplyBN.gt(0)) {
-            for (let i = 0; i < N_coins; i++) {
-                feesBN[i] = balancesBN[i].times(lpTokenAmountBN).div(totalSupplyBN).minus(amountsBN[i]).times(feeBN);
-                if (feesBN[i].lt(0)) feesBN[i] = feesBN[i].times(-1);
+                return parseUnits(Math.sqrt(Number(amounts[0]) * Number(amounts[1])));
             }
         }
-        const _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
 
-        // --- Getting final lpAmount ---
+        try {
+            // --- Getting lpAmount before fees and pool params ---
 
-        let _lpTokenFee = await this._pureCalcLpTokenAmount(_fees, !isDeposit, useUnderlying);
-        if (isDeposit) _lpTokenFee = _lpTokenFee.mul(-1);
+            const N_coins = useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
+            const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
+            const calcContractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
+            const calcContract = curve.contracts[calcContractAddress].multicallContract;
+            const poolContract = curve.contracts[this.address].multicallContract;
+            const lpContract = curve.contracts[this.lpToken].multicallContract;
 
-        return _lpTokenAmount.add(_lpTokenFee)
+            // totalSupply and fee
+            const calls = [lpContract.totalSupply(), poolContract.fee()];
+
+            // lpAmount before fees
+            if (this.isMetaFactory && useUnderlying) {
+                calls.push(calcContract.calc_token_amount(this.address, _amounts, isDeposit));
+            } else if (calcContract[`calc_token_amount(uint256[${N_coins}],bool)`]) {
+                calls.push(calcContract.calc_token_amount(_amounts, isDeposit, curve.constantOptions));
+            } else {
+                calls.push(calcContract.calc_token_amount(_amounts, curve.constantOptions));
+            }
+
+            const res = await Promise.all([
+                curve.multicallProvider.all(calls),
+                useUnderlying ? this.stats.underlyingBalances() : this.stats.wrappedBalances(),
+            ]);
+            const [_totalSupply, _fee, _lpTokenAmount] = res[0] as ethers.BigNumber[];
+            const balances = res[1] as string[];
+            const [totalSupplyBN, feeBN, lpTokenAmountBN] = [toBN(_totalSupply), toBN(_fee, 10).times(N_coins).div(4 * (N_coins - 1)), toBN(_lpTokenAmount)];
+            const balancesBN = balances.map((b) => BN(b));
+            const amountsBN = _amounts.map((_a, i) => toBN(_a, decimals[i]));
+
+            // --- Calculating new amounts (old amounts minus fees) ---
+
+            // fees[i] = | expected1/total_supply * balances[i] - amounts[i] | * fee
+            const feesBN: BigNumber[] = Array(N_coins).fill(BN(0));
+            if (totalSupplyBN.gt(0)) {
+                for (let i = 0; i < N_coins; i++) {
+                    feesBN[i] = balancesBN[i].times(lpTokenAmountBN).div(totalSupplyBN).minus(amountsBN[i]).times(feeBN);
+                    if (feesBN[i].lt(0)) feesBN[i] = feesBN[i].times(-1);
+                }
+            }
+            const _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
+
+            // --- Getting final lpAmount ---
+
+            let _lpTokenFee = await this._pureCalcLpTokenAmount(_fees, !isDeposit, useUnderlying);
+            if (isDeposit) _lpTokenFee = _lpTokenFee.mul(-1);
+
+            return _lpTokenAmount.add(_lpTokenFee)
+        } catch (e: any) { // Seeding
+            if (!isDeposit) throw e; // Seeding is only for deposit
+
+            const lpContract = curve.contracts[this.lpToken].contract;
+            const _lpTotalSupply: ethers.BigNumber = await lpContract.totalSupply(curve.constantOptions);
+            if (_lpTotalSupply.gt(0)) throw e; // Already seeded
+
+            const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
+            const amounts = _amounts.map((_a, i) => ethers.utils.formatUnits(_a, decimals[i]));
+            amounts.forEach((a) => {
+                if (a !== amounts[0]) throw Error("Initial deposit amounts must be the same");
+            });
+            if (_amounts[0].lte(0)) throw Error("Initial deposit amounts must be >0");
+
+            const _amounts18Decimals: ethers.BigNumber[] = amounts.map((a) => parseUnits(a));
+            return _amounts18Decimals.reduce((_a, _b) => _a.add(_b));
+        }
     },
     {
         primitive: true,
@@ -564,6 +599,20 @@ export class PoolTemplate {
 
 
     // ---------------- DEPOSIT ----------------
+
+    public async cryptoSeedAmounts(amount1: number | string): Promise<string[]> {
+        if (!this.isCrypto) throw Error("cryptoSeedAmounts method doesn't exist for stable pools");
+
+        const decimals = this.isMeta ? this.wrappedDecimals : this.underlyingDecimals;
+        if (decimals.length > 2) throw Error("cryptoSeedAmounts method doesn't exist for pools with N coins > 2");
+
+        const amount1BN = BN(amount1);
+        if (amount1BN.lte(0)) throw Error("Initial deposit amounts must be > 0");
+
+        const priceScaleBN = toBN(await curve.contracts[this.address].contract.price_scale(curve.constantOptions));
+
+        return [amount1BN.toFixed(decimals[0]), amount1BN.div(priceScaleBN).toFixed(decimals[1])]
+    }
 
     public async depositBalancedAmounts(): Promise<string[]> {
         throw Error(`depositBalancedAmounts method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1881,7 +1930,7 @@ export class PoolTemplate {
 
         const idx = lowerCaseCoinAddresses.indexOf(coinAddress.toLowerCase());
         if (idx === -1) {
-            throw Error(`There is no ${coin} in ${this.name} pool`); // TODO add wrapped or underlying
+            throw Error(`There is no ${coin} among ${this.name} pool ${useUnderlying ? 'underlying' : 'wrapped'} coins`);
         }
 
         return idx

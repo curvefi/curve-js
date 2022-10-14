@@ -60,7 +60,7 @@ export const withdrawOneCoinWrappedBonusMixin: PoolTemplate = {
 
         const coinAmount = Number(await this.withdrawOneCoinWrappedExpected(lpTokenAmount, coin));
         // @ts-ignore
-        const totalValue = coinAmount * prices[this._getCoinIdx(coin)];
+        const totalValue = coinAmount * prices[this._getCoinIdx(coin, false)];
 
         const balancedAmounts = await this.withdrawWrappedExpected(lpTokenAmount);
         const balancedTotalValue = balancedAmounts.map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
@@ -99,7 +99,7 @@ export const withdrawOneCoinWrappedCryptoBonusMixin: PoolTemplate = {
         // @ts-ignore
         const prices: number[] = (await this._wrappedPrices()).map((p, i, arr) => i === arr.length - 1 ? p * vp : p); // TODO check for gnosis tricrypto
         // @ts-ignore
-        const coinPrice = prices[this._getCoinIdx(coin)];
+        const coinPrice = prices[this._getCoinIdx(coin, false)];
 
         const totalAmount = Number(await this.withdrawOneCoinWrappedExpected(lpTokenAmount, coin));
         const totalAmountUSD = totalAmount * coinPrice;

@@ -477,7 +477,24 @@ export class PoolTemplate {
         }
 
         if (this.isCrypto) {
-            return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);   
+            try {
+                return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
+            } catch (e) {
+                const lpContract = curve.contracts[this.lpToken].contract;
+                const _lpTotalSupply: ethers.BigNumber = await lpContract.totalSupply(curve.constantOptions);
+                if (_lpTotalSupply.gt(0)) throw e; // Already seeded
+
+                if (this.isMeta && useUnderlying) throw Error("Initial deposit for crypto meta pools must be in wrapped coins");
+
+                const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
+                const amounts = _amounts.map((_a, i) => ethers.utils.formatUnits(_a, decimals[i]));
+                const seedAmounts = await this.cryptoSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
+                amounts.forEach((a, i) => {
+                    if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
+                });
+
+                return parseUnits(Math.sqrt(Number(amounts[0]) * Number(amounts[1])));
+            }
         }
 
         try {
@@ -544,8 +561,8 @@ export class PoolTemplate {
             });
             if (_amounts[0].lte(0)) throw Error("Initial deposit amounts must be >0");
 
-            const _underlyingAmounts18Decimals: ethers.BigNumber[] = amounts.map((a) => parseUnits(a));
-            return _underlyingAmounts18Decimals.reduce((_a, _b) => _a.add(_b));
+            const _amounts18Decimals: ethers.BigNumber[] = amounts.map((a) => parseUnits(a));
+            return _amounts18Decimals.reduce((_a, _b) => _a.add(_b));
         }
     },
     {
@@ -582,6 +599,20 @@ export class PoolTemplate {
 
 
     // ---------------- DEPOSIT ----------------
+
+    public async cryptoSeedAmounts(amount1: number | string): Promise<string[]> {
+        if (!this.isCrypto) throw Error("cryptoSeedAmounts method doesn't exist for stable pools");
+
+        const decimals = this.isMeta ? this.wrappedDecimals : this.underlyingDecimals;
+        if (decimals.length > 2) throw Error("cryptoSeedAmounts method doesn't exist for pools with N coins > 2");
+
+        const amount1BN = BN(amount1);
+        if (amount1BN.lte(0)) throw Error("Initial deposit amounts must be > 0");
+
+        const priceScaleBN = toBN(await curve.contracts[this.address].contract.price_scale(curve.constantOptions));
+
+        return [amount1BN.toFixed(decimals[0]), amount1BN.div(priceScaleBN).toFixed(decimals[1])]
+    }
 
     public async depositBalancedAmounts(): Promise<string[]> {
         throw Error(`depositBalancedAmounts method doesn't exist for pool ${this.name} (id: ${this.name})`);

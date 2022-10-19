@@ -1649,16 +1649,10 @@ export class PoolTemplate {
     }
 
     public async userLiquidityUSD(address = ""): Promise<string> {
-        const balances = await this.userBalances(address);
-        const promises = [];
-        for (const addr of this.underlyingCoinAddresses) {
-            promises.push(_getUsdRate(addr))
-        }
-        const prices = await Promise.all(promises);
-        const totalLiquidity = (balances as string[]).reduce(
-            (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
+        const lpBalanceBN = await this._userLpTotalBalance(address);
+        const lpPrice = await _getUsdRate(this.lpToken);
 
-        return totalLiquidity.toFixed(8)
+        return lpBalanceBN.times(lpPrice).toFixed(8)
     }
 
     public async baseProfit(address = ""): Promise<{ day: string, week: string, month: string, year: string }> {

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { Networkish } from "@ethersproject/networks";
 import { PoolTemplate, getPool } from "./pools";
-import { getPoolList, getFactoryPoolList, getCryptoFactoryPoolList, getUserPoolList } from "./pools/utils";
+import { getPoolList, getFactoryPoolList, getCryptoFactoryPoolList, getUserPoolList, getUserLiquidityUSD } from "./pools/utils";
 import {
     getBestRouteAndOutput,
     swapExpected,
@@ -78,6 +78,7 @@ const curve = {
     getFactoryPoolList,
     getCryptoFactoryPoolList,
     getUserPoolList,
+    getUserLiquidityUSD,
     PoolTemplate,
     getPool,
     getUsdRate,

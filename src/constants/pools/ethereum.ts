@@ -84,6 +84,7 @@ import raiDepositABI from '../abis/rai/deposit.json';
 import twopoolSwapABI from '../abis/2pool/swap.json';
 import fourpoolSwapABI from '../abis/4pool/swap.json';
 import fraxusdcSwapABI from '../abis/fraxusdc/swap.json';
+import frxethSwapABI from '../abis/frxeth/swap.json';
 import { lowerCasePoolDataAddresses } from "../utils";
 import { IDict, IPoolData } from "../../interfaces";
 
@@ -1575,5 +1576,29 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         swap_abi: eurtusdSwapABI,
         gauge_abi: gaugeV5ABI,
         deposit_abi: eurtusdDepositABI,
+    },
+    frxeth: {
+        name: "frxeth",
+        full_name: "frxeth",
+        symbol: "frxeth",
+        reference_asset: 'ETH',
+        swap_address: "0xa1F8A6807c402E4A15ef4EBa36528A3FED24E577",
+        token_address: "0xf43211935C781D5ca1a41d2041F397B8A7366C7A",
+        gauge_address: "0x2932a86df44Fe8D2A706d8e9c5d51c24883423F5",
+        is_plain: true,
+        underlying_coins: ['ETH', 'frxrETH'],
+        wrapped_coins: ['ETH', 'frxrETH'],
+        underlying_coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0x5E8422345238F34275888049021821E8E08CAa1f',
+        ],
+        wrapped_coin_addresses: [
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+            '0x5E8422345238F34275888049021821E8E08CAa1f',
+        ],
+        underlying_decimals: [18, 18],
+        wrapped_decimals: [18, 18],
+        swap_abi: frxethSwapABI,
+        gauge_abi: gaugeV5ABI,
     },
 });

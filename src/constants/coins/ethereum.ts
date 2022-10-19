@@ -20,6 +20,7 @@ export const ETH_COINS_ETHEREUM: { [index: string]: string } = {
     seth: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",  // sETH
     reth: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593", // rETH
     weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+    frxeth: "0x5E8422345238F34275888049021821E8E08CAa1f", // frxETH
     xaut: "0x68749665ff8d2d112fa859aa293f07a622782f38", // XAUt TODO move to GOLD
 }
 

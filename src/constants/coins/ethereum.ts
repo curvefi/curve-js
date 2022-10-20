@@ -33,6 +33,7 @@ export const EUR_COINS_ETHEREUM: { [index: string]: string } = {
     eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
     seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
     eurt: "0xC581b735A1688071A1746c968e0798D642EDE491",  // EURT
+    euroc: "0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c",
 }
 
 export const USD_COINS_ETHEREUM: { [index: string]: string } = {

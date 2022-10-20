@@ -469,9 +469,10 @@ export class PoolTemplate {
     }
 
     private _calcLpTokenAmount = memoize(async (_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> => {
+        let _rates: ethers.BigNumber[] = [];
         if (!this.isMeta && useUnderlying) {
             // For lending pools. For others rate = 1
-            const _rates: ethers.BigNumber[] = await this._getRates();
+            _rates = await this._getRates();
             _amounts = _amounts.map((_amount: ethers.BigNumber, i: number) =>
                 _amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
         }
@@ -524,6 +525,7 @@ export class PoolTemplate {
                 useUnderlying ? this.stats.underlyingBalances() : this.stats.wrappedBalances(),
             ]);
             const [_totalSupply, _fee, _lpTokenAmount] = res[0] as ethers.BigNumber[];
+
             const balances = res[1] as string[];
             const [totalSupplyBN, feeBN, lpTokenAmountBN] = [toBN(_totalSupply), toBN(_fee, 10).times(N_coins).div(4 * (N_coins - 1)), toBN(_lpTokenAmount)];
             const balancesBN = balances.map((b) => BN(b));
@@ -539,7 +541,11 @@ export class PoolTemplate {
                     if (feesBN[i].lt(0)) feesBN[i] = feesBN[i].times(-1);
                 }
             }
-            const _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
+            let _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
+            if (!this.isMeta && useUnderlying) {
+                _fees = _fees.map((_fee: ethers.BigNumber, i: number) =>
+                    _fee.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
+            }
 
             // --- Getting final lpAmount ---
 

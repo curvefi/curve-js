@@ -14,7 +14,7 @@ export const POOLS_DATA_OPTIMISM: { [index: string]: IPoolData } = lowerCasePool
         is_plain: true,
         swap_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
         token_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
-        gauge_address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353', // Rewards-Only
+        gauge_address: '0x15F52286C0FF1d7A7dDbC9E300dd66628D46D4e6',
         underlying_coins: ['DAI', 'USDC', 'USDT'],
         wrapped_coins: ['DAI', 'USDC', 'USDT'],
         underlying_coin_addresses: [

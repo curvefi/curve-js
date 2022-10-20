@@ -12,19 +12,10 @@ export const getFactoryPoolList = (): string[] => Object.keys(curve.constants.FA
 export const getCryptoFactoryPoolList = (): string[] => Object.keys(curve.constants.CRYPTO_FACTORY_POOLS_DATA);
 
 const _userLpBalance: IDict<IDict<{ _lpBalance: ethers.BigNumber, time: number }>> = {}
-const _isUserLpBalanceExpired = (address: string, poolId: string) => {
-    return (_userLpBalance[address]?.[poolId]?.time || 0) + 600000 < Date.now()
-}
+const _isUserLpBalanceExpired = (address: string, poolId: string) => (_userLpBalance[address]?.[poolId]?.time || 0) + 600000 < Date.now();
 
-export const _getUserLpBalances = async (pools: string[], address?: string): Promise<ethers.BigNumber[]> => {
-    if (!address) address = curve.signerAddress;
-    address = address as string;
-
-    const poolsToFetch: string[] = [];
-    for (const poolId of pools) {
-        if (_isUserLpBalanceExpired(address, poolId)) poolsToFetch.push(poolId);
-    }
-
+export const _getUserLpBalances = async (pools: string[], address: string, useCache: boolean): Promise<ethers.BigNumber[]> => {
+    const poolsToFetch: string[] = useCache ? pools.filter((poolId) => _isUserLpBalanceExpired(address as string, poolId)) : pools;
     if (poolsToFetch.length > 0) {
         const calls = [];
         for (const poolId of poolsToFetch) {
@@ -51,9 +42,9 @@ export const _getUserLpBalances = async (pools: string[], address?: string): Pro
     return _lpBalances
 }
 
-export const getUserPoolList = async (address?: string): Promise<string[]> => {
+export const getUserPoolList = async (address = curve.signerAddress): Promise<string[]> => {
     const pools = [...getPoolList(), ...getFactoryPoolList(), ...getCryptoFactoryPoolList()];
-    const _lpBalances = await _getUserLpBalances(pools, address);
+    const _lpBalances = await _getUserLpBalances(pools, address, false);
 
     const userPoolList: string[] = []
     for (let i = 0; i < pools.length; i++) {
@@ -65,8 +56,8 @@ export const getUserPoolList = async (address?: string): Promise<string[]> => {
     return userPoolList
 }
 
-export const getUserLiquidityUSD = async (pools: string[], address?: string): Promise<string[]> => {
-    const _lpBalances = await _getUserLpBalances(pools, address);
+export const getUserLiquidityUSD = async (pools: string[], address = curve.signerAddress): Promise<string[]> => {
+    const _lpBalances = await _getUserLpBalances(pools, address, true);
 
     const userLiquidityUSD: string[] = []
     for (let i = 0; i < pools.length; i++) {

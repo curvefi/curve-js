@@ -1,6 +1,5 @@
 import tripoolSwapABI from '../abis/3pool-optimism/swap.json';
 import wstETHSwapABI from '../abis/wsteth/swap.json';
-import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json';
 import gaugeChildABI from '../abis/gauge_child.json';
 import { lowerCasePoolDataAddresses } from "../utils";
 import { IPoolData } from "../../interfaces";
@@ -30,7 +29,7 @@ export const POOLS_DATA_OPTIMISM: { [index: string]: IPoolData } = lowerCasePool
         underlying_decimals: [18, 6, 6],
         wrapped_decimals: [18, 6, 6],
         swap_abi: tripoolSwapABI,
-        gauge_abi: gaugeRewardsOnlyABI,
+        gauge_abi: gaugeChildABI,
     },
     wsteth: {
         name: "wsteth",

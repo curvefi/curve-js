@@ -4,6 +4,7 @@ import raiZapABI from '../abis/rai/deposit.json';
 import tricryptoSwapABI from '../abis/tricrypto-xdai/swap.json';
 import tricryptoZapABI from '../abis/tricrypto-xdai/zap.json';
 import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json';
+import gaugeChildABI from '../abis/gauge_child.json';
 import streamerABI from '../abis/streamer.json';
 import { lowerCasePoolDataAddresses } from "../utils";
 import { IPoolData } from "../../interfaces";
@@ -16,7 +17,7 @@ export const POOLS_DATA_XDAI: { [index: string]: IPoolData } = lowerCasePoolData
         reference_asset: 'USD',
         swap_address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
         token_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
-        gauge_address: '0x78CF256256C8089d68Cde634Cf7cDEFb39286470', // Rewards-Only
+        gauge_address: '0xb721cc32160ab0da2614cc6ab16ed822aeebc101',
         sCurveRewards_address: '0x6C09F6727113543Fd061a721da512B7eFCDD0267',
         is_plain: true,
         underlying_coins: ['WXDAI', 'USDC', 'USDT'],
@@ -34,7 +35,7 @@ export const POOLS_DATA_XDAI: { [index: string]: IPoolData } = lowerCasePoolData
         underlying_decimals: [18, 6, 6],
         wrapped_decimals: [18, 6, 6],
         swap_abi: tripoolSwapABI,
-        gauge_abi: gaugeRewardsOnlyABI,
+        gauge_abi: gaugeChildABI,
         sCurveRewards_abi: streamerABI,
     },
     rai: {
@@ -44,7 +45,7 @@ export const POOLS_DATA_XDAI: { [index: string]: IPoolData } = lowerCasePoolData
         reference_asset: 'USD',
         swap_address: '0x85bA9Dfb4a3E4541420Fc75Be02E2B42042D7e46',
         token_address: '0x36390a1Ae126f16C5D222CB1F2AB341dD09f2FEC',
-        gauge_address: '0x0000000000000000000000000000000000000000', // NO GAUGE FOR THIS POOL BUT NECESSARY TO AVOID REVERTS
+        gauge_address: '0x0000000000000000000000000000000000000000', // NO GAUGE
         deposit_address: '0xdf6eb52c4A9d7d5964b918c50D47a643Fd7D3D4c',
         is_meta: true,
         base_pool: '3pool',

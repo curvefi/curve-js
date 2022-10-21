@@ -197,6 +197,7 @@ export class PoolTemplate {
     }
 
     public rewardsOnly(): boolean {
+        if (curve.chainId === 2222) return true;  // TODO remove this for Kava
         if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
         const gaugeContract = curve.contracts[this.gauge].contract;
 

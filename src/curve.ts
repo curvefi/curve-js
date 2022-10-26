@@ -568,6 +568,17 @@ class Curve implements ICurve {
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
     }
 
+    async fetchRecentlyCreatedFactoryPool(poolAddress: string): Promise<string> {
+        if (this.chainId === 1313161554) return '';
+
+        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, poolAddress));
+        this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
+        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
+
+        return Object.keys(poolData)[0]  // id
+    }
+
     async fetchCryptoFactoryPools(useApi = true): Promise<void> {
         if (![1, 137, 250].includes(this.chainId)) return;
 

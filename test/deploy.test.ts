@@ -2,7 +2,16 @@ import { ethers } from "ethers";
 import { assert } from "chai";
 import curve from "../src";
 import { curve as _curve } from "../src/curve";
-import { deployStablePlainPool, deployStableMetaPool, deployStableGauge } from '../src/factory/deploy';
+import {
+    deployStablePlainPool,
+    deployStableMetaPool,
+    deployCryptoPool,
+    deployGauge,
+    getDeployedStablePlainPoolAddress,
+    getDeployedStableMetaPoolAddress,
+    getDeployedCryptoPoolAddress,
+    getDeployedGaugeAddress,
+} from '../src/factory/deploy';
 
 describe('Factory deploy', function() {
     this.timeout(120000);
@@ -25,22 +34,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -54,22 +63,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -83,22 +92,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -112,22 +121,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -143,22 +152,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -172,22 +181,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -201,22 +210,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -230,22 +239,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -261,22 +270,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -290,22 +299,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -319,22 +328,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -348,22 +357,22 @@ describe('Factory deploy', function() {
         // Deploy pool
 
         const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[0].address;
+        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -374,30 +383,28 @@ describe('Factory deploy', function() {
     // --- META (3pool) ---
 
     it('Deploy stable meta pool and gauge (3pool, implementation 0)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['3pool'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['3pool'].swap_address;
         const coin = _curve.constants.COINS['mim'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
         for (const b of balances) {
@@ -406,30 +413,28 @@ describe('Factory deploy', function() {
     });
 
     it('Deploy stable meta pool and gauge (3pool, implementation 1)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['3pool'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['3pool'].swap_address;
         const coin = _curve.constants.COINS['mim'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
         for (const b of balances) {
@@ -440,30 +445,28 @@ describe('Factory deploy', function() {
     // --- META (fraxusdc) ---
 
     it('Deploy stable meta pool and gauge (fraxusc, implementation 0)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['fraxusdc'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['fraxusdc'].swap_address;
         const coin = _curve.constants.COINS['mim'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -472,30 +475,28 @@ describe('Factory deploy', function() {
     });
 
     it('Deploy stable meta pool and gauge (fraxusc, implementation 1)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['fraxusdc'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['fraxusdc'].swap_address;
         const coin = _curve.constants.COINS['mim'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -506,30 +507,28 @@ describe('Factory deploy', function() {
     // --- META (sbtc) ---
 
     it('Deploy stable meta pool and gauge (sbtc, implementation 0)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['sbtc'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['sbtc'].swap_address;
         const coin = _curve.constants.COINS['tbtc'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
         for (const b of balances) {
@@ -538,30 +537,28 @@ describe('Factory deploy', function() {
     });
 
     it('Deploy stable meta pool and gauge (sbtc, implementation 1)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['sbtc'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['sbtc'].swap_address;
         const coin = _curve.constants.COINS['tbtc'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
         for (const b of balances) {
@@ -572,30 +569,29 @@ describe('Factory deploy', function() {
     // --- META (ren) ---
 
     it('Deploy stable meta pool and gauge (ren, implementation 0)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['ren'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['ren'].swap_address;
         const coin = _curve.constants.COINS['tbtc'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
         const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {
@@ -604,30 +600,28 @@ describe('Factory deploy', function() {
     });
 
     it('Deploy stable meta pool and gauge (ren, implementation 1)', async function () {
-        const basePoolData = _curve.constants.POOLS_DATA['ren'];
-        const basePool = basePoolData.swap_address;
-        const n = basePoolData.underlying_coins.length;
+        const basePool = _curve.constants.POOLS_DATA['ren'].swap_address;
         const coin = _curve.constants.COINS['tbtc'];
 
         // Deploy pool
 
         const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const deployPoolTxInfo = await deployPoolTx.wait();
-        const poolAddress = deployPoolTxInfo.logs[n].address;
+        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployStableGauge(poolAddress);
-        const deployGaugeTxInfo: ethers.ContractReceipt = await deployGaugeTx.wait();
-        // @ts-ignore
-        const gaugeAddress = deployGaugeTxInfo.events[0].args[1];
+        const deployGaugeTx = await deployGauge(poolAddress, false);
+        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
         const poolId = await curve.fetchRecentlyCreatedFactoryPool(poolAddress);
         const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
         for (const b of balances) {

@@ -1,6 +1,7 @@
+import { ethers, Contract} from "ethers";
 import { curve } from "../curve";
 import { parseUnits } from "../utils";
-import {ethers} from "ethers";
+import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json";
 
 
 // ------- STABLE POOLS -------
@@ -61,6 +62,11 @@ export const deployStablePlainPool = async (
     return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, false) as ethers.ContractTransaction;
 }
 
+export const getDeployedStablePlainPoolAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
+    const txInfo = await tx.wait();
+    return txInfo.logs[0].address;
+}
+
 const _deployStableMetaPool = async (
     basePool: string,
     name: string,
@@ -111,6 +117,12 @@ export const deployStableMetaPool = async (
     implementationIdx: 0 | 1
 ): Promise<ethers.ContractTransaction> => {
     return await _deployStableMetaPool(basePool, name, symbol, coin, A, fee, implementationIdx, false) as ethers.ContractTransaction;
+}
+
+export const getDeployedStableMetaPoolAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
+    const txInfo = await tx.wait();
+    console.log(txInfo.logs);
+    return txInfo.logs[txInfo.logs.length - 3].address;
 }
 
 
@@ -264,9 +276,15 @@ export const deployCryptoPool = async (
     ) as ethers.ContractTransaction
 }
 
+export const getDeployedCryptoPoolAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
+    const txInfo = await tx.wait();
+    const lpTokenAddress = txInfo.logs[0].address;
+    const contract = new Contract(lpTokenAddress, CurveLpTokenV5ABI, curve.provider)
+    return await contract.minter(curve.constantOptions);
+}
+
 
 // ------- GAUGE -------
-
 
 const _deployGauge = async (pool: string, isCrypto: boolean, estimateGas: boolean): Promise<ethers.ContractTransaction | number> => {
     const contractAddress = isCrypto ? curve.constants.ALIASES.crypto_factory : curve.constants.ALIASES.factory;
@@ -282,3 +300,9 @@ const _deployGauge = async (pool: string, isCrypto: boolean, estimateGas: boolea
 export const deployGaugeEstimateGas = async (pool: string, isCrypto: boolean): Promise<number> => await _deployGauge(pool, isCrypto, true) as number;
 
 export const deployGauge = async (pool: string, isCrypto: boolean): Promise<ethers.ContractTransaction> => await _deployGauge(pool, isCrypto, false) as ethers.ContractTransaction;
+
+export const getDeployedGaugeAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
+    const txInfo: ethers.ContractReceipt = await tx.wait();
+    // @ts-ignore
+    return txInfo.events[0].args[1];
+}

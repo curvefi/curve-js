@@ -960,7 +960,7 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         gauge_address: '0xF5194c3325202F456c95c1Cf0cA36f8475C1949F',
         is_lending: true,
         underlying_coins: ['DAI', 'USDC', 'USDT'],
-        wrapped_coins: ['iDAI', 'iUSDC', 'iUSDT'],
+        wrapped_coins: ['cyDAI', 'cyUSDC', 'cyUSDT'],
         underlying_coin_addresses: [
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
             '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

@@ -618,7 +618,7 @@ export class PoolTemplate {
 
         const priceScaleBN = toBN(await curve.contracts[this.address].contract.price_scale(curve.constantOptions));
 
-        return [amount1BN.toFixed(decimals[0]), amount1BN.div(priceScaleBN).toFixed(decimals[1])]
+        return [_cutZeros(amount1BN.toFixed(decimals[0])), _cutZeros(amount1BN.div(priceScaleBN).toFixed(decimals[1]))]
     }
 
     public async depositBalancedAmounts(): Promise<string[]> {

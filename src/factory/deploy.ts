@@ -64,7 +64,7 @@ export const deployStablePlainPool = async (
 
 export const getDeployedStablePlainPoolAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
     const txInfo = await tx.wait();
-    return txInfo.logs[0].address;
+    return txInfo.logs[0].address.toLowerCase();
 }
 
 // ------- STABLE META POOLS -------
@@ -123,7 +123,7 @@ export const deployStableMetaPool = async (
 
 export const getDeployedStableMetaPoolAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
     const txInfo = await tx.wait();
-    return txInfo.logs[txInfo.logs.length - 3].address;
+    return txInfo.logs[txInfo.logs.length - 3].address.toLowerCase();
 }
 
 
@@ -281,7 +281,7 @@ export const getDeployedCryptoPoolAddress = async (tx: ethers.ContractTransactio
     const txInfo = await tx.wait();
     const lpTokenAddress = txInfo.logs[0].address;
     const contract = new Contract(lpTokenAddress, CurveLpTokenV5ABI, curve.provider)
-    return await contract.minter(curve.constantOptions);
+    return (await contract.minter(curve.constantOptions) as string).toLowerCase();
 }
 
 

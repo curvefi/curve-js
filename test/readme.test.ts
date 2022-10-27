@@ -2,7 +2,6 @@ import curve from "../src";
 import { IDict } from "../src/interfaces";
 
 
-
 const generalMethodsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
@@ -497,4 +496,142 @@ const userBalancesBaseProfitAndShareTest = async () => {
     console.log(await pool.userLiquidityUSD());
     console.log(await pool.baseProfit());
     console.log(await pool.userShare());
+}
+
+const deployPlainPoolTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const coins = [
+        "0x1456688345527bE1f37E9e627DA0837D6f08C925", // USDP
+        "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", // MIM
+        "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0", // LUSD
+    ];
+
+    // Deploy pool
+
+    const gas = await curve.factory.estimateGas.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
+    console.log(gas);
+    const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
+    console.log(deployPoolTx);
+    const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
+    console.log(poolAddress);
+
+    // Deploy gauge
+
+    const gaugeGas = await curve.factory.estimateGas.deployGauge(poolAddress);
+    console.log(gaugeGas);
+    const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+    console.log(deployGaugeTx);
+    const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+    console.log(gaugeAddress);
+
+    // Deposit & Stake
+
+    const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
+    console.log(poolId);
+    const pool = curve.getPool(poolId);
+
+    await pool.depositAndStake([10, 10, 10]); // Initial amounts for stable pool must be equal
+    const balances = await pool.stats.underlyingBalances();
+    console.log(balances);
+}
+
+const deployMetaPoolTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const basePool = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7";  // 3pool address
+    const coin = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3"; // MIM
+
+    // Deploy pool
+
+    const gas = await curve.factory.estimateGas.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
+    console.log(gas);
+    const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
+    console.log(deployPoolTx);
+    const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
+    console.log(poolAddress);
+
+    // Deploy gauge
+
+    const gaugeGas = await curve.factory.estimateGas.deployGauge(poolAddress);
+    console.log(gaugeGas);
+    const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+    console.log(deployGaugeTx);
+    const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+    console.log(gaugeAddress);
+
+    // Deposit & Stake Wrapped
+
+    const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
+    console.log(poolId);
+    const pool = curve.getPool(poolId);
+
+    await pool.depositAndStakeWrapped([10, 10]); // Initial amounts for stable pool must be equal
+    const balances = await pool.stats.wrappedBalances();
+    console.log(balances);
+}
+
+const deployCryptoPoolTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const coins = [
+        "0xC581b735A1688071A1746c968e0798D642EDE491", // EURT
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+    ];
+
+    // Deploy pool
+
+    const gas = await curve.cryptoFactory.estimateGas.deployPool(
+        "Test crypto pool",
+        "TCP",
+        coins,
+        400000,
+        0.0000725,
+        0.25,
+        0.45,
+        0.000002,
+        0.00023,
+        0.000146,
+        600,
+        1500
+    );
+    console.log(gas);
+    const deployPoolTx = await curve.cryptoFactory.deployPool(
+        "Test crypto pool",
+        "TCP",
+        coins,
+        400000,
+        0.0000725,
+        0.25,
+        0.45,
+        0.000002,
+        0.00023,
+        0.000146,
+        600,
+        1500
+    );
+    console.log(deployPoolTx);
+    const poolAddress = await curve.cryptoFactory.getDeployedPoolAddress(deployPoolTx);
+    console.log(poolAddress);
+
+    // Deploy gauge
+
+    const gaugeGas = await curve.cryptoFactory.estimateGas.deployGauge(poolAddress);
+    console.log(gaugeGas);
+    const deployGaugeTx = await curve.cryptoFactory.deployGauge(poolAddress);
+    console.log(deployPoolTx);
+    const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+    console.log(gaugeAddress);
+
+    // Deposit & Stake
+
+    const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
+    console.log(poolId);
+    const pool = curve.getPool(poolId);
+
+    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    console.log(amounts);
+    await pool.depositAndStake(amounts);
+    const underlyingBalances = await pool.stats.underlyingBalances();
+    console.log(underlyingBalances);
 }

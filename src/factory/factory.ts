@@ -26,6 +26,18 @@ const BLACK_LIST: { [index: number]: any } = {
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
+async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string): Promise<string> {
+    const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
+
+    const poolCount = Number(ethers.utils.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
+    for (let i = 1; i <= poolCount; i++) {
+        const address: string = await factoryContract.pool_list(poolCount - i);
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-v2-${poolCount - i}`
+    }
+
+    throw Error("Unknown pool")
+}
+
 async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], string[]]> {
     const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
@@ -250,8 +262,10 @@ async function getFactoryIsMeta(this: ICurve, factorySwapAddresses: string[]): P
     return await this.multicallProvider.all(calls);
 }
 
-export async function getFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
-    const [poolIds, swapAddresses] = await getFactoryIdsAndSwapAddresses.call(this);
+export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Promise<IDict<IPoolData>> {
+    const [poolIds, swapAddresses] = swapAddress ?
+        [[await getRecentlyCreatedPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
+        : await getFactoryIdsAndSwapAddresses.call(this);
     const implementations = await getFactoryImplementations.call(this, swapAddresses);
     const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
     const swapABIs = implementations.map((addr: string) => implementationABIDict[addr]);

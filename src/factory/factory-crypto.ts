@@ -11,6 +11,18 @@ import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto";
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
+async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string): Promise<string> {
+    const factoryContract = this.contracts[this.constants.ALIASES.crypto_factory].contract;
+
+    const poolCount = Number(ethers.utils.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
+    for (let i = 1; i <= poolCount; i++) {
+        const address: string = await factoryContract.pool_list(poolCount - i);
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-crypto-${poolCount - i}`
+    }
+
+    throw Error("Unknown pool")
+}
+
 async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], string[]]> {
     const factoryContract = this.contracts[this.constants.ALIASES.crypto_factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
@@ -220,8 +232,11 @@ async function getCoinAddressDecimalsDict(
     return coinAddressDecimalsDict
 }
 
-export async function getCryptoFactoryPoolData(this: ICurve): Promise<IDict<IPoolData>> {
-    const [poolIds, swapAddresses] = await getCryptoFactoryIdsAndSwapAddresses.call(this);
+export async function getCryptoFactoryPoolData(this: ICurve, swapAddress?: string): Promise<IDict<IPoolData>> {
+    const [poolIds, swapAddresses] = swapAddress ?
+        [[await getRecentlyCreatedCryptoPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
+        : await getCryptoFactoryIdsAndSwapAddresses.call(this);
+    // const [poolIds, swapAddresses] = await getCryptoFactoryIdsAndSwapAddresses.call(this);
     setCryptoFactorySwapContracts.call(this, swapAddresses);
     const tokenAddresses = await getCryptoFactoryTokenAddresses.call(this, swapAddresses);
     setCryptoFactoryTokenContracts.call(this, tokenAddresses);

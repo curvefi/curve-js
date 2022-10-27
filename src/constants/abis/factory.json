@@ -552,76 +552,6 @@
       {
         "name": "_fee",
         "type": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "deploy_plain_pool",
-    "inputs": [
-      {
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "name": "_coins",
-        "type": "address[4]"
-      },
-      {
-        "name": "_A",
-        "type": "uint256"
-      },
-      {
-        "name": "_fee",
-        "type": "uint256"
-      },
-      {
-        "name": "_asset_type",
-        "type": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "deploy_plain_pool",
-    "inputs": [
-      {
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "name": "_coins",
-        "type": "address[4]"
-      },
-      {
-        "name": "_A",
-        "type": "uint256"
-      },
-      {
-        "name": "_fee",
-        "type": "uint256"
       },
       {
         "name": "_asset_type",
@@ -629,43 +559,6 @@
       },
       {
         "name": "_implementation_idx",
-        "type": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "deploy_metapool",
-    "inputs": [
-      {
-        "name": "_base_pool",
-        "type": "address"
-      },
-      {
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "name": "_coin",
-        "type": "address"
-      },
-      {
-        "name": "_A",
-        "type": "uint256"
-      },
-      {
-        "name": "_fee",
         "type": "uint256"
       }
     ],

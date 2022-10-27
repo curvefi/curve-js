@@ -28,6 +28,7 @@ import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsd
 import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json";
 import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json";
 import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json";
+import RenMetaZapABI from "../constants/abis/ren/meta_zap.json";
 
 
 export const implementationABIDictEthereum: IDict<any> = {
@@ -322,9 +323,9 @@ export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
         ABI: factoryDepositABI,
     },
     ren: {
-        address: "0x7abdbaf29929e7f8621b757d2a7c04d78d633834".toLowerCase(),
-        ABI: factoryDepositABI,
-    }, // TODO MUST BE CHANGED!!!
+        address: "0x8Fb3Ec8f2d1Dc089E70CD61f1E49496d443B2124".toLowerCase(),
+        ABI: RenMetaZapABI,
+    },
 }
 
 export const basePoolIdZapDictPolygon: IDict<{ address: string, ABI: any }> = {

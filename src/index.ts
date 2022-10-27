@@ -42,6 +42,20 @@ import {
     getUsdRate,
     getTVL,
 } from "./utils";
+import {
+    deployStablePlainPool,
+    deployStablePlainPoolEstimateGas,
+    deployStableMetaPool,
+    deployStableMetaPoolEstimateGas,
+    deployCryptoPool,
+    deployCryptoPoolEstimateGas,
+    deployGauge,
+    deployGaugeEstimateGas,
+    getDeployedStablePlainPoolAddress,
+    getDeployedStableMetaPoolAddress,
+    getDeployedCryptoPoolAddress,
+    getDeployedGaugeAddress,
+} from './factory/deploy';
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
@@ -61,6 +75,14 @@ async function fetchFactoryPools(useApi = true): Promise<void> {
 
 async function fetchCryptoFactoryPools(useApi = true): Promise<void> {
     await _curve.fetchCryptoFactoryPools(useApi);
+}
+
+async function fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
+    return await _curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+}
+
+async function fetchRecentlyDeployedCryptoFactoryPool(poolAddress: string): Promise<string> {
+    return await _curve.fetchRecentlyDeployedCryptoFactoryPool(poolAddress);
 }
 
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
@@ -87,6 +109,32 @@ const curve = {
     getAllowance,
     hasAllowance,
     ensureAllowance,
+    factory: {
+        deployPlainPool: deployStablePlainPool,
+        deployMetaPool: deployStableMetaPool,
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, false),
+        getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
+        getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
+        getDeployedGaugeAddress: getDeployedGaugeAddress,
+        fetchRecentlyDeployedPool: fetchRecentlyDeployedFactoryPool,
+        estimateGas: {
+            deployPlainPool: deployStablePlainPoolEstimateGas,
+            deployMetaPool: deployStableMetaPoolEstimateGas,
+            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, false),
+        },
+    },
+    cryptoFactory: {
+        deployPool: deployCryptoPool,
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, true),
+        getDeployed: getDeployedStablePlainPoolAddress,
+        getDeployedPoolAddress: getDeployedCryptoPoolAddress,
+        getDeployedGaugeAddress: getDeployedGaugeAddress,
+        fetchRecentlyDeployedPool: fetchRecentlyDeployedCryptoFactoryPool,
+        estimateGas: {
+            deployPool: deployCryptoPoolEstimateGas,
+            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, true),
+        },
+    },
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,
     },

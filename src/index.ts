@@ -44,14 +44,18 @@ import {
 } from "./utils";
 import {
     deployStablePlainPool,
+    deployStablePlainPoolEstimateGas,
     deployStableMetaPool,
+    deployStableMetaPoolEstimateGas,
     deployCryptoPool,
+    deployCryptoPoolEstimateGas,
     deployGauge,
+    deployGaugeEstimateGas,
     getDeployedStablePlainPoolAddress,
     getDeployedStableMetaPoolAddress,
     getDeployedCryptoPoolAddress,
     getDeployedGaugeAddress,
-} from '../src/factory/deploy';
+} from './factory/deploy';
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
@@ -108,19 +112,28 @@ const curve = {
     factory: {
         deployPlainPool: deployStablePlainPool,
         deployMetaPool: deployStableMetaPool,
-        deployGauge: (poolAddress: string) => deployGauge(poolAddress, false),
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, false),
         getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
         getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         fetchRecentlyDeployedPool: fetchRecentlyDeployedFactoryPool,
+        estimateGas: {
+            deployPlainPool: deployStablePlainPoolEstimateGas,
+            deployMetaPool: deployStableMetaPoolEstimateGas,
+            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, false),
+        },
     },
     cryptoFactory: {
         deployPool: deployCryptoPool,
-        deployGauge: (poolAddress: string) => deployGauge(poolAddress, true),
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, true),
         getDeployed: getDeployedStablePlainPoolAddress,
         getDeployedPoolAddress: getDeployedCryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         fetchRecentlyDeployedPool: fetchRecentlyDeployedCryptoFactoryPool,
+        estimateGas: {
+            deployPool: deployCryptoPoolEstimateGas,
+            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, true),
+        },
     },
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,

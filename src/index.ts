@@ -42,6 +42,16 @@ import {
     getUsdRate,
     getTVL,
 } from "./utils";
+import {
+    deployStablePlainPool,
+    deployStableMetaPool,
+    deployCryptoPool,
+    deployGauge,
+    getDeployedStablePlainPoolAddress,
+    getDeployedStableMetaPoolAddress,
+    getDeployedCryptoPoolAddress,
+    getDeployedGaugeAddress,
+} from '../src/factory/deploy';
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
@@ -63,12 +73,12 @@ async function fetchCryptoFactoryPools(useApi = true): Promise<void> {
     await _curve.fetchCryptoFactoryPools(useApi);
 }
 
-async function fetchRecentlyCreatedFactoryPool(poolAddress: string): Promise<string> {
-    return await _curve.fetchRecentlyCreatedFactoryPool(poolAddress);
+async function fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
+    return await _curve.fetchRecentlyDeployedFactoryPool(poolAddress);
 }
 
-async function fetchRecentlyCreatedCryptoFactoryPool(poolAddress: string): Promise<string> {
-    return await _curve.fetchRecentlyCreatedCryptoFactoryPool(poolAddress);
+async function fetchRecentlyDeployedCryptoFactoryPool(poolAddress: string): Promise<string> {
+    return await _curve.fetchRecentlyDeployedCryptoFactoryPool(poolAddress);
 }
 
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
@@ -82,8 +92,6 @@ const curve = {
     setCustomFeeData,
     fetchFactoryPools,
     fetchCryptoFactoryPools,
-    fetchRecentlyCreatedFactoryPool,
-    fetchRecentlyCreatedCryptoFactoryPool,
     getPoolList,
     getFactoryPoolList,
     getCryptoFactoryPoolList,
@@ -97,6 +105,23 @@ const curve = {
     getAllowance,
     hasAllowance,
     ensureAllowance,
+    factory: {
+        deployPlainPool: deployStablePlainPool,
+        deployMetaPool: deployStableMetaPool,
+        deployGauge: (poolAddress: string) => deployGauge(poolAddress, false),
+        getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
+        getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
+        getDeployedGaugeAddress: getDeployedGaugeAddress,
+        fetchRecentlyDeployedPool: fetchRecentlyDeployedFactoryPool,
+    },
+    cryptoFactory: {
+        deployPool: deployCryptoPool,
+        deployGauge: (poolAddress: string) => deployGauge(poolAddress, true),
+        getDeployed: getDeployedStablePlainPoolAddress,
+        getDeployedPoolAddress: getDeployedCryptoPoolAddress,
+        getDeployedGaugeAddress: getDeployedGaugeAddress,
+        fetchRecentlyDeployedPool: fetchRecentlyDeployedCryptoFactoryPool,
+    },
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,
     },

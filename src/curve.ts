@@ -580,7 +580,7 @@ class Curve implements ICurve {
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
     }
 
-    async fetchRecentlyCreatedFactoryPool(poolAddress: string): Promise<string> {
+    async fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
         if (this.chainId === 1313161554) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, poolAddress));
@@ -591,7 +591,7 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
-    async fetchRecentlyCreatedCryptoFactoryPool(poolAddress: string): Promise<string> {
+    async fetchRecentlyDeployedCryptoFactoryPool(poolAddress: string): Promise<string> {
         if (![1, 137, 250].includes(this.chainId)) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, poolAddress));

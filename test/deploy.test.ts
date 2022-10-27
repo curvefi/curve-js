@@ -2,16 +2,7 @@ import { ethers } from "ethers";
 import { assert } from "chai";
 import curve from "../src";
 import { curve as _curve } from "../src/curve";
-import {
-    deployStablePlainPool,
-    deployStableMetaPool,
-    deployCryptoPool,
-    deployGauge,
-    getDeployedStablePlainPoolAddress,
-    getDeployedStableMetaPoolAddress,
-    getDeployedCryptoPoolAddress,
-    getDeployedGaugeAddress,
-} from '../src/factory/deploy';
+
 
 describe('Factory deploy', function() {
     this.timeout(240000);
@@ -33,19 +24,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -62,19 +53,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -91,19 +82,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -120,19 +111,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -151,19 +142,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -180,19 +171,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -209,19 +200,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -238,19 +229,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -269,19 +260,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -298,19 +289,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -327,19 +318,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -356,19 +347,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStablePlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
-        const poolAddress = await getDeployedStablePlainPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 3);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -388,19 +379,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -418,19 +409,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -450,19 +441,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -480,19 +471,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -512,19 +503,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -542,19 +533,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake Wrapped
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -574,19 +565,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -604,19 +595,19 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployStableMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
-        const poolAddress = await getDeployedStableMetaPoolAddress(deployPoolTx);
+        const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 1);
+        const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
         assert.isTrue(ethers.utils.isAddress(poolAddress));
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, false);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
         assert.isTrue(ethers.utils.isAddress(gaugeAddress));
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedFactoryPool(poolAddress);
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
@@ -635,7 +626,7 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await deployCryptoPool(
+        const deployPoolTx = await curve.cryptoFactory.deployPool(
             "Test crypto pool",
             "TCP",
             coins,
@@ -649,16 +640,16 @@ describe('Factory deploy', function() {
             600,
             1500
         );
-        const poolAddress = await getDeployedCryptoPoolAddress(deployPoolTx);
+        const poolAddress = await curve.cryptoFactory.getDeployedPoolAddress(deployPoolTx);
 
         // Deploy gauge
 
-        const deployGaugeTx = await deployGauge(poolAddress, true);
-        const gaugeAddress = await getDeployedGaugeAddress(deployGaugeTx);
+        const deployGaugeTx = await curve.cryptoFactory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
 
         // Deposit & Stake
 
-        const poolId = await curve.fetchRecentlyDeployedCryptoFactoryPool(poolAddress);
+        const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge);

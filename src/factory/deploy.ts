@@ -4,7 +4,7 @@ import { parseUnits } from "../utils";
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json";
 
 
-// ------- STABLE POOLS -------
+// ------- STABLE PLAIN POOLS -------
 
 
 const _deployStablePlainPool = async (
@@ -67,6 +67,8 @@ export const getDeployedStablePlainPoolAddress = async (tx: ethers.ContractTrans
     return txInfo.logs[0].address;
 }
 
+// ------- STABLE META POOLS -------
+
 const _deployStableMetaPool = async (
     basePool: string,
     name: string,
@@ -121,7 +123,6 @@ export const deployStableMetaPool = async (
 
 export const getDeployedStableMetaPoolAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
     const txInfo = await tx.wait();
-    console.log(txInfo.logs);
     return txInfo.logs[txInfo.logs.length - 3].address;
 }
 
@@ -304,5 +305,5 @@ export const deployGauge = async (pool: string, isCrypto: boolean): Promise<ethe
 export const getDeployedGaugeAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
     const txInfo: ethers.ContractReceipt = await tx.wait();
     // @ts-ignore
-    return txInfo.events[0].args[1];
+    return txInfo.events[0].args[txInfo.events[0].args.length - 1].toLowerCase();
 }

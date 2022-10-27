@@ -568,6 +568,18 @@ class Curve implements ICurve {
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
     }
 
+    async fetchCryptoFactoryPools(useApi = true): Promise<void> {
+        if (![1, 137, 250].includes(this.chainId)) return;
+
+        if (useApi) {
+            this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, true));
+        } else {
+            this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
+        }
+        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
+    }
+
     async fetchRecentlyCreatedFactoryPool(poolAddress: string): Promise<string> {
         if (this.chainId === 1313161554) return '';
 
@@ -579,16 +591,15 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
-    async fetchCryptoFactoryPools(useApi = true): Promise<void> {
-        if (![1, 137, 250].includes(this.chainId)) return;
+    async fetchRecentlyCreatedCryptoFactoryPool(poolAddress: string): Promise<string> {
+        if (![1, 137, 250].includes(this.chainId)) return '';
 
-        if (useApi) {
-            this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, true));
-        } else {
-            this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
-        }
-        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
+        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, poolAddress));
+        this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
+        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
+
+        return Object.keys(poolData)[0]  // id
     }
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {

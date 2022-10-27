@@ -67,6 +67,10 @@ async function fetchRecentlyCreatedFactoryPool(poolAddress: string): Promise<str
     return await _curve.fetchRecentlyCreatedFactoryPool(poolAddress);
 }
 
+async function fetchRecentlyCreatedCryptoFactoryPool(poolAddress: string): Promise<string> {
+    return await _curve.fetchRecentlyCreatedCryptoFactoryPool(poolAddress);
+}
+
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
     _curve.setCustomFeeData(customFeeData);
 }
@@ -79,6 +83,7 @@ const curve = {
     fetchFactoryPools,
     fetchCryptoFactoryPools,
     fetchRecentlyCreatedFactoryPool,
+    fetchRecentlyCreatedCryptoFactoryPool,
     getPoolList,
     getFactoryPoolList,
     getCryptoFactoryPoolList,

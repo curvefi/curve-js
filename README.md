@@ -1265,3 +1265,183 @@ import curve from "@curvefi/api";
     // 324953
 })()
 ```
+
+## Factory
+
+### Deploy stable plain pool
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const coins = [
+        "0x1456688345527bE1f37E9e627DA0837D6f08C925", // USDP
+        "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3", // MIM
+        "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0", // LUSD
+    ];
+
+    // Deploy pool
+    
+    const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 1);
+    // {
+    //     hash: '0xb84206f6a17488459d8dfc9a9f41ae89c71d1920b7aa87ad2eefd3171ba5166c',
+    //     type: 0,
+    //     accessList: null,
+    //     blockHash: '0xf1c7d05a7cebfe2331cca0e8ce0e7b45aac2097934a23c73f6e0b16fac0a9b5f',
+    //     blockNumber: 15839419,
+    //     transactionIndex: 0,
+    //     confirmations: 1,
+    //     from: '0x66aB6D9362d4F35596279692F0251Db635165871',
+    //     gasPrice: BigNumber { _hex: '0x00', _isBigNumber: true },
+    //     gasLimit: BigNumber { _hex: '0x1037c4', _isBigNumber: true },
+    //     to: '0xB9fC157394Af804a3578134A6585C0dc9cc990d4',
+    //         value: BigNumber { _hex: '0x00', _isBigNumber: true },
+    //     nonce: 12,
+    //         data: '0x52f2db69000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001800000000000000000000000001456688345527be1f37e9e627da0837d6f08c92500000000000000000000000099d8a9c45b2eca8864373a26d1459e3dff1e17f30000000000000000000000005f98805a4e8be255a32880fdec7f6728c6568ba0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c800000000000000000000000000000000000000000000000000000000009896800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000095465737420706f6f6c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035453540000000000000000000000000000000000000000000000000000000000',
+    //     r: '0x0f8f0277c982e1cf3153fd5a63a104a0338bf907fdb270589dc847c6f4b6600d',
+    //     s: '0x32e2f279f759673e5254b893539cfe1258338f177e892b46e1edb7b73e869a3d',
+    //     v: 38,
+    //     creates: null,
+    //     chainId: 1,
+    //     wait: [Function (anonymous)]
+    // }
+    const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
+    // 0xa77b5d170f3aec2f72ca06490a7b9383a70ae5eb
+
+    // Deploy gauge
+    
+    const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+    // {
+    //     hash: '0x8bb0eb63430e6c522c30922a833fee263816ebc0f30367d53ecfe52e17b7c3a0',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+    const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+    // 0x1400e08f1d9f5bc90ae19acd4bf81beabc9e79de
+
+    // Deposit & Stake
+
+    const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
+    // factory-v2-221
+    const pool = curve.getPool(poolId);
+
+    await pool.depositAndStake([10, 10, 10]); // Initial amounts for stable pool must be equal
+    const balances = await pool.stats.underlyingBalances();
+    // [ '10.0', '10.0', '10.0' ]
+})()
+```
+
+### Deploy stable meta pool
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const basePool = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7";  // 3pool address
+    const coin = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3"; // MIM
+
+    // Deploy pool
+    
+    const deployPoolTx = await curve.factory.deployMetaPool(basePool, 'Test pool', 'TST', coin, 200, 0.1, 0);
+    // {
+    //     hash: '0xac49dead008ccc04988e513a8502dea35bad721b0c79fa1503054541ee51ea90',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+    const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
+    // 0xd87f26c2f658657779e452dd043df9b2751ae7c4
+
+    // Deploy gauge
+    
+    const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+    // {
+    //     hash: '0x37a53a08d6c71095de8c25bcd4a01b39beec35990f77c7b98355bd064511541f',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+
+    const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+    // 0x326290a1b0004eee78fa6ed4f1d8f4b2523ab669
+
+    // Deposit & Stake Wrapped
+
+    const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
+    // factory-v2-222
+    const pool = curve.getPool(poolId);
+
+    await pool.depositAndStakeWrapped([10, 10]); // Initial amounts for stable pool must be equal
+    const balances = await pool.stats.wrappedBalances();
+    // [ '10.0', '10.0' ]
+})()
+```
+
+### Deploy crypto pool
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const coins = [
+        "0xC581b735A1688071A1746c968e0798D642EDE491", // EURT
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+    ];
+
+    // Deploy pool
+    
+    const deployPoolTx = await curve.cryptoFactory.deployPool(
+        "Test crypto pool",
+        "TCP",
+        coins,
+        400000,
+        0.0000725,
+        0.25,
+        0.45,
+        0.000002,
+        0.00023,
+        0.000146,
+        600,
+        1500
+    );
+    // {
+    //     hash: '0x406900448e537f2fd5c833a4f62a81305b9567e71f870772e10c72271bd78c37',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+    const poolAddress = await curve.cryptoFactory.getDeployedPoolAddress(deployPoolTx);
+    // 0xe01a9ecdb0aaabe2f12a25a0d289480debf09e89
+    
+    // Deploy gauge
+    
+    const deployGaugeTx = await curve.cryptoFactory.deployGauge(poolAddress);
+    // {
+    //     hash: '0x406900448e537f2fd5c833a4f62a81305b9567e71f870772e10c72271bd78c37',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+    const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+    // 0x0b4f303a4434647dbf257e3ae4fb134259f3d4fa
+
+    // Deposit & Stake
+
+    const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
+    // factory-crypto-155
+    const pool = curve.getPool(poolId);
+
+    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    // [ '30', '0.02' ]
+    await pool.depositAndStake(amounts);
+    const underlyingBalances = await pool.stats.underlyingBalances();
+    // [ '30.0', '0.02' ]
+})()
+```

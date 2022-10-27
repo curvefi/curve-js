@@ -68,20 +68,6 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
     }
 }
 
-function setFactoryRewardCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
-    for (const pool of rawPoolList) {
-        for (const rewardCoin of pool.gaugeRewards ?? []) {
-            const addr = rewardCoin.tokenAddress.toLowerCase();
-            if (addr in this.contracts) continue;
-
-            this.contracts[addr] = {
-                contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, ERC20ABI),
-            }
-        }
-    }
-}
-
 export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
     const factoryType = isCrypto ? "factory-crypto" : "factory";
@@ -107,7 +93,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     if (isCrypto) setCryptoFactoryTokenContracts.call(this, rawPoolList);
     setFactoryGaugeContracts.call(this, rawPoolList);
     setFactoryCoinsContracts.call(this, rawPoolList);
-    setFactoryRewardCoinsContracts.call(this, rawPoolList);
     setFactoryZapContracts.call(this, isCrypto);
 
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};

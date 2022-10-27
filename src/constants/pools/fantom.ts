@@ -126,8 +126,8 @@ export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDa
         gauge_abi: gaugeChildABI,
     },
     ib: {
-        name: "ib",
-        full_name: "ib",
+        name: "ironbank",
+        full_name: "ironbank",
         symbol: "ib",
         reference_asset: "USD",
         swap_address: '0x4FC8D635c3cB1d0aa123859e2B2587d0FF2707b1',

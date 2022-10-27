@@ -951,8 +951,8 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
     },
 
     ib: {
-        name: "ib",
-        full_name: "ib",
+        name: "ironbank",
+        full_name: "ironbank",
         symbol: "ib",
         reference_asset: 'USD',
         swap_address: '0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF',

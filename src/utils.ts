@@ -263,6 +263,7 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
 
 const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export const _getUsdRate = async (assetId: string): Promise<number> => {
+    if (curve.chainId === 1 && assetId.toLowerCase() === '0x8762db106b2c2a0bccb3a80d1ed41273552616e8') return 0; // RSR
     const pricesFromApi = await _getUsdPricesFromApi();
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
 
@@ -324,9 +325,9 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
             `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
         const response = await axios.get(url);
         try {
-            _usdRatesCache[assetId] = {'rate': response.data[assetId]['usd'] ?? 1, 'time': Date.now()};
+            _usdRatesCache[assetId] = {'rate': response.data[assetId]['usd'] ?? 0, 'time': Date.now()};
         } catch (err) { // TODO pay attention!
-            _usdRatesCache[assetId] = {'rate': 1, 'time': Date.now()};
+            _usdRatesCache[assetId] = {'rate': 0, 'time': Date.now()};
         }
     }
 

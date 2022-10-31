@@ -178,8 +178,8 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);
 
-            if (!_userClaimableCache[address]) _userClaimableCache[address] = { [poolId]: { rewards: [], time: Date.now() } };
-            if (!_userClaimableCache[address][poolId]) _userClaimableCache[address][poolId] = { rewards: [], time: Date.now() };
+            if (!_userClaimableCache[address]) _userClaimableCache[address] = {};
+            _userClaimableCache[address][poolId] = { rewards: [], time: Date.now() };
             if (pool.gauge === ethers.constants.AddressZero) continue;
 
             const gaugeContract = curve.contracts[pool.gauge].contract;

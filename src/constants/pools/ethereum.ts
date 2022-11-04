@@ -1586,8 +1586,8 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         token_address: "0xf43211935C781D5ca1a41d2041F397B8A7366C7A",
         gauge_address: "0x2932a86df44Fe8D2A706d8e9c5d51c24883423F5",
         is_plain: true,
-        underlying_coins: ['ETH', 'frxrETH'],
-        wrapped_coins: ['ETH', 'frxrETH'],
+        underlying_coins: ['ETH', 'frxETH'],
+        wrapped_coins: ['ETH', 'frxETH'],
         underlying_coin_addresses: [
             '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
             '0x5E8422345238F34275888049021821E8E08CAa1f',

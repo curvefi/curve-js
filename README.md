@@ -964,6 +964,8 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+    await curve.fetchFactoryPools();
+    await curve.getCryptoFactoryPoolList();
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '9900.0', '100049.744832225238317557' ]

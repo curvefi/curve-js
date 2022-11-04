@@ -17,10 +17,10 @@ import curve from "@curvefi/api";
     await curve.init('JsonRpc', {}, {}); // In this case JsonRpc url, privateKey, fee data and chainId will be specified automatically
 
     // 2. Infura
-    curve.init("Infura", { network: "homestead", apiKey: <INFURA_KEY> }, { chainId: 1 });
+    await curve.init("Infura", { network: "homestead", apiKey: <INFURA_KEY> }, { chainId: 1 });
     
     // 3. Web3 provider
-    curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
+    await curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
     
     // Fetch factory pools
     await curve.fetchFactoryPools();

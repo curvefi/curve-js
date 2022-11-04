@@ -95,6 +95,7 @@ export interface IPoolDataFromApi {
     gaugeRewards?: IReward[],
     usdTotal: number,
     totalSupply: number,
+    amplificationCoefficient: string,
 }
 
 export interface ISubgraphPoolData {

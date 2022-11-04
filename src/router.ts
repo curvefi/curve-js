@@ -38,7 +38,7 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
 
     const basePoolsSet: Set<string> = new Set();
     for (const pool of ALL_POOLS) {
-        if (pool[1].base_pool) basePoolsSet.add(pool[1].base_pool);
+        if (pool[1].wrapped_coin_addresses.length < 4) basePoolsSet.add(pool[0]);
     }
     const basePoolIds = Array.from(basePoolsSet);
 
@@ -71,24 +71,24 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                     meta_coin: meta_coin_addresses ? meta_coin_addresses.indexOf(inCoin) : -1,
                 }
 
-                // LP -> underlying coin "swaps" (actually remove_liquidity_one_coin)
+                // LP -> wrapped coin "swaps" (actually remove_liquidity_one_coin)
                 if (basePoolIds.includes(poolId) && inCoin === token_address) {
-                    for (let j = 0; j < underlying_coin_addresses.length; j++) {
+                    for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         // If this coin already marked or will be marked on the current step, no need to consider it on the next step
-                        if (markedCoins.includes(underlying_coin_addresses[j]) || curCoins.includes(underlying_coin_addresses[j])) continue;
+                        if (markedCoins.includes(wrapped_coin_addresses[j]) || curCoins.includes(wrapped_coin_addresses[j])) continue;
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
 
                         const swapType = poolId === 'aave' ? 11 : 10;
                         for (const inCoinRoute of routes[inCoin]) {
-                            routes[underlying_coin_addresses[j]] = (routes[underlying_coin_addresses[j]] ?? []).concat(
+                            routes[wrapped_coin_addresses[j]] = (routes[wrapped_coin_addresses[j]] ?? []).concat(
                                 [[
                                     ...inCoinRoute,
                                     {
                                         poolId,
                                         poolAddress: poolData.swap_address,
                                         inputCoinAddress: inCoin,
-                                        outputCoinAddress: underlying_coin_addresses[j],
+                                        outputCoinAddress: wrapped_coin_addresses[j],
                                         i: 0,
                                         j,
                                         swapType,
@@ -98,18 +98,18 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                             );
                         }
 
-                        nextCoins.add(underlying_coin_addresses[j]);
+                        nextCoins.add(wrapped_coin_addresses[j]);
                     }
                 }
 
-                // Underlying coin -> LP "swaps" (actually add_liquidity)
-                if (basePoolIds.includes(poolId) && underlying_coin_addresses.includes(inCoin)) {
+                // Wrapped coin -> LP "swaps" (actually add_liquidity)
+                if (basePoolIds.includes(poolId) && wrapped_coin_addresses.includes(inCoin)) {
                     // If this coin already marked or will be marked on the current step, no need to consider it on the next step
                     if (markedCoins.includes(token_address) || curCoins.includes(token_address)) continue;
                     // Looking for outputCoinAddress only on the final step
                     if (step === 3 && token_address !== outputCoinAddress) continue;
 
-                    const swapType = is_lending ? 9 : underlying_coin_addresses.length === 2 ? 7 : 8;
+                    const swapType = is_lending ? 9 : wrapped_coin_addresses.length === 2 ? 7 : 8;
                     for (const inCoinRoute of routes[inCoin]) {
                         routes[token_address] = (routes[token_address] ?? []).concat(
                             [[
@@ -119,7 +119,7 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
                                     poolAddress: poolData.swap_address,
                                     inputCoinAddress: inCoin,
                                     outputCoinAddress: token_address,
-                                    i: underlying_coin_addresses.indexOf(inCoin),
+                                    i: wrapped_coin_addresses.indexOf(inCoin),
                                     j: 0,
                                     swapType,
                                     swapAddress: ethers.constants.AddressZero,

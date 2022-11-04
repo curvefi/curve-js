@@ -971,7 +971,7 @@ import curve from "@curvefi/api";
     // [ '9900.0', '100049.744832225238317557' ]
 
     const { route, output } = await curve.router.getBestRouteAndOutput('DAI', 'CRV', '1000');
-    // OR await curve.router.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
+    // OR await curve.router.getBestRouteAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     const expected = await curve.router.expected('DAI', 'CRV', '1000');
     // OR await curve.router.expected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     const priceImpact = await curve.router.priceImpact('DAI', 'CRV', '1000');

@@ -3,6 +3,7 @@ import { getPool } from "./poolConstructor";
 import { IDict } from "../interfaces";
 import { curve } from "../curve";
 import { _getUsdRate, _setContracts, toBN } from "../utils";
+import { _getPoolsFromApi } from "../external-api";
 import ERC20Abi from "../constants/abis/ERC20.json";
 
 
@@ -262,4 +263,24 @@ export const getUserPoolList = async (address = curve.signerAddress): Promise<st
     }
 
     return userPoolList
+}
+
+export const _getAmplificationCoefficientsFromApi = async (): Promise<IDict<number>> => {
+    const network = curve.constants.NETWORK_NAME;
+    const promises = [
+        _getPoolsFromApi(network, "main"),
+        _getPoolsFromApi(network, "crypto"),
+        _getPoolsFromApi(network, "factory"),
+        _getPoolsFromApi(network, "factory-crypto"),
+    ];
+    const allTypesExtendedPoolData = await Promise.all(promises);
+    const amplificationCoefficientDict: IDict<number> = {};
+
+    for (const extendedPoolData of allTypesExtendedPoolData) {
+        for (const pool of extendedPoolData.poolData) {
+            amplificationCoefficientDict[pool.address] = Number(pool.amplificationCoefficient);
+        }
+    }
+
+    return amplificationCoefficientDict
 }

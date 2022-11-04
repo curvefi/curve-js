@@ -14,7 +14,6 @@ import {
     hasAllowance,
     isEth,
     toBN,
-    BN,
     parseUnits,
     _cutZeros,
     ETH_ADDRESS,
@@ -22,6 +21,7 @@ import {
     _get_price_impact,
 } from "./utils";
 import { getPool } from "./pools";
+import { _getAmplificationCoefficientsFromApi } from "./pools/utils";
 
 const MAX_ROUTES_FOR_ONE_COIN = 3;
 const MIN_TVL_THRESHOLD = 5000000;
@@ -239,6 +239,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
         ...curve.constants.FACTORY_POOLS_DATA as IDict<IPoolData>,
         ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<IPoolData>,
     });
+    const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
 
     const basePoolsSet: Set<string> = new Set();
     for (const pool of ALL_POOLS) {
@@ -265,6 +266,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                 const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
                 const token_address = poolData.token_address.toLowerCase();
                 const is_lending = poolData.is_lending ?? false;
+                const minTvlMultiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
 
                 const inCoinIndexes = {
                     wrapped_coin: wrapped_coin_addresses.indexOf(inCoin),
@@ -307,7 +309,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                                         swapAddress: ethers.constants.AddressZero,
                                     },
                                 ],
-                                minTvl: Math.min(tvl, route.minTvl),
+                                minTvl: Math.min(tvl, route.minTvl * minTvlMultiplier),
                             } as IRoute_
                         });
 
@@ -350,7 +352,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                                     swapAddress: ethers.constants.AddressZero,
                                 },
                             ],
-                            minTvl: Math.min(tvl, route.minTvl),
+                            minTvl: Math.min(tvl, route.minTvl * minTvlMultiplier),
                         } as IRoute_
                     });
 
@@ -402,7 +404,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                                         swapAddress: ethers.constants.AddressZero,
                                     },
                                 ],
-                                minTvl: Math.min(tvl, route.minTvl),
+                                minTvl: Math.min(tvl, route.minTvl * minTvlMultiplier),
                             } as IRoute_
                         });
 
@@ -464,7 +466,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                                         swapAddress: (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
                                     },
                                 ],
-                                minTvl: Math.min(tvl, route.minTvl),
+                                minTvl: Math.min(tvl, route.minTvl * minTvlMultiplier),
                             } as IRoute_
                         });
 

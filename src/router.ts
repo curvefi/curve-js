@@ -24,7 +24,6 @@ import { getPool } from "./pools";
 import { _getAmplificationCoefficientsFromApi } from "./pools/utils";
 
 const MAX_ROUTES_FOR_ONE_COIN = 3;
-const MIN_TVL_THRESHOLD = 5000000;
 
 // Inspired by Dijkstra's algorithm
 export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
@@ -319,7 +318,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                             .filter((r) => r.steps.length > 0)
                             .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
                             .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                            .sort((a, b) => Math.min(b.minTvl, MIN_TVL_THRESHOLD) - Math.min(a.minTvl, MIN_TVL_THRESHOLD) || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                            .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
 
                         nextCoins.add(underlying_coin_addresses[j]);
                     }
@@ -362,7 +361,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                         .filter((r) => r.steps.length > 0)
                         .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
                         .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                        .sort((a, b) => Math.min(b.minTvl, MIN_TVL_THRESHOLD) - Math.min(a.minTvl, MIN_TVL_THRESHOLD) || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                        .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
 
                     nextCoins.add(token_address);
                 }
@@ -414,7 +413,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                             .filter((r) => r.steps.length > 0)
                             .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
                             .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                            .sort((a, b) => Math.min(b.minTvl, MIN_TVL_THRESHOLD) - Math.min(a.minTvl, MIN_TVL_THRESHOLD) || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                            .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
 
                         nextCoins.add(wrapped_coin_addresses[j]);
                     }
@@ -476,7 +475,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                             .filter((r) => r.steps.length > 0)
                             .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
                             .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                            .sort((a, b) => Math.min(b.minTvl, MIN_TVL_THRESHOLD) - Math.min(a.minTvl, MIN_TVL_THRESHOLD) || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                            .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
 
                         nextCoins.add(underlying_coin_addresses[j]);
                     }

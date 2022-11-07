@@ -228,6 +228,41 @@ export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string
     return routes[outputCoinAddress] ?? []
 }
 
+const getNewRoute = (
+    route: IRoute_,
+    poolId: string,
+    poolAddress: string,
+    inputCoinAddress: string,
+    outputCoinAddress: string,
+    i: number,
+    j: number,
+    swapType: number,
+    swapAddress: string,
+    tvl: number
+) => {
+    const routePoolIds = route.steps.map((s) => s.poolId);
+    // Steps <= 4
+    if (routePoolIds.length >= 4) return { steps: [], minTvl: Infinity };
+    // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
+    if (routePoolIds.includes(poolId)) return { steps: [], minTvl: Infinity };
+    return {
+        steps: [...route.steps, { poolId, poolAddress, inputCoinAddress, outputCoinAddress, i, j, swapType, swapAddress }],
+        minTvl: Math.min(tvl, route.minTvl),
+    } as IRoute_
+}
+
+const filterRoutes = (routes: IRoute_[], inputCoinAddress: string, sortFn: (a: IRoute_, b: IRoute_) => number) => {
+    const routesByPoolIds = routes.map((r) => r.steps.map((s) => s.poolId).toString());
+    return routes
+        .filter((r) => r.steps.length > 0)
+        .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
+        .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
+        .sort(sortFn).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+}
+
+const sortByTvl = (a: IRoute_, b: IRoute_) => b.minTvl - a.minTvl || a.steps.length - b.steps.length;
+const sortByLength = (a: IRoute_, b: IRoute_) => a.steps.length - b.steps.length || b.minTvl - a.minTvl;
+
 // Inspired by Dijkstra's algorithm
 export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
     inputCoinAddress = inputCoinAddress.toLowerCase();
@@ -242,7 +277,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
 
     const basePoolsSet: Set<string> = new Set();
     for (const pool of ALL_POOLS) {
-        if (pool[1].base_pool) basePoolsSet.add(pool[1].base_pool);
+        if (pool[1].wrapped_coin_addresses.length < 4) basePoolsSet.add(pool[0]);
     }
     const basePoolIds = Array.from(basePoolsSet);
 
@@ -251,7 +286,10 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
     // Coins we will search routes for on the next step
     let nextCoins: Set<string> = new Set();
     // Routes for all coins found
-    const routes: IDict<IRoute_[]> = {
+    const routesByTvl: IDict<IRoute_[]> = {
+        [inputCoinAddress]: [{ steps: [], minTvl: Infinity }],
+    };
+    const routesByLength: IDict<IRoute_[]> = {
         [inputCoinAddress]: [{ steps: [], minTvl: Infinity }],
     };
 
@@ -273,95 +311,107 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                     meta_coin: meta_coin_addresses ? meta_coin_addresses.indexOf(inCoin) : -1,
                 }
 
-                // No input coin in this pool --> skip
+                // Skip pools which don't contain inCoin
                 if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1 && inCoin !== token_address) continue;
 
-                // LP -> underlying coin "swaps" (actually remove_liquidity_one_coin)
+                const tvl = Number(await (getPool(poolId)).stats.totalLiquidity()) * tvlMultiplier;
+                // Skip empty pools
+                if (tvl === 0) continue;
+
+                // LP -> wrapped coin "swaps" (actually remove_liquidity_one_coin)
                 if (basePoolIds.includes(poolId) && inCoin === token_address) {
-                    for (let j = 0; j < underlying_coin_addresses.length; j++) {
+                    for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
 
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
-                        const outputCoinIdx = underlying_coin_addresses.indexOf(outputCoinAddress);
+                        const outputCoinIdx = wrapped_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
-                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity()); // Base pool tvl can't be 0
                         const swapType = poolId === 'aave' ? 11 : 10;
-                        const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
-                            const routePoolIds = route.steps.map((s) => s.poolId);
-                            // Steps <= 4
-                            if (routePoolIds.length >= 4) return { steps: [], minTvl: -1 };
-                            // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
-                            if (routePoolIds.includes(poolId)) return { steps: [], minTvl: -1 };
-                            return {
-                                steps: [
-                                    ...route.steps,
-                                    {
-                                        poolId,
-                                        poolAddress: poolData.swap_address,
-                                        inputCoinAddress: inCoin,
-                                        outputCoinAddress: underlying_coin_addresses[j],
-                                        i: 0,
-                                        j,
-                                        swapType,
-                                        swapAddress: ethers.constants.AddressZero,
-                                    },
-                                ],
-                                minTvl: Math.min(tvl * tvlMultiplier, route.minTvl),
-                            } as IRoute_
-                        });
 
-                        routes[underlying_coin_addresses[j]] = [...(routes[underlying_coin_addresses[j]] ?? []), ...newRoutes]
-                        const routesByPoolIds = routes[underlying_coin_addresses[j]].map((r) => r.steps.map((s) => s.poolId).toString());
-                        routes[underlying_coin_addresses[j]] = routes[underlying_coin_addresses[j]]
-                            .filter((r) => r.steps.length > 0)
-                            .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
-                            .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                            .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                        const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(
+                            (route) => getNewRoute(
+                                route,
+                                poolId,
+                                poolData.swap_address,
+                                inCoin,
+                                wrapped_coin_addresses[j],
+                                0,
+                                j,
+                                swapType,
+                                ethers.constants.AddressZero,
+                                tvl
+                            )
+                        );
 
-                        nextCoins.add(underlying_coin_addresses[j]);
+                        const newRoutesByLength: IRoute_[] = routesByLength[inCoin].map(
+                            (route) => getNewRoute(
+                                route,
+                                poolId,
+                                poolData.swap_address,
+                                inCoin,
+                                wrapped_coin_addresses[j],
+                                0,
+                                j,
+                                swapType,
+                                ethers.constants.AddressZero,
+                                tvl
+                            )
+                        );
+
+                        routesByTvl[wrapped_coin_addresses[j]] = [...(routesByTvl[wrapped_coin_addresses[j]] ?? []), ...newRoutesByTvl]
+                        routesByTvl[wrapped_coin_addresses[j]] = filterRoutes(routesByTvl[wrapped_coin_addresses[j]], inputCoinAddress, sortByTvl);
+
+                        routesByLength[wrapped_coin_addresses[j]] = [...(routesByLength[wrapped_coin_addresses[j]] ?? []), ...newRoutesByLength]
+                        routesByLength[wrapped_coin_addresses[j]] = filterRoutes(routesByLength[wrapped_coin_addresses[j]], inputCoinAddress, sortByLength);
+
+                        nextCoins.add(wrapped_coin_addresses[j]);
                     }
                 }
 
-                // Underlying coin -> LP "swaps" (actually add_liquidity)
-                if (basePoolIds.includes(poolId) && inCoinIndexes.underlying_coin >= 0) {
+                // Wrapped coin -> LP "swaps" (actually add_liquidity)
+                if (basePoolIds.includes(poolId) && inCoinIndexes.wrapped_coin >= 0) {
                     // Looking for outputCoinAddress only on the final step
                     if (step === 3 && token_address !== outputCoinAddress) continue;
 
-                    const tvl = Number(await (getPool(poolId)).stats.totalLiquidity()); // Base pool tvl can't be 0
-                    const swapType = is_lending ? 9 : underlying_coin_addresses.length === 2 ? 7 : 8;  // TODO change for atricrypto3 base pool
-                    const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
-                        const routePoolIds = route.steps.map((s) => s.poolId);
-                        // Steps <= 4
-                        if (routePoolIds.length >= 4) return { steps: [], minTvl: -1 };
-                        // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
-                        if (routePoolIds.includes(poolId)) return { steps: [], minTvl: -1 };
-                        return {
-                            steps: [
-                                ...route.steps,
-                                {
-                                    poolId,
-                                    poolAddress: poolData.swap_address,
-                                    inputCoinAddress: inCoin,
-                                    outputCoinAddress: token_address,
-                                    i: underlying_coin_addresses.indexOf(inCoin),
-                                    j: 0,
-                                    swapType,
-                                    swapAddress: ethers.constants.AddressZero,
-                                },
-                            ],
-                            minTvl: Math.min(tvl * tvlMultiplier, route.minTvl),
-                        } as IRoute_
-                    });
+                    const swapType = is_lending ? 9 : wrapped_coin_addresses.length === 2 ? 7 : 8;  // TODO change for atricrypto3 base pool
 
-                    routes[token_address] = [...(routes[token_address] ?? []), ...newRoutes]
-                    const routesByPoolIds = routes[token_address].map((r) => r.steps.map((s) => s.poolId).toString());
-                    routes[token_address] = routes[token_address]
-                        .filter((r) => r.steps.length > 0)
-                        .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
-                        .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                        .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                    const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(
+                        (route) => getNewRoute(
+                            route,
+                            poolId,
+                            poolData.swap_address,
+                            inCoin,
+                            token_address,
+                            wrapped_coin_addresses.indexOf(inCoin),
+                            0,
+                            swapType,
+                            ethers.constants.AddressZero,
+                            tvl
+                        )
+                    );
+
+                    const newRoutesByLength: IRoute_[] = routesByLength[inCoin].map(
+                        (route) => getNewRoute(
+                            route,
+                            poolId,
+                            poolData.swap_address,
+                            inCoin,
+                            token_address,
+                            wrapped_coin_addresses.indexOf(inCoin),
+                            0,
+                            swapType,
+                            ethers.constants.AddressZero,
+                            tvl
+                        )
+                    );
+
+                    routesByTvl[token_address] = [...(routesByTvl[token_address] ?? []), ...newRoutesByTvl]
+                    routesByTvl[token_address] = filterRoutes(routesByTvl[token_address], inputCoinAddress, sortByTvl);
+
+                    routesByLength[token_address] = [...(routesByLength[token_address] ?? []), ...newRoutesByLength];
+                    routesByLength[token_address] = filterRoutes(routesByLength[token_address], inputCoinAddress, sortByLength);
 
                     nextCoins.add(token_address);
                 }
@@ -378,42 +428,43 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                         const outputCoinIdx = wrapped_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
-                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
-                        // Skip empty pools
-                        if (tvl === 0) continue;
-
                         const swapType = poolData.is_crypto ? 3 : 1;
-                        const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
-                            const routePoolIds = route.steps.map((s) => s.poolId);
-                            // Steps <= 4
-                            if (routePoolIds.length >= 4) return { steps: [], minTvl: -1 };
-                            // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
-                            if (routePoolIds.includes(poolId)) return { steps: [], minTvl: -1 };
-                            return {
-                                steps: [
-                                    ...route.steps,
-                                    {
-                                        poolId,
-                                        poolAddress: poolData.swap_address,
-                                        inputCoinAddress: inCoin,
-                                        outputCoinAddress: wrapped_coin_addresses[j],
-                                        i: inCoinIndexes.wrapped_coin,
-                                        j,
-                                        swapType,
-                                        swapAddress: ethers.constants.AddressZero,
-                                    },
-                                ],
-                                minTvl: Math.min(tvl * tvlMultiplier, route.minTvl),
-                            } as IRoute_
-                        });
 
-                        routes[wrapped_coin_addresses[j]] = [...(routes[wrapped_coin_addresses[j]] ?? []), ...newRoutes];
-                        const routesByPoolIds = routes[wrapped_coin_addresses[j]].map((r) => r.steps.map((s) => s.poolId).toString());
-                        routes[wrapped_coin_addresses[j]] = routes[wrapped_coin_addresses[j]]
-                            .filter((r) => r.steps.length > 0)
-                            .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
-                            .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                            .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                        const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(
+                            (route) => getNewRoute(
+                                route,
+                                poolId,
+                                poolData.swap_address,
+                                inCoin,
+                                wrapped_coin_addresses[j],
+                                inCoinIndexes.wrapped_coin,
+                                j,
+                                swapType,
+                                ethers.constants.AddressZero,
+                                tvl
+                            )
+                        );
+
+                        const newRoutesByLength: IRoute_[] = routesByLength[inCoin].map(
+                            (route) => getNewRoute(
+                                route,
+                                poolId,
+                                poolData.swap_address,
+                                inCoin,
+                                wrapped_coin_addresses[j],
+                                inCoinIndexes.wrapped_coin,
+                                j,
+                                swapType,
+                                ethers.constants.AddressZero,
+                                tvl
+                            )
+                        );
+
+                        routesByTvl[wrapped_coin_addresses[j]] = [...(routesByTvl[wrapped_coin_addresses[j]] ?? []), ...newRoutesByTvl];
+                        routesByTvl[wrapped_coin_addresses[j]] = filterRoutes(routesByTvl[wrapped_coin_addresses[j]], inputCoinAddress, sortByTvl);
+
+                        routesByLength[wrapped_coin_addresses[j]] = [...(routesByLength[wrapped_coin_addresses[j]] ?? []), ...newRoutesByLength];
+                        routesByLength[wrapped_coin_addresses[j]] = filterRoutes(routesByLength[wrapped_coin_addresses[j]], inputCoinAddress, sortByLength);
 
                         nextCoins.add(wrapped_coin_addresses[j]);
                     }
@@ -445,37 +496,42 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                             : hasEth ? 3
                             : poolData.is_crypto ? 4
                             : 2;
-                        const newRoutes: IRoute_[] = routes[inCoin].map((route) => {
-                            const routePoolIds = route.steps.map((s) => s.poolId);
-                            // Steps <= 4
-                            if (routePoolIds.length >= 4) return { steps: [], minTvl: -1 };
-                            // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
-                            if (routePoolIds.includes(poolId)) return { steps: [], minTvl: -1 };
-                            return {
-                                steps: [
-                                    ...route.steps,
-                                    {
-                                        poolId,
-                                        poolAddress,
-                                        inputCoinAddress: inCoin,
-                                        outputCoinAddress: underlying_coin_addresses[j],
-                                        i: inCoinIndexes.underlying_coin,
-                                        j,
-                                        swapType,
-                                        swapAddress: (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
-                                    },
-                                ],
-                                minTvl: Math.min(tvl * tvlMultiplier, route.minTvl),
-                            } as IRoute_
-                        });
 
-                        routes[underlying_coin_addresses[j]] = [...(routes[underlying_coin_addresses[j]] ?? []), ...newRoutes];
-                        const routesByPoolIds = routes[underlying_coin_addresses[j]].map((r) => r.steps.map((s) => s.poolId).toString());
-                        routes[underlying_coin_addresses[j]] = routes[underlying_coin_addresses[j]]
-                            .filter((r) => r.steps.length > 0)
-                            .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
-                            .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
-                            .sort((a, b) => b.minTvl - a.minTvl || a.steps.length - b.steps.length).slice(0, MAX_ROUTES_FOR_ONE_COIN);
+                        const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(
+                            (route) => getNewRoute(
+                                route,
+                                poolId,
+                                poolAddress,
+                                inCoin,
+                                underlying_coin_addresses[j],
+                                inCoinIndexes.underlying_coin,
+                                j,
+                                swapType,
+                                (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
+                                tvl
+                            )
+                        );
+
+                        const newRoutesByLength: IRoute_[] = routesByLength[inCoin].map(
+                            (route) => getNewRoute(
+                                route,
+                                poolId,
+                                poolAddress,
+                                inCoin,
+                                underlying_coin_addresses[j],
+                                inCoinIndexes.underlying_coin,
+                                j,
+                                swapType,
+                                (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
+                                tvl
+                            )
+                        );
+
+                        routesByTvl[underlying_coin_addresses[j]] = [...(routesByTvl[underlying_coin_addresses[j]] ?? []), ...newRoutesByTvl];
+                        routesByTvl[underlying_coin_addresses[j]] = filterRoutes(routesByTvl[underlying_coin_addresses[j]], inputCoinAddress, sortByTvl);
+
+                        routesByLength[underlying_coin_addresses[j]] = [...(routesByLength[underlying_coin_addresses[j]] ?? []), ...newRoutesByLength];
+                        routesByLength[underlying_coin_addresses[j]] = filterRoutes(routesByLength[underlying_coin_addresses[j]], inputCoinAddress, sortByLength);
 
                         nextCoins.add(underlying_coin_addresses[j]);
                     }
@@ -487,7 +543,8 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
         nextCoins = new Set();
     }
 
-    return routes[outputCoinAddress] ? routes[outputCoinAddress].map((r) => r.steps) : [];
+    const routes = [...(routesByTvl[outputCoinAddress] ?? []), ...(routesByLength[outputCoinAddress] ?? [])];
+    return routes.map((r) => r.steps);
 }
 
 export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {

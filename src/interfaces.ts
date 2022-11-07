@@ -125,6 +125,7 @@ export interface IRouteStep {
 export interface IRoute_ {
     steps: IRouteStep[],
     minTvl: number,
+    totalTvl: number,
 }
 
 export interface IRoute {

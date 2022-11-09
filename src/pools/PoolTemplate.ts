@@ -1752,7 +1752,7 @@ export class PoolTemplate {
         const _smallOutput = await this._swapExpected(i, j, _smallAmount);
         const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals)
 
-        return Number(_cutZeros(priceImpactBN.toFixed(4)).replace('-', ''))
+        return Number(_cutZeros(priceImpactBN.toFixed(4)))
     }
 
     private _swapContractAddress(): string {
@@ -1817,7 +1817,7 @@ export class PoolTemplate {
         const _smallOutput = await this._swapWrappedExpected(i, j, _smallAmount);
         const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals)
 
-        return Number(_cutZeros(priceImpactBN.toFixed(4)).replace('-', ''))
+        return Number(_cutZeros(priceImpactBN.toFixed(4)))
     }
 
     // OVERRIDE

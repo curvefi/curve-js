@@ -398,6 +398,7 @@ export const _get_price_impact = (
     const small_y_BN = toBN(_small_y, y_decimals);
     const rateBN = y_BN.div(x_BN);
     const smallRateBN = small_y_BN.div(small_x_BN);
+    if (rateBN.gt(smallRateBN)) return BN(0);
 
     return BN(1).minus(rateBN.div(smallRateBN)).times(100);
 }

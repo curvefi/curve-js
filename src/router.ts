@@ -735,7 +735,7 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
     const _amount = parseUnits(amount, inputCoinDecimals);
     const _output = route._output;
 
-    const smallAmountIntBN = _get_small_x(_amount, _output, inputCoinDecimals, outputCoinDecimals)
+    const smallAmountIntBN = _get_small_x(_amount, _output, inputCoinDecimals, outputCoinDecimals);
     const amountIntBN = toBN(_amount, 0);
     if (smallAmountIntBN.gte(amountIntBN)) return 0;
 
@@ -745,7 +745,7 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
     const _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
     const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals);
 
-    return Number(_cutZeros(priceImpactBN.toFixed(4)).replace('-', ''))
+    return Number(_cutZeros(priceImpactBN.toFixed(4)))
 }
 
 export const swapIsApproved = async (inputCoin: string, amount: number | string): Promise<boolean> => {

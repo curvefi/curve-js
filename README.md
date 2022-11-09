@@ -17,10 +17,10 @@ import curve from "@curvefi/api";
     await curve.init('JsonRpc', {}, {}); // In this case JsonRpc url, privateKey, fee data and chainId will be specified automatically
 
     // 2. Infura
-    curve.init("Infura", { network: "homestead", apiKey: <INFURA_KEY> }, { chainId: 1 });
+    await curve.init("Infura", { network: "homestead", apiKey: <INFURA_KEY> }, { chainId: 1 });
     
     // 3. Web3 provider
-    curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
+    await curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
     
     // Fetch factory pools
     await curve.fetchFactoryPools();
@@ -964,12 +964,14 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+    await curve.fetchFactoryPools();
+    await curve.getCryptoFactoryPoolList();
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '9900.0', '100049.744832225238317557' ]
 
     const { route, output } = await curve.router.getBestRouteAndOutput('DAI', 'CRV', '1000');
-    // OR await curve.router.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
+    // OR await curve.router.getBestRouteAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     const expected = await curve.router.expected('DAI', 'CRV', '1000');
     // OR await curve.router.expected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     const priceImpact = await curve.router.priceImpact('DAI', 'CRV', '1000');

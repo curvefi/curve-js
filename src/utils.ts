@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { ethers, Contract } from 'ethers';
+import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import { IDict, INetworkName } from './interfaces';
 import { curve } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
-import {Contract as MulticallContract} from "ethcall";
+import ERC20Abi from './constants/abis/ERC20.json';
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -404,4 +405,34 @@ export const _get_price_impact = (
     if (rateBN.gt(smallRateBN)) return BN(0);
 
     return BN(1).minus(rateBN.div(smallRateBN)).times(100);
+}
+
+export const getCoinNamesAndSymbols = async (coins: string[]): Promise<{name: string, symbol: string}[]> => {
+    const coinAddresses = _getCoinAddressesNoCheck(coins);
+
+    const ethIndex = getEthIndex(coinAddresses);
+    if (ethIndex !== -1) {
+        coinAddresses.splice(ethIndex, 1);
+    }
+
+    const contractCalls = [];
+    for (const coinAddr of coinAddresses) {
+        const coinContract = new MulticallContract(coinAddr, ERC20Abi);
+        contractCalls.push(coinContract.name(), coinContract.symbol());
+    }
+    const _response: string[] = await curve.multicallProvider.all(contractCalls);
+
+    if (ethIndex !== -1) {
+        _response.splice(ethIndex * 2, 0, ...['Ethereum', 'ETH']);
+    }
+
+    const res: {name: string, symbol: string}[]  = [];
+    coins.forEach((address: string, i: number) => {
+        res.push({
+            name: _response.shift() as string,
+            symbol: _response.shift() as string,
+        })
+    });
+
+    return res;
 }

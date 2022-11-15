@@ -205,8 +205,8 @@ export class PoolTemplate {
     }
 
     private statsParameters = async (): Promise<{
-        lpTokenSupply: string,
         virtualPrice: string,
+        lpTokenSupply: string,
         fee: string, // %
         adminFee: string, // %
         A: string,
@@ -220,8 +220,8 @@ export class PoolTemplate {
         const lpMulticallContract = curve.contracts[this.lpToken].multicallContract;
 
         const calls = [
-            lpMulticallContract.totalSupply(),
             multicallContract.get_virtual_price(),
+            lpMulticallContract.totalSupply(),
             multicallContract.fee(),
             multicallContract.admin_fee(),
             multicallContract.A(),
@@ -237,15 +237,20 @@ export class PoolTemplate {
             );
         }
 
-        const [_lpTokenSupply, _virtualPrice, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
-        const [lpTokenSupply, virtualPrice, fee, adminFee, A, gamma] = [
-            ethers.utils.formatUnits(_lpTokenSupply),
+        let [_virtualPrice, _lpTokenSupply, _fee, _adminFee, _A, _gamma] = Array(6).fill(ethers.BigNumber.from(0));
+        try {
+            [_virtualPrice, _lpTokenSupply, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+        } catch (e) { // Empty pool
+            calls.shift();
+            [_lpTokenSupply, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+        }
+        const [virtualPrice, lpTokenSupply, fee, adminFee, A, gamma] = [
             ethers.utils.formatUnits(_virtualPrice),
+            ethers.utils.formatUnits(_lpTokenSupply),
             ethers.utils.formatUnits(_fee, 8),
             ethers.utils.formatUnits(_adminFee.mul(_fee)),
             ethers.utils.formatUnits(_A, 0),
             _gamma ? ethers.utils.formatUnits(_gamma) : _gamma,
-
         ]
 
         const A_PRECISION = curve.chainId === 1 && ['compound', 'usdt', 'y', 'busd', 'susd', 'pax', 'ren', 'sbtc', 'hbtc', '3pool'].includes(this.id) ? 1 : 100;
@@ -257,7 +262,7 @@ export class PoolTemplate {
             _initial_A_time ? Number(ethers.utils.formatUnits(_initial_A_time, 0)) * 1000 : undefined,
         ]
 
-        return { lpTokenSupply, virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma };
+        return { virtualPrice, lpTokenSupply, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma };
     }
 
     private async statsWrappedBalances(): Promise<string[]> {

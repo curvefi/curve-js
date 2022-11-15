@@ -58,6 +58,21 @@ import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAur
 import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava";
 import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
+import { _getAllGauges } from "./external-api";
+
+const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
+    const gaugeData = await _getAllGauges();
+    const isKilled: IDict<boolean> = {};
+    Object.values(gaugeData).forEach((d) => {
+        isKilled[d.gauge.toLowerCase()] = d.is_killed ?? false;
+    });
+
+    for (const poolId in poolsData) {
+        if (isKilled[poolsData[poolId].gauge_address]) {
+            poolsData[poolId].gauge_address = ethers.constants.AddressZero;
+        }
+    }
+}
 
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string }} = {
     1: {  // ETH
@@ -371,6 +386,8 @@ class Curve implements ICurve {
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
 
+        await _killGauges(this.constants.POOLS_DATA);
+
         this.multicallProvider = new MulticallProvider();
         await this.multicallProvider.init(this.provider);
 
@@ -585,6 +602,8 @@ class Curve implements ICurve {
         }
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
+
+        await _killGauges(this.constants.FACTORY_POOLS_DATA);
     }
 
     async fetchCryptoFactoryPools(useApi = true): Promise<void> {
@@ -597,6 +616,8 @@ class Curve implements ICurve {
         }
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
+
+        await _killGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
     }
 
     async fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {

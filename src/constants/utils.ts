@@ -57,7 +57,7 @@ export const lowerCaseValues = (dict: IDict<string>): IDict<string> => {
     return Object.fromEntries(Object.entries(dict).map((entry) => [entry[0], entry[1].toLowerCase()]))
 }
 
-export const lowerCaseKeys = (dict: IDict<string>): IDict<string> => {
+export const lowerCaseKeys = (dict: IDict<any>): IDict<any> => {
     // @ts-ignore
     return Object.fromEntries(Object.entries(dict).map((entry) => [entry[0].toLowerCase(), entry[1]]))
 }

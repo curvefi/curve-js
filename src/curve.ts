@@ -31,6 +31,7 @@ import {
     POOLS_DATA_MOONBEAM,
     POOLS_DATA_AURORA,
     POOLS_DATA_KAVA,
+    POOLS_DATA_CELO,
 } from './constants/pools';
 import {
     ALIASES_ETHEREUM,
@@ -43,6 +44,7 @@ import {
     ALIASES_MOONBEAM,
     ALIASES_AURORA,
     ALIASES_KAVA,
+    ALIASES_CELO,
 } from "./constants/aliases";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
@@ -54,6 +56,7 @@ import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from
 import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam";
 import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora";
 import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava";
+import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
 
 export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string }} = {
@@ -98,6 +101,12 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WKAVA',
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b'.toLowerCase(),
+    },
+    42220: {  // CELO
+        symbol: 'CELO',
+        wrappedSymbol: 'WCELO',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x3Ad443d769A07f287806874F8E5405cE3Ac902b9'.toLowerCase(),
     },
     43114: {  // AVALANCHE
         symbol: 'AVAX',
@@ -189,6 +198,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensKava,
         ycTokens: ycTokensKava,
         aTokens: aTokensKava,
+    },
+    42220: {
+        NAME: 'celo',
+        ALIASES: ALIASES_CELO,
+        POOLS_DATA: POOLS_DATA_CELO,
+        COINS: COINS_CELO,
+        cTokens: cTokensCelo,
+        yTokens: yTokensCelo,
+        ycTokens: ycTokensCelo,
+        aTokens: aTokensCelo,
     },
     43114: {
         NAME: 'avalanche',

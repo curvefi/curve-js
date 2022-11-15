@@ -87,7 +87,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (curve.chainId === 2222 || pool.gauge === ethers.constants.AddressZero) { // TODO remove this for Kava
+            if (curve.chainId === 2222 || curve.chainId === 42220 || pool.gauge === ethers.constants.AddressZero) { // TODO remove this for Kava and Celo
                 hasCrvReward.push(false);
                 continue;
 

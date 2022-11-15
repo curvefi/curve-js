@@ -34,7 +34,7 @@
     "@ethersproject/networks": "^5.5.0",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
-    "ethcall": "^4.8.4",
+    "ethcall": "^4.8.9",
     "ethers": "^5.4.6",
     "memoizee": "^0.4.15"
   }

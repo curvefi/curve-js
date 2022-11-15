@@ -13,20 +13,27 @@ const FACTORY_PLAIN_POOLS = ['factory-v2-3', 'factory-v2-57', 'factory-v2-7']; /
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', 'factory-v2-136']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)', 'sUSDFRAXBP'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8', 'factory-crypto-4']; // ['YFIETH-fV2', 'BADGERWBTC-fV2'];
 const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
-const POLYGON_MAIN_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd', 'eursusd'];
+const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
+// const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS, ...FACTORY_CRYPTO_META_POOLS];
+// const ETHEREUM_POOLS = ['susd', '3pool', 'compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
 
+
+const POLYGON_MAIN_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd', 'eursusd'];
 const POLYGON_FACTORY_PLAIN_POOLS = ['factory-v2-113', 'factory-v2-4', 'factory-v2-37']; // ['CRVALRTO-f', '3EUR-f', '4eur-f(2)'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1']; // ['CRV/TRICRYPTO'];
+const POLYGON_POOLS = [...POLYGON_MAIN_POOLS, ...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS, ...POLYGON_FACTORY_CRYPTO_META_POOLS];
 
 const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'atricrypto'];
 const AVALANCHE_FACTORY_PLAIN_POOLS = ['factory-v2-30', 'factory-v2-4']; // ['USD Coin', '3poolV2'];
 const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
+const AVALANCHE_POOLS = [...AVALANCHE_MAIN_POOLS, ...AVALANCHE_FACTORY_PLAIN_POOLS, ...AVALANCHE_FACTORY_META_POOLS];
 
 const FANTOM_MAIN_POOLS = ['2pool', 'fusdt', 'ren', 'tricrypto', 'ib', 'geist'];
 const FANTOM_FACTORY_PLAIN_POOLS = ['factory-v2-85', 'factory-v2-1', 'factory-v2-7']; // ['axlUSDC/USDC', '3poolV2', '4pool'];
 const FANTOM_FACTORY_META_POOLS = ['factory-v2-16', 'factory-v2-40']; // ['FRAX2pool', 'Geist Frax'];
 const FANTOM_FACTORY_CRYPTO_POOLS = ['factory-crypto-3']; // ['aCRV/CRV'];
+const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_PLAIN_POOLS, ...FANTOM_FACTORY_META_POOLS, ...FANTOM_FACTORY_CRYPTO_POOLS];
 
 const ARBITRUM_MAIN_POOLS = ['2pool', 'tricrypto', 'ren', 'eursusd', 'wsteth'];
 const ARBITRUM_FACTORY_PLAIN_POOLS = ['factory-v2-15', 'factory-v2-29']; // ['deBridge-ETH', 'Aave aDAI+aUSC+aUSDT USDFACTORY'];
@@ -45,20 +52,17 @@ const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_PLAIN_POOLS, ...XDAI_FAC
 
 const MOONBEAM_MAIN_POOLS = ['3pool'];
 const MOONBEAM_FACTORY_PLAIN_POOLS = ['factory-v2-6']; // ['DAI Multi Nomad'];
-// const MOONBEAM_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
-// const MOONBEAM_POOLS = [...MOONBEAM_MAIN_POOLS];
-const MOONBEAM_POOLS = [...MOONBEAM_FACTORY_PLAIN_POOLS];
+const MOONBEAM_POOLS = [...MOONBEAM_MAIN_POOLS, ...MOONBEAM_FACTORY_PLAIN_POOLS];
 
 const AURORA_POOLS = ['3pool'];
 
 const KAVA_POOLS = ['factory-v2-0'];
 
-// const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
-// const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
-const ETHEREUM_POOLS = ['susd', '3pool', 'compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
-const POLYGON_POOLS = POLYGON_MAIN_POOLS;
-const AVALANCHE_POOLS = [...AVALANCHE_FACTORY_PLAIN_POOLS, ...AVALANCHE_FACTORY_META_POOLS];
-const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_PLAIN_POOLS, ...FANTOM_FACTORY_META_POOLS, ...FANTOM_FACTORY_CRYPTO_POOLS];
+const CELO_POOLS = ['factory-v2-0'];
+
+// ------------------------------------------
+
+const POOLS_FOR_TESTING = CELO_POOLS;
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-unstake-withdraw`, function () {
@@ -232,53 +236,8 @@ describe('Underlying test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolId of FACTORY_CRYPTO_META_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    for (const poolId of POLYGON_FACTORY_CRYPTO_META_POOLS) {
+    for (const poolId of POOLS_FOR_TESTING) {
         underlyingLiquidityTest(poolId);
         underlyingSwapTest(poolId);
     }
-
-    // for (const poolId of AVALANCHE_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    // for (const poolId of FANTOM_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    // for (const poolId of ARBITRUM_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    // for (const poolId of OPTIMISM_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    // for (const poolId of XDAI_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    // for (const poolId of MOONBEAM_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    // for (const poolId of AURORA_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
-
-    // for (const poolId of KAVA_POOLS) {
-    //     underlyingLiquidityTest(poolId);
-    //     underlyingSwapTest(poolId);
-    // }
 })

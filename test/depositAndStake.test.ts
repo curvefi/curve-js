@@ -11,9 +11,10 @@ const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth'];
 const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
-
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
+
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];
+
 const AVALANCHE_POOLS = ['aave', 'ren', 'atricrypto'];
 
 const FANTOM_MAIN_POOLS = ['2pool', 'fusdt', 'ren', 'tricrypto', 'ib', 'geist'];
@@ -37,9 +38,15 @@ const XDAI_FACTORY_PLAIN_POOLS = ['factory-v2-0']; // ['sGNO/GNO'];
 const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
 const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_PLAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
 
-const MAIN_POOLS_AURORA = ['3pool'];
+const AURORA_POOLS = ['3pool'];
 
-const MAIN_POOLS_KAVA = ['factory-v2-0'];
+const KAVA_POOLS_KAVA = ['factory-v2-0'];
+
+const CELO_POOLS = ['factory-v2-0'];
+
+// --------------------------------------
+
+const POOLS_FOR_TESTING = CELO_POOLS;
 
 const underlyingDepositAndStakeTest = (name: string) => {
     describe(`${name} Deposit&Stake underlying`, function () {
@@ -131,54 +138,8 @@ describe('Deposit&Stake test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    for (const poolName of FACTORY_CRYPTO_META_POOLS) {
+    for (const poolName of POOLS_FOR_TESTING) {
         underlyingDepositAndStakeTest(poolName);
-        if (!PLAIN_POOLS.includes(poolName)) {
-            wrappedDepositAndStakeTest(poolName);
-        }
+        wrappedDepositAndStakeTest(poolName);
     }
-
-    // for (const poolName of POLYGON_POOLS) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     if (poolName !== 'atricrypto3') {
-    //         wrappedDepositAndStakeTest(poolName);
-    //     }
-    // }
-    //
-    // for (const poolName of AVALANCHE_POOLS) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     if (poolName !== 'atricrypto') {
-    //         wrappedDepositAndStakeTest(poolName);
-    //     }
-    // }
-    //
-    // for (const poolName of FANTOM_POOLS) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     wrappedDepositAndStakeTest(poolName);
-    // }
-
-    // for (const poolName of ARBITRUM_POOLS) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     wrappedDepositAndStakeTest(poolName);
-    // }
-
-    // for (const poolName of OPTIMISM_POOLS) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     wrappedDepositAndStakeTest(poolName);
-    // }
-
-    // for (const poolName of XDAI_POOLS) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     wrappedDepositAndStakeTest(poolName);
-    // }
-
-    // for (const poolName of MAIN_POOLS_AURORA) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     wrappedDepositAndStakeTest(poolName);
-    // }
-
-    // for (const poolName of MAIN_POOLS_KAVA) {
-    //     underlyingDepositAndStakeTest(poolName);
-    //     wrappedDepositAndStakeTest(poolName);
-    // }
 })

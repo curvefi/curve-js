@@ -140,3 +140,17 @@ export const ALIASES_KAVA = lowerCaseValues({
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
 });
+
+export const ALIASES_CELO = lowerCaseValues({
+    "crv": "0x0a7432cF27F1aE3825c313F3C81e7D3efD7639aB", // <--- TODO CHANGE
+    "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
+    "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
+    "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+    "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
+    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "factory": '0x5277A0226d10392295E8D383E9724D6E416d6e6C',
+    "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "registry_exchange": "",
+});

@@ -9,19 +9,11 @@ import { setFactoryZapContracts } from "./common";
 import { FACTORY_CONSTANTS } from "./constants";
 
 const BLACK_LIST: { [index: number]: any } = {
-    1: [],
-    10: [],
-    100: [],
     137: [
         "0x666dc3b4babfd063faf965bd020024af0dc51b64",
         "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
         "0x88c4d6534165510b2e2caf0a130d4f70aa4b6d71",
     ],
-    250: [],
-    1284: [],
-    2222: [],
-    43114: [],
-    42161: [],
 }
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -52,7 +44,7 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], s
         (addr, i) => ({ id: `factory-v2-${i}`, address: addr.toLowerCase()})
     );
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
-    const blacklist = BLACK_LIST[this.chainId];
+    const blacklist = BLACK_LIST[this.chainId] ?? [];
     factories = factories.filter((f) => !swapAddresses.includes(f.address) && !blacklist.includes(f.address));
 
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
@@ -176,15 +168,7 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
         });
     }
 
-    if (this.chainId === 1) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
-    if (this.chainId === 10) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
-    if (this.chainId === 100) dict[this.constants.NATIVE_TOKEN.address] = "XDAI"
-    if (this.chainId === 137) dict[this.constants.NATIVE_TOKEN.address] = "MATIC"
-    if (this.chainId === 250) dict[this.constants.NATIVE_TOKEN.address] = "FTM"
-    if (this.chainId === 1284) dict[this.constants.NATIVE_TOKEN.address] = "GLMR"
-    if (this.chainId === 2222) dict[this.constants.NATIVE_TOKEN.address] = "KAVA"
-    if (this.chainId === 43114) dict[this.constants.NATIVE_TOKEN.address] = "AVAX"
-    if (this.chainId === 42161) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
+    dict[this.constants.NATIVE_TOKEN.address] = this.constants.NATIVE_TOKEN.symbol;
 
     return dict
 }

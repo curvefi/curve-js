@@ -238,6 +238,23 @@ export const implementationABIDictKava: IDict<any> = {
     "0x509495dfeec3a53acb2f60669985d868131ad9a5": Plain4OptimizedABI,
 }
 
+export const implementationABIDictCelo: IDict<any> = {
+    "0xfEE7166C32Bdf6356Ef60636f43400AA55551A96": Plain2BasicABI,
+    "0x183Bb362aAa53f24BDF76a5E0FE11eEEce21F44d": Plain2BalancesABI,
+    "0x469CF0874E62cfbaD342AE7e11aBCfC0F08dC17d": Plain2ETHABI,
+    "0xE5ddCc991c29d3a5350E1Eb669439F0237dB7490": Plain2OptimizedABI,
+
+    "0xBcdCADB91446366d10b293152c967e64dE789B92": Plain3BasicABI,
+    "0x9Adb8f6B5c4A6Be6625E46e2fd352B859B4bf711": Plain3BalancesABI,
+    "0x15Eb833Fa0689458Dc7B11517932780DfdFaa046": Plain3ETHABI,
+    "0xa72F339708461537223Bc415008eD61338Fe0CA2": Plain3OptimizedABI,
+
+    "0x59395Ef4FB6F266F7B117CF0a7223eC45d78A2AF": Plain4BasicABI,
+    "0x3730D8B82BF3fF6Cc6dFDBe2Fd7B2A655e74eAae": Plain4BalancesABI,
+    "0x0F5390AB4C5456a769056C96E4D7C71770b52319": Plain4ETHABI,
+    "0xA73b02a97B45604cd9f0BBAA153eCfe01f409350": Plain4OptimizedABI,
+}
+
 export const implementationBasePoolIdDictEthereum: IDict<string> = {
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
@@ -308,6 +325,8 @@ export const implementationBasePoolIdDictXDai: IDict<string> = {
 export const implementationBasePoolIdDictMoonbeam: IDict<string> = {}
 
 export const implementationBasePoolIdDictKava: IDict<string> = {}
+
+export const implementationBasePoolIdDictCelo: IDict<string> = {}
 
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
@@ -402,6 +421,8 @@ export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {
 
 export const basePoolIdZapDictKava: IDict<{ address: string, ABI: any }> = {}
 
+export const basePoolIdZapDictCelo: IDict<{ address: string, ABI: any }> = {}
+
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
@@ -437,6 +458,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         implementationABIDict: implementationABIDictKava,
         implementationBasePoolIdDict: implementationBasePoolIdDictKava,
         basePoolIdZapDict: basePoolIdZapDictKava,
+    },
+    42220: {  // CELO
+        implementationABIDict: implementationABIDictCelo,
+        implementationBasePoolIdDict: implementationBasePoolIdDictCelo,
+        basePoolIdZapDict: basePoolIdZapDictCelo,
     },
     43114: {  // AVALANCHE
         implementationABIDict: implementationABIDictAvalanche,

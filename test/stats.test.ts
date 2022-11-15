@@ -49,6 +49,14 @@ const MAIN_POOLS_AURORA = ['3pool'];
 
 const MAIN_POOLS_KAVA = ['factory-v2-0'];
 
+const MAIN_POOLS_CELO = ['factory-v2-0'];
+
+// ------------------------------------------
+
+const MAIN_POOLS = MAIN_POOLS_CELO;
+const FACTORY_POOLS_COUNT = 0;
+const CRYPTO_FACTORY_POOLS_COUNT = 0;
+
 const checkNumber = (str: string) => {
     const re = /-?\d+(\.\d+)?(e-\d+)?/g
     const match = str.match(re);
@@ -115,86 +123,15 @@ describe('Stats test', async function () {
         await curve.fetchCryptoFactoryPools();
     });
 
-    // for (const poolName of MAIN_POOLS_ETHEREUM) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_ETHEREUM; i++) {
-    //     poolStatsTest("factory-v2-" + i);
-    // }
-    //
-    for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM; i++) {
-        poolStatsTest("factory-crypto-" + i);
+    for (const poolName of MAIN_POOLS) {
+        poolStatsTest(poolName);
     }
 
-    // for (const poolName of MAIN_POOLS_POLYGON) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_POLYGON + 9; i++) {
-    //     const blacklist = [126, 136, 155, 156, 157, 163, 187, 189, 195];
-    //     if (blacklist.includes(i)) continue;
-    //
-    //     poolStatsTest("factory-v2-" + i);
-    // }
+    for (let i = 0; i < FACTORY_POOLS_COUNT; i++) {
+        poolStatsTest("factory-v2-" + i);
+    }
 
-    // for (const poolName of MAIN_POOLS_AVALANCHE) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_AVALANCHE; i++) {
-    //     poolStatsTest("factory-v2-" + i);
-    // }
-
-    // for (const poolName of MAIN_POOLS_FANTOM) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_FANTOM; i++) {
-    //     poolStatsTest("factory-v2-" + i);
-    // }
-    //
-    // for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT_FANTOM; i++) {
-    //     poolStatsTest("factory-crypto-" + i);
-    // }
-
-    // for (const poolName of MAIN_POOLS_ARBITRUM) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_ARBITRUM; i++) {
-    //     poolStatsTest("factory-v2-" + i);
-    // }
-
-    // for (const poolName of MAIN_POOLS_OPTIMISM) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_OPTIMISM; i++) {
-    //     poolStatsTest("factory-v2-" + i);
-    // }
-
-    // for (const poolName of MAIN_POOLS_XDAI) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_XDAI; i++) {
-    //     poolStatsTest("factory-v2-" + i);
-    // }
-
-    // for (const poolName of MAIN_POOLS_MOONBEAM) {
-    //     poolStatsTest(poolName);
-    // }
-    //
-    // for (let i = 0; i < FACTORY_POOLS_COUNT_MOONBEAM; i++) {
-    //     poolStatsTest("factory-v2-" + i);
-    // }
-
-    // for (const poolName of MAIN_POOLS_AURORA) {
-    //     poolStatsTest(poolName);
-    // }
-
-    // for (const poolName of MAIN_POOLS_KAVA) {
-    //     poolStatsTest(poolName);
-    // }
+    for (let i = 0; i < CRYPTO_FACTORY_POOLS_COUNT; i++) {
+        poolStatsTest("factory-crypto-" + i);
+    }
 })

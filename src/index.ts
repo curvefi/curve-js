@@ -50,6 +50,7 @@ import {
     ensureAllowance,
     getUsdRate,
     getTVL,
+    getCoinNamesAndSymbols,
 } from "./utils";
 import {
     deployStablePlainPool,
@@ -121,6 +122,7 @@ const curve = {
     getAllowance,
     hasAllowance,
     ensureAllowance,
+    getCoinNamesAndSymbols,
     factory: {
         deployPlainPool: deployStablePlainPool,
         deployMetaPool: deployStableMetaPool,

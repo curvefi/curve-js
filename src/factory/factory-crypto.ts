@@ -153,15 +153,7 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
         });
     }
 
-    if (this.chainId === 1) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
-    if (this.chainId === 10) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
-    if (this.chainId === 100) dict[this.constants.NATIVE_TOKEN.address] = "XDAI"
-    if (this.chainId === 137) dict[this.constants.NATIVE_TOKEN.address] = "MATIC"
-    if (this.chainId === 250) dict[this.constants.NATIVE_TOKEN.address] = "FTM"
-    if (this.chainId === 1284) dict[this.constants.NATIVE_TOKEN.address] = "GLMR"
-    if (this.chainId === 2222) dict[this.constants.NATIVE_TOKEN.address] = "KAVA"
-    if (this.chainId === 43114) dict[this.constants.NATIVE_TOKEN.address] = "AVAX"
-    if (this.chainId === 42161) dict[this.constants.NATIVE_TOKEN.address] = "ETH"
+    dict[this.constants.NATIVE_TOKEN.address] = this.constants.NATIVE_TOKEN.symbol;
 
     return dict
 }

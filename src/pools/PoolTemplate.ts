@@ -502,8 +502,8 @@ export class PoolTemplate {
         try {
             // --- Getting lpAmount before fees and pool params ---
 
-            const N_coins = useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
-            const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
+            const N_coins = this.isMeta && useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
+            const decimals = this.isMeta && useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
             const calcContractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
             const calcContract = curve.contracts[calcContractAddress].multicallContract;
             const poolContract = curve.contracts[this.address].multicallContract;
@@ -523,7 +523,7 @@ export class PoolTemplate {
 
             const res = await Promise.all([
                 curve.multicallProvider.all(calls),
-                useUnderlying ? this.stats.underlyingBalances() : this.stats.wrappedBalances(),
+                this.isMeta && useUnderlying ? this.stats.underlyingBalances() : this.stats.wrappedBalances(),
             ]);
             const [_totalSupply, _fee, _lpTokenAmount] = res[0] as ethers.BigNumber[];
 
@@ -542,15 +542,11 @@ export class PoolTemplate {
                     if (feesBN[i].lt(0)) feesBN[i] = feesBN[i].times(-1);
                 }
             }
-            let _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
-            if (!this.isMeta && useUnderlying) {
-                _fees = _fees.map((_fee: ethers.BigNumber, i: number) =>
-                    _fee.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
-            }
+            const _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
 
             // --- Getting final lpAmount ---
 
-            let _lpTokenFee = await this._pureCalcLpTokenAmount(_fees, !isDeposit, useUnderlying);
+            let _lpTokenFee = await this._pureCalcLpTokenAmount(_fees, !isDeposit, this.isMeta && useUnderlying);
             if (isDeposit) _lpTokenFee = _lpTokenFee.mul(-1);
 
             return _lpTokenAmount.add(_lpTokenFee)

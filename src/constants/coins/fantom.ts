@@ -22,7 +22,7 @@ export const COINS_FANTOM: { [index: string]: string } = lowerCaseValues({
 
     // --- BTC ---
 
-    'btc': '0x321162Cd933E2Be498Cd2267a90534A804051b11',
+    'wbtc': '0x321162Cd933E2Be498Cd2267a90534A804051b11',
     'renbtc': '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
 
     // --- ETH ---

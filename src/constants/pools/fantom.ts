@@ -82,8 +82,8 @@ export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDa
         // old_gauge: '0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb',
         // gauge_address: '0xBdFF0C27dd073C119ebcb1299a68A6A92aE607F0',
         gauge_address: '0xbC38bD19227F91424eD4132F630f51C9A42Fa338',
-        underlying_coins: ['BTC', 'renBTC'],
-        wrapped_coins: ['BTC', 'renBTC'],
+        underlying_coins: ['WBTC', 'renBTC'],
+        wrapped_coins: ['WBTC', 'renBTC'],
         underlying_coin_addresses: [
             '0x321162Cd933E2Be498Cd2267a90534A804051b11',
             '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
@@ -108,8 +108,8 @@ export const POOLS_DATA_FANTOM: { [index: string]: IPoolData } = lowerCasePoolDa
         gauge_address: '0x319E268f0A4C85D404734ee7958857F5891506d7',
         is_crypto: true,
         is_plain: true,
-        underlying_coins: ['fUSDT', 'BTC', 'ETH'],
-        wrapped_coins: ['fUSDT', 'BTC', 'ETH'],
+        underlying_coins: ['fUSDT', 'WBTC', 'ETH'],
+        wrapped_coins: ['fUSDT', 'WBTC', 'ETH'],
         underlying_coin_addresses: [
             '0x049d68029688eAbF473097a2fC38ef61633A3C7A',
             '0x321162Cd933E2Be498Cd2267a90534A804051b11',

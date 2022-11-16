@@ -94,6 +94,7 @@ export class PoolTemplate {
     };
     stats: {
         parameters: () => Promise<{
+            lpTokenSupply: string,
             virtualPrice: string,
             fee: string,
             adminFee: string,
@@ -103,6 +104,8 @@ export class PoolTemplate {
             future_A_time?: number,
             initial_A_time?: number,
             gamma?: string,
+            price_oracle?: string[],
+            price_scale?: string[],
         }>,
         underlyingBalances: () => Promise<string[]>,
         wrappedBalances: () => Promise<string[]>,
@@ -205,8 +208,8 @@ export class PoolTemplate {
     }
 
     private statsParameters = async (): Promise<{
-        virtualPrice: string,
         lpTokenSupply: string,
+        virtualPrice: string,
         fee: string, // %
         adminFee: string, // %
         A: string,
@@ -215,18 +218,32 @@ export class PoolTemplate {
         future_A_time?: number,
         initial_A_time?: number,
         gamma?: string,
+        priceOracle?: string[],
+        priceScale?: string[],
     }> => {
         const multicallContract = curve.contracts[this.address].multicallContract;
         const lpMulticallContract = curve.contracts[this.lpToken].multicallContract;
 
         const calls = [
             multicallContract.get_virtual_price(),
-            lpMulticallContract.totalSupply(),
             multicallContract.fee(),
             multicallContract.admin_fee(),
             multicallContract.A(),
+            lpMulticallContract.totalSupply(),
         ]
-        if (this.isCrypto) calls.push(multicallContract.gamma())
+        if (this.isCrypto) {
+            calls.push(multicallContract.gamma());
+
+            if (this.wrappedCoins.length === 2) {
+                calls.push(multicallContract.price_oracle());
+                calls.push(multicallContract.price_scale());
+            } else {
+                for (let i = 0; i < this.wrappedCoins.length - 1; i++) {
+                    calls.push(multicallContract.price_oracle(i));
+                    calls.push(multicallContract.price_scale(i));
+                }
+            }
+        }
 
         const additionalCalls = this.isCrypto ? [] : [multicallContract.future_A()];
         if ('initial_A' in multicallContract) {
@@ -237,21 +254,40 @@ export class PoolTemplate {
             );
         }
 
-        let [_virtualPrice, _lpTokenSupply, _fee, _adminFee, _A, _gamma] = Array(6).fill(ethers.BigNumber.from(0));
+        let _virtualPrice = ethers.BigNumber.from(0);
+        let _fee = ethers.BigNumber.from(0);
+        let _prices, _adminFee, _A, _lpTokenSupply, _gamma;
         try {
-            [_virtualPrice, _lpTokenSupply, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+            [_virtualPrice, _fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
         } catch (e) { // Empty pool
             calls.shift();
-            [_lpTokenSupply, _fee, _adminFee, _A, _gamma] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+            if (this.isCrypto) {
+                calls.shift();
+                [_adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+            } else {
+                [_fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+            }
         }
-        const [virtualPrice, lpTokenSupply, fee, adminFee, A, gamma] = [
+
+        const [virtualPrice, fee, adminFee, A, lpTokenSupply, gamma] = [
             ethers.utils.formatUnits(_virtualPrice),
-            ethers.utils.formatUnits(_lpTokenSupply),
             ethers.utils.formatUnits(_fee, 8),
             ethers.utils.formatUnits(_adminFee.mul(_fee)),
             ethers.utils.formatUnits(_A, 0),
+            ethers.utils.formatUnits(_lpTokenSupply),
             _gamma ? ethers.utils.formatUnits(_gamma) : _gamma,
         ]
+
+        let priceOracle, priceScale;
+        if (this.isCrypto) {
+            const prices = _prices.map((_p) => ethers.utils.formatUnits(_p));
+            priceOracle = [];
+            priceScale = [];
+            for (let i = 0; i < this.wrappedCoins.length - 1; i++) {
+                priceOracle.push(prices.shift() as string);
+                priceScale.push(prices.shift() as string);
+            }
+        }
 
         const A_PRECISION = curve.chainId === 1 && ['compound', 'usdt', 'y', 'busd', 'susd', 'pax', 'ren', 'sbtc', 'hbtc', '3pool'].includes(this.id) ? 1 : 100;
         const [_future_A, _initial_A, _future_A_time, _initial_A_time] = await curve.multicallProvider.all(additionalCalls) as ethers.BigNumber[]
@@ -262,7 +298,7 @@ export class PoolTemplate {
             _initial_A_time ? Number(ethers.utils.formatUnits(_initial_A_time, 0)) * 1000 : undefined,
         ]
 
-        return { virtualPrice, lpTokenSupply, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma };
+        return { lpTokenSupply, virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma, priceOracle, priceScale };
     }
 
     private async statsWrappedBalances(): Promise<string[]> {
@@ -1701,16 +1737,16 @@ export class PoolTemplate {
                 curve.contracts[this.gauge].multicallContract.totalSupply(),
             ]) as ethers.BigNumber[]).map((_supply) => ethers.utils.formatUnits(_supply));
         } else {
-            totalLp = ethers.utils.formatUnits(await curve.contracts[this.lpToken].contract.totalSupply());
+            totalLp = ethers.utils.formatUnits(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
         }
 
         return {
             lpUser: userLpTotalBalanceBN.toString(),
             lpTotal: totalLp,
-            lpShare: userLpTotalBalanceBN.div(totalLp).times(100).toString(),
+            lpShare: BN(totalLp).gt(0) ? userLpTotalBalanceBN.div(totalLp).times(100).toString() : '0',
             gaugeUser: userLpBalance.gauge,
             gaugeTotal: gaugeLp,
-            gaugeShare: withGauge ? BN(userLpBalance.gauge).div(BN(gaugeLp as string)).times(100).toString() : undefined,
+            gaugeShare: !withGauge ? undefined : BN(gaugeLp as string).gt(0) ? BN(userLpBalance.gauge).div(gaugeLp as string).times(100).toString() : '0',
         }
     }
 

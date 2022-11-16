@@ -1737,16 +1737,16 @@ export class PoolTemplate {
                 curve.contracts[this.gauge].multicallContract.totalSupply(),
             ]) as ethers.BigNumber[]).map((_supply) => ethers.utils.formatUnits(_supply));
         } else {
-            totalLp = ethers.utils.formatUnits(await curve.contracts[this.lpToken].contract.totalSupply());
+            totalLp = ethers.utils.formatUnits(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
         }
 
         return {
             lpUser: userLpTotalBalanceBN.toString(),
             lpTotal: totalLp,
-            lpShare: userLpTotalBalanceBN.div(totalLp).times(100).toString(),
+            lpShare: BN(totalLp).gt(0) ? userLpTotalBalanceBN.div(totalLp).times(100).toString() : '0',
             gaugeUser: userLpBalance.gauge,
             gaugeTotal: gaugeLp,
-            gaugeShare: withGauge ? BN(userLpBalance.gauge).div(BN(gaugeLp as string)).times(100).toString() : undefined,
+            gaugeShare: !withGauge ? undefined : BN(gaugeLp as string).gt(0) ? BN(userLpBalance.gauge).div(gaugeLp as string).times(100).toString() : '0',
         }
     }
 

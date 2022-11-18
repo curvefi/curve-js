@@ -21,6 +21,7 @@ import {
     _setContracts,
     _get_small_x,
     _get_price_impact,
+    checkNumber,
 } from '../utils';
 import {
     IDict,
@@ -1510,9 +1511,16 @@ export class PoolTemplate {
         return await this.calcLpTokenAmount(amounts, false);
     }
 
-    // OVERRIDE
     public async withdrawImbalanceBonus(amounts: (number | string)[]): Promise<string> {
-        throw Error(`withdrawImbalanceBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        const prices: number[] = await this._underlyingPrices();
+
+        const value = amounts.map(checkNumber).map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
+        const lpTokenAmount = await this.withdrawImbalanceExpected(amounts);
+
+        const balancedAmounts = await this.withdrawExpected(lpTokenAmount);
+        const balancedValue = balancedAmounts.map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
+
+        return String((value - balancedValue) / balancedValue * 100);
     }
 
     public async withdrawImbalanceIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -1564,14 +1572,21 @@ export class PoolTemplate {
     // ---------------- WITHDRAW IMBALANCE WRAPPED ----------------
 
     public async withdrawImbalanceWrappedExpected(amounts: (number | string)[]): Promise<string> {
-        if (this.isCrypto) throw Error(`withdrawImbalanceWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        if (this.isCrypto || this.isPlain || this.isFake) throw Error(`withdrawImbalanceWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         return await this.calcLpTokenAmountWrapped(amounts, false);
     }
 
-    // OVERRIDE
     public async withdrawImbalanceWrappedBonus(amounts: (number | string)[]): Promise<string> {
-        throw Error(`withdrawImbalanceWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        const prices: number[] = await this._wrappedPrices();
+
+        const value = amounts.map(checkNumber).map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
+        const lpTokenAmount = Number(await this.withdrawImbalanceWrappedExpected(amounts));
+
+        const balancedAmounts = await this.withdrawWrappedExpected(lpTokenAmount);
+        const balancedValue = balancedAmounts.map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
+
+        return String((value - balancedValue) / balancedValue * 100);
     }
 
     // OVERRIDE

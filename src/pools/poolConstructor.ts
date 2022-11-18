@@ -2,7 +2,6 @@ import { curve } from "../curve";
 import { PoolTemplate } from "./PoolTemplate";
 import { poolBalancesAtricrypto3Mixin, poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
 import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins";
-import { depositBonusMixin, depositWrappedBonusMixin, depositBonusCryptoMixin, depositWrappedBonusCryptoMixin } from "./mixins/depositBonusMixins";
 import { depositMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins";
 import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins";
 import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
@@ -46,15 +45,6 @@ export const getPool = (poolId: string): PoolTemplate => {
         } else {
             Object.assign(Pool.prototype, depositWrappedBalancedAmountsMixin);
         }
-    }
-
-    // depositBonus and depositWrappedBonus
-    if (poolDummy.isCrypto) {
-        Object.assign(Pool.prototype, depositBonusCryptoMixin);
-        if (!poolDummy.isPlain && !poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedBonusCryptoMixin);
-    } else {
-        Object.assign(Pool.prototype, depositBonusMixin);
-        if (!poolDummy.isPlain && !poolDummy.isFake) Object.assign(Pool.prototype, depositWrappedBonusMixin);
     }
 
     // deposit and depositEstimateGas

@@ -11,21 +11,6 @@ import ERC20Abi from './constants/abis/ERC20.json';
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
 
-// bignumber.js
-
-export const BN = (val: number | string): BigNumber => new BigNumber(val);
-
-export const toBN = (n: ethers.BigNumber, decimals = 18): BigNumber => {
-    return BN(ethers.utils.formatUnits(n, decimals));
-}
-
-export const toStringFromBN = (bn: BigNumber, decimals = 18): string => {
-    return bn.toFixed(decimals);
-}
-
-export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
-    return ethers.utils.parseUnits(toStringFromBN(bn, decimals), decimals)
-}
 
 // Formatting numbers
 
@@ -48,6 +33,22 @@ export const formatNumber = (n: number | string, decimals = 18): string => {
 
 export const parseUnits = (n: number | string, decimals = 18): ethers.BigNumber => {
     return ethers.utils.parseUnits(formatNumber(n, decimals), decimals);
+}
+
+// bignumber.js
+
+export const BN = (val: number | string): BigNumber => new BigNumber(checkNumber(val));
+
+export const toBN = (n: ethers.BigNumber, decimals = 18): BigNumber => {
+    return BN(ethers.utils.formatUnits(n, decimals));
+}
+
+export const toStringFromBN = (bn: BigNumber, decimals = 18): string => {
+    return bn.toFixed(decimals);
+}
+
+export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
+    return ethers.utils.parseUnits(toStringFromBN(bn, decimals), decimals)
 }
 
 // -------------------

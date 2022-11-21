@@ -9,6 +9,7 @@ import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypt
 import { FACTORY_CONSTANTS } from "./constants";
 import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto";
 import { setFactoryZapContracts } from "./common";
+import { _getPoolsFromApi } from "../external-api";
 
 
 function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], isCrypto: boolean): void {
@@ -71,9 +72,7 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
 export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
     const factoryType = isCrypto ? "factory-crypto" : "factory";
-    const url = `https://api.curve.fi/api/getPools/${network}/${factoryType}`;
-    const response = await axios.get(url);
-    let rawPoolList: IPoolDataFromApi[] = response.data.data.poolData;
+    let rawPoolList: IPoolDataFromApi[] = (await _getPoolsFromApi(network, factoryType)).poolData;
     // Filter duplications
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address.toLowerCase()));

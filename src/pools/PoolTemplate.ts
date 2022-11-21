@@ -695,7 +695,8 @@ export class PoolTemplate {
 
     public async depositBonus(amounts: (number | string)[]): Promise<string> {
         const amountsBN = amounts.map(BN);
-        const pricesBN = (await this._underlyingPrices()).map(BN);
+        const prices = (this.isCrypto || this.id === 'wsteth') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
+        const pricesBN = prices.map(BN);
         const balancesBN = (await this.stats.underlyingBalances()).map(BN);
         const balancedAmounts = this._balancedAmountsWithSameValue(amountsBN, pricesBN, balancesBN);
 
@@ -1271,15 +1272,15 @@ export class PoolTemplate {
             throw Error(`depositAndStake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
-        return await this._depositAndStake(amounts, true, true) as number
+        return await this._depositAndStake(amounts, 1, true, true) as number
     }
 
-    public async depositAndStake(amounts: (number | string)[]): Promise<string> {
+    public async depositAndStake(amounts: (number | string)[], slippage = 0.1): Promise<string> {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
-        return await this._depositAndStake(amounts, true, false) as string
+        return await this._depositAndStake(amounts, slippage, true, false) as string
     }
 
     // ---------------- DEPOSIT & STAKE WRAPPED ----------------
@@ -1366,19 +1367,19 @@ export class PoolTemplate {
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
-        return await this._depositAndStake(amounts, false, true) as number
+        return await this._depositAndStake(amounts, 1, false, true) as number
     }
 
-    public async depositAndStakeWrapped(amounts: (number | string)[]): Promise<string> {
+    public async depositAndStakeWrapped(amounts: (number | string)[], slippage = 0.1): Promise<string> {
         if (this.gauge === ethers.constants.AddressZero) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
-        return await this._depositAndStake(amounts, false, false) as string
+        return await this._depositAndStake(amounts, slippage, false, false) as string
     }
 
-    private async _depositAndStake(amounts: (number | string)[], isUnderlying: boolean, estimateGas: boolean): Promise<string | number> {
+    private async _depositAndStake(amounts: (number | string)[], slippage: number, isUnderlying: boolean, estimateGas: boolean): Promise<string | number> {
         const coinAddresses = isUnderlying ? [...this.underlyingCoinAddresses] : [...this.wrappedCoinAddresses];
         const coins = isUnderlying ? this.underlyingCoins : this.wrappedCoinAddresses;
         const decimals = isUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
@@ -1412,9 +1413,11 @@ export class PoolTemplate {
 
         const contract = curve.contracts[curve.constants.ALIASES.deposit_and_stake].contract;
         const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && !this.zap;
-        const _minMintAmount = isUnderlying ?
-            ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)).mul(99).div(100) :
-            ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts)).mul(99).div(100);
+        const _expectedLpTokenAmount = isUnderlying ?
+            ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)) :
+            ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts));
+        const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
+        const _minMintAmount = fromBN(minAmountBN);
         const ethIndex = getEthIndex(coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
@@ -1512,7 +1515,7 @@ export class PoolTemplate {
     }
 
     public async withdrawImbalanceBonus(amounts: (number | string)[]): Promise<string> {
-        const prices: number[] = await this._underlyingPrices();
+        const prices = (this.isCrypto || this.id === 'wsteth') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
 
         const value = amounts.map(checkNumber).map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
         const lpTokenAmount = await this.withdrawImbalanceExpected(amounts);
@@ -1615,7 +1618,7 @@ export class PoolTemplate {
     }
 
     public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
-        const prices: number[] = await this._underlyingPrices();
+        const prices = (this.isCrypto || this.id === 'wsteth') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
         const coinPrice = prices[this._getCoinIdx(coin)];
 
         const amount = Number(await this.withdrawOneCoinExpected(lpTokenAmount, coin));
@@ -2091,7 +2094,6 @@ export class PoolTemplate {
         return addresses.length === 1 ? balances[addresses[0]] : balances
     }
 
-    // Used by mixin. Don't delete it!!!
     private _underlyingPrices = async (): Promise<number[]> => {
         const promises = [];
         for (const addr of this.underlyingCoinAddresses) {
@@ -2101,7 +2103,6 @@ export class PoolTemplate {
         return await Promise.all(promises)
     }
 
-    // Used by mixin. Don't delete it!!!
     // NOTE! It may crash!
     private _wrappedPrices = async (): Promise<number[]> => {
         const promises = [];

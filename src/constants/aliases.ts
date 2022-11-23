@@ -18,7 +18,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
 export const ALIASES_POLYGON = lowerCaseValues({
     "crv": "0x172370d5cd63279efa6d502dab29171933a610af",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0xb5acc710aede048600e10eedcefdf98d4abf4b1e",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -32,7 +32,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
 export const ALIASES_FANTOM = lowerCaseValues({
     "crv": "0x1E4F97b9f9F913c46F1632781732927B9019C68b",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0xb75dca485e21a77e1b433ecacb74475fc67e259c",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -46,7 +46,7 @@ export const ALIASES_FANTOM = lowerCaseValues({
 export const ALIASES_AVALANCHE = lowerCaseValues({
     "crv": "0x47536F17F4fF30e64A96a7555826b8f9e66ec468",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0xc55837710bc500f1e3c7bb9dd1d51f7c5647e657",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -60,7 +60,7 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
 export const ALIASES_ARBITRUM = lowerCaseValues({
     "crv": "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0x98c80fa823759b642c3e02f40533c164f40727ae",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -74,7 +74,7 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
 export const ALIASES_OPTIMISM = lowerCaseValues({
     "crv": "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0x65a0b01756e837e6670634816e4f5b3a3ff21107",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -88,7 +88,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
 export const ALIASES_XDAI = lowerCaseValues({
     "crv": "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0xefde221f306152971d8e9f181bfe998447975810",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -102,7 +102,7 @@ export const ALIASES_XDAI = lowerCaseValues({
 export const ALIASES_MOONBEAM = lowerCaseValues({
     "crv": "0x7C598c96D02398d89FbCb9d41Eab3DF0C16F227D",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0x0000000000000000000000000000000000000000",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -116,7 +116,7 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
 export const ALIASES_AURORA = lowerCaseValues({
     "crv": "0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205",
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -130,7 +130,7 @@ export const ALIASES_AURORA = lowerCaseValues({
 export const ALIASES_KAVA = lowerCaseValues({
     "crv": "0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205", // <--- TODO CHANGE
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
@@ -144,7 +144,7 @@ export const ALIASES_KAVA = lowerCaseValues({
 export const ALIASES_CELO = lowerCaseValues({
     "crv": "0x0a7432cF27F1aE3825c313F3C81e7D3efD7639aB", // <--- TODO CHANGE
     "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2", // <-- DUMMY
+    "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",

@@ -405,40 +405,44 @@ export class PoolTemplate {
         const totalLiquidityUSD = await this.statsTotalLiquidity();
         if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
 
+        let inflationRateBN, workingSupplyBN, totalSupplyBN;
         if (curve.chainId !== 1) {
-            const gaugeContract = curve.contracts[this.gauge].contract;
+            const gaugeContract = curve.contracts[this.gauge].multicallContract;
+            const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
             const crvContract = curve.contracts[curve.constants.ALIASES.crv].contract;
 
-            const week = 7 * 86400;
-            const currentWeek = Math.floor(Date.now() / 1000 / week);
-            let inflationRateBN = toBN(await gaugeContract.inflation_rate(currentWeek, curve.constantOptions));
-            if (inflationRateBN.eq(0)) {
-                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(week);
-            }
-            const crvRate = await _getUsdRate(curve.constants.ALIASES.crv);
-            const apy = inflationRateBN.times(31536000).times(0.4).times(crvRate).div(Number(totalLiquidityUSD));
+            const currentWeek = Math.floor(Date.now() / 1000 / WEEK);
+            [inflationRateBN, workingSupplyBN, totalSupplyBN] = (await curve.multicallProvider.all([
+                gaugeContract.inflation_rate(currentWeek),
+                gaugeContract.working_supply(),
+                lpTokenContract.totalSupply(),
+            ]) as ethers.BigNumber[]).map((value) => toBN(value));
 
-            return [apy.times(100).toFixed(4), apy.times(100).toFixed(4)];
+            if (inflationRateBN.eq(0)) {
+                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(WEEK);
+            }
+        } else {
+            const gaugeContract = curve.contracts[this.gauge].multicallContract;
+            const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
+            const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
+
+            let weightBN;
+            [inflationRateBN, weightBN, workingSupplyBN, totalSupplyBN] = (await curve.multicallProvider.all([
+                gaugeContract.inflation_rate(),
+                gaugeControllerContract.gauge_relative_weight(this.gauge),
+                gaugeContract.working_supply(),
+                lpTokenContract.totalSupply(),
+            ]) as ethers.BigNumber[]).map((value) => toBN(value));
+
+            inflationRateBN = inflationRateBN.times(weightBN);
         }
 
-        const gaugeContract = curve.contracts[this.gauge].multicallContract;
-        const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
-        const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
+        const rateBN = inflationRateBN.times(31536000).times(0.4).div(workingSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD));
+        const crvPrice = await _getUsdRate(curve.constants.ALIASES.crv);
+        const baseApyBN = rateBN.times(crvPrice);
+        const boostedApyBN = baseApyBN.times(2.5);
 
-        const [inflation, weight, workingSupply, totalSupply] = (await curve.multicallProvider.all([
-            gaugeContract.inflation_rate(),
-            gaugeControllerContract.gauge_relative_weight(this.gauge),
-            gaugeContract.working_supply(),
-            lpTokenContract.totalSupply(),
-        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
-        if (Number(workingSupply) === 0) return ["0", "0"];
-
-        const rate = inflation.times(weight).times(31536000).times(0.4).div(workingSupply).times(totalSupply).div(Number(totalLiquidityUSD));
-        const crvRate = await _getUsdRate(curve.constants.ALIASES.crv);
-        const baseApy = rate.times(crvRate);
-        const boostedApy = baseApy.times(2.5);
-
-        return [baseApy.times(100).toFixed(4), boostedApy.times(100).toFixed(4)]
+        return [baseApyBN.times(100).toFixed(4), boostedApyBN.times(100).toFixed(4)]
     }
 
     private statsRewardsApy = async (): Promise<IReward[]> => {

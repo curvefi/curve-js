@@ -117,6 +117,12 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b'.toLowerCase(),
     },
+    42161: {  // ARBITRUM
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
+    },
     42220: {  // CELO
         symbol: 'CELO',
         wrappedSymbol: 'WCELO',
@@ -128,12 +134,6 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WAVAX',
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
-    },
-    42161: {  // ARBITRUM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
     },
     1313161554: {  // AURORA
         symbol: 'ETH',
@@ -214,6 +214,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         ycTokens: ycTokensKava,
         aTokens: aTokensKava,
     },
+    42161: {
+        NAME: 'arbitrum',
+        ALIASES: ALIASES_ARBITRUM,
+        POOLS_DATA: POOLS_DATA_ARBITRUM,
+        COINS: COINS_ARBITRUM,
+        cTokens: cTokensArbitrum,
+        yTokens: yTokensArbitrum,
+        ycTokens: ycTokensArbitrum,
+        aTokens: aTokensArbitrum,
+    },
     42220: {
         NAME: 'celo',
         ALIASES: ALIASES_CELO,
@@ -233,16 +243,6 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensAvalanche,
         ycTokens: ycTokensAvalanche,
         aTokens: aTokensAvalanche,
-    },
-    42161: {
-        NAME: 'arbitrum',
-        ALIASES: ALIASES_ARBITRUM,
-        POOLS_DATA: POOLS_DATA_ARBITRUM,
-        COINS: COINS_ARBITRUM,
-        cTokens: cTokensArbitrum,
-        yTokens: yTokensArbitrum,
-        ycTokens: ycTokensArbitrum,
-        aTokens: aTokensArbitrum,
     },
     1313161554: {
         NAME: 'aurora',
@@ -377,6 +377,8 @@ class Curve implements ICurve {
         this.constants.POOLS_DATA = NETWORK_CONSTANTS[this.chainId].POOLS_DATA;
         this.constants.COINS = NETWORK_CONSTANTS[this.chainId].COINS;
         this.constants.DECIMALS = extractDecimals(this.constants.POOLS_DATA);
+        this.constants.DECIMALS[this.constants.NATIVE_TOKEN.address] = 18;
+        this.constants.DECIMALS[this.constants.NATIVE_TOKEN.wrappedAddress] = 18;
         this.constants.GAUGES = extractGauges(this.constants.POOLS_DATA);
         const [cTokens, yTokens, ycTokens, aTokens] = [
             NETWORK_CONSTANTS[this.chainId].cTokens,
@@ -486,6 +488,8 @@ class Curve implements ICurve {
                 }
             }
         }
+
+        this.setContract(this.constants.NATIVE_TOKEN.wrappedAddress, ERC20Abi);
 
         this.contracts[this.constants.ALIASES.crv] = {
             contract: new Contract(this.constants.ALIASES.crv, ERC20Abi, this.signer || this.provider),

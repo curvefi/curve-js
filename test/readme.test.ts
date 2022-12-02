@@ -389,8 +389,10 @@ const routerSwapTest = async () => {
     console.log(await curve.router.isApproved('DAI', 1000));
     console.log(await curve.router.approve('DAI', 1000));
     const swapTx = await curve.router.swap('DAI', 'CRV', 1000);
-    // OR await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
-    console.log(swapTx);
+    // OR await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
+    console.log(swapTx.hash);
+    const swappedAmount = await curve.router.getSwappedAmount(swapTx, 'CRV');
+    console.log(swappedAmount);
 
     console.log(await curve.getBalances(['DAI', 'CRV']));
 }

@@ -1020,8 +1020,10 @@ import curve from "@curvefi/api";
     // ]
     const swapTx = await curve.router.swap('DAI', 'CRV', '1000');
     // OR const swapTx = await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
-    console.log(swapTx);
+    console.log(swapTx.hash);
     // 0xc7ba1d60871c0295ac5471bb602c37ec0f00a71543b3a041308ebd91833f26ba
+    const swappedAmount = await curve.router.getSwappedAmount(swapTx, 'CRV');
+    // 1573.668171170839785062
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '8900.0', '100428.626463428100672494' ]

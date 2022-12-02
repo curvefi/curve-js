@@ -20,6 +20,7 @@ import {
     swapApprove,
     swapEstimateGas,
     swap,
+    getSwappedAmount,
 } from "./router";
 import { curve as _curve } from "./curve";
 import {
@@ -181,6 +182,7 @@ const curve = {
         isApproved: swapIsApproved,
         approve: swapApprove,
         swap,
+        getSwappedAmount,
         estimateGas: {
             approve: swapApproveEstimateGas,
             swap: swapEstimateGas,

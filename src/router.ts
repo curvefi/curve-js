@@ -817,7 +817,7 @@ export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amo
     return gas
 }
 
-export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<string> => {
+export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<ethers.ContractTransaction> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
@@ -845,5 +845,17 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
         _factorySwapAddresses,
         { ...curve.constantOptions, value }
     )).mul(curve.chainId === 1 ? 130 : 160).div(100);
-    return (await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })).hash
+    return await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })
+}
+
+export const getSwappedAmount = async (tx: ethers.ContractTransaction, outputCoin: string): Promise<string> => {
+    const [outputCoinAddress] = _getCoinAddresses(outputCoin);
+    const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
+    const txInfo: ethers.ContractReceipt = await tx.wait();
+    const res = ethers.utils.defaultAbiCoder.decode(
+        ['address[9]', 'uint256[3][4]', 'address[4]', 'uint256', 'uint256'],
+        ethers.utils.hexDataSlice(txInfo.logs[txInfo.logs.length - 1].data, 0)
+    );
+
+    return ethers.utils.formatUnits(res[res.length - 1], outputCoinDecimals);
 }

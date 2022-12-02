@@ -239,7 +239,7 @@ const getNewRoute = (
     outputCoinAddress: string,
     i: number,
     j: number,
-    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14,
+    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15,
     swapAddress: string,
     tvl: number
 ): IRoute_ => {
@@ -297,6 +297,47 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
     // No more than 4 steps (swaps)
     for (let step = 0; step < 4; step++) {
         for (const inCoin of curCoins) {
+            if ([curve.constants.NATIVE_TOKEN.address, curve.constants.NATIVE_TOKEN.wrappedAddress].includes(inCoin)) {
+                const outCoin = inCoin === curve.constants.NATIVE_TOKEN.address ? curve.constants.NATIVE_TOKEN.wrappedAddress : curve.constants.NATIVE_TOKEN.address;
+
+                const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(
+                    (route) => getNewRoute(
+                        route,
+                        "wrapper",
+                        curve.constants.NATIVE_TOKEN.wrappedAddress,
+                        inCoin,
+                        outCoin,
+                        0,
+                        0,
+                        15,
+                        ethers.constants.AddressZero,
+                        Infinity
+                    )
+                );
+
+                const newRoutesByLength: IRoute_[] = routesByLength[inCoin].map(
+                    (route) => getNewRoute(
+                        route,
+                        "wrapper",
+                        curve.constants.NATIVE_TOKEN.wrappedAddress,
+                        inCoin,
+                        outCoin,
+                        0,
+                        0,
+                        15,
+                        ethers.constants.AddressZero,
+                        Infinity
+                    )
+                );
+
+                routesByTvl[outCoin] = [...(routesByTvl[outCoin] ?? []), ...newRoutesByTvl]
+                routesByTvl[outCoin] = filterRoutes(routesByTvl[outCoin], inputCoinAddress, sortByTvl);
+
+                routesByLength[outCoin] = [...(routesByLength[outCoin] ?? []), ...newRoutesByLength]
+                routesByLength[outCoin] = filterRoutes(routesByLength[outCoin], inputCoinAddress, sortByLength);
+
+                nextCoins.add(outCoin);
+            }
             for (const [poolId, poolData] of ALL_POOLS) {
                 const wrapped_coin_addresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
                 const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());

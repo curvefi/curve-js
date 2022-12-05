@@ -297,7 +297,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
     // No more than 4 steps (swaps)
     for (let step = 0; step < 4; step++) {
         for (const inCoin of curCoins) {
-            if ([curve.constants.NATIVE_TOKEN.address, curve.constants.NATIVE_TOKEN.wrappedAddress].includes(inCoin)) {
+            if (curve.chainId !== 42220 && [curve.constants.NATIVE_TOKEN.address, curve.constants.NATIVE_TOKEN.wrappedAddress].includes(inCoin)) { // Exclude Celo
                 const outCoin = inCoin === curve.constants.NATIVE_TOKEN.address ? curve.constants.NATIVE_TOKEN.wrappedAddress : curve.constants.NATIVE_TOKEN.address;
 
                 const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(

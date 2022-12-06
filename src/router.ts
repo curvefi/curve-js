@@ -297,7 +297,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
     // No more than 4 steps (swaps)
     for (let step = 0; step < 4; step++) {
         for (const inCoin of curCoins) {
-            if ([curve.constants.NATIVE_TOKEN.address, curve.constants.NATIVE_TOKEN.wrappedAddress].includes(inCoin)) {
+            if (curve.chainId !== 42220 && [curve.constants.NATIVE_TOKEN.address, curve.constants.NATIVE_TOKEN.wrappedAddress].includes(inCoin)) { // Exclude Celo
                 const outCoin = inCoin === curve.constants.NATIVE_TOKEN.address ? curve.constants.NATIVE_TOKEN.wrappedAddress : curve.constants.NATIVE_TOKEN.address;
 
                 const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(
@@ -344,7 +344,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                 const base_pool = poolData.is_meta ? curve.constants.POOLS_DATA[poolData.base_pool as string] : null;
                 const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
                 const token_address = poolData.token_address.toLowerCase();
-                const is_lending = poolData.is_lending ?? false;
+                const is_aave_like_lending = poolData.is_lending && wrapped_coin_addresses.length === 3 && !poolData.deposit_address;
                 const tvlMultiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
 
                 const inCoinIndexes = {
@@ -361,7 +361,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                 if (tvl === 0) continue;
 
                 let poolAddress = poolData.is_fake ? poolData.deposit_address as string : poolData.swap_address;
-                const coin_addresses = (is_lending || poolData.is_fake) ? underlying_coin_addresses : wrapped_coin_addresses;
+                const coin_addresses = (is_aave_like_lending || poolData.is_fake) ? underlying_coin_addresses : wrapped_coin_addresses;
 
                 // LP -> wrapped coin (underlying for lending or fake pool) "swaps" (actually remove_liquidity_one_coin)
                 if (coin_addresses.length < 6 && inCoin === token_address) {
@@ -373,7 +373,7 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                         const outputCoinIdx = coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
-                        const swapType = poolData.is_crypto ? 14 : is_lending ? 13 : 12;
+                        const swapType = poolData.is_crypto ? 14 : is_aave_like_lending ? 13 : 12;
 
                         const newRoutesByTvl: IRoute_[] = routesByTvl[inCoin].map(
                             (route) => getNewRoute(
@@ -416,12 +416,11 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
                 }
 
                 // Wrapped coin (underlying for lending or fake pool) -> LP "swaps" (actually add_liquidity)
-                const inCoinIndex = (is_lending || poolData.is_fake) ? inCoinIndexes.underlying_coin : inCoinIndexes.wrapped_coin;
+                const inCoinIndex = (is_aave_like_lending || poolData.is_fake) ? inCoinIndexes.underlying_coin : inCoinIndexes.wrapped_coin;
                 if (coin_addresses.length < 6 && inCoinIndex >= 0) {
                     // Looking for outputCoinAddress only on the final step
                     if (!(step === 3 && token_address !== outputCoinAddress)) {
-                        // const swapType = is_lending ? 9 : wrapped_coin_addresses.length === 2 ? 7 : 8;  // TODO change for atricrypto3 base pool
-                        const swapType = is_lending ? 9
+                        const swapType = is_aave_like_lending ? 9
                             : coin_addresses.length === 2 ? 7
                             : coin_addresses.length === 3 ? 8
                             : coin_addresses.length === 4 ? 10 : 11;

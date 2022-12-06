@@ -85,6 +85,7 @@ import twopoolSwapABI from '../abis/2pool/swap.json';
 import fourpoolSwapABI from '../abis/4pool/swap.json';
 import fraxusdcSwapABI from '../abis/fraxusdc/swap.json';
 import frxethSwapABI from '../abis/frxeth/swap.json';
+import sbtc2SwapABI from '../abis/sbtc2/swap.json';
 import { lowerCasePoolDataAddresses } from "../utils";
 import { IDict, IPoolData } from "../../interfaces";
 
@@ -1599,6 +1600,30 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         underlying_decimals: [18, 18],
         wrapped_decimals: [18, 18],
         swap_abi: frxethSwapABI,
+        gauge_abi: gaugeV5ABI,
+    },
+    sbtc2: {
+        name: "sbtc2",
+        full_name: "sbtc2",
+        symbol: "sbtc2",
+        reference_asset: 'BTC',
+        swap_address: "0xf253f83AcA21aAbD2A20553AE0BF7F65C755A07F",
+        token_address: "0x051d7e5609917Bd9b73f04BAc0DED8Dd46a74301",
+        gauge_address: "0x6D787113F23bED1D5e1530402B3f364D0A6e5Af3",
+        is_plain: true,
+        underlying_coins: ['WBTC', 'sBTC'],
+        wrapped_coins: ['WBTC', 'sBTC'],
+        underlying_coin_addresses: [
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
+        ],
+        wrapped_coin_addresses: [
+            '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+            '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6',
+        ],
+        underlying_decimals: [8, 18],
+        wrapped_decimals: [8, 18],
+        swap_abi: sbtc2SwapABI,
         gauge_abi: gaugeV5ABI,
     },
 });

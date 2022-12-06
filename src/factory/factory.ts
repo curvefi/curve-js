@@ -58,7 +58,7 @@ async function getFactoryImplementations(this: ICurve, factorySwapAddresses: str
         calls.push(factoryMulticallContract.get_implementation_address(addr));
     }
 
-    return await this.multicallProvider.all(calls) as string[]
+    return (await this.multicallProvider.all(calls) as string[]).map((a) => a.toLowerCase());
 }
 
 function setFactorySwapContracts(this: ICurve, factorySwapAddresses: string[], factorySwapABIs: any[]): void {

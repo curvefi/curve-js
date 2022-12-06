@@ -8,6 +8,8 @@ import MetaBTCABI from "../constants/abis/factory-v2/MetaBTC.json";
 import MetaBTCBalancesABI from "../constants/abis/factory-v2/MetaBTCBalances.json";
 import MetaBTCRenABI from "../constants/abis/factory-v2/MetaBTCRen.json";
 import MetaBTCRenBalancesABI from "../constants/abis/factory-v2/MetaBTCBalancesRen.json";
+import MetaSbtc2ABI from "../constants/abis/factory-v2/MetaSbtc2.json";
+import MetaSbtc2BalancesABI from "../constants/abis/factory-v2/MetaSbtc2Balance.json";
 import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json";
 import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json";
 import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json";
@@ -29,9 +31,11 @@ import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtc
 import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json";
 import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json";
 import RenMetaZapABI from "../constants/abis/ren/meta_zap.json";
+import Sbtc2MetaZapABI from "../constants/abis/sbtc2/meta_zap.json";
+import { lowerCaseKeys } from "../constants/utils";
 
 
-export const implementationABIDictEthereum: IDict<any> = {
+export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": factorySwapABI,
 
     "0x213be373FDff327658139C7df330817DAD2d5bBE": MetaUSDABI,
@@ -45,6 +49,9 @@ export const implementationABIDictEthereum: IDict<any> = {
 
     "0xECAaecd9d2193900b424774133B1f51ae0F29d9E": MetaBTCRenABI,
     "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": MetaBTCRenBalancesABI,
+
+    "0x008CFa89df5B0c780cA3462fc2602D7F8c7Ac315": MetaSbtc2ABI,
+    "0xAbc533EbCDdeD41215C46ee078C5818B5b0A252F": MetaSbtc2BalancesABI,
 
     "0x6523Ac15EC152Cb70a334230F6c5d62C5Bd963f1": Plain2BasicABI,
     "0x24D937143d3F5cF04c72bA112735151A8CAE2262": Plain2BalancesABI,
@@ -60,9 +67,9 @@ export const implementationABIDictEthereum: IDict<any> = {
     "0xd35B58386705CE75CE6d09842E38E9BE9CDe5bF6": Plain4BalancesABI,
     "0x88855cdF2b0A8413D470B86952E726684de915be": Plain4ETHABI,
     "0xaD4753D045D3Aed5C1a6606dFb6a7D7AD67C1Ad7": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictPolygon: IDict<any> = {
+export const implementationABIDictPolygon: IDict<any> = lowerCaseKeys({
     "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": MetaUSDABI,
     "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": MetaUSDBalancesABI,
 
@@ -83,9 +90,9 @@ export const implementationABIDictPolygon: IDict<any> = {
     "0xC7c46488566b9ef9B981b87E328939CaA5ca152f": Plain4BalancesABI,
     "0xf31bcdf0B9a5eCD7AB463eB905551fBc32e51856": Plain4ETHABI,
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictFantom: IDict<any> = {
+export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
     "0xfCE359115dFe1533a2458650123F86C454BC0213": MetaUSDABI,
     "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": MetaUSDBalancesABI,
 
@@ -109,9 +116,9 @@ export const implementationABIDictFantom: IDict<any> = {
     "0x775A21E0dfE25aF30FF2FCAC37512EbD8fD36471": Plain4BalancesABI,
     "0xb11Dc44A9f981fAF1669dca6DD40c3cc2554A2ce": Plain4ETHABI,
     "0x9D7C28226AA7142cBF234ab9aa9C203D095c528B": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictAvalanche: IDict<any> = {
+export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({
     "0xA237034249290De2B07988Ac64b96f22c0E76fE0": MetaUSDABI,
     "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": MetaUSDBalancesABI, // 0x7f90122BF0700F9E7e1F688fe926940E8839F353
 
@@ -132,9 +139,9 @@ export const implementationABIDictAvalanche: IDict<any> = {
     "0x7D86446dDb609eD0F5f8684AcF30380a356b2B4c": Plain4BalancesABI,
     "0x0eb0F1FaF5F509Ac53fA224477509EAD167cf410": Plain4ETHABI,
     "0xCE94D3E5b0D80565D7B713A687b39a3Dc81780BA": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictArbitrum: IDict<any> = {
+export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({
     "0x09672362833d8f703D5395ef3252D4Bfa51c15ca": MetaUSDABI,
     "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5": MetaUSDBalancesABI,
 
@@ -158,9 +165,9 @@ export const implementationABIDictArbitrum: IDict<any> = {
     "0x2ac56cEBc2D27c9bB51a11773355E44371Eb88D3": Plain4BalancesABI,
     "0x89287c32c2CAC1C76227F6d300B2DBbab6b75C08": Plain4ETHABI,
     "0x06e3C4da96fd076b97b7ca3Ae23527314b6140dF": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictOptimism: IDict<any> = {
+export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
     "0x78CF256256C8089d68Cde634Cf7cDEFb39286470": MetaUSDABI,
     "0xADf698e4d8Df08b3E2c79682891636eF00F6e205": MetaUSDBalancesABI,
 
@@ -181,9 +188,9 @@ export const implementationABIDictOptimism: IDict<any> = {
     "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9": Plain4BalancesABI,
     "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6": Plain4ETHABI,
     "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6": Plain4OptimizedABI,
-}
+})
 
-export const implementationABIDictXDai: IDict<any> = {
+export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
     "0x4A5bF7Ab9A8202692051c19B102d3eDD62aaBAE6": MetaUSDABI,
     "0x0B4dc7A945695D11FD83e40B2DfC2B896A02395F": MetaUSDBalancesABI,
 
@@ -201,9 +208,9 @@ export const implementationABIDictXDai: IDict<any> = {
     "0xcB4eB43E31C830e22baF764c64F11F32C280496c": Plain4BalancesABI,
     "0xc1C49622b63B961ce1D352ecb7D8261Ab5556695": Plain4ETHABI,
     "0x0E2615ce69Cd3Dc3Ff6f66a975bEa0655F3bA7b9": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictMoonbeam: IDict<any> = {
+export const implementationABIDictMoonbeam: IDict<any> = lowerCaseKeys({
     "0x6842E0412AC1c00464dc48961330156a07268d14": Plain2BasicABI,
     "0x9fAe78C4bBB649deB7b2295dDB8A03adA7eB660F": Plain2BalancesABI,
     "0xfCE359115dFe1533a2458650123F86C454BC0213": Plain2ETHABI,
@@ -218,16 +225,15 @@ export const implementationABIDictMoonbeam: IDict<any> = {
     "0x7Bb707085905c9D80854652809A1ba8480C11789": Plain4BalancesABI,
     "0xec9cEBE650E181079576C1b6d0d2e092B1EdfF13": Plain4ETHABI,
     "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictKava: IDict<any> = {
+export const implementationABIDictKava: IDict<any> = lowerCaseKeys({
     "0x2632679f5ca396a1bd2647092d9dbf7ec5d7b263": Plain2BasicABI,
     "0x12f196251efcaca0fd73d5b58132b16760ba96a8": Plain2BalancesABI,
     "0xafdab4f8f6e6992b16e3906295fba390aab59ca5": Plain2ETHABI,
     "0x50d7a3e0d5350d52e9e08a1b58eefd1db8759d7d": Plain2OptimizedABI,
 
     "0xc8913d486a42459e6b34db33f0c660fca61306b9": Plain3BasicABI,
-    "0xc8913D486a42459e6B34db33F0C660FCa61306b9": Plain3BasicABI,  // TODO lowercase all implementation addresses
     "0xc5ec776a55ea062fa3173c6c76703e9c9fa91c47": Plain3BalancesABI,
     "0xed2c5f2c4cab6e82630d5615ea15dd47d8b29983": Plain3ETHABI,
     "0xe7d5293c01685a414ddde527eb5effbf92b52648": Plain3OptimizedABI,
@@ -236,9 +242,9 @@ export const implementationABIDictKava: IDict<any> = {
     "0xd59c875dccb6cdcb3a75b91b58a363b5e4b0ca9a": Plain4BalancesABI,
     "0x6378dd741b24bd884f3590d7bc7555fdb2f5b003": Plain4ETHABI,
     "0x509495dfeec3a53acb2f60669985d868131ad9a5": Plain4OptimizedABI,
-}
+});
 
-export const implementationABIDictCelo: IDict<any> = {
+export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
     "0xfEE7166C32Bdf6356Ef60636f43400AA55551A96": Plain2BasicABI,
     "0x183Bb362aAa53f24BDF76a5E0FE11eEEce21F44d": Plain2BalancesABI,
     "0x469CF0874E62cfbaD342AE7e11aBCfC0F08dC17d": Plain2ETHABI,
@@ -253,9 +259,9 @@ export const implementationABIDictCelo: IDict<any> = {
     "0x3730D8B82BF3fF6Cc6dFDBe2Fd7B2A655e74eAae": Plain4BalancesABI,
     "0x0F5390AB4C5456a769056C96E4D7C71770b52319": Plain4ETHABI,
     "0xA73b02a97B45604cd9f0BBAA153eCfe01f409350": Plain4OptimizedABI,
-}
+});
 
-export const implementationBasePoolIdDictEthereum: IDict<string> = {
+export const implementationBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys({
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
 
     "0x213be373FDff327658139C7df330817DAD2d5bBE": "3pool",
@@ -269,17 +275,20 @@ export const implementationBasePoolIdDictEthereum: IDict<string> = {
 
     "0xECAaecd9d2193900b424774133B1f51ae0F29d9E": "ren",
     "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": "ren",
-}
 
-export const implementationBasePoolIdDictPolygon: IDict<string> = {
+    "0x008CFa89df5B0c780cA3462fc2602D7F8c7Ac315": "sbtc2",
+    "0xAbc533EbCDdeD41215C46ee078C5818B5b0A252F": "sbtc2",
+});
+
+export const implementationBasePoolIdDictPolygon: IDict<string> = lowerCaseKeys({
     "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": "aave",
     "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": "aave",
 
     "0xC05EB760A135d3D0c839f1141423002681157a17": "ren",
     "0xD8336532f6ED7b94282fAF724fe41d6145E07Cfc": "ren",
-}
+});
 
-export const implementationBasePoolIdDictFantom: IDict<string> = {
+export const implementationBasePoolIdDictFantom: IDict<string> = lowerCaseKeys({
     "0xfCE359115dFe1533a2458650123F86C454BC0213": "2pool",
     "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": "2pool",
 
@@ -288,17 +297,17 @@ export const implementationBasePoolIdDictFantom: IDict<string> = {
 
     "0x210C806F6AE850279f7E298dE749EC4B427d00DD": "geist",
     "0xf82162bB68aD5a168345bb7EFb2faA0EDCCA5177": "geist",
-}
+});
 
-export const implementationBasePoolIdDictAvalanche: IDict<string> = {
+export const implementationBasePoolIdDictAvalanche: IDict<string> = lowerCaseKeys({
     "0xA237034249290De2B07988Ac64b96f22c0E76fE0": "aave",
     "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": "aave",
 
     "0xa27f39E9C21b3376F43266E13Ad5A5d6E9BdB320": "ren",
     "0x505C34ED8dBE96d2D5C7D83158aA844887770970": "ren",
-}
+});
 
-export const implementationBasePoolIdDictArbitrum: IDict<string> = {
+export const implementationBasePoolIdDictArbitrum: IDict<string> = lowerCaseKeys({
     "0x09672362833d8f703D5395ef3252D4Bfa51c15ca": "2pool",
     "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5": "2pool",
 
@@ -307,26 +316,26 @@ export const implementationBasePoolIdDictArbitrum: IDict<string> = {
 
     "0x8DEb66a4A40E370355bEe35f12E55Fe9c755d686": "factory-v2-41", // fraxbp
     "0x3edE9b145F82e9e46C03f8A8F67B77aEE847b632": "factory-v2-41", // fraxbp
-}
+});
 
-export const implementationBasePoolIdDictOptimism: IDict<string> = {
+export const implementationBasePoolIdDictOptimism: IDict<string> = lowerCaseKeys({
     "0x78CF256256C8089d68Cde634Cf7cDEFb39286470": "3pool",
     "0xADf698e4d8Df08b3E2c79682891636eF00F6e205": "3pool",
 
     "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": "factory-v2-16", // fraxusdc
     "0x114C4042B11a2b16F58Fe1BFe847589a122F678a": "factory-v2-16", // fraxusdc
-}
+});
 
-export const implementationBasePoolIdDictXDai: IDict<string> = {
+export const implementationBasePoolIdDictXDai: IDict<string> = lowerCaseKeys({
     "0x4A5bF7Ab9A8202692051c19B102d3eDD62aaBAE6": "3pool",
     "0x0B4dc7A945695D11FD83e40B2DfC2B896A02395F": "3pool",
-}
+});
 
-export const implementationBasePoolIdDictMoonbeam: IDict<string> = {}
+export const implementationBasePoolIdDictMoonbeam: IDict<string> = lowerCaseKeys({});
 
-export const implementationBasePoolIdDictKava: IDict<string> = {}
+export const implementationBasePoolIdDictKava: IDict<string> = lowerCaseKeys({});
 
-export const implementationBasePoolIdDictCelo: IDict<string> = {}
+export const implementationBasePoolIdDictCelo: IDict<string> = lowerCaseKeys({});
 
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
@@ -344,6 +353,10 @@ export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     ren: {
         address: "0x8Fb3Ec8f2d1Dc089E70CD61f1E49496d443B2124".toLowerCase(),
         ABI: RenMetaZapABI,
+    },
+    sbtc2: {
+        address: "0xA2d40Edbf76C6C0701BA8899e2d059798eBa628e".toLowerCase(),
+        ABI: Sbtc2MetaZapABI,
     },
 }
 

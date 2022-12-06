@@ -8,6 +8,8 @@ import MetaBTCABI from "../constants/abis/factory-v2/MetaBTC.json";
 import MetaBTCBalancesABI from "../constants/abis/factory-v2/MetaBTCBalances.json";
 import MetaBTCRenABI from "../constants/abis/factory-v2/MetaBTCRen.json";
 import MetaBTCRenBalancesABI from "../constants/abis/factory-v2/MetaBTCBalancesRen.json";
+import MetaSbtc2ABI from "../constants/abis/factory-v2/MetaSbtc2.json";
+import MetaSbtc2BalancesABI from "../constants/abis/factory-v2/MetaSbtc2Balance.json";
 import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json";
 import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json";
 import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json";
@@ -29,6 +31,7 @@ import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtc
 import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json";
 import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json";
 import RenMetaZapABI from "../constants/abis/ren/meta_zap.json";
+import Sbtc2MetaZapABI from "../constants/abis/sbtc2/meta_zap.json";
 import { lowerCaseKeys } from "../constants/utils";
 
 
@@ -46,6 +49,9 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
 
     "0xECAaecd9d2193900b424774133B1f51ae0F29d9E": MetaBTCRenABI,
     "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": MetaBTCRenBalancesABI,
+
+    "0x008CFa89df5B0c780cA3462fc2602D7F8c7Ac315": MetaSbtc2ABI,
+    "0xAbc533EbCDdeD41215C46ee078C5818B5b0A252F": MetaSbtc2BalancesABI,
 
     "0x6523Ac15EC152Cb70a334230F6c5d62C5Bd963f1": Plain2BasicABI,
     "0x24D937143d3F5cF04c72bA112735151A8CAE2262": Plain2BalancesABI,
@@ -269,6 +275,9 @@ export const implementationBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys
 
     "0xECAaecd9d2193900b424774133B1f51ae0F29d9E": "ren",
     "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": "ren",
+
+    "0x008CFa89df5B0c780cA3462fc2602D7F8c7Ac315": "sbtc2",
+    "0xAbc533EbCDdeD41215C46ee078C5818B5b0A252F": "sbtc2",
 });
 
 export const implementationBasePoolIdDictPolygon: IDict<string> = lowerCaseKeys({
@@ -344,6 +353,10 @@ export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     ren: {
         address: "0x8Fb3Ec8f2d1Dc089E70CD61f1E49496d443B2124".toLowerCase(),
         ABI: RenMetaZapABI,
+    },
+    sbtc2: {
+        address: "0xA2d40Edbf76C6C0701BA8899e2d059798eBa628e".toLowerCase(),
+        ABI: Sbtc2MetaZapABI,
     },
 }
 

@@ -98,7 +98,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
         const response = await axios.get(url);
         const poolGaugeDict: IDict<string> = {};
         for (const gaugeData of response.data.data.gauges) {
-            poolGaugeDict[gaugeData.swap] = gaugeData.gauge;
+            poolGaugeDict[gaugeData.swap.toLowerCase()] = gaugeData.gauge.toLowerCase();
         }
         for (let i = 0; i < rawPoolList.length; i++) {
             rawPoolList[i].gaugeAddress = poolGaugeDict[rawPoolList[i].address];

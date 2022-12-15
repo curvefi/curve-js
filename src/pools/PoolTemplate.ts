@@ -22,6 +22,7 @@ import {
     _get_small_x,
     _get_price_impact,
     checkNumber,
+    _getCrvApyFromApi,
 } from '../utils';
 import {
     IDict,
@@ -113,7 +114,7 @@ export class PoolTemplate {
         totalLiquidity: (useApi?: boolean) => Promise<string>,
         volume: () => Promise<string>,
         baseApy: () => Promise<{ day: string, week: string }>,
-        tokenApy: () => Promise<[baseApy: string, boostedApy: string]>,
+        tokenApy: (useApi?: boolean) => Promise<[baseApy: number, boostedApy: number]>,
         rewardsApy: () => Promise<IReward[]>,
     };
     wallet: {
@@ -399,11 +400,17 @@ export class PoolTemplate {
         }
     }
 
-    private statsTokenApy = async (): Promise<[baseApy: string, boostedApy: string]> => {
+    private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use getRewardsApy instead`);
 
+        if (useApi && curve.chainId === 1) {
+            const crvAPYs = await _getCrvApyFromApi();
+            const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
+            return [poolCrvApy[0], poolCrvApy[1]];
+        }
+
         const totalLiquidityUSD = await this.statsTotalLiquidity();
-        if (Number(totalLiquidityUSD) === 0) return ["0", "0"];
+        if (Number(totalLiquidityUSD) === 0) return [0, 0];
 
         let inflationRateBN, workingSupplyBN, totalSupplyBN;
         if (curve.chainId !== 1) {
@@ -442,7 +449,7 @@ export class PoolTemplate {
         const baseApyBN = rateBN.times(crvPrice);
         const boostedApyBN = baseApyBN.times(2.5);
 
-        return [baseApyBN.times(100).toFixed(4), boostedApyBN.times(100).toFixed(4)]
+        return [baseApyBN.times(100).toNumber(), boostedApyBN.times(100).toNumber()]
     }
 
     private statsRewardsApy = async (): Promise<IReward[]> => {
@@ -958,7 +965,7 @@ export class PoolTemplate {
         return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
     }
 
-    public currentCrvApy = async (address = ""): Promise<string> => {
+    public currentCrvApy = async (address = ""): Promise<number> => {
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
@@ -967,9 +974,9 @@ export class PoolTemplate {
 
         const boost = await this.boost(address);
         if (boost == "2.5") return maxApy;
-        if (boost === "NaN") return "NaN";
+        if (boost === "NaN") return NaN;
 
-        return BN(baseApy).times(BN(boost)).toFixed(4).replace(/([0-9])0+$/, '$1');
+        return BN(baseApy).times(BN(boost)).toNumber();
     }
 
     public maxBoostedStake = async (...addresses: string[]): Promise<IDict<string> | string> => {

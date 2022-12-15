@@ -99,8 +99,8 @@ const poolStatsTest = (name: string) => {
 
             const [apy, boostedApy] = await pool.stats.tokenApy();
 
-            assert.isTrue(checkNumber(apy));
-            assert.isTrue(checkNumber(boostedApy));
+            assert.isTrue(typeof apy === "number");
+            assert.isTrue(typeof boostedApy === "number");
         });
 
         it('Rewards APY', async function () {

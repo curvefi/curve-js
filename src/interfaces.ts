@@ -96,6 +96,7 @@ export interface IPoolDataFromApi {
     usdTotal: number,
     totalSupply: number,
     amplificationCoefficient: string,
+    gaugeCrvApy: [number | null, number | null],
 }
 
 export interface ISubgraphPoolData {

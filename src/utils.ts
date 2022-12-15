@@ -263,6 +263,28 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     return priceDict
 }
 
+export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
+    const network = curve.constants.NETWORK_NAME;
+    const promises = [
+        _getPoolsFromApi(network, "main"),
+        _getPoolsFromApi(network, "crypto"),
+        _getPoolsFromApi(network, "factory"),
+        _getPoolsFromApi(network, "factory-crypto"),
+    ];
+    const allTypesExtendedPoolData = await Promise.all(promises);
+    const apyDict: IDict<[number, number]> = {};
+
+    for (const extendedPoolData of allTypesExtendedPoolData) {
+        for (const pool of extendedPoolData.poolData) {
+            if (pool.gaugeAddress) {
+                apyDict[pool.gaugeAddress] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
+            }
+        }
+    }
+
+    return apyDict
+}
+
 const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export const _getUsdRate = async (assetId: string): Promise<number> => {
     if (curve.chainId === 1 && assetId.toLowerCase() === '0x8762db106b2c2a0bccb3a80d1ed41273552616e8') return 0; // RSR

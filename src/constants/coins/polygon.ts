@@ -35,6 +35,7 @@ export const COINS_POLYGON: { [index: string]: string } = lowerCaseValues({
     ...USD_COINS_POLYGON,
     crv: "0x172370d5cd63279efa6d502dab29171933a610af",    // CRV
     matic: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  // MATIC
+    wmatic: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
 })
 
 const DECIMALS_POLYGON: { [index: string]: number } = {

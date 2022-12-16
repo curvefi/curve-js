@@ -21,7 +21,7 @@ const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYP
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd', 'eursusd'];
 const POLYGON_FACTORY_PLAIN_POOLS = ['factory-v2-113', 'factory-v2-4', 'factory-v2-37']; // ['CRVALRTO-f', '3EUR-f', '4eur-f(2)'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
-const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1']; // ['CRV/TRICRYPTO'];
+const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1, factory-crypto-83']; // ['CRV/TRICRYPTO', 'WMATIC/TRICRYPTO'];
 const POLYGON_POOLS = [...POLYGON_MAIN_POOLS, ...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS, ...POLYGON_FACTORY_CRYPTO_META_POOLS];
 
 const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'atricrypto'];
@@ -62,7 +62,7 @@ const CELO_POOLS = ['factory-v2-0'];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = ['sbtc2'];
+const POOLS_FOR_TESTING = ['factory-crypto-83'];
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-unstake-withdraw`, function () {
@@ -140,8 +140,8 @@ const underlyingLiquidityTest = (id: string) => {
 
             assert.deepStrictEqual(BN(balances.lpToken), BN(initialBalances.lpToken).minus(BN(lpTokenAmount)));
             coinAddresses.forEach((c: string, i: number) => {
-                const delta = ['gusd', 'factory-v2-37'].includes(id) ? 0.011 : ['factory-v2-80'].includes(id) ? 1 : 0.01;
-                assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta);
+                const delta = ['gusd', 'factory-v2-37'].includes(id) ? 0.011 : ['factory-v2-80'].includes(id) ? 1 : ['factory-crypto-83'].includes(id) ? 0.1 : 0.01;
+                assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(coinsExpected[i]), delta, c);
             })
         });
 
@@ -196,8 +196,8 @@ const underlyingLiquidityTest = (id: string) => {
 
 const underlyingSwapTest = (id: string) => {
     describe(`${id} exchange`, function () {
-        for (let i = 0; i < 5; i++) {
-            for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
                         const pool = getPool(id);

@@ -67,6 +67,39 @@ export const withdrawOneCoinMetaFactoryMixin: PoolTemplate = {
 }
 
 // @ts-ignore
+export const withdrawOneCoinCryptoMetaFactoryMixin: PoolTemplate = {
+    // @ts-ignore
+    async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+        if (!estimateGas) await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
+
+        const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
+        const  contract = curve.contracts[this.zap as string].contract;
+
+        const gas = await contract.estimateGas.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, true, curve.constantOptions);
+        if (estimateGas) return gas.toNumber()
+
+        const gasLimit = gas.mul(130).div(100);
+        return (await contract.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, true, { ...curve.options, gasLimit })).hash
+    },
+
+    async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number> {
+        // @ts-ignore
+        const [_lpTokenAmount, i] = await _withdrawOneCoinCheck.call(this, lpTokenAmount, coin, true);
+
+        // @ts-ignore
+        return await this._withdrawOneCoin(_lpTokenAmount, i, 0.1, true);
+    },
+
+    async withdrawOneCoin(lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
+        // @ts-ignore
+        const [_lpTokenAmount, i] = await _withdrawOneCoinCheck.call(this, lpTokenAmount, coin);
+
+        // @ts-ignore
+        return await this._withdrawOneCoin(_lpTokenAmount, i, slippage);
+    },
+}
+
+// @ts-ignore
 export const withdrawOneCoinZapMixin: PoolTemplate = {
     // @ts-ignore
     async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {

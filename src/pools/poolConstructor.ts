@@ -2,18 +2,18 @@ import { curve } from "../curve";
 import { PoolTemplate } from "./PoolTemplate";
 import { poolBalancesAtricrypto3Mixin, poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
 import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins";
-import { depositMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins";
+import { depositMetaFactoryMixin, depositCryptoMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins";
 import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins";
 import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
-import { withdrawMetaFactoryMixin, withdrawZapMixin, withdrawLendingOrCryptoMixin, withdrawPlainMixin } from "./mixins/withdrawMixins";
+import { withdrawMetaFactoryMixin, withdrawCryptoMetaFactoryMixin, withdrawZapMixin, withdrawLendingOrCryptoMixin, withdrawPlainMixin } from "./mixins/withdrawMixins";
 import { withdrawWrapped2argsMixin, withdrawWrapped3argsMixin } from "./mixins/withdrawWrappedMixins";
 import { withdrawImbalanceMetaFactoryMixin, withdrawImbalanceZapMixin, withdrawImbalanceLendingMixin, withdrawImbalancePlainMixin } from "./mixins/withdrawImbalanceMixins";
 import { withdrawImbalanceWrapped2argsMixin, withdrawImbalanceWrapped3argsMixin } from "./mixins/withdrawImbalanceWrappedMixins";
 import { withdrawOneCoinExpectedMetaFactoryMixin, withdrawOneCoinExpectedZapMixin, withdrawOneCoinExpected3argsMixin, withdrawOneCoinExpected2argsMixin } from "./mixins/withdrawOneCoinExpectedMixins";
-import { withdrawOneCoinMetaFactoryMixin, withdrawOneCoinZapMixin, withdrawOneCoinLendingOrCryptoMixin, withdrawOneCoinPlainMixin } from "./mixins/withdrawOneCoinMixins";
+import { withdrawOneCoinMetaFactoryMixin, withdrawOneCoinCryptoMetaFactoryMixin, withdrawOneCoinZapMixin, withdrawOneCoinLendingOrCryptoMixin, withdrawOneCoinPlainMixin } from "./mixins/withdrawOneCoinMixins";
 import { withdrawOneCoinWrappedExpected2argsMixin, withdrawOneCoinWrappedExpected3argsMixin } from "./mixins/withdrawOneCoinWrappedExpectedMixins";
 import { withdrawOneCoinWrappedLendingOrCryptoMixin, withdrawOneCoinWrappedMixin } from "./mixins/withdrawOneCoinWrappedMixins";
-import { swapTricrypto2Mixin, swapMetaFactoryMixin, swapMixin } from "./mixins/swapMixins";
+import { swapTricrypto2Mixin, swapMetaFactoryMixin, swapCryptoMetaFactoryMixin, swapMixin } from "./mixins/swapMixins";
 import { swapWrappedExpectedAndApproveMixin, swapWrappedTricrypto2Mixin, swapWrappedMixin } from "./mixins/swapWrappedMixins";
 
 
@@ -48,7 +48,11 @@ export const getPool = (poolId: string): PoolTemplate => {
 
     // deposit and depositEstimateGas
     if (poolDummy.isMetaFactory) {
-        Object.assign(Pool.prototype, depositMetaFactoryMixin);
+        if (poolDummy.isCrypto) {
+            Object.assign(Pool.prototype, depositCryptoMetaFactoryMixin);
+        } else {
+            Object.assign(Pool.prototype, depositMetaFactoryMixin);
+        }
     } else if (poolDummy.zap && poolId !== 'susd') {
         Object.assign(Pool.prototype, depositZapMixin);
     } else if (poolDummy.isLending || (poolDummy.isCrypto && !poolDummy.isPlain)) {
@@ -59,7 +63,7 @@ export const getPool = (poolId: string): PoolTemplate => {
 
     // depositWrapped and depositWrappedEstimateGas
     if (!poolDummy.isPlain && !poolDummy.isFake) {
-        if ((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) {
+        if (((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) || (poolDummy.isCrypto && poolDummy.isMetaFactory)) {
             Object.assign(Pool.prototype, depositWrapped3argsMixin);
         } else {
             Object.assign(Pool.prototype, depositWrapped2argsMixin);
@@ -79,7 +83,11 @@ export const getPool = (poolId: string): PoolTemplate => {
 
     // withdraw and withdrawEstimateGas
     if (poolDummy.isMetaFactory) {
-        Object.assign(Pool.prototype, withdrawMetaFactoryMixin);
+        if (poolDummy.isCrypto) {
+            Object.assign(Pool.prototype, withdrawCryptoMetaFactoryMixin);
+        } else {
+            Object.assign(Pool.prototype, withdrawMetaFactoryMixin);
+        }
     } else if (poolDummy.zap && poolId !== 'susd') {
         Object.assign(Pool.prototype, withdrawZapMixin);
     } else if (poolDummy.isLending || (poolDummy.isCrypto && !poolDummy.isPlain)) {
@@ -90,7 +98,7 @@ export const getPool = (poolId: string): PoolTemplate => {
 
     // withdrawWrapped and withdrawWrappedEstimateGas
     if (!poolDummy.isPlain && !poolDummy.isFake) {
-        if ((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) {
+        if (((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) || (poolDummy.isCrypto && poolDummy.isMetaFactory)) {
             Object.assign(Pool.prototype, withdrawWrapped3argsMixin);
             Object.assign(Pool.prototype, withdrawWrappedExpectedMixin);
         } else {
@@ -134,7 +142,11 @@ export const getPool = (poolId: string): PoolTemplate => {
 
     // withdrawOneCoin and withdrawOneCoinEstimateGas
     if (poolDummy.isMetaFactory) {
-        Object.assign(Pool.prototype, withdrawOneCoinMetaFactoryMixin);
+        if (poolDummy.isCrypto) {
+            Object.assign(Pool.prototype, withdrawOneCoinCryptoMetaFactoryMixin);
+        } else {
+            Object.assign(Pool.prototype, withdrawOneCoinMetaFactoryMixin);
+        }
     } else if (poolDummy.zap) { // including susd
         Object.assign(Pool.prototype, withdrawOneCoinZapMixin);
     } else if (poolDummy.isLending || (poolDummy.isCrypto && !poolDummy.isPlain)) {
@@ -154,7 +166,7 @@ export const getPool = (poolId: string): PoolTemplate => {
 
     // withdrawOneCoinWrapped and withdrawOneCoinWrappedEstimateGas
     if (!poolDummy.isPlain && !poolDummy.isFake && !(poolDummy.isLending && poolDummy.zap)) {
-        if ((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) {
+        if (((poolDummy.isLending || poolDummy.isCrypto) && !poolDummy.zap) || (poolDummy.isCrypto && poolDummy.isMetaFactory)) {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedLendingOrCryptoMixin);
         } else {
             Object.assign(Pool.prototype, withdrawOneCoinWrappedMixin);
@@ -166,7 +178,11 @@ export const getPool = (poolId: string): PoolTemplate => {
         !(curve.chainId === 100 && poolDummy.id === "tricrypto")) { // tricrypto2 (eth), tricrypto (arbitrum); 100 is xDAI
         Object.assign(Pool.prototype, swapTricrypto2Mixin);
     } else if (poolDummy.isMetaFactory && (getPool(poolDummy.basePool).isLending || getPool(poolDummy.basePool).isFake || poolDummy.isCrypto)) {
-        Object.assign(Pool.prototype, swapMetaFactoryMixin);
+        if (poolDummy.isCrypto) {
+            Object.assign(Pool.prototype, swapCryptoMetaFactoryMixin);
+        } else {
+            Object.assign(Pool.prototype, swapMetaFactoryMixin);
+        }
     } else {
         Object.assign(Pool.prototype, swapMixin);
     }

@@ -70,6 +70,42 @@ export const depositMetaFactoryMixin: PoolTemplate = {
 }
 
 // @ts-ignore
+export const depositCryptoMetaFactoryMixin: PoolTemplate = {
+    // @ts-ignore
+    async _deposit(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+        if (!estimateGas) await _ensureAllowance(this.underlyingCoinAddresses, _amounts, this.zap as string);
+
+        // @ts-ignore
+        const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
+        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const contract = curve.contracts[this.zap as string].contract;
+
+        const gas = await contract.estimateGas.add_liquidity(this.address, _amounts, _minMintAmount, true, { ...curve.constantOptions, value });
+        if (estimateGas) return gas.toNumber();
+
+        const gasLimit = gas.mul(130).div(100);
+        return (await contract.add_liquidity(this.address, _amounts, _minMintAmount, true, { ...curve.options, gasLimit, value })).hash;
+    },
+
+    async depositEstimateGas(amounts: (number | string)[]): Promise<number> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts, true);
+
+        // @ts-ignore
+        return await this._deposit(_amounts, 0.1, true);
+    },
+
+    async deposit(amounts: (number | string)[], slippage?: number): Promise<string> {
+        // @ts-ignore
+        const _amounts = await _depositCheck.call(this, amounts);
+
+        // @ts-ignore
+        return await this._deposit(_amounts, slippage);
+    },
+}
+
+// @ts-ignore
 export const depositZapMixin: PoolTemplate = {
     // @ts-ignore
     async _deposit(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {

@@ -119,6 +119,43 @@ export const swapMetaFactoryMixin: PoolTemplate = {
 }
 
 // @ts-ignore
+export const swapCryptoMetaFactoryMixin: PoolTemplate = {
+    // @ts-ignore
+    async _swap(i: number, j: number, _amount: ethers.BigNumber, slippage?: number, estimateGas = false): Promise<string | number> {
+        // @ts-ignore
+        const contractAddress = this._swapContractAddress();
+        if (!estimateGas) await _ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], contractAddress);
+
+        const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
+        const contract = curve.contracts[contractAddress].contract;
+        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
+        const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : ethers.BigNumber.from(0);
+
+        const gas = await contract.estimateGas[exchangeMethod](this.address, i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value });
+        if (estimateGas) return gas.toNumber();
+
+        const gasLimit = gas.mul(140).div(100);
+        return (await contract[exchangeMethod](this.address, i, j, _amount, _minRecvAmount, true, { ...curve.options, value, gasLimit })).hash
+    },
+
+    async swapEstimateGas(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
+        // @ts-ignore
+        const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
+
+        // @ts-ignore
+        return await this._swap(i, j, _amount, 0.1, true);
+    },
+
+    async swap(inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
+        // @ts-ignore
+        const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
+
+        // @ts-ignore
+        return await this._swap(i, j, _amount, slippage);
+    },
+}
+
+// @ts-ignore
 export const swapMixin: PoolTemplate = {
     // @ts-ignore
     async _swap(i: number, j: number, _amount: ethers.BigNumber, slippage?: number, estimateGas = false): Promise<string | number> {

@@ -837,6 +837,7 @@ export class PoolTemplate {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)
 
+        await curve.updateFeeData();
         const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).mul(150).div(100);
         return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
@@ -855,6 +856,7 @@ export class PoolTemplate {
         }
         const _lpTokenAmount = parseUnits(lpTokenAmount);
 
+        await curve.updateFeeData();
         const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(200).div(100);
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }

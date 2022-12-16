@@ -270,6 +270,14 @@ const filterRoutes = (routes: IRoute_[], inputCoinAddress: string, sortFn: (a: I
 const sortByTvl = (a: IRoute_, b: IRoute_) => b.minTvl - a.minTvl || b.totalTvl - a.totalTvl || a.steps.length - b.steps.length;
 const sortByLength = (a: IRoute_, b: IRoute_) => a.steps.length - b.steps.length || b.minTvl - a.minTvl || b.totalTvl - a.totalTvl;
 
+// TODO REMOVE IT!!!
+const filterMaticFactory83Route = (routes: IRoute_[]) => {
+    return routes
+        .filter((r) =>
+            !(r.steps.length === 1 && r.steps[0].poolId === "factory-crypto-83" && r.steps[0].inputCoinAddress === curve.constants.NATIVE_TOKEN.address)
+        );
+}
+
 // Inspired by Dijkstra's algorithm
 export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
     inputCoinAddress = inputCoinAddress.toLowerCase();
@@ -592,7 +600,11 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
         nextCoins = new Set();
     }
 
-    const routes = [...(routesByTvl[outputCoinAddress] ?? []), ...(routesByLength[outputCoinAddress] ?? [])];
+    let routes = [...(routesByTvl[outputCoinAddress] ?? []), ...(routesByLength[outputCoinAddress] ?? [])];
+
+    // TODO REMOVE IT!!!
+    if (curve.chainId === 137) routes = filterMaticFactory83Route(routes);
+
     return routes.map((r) => r.steps);
 }
 

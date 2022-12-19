@@ -125,6 +125,10 @@
       {
         "name": "_min_dy",
         "type": "uint256"
+      },
+      {
+        "name": "_use_eth",
+        "type": "bool"
       }
     ],
     "outputs": [
@@ -179,6 +183,10 @@
       {
         "name": "_min_mint_amount",
         "type": "uint256"
+      },
+      {
+        "name": "_use_eth",
+        "type": "bool"
       }
     ],
     "outputs": [
@@ -225,6 +233,10 @@
       {
         "name": "_min_amounts",
         "type": "uint256[4]"
+      },
+      {
+        "name": "_use_eth",
+        "type": "bool"
       }
     ],
     "outputs": [
@@ -254,6 +266,10 @@
       {
         "name": "_min_amount",
         "type": "uint256"
+      },
+      {
+        "name": "_use_eth",
+        "type": "bool"
       }
     ],
     "outputs": [

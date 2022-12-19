@@ -403,7 +403,7 @@ export class PoolTemplate {
     private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use getRewardsApy instead`);
 
-        if (useApi && curve.chainId === 1) {
+        if (useApi) {
             const crvAPYs = await _getCrvApyFromApi();
             const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
             return [poolCrvApy[0], poolCrvApy[1]];

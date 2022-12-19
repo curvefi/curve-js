@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getMainPoolsGaugeRewards, _getPoolsFromApi, _getSubgraphData, _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api';
+import { _getPoolsFromApi, _getSubgraphData, _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -23,11 +23,11 @@ import {
     _get_price_impact,
     checkNumber,
     _getCrvApyFromApi,
+    _getRewardsFromApi,
 } from '../utils';
 import {
     IDict,
     IReward,
-    IExtendedPoolDataFromApi,
     IProfit,
 } from '../interfaces';
 import { curve as _curve, curve } from "../curve";
@@ -115,7 +115,7 @@ export class PoolTemplate {
         volume: () => Promise<string>,
         baseApy: () => Promise<{ day: string, week: string }>,
         tokenApy: (useApi?: boolean) => Promise<[baseApy: number, boostedApy: number]>,
-        rewardsApy: () => Promise<IReward[]>,
+        rewardsApy: (useApi?: boolean) => Promise<IReward[]>,
     };
     wallet: {
         balances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
@@ -452,55 +452,37 @@ export class PoolTemplate {
         return [baseApyBN.times(100).toNumber(), boostedApyBN.times(100).toNumber()]
     }
 
-    private statsRewardsApy = async (): Promise<IReward[]> => {
+    private statsRewardsApy = async (useApi = true): Promise<IReward[]> => {
         if (this.gauge === ethers.constants.AddressZero) return [];
 
-        if (curve.chainId !== 1) {
-            const apy: IReward[] = [];
-            const rewardTokens = await this.rewardTokens();
-            for (const rewardToken of rewardTokens) {
-                const contract = curve.contracts[this.sRewardContract || this.gauge].contract;
-
-                const totalLiquidityUSD = await this.statsTotalLiquidity();
-                const rewardRate = await _getUsdRate(rewardToken.token);
-
-                const rewardData = await contract.reward_data(rewardToken.token, curve.constantOptions);
-                const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
-                const inflation = toBN(rewardData.rate, rewardToken.decimals);
-                const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
-
-                apy.push({
-                    gaugeAddress: this.gauge.toLowerCase(),
-                    tokenAddress: rewardToken.token,
-                    symbol: rewardToken.symbol,
-                    apy: Number(baseApy.times(100).toFixed(4)),
-                });
-            }
-
-            return apy
+        if (curve.chainId === 1 || useApi) {
+            const rewards = await _getRewardsFromApi();
+            if (!rewards[this.gauge]) return [];
+            return rewards[this.gauge].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));
         }
 
-        const network = curve.constants.NETWORK_NAME;
-        const promises = [
-            _getMainPoolsGaugeRewards(),
-            _getPoolsFromApi(network, "main"),
-            _getPoolsFromApi(network, "crypto"),
-            _getPoolsFromApi(network, "factory"),
-            _getPoolsFromApi(network, "factory-crypto"),
-        ];
-        // @ts-ignore
-        const [mainPoolsRewards,...allTypesExtendedPoolData] = await Promise.all(promises);
+        const apy: IReward[] = [];
+        const rewardTokens = await this.rewardTokens(false);
+        for (const rewardToken of rewardTokens) {
+            const contract = curve.contracts[this.sRewardContract || this.gauge].contract;
 
-        const rewards = mainPoolsRewards as IDict<IReward[]>;
-        for (const extendedPoolData of allTypesExtendedPoolData as IExtendedPoolDataFromApi[]) {
-            for (const pool of extendedPoolData.poolData) {
-                if (pool.gaugeAddress && pool.gaugeRewards) {
-                    rewards[pool.gaugeAddress.toLowerCase()] = pool.gaugeRewards;
-                }
-            }
+            const totalLiquidityUSD = await this.statsTotalLiquidity();
+            const rewardRate = await _getUsdRate(rewardToken.token);
+
+            const rewardData = await contract.reward_data(rewardToken.token, curve.constantOptions);
+            const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
+            const inflation = toBN(rewardData.rate, rewardToken.decimals);
+            const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
+
+            apy.push({
+                gaugeAddress: this.gauge,
+                tokenAddress: rewardToken.token,
+                symbol: rewardToken.symbol,
+                apy: baseApy.times(100).toNumber(),
+            });
         }
 
-        return rewards[this.gauge.toLowerCase()] ?? []
+        return apy
     }
 
     private async _pureCalcLpTokenAmount(_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> {
@@ -1017,8 +999,14 @@ export class PoolTemplate {
 
     // ---------------- REWARDS PROFIT, CLAIM ----------------
 
-    public rewardTokens = memoize(async (): Promise<{token: string, symbol: string, decimals: number}[]> => {
+    public rewardTokens = memoize(async (useApi = true): Promise<{token: string, symbol: string, decimals: number}[]> => {
         if (this.gauge === ethers.constants.AddressZero) return []
+
+        if (useApi) {
+            const rewards = await _getRewardsFromApi();
+            if (!rewards[this.gauge]) return [];
+            return rewards[this.gauge].map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: r.decimals }));
+        }
 
         const gaugeContract = curve.contracts[this.gauge].contract;
         const gaugeMulticallContract = curve.contracts[this.gauge].multicallContract;

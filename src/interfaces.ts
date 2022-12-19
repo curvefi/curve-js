@@ -74,10 +74,17 @@ export interface ICoinFromPoolDataApi {
 export interface IReward {
     gaugeAddress: string,
     tokenAddress: string,
-    tokenPrice?: number,
-    name?: string,
     symbol: string,
-    decimals?: number,
+    apy: number
+}
+
+export interface IRewardFromApi {
+    gaugeAddress: string,
+    tokenAddress: string,
+    tokenPrice: number,
+    name: string,
+    symbol: string,
+    decimals: number,
     apy: number
 }
 
@@ -92,7 +99,7 @@ export interface IPoolDataFromApi {
     implementation: string,
     implementationAddress: string,
     coins: ICoinFromPoolDataApi[],
-    gaugeRewards?: IReward[],
+    gaugeRewards: IRewardFromApi[],
     usdTotal: number,
     totalSupply: number,
     amplificationCoefficient: string,

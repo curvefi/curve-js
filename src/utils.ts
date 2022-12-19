@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ethers, Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
-import { IDict, INetworkName } from './interfaces';
+import { IDict, INetworkName, IRewardFromApi } from './interfaces';
 import { curve } from "./curve";
 import { _getPoolsFromApi } from "./external-api";
 import ERC20Abi from './constants/abis/ERC20.json';
@@ -277,12 +277,34 @@ export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
     for (const extendedPoolData of allTypesExtendedPoolData) {
         for (const pool of extendedPoolData.poolData) {
             if (pool.gaugeAddress) {
-                apyDict[pool.gaugeAddress] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
+                apyDict[pool.gaugeAddress.toLowerCase()] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
             }
         }
     }
 
     return apyDict
+}
+
+export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => {
+    const network = curve.constants.NETWORK_NAME;
+    const promises = [
+        _getPoolsFromApi(network, "main"),
+        _getPoolsFromApi(network, "crypto"),
+        _getPoolsFromApi(network, "factory"),
+        _getPoolsFromApi(network, "factory-crypto"),
+    ];
+    const allTypesExtendedPoolData = await Promise.all(promises);
+    const rewardsDict: IDict<IRewardFromApi[]> = {};
+
+    for (const extendedPoolData of allTypesExtendedPoolData) {
+        for (const pool of extendedPoolData.poolData) {
+            if (pool.gaugeAddress) {
+                rewardsDict[pool.gaugeAddress.toLowerCase()] = pool.gaugeRewards;
+            }
+        }
+    }
+
+    return rewardsDict
 }
 
 const _usdRatesCache: IDict<{ rate: number, time: number }> = {}

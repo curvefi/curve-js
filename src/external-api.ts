@@ -27,16 +27,6 @@ export const _getSubgraphData = memoize(
     }
 )
 
-export const _getMainPoolsGaugeRewards = memoize(async (): Promise<IDict<IReward[]>> => {
-    const url = "https://api.curve.fi/api/getMainPoolsGaugeRewards";
-    const response = await axios.get(url, { validateStatus: () => true });
-    return response.data.data.mainPoolsGaugeRewards;
-},
-{
-    promise: true,
-    maxAge: 5 * 60 * 1000, // 5m
-});
-
 // Moonbeam and Aurora only
 export const _getLegacyAPYsAndVolumes = memoize(
     async (network: string): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {

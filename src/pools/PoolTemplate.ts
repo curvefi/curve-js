@@ -447,6 +447,8 @@ export class PoolTemplate {
             inflationRateBN = inflationRateBN.times(weightBN);
         }
 
+        if (inflationRateBN.eq(0)) return [0, 0];
+
         const rateBN = inflationRateBN.times(31536000).times(0.4).div(workingSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD));
         const crvPrice = await _getUsdRate(curve.constants.ALIASES.crv);
         const baseApyBN = rateBN.times(crvPrice);
@@ -1791,10 +1793,10 @@ export class PoolTemplate {
         const annualProfitBN = apyBN.times(totalLiquidityBN);
         const monthlyProfitBN = annualProfitBN.div(12);
         const weeklyProfitBN = annualProfitBN.div(52);
-        const daylyProfitBN = annualProfitBN.div(365);
+        const dailyProfitBN = annualProfitBN.div(365);
 
         return {
-            day: daylyProfitBN.toString(),
+            day: dailyProfitBN.toString(),
             week: weeklyProfitBN.toString(),
             month: monthlyProfitBN.toString(),
             year: annualProfitBN.toString(),

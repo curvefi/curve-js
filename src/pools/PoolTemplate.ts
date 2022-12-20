@@ -401,9 +401,12 @@ export class PoolTemplate {
     }
 
     private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
-        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use getRewardsApy instead`);
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
 
-        if (useApi) {
+        // const errorPoolsCrv: string[] = ['factory-v2-42']; // FANTOM
+        // const errorPoolsCrv: string[] = ['ren']; // ARBITRUM
+        const dontUseApi = (curve.chainId === 250 && this.id === 'factory-v2-42') || (curve.chainId === 42161 && this.id === 'ren');
+        if (useApi && !dontUseApi) {
             const crvAPYs = await _getCrvApyFromApi();
             const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
             return [poolCrvApy[0], poolCrvApy[1]];
@@ -455,7 +458,11 @@ export class PoolTemplate {
     private statsRewardsApy = async (useApi = true): Promise<IReward[]> => {
         if (this.gauge === ethers.constants.AddressZero) return [];
 
-        if (curve.chainId === 1 || useApi) {
+        // const errorPoolsRewards: string[] = ['factory-v2-0']; // OPTIMISM
+        // const errorPoolsRewards: string[] = ['factory-v2-14']; // MOONBEAM
+        // const errorPoolsRewards: string[] = ['factory-v2-0']; // KAVA
+        const dontUseApi = (curve.chainId === 10 && this.id === 'factory-v2-0') || (curve.chainId === 1284 && this.id === 'factory-v2-14') || (curve.chainId === 2222 && this.id === 'factory-v2-0');
+        if (curve.chainId === 1 || (useApi && !dontUseApi)) {
             const rewards = await _getRewardsFromApi();
             if (!rewards[this.gauge]) return [];
             return rewards[this.gauge].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));

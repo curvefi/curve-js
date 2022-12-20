@@ -277,7 +277,11 @@ export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
     for (const extendedPoolData of allTypesExtendedPoolData) {
         for (const pool of extendedPoolData.poolData) {
             if (pool.gaugeAddress) {
-                apyDict[pool.gaugeAddress.toLowerCase()] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
+                if (!pool.gaugeCrvApy) {
+                    apyDict[pool.gaugeAddress.toLowerCase()] = [0, 0];
+                } else {
+                    apyDict[pool.gaugeAddress.toLowerCase()] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
+                }
             }
         }
     }

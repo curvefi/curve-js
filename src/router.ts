@@ -863,10 +863,19 @@ export const getSwappedAmount = async (tx: ethers.ContractTransaction, outputCoi
     const [outputCoinAddress] = _getCoinAddresses(outputCoin);
     const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
     const txInfo: ethers.ContractReceipt = await tx.wait();
-    const res = ethers.utils.defaultAbiCoder.decode(
-        ['address[9]', 'uint256[3][4]', 'address[4]', 'uint256', 'uint256'],
-        ethers.utils.hexDataSlice(txInfo.logs[txInfo.logs.length - 1].data, 0)
-    );
+
+    let res;
+    for (let i = 1; i <= txInfo.logs.length; i++) {
+        try {
+            res = ethers.utils.defaultAbiCoder.decode(
+                ['address[9]', 'uint256[3][4]', 'address[4]', 'uint256', 'uint256'],
+                ethers.utils.hexDataSlice(txInfo.logs[txInfo.logs.length - i].data, 0)
+            );
+            break;
+        } catch (err) {}
+    }
+
+    if (res === undefined) return '0'
 
     return ethers.utils.formatUnits(res[res.length - 1], outputCoinDecimals);
 }

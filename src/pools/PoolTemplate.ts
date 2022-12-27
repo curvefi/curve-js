@@ -405,7 +405,9 @@ export class PoolTemplate {
 
         // const errorPoolsCrv: string[] = ['factory-v2-42']; // FANTOM
         // const errorPoolsCrv: string[] = ['ren']; // ARBITRUM
-        const dontUseApi = (curve.chainId === 250 && this.id === 'factory-v2-42') || (curve.chainId === 42161 && this.id === 'ren');
+        // Disable Moonbeam, Kava, Celo and Aurora
+        const isDisabledChain = [1284, 2222, 42220, 1313161554].includes(curve.chainId);
+        const dontUseApi = (curve.chainId === 250 && this.id === 'factory-v2-42') || (curve.chainId === 42161 && this.id === 'ren') || isDisabledChain;
         if (useApi && !dontUseApi) {
             const crvAPYs = await _getCrvApyFromApi();
             const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
@@ -463,7 +465,9 @@ export class PoolTemplate {
         // const errorPoolsRewards: string[] = ['factory-v2-0']; // OPTIMISM
         // const errorPoolsRewards: string[] = ['factory-v2-14']; // MOONBEAM
         // const errorPoolsRewards: string[] = ['factory-v2-0']; // KAVA
-        const dontUseApi = (curve.chainId === 10 && this.id === 'factory-v2-0') || (curve.chainId === 1284 && this.id === 'factory-v2-14') || (curve.chainId === 2222 && this.id === 'factory-v2-0');
+        // Disable Moonbeam, Kava, Celo and Aurora
+        const isDisabledChain = [1284, 2222, 42220, 1313161554].includes(curve.chainId);
+        const dontUseApi = (curve.chainId === 10 && this.id === 'factory-v2-0') || (curve.chainId === 1284 && this.id === 'factory-v2-14') || isDisabledChain;
         if (curve.chainId === 1 || (useApi && !dontUseApi)) {
             const rewards = await _getRewardsFromApi();
             if (!rewards[this.gauge]) return [];

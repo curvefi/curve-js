@@ -562,15 +562,24 @@ const deployMetaPoolTest = async () => {
     const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
     console.log(gaugeAddress);
 
-    // Deposit & Stake Wrapped
+    // Get created pool
 
     const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
     console.log(poolId);
     const pool = curve.getPool(poolId);
 
-    await pool.depositAndStakeWrapped([10, 10]); // Initial amounts for stable pool must be equal
+    // Deposit & Stake Wrapped
+
+    await pool.depositAndStakeWrapped([10, 10]); // Initial wrapped amounts for stable metapool must be equal
     const balances = await pool.stats.wrappedBalances();
     console.log(balances);
+
+    // Or deposit & Stake Underlying
+
+    // const amounts = pool.metaUnderlyingSeedAmounts(30);
+    // console.log(amounts);
+    // await pool.depositAndStake(amounts);
+    // console.log(await pool.stats.underlyingBalances());
 }
 
 const deployCryptoPoolTest = async () => {

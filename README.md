@@ -1374,15 +1374,24 @@ import curve from "@curvefi/api";
     const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
     // 0x326290a1b0004eee78fa6ed4f1d8f4b2523ab669
 
-    // Deposit & Stake Wrapped
+    // Get created pool
 
     const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
     // factory-v2-222
     const pool = curve.getPool(poolId);
 
-    await pool.depositAndStakeWrapped([10, 10]); // Initial amounts for stable pool must be equal
+    // Deposit & Stake Wrapped
+    
+    await pool.depositAndStakeWrapped([10, 10]); // Initial wrapped amounts for stable metapool must be equal
     const balances = await pool.stats.wrappedBalances();
     // [ '10.0', '10.0' ]
+
+    // Or deposit & Stake Underlying
+
+    // const amounts = pool.metaUnderlyingSeedAmounts(30);
+    // [ '30', '10.000000000000000000', '10.000000', '10.000000' ]
+    // await pool.depositAndStake(amounts);
+    // [ '30.0', '9.272021785560442569', '8.927595', '11.800485' ]
 })()
 ```
 

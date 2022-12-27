@@ -603,10 +603,18 @@ export class PoolTemplate {
 
             const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
             const amounts = _amounts.map((_a, i) => ethers.utils.formatUnits(_a, decimals[i]));
-            amounts.forEach((a) => {
-                if (a !== amounts[0]) throw Error("Initial deposit amounts must be the same");
-            });
-            if (_amounts[0].lte(0)) throw Error("Initial deposit amounts must be >0");
+
+            if (this.isMeta && useUnderlying) {
+                const seedAmounts = await this.metaUnderlyingSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
+                amounts.forEach((a, i) => {
+                    if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
+                });
+            } else {
+                if (_amounts[0].lte(0)) throw Error("Initial deposit amounts must be >0");
+                amounts.forEach((a) => {
+                    if (a !== amounts[0]) throw Error("Initial deposit amounts must be equal");
+                });
+            }
 
             const _amounts18Decimals: ethers.BigNumber[] = amounts.map((a) => parseUnits(a));
             return _amounts18Decimals.reduce((_a, _b) => _a.add(_b));
@@ -646,6 +654,21 @@ export class PoolTemplate {
 
 
     // ---------------- DEPOSIT ----------------
+
+    public metaUnderlyingSeedAmounts(amount1: number | string): string[] {
+        if (this.isCrypto) throw Error(`Use cryptoSeedAmounts method for ${this.name} pool`);
+        if (!this.isMeta) throw Error("metaUnderlyingSeedAmounts method exists only for meta stable pools");
+
+        const amount1BN = BN(amount1);
+        if (amount1BN.lte(0)) throw Error("Initial deposit amounts must be > 0");
+
+        const amounts = [_cutZeros(amount1BN.toFixed(this.underlyingDecimals[0]))];
+        for (let i = 1; i < this.underlyingDecimals.length; i++) {
+            amounts.push(amount1BN.div(this.underlyingDecimals.length - 1).toFixed(this.underlyingDecimals[i]));
+        }
+
+        return amounts
+    }
 
     public async cryptoSeedAmounts(amount1: number | string): Promise<string[]> {
         if (!this.isCrypto) throw Error("cryptoSeedAmounts method doesn't exist for stable pools");

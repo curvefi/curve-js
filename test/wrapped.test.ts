@@ -31,7 +31,7 @@ const ARBITRUM_POOLS = [...ARBITRUM_MAIN_POOLS, ...ARBITRUM_FACTORY_META_POOLS];
 const OPTIMISM_FACTORY_META_POOLS = ['factory-v2-0']; // ['sUSD Synthetix'];
 const OPTIMISM_POOLS = [...OPTIMISM_FACTORY_META_POOLS];
 
-const XDAI_MAIN_POOLS = ['rai', 'tricrypto', 'eure'];
+const XDAI_MAIN_POOLS = ['rai', 'tricrypto', 'eureusd'];
 const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
 const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
 
@@ -41,7 +41,7 @@ const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_META_POOLS];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = ['eure'];
+const POOLS_FOR_TESTING = ['eureusd'];
 
 const wrappedLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-unstake-withdraw`, function () {

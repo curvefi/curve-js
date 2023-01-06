@@ -477,15 +477,25 @@ export class PoolTemplate {
         const apy: IReward[] = [];
         const rewardTokens = await this.rewardTokens(false);
         for (const rewardToken of rewardTokens) {
-            const contract = curve.contracts[this.sRewardContract || this.gauge].contract;
+            const gaugeContract = curve.contracts[this.gauge].multicallContract;
+            const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
+            const rewardContract = curve.contracts[this.sRewardContract || this.gauge].multicallContract;
 
             const totalLiquidityUSD = await this.statsTotalLiquidity();
             const rewardRate = await _getUsdRate(rewardToken.token);
 
-            const rewardData = await contract.reward_data(rewardToken.token, curve.constantOptions);
+            const [rewardData, _stakedSupply, _totalSupply] = (await curve.multicallProvider.all([
+                rewardContract.reward_data(rewardToken.token),
+                gaugeContract.totalSupply(),
+                lpTokenContract.totalSupply(),
+            ]) as any[]);
+            const stakedSupplyBN = toBN(_stakedSupply as ethers.BigNumber);
+            const totalSupplyBN = toBN(_totalSupply as ethers.BigNumber);
+            const inflationBN = toBN(rewardData.rate, rewardToken.decimals);
             const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
-            const inflation = toBN(rewardData.rate, rewardToken.decimals);
-            const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
+            const baseApy = periodFinish > Date.now() ?
+                inflationBN.times(31536000).times(rewardRate).div(stakedSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD)) :
+                BN(0);
 
             apy.push({
                 gaugeAddress: this.gauge,

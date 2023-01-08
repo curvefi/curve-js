@@ -403,12 +403,8 @@ export class PoolTemplate {
     private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
 
-        // const errorPoolsCrv: string[] = ['factory-v2-42']; // FANTOM
-        // const errorPoolsCrv: string[] = ['ren']; // ARBITRUM
-        // Disable Moonbeam, Kava, Celo and Aurora
-        const isDisabledChain = [1284, 2222, 42220, 1313161554].includes(curve.chainId);
-        const dontUseApi = (curve.chainId === 250 && this.id === 'factory-v2-42') || (curve.chainId === 42161 && this.id === 'ren') || isDisabledChain;
-        if (useApi && !dontUseApi) {
+        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
+        if (useApi && !isDisabledChain) {
             const crvAPYs = await _getCrvApyFromApi();
             const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
             return [poolCrvApy[0], poolCrvApy[1]];
@@ -462,13 +458,8 @@ export class PoolTemplate {
     private statsRewardsApy = async (useApi = true): Promise<IReward[]> => {
         if (this.gauge === ethers.constants.AddressZero) return [];
 
-        // const errorPoolsRewards: string[] = ['factory-v2-0']; // OPTIMISM
-        // const errorPoolsRewards: string[] = ['factory-v2-14']; // MOONBEAM
-        // const errorPoolsRewards: string[] = ['factory-v2-0']; // KAVA
-        // Disable Moonbeam, Kava, Celo and Aurora
-        const isDisabledChain = [1284, 2222, 42220, 1313161554].includes(curve.chainId);
-        const dontUseApi = (curve.chainId === 10 && this.id === 'factory-v2-0') || (curve.chainId === 1284 && this.id === 'factory-v2-14') || isDisabledChain;
-        if (curve.chainId === 1 || (useApi && !dontUseApi)) {
+        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
+        if (curve.chainId === 1 || (useApi && !isDisabledChain)) {
             const rewards = await _getRewardsFromApi();
             if (!rewards[this.gauge]) return [];
             return rewards[this.gauge].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));
@@ -477,15 +468,25 @@ export class PoolTemplate {
         const apy: IReward[] = [];
         const rewardTokens = await this.rewardTokens(false);
         for (const rewardToken of rewardTokens) {
-            const contract = curve.contracts[this.sRewardContract || this.gauge].contract;
+            const gaugeContract = curve.contracts[this.gauge].multicallContract;
+            const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
+            const rewardContract = curve.contracts[this.sRewardContract || this.gauge].multicallContract;
 
             const totalLiquidityUSD = await this.statsTotalLiquidity();
             const rewardRate = await _getUsdRate(rewardToken.token);
 
-            const rewardData = await contract.reward_data(rewardToken.token, curve.constantOptions);
+            const [rewardData, _stakedSupply, _totalSupply] = (await curve.multicallProvider.all([
+                rewardContract.reward_data(rewardToken.token),
+                gaugeContract.totalSupply(),
+                lpTokenContract.totalSupply(),
+            ]) as any[]);
+            const stakedSupplyBN = toBN(_stakedSupply as ethers.BigNumber);
+            const totalSupplyBN = toBN(_totalSupply as ethers.BigNumber);
+            const inflationBN = toBN(rewardData.rate, rewardToken.decimals);
             const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
-            const inflation = toBN(rewardData.rate, rewardToken.decimals);
-            const baseApy = periodFinish > Date.now() ? inflation.times(31536000).times(rewardRate).div(Number(totalLiquidityUSD)) : BN(0);
+            const baseApy = periodFinish > Date.now() ?
+                inflationBN.times(31536000).times(rewardRate).div(stakedSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD)) :
+                BN(0);
 
             apy.push({
                 gaugeAddress: this.gauge,

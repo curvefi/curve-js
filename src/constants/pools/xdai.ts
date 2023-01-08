@@ -113,8 +113,8 @@ export const POOLS_DATA_XDAI: { [index: string]: IPoolData } = lowerCasePoolData
         is_meta: true,
         is_crypto: true,
         base_pool: '3pool',
-        underlying_coins: ['EURe', 'DAI', 'USDC', 'USDT'],
-        wrapped_coins: ['EURe', '3Crv'],
+        underlying_coins: ['EURe', 'WXDAI', 'USDC', 'USDT'],
+        wrapped_coins: ['EURe', 'x3CRV'],
         underlying_coin_addresses: [
             '0xcB444e90D8198415266c6a2724b7900fb12FC56E',
             '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',

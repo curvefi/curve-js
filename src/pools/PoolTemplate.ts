@@ -1800,7 +1800,7 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const lpTotalBalanceBN = await this._userLpTotalBalance(address);
-        if (lpTotalBalanceBN.eq(0)) return this.underlyingCoins.map(() => "0");
+        if (lpTotalBalanceBN.eq(0)) return this.wrappedCoins.map(() => "0");
 
         return await this.withdrawWrappedExpected(lpTotalBalanceBN.toFixed(18));
     }

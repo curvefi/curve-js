@@ -16,6 +16,7 @@ import addressProviderABI from './constants/abis/address_provider.json';
 import gaugeControllerABI from './constants/abis/gaugecontroller.json';
 import routerABI from './constants/abis/router.json';
 import depositAndStakeABI from './constants/abis/deposit_and_stake.json';
+import depositAndStake6CoinsABI from './constants/abis/deposit_and_stake_6coins.json';
 import registryExchangeABI from './constants/abis/registry_exchange.json';
 import streamerABI from './constants/abis/streamer.json';
 import factoryABI from './constants/abis/factory.json';
@@ -561,14 +562,13 @@ class Curve implements ICurve {
             multicallContract: new MulticallContract(this.constants.ALIASES.router, routerABI),
         };
 
-        this.contracts[this.constants.ALIASES.deposit_and_stake] = {
-            contract: new Contract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI),
-        };
-        this.contracts[this.constants.ALIASES.deposit_and_stake.toLowerCase()] = {
-            contract: new Contract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI),
-        };
+        if (this.chainId === 137) {
+            this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStake6CoinsABI);
+            this.setContract(this.constants.ALIASES.deposit_and_stake.toLowerCase(), depositAndStake6CoinsABI);
+        } else {
+            this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI);
+            this.setContract(this.constants.ALIASES.deposit_and_stake.toLowerCase(), depositAndStakeABI);
+        }
 
         this.contracts[this.constants.ALIASES.factory] = {
             contract: new Contract(this.constants.ALIASES.factory, factoryABI, this.signer || this.provider),

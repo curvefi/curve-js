@@ -1459,7 +1459,8 @@ export class PoolTemplate {
         const ethIndex = getEthIndex(coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
-        for (let i = 0; i < 5; i++) {
+        const maxCoins = curve.chainId === 137 ? 6 : 5;
+        for (let i = 0; i < maxCoins; i++) {
             coinAddresses[i] = coinAddresses[i] || ethers.constants.AddressZero;
             _amounts[i] = _amounts[i] || ethers.BigNumber.from(0);
         }
@@ -1799,7 +1800,7 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const lpTotalBalanceBN = await this._userLpTotalBalance(address);
-        if (lpTotalBalanceBN.eq(0)) return this.underlyingCoins.map(() => "0");
+        if (lpTotalBalanceBN.eq(0)) return this.wrappedCoins.map(() => "0");
 
         return await this.withdrawWrappedExpected(lpTotalBalanceBN.toFixed(18));
     }

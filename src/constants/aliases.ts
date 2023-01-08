@@ -23,7 +23,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
-    "deposit_and_stake": "0x43FF7b96808988C9d19C1d05Ef19658B03e8a143",
+    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
     "factory": '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
     "registry_exchange": "",

@@ -1459,7 +1459,8 @@ export class PoolTemplate {
         const ethIndex = getEthIndex(coinAddresses);
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
 
-        for (let i = 0; i < 5; i++) {
+        const maxCoins = curve.chainId === 137 ? 6 : 5;
+        for (let i = 0; i < maxCoins; i++) {
             coinAddresses[i] = coinAddresses[i] || ethers.constants.AddressZero;
             _amounts[i] = _amounts[i] || ethers.BigNumber.from(0);
         }

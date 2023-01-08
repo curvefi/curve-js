@@ -17,7 +17,7 @@ const ETHEREUM_POOLS = ['factory-v2-136']//['compound', 'aave', 'ib', 'gusd', 'm
 
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'eurtusd', 'eursusd'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
-const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1, factory-crypto-83']; // ['CRV/TRICRYPTO'];
+const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1', 'factory-crypto-83']; // ['CRV/TRICRYPTO', 'WMATIC/TRICRYPTO'];
 const POLYGON_POOLS = ['eursusd'];
 
 const AVALANCHE_MAIN_POOLS = ['aave', 'ren'];
@@ -41,10 +41,10 @@ const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_META_POOLS];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = ['eureusd'];
+const POOLS_FOR_TESTING = POLYGON_FACTORY_CRYPTO_META_POOLS;
 
 const wrappedLiquidityTest = (id: string) => {
-    describe(`${id} deposit-stake-unstake-withdraw`, function () {
+    describe(`${id} deposit-stake--deposit&stake-unstake-withdraw`, function () {
         let pool: PoolTemplate;
         let coinAddresses: string[];
 
@@ -54,7 +54,7 @@ const wrappedLiquidityTest = (id: string) => {
         });
 
         it('Deposit', async function () {
-            const amount = '10';
+            const amount = '1';
             const amounts = coinAddresses.map(() => amount);
             const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositWrappedExpected(amounts)
@@ -92,6 +92,34 @@ const wrappedLiquidityTest = (id: string) => {
 
             assert.strictEqual(depositAmount, balances.gauge);
             assert.strictEqual(Number(balances.lpToken), 0);
+        });
+
+        it('Deposit&stake', async function () {
+            if (pool.isPlain || pool.isFake || pool.gauge === ethers.constants.AddressZero) {
+                console.log('Skip');
+                return;
+            }
+
+            const amount = '1';
+            const amounts = coinAddresses.map(() => amount);
+
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
+            const lpTokenExpected = await pool.depositAndStakeWrappedExpected(amounts);
+
+            await pool.depositAndStakeWrapped(amounts);
+
+            const balances = await pool.wallet.balances() as IDict<string>;
+
+            coinAddresses.forEach((c: string) => {
+                if (['aave', 'saave', 'geist'].includes(id) || (pool.isLending && pool.id === 'ren')) {
+                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
+                } else {
+                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
+                }
+            })
+
+            assert.approximately(Number(balances.gauge) - Number(initialBalances.gauge), Number(lpTokenExpected), 0.01);
+            assert.strictEqual(Number(balances.lpToken) - Number(initialBalances.lpToken), 0);
         });
 
         it('Unstake', async function () {
@@ -190,7 +218,7 @@ const wrappedSwapTest = (id: string) => {
                         if (i >= coinAddresses.length || j >= coinAddresses.length) {
                             console.log('Skip')
                         } else {
-                            const swapAmount = '10';
+                            const swapAmount = '1';
                             const initialCoinBalances = await pool.wallet.wrappedCoinBalances() as IDict<string>;
                             const expected = await pool.swapWrappedExpected(i, j, swapAmount);
 

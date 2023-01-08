@@ -21,7 +21,7 @@ const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYP
 const POLYGON_MAIN_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd', 'eursusd'];
 const POLYGON_FACTORY_PLAIN_POOLS = ['factory-v2-113', 'factory-v2-4', 'factory-v2-37']; // ['CRVALRTO-f', '3EUR-f', '4eur-f(2)'];
 const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
-const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1, factory-crypto-83']; // ['CRV/TRICRYPTO', 'WMATIC/TRICRYPTO'];
+const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1', 'factory-crypto-83']; // ['CRV/TRICRYPTO', 'WMATIC/TRICRYPTO'];
 const POLYGON_POOLS = [...POLYGON_MAIN_POOLS, ...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS, ...POLYGON_FACTORY_CRYPTO_META_POOLS];
 
 const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'atricrypto'];
@@ -62,10 +62,10 @@ const CELO_POOLS = ['factory-v2-0'];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = ['eureusd'];
+const POOLS_FOR_TESTING = POLYGON_FACTORY_CRYPTO_META_POOLS;
 
 const underlyingLiquidityTest = (id: string) => {
-    describe(`${id} deposit-stake-unstake-withdraw`, function () {
+    describe(`${id} deposit-stake-deposit&stake-unstake-withdraw`, function () {
         let pool: PoolTemplate;
         let coinAddresses: string[];
 
@@ -75,7 +75,7 @@ const underlyingLiquidityTest = (id: string) => {
         });
 
         it('Deposit', async function () {
-            const amount = '10';
+            const amount = '1';
             const amounts = coinAddresses.map(() => amount);
             if (id === 'factory-v2-7' && curve.chainId === 1) amounts[3] = '0';
             const initialBalances = await pool.wallet.balances() as IDict<string>;
@@ -111,6 +111,34 @@ const underlyingLiquidityTest = (id: string) => {
 
             assert.strictEqual(depositAmount, balances.gauge);
             assert.strictEqual(Number(balances.lpToken), 0);
+        });
+
+        it('Deposit&stake', async function () {
+            if (pool.gauge === ethers.constants.AddressZero) {
+                console.log('Skip');
+                return;
+            }
+
+            const amount = '1';
+            const amounts = coinAddresses.map(() => amount);
+
+            const initialBalances = await pool.wallet.balances() as IDict<string>;
+            const lpTokenExpected = await pool.depositAndStakeExpected(amounts);
+
+            await pool.depositAndStake(amounts);
+
+            const balances = await pool.wallet.balances() as IDict<string>;
+
+            coinAddresses.forEach((c: string) => {
+                if (id === 'steth') {
+                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-18);
+                } else {
+                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
+                }
+            })
+
+            assert.approximately(Number(balances.gauge) - Number(initialBalances.gauge), Number(lpTokenExpected), 0.01);
+            assert.strictEqual(Number(balances.lpToken) - Number(initialBalances.lpToken), 0);
         });
 
         it('Unstake', async function () {

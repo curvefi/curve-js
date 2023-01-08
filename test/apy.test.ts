@@ -19,13 +19,15 @@ const poolStatsTest = (name: string) => {
         it('Token (CRV) APY', async function () {
             if (pool.gauge === ethers.constants.AddressZero || pool.rewardsOnly()) return;
 
-            const apyFromApi = await pool.stats.tokenApy();
             const apy = await pool.stats.tokenApy(false);
+            const apyFromApi = await pool.stats.tokenApy();
 
             const diff = [
                 Math.abs(apyFromApi[0] - apy[0]) / Math.max(apyFromApi[0], apy[0]),
                 Math.abs(apyFromApi[1] - apy[1]) / Math.max(apyFromApi[1], apy[1]),
             ];
+            console.log(apy[0], apyFromApi[0]);
+            console.log(apy[1], apyFromApi[1]);
             diff[0] = isNaN(diff[0]) ? 0 : diff[0];
             diff[1] = isNaN(diff[1]) ? 0 : diff[1];
 
@@ -36,8 +38,8 @@ const poolStatsTest = (name: string) => {
         it('Rewards APY', async function () {
             if (pool.gauge === ethers.constants.AddressZero) return;
 
-            const rewardsApyFromApi = (await pool.stats.rewardsApy()).filter((r) => r.apy > 0);
             const rewardsApy = (await pool.stats.rewardsApy(false)).filter((r) => r.apy > 0);
+            const rewardsApyFromApi = (await pool.stats.rewardsApy()).filter((r) => r.apy > 0);
 
             assert.equal(rewardsApy.length, rewardsApyFromApi.length,
                 `${pool.id} rewards doesn't match. Rewards: \n${rewardsApy}\n. Rewards from API: \n${rewardsApyFromApi}\n`);
@@ -45,6 +47,7 @@ const poolStatsTest = (name: string) => {
             for (const reward of rewardsApy) {
                 const rewardFromApiMatch = rewardsApyFromApi.find((r) => r.tokenAddress.toLowerCase() === reward.tokenAddress.toLowerCase()) as IReward;
 
+                console.log(reward.apy, rewardFromApiMatch.apy);
                 let diff = Math.abs(reward.apy - (rewardFromApiMatch as IReward).apy) / Math.max(reward.apy, (rewardFromApiMatch as IReward).apy);
                 diff = isNaN(diff) ? 0 : diff;
                 assert.isAtMost(diff, 0.03, `${pool.id} ${reward.symbol} reward. Calculated: ${reward.apy}, API: ${rewardFromApiMatch.apy}`);
@@ -58,7 +61,7 @@ describe('Compare calculated APY with APY from API', async function () {
     let POOLS: string[] = [];
 
     before(async function () {
-        await curve.init('JsonRpc', { url: MOONBEAM_RPC }, { gasPrice: 0 });
+        await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
         await curve.fetchFactoryPools();
         await curve.fetchCryptoFactoryPools();
         POOLS = [...curve.getPoolList(), ...curve.getFactoryPoolList(), ...curve.getCryptoFactoryPoolList()];

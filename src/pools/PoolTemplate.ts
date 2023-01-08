@@ -403,12 +403,8 @@ export class PoolTemplate {
     private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
 
-        // const errorPoolsCrv: string[] = ['factory-v2-42']; // FANTOM
-        // const errorPoolsCrv: string[] = ['ren']; // ARBITRUM
-        // Disable Moonbeam, Kava, Celo and Aurora
-        const isDisabledChain = [1284, 2222, 42220, 1313161554].includes(curve.chainId);
-        const dontUseApi = (curve.chainId === 250 && this.id === 'factory-v2-42') || (curve.chainId === 42161 && this.id === 'ren') || isDisabledChain;
-        if (useApi && !dontUseApi) {
+        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
+        if (useApi && !isDisabledChain) {
             const crvAPYs = await _getCrvApyFromApi();
             const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
             return [poolCrvApy[0], poolCrvApy[1]];
@@ -462,13 +458,8 @@ export class PoolTemplate {
     private statsRewardsApy = async (useApi = true): Promise<IReward[]> => {
         if (this.gauge === ethers.constants.AddressZero) return [];
 
-        // const errorPoolsRewards: string[] = ['factory-v2-0']; // OPTIMISM
-        // const errorPoolsRewards: string[] = ['factory-v2-14']; // MOONBEAM
-        // const errorPoolsRewards: string[] = ['factory-v2-0']; // KAVA
-        // Disable Moonbeam, Kava, Celo and Aurora
-        const isDisabledChain = [1284, 2222, 42220, 1313161554].includes(curve.chainId);
-        const dontUseApi = (curve.chainId === 10 && this.id === 'factory-v2-0') || (curve.chainId === 1284 && this.id === 'factory-v2-14') || isDisabledChain;
-        if (curve.chainId === 1 || (useApi && !dontUseApi)) {
+        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
+        if (curve.chainId === 1 || (useApi && !isDisabledChain)) {
             const rewards = await _getRewardsFromApi();
             if (!rewards[this.gauge]) return [];
             return rewards[this.gauge].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));

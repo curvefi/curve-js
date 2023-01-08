@@ -77,3 +77,16 @@ export const _getAllGauges = memoize(
         maxAge: 5 * 60 * 1000, // 5m
     }
 )
+
+export const _getHiddenPools = memoize(
+    async (): Promise<IDict<string[]>> => {
+        const url = `https://api.curve.fi/api/getHiddenPools`;
+        const response = await axios.get(url, { validateStatus: () => true });
+
+        return response.data.data;
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)

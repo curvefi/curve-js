@@ -58,7 +58,7 @@ import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAur
 import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava";
 import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
-import { _getAllGauges } from "./external-api";
+import { _getAllGauges, _getHiddenPools } from "./external-api";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -596,6 +596,12 @@ class Curve implements ICurve {
         }
     }
 
+    async _filterHiddenPools(pools: IDict<IPoolData>): Promise<IDict<IPoolData>> {
+        const hiddenPools = (await _getHiddenPools())[this.constants.NETWORK_NAME] || [];
+        // @ts-ignore
+        return Object.fromEntries(Object.entries(pools).filter(([id]) => !hiddenPools.includes(id)));
+    }
+
     async fetchFactoryPools(useApi = true): Promise<void> {
         if (this.chainId === 1313161554) return;
 
@@ -604,6 +610,7 @@ class Curve implements ICurve {
         } else {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
         }
+        this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
 
@@ -618,6 +625,7 @@ class Curve implements ICurve {
         } else {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA);
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
 
@@ -639,9 +647,9 @@ class Curve implements ICurve {
         if (![1, 137, 250].includes(this.chainId)) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, poolAddress));
-        this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
-        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
 
         return Object.keys(poolData)[0]  // id
     }

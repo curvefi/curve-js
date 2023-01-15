@@ -259,11 +259,13 @@ const getNewRoute = (
 
 const MAX_ROUTES_FOR_ONE_COIN = 3;
 const filterRoutes = (routes: IRoute_[], inputCoinAddress: string, sortFn: (a: IRoute_, b: IRoute_) => number) => {
-    const routesByPoolIds = routes.map((r) => r.steps.map((s) => s.poolId).toString());
     return routes
         .filter((r) => r.steps.length > 0)
         .filter((r) => r.steps[0].inputCoinAddress === inputCoinAddress) // Truncated routes
-        .filter((r, i) => routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i) // Route duplications
+        .filter((r, i, _routes) => {
+            const routesByPoolIds = _routes.map((r) => r.steps.map((s) => s.poolId).toString());
+            return routesByPoolIds.indexOf(r.steps.map((s) => s.poolId).toString()) === i;
+        }) // Route duplications
         .sort(sortFn).slice(0, MAX_ROUTES_FOR_ONE_COIN);
 }
 

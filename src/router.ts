@@ -23,214 +23,6 @@ import {
 import { getPool } from "./pools";
 import { _getAmplificationCoefficientsFromApi } from "./pools/utils";
 
-// --------------------------- LEGACY ROUTER ---------------------------
-
-// Inspired by Dijkstra's algorithm
-export const _findAllRoutesTheShorterTheBetter = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
-    inputCoinAddress = inputCoinAddress.toLowerCase();
-    outputCoinAddress = outputCoinAddress.toLowerCase();
-
-    const ALL_POOLS = Object.entries({
-        ...curve.constants.POOLS_DATA,
-        ...curve.constants.FACTORY_POOLS_DATA as IDict<IPoolData>,
-        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<IPoolData>,
-    });
-
-    const basePoolsSet: Set<string> = new Set();
-    for (const pool of ALL_POOLS) {
-        if (pool[1].wrapped_coin_addresses.length < 6) basePoolsSet.add(pool[0]);
-    }
-    const basePoolIds = Array.from(basePoolsSet);
-
-
-    // Coins for which all routes have already been found
-    const markedCoins: string[] = [];
-    // Coins we are searching routes for on the current step
-    let curCoins: string[] = [inputCoinAddress];
-    // Coins we will search routes for on the next step
-    let nextCoins: Set<string> = new Set();
-    // Routes for all coins found
-    const routes: IDict<IRouteStep[][]> = {
-        [inputCoinAddress]: [[]],
-    };
-
-    // No more than 4 steps (swaps)
-    for (let step = 0; step < 4; step++) {
-        for (const inCoin of curCoins) {
-            for (const [poolId, poolData] of ALL_POOLS) {
-                const wrapped_coin_addresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
-                const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
-                const base_pool = poolData.is_meta ? curve.constants.POOLS_DATA[poolData.base_pool as string] : null;
-                const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
-                const token_address = poolData.token_address.toLowerCase();
-                const is_lending = poolData.is_lending ?? false;
-
-                const inCoinIndexes = {
-                    wrapped_coin: wrapped_coin_addresses.indexOf(inCoin),
-                    underlying_coin: underlying_coin_addresses.indexOf(inCoin),
-                    meta_coin: meta_coin_addresses ? meta_coin_addresses.indexOf(inCoin) : -1,
-                }
-
-                // LP -> wrapped coin "swaps" (actually remove_liquidity_one_coin)
-                if (basePoolIds.includes(poolId) && inCoin === token_address) {
-                    for (let j = 0; j < wrapped_coin_addresses.length; j++) {
-                        // If this coin already marked or will be marked on the current step, no need to consider it on the next step
-                        if (markedCoins.includes(wrapped_coin_addresses[j]) || curCoins.includes(wrapped_coin_addresses[j])) continue;
-                        // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
-
-                        const swapType = poolId === 'aave' ? 11 : 10;
-                        for (const inCoinRoute of routes[inCoin]) {
-                            routes[wrapped_coin_addresses[j]] = (routes[wrapped_coin_addresses[j]] ?? []).concat(
-                                [[
-                                    ...inCoinRoute,
-                                    {
-                                        poolId,
-                                        poolAddress: poolData.swap_address,
-                                        inputCoinAddress: inCoin,
-                                        outputCoinAddress: wrapped_coin_addresses[j],
-                                        i: 0,
-                                        j,
-                                        swapType,
-                                        swapAddress: ethers.constants.AddressZero,
-                                    },
-                                ]]
-                            );
-                        }
-
-                        nextCoins.add(wrapped_coin_addresses[j]);
-                    }
-                }
-
-                // Wrapped coin -> LP "swaps" (actually add_liquidity)
-                if (basePoolIds.includes(poolId) && wrapped_coin_addresses.includes(inCoin)) {
-                    let flag = true;
-                    // If this coin already marked or will be marked on the current step, no need to consider it on the next step
-                    if (markedCoins.includes(token_address) || curCoins.includes(token_address)) flag = false;
-                    // Looking for outputCoinAddress only on the final step
-                    if (step === 3 && token_address !== outputCoinAddress) flag = false;
-
-                    if (flag) {
-                        const swapType = is_lending ? 9 : wrapped_coin_addresses.length === 2 ? 7 : 8;
-                        for (const inCoinRoute of routes[inCoin]) {
-                            routes[token_address] = (routes[token_address] ?? []).concat(
-                                [[
-                                    ...inCoinRoute,
-                                    {
-                                        poolId,
-                                        poolAddress: poolData.swap_address,
-                                        inputCoinAddress: inCoin,
-                                        outputCoinAddress: token_address,
-                                        i: wrapped_coin_addresses.indexOf(inCoin),
-                                        j: 0,
-                                        swapType,
-                                        swapAddress: ethers.constants.AddressZero,
-                                    },
-                                ]]
-                            );
-                        }
-
-                        nextCoins.add(token_address);
-                    }
-                }
-
-                // No input coin in this pool --> skip
-                if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1) continue;
-
-                // Wrapped swaps
-                if (inCoinIndexes.wrapped_coin >= 0 && !poolData.is_fake) {
-                    for (let j = 0; j < wrapped_coin_addresses.length; j++) {
-                        // If this coin already marked or will be marked on the current step, no need to consider it on the next step
-                        if (markedCoins.includes(wrapped_coin_addresses[j]) || curCoins.includes(wrapped_coin_addresses[j])) continue;
-                        // Native swaps spend less gas
-                        if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === curve.constants.NATIVE_TOKEN.wrappedAddress) continue;
-                        // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
-                        // Skip empty pools
-                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
-                        if (tvl === 0) continue;
-
-                        const swapType = poolData.is_crypto ? 3 : 1;
-                        for (const inCoinRoute of routes[inCoin]) {
-                            routes[wrapped_coin_addresses[j]] = (routes[wrapped_coin_addresses[j]] ?? []).concat(
-                                [[
-                                    ...inCoinRoute,
-                                    {
-                                        poolId,
-                                        poolAddress: poolData.swap_address,
-                                        inputCoinAddress: inCoin,
-                                        outputCoinAddress: wrapped_coin_addresses[j],
-                                        i: inCoinIndexes.wrapped_coin,
-                                        j,
-                                        swapType,
-                                        swapAddress: ethers.constants.AddressZero,
-                                    },
-                                ]]
-                            );
-                        }
-
-                        nextCoins.add(wrapped_coin_addresses[j]);
-                    }
-                }
-
-                // Only for underlying swaps
-                const poolAddress = (poolData.is_crypto && poolData.is_meta) || (base_pool?.is_lending && poolData.is_factory) ?
-                    poolData.deposit_address as string : poolData.swap_address;
-
-                // Underlying swaps
-                if (!poolData.is_plain && inCoinIndexes.underlying_coin >= 0) {
-                    for (let j = 0; j < underlying_coin_addresses.length; j++) {
-                        // Don't swap metacoins since they can be swapped directly in base pool
-                        if (inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
-                        // If this coin already marked or will be marked on the current step, no need to consider it on the next step
-                        if (markedCoins.includes(underlying_coin_addresses[j]) || curCoins.includes(underlying_coin_addresses[j])) continue;
-                        // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
-                        // Skip empty pools
-                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
-                        if (tvl === 0) continue;
-
-                        const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
-                        const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) ? 6
-                            : (base_pool?.is_lending && poolData.is_factory) ? 5
-                            : hasEth ? 3
-                            : poolData.is_crypto ? 4
-                            : 2;
-                        for (const inCoinRoute of routes[inCoin]) {
-                            routes[underlying_coin_addresses[j]] = (routes[underlying_coin_addresses[j]] ?? []).concat(
-                                [[
-                                    ...inCoinRoute,
-                                    {
-                                        poolId,
-                                        poolAddress,
-                                        inputCoinAddress: inCoin,
-                                        outputCoinAddress: underlying_coin_addresses[j],
-                                        i: inCoinIndexes.underlying_coin,
-                                        j,
-                                        swapType,
-                                        swapAddress: (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
-                                    },
-                                ]]
-                            );
-                        }
-
-                        nextCoins.add(underlying_coin_addresses[j]);
-                    }
-                }
-            }
-        }
-
-        // If target output coin is reached, search is finished. Assumption: the shorter route, the better.
-        if (outputCoinAddress in routes) break;
-
-        markedCoins.push(...curCoins);
-        curCoins = Array.from(nextCoins);
-        nextCoins = new Set();
-    }
-
-    return routes[outputCoinAddress] ?? []
-}
-
 const getNewRoute = (
     route: IRoute_,
     poolId: string,
@@ -254,8 +46,6 @@ const getNewRoute = (
         totalTvl: route.totalTvl + tvl,
     }
 }
-
-// --------------------------- MAIN ROUTER ---------------------------
 
 const MAX_ROUTES_FOR_ONE_COIN = 3;
 const filterRoutes = (routes: IRoute_[], inputCoinAddress: string, sortFn: (a: IRoute_, b: IRoute_) => number) => {
@@ -281,7 +71,7 @@ const filterMaticFactory83Route = (routes: IRoute_[]) => {
 }
 
 // Inspired by Dijkstra's algorithm
-export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
+const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
     inputCoinAddress = inputCoinAddress.toLowerCase();
     outputCoinAddress = outputCoinAddress.toLowerCase();
 
@@ -608,13 +398,6 @@ export const _findAllRoutesTvl = async (inputCoinAddress: string, outputCoinAddr
     if (curve.chainId === 137) routes = filterMaticFactory83Route(routes);
 
     return routes.map((r) => r.steps);
-}
-
-export const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRouteStep[][]> => {
-    return await _findAllRoutesTvl(inputCoinAddress, outputCoinAddress);
-    // if (routes.length > 0) return routes;
-    //
-    // return await _findAllRoutesTheShorterTheBetter(inputCoinAddress, outputCoinAddress);
 }
 
 const _getRouteKey = (route: IRoute, inputCoinAddress: string, outputCoinAddress: string): string => {

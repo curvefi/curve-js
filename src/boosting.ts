@@ -107,9 +107,17 @@ export const createLockEstimateGas = async (amount: number | string, days: numbe
     return (await curve.contracts[curve.constants.ALIASES.voting_escrow].contract.estimateGas.create_lock(_amount, unlockTime, curve.constantOptions)).toNumber()
 }
 
+export const calcUnlockTime = (days: number, start = Date.now()): number => {
+    const week = 86400 * 7;
+    const now = start / 1000;
+    const unlockTime = now + (86400 * days);
+
+    return Math.floor(unlockTime / week) * week * 1000;
+}
+
 export const createLock = async (amount: number | string, days: number): Promise<string> => {
     const _amount = parseUnits(amount);
-    const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
+    const unlockTime = Math.floor(Date.now() / 1000) + (86400 * days);
     await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 

@@ -1055,6 +1055,8 @@ import curve from "@curvefi/api";
     //     '0x07f6daedb705446cb56ab42c18ba9ec5302ef5ed9c7ef0bb5c3c92493abcfc79'
     // ]
     
+    curve.boosting.calcUnlockTime(365);  // now (by default) + 365 days, rounded down by WEEK
+    // 1657152000000
     await curve.boosting.createLock(1000, 365);
     // 99000.0 CRV
     // { lockedAmount: '1000.0', unlockTime: 1657152000000 }
@@ -1067,6 +1069,9 @@ import curve from "@curvefi/api";
     // 372.289692732093137414 veCRV
     // 0.000009285953543912 veCRV %
 
+    const { unlockTime: currentUnlockTime } = await curve.boosting.getLockedAmountAndUnlockTime();
+    curve.boosting.calcUnlockTime(365, currentUnlockTime);  // currentUnlockTime + 365 days, rounded down by WEEK
+    // 1688601600000
     await curve.boosting.increaseUnlockTime(365);
     // 98500.0 CRV
     // { lockedAmount: '1500.0', unlockTime: 1688601600000 }

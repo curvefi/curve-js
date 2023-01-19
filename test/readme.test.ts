@@ -404,6 +404,7 @@ const boostingTest = async () => {
 
     console.log(await curve.boosting.isApproved(1000));
     console.log(await curve.boosting.approve(1000));
+    console.log(curve.boosting.calcUnlockTime(365));
     await curve.boosting.createLock(1000, 365);
     console.log(await curve.boosting.getCrv());
 
@@ -414,10 +415,12 @@ const boostingTest = async () => {
     await curve.boosting.increaseAmount('500');
     console.log(await curve.boosting.getCrv());
 
-    console.log(await curve.boosting.getLockedAmountAndUnlockTime());
+    const { lockedAmount, unlockTime } = await curve.boosting.getLockedAmountAndUnlockTime();
+    console.log({ lockedAmount, unlockTime });
     console.log(await curve.boosting.getVeCrv());
     console.log(await curve.boosting.getVeCrvPct());
 
+    console.log(curve.boosting.calcUnlockTime(365, unlockTime as number));
     await curve.boosting.increaseUnlockTime(365);
 
     console.log(await curve.boosting.getLockedAmountAndUnlockTime());

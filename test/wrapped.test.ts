@@ -20,7 +20,7 @@ const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1', 'factory-crypto-83']; // ['CRV/TRICRYPTO', 'WMATIC/TRICRYPTO'];
 const POLYGON_POOLS = ['eursusd'];
 
-const AVALANCHE_MAIN_POOLS = ['aave', 'ren'];
+const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'aaveV3'];
 const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 const AVALANCHE_POOLS = AVALANCHE_FACTORY_META_POOLS;
 
@@ -41,7 +41,9 @@ const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_META_POOLS];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = POLYGON_FACTORY_CRYPTO_META_POOLS;
+const POOLS_FOR_TESTING = ['aaveV3'];
+
+const AAVE_POOLS = ['aave', 'saave', 'geist', 'aaveV3']
 
 const wrappedLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake--deposit&stake-unstake-withdraw`, function () {
@@ -64,7 +66,7 @@ const wrappedLiquidityTest = (id: string) => {
             const balances = await pool.wallet.balances() as IDict<string>;
 
             coinAddresses.forEach((c: string) => {
-                if (['aave', 'saave', 'geist'].includes(id) || (pool.isLending && pool.id === 'ren')) {
+                if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
                     // Because of increasing quantity
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else if (pool.id === 'factory-v2-60') {
@@ -111,7 +113,7 @@ const wrappedLiquidityTest = (id: string) => {
             const balances = await pool.wallet.balances() as IDict<string>;
 
             coinAddresses.forEach((c: string) => {
-                if (['aave', 'saave', 'geist'].includes(id) || (pool.isLending && pool.id === 'ren')) {
+                if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
                     assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
                 } else {
                     assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
@@ -170,7 +172,7 @@ const wrappedLiquidityTest = (id: string) => {
                 const delta = id === 'factory-v2-80' ? 2 : 0.01
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
                 coinAddresses.forEach((c: string) => {
-                    if (['aave', 'saave', 'geist'].includes(id) || (pool.isLending && pool.id === 'ren')) {
+                    if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
                         assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
                     } else {
                         assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
@@ -194,7 +196,7 @@ const wrappedLiquidityTest = (id: string) => {
                     if (i === 0) {
                         assert.approximately(Number(balances[c]) - Number(initialBalances[c]), Number(expected), 0.01);
                     } else {
-                        if (['aave', 'saave', 'geist'].includes(id)  || (pool.isLending && pool.id === 'ren')) {
+                        if (AAVE_POOLS.includes(id)  || (pool.isLending && pool.id === 'ren')) {
                             // Because of increasing quantity
                             assert.approximately(Number(balances[c]), Number(initialBalances[c]), 1e-4);
                         } else {
@@ -226,7 +228,7 @@ const wrappedSwapTest = (id: string) => {
 
                             const coinBalances = await pool.wallet.wrappedCoinBalances() as IDict<string>;
 
-                            if (['aave', 'saave', 'geist'].includes(pool.id) || (pool.isLending && pool.id === 'ren')) {
+                            if (AAVE_POOLS.includes(pool.id) || (pool.isLending && pool.id === 'ren')) {
                                 // Because of increasing quantity
                                 assert.approximately(Number(Object.values(coinBalances)[i]), Number(BN(Object.values(initialCoinBalances)[i]).minus(BN(swapAmount).toString())), 1e-2);
                             } else if (pool.id === 'factory-v2-60') {

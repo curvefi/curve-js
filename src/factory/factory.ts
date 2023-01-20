@@ -50,7 +50,7 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], s
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
 }
 
-async function getFactoryImplementations(this: ICurve, factorySwapAddresses: string[]): Promise<any[]> {
+async function getFactoryImplementations(this: ICurve, factorySwapAddresses: string[]): Promise<string[]> {
     const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
 
     const calls = [];
@@ -247,11 +247,21 @@ async function getFactoryIsMeta(this: ICurve, factorySwapAddresses: string[]): P
 }
 
 export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Promise<IDict<IPoolData>> {
-    const [poolIds, swapAddresses] = swapAddress ?
+    const [rawPoolIds, rawSwapAddresses] = swapAddress ?
         [[await getRecentlyCreatedPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
         : await getFactoryIdsAndSwapAddresses.call(this);
-    const implementations = await getFactoryImplementations.call(this, swapAddresses);
+    const rawImplementations = await getFactoryImplementations.call(this, rawSwapAddresses);
+    const poolIds: string[] = [];
+    const swapAddresses: string[] = [];
+    const implementations: string[] = [];
     const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
+    for (let i = 0; i < rawPoolIds.length; i++) {
+        if (rawImplementations[i] in implementationABIDict) {
+            poolIds.push(rawPoolIds[i]);
+            swapAddresses.push(rawSwapAddresses[i]);
+            implementations.push(rawImplementations[i]);
+        }
+    }
     const swapABIs = implementations.map((addr: string) => implementationABIDict[addr]);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
     const gaugeAddresses = await getFactoryGaugeAddresses.call(this, swapAddresses);

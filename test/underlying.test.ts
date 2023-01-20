@@ -24,7 +24,7 @@ const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1', 'factory-crypto-83']; // ['CRV/TRICRYPTO', 'WMATIC/TRICRYPTO'];
 const POLYGON_POOLS = [...POLYGON_MAIN_POOLS, ...POLYGON_FACTORY_PLAIN_POOLS, ...POLYGON_FACTORY_META_POOLS, ...POLYGON_FACTORY_CRYPTO_META_POOLS];
 
-const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'atricrypto'];
+const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'atricrypto', 'aaveV3'];
 const AVALANCHE_FACTORY_PLAIN_POOLS = ['factory-v2-30', 'factory-v2-4']; // ['USD Coin', '3poolV2'];
 const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 const AVALANCHE_POOLS = [...AVALANCHE_MAIN_POOLS, ...AVALANCHE_FACTORY_PLAIN_POOLS, ...AVALANCHE_FACTORY_META_POOLS];
@@ -62,7 +62,7 @@ const CELO_POOLS = ['factory-v2-0'];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = POLYGON_FACTORY_CRYPTO_META_POOLS;
+const POOLS_FOR_TESTING = ['aaveV3'];
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-deposit&stake-unstake-withdraw`, function () {

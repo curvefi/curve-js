@@ -9,6 +9,8 @@ export const COINS_AVALANCHE: { [index: string]: string } = lowerCaseValues({
     'dai.e': '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70',
     'usdc.e': '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664',
     'usdt.e': '0xc7198437980c041c805A1EDcbA50c1Ce5db95118',
+    'usdc': '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+    'usdt': '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
     'avdai': '0x47AFa96Cdc9fAb46904A55a6ad4bf6660B53c38a',
     'avusdc': '0x46A51127C3ce23fb7AB1DE06226147F446e4a857',
     'avusdt': '0x532E6537FEA298397212F09A61e03311686f548e',

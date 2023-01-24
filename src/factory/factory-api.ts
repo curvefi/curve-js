@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
 import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
@@ -94,17 +93,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
     // Filter duplications
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address);
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address));
-    if (this.chainId !== 1) {
-        const url = `https://api.curve.fi/api/getFactoGauges/${network}`;
-        const response = await axios.get(url);
-        const poolGaugeDict: IDict<string> = {};
-        for (const gaugeData of response.data.data.gauges) {
-            poolGaugeDict[gaugeData.swap.toLowerCase()] = gaugeData.gauge.toLowerCase();
-        }
-        for (let i = 0; i < rawPoolList.length; i++) {
-            rawPoolList[i].gaugeAddress = poolGaugeDict[rawPoolList[i].address];
-        }
-    }
 
     setFactorySwapContracts.call(this, rawPoolList, isCrypto);
     if (isCrypto) setCryptoFactoryTokenContracts.call(this, rawPoolList);

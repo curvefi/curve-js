@@ -108,7 +108,7 @@ export const POOLS_DATA_XDAI: { [index: string]: IPoolData } = lowerCasePoolData
         reference_asset: 'CRYPTO',
         swap_address: '0x056C6C5e684CeC248635eD86033378Cc444459B0',
         token_address: '0x0CA1C1eC4EBf3CC67a9f545fF90a3795b318cA4a',
-        gauge_address: '0x0000000000000000000000000000000000000000', // NO GAUGE
+        gauge_address: '0xd91770E868c7471a9585d1819143063A40c54D00',
         deposit_address: '0xE3FFF29d4DC930EBb787FeCd49Ee5963DADf60b6',
         is_meta: true,
         is_crypto: true,

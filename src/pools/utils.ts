@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { getPool } from "./poolConstructor";
 import { IDict } from "../interfaces";
 import { curve } from "../curve";
-import { _getUsdRate, _setContracts, toBN } from "../utils";
+import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils";
 import { _getPoolsFromApi } from "../external-api";
 import ERC20Abi from "../constants/abis/ERC20.json";
 
@@ -218,6 +218,102 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
     return _claimable
 }
 
+const _getUserClaimableUseApi = async (pools: string[], address: string, useCache: boolean):
+    Promise<{ token: string, symbol: string, amount: string }[][]> => {
+    const poolsToFetch: string[] = useCache ? pools.filter((poolId) => _isUserClaimableCacheExpired(address as string, poolId)) : pools;
+
+    if (poolsToFetch.length > 0) {
+
+        // --- 1. CRV ---
+
+        const hasCrvReward: boolean[] = [];
+        for (const poolId of poolsToFetch) {
+            const pool = getPool(poolId);
+            if (curve.chainId === 2222 || curve.chainId === 42220 || pool.gauge === ethers.constants.AddressZero) { // TODO remove this for Kava and Celo
+                hasCrvReward.push(false);
+                continue;
+
+            }
+            const gaugeContract = curve.contracts[pool.gauge].contract;
+            hasCrvReward.push('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
+        }
+
+        // --- 2. Reward tokens ---
+
+        const rewardTokens: IDict<{ token: string, symbol: string, decimals: number }[]> = {};
+        for (let i = 0; i < poolsToFetch.length; i++) {
+            const pool = getPool(poolsToFetch[i]);
+            const rewards = await _getRewardsFromApi();
+            rewardTokens[poolsToFetch[i]] = (rewards[pool.gauge] ?? []).map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: r.decimals}));
+        }
+
+        // --- 3. Reward info ---
+
+        const rewardInfoCalls = [];
+        for (let i = 0; i < poolsToFetch.length; i++) {
+            const poolId = poolsToFetch[i];
+            const pool = getPool(poolId);
+            if (pool.gauge === ethers.constants.AddressZero) continue;
+
+            const gaugeContract = curve.contracts[pool.gauge].contract;
+            const gaugeMulticallContract = curve.contracts[pool.gauge].multicallContract;
+
+            if (hasCrvReward[i]) {
+                rewardInfoCalls.push(gaugeMulticallContract.claimable_tokens(address));
+            }
+
+            for (const r of rewardTokens[poolId]) {
+                _setContracts(r.token, ERC20Abi);
+                if ('claimable_reward(address,address)' in gaugeContract) {
+                    rewardInfoCalls.push(gaugeMulticallContract.claimable_reward(address, r.token));
+                } else if ('claimable_reward(address)' in gaugeContract) { // Synthetix Gauge
+                    rewardInfoCalls.push(gaugeMulticallContract.claimable_reward(address), gaugeMulticallContract.claimed_rewards_for(address));
+                }
+            }
+        }
+
+        const rawRewardInfo = await curve.multicallProvider.all(rewardInfoCalls);
+        for (let i = 0; i < poolsToFetch.length; i++) {
+            const poolId = poolsToFetch[i];
+            const pool = getPool(poolId);
+
+            if (!_userClaimableCache[address]) _userClaimableCache[address] = {};
+            _userClaimableCache[address][poolId] = { rewards: [], time: Date.now() };
+            if (pool.gauge === ethers.constants.AddressZero) continue;
+
+            const gaugeContract = curve.contracts[pool.gauge].contract;
+
+            if (hasCrvReward[i]) {
+                const token = curve.constants.ALIASES.crv;
+                const symbol = 'CRV';
+                const decimals = 18;
+                const _amount = rawRewardInfo.shift() as ethers.BigNumber;
+                const amount = ethers.utils.formatUnits(_amount, decimals);
+
+                if (Number(amount) > 0) _userClaimableCache[address][poolId].rewards.push({ token, symbol, amount });
+            }
+
+            for (const r of rewardTokens[poolId]) {
+                let _amount = rawRewardInfo.shift() as ethers.BigNumber;
+                if ('claimable_reward(address)' in gaugeContract) {
+                    const _claimedAmount = rawRewardInfo.shift() as ethers.BigNumber;
+                    _amount = _amount.sub(_claimedAmount);
+                }
+                const amount = ethers.utils.formatUnits(_amount, r.decimals);
+
+                if (Number(amount) > 0) _userClaimableCache[address][poolId].rewards.push({ token: r.token, symbol: r.symbol, amount });
+            }
+        }
+    }
+
+    const _claimable: { token: string, symbol: string, amount: string }[][] = []
+    for (const poolId of pools) {
+        _claimable.push(_userClaimableCache[address]?.[poolId].rewards)
+    }
+
+    return _claimable
+}
+
 export const getUserPoolListByClaimable = async (address = curve.signerAddress): Promise<string[]> => {
     const pools = [...getPoolList(), ...getFactoryPoolList(), ...getCryptoFactoryPoolList()];
     const _claimable = await _getUserClaimable(pools, address, false);
@@ -248,11 +344,11 @@ export const getUserClaimable = async (pools: string[], address = curve.signerAd
     return claimableWithPrice
 }
 
-export const getUserPoolList = async (address = curve.signerAddress): Promise<string[]> => {
+export const getUserPoolList = async (address = curve.signerAddress, useApi = true): Promise<string[]> => {
     const pools = [...getPoolList(), ...getFactoryPoolList(), ...getCryptoFactoryPoolList()];
     const [_lpBalances, _claimable] = await Promise.all([
         _getUserLpBalances(pools, address, false),
-        _getUserClaimable(pools, address, false),
+        useApi ? _getUserClaimableUseApi(pools, address, false) : _getUserClaimable(pools, address, false),
     ]);
 
     const userPoolList: string[] = []

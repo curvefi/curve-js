@@ -456,8 +456,11 @@ export const _get_price_impact = (
     return BN(1).minus(rateBN.div(smallRateBN)).times(100);
 }
 
-export const getCoinNamesAndSymbols = async (coins: string[]): Promise<{name: string, symbol: string}[]> => {
+export const getCoinsData = async (...coins: string[] | string[][]): Promise<{name: string, symbol: string, decimals: number}[]> => {
+    if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
+    coins = coins as string[];
     const coinAddresses = _getCoinAddressesNoCheck(coins);
+    console.log(coinAddresses);
 
     const ethIndex = getEthIndex(coinAddresses);
     if (ethIndex !== -1) {
@@ -467,19 +470,20 @@ export const getCoinNamesAndSymbols = async (coins: string[]): Promise<{name: st
     const contractCalls = [];
     for (const coinAddr of coinAddresses) {
         const coinContract = new MulticallContract(coinAddr, ERC20Abi);
-        contractCalls.push(coinContract.name(), coinContract.symbol());
+        contractCalls.push(coinContract.name(), coinContract.symbol(), coinContract.decimals());
     }
-    const _response: string[] = await curve.multicallProvider.all(contractCalls);
+    const _response = await curve.multicallProvider.all(contractCalls);
 
     if (ethIndex !== -1) {
-        _response.splice(ethIndex * 2, 0, ...['Ethereum', 'ETH']);
+        _response.splice(ethIndex * 2, 0, ...['Ethereum', 'ETH', 18]);
     }
 
-    const res: {name: string, symbol: string}[]  = [];
+    const res: {name: string, symbol: string, decimals: number}[]  = [];
     coins.forEach((address: string, i: number) => {
         res.push({
             name: _response.shift() as string,
             symbol: _response.shift() as string,
+            decimals: Number(ethers.utils.formatUnits(_response.shift() as string, 0)),
         })
     });
 

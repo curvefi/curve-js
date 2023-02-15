@@ -582,9 +582,15 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
     if (smallAmountIntBN.gte(amountIntBN)) return 0;
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
-    const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
+    let _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
     const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(inputCoinAddress, route);
-    const _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
+    let _smallOutput: ethers.BigNumber;
+    try {
+        _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
+    } catch (e) {
+        _smallAmount = ethers.utils.parseUnits("1", inputCoinDecimals);  // Dirty hack
+        _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
+    }
     const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals);
 
     return Number(_cutZeros(priceImpactBN.toFixed(4)))

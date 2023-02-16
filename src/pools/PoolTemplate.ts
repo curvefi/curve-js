@@ -329,7 +329,7 @@ export class PoolTemplate {
                 const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.address.toLowerCase())[0].usdTotal;
                 return String(totalLiquidity);
             } catch (err) {
-                console.log((err as Error).message);
+                console.log(this.id, (err as Error).message);
             }
         }
 

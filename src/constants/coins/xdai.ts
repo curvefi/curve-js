@@ -18,6 +18,9 @@ export const COINS_XDAI: { [index: string]: string } = lowerCaseValues({
     // --- ETH ---
 
     'weth': '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+
+    // --- EUR ---
+    'eure': '0xcB444e90D8198415266c6a2724b7900fb12FC56E',
 })
 
 export const cTokensXDai = []; //.map((a) => a.toLowerCase());

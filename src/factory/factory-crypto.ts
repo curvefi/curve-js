@@ -118,7 +118,10 @@ async function getCryptoFactoryCoinAddresses(this: ICurve, factorySwapAddresses:
         calls.push(factoryMulticallContract.get_coins(addr));
     }
 
-    return (await this.multicallProvider.all(calls) as string[][]).map((addresses) => addresses.map((addr) => addr.toLowerCase()));
+    return (await this.multicallProvider.all(calls) as string[][]).map(
+        (addresses) => addresses.map(
+            (addr) => this.chainId === 137 && addr === "0x0000000000000000000000000000000000001010" ? this.constants.NATIVE_TOKEN.wrappedAddress : addr.toLowerCase()
+        ));
 }
 
 function setCryptoFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void {

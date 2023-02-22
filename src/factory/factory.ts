@@ -136,7 +136,7 @@ async function getFactoryCoinAddresses(this: ICurve, factorySwapAddresses: strin
     return (await this.multicallProvider.all(calls) as string[][]).map(
         (addresses) => addresses
             .filter((addr) => addr !== ethers.constants.AddressZero)
-            .map((addr) => addr.toLowerCase())
+            .map((addr) => this.chainId === 137 && addr === "0x0000000000000000000000000000000000001010" ? this.constants.NATIVE_TOKEN.address : addr.toLowerCase())
     );
 }
 

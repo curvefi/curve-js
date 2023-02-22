@@ -104,10 +104,13 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
 
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     rawPoolList.forEach((pool) => {
-        const coinAddresses = pool.coins.map((c) => c.address);
+        const nativeToken = this.constants.NATIVE_TOKEN;
+        let coinAddresses = pool.coins.map((c) => c.address);
+        if (this.chainId === 137) {
+            coinAddresses = coinAddresses.map((a) => a === "0x0000000000000000000000000000000000001010" ? nativeToken.wrappedAddress : a);
+        }
         const coinNames = pool.coins.map((c) => c.symbol);
         const coinDecimals = pool.coins.map((c) => Number(c.decimals));
-        const nativeToken = this.constants.NATIVE_TOKEN;
 
         if (isCrypto) {
             const wrappedCoinNames = pool.coins.map((c) => c.symbol === nativeToken.symbol ? nativeToken.wrappedSymbol : c.symbol);

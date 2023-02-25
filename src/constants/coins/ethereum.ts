@@ -90,6 +90,7 @@ export const USD_COINS_ETHEREUM: { [index: string]: string } = {
     '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
     crv: "0xD533a949740bb3306d119CC777fa900bA034cd52", // CRV
     cvx: "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b", // CVX
+    cvxcrv: "0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7",
 }
 
 export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({

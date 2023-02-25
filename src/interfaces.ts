@@ -130,14 +130,16 @@ export interface IRouteStep {
     swapAddress: string,  // for swapType == 4
 }
 
-export interface IRoute_ {
-    steps: IRouteStep[],
+export type IRoute = IRouteStep[];
+
+export interface IRouteTvl {
+    route: IRoute,
     minTvl: number,
     totalTvl: number,
 }
 
-export interface IRoute {
-    steps: IRouteStep[],
+export interface IRouteOutputAndCost {
+    route: IRoute,
     _output: ethers.BigNumber,
     outputUsd: number,
     txCostUsd: number,

@@ -1,42 +1,13 @@
 import { lowerCaseValues } from "../utils";
 
 
-export const BTC_COINS_ETHEREUM: { [index: string]: string } = {
-    sbtccrv: "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",  // sbtcCRV
-    hbtc: "0x0316EB71485b0Ab14103307bf65a021042c6d380",  // HBTC
-    renbtc: "0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D",  // renBTC
-    wbtc: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",  // WBTC
-    tbtc: "0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa",  // TBTC
-    pbtc: "0x5228a22e72ccC52d415EcFd199F99D0665E7733b",  // pBTC
-    bbtc: "0x9be89d2a4cd102d8fecc6bf9da793be995c22541",  // bBTC
-    obtc: "0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68",  // oBTC
-    sbtc: "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6",  // sBTC
-}
+export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
+    crv: "0xD533a949740bb3306d119CC777fa900bA034cd52", // CRV
 
-export const ETH_COINS_ETHEREUM: { [index: string]: string } = {
-    steth: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",  // stETH
-    eth: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  // ETH
-    ankreth: "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb",  // ankrETH
-    seth: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",  // sETH
-    reth: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593", // rETH
-    weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
-    frxeth: "0x5E8422345238F34275888049021821E8E08CAa1f", // frxETH
-    xaut: "0x68749665ff8d2d112fa859aa293f07a622782f38", // XAUt TODO move to GOLD
-}
+    // --- USD ---
 
-export const LINK_COINS_ETHEREUM: { [index: string]: string } = {
-    link: "0x514910771AF9Ca656af840dff83E8264EcF986CA",  // LINK
-    slink: "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6",  // sLINK
-}
+    '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
 
-export const EUR_COINS_ETHEREUM: { [index: string]: string } = {
-    eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
-    seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
-    eurt: "0xC581b735A1688071A1746c968e0798D642EDE491",  // EURT
-    euroc: "0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c",
-}
-
-export const USD_COINS_ETHEREUM: { [index: string]: string } = {
     ycdai: "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // pax/yDAI
     ycusdc: "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // pax/yUSDC
     ycusdt: "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59",  // pax/yUSDT
@@ -87,21 +58,48 @@ export const USD_COINS_ETHEREUM: { [index: string]: string } = {
     rai: "0x03ab458634910aad20ef5f1c8ee96f1d6ac54919", // RAI
     wormholeust: "0xa693B19d2931d498c5B318dF961919BB4aee87a5", // UST
 
-    '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
-    crv: "0xD533a949740bb3306d119CC777fa900bA034cd52", // CRV
+    // --- ETH ---
+
+    steth: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",  // stETH
+    eth: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  // ETH
+    ankreth: "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb",  // ankrETH
+    seth: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",  // sETH
+    reth: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593", // rETH
+    weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+    frxeth: "0x5E8422345238F34275888049021821E8E08CAa1f", // frxETH
+
+    // --- BTC ---
+
+    sbtccrv: "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",  // sbtcCRV
+    hbtc: "0x0316EB71485b0Ab14103307bf65a021042c6d380",  // HBTC
+    renbtc: "0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D",  // renBTC
+    wbtc: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",  // WBTC
+    tbtc: "0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa",  // TBTC
+    pbtc: "0x5228a22e72ccC52d415EcFd199F99D0665E7733b",  // pBTC
+    bbtc: "0x9be89d2a4cd102d8fecc6bf9da793be995c22541",  // bBTC
+    obtc: "0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68",  // oBTC
+    sbtc: "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6",  // sBTC
+
+    // --- EUR ---
+
+    eurs: "0xdB25f211AB05b1c97D595516F45794528a807ad8",  // EURS
+    seur: "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",  // sEUR
+    eurt: "0xC581b735A1688071A1746c968e0798D642EDE491",  // EURT
+    euroc: "0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c", // EUROC
+
+    // --- LINK ---
+
+    link: "0x514910771AF9Ca656af840dff83E8264EcF986CA",  // LINK
+    slink: "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6",  // sLINK
+
+    // --- OTHER ---
+
     cvx: "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b", // CVX
     cvxcrv: "0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7",
-}
-
-export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
-    ...BTC_COINS_ETHEREUM,
-    ...ETH_COINS_ETHEREUM,
-    ...LINK_COINS_ETHEREUM,
-    ...EUR_COINS_ETHEREUM,
-    ...USD_COINS_ETHEREUM,
     snx: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",  // SNX
     spell: "0x090185f2135308bad17527004364ebcc2d37e5f6", // SPELL
     t: "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5", // T
+    xaut: "0x68749665ff8d2d112fa859aa293f07a622782f38", // XAUt
 });
 
 export const cTokensEthereum = [

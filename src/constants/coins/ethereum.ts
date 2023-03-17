@@ -11,7 +11,7 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     ycdai: "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // pax/yDAI
     ycusdc: "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // pax/yUSDC
     ycusdt: "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59",  // pax/yUSDT
-    pax: "0x8E870D67F660D95d5be530380D0eC0bd388289E1",  // PAX
+    usdp: "0x8E870D67F660D95d5be530380D0eC0bd388289E1",  // PAX
 
     adai: "0x028171bCA77440897B824Ca71D1c56caC55b68A3",  // aDAI
     ausdc: "0xBcca60bB61934080951369a648Fb03DF4F96263C",  // aUSDC
@@ -40,7 +40,6 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     rsv: "0x196f4727526eA7FB1e17b2071B3d8eAA38486988",  // RSV
     dusd: "0x5BC25f649fc4e26069dDF4cF4010F9f706c23831",  // DUSD
     ust: "0xa47c8bf37f92abed4a126bda807a7b7498661acd",  // UST
-    usdp: "0x1456688345527bE1f37E9e627DA0837D6f08C925",  // USDP
 
     usdn: "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",  // USDN
 

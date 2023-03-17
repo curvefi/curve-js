@@ -1626,4 +1626,28 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         swap_abi: sbtc2SwapABI,
         gauge_abi: gaugeV5ABI,
     },
+    fraxusdp: {
+        name: "fraxusdp",
+        full_name: "fraxusdp",
+        symbol: "fraxusdp",
+        reference_asset: 'USD',
+        swap_address: '0xaE34574AC03A15cd58A92DC79De7B1A0800F1CE3',
+        token_address: '0xFC2838a17D8e8B1D5456E0a351B0708a09211147',
+        gauge_address: '0xfb860600F1bE1f1c72A89B2eF5CAF345aff7D39d',
+        is_plain: true,
+        underlying_coins: ['FRAX', 'USDP'],
+        wrapped_coins: ['FRAX', 'USDP'],
+        underlying_coin_addresses: [
+            '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+            '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
+        ],
+        wrapped_coin_addresses: [
+            '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+            '0x8E870D67F660D95d5be530380D0eC0bd388289E1',
+        ],
+        underlying_decimals: [18, 18],
+        wrapped_decimals: [18, 18],
+        swap_abi: fraxusdcSwapABI,
+        gauge_abi: gaugeV5ABI,
+    },
 });

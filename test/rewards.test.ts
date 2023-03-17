@@ -4,7 +4,7 @@ import curve from "../src";
 
 const checkNumber = (n: string) => Number(n) === Number(n);
 
-describe('Checking constants', async function () {
+describe('Rewards test', async function () {
     this.timeout(240000);
 
     before(async function() {

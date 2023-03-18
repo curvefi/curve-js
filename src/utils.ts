@@ -176,7 +176,7 @@ export const hasAllowance = async (coins: string[], amounts: (number | string)[]
     return _allowance.map((a, i) => a.gte(_amounts[i])).reduce((a, b) => a && b);
 }
 
-export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string): Promise<string[]> => {
+export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string, isMax = true): Promise<string[]> => {
     const address = curve.signerAddress;
     const allowance: ethers.BigNumber[] = await _getAllowance(coins, address, spender);
 
@@ -184,13 +184,14 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
             const contract = curve.contracts[coins[i]].contract;
+            const _approveAmount = isMax ? MAX_ALLOWANCE : amounts[i];
             await curve.updateFeeData();
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
                 const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).mul(130).div(100);
                 txHashes.push((await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit })).hash);
             }
-            const gasLimit = (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.constantOptions)).mul(130).div(100);
-            txHashes.push((await contract.approve(spender, MAX_ALLOWANCE, { ...curve.options, gasLimit })).hash);
+            const gasLimit = (await contract.estimateGas.approve(spender, _approveAmount, curve.constantOptions)).mul(130).div(100);
+            txHashes.push((await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit })).hash);
         }
     }
 
@@ -198,7 +199,7 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string): Promise<number> => {
+export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<number> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
@@ -209,10 +210,11 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(_amounts[i])) {
             const contract = curve.contracts[coinAddresses[i]].contract;
+            const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
                 gas += (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).toNumber();
             }
-            gas += (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.constantOptions)).toNumber();
+            gas += (await contract.estimateGas.approve(spender, _approveAmount, curve.constantOptions)).toNumber();
         }
     }
 
@@ -220,12 +222,12 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowance = async (coins: string[], amounts: (number | string)[], spender: string): Promise<string[]> => {
+export const ensureAllowance = async (coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<string[]> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
-    return await _ensureAllowance(coinAddresses, _amounts, spender)
+    return await _ensureAllowance(coinAddresses, _amounts, spender, isMax)
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {

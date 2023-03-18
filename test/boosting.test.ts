@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { BN } from "../src/utils";
+import { BN, getAllowance } from "../src/utils";
 import { getCrv, createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime, calcUnlockTime } from '../src/boosting';
 import { curve } from "../src/curve";
 
@@ -20,9 +20,11 @@ describe('Boosting', function() {
         await createLock(lockAmount, 365);
         const crvBalance = await getCrv() as string;
         const { lockedAmount, unlockTime } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
+        const [allowance] = await getAllowance(['crv'], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
 
         assert.deepEqual(BN(lockedAmount), BN(initialCrvBalance).minus(BN(crvBalance)));
         assert.equal(unlockTime, calculatedUnlockTime);
+        assert.equal(Number(allowance), 0);
     });
 
     it('Increases amount locked in Voting Escrow contract', async function () {
@@ -33,8 +35,10 @@ describe('Boosting', function() {
         await increaseAmount(increaseLockAmount);
         const crvBalance = await getCrv() as string;
         const { lockedAmount } = await getLockedAmountAndUnlockTime() as { lockedAmount: string, unlockTime: number };
+        const [allowance] = await getAllowance(['crv'], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
 
         assert.deepEqual(BN(lockedAmount).minus(BN(initialLockedAmount)), BN(initialCrvBalance).minus(BN(crvBalance)));
+        assert.equal(Number(allowance), 0);
     });
 
     it('Extends lock time', async function () {
@@ -42,7 +46,9 @@ describe('Boosting', function() {
         const calculatedUnlockTime = calcUnlockTime(120, initialUnlockTime);
         await increaseUnlockTime(120);
         const { unlockTime } = await getLockedAmountAndUnlockTime(address) as { lockedAmount: string, unlockTime: number };
+        const [allowance] = await getAllowance(['crv'], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
 
         assert.equal(unlockTime, calculatedUnlockTime);
+        assert.equal(Number(allowance), 0);
     });
 });

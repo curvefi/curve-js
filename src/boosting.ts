@@ -83,11 +83,11 @@ export const isApproved = async (amount: number | string): Promise<boolean> => {
 }
 
 export const approveEstimateGas = async (amount: number | string): Promise<number> => {
-    return await ensureAllowanceEstimateGas([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow);
+    return await ensureAllowanceEstimateGas([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow, false);
 }
 
 export const approve = async (amount: number | string): Promise<string[]> => {
-    return await ensureAllowance([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow);
+    return await ensureAllowance([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow, false);
 }
 
 export const createLockEstimateGas = async (amount: number | string, days: number): Promise<number> => {
@@ -118,7 +118,7 @@ export const calcUnlockTime = (days: number, start = Date.now()): number => {
 export const createLock = async (amount: number | string, days: number): Promise<string> => {
     const _amount = parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (86400 * days);
-    await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow);
+    await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow, false);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
@@ -145,7 +145,7 @@ export const increaseAmountEstimateGas = async (amount: number | string): Promis
 
 export const increaseAmount = async (amount: number | string): Promise<string> => {
     const _amount = parseUnits(amount);
-    await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow);
+    await _ensureAllowance([curve.constants.ALIASES.crv], [_amount], curve.constants.ALIASES.voting_escrow, false);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();

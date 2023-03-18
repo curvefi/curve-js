@@ -31,7 +31,7 @@ export const _getSubgraphData = memoize(
 export const _getLegacyAPYsAndVolumes = memoize(
     async (network: string): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {
         if (curve.chainId === 2222 || curve.chainId === 42220) return {}; // Exclude Kava and Celo
-        const url = `https://stats.curve.fi/raw-stats-${network}/apys.json`;
+        const url = "https://api.curve.fi/api/getMainPoolsAPYs/" + network;
         const data = (await axios.get(url, { validateStatus: () => true })).data;
         const result: IDict<{ apy: { day: number, week: number }, volume: number }> = {};
         Object.keys(data.apy.day).forEach((poolId) => {

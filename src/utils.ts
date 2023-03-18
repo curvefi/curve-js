@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ethers, Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
-import { IDict, INetworkName, IRewardFromApi } from './interfaces';
+import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve";
 import { _getPoolsFromApi, _getSubgraphData } from "./external-api";
 import ERC20Abi from './constants/abis/ERC20.json';
@@ -393,8 +393,18 @@ export const getUsdRate = async (coin: string): Promise<number> => {
     return await _getUsdRate(coinAddress);
 }
 
-export const getTVL = async (chainId = curve.chainId): Promise<number> => {
-    const network = NETWORK_CONSTANTS[chainId]?.NAME ?? "ethereum";
+const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INetworkName => {
+    if (typeof network === "number" && NETWORK_CONSTANTS[network]) {
+        return NETWORK_CONSTANTS[network].NAME;
+    } else if (typeof network === "string" && Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
+        return network;
+    } else {
+        throw Error(`Wrong network name or id: ${network}`);
+    }
+}
+
+export const getTVL = async (network: INetworkName | IChainId = curve.chainId): Promise<number> => {
+    network = _getNetworkName(network);
 
     const promises = [
         _getPoolsFromApi(network, "main"),
@@ -405,6 +415,12 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
     const allTypesExtendedPoolData = await Promise.all(promises);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
+}
+
+export const getVolumeData = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+    network = _getNetworkName(network);
+    const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData(network);
+    return { totalVolume, cryptoVolume, cryptoShare }
 }
 
 export const _setContracts = (address: string, abi: any): void => {
@@ -478,9 +494,4 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
     });
 
     return res;
-}
-
-export const getVolumeData = async (network = ""): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
-    const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData((network || curve.constants.NETWORK_NAME) as INetworkName);
-    return { totalVolume, cryptoVolume, cryptoShare }
 }

@@ -21,9 +21,9 @@ export const _getSubgraphData = memoize(
         const response = await axios.get(url, { validateStatus: () => true });
         return {
             poolsData: response.data.data.poolList ?? [],
-            totalVolume: response.data.data.totalVolume,
-            cryptoVolume: response.data.data.cryptoVolume,
-            cryptoShare: response.data.data.cryptoShare,
+            totalVolume: response.data.data.totalVolume ?? 0,
+            cryptoVolume: response.data.data.cryptoVolume ?? 0,
+            cryptoShare: response.data.data.cryptoShare ?? 0,
         };
     },
     {

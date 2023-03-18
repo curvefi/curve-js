@@ -7,6 +7,12 @@ const generalMethodsTest = async () => {
 
     console.log(await curve.getTVL());
     // 7867623953.766793
+    console.log(await curve.getVolumeData());
+    // {
+    //     totalVolume: 514893871.3481678,
+    //     cryptoVolume: 162757004.96876568,
+    //     cryptoShare: 31.609815930147377
+    // }
 
     const balances1 = await curve.getBalances(['DAI', 'sUSD']);
     // OR const balances1 = await curve.getBalances(['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51']);

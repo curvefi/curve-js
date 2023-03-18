@@ -16,10 +16,15 @@ export const _getPoolsFromApi = memoize(
 )
 
 export const _getSubgraphData = memoize(
-    async (network: INetworkName): Promise<ISubgraphPoolData[]> => {
+    async (network: INetworkName): Promise<{ poolsData: ISubgraphPoolData[], totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
         const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
         const response = await axios.get(url, { validateStatus: () => true });
-        return response.data.data.poolList ?? [];
+        return {
+            poolsData: response.data.data.poolList ?? [],
+            totalVolume: response.data.data.totalVolume,
+            cryptoVolume: response.data.data.cryptoVolume,
+            cryptoShare: response.data.data.cryptoShare,
+        };
     },
     {
         promise: true,

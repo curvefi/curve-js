@@ -4,7 +4,7 @@ import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import { IDict, INetworkName, IRewardFromApi } from './interfaces';
 import { curve } from "./curve";
-import { _getPoolsFromApi } from "./external-api";
+import { _getPoolsFromApi, _getSubgraphData } from "./external-api";
 import ERC20Abi from './constants/abis/ERC20.json';
 
 
@@ -490,4 +490,9 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
     });
 
     return res;
+}
+
+export const getVolumeData = async (network = ""): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+    const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData((network || curve.constants.NETWORK_NAME) as INetworkName);
+    return { totalVolume, cryptoVolume, cryptoShare }
 }

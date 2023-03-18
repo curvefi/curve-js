@@ -361,7 +361,7 @@ export class PoolTemplate {
             return (poolData.volume * lpPrice).toString()
         }
         const network = curve.constants.NETWORK_NAME;
-        const poolsData = (await _getSubgraphData(network));
+        const poolsData = (await _getSubgraphData(network)).poolsData;
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
         if (!poolData) throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
 
@@ -389,7 +389,7 @@ export class PoolTemplate {
             }
         }
         const network = curve.constants.NETWORK_NAME;
-        const poolsData = (await _getSubgraphData(network));
+        const poolsData = (await _getSubgraphData(network)).poolsData;
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
         if (!poolData) throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)

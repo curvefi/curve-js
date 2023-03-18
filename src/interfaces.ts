@@ -5,7 +5,7 @@ export interface IDict<T> {
     [index: string]: T,
 }
 
-export type INetworkName = "ethereum" | "polygon" | "avalanche";
+export type INetworkName = "ethereum" | "optimism" | "xdai" | "polygon" | "fantom" | "moonbeam" | "kava" | "arbitrum" | "celo" | "avalanche" | "aurora";
 
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
 

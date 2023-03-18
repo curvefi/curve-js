@@ -44,6 +44,9 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": MetaFraxUSDABI,
     "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": MetaFraxUSDBalancesABI,
 
+    "0xF9B62b61d108232Ef0C9DD143bb3c22c7D4A715a": MetaFraxUSDABI,  // fraxusdp
+    "0xB172AC2Fe440B5dA74Dc460e5E9d96bc2BF6261F": MetaFraxUSDBalancesABI,  // fraxusdp
+
     "0xC6A8466d128Fbfd34AdA64a9FFFce325D57C9a52": MetaBTCABI,
     "0xc4C78b08fA0c3d0a312605634461A88184Ecd630": MetaBTCBalancesABI,
 
@@ -271,6 +274,9 @@ export const implementationBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys
 
     "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": "fraxusdc",
     "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": "fraxusdc",
+
+    "0xF9B62b61d108232Ef0C9DD143bb3c22c7D4A715a": "fraxusdp",
+    "0xB172AC2Fe440B5dA74Dc460e5E9d96bc2BF6261F": "fraxusdp",
 
     "0xC6A8466d128Fbfd34AdA64a9FFFce325D57C9a52": "sbtc",
     "0xc4C78b08fA0c3d0a312605634461A88184Ecd630": "sbtc",

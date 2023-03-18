@@ -417,7 +417,7 @@ export const getTVL = async (network: INetworkName | IChainId = curve.chainId): 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }
 
-export const getVolumeData = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
     network = _getNetworkName(network);
     const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData(network);
     return { totalVolume, cryptoVolume, cryptoShare }

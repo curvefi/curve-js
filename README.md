@@ -140,7 +140,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.getTVL();
     // 7870819849.685552
-    await curve.getVolumeData();
+    await curve.getVolume();
     // {
     //     totalVolume: 514893871.3481678,
     //     cryptoVolume: 162757004.96876568,

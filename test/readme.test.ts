@@ -7,7 +7,7 @@ const generalMethodsTest = async () => {
 
     console.log(await curve.getTVL());
     // 7867623953.766793
-    console.log(await curve.getVolumeData());
+    console.log(await curve.getVolume());
     // {
     //     totalVolume: 514893871.3481678,
     //     cryptoVolume: 162757004.96876568,

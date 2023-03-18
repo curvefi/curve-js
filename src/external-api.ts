@@ -1,7 +1,7 @@
-import { IExtendedPoolDataFromApi, ISubgraphPoolData, IReward, IDict, INetworkName } from "./interfaces";
+import { IExtendedPoolDataFromApi, ISubgraphPoolData, IDict, INetworkName } from "./interfaces";
 import axios from "axios";
 import memoize from "memoizee";
-import {curve} from "./curve";
+
 
 export const _getPoolsFromApi = memoize(
     async (network: INetworkName, poolType: "main" | "crypto" | "factory" | "factory-crypto"): Promise<IExtendedPoolDataFromApi> => {
@@ -16,10 +16,15 @@ export const _getPoolsFromApi = memoize(
 )
 
 export const _getSubgraphData = memoize(
-    async (network: INetworkName): Promise<ISubgraphPoolData[]> => {
+    async (network: INetworkName): Promise<{ poolsData: ISubgraphPoolData[], totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
         const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
         const response = await axios.get(url, { validateStatus: () => true });
-        return response.data.data.poolList ?? [];
+        return {
+            poolsData: response.data.data.poolList ?? [],
+            totalVolume: response.data.data.totalVolume ?? 0,
+            cryptoVolume: response.data.data.cryptoVolume ?? 0,
+            cryptoShare: response.data.data.cryptoShare ?? 0,
+        };
     },
     {
         promise: true,
@@ -30,8 +35,8 @@ export const _getSubgraphData = memoize(
 // Moonbeam and Aurora only
 export const _getLegacyAPYsAndVolumes = memoize(
     async (network: string): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {
-        if (curve.chainId === 2222 || curve.chainId === 42220) return {}; // Exclude Kava and Celo
-        const url = `https://stats.curve.fi/raw-stats-${network}/apys.json`;
+        if (network === "kava" || network === "celo") return {}; // Exclude Kava and Celo
+        const url = "https://api.curve.fi/api/getMainPoolsAPYs/" + network;
         const data = (await axios.get(url, { validateStatus: () => true })).data;
         const result: IDict<{ apy: { day: number, week: number }, volume: number }> = {};
         Object.keys(data.apy.day).forEach((poolId) => {
@@ -52,7 +57,7 @@ export const _getLegacyAPYsAndVolumes = memoize(
 // Moonbeam, Kava and Celo only
 export const _getFactoryAPYsAndVolumes = memoize(
     async (network: string): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
-        if (curve.chainId === 1313161554) return [];  // Exclude Aurora
+        if (network === "aurora") return [];  // Exclude Aurora
 
         const url = `https://api.curve.fi/api/getFactoryAPYs-${network}`;
         const response = await axios.get(url, { validateStatus: () => true });

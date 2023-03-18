@@ -4,7 +4,7 @@ import { Provider as MulticallProvider, Contract as MulticallContract } from 'et
 import { getFactoryPoolData } from "./factory/factory";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto";
-import { IPoolData, IDict, ICurve, INetworkName } from "./interfaces";
+import { IPoolData, IDict, ICurve, INetworkName, IChainId } from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json';
 import cERC20Abi from './constants/abis/cERC20.json';
 import yERC20Abi from './constants/abis/yERC20.json';
@@ -262,7 +262,7 @@ class Curve implements ICurve {
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
     signerAddress: string;
-    chainId: number;
+    chainId: IChainId;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
     constantOptions: { gasLimit: number };
@@ -285,7 +285,7 @@ class Curve implements ICurve {
         // @ts-ignore
         this.signer = null;
         this.signerAddress = '';
-        this.chainId = 0;
+        this.chainId = 1;
         // @ts-ignore
         this.multicallProvider = null;
         this.contracts = {};
@@ -315,7 +315,7 @@ class Curve implements ICurve {
         // @ts-ignore
         this.signer = null;
         this.signerAddress = '';
-        this.chainId = 0;
+        this.chainId = 1;
         // @ts-ignore
         this.multicallProvider = null;
         this.contracts = {};
@@ -370,7 +370,7 @@ class Curve implements ICurve {
 
         const network = this.provider.network || await this.provider._networkPromise;
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", network);
-        this.chainId = network.chainId === 1337 ? 1 : network.chainId;
+        this.chainId = network.chainId === 1337 ? 1 : network.chainId as IChainId;
 
         this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;

@@ -53,6 +53,7 @@ import {
     getUsdRate,
     getTVL,
     getCoinsData,
+    getVolume,
 } from "./utils";
 import {
     deployStablePlainPool,
@@ -125,6 +126,7 @@ const curve = {
     hasAllowance,
     ensureAllowance,
     getCoinsData,
+    getVolume,
     factory: {
         deployPlainPool: deployStablePlainPool,
         deployMetaPool: deployStableMetaPool,

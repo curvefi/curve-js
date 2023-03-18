@@ -18,7 +18,7 @@ const MAIN_POOLS_ETHEREUM = [
     'alusd',    'mim',     'tricrypto2', 'eurt',
     'eurtusd',  'eursusd', 'crveth',     'rai',
     'cvxeth',   'xautusd', 'spelleth',   'teth',
-    '2pool',    '4pool',
+    '2pool',    '4pool',   'sbtc2',      'fraxusdp',
 ];
 const FACTORY_POOLS_COUNT_ETHEREUM = 127;
 const CRYPTO_FACTORY_POOLS_COUNT_ETHEREUM = 132;
@@ -53,7 +53,7 @@ const MAIN_POOLS_CELO = ['factory-v2-0'];
 
 // ------------------------------------------
 
-const MAIN_POOLS = MAIN_POOLS_CELO;
+const MAIN_POOLS = MAIN_POOLS_ETHEREUM;
 const FACTORY_POOLS_COUNT = 0;
 const CRYPTO_FACTORY_POOLS_COUNT = 0;
 

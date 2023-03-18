@@ -2,9 +2,9 @@ import axios from 'axios';
 import { ethers, Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
-import { IDict, INetworkName, IRewardFromApi } from './interfaces';
-import { curve } from "./curve";
-import { _getPoolsFromApi } from "./external-api";
+import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
+import { curve, NETWORK_CONSTANTS } from "./curve";
+import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getPoolsFromApi, _getSubgraphData } from "./external-api";
 import ERC20Abi from './constants/abis/ERC20.json';
 
 
@@ -176,7 +176,7 @@ export const hasAllowance = async (coins: string[], amounts: (number | string)[]
     return _allowance.map((a, i) => a.gte(_amounts[i])).reduce((a, b) => a && b);
 }
 
-export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string): Promise<string[]> => {
+export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string, isMax = true): Promise<string[]> => {
     const address = curve.signerAddress;
     const allowance: ethers.BigNumber[] = await _getAllowance(coins, address, spender);
 
@@ -184,13 +184,14 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(amounts[i])) {
             const contract = curve.contracts[coins[i]].contract;
+            const _approveAmount = isMax ? MAX_ALLOWANCE : amounts[i];
             await curve.updateFeeData();
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
                 const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).mul(130).div(100);
                 txHashes.push((await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit })).hash);
             }
-            const gasLimit = (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.constantOptions)).mul(130).div(100);
-            txHashes.push((await contract.approve(spender, MAX_ALLOWANCE, { ...curve.options, gasLimit })).hash);
+            const gasLimit = (await contract.estimateGas.approve(spender, _approveAmount, curve.constantOptions)).mul(130).div(100);
+            txHashes.push((await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit })).hash);
         }
     }
 
@@ -198,7 +199,7 @@ export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumbe
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string): Promise<number> => {
+export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<number> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
@@ -209,10 +210,11 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i].lt(_amounts[i])) {
             const contract = curve.contracts[coinAddresses[i]].contract;
+            const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
             if (allowance[i].gt(ethers.BigNumber.from(0))) {
                 gas += (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).toNumber();
             }
-            gas += (await contract.estimateGas.approve(spender, MAX_ALLOWANCE, curve.constantOptions)).toNumber();
+            gas += (await contract.estimateGas.approve(spender, _approveAmount, curve.constantOptions)).toNumber();
         }
     }
 
@@ -220,17 +222,24 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowance = async (coins: string[], amounts: (number | string)[], spender: string): Promise<string[]> => {
+export const ensureAllowance = async (coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<string[]> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
-    return await _ensureAllowance(coinAddresses, _amounts, spender)
+    return await _ensureAllowance(coinAddresses, _amounts, spender, isMax)
 }
 
 export const getPoolNameBySwapAddress = (swapAddress: string): string => {
     const poolsData = { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA, ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };
     return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
+}
+
+const _getTokenAddressBySwapAddress = (swapAddress: string): string => {
+    const poolsData = { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA, ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };
+    const res = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
+    if (res.length === 0) return "";
+    return res[0][1].token_address;
 }
 
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
@@ -391,21 +400,29 @@ export const getUsdRate = async (coin: string): Promise<number> => {
     return await _getUsdRate(coinAddress);
 }
 
-export const getTVL = async (chainId = curve.chainId): Promise<number> => {
-    const network = {
-        1: "ethereum",
-        10: 'optimism',
-        100: 'xdai',
-        137: "polygon",
-        250: "fantom",
-        1284: "moonbeam",
-        2222: 'kava',
-        42220: 'celo',
-        43114: "avalanche",
-        42161: "arbitrum",
-        1313161554: "aurora",
-    }[chainId] as INetworkName ?? "ethereum";
+const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INetworkName => {
+    if (typeof network === "number" && NETWORK_CONSTANTS[network]) {
+        return NETWORK_CONSTANTS[network].NAME;
+    } else if (typeof network === "string" && Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
+        return network;
+    } else {
+        throw Error(`Wrong network name or id: ${network}`);
+    }
+}
 
+const _getChainId = (network: INetworkName | IChainId = curve.chainId): IChainId => {
+    if (typeof network === "number" && NETWORK_CONSTANTS[network]) {
+        return network;
+    } else if (typeof network === "string" && Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
+        const idx = Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).indexOf(network);
+        return Number(Object.keys(NETWORK_CONSTANTS)[idx]) as IChainId;
+    } else {
+        throw Error(`Wrong network name or id: ${network}`);
+    }
+}
+
+export const getTVL = async (network: INetworkName | IChainId = curve.chainId): Promise<number> => {
+    network = _getNetworkName(network);
     const promises = [
         _getPoolsFromApi(network, "main"),
         _getPoolsFromApi(network, "crypto"),
@@ -415,6 +432,32 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
     const allTypesExtendedPoolData = await Promise.all(promises);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
+}
+
+export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+    network = _getNetworkName(network);
+    if (["moonbeam", "kava", "celo", "aurora"].includes(network)) {
+        const chainId = _getChainId(network);
+        if (curve.chainId !== chainId) throw Error("To get volume for Moonbeam, Kava, Celo or Aurora connect to the network first");
+        const [mainPoolsData, factoryPoolsData] = await Promise.all([
+            _getLegacyAPYsAndVolumes(network),
+            _getFactoryAPYsAndVolumes(network),
+        ]);
+        let volume = 0;
+        for (const id in mainPoolsData) {
+            volume += mainPoolsData[id].volume ?? 0;
+        }
+        for (const pool of factoryPoolsData) {
+            const lpToken = _getTokenAddressBySwapAddress(pool.poolAddress);
+            const lpPrice = lpToken ? await _getUsdRate(lpToken) : 0;
+            volume += pool.volume * lpPrice;
+        }
+
+        return { totalVolume: volume, cryptoVolume: 0, cryptoShare: 0 }
+    }
+
+    const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData(network);
+    return { totalVolume, cryptoVolume, cryptoShare }
 }
 
 export const _setContracts = (address: string, abi: any): void => {

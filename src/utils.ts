@@ -3,7 +3,7 @@ import { ethers, Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import { IDict, INetworkName, IRewardFromApi } from './interfaces';
-import { curve } from "./curve";
+import { curve, NETWORK_CONSTANTS } from "./curve";
 import { _getPoolsFromApi, _getSubgraphData } from "./external-api";
 import ERC20Abi from './constants/abis/ERC20.json';
 
@@ -394,19 +394,7 @@ export const getUsdRate = async (coin: string): Promise<number> => {
 }
 
 export const getTVL = async (chainId = curve.chainId): Promise<number> => {
-    const network = {
-        1: "ethereum",
-        10: 'optimism',
-        100: 'xdai',
-        137: "polygon",
-        250: "fantom",
-        1284: "moonbeam",
-        2222: 'kava',
-        42220: 'celo',
-        43114: "avalanche",
-        42161: "arbitrum",
-        1313161554: "aurora",
-    }[chainId] as INetworkName ?? "ethereum";
+    const network = NETWORK_CONSTANTS[chainId]?.NAME ?? "ethereum";
 
     const promises = [
         _getPoolsFromApi(network, "main"),

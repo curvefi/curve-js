@@ -4,7 +4,7 @@ import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve";
-import { _getPoolsFromApi, _getSubgraphData } from "./external-api";
+import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getPoolsFromApi, _getSubgraphData } from "./external-api";
 import ERC20Abi from './constants/abis/ERC20.json';
 
 
@@ -235,6 +235,13 @@ export const getPoolNameBySwapAddress = (swapAddress: string): string => {
     return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
+const _getTokenAddressBySwapAddress = (swapAddress: string): string => {
+    const poolsData = { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA, ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };
+    const res = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
+    if (res.length === 0) return "";
+    return res[0][1].token_address;
+}
+
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     const network = curve.constants.NETWORK_NAME;
     const promises = [
@@ -403,9 +410,19 @@ const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INet
     }
 }
 
+const _getChainId = (network: INetworkName | IChainId = curve.chainId): IChainId => {
+    if (typeof network === "number" && NETWORK_CONSTANTS[network]) {
+        return network;
+    } else if (typeof network === "string" && Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
+        const idx = Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).indexOf(network);
+        return Number(Object.keys(NETWORK_CONSTANTS)[idx]) as IChainId;
+    } else {
+        throw Error(`Wrong network name or id: ${network}`);
+    }
+}
+
 export const getTVL = async (network: INetworkName | IChainId = curve.chainId): Promise<number> => {
     network = _getNetworkName(network);
-
     const promises = [
         _getPoolsFromApi(network, "main"),
         _getPoolsFromApi(network, "crypto"),
@@ -419,6 +436,26 @@ export const getTVL = async (network: INetworkName | IChainId = curve.chainId): 
 
 export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
     network = _getNetworkName(network);
+    if (["moonbeam", "kava", "celo", "aurora"].includes(network)) {
+        const chainId = _getChainId(network);
+        if (curve.chainId !== chainId) throw Error("To get volume for Moonbeam, Kava, Celo or Aurora connect to the network first");
+        const [mainPoolsData, factoryPoolsData] = await Promise.all([
+            _getLegacyAPYsAndVolumes(network),
+            _getFactoryAPYsAndVolumes(network),
+        ]);
+        let volume = 0;
+        for (const id in mainPoolsData) {
+            volume += mainPoolsData[id].volume ?? 0;
+        }
+        for (const pool of factoryPoolsData) {
+            const lpToken = _getTokenAddressBySwapAddress(pool.poolAddress);
+            const lpPrice = lpToken ? await _getUsdRate(lpToken) : 0;
+            volume += pool.volume * lpPrice;
+        }
+
+        return { totalVolume: volume, cryptoVolume: 0, cryptoShare: 0 }
+    }
+
     const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData(network);
     return { totalVolume, cryptoVolume, cryptoShare }
 }

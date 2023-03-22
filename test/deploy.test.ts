@@ -12,8 +12,7 @@ describe('Factory deploy', function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
         // address = curve.signerAddress;
         if (curve.chainId !== 1) {
-            console.log('Run this test on Ethereum network');
-            return;
+            throw Error('Run this test only on Ethereum network');
         }
     });
 

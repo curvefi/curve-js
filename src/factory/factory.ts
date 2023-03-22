@@ -10,6 +10,9 @@ import { FACTORY_CONSTANTS } from "./constants";
 
 
 const BLACK_LIST: { [index: number]: any } = {
+    1: [
+        "0x066b6e1e93fa7dcd3f0eb7f8bac7d5a747ce0bf9",
+    ],
     137: [
         "0x666dc3b4babfd063faf965bd020024af0dc51b64",
         "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",

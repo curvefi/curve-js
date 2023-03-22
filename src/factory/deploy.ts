@@ -123,7 +123,7 @@ export const deployStableMetaPool = async (
 
 export const getDeployedStableMetaPoolAddress = async (tx: ethers.ContractTransaction): Promise<string> => {
     const txInfo = await tx.wait();
-    return txInfo.logs[txInfo.logs.length - 3].address.toLowerCase();
+    return txInfo.logs[3].address.toLowerCase();
 }
 
 

@@ -23,7 +23,7 @@ import curve from "@curvefi/api";
     await curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
     
     // Fetch factory pools
-    await curve.fetchFactoryPools();
+    await curve.factory.fetchPools();
     await curve.getCryptoFactoryPoolList();
 })()
 ```
@@ -184,7 +184,7 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
+    await curve.factory.fetchPools();
     await curve.fetchCryptoFactoryPools();
 
     curve.getPoolList();
@@ -204,7 +204,7 @@ import curve from "@curvefi/api";
     //     '2pool',    '4pool'
     // ]
     
-    curve.getFactoryPoolList();
+    curve.factory.getPoolList();
     // [
     //     'factory-v2-0',   'factory-v2-2',   'factory-v2-3',   'factory-v2-4',
     //     'factory-v2-5',   'factory-v2-6',   'factory-v2-7',   'factory-v2-8',
@@ -267,7 +267,7 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
+    await curve.factory.fetchPools();
     await curve.fetchCryptoFactoryPools();
 
     const pool = curve.getPool('factory-v2-11');
@@ -970,7 +970,7 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
+    await curve.factory.fetchPools();
     await curve.getCryptoFactoryPoolList();
 
     await curve.getBalances(['DAI', 'CRV']);
@@ -1292,7 +1292,7 @@ import curve from "@curvefi/api";
     await curve.init('JsonRpc', {}, { gasPrice: 0 });
 
     // Fetch pools from api (if false arg is not passed)
-    await curve.fetchFactoryPools();
+    await curve.factory.fetchPools();
     await curve.fetchCryptoFactoryPools();
 
     // Fetch very new pools (that haven't been added to api yet) from blockchain

@@ -79,30 +79,6 @@ async function init (
     this.chainId = _curve.chainId;
 }
 
-async function fetchFactoryPools(useApi = true): Promise<void> {
-    await _curve.fetchFactoryPools(useApi);
-}
-
-async function fetchCryptoFactoryPools(useApi = true): Promise<void> {
-    await _curve.fetchCryptoFactoryPools(useApi);
-}
-
-async function fetchNewFactoryPools(): Promise<string[]> {
-    return await _curve.fetchNewFactoryPools();
-}
-
-async function fetchNewCryptoFactoryPools(): Promise<string[]> {
-    return await _curve.fetchNewCryptoFactoryPools();
-}
-
-async function fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
-    return await _curve.fetchRecentlyDeployedFactoryPool(poolAddress);
-}
-
-async function fetchRecentlyDeployedCryptoFactoryPool(poolAddress: string): Promise<string> {
-    return await _curve.fetchRecentlyDeployedCryptoFactoryPool(poolAddress);
-}
-
 function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
     _curve.setCustomFeeData(customFeeData);
 }
@@ -129,8 +105,8 @@ const curve = {
     getCoinsData,
     getVolume,
     factory: {
-        fetchPools: fetchFactoryPools,
-        fetchNewPools: fetchNewFactoryPools,
+        fetchPools: _curve.fetchFactoryPools,
+        fetchNewPools: _curve.fetchNewFactoryPools,
         getPoolList: _curve.getFactoryPoolList,
         deployPlainPool: deployStablePlainPool,
         deployMetaPool: deployStableMetaPool,
@@ -138,7 +114,7 @@ const curve = {
         getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
         getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
-        fetchRecentlyDeployedPool: fetchRecentlyDeployedFactoryPool,
+        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedFactoryPool,
         estimateGas: {
             deployPlainPool: deployStablePlainPoolEstimateGas,
             deployMetaPool: deployStableMetaPoolEstimateGas,
@@ -146,15 +122,15 @@ const curve = {
         },
     },
     cryptoFactory: {
-        fetchPools: fetchCryptoFactoryPools,
-        fetchNewPools: fetchNewCryptoFactoryPools,
+        fetchPools: _curve.fetchCryptoFactoryPools,
+        fetchNewPools: _curve.fetchNewCryptoFactoryPools,
         getPoolList: _curve.getCryptoFactoryPoolList,
         deployPool: deployCryptoPool,
         deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, true),
         getDeployed: getDeployedStablePlainPoolAddress,
         getDeployedPoolAddress: getDeployedCryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
-        fetchRecentlyDeployedPool: fetchRecentlyDeployedCryptoFactoryPool,
+        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedCryptoFactoryPool,
         estimateGas: {
             deployPool: deployCryptoPoolEstimateGas,
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, true),

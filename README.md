@@ -24,7 +24,7 @@ import curve from "@curvefi/api";
     
     // Fetch factory pools
     await curve.factory.fetchPools();
-    await curve.getCryptoFactoryPoolList();
+    await curve.cryptoFactory.fetchPools();
 })()
 ```
 **Note 1.** ```chainId``` parameter is optional, but you must specify it in the case you use Metamask on localhost network, because Metamask has that [bug](https://hardhat.org/metamask-issue.html)
@@ -185,7 +185,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
-    await curve.fetchCryptoFactoryPools();
+    await curve.cryptoFactory.fetchPools();
 
     curve.getPoolList();
     // [
@@ -971,7 +971,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
-    await curve.getCryptoFactoryPoolList();
+    await curve.cryptoFactory.fetchPools();
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '9900.0', '100049.744832225238317557' ]

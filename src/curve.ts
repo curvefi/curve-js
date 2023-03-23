@@ -508,7 +508,7 @@ class Curve implements ICurve {
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(pools) ];
     }
 
-    async fetchFactoryPools(useApi = true): Promise<void> {
+    fetchFactoryPools = async (useApi = true): Promise<void> => {
         if (this.chainId === 1313161554) return;
 
         if (useApi) {
@@ -522,7 +522,7 @@ class Curve implements ICurve {
         await _killGauges(this.constants.FACTORY_POOLS_DATA);
     }
 
-    async fetchCryptoFactoryPools(useApi = true): Promise<void> {
+    fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
         if (![1, 137, 250].includes(this.chainId)) return;
 
         if (useApi) {
@@ -536,7 +536,7 @@ class Curve implements ICurve {
         await _killGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
     }
 
-    async fetchNewFactoryPools(): Promise<string[]> {
+    fetchNewFactoryPools = async (): Promise<string[]> => {
         if (this.chainId === 1313161554) return [];
 
         const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA);
@@ -548,7 +548,7 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
-    async fetchNewCryptoFactoryPools(): Promise<string[]> {
+    fetchNewCryptoFactoryPools = async (): Promise<string[]> => {
         if (![1, 137, 250].includes(this.chainId)) return [];
 
         const currentPoolIds = Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
@@ -560,7 +560,7 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
-    async fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
+    fetchRecentlyDeployedFactoryPool = async (poolAddress: string): Promise<string> => {
         if (this.chainId === 1313161554) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, poolAddress));
@@ -570,7 +570,7 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
-    async fetchRecentlyDeployedCryptoFactoryPool(poolAddress: string): Promise<string> {
+    fetchRecentlyDeployedCryptoFactoryPool = async (poolAddress: string): Promise<string> => {
         if (![1, 137, 250].includes(this.chainId)) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, 0, poolAddress));

@@ -2,9 +2,6 @@ import { ethers } from "ethers";
 import { Networkish } from "@ethersproject/networks";
 import { PoolTemplate, getPool } from "./pools";
 import {
-    getPoolList,
-    getFactoryPoolList,
-    getCryptoFactoryPoolList,
     getUserPoolListByLiquidity,
     getUserPoolListByClaimable,
     getUserPoolList,
@@ -117,9 +114,9 @@ const curve = {
     setCustomFeeData,
     fetchFactoryPools,
     fetchCryptoFactoryPools,
-    getPoolList,
-    getFactoryPoolList,
-    getCryptoFactoryPoolList,
+    getPoolList: _curve.getPoolList,
+    getFactoryPoolList: _curve.getFactoryPoolList,
+    getCryptoFactoryPoolList: _curve.getCryptoFactoryPoolList,
     getUserPoolListByLiquidity,
     getUserPoolListByClaimable,
     getUserPoolList,

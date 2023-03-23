@@ -94,6 +94,10 @@ async function fetchNewFactoryPools(): Promise<string[]> {
     return await _curve.fetchNewFactoryPools();
 }
 
+async function fetchNewCryptoFactoryPools(): Promise<string[]> {
+    return await _curve.fetchNewCryptoFactoryPools();
+}
+
 async function fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
     return await _curve.fetchRecentlyDeployedFactoryPool(poolAddress);
 }
@@ -147,6 +151,7 @@ const curve = {
         },
     },
     cryptoFactory: {
+        fetchNewPools: fetchNewCryptoFactoryPools,
         deployPool: deployCryptoPool,
         deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, true),
         getDeployed: getDeployedStablePlainPoolAddress,

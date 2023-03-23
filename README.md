@@ -1283,6 +1283,26 @@ import curve from "@curvefi/api";
 
 ## Factory
 
+### Fetch new pools from blockchain
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    // Fetch pools from api (if false arg is not passed)
+    await curve.fetchFactoryPools();
+    await curve.fetchCryptoFactoryPools();
+
+    // Fetch very new pools (that haven't been added to api yet) from blockchain
+    await curve.factory.fetchNewPools();
+    // [ 'factory-v2-285' ]
+    await curve.cryptoFactory.fetchNewPools();
+    // [ 'factory-crypto-232' ]
+})()
+```
+
 ### Deploy stable plain pool
 
 ```ts

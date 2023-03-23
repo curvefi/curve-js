@@ -251,7 +251,7 @@ describe('Wrapped test', async function () {
     before(async function () {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
         await curve.factory.fetchPools();
-        await curve.fetchCryptoFactoryPools();
+        await curve.cryptoFactory.fetchPools();
     });
 
 

@@ -10,11 +10,11 @@ describe('Rewards test', async function () {
     before(async function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
         await curve.factory.fetchPools();
-        await curve.fetchCryptoFactoryPools();
+        await curve.cryptoFactory.fetchPools();
     });
 
     it('crvProfit', async function () {
-        const pools = [...curve.getPoolList(), ...curve.factory.getPoolList().slice(0, 10), ...curve.getCryptoFactoryPoolList().slice(0, 10)];
+        const pools = [...curve.getPoolList(), ...curve.factory.getPoolList().slice(0, 10), ...curve.cryptoFactory.getPoolList().slice(0, 10)];
         for (const poolId of pools) {
             console.log(poolId);
             const pool = curve.getPool(poolId);
@@ -42,7 +42,7 @@ describe('Rewards test', async function () {
     });
 
     it('rewardsProfit', async function () {
-        const pools = [...curve.getPoolList(), ...curve.factory.getPoolList(), ...curve.getCryptoFactoryPoolList()];
+        const pools = [...curve.getPoolList(), ...curve.factory.getPoolList(), ...curve.cryptoFactory.getPoolList()];
         for (const poolId of pools) {
             console.log(poolId);
             const pool = curve.getPool(poolId);

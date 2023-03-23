@@ -234,7 +234,7 @@ import curve from "@curvefi/api";
     //     ... 27 more items
     // ]
     
-    curve.getCryptoFactoryPoolList();
+    curve.cryptoFactory.getPoolList();
     // [
     //     'factory-crypto-0',  'factory-crypto-1',  'factory-crypto-2',
     //     'factory-crypto-3',  'factory-crypto-4',  'factory-crypto-5',
@@ -268,7 +268,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
-    await curve.fetchCryptoFactoryPools();
+    await curve.cryptoFactory.fetchPools();
 
     const pool = curve.getPool('factory-v2-11');
 
@@ -1293,7 +1293,7 @@ import curve from "@curvefi/api";
 
     // Fetch pools from api (if false arg is not passed)
     await curve.factory.fetchPools();
-    await curve.fetchCryptoFactoryPools();
+    await curve.cryptoFactory.fetchPools();
 
     // Fetch very new pools (that haven't been added to api yet) from blockchain
     await curve.factory.fetchNewPools();

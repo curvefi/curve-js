@@ -120,7 +120,7 @@ describe('Stats test', async function () {
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
         await curve.factory.fetchPools();
-        await curve.fetchCryptoFactoryPools();
+        await curve.cryptoFactory.fetchPools();
     });
 
     for (const poolName of MAIN_POOLS) {

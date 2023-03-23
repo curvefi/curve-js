@@ -33,7 +33,7 @@ describe('Router swap', async function () {
     before(async function () {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
         await curve.factory.fetchPools();
-        await curve.fetchCryptoFactoryPools();
+        await curve.cryptoFactory.fetchPools();
     });
 
     // const coins = Object.keys(COINS_POLYGON).filter((c) => c !== 'snx' && c !== 'eurs'); // TODO remove eurs

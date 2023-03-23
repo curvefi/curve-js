@@ -74,7 +74,7 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 }
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], REFERENCE_ASSET[], string[], string[], boolean[], string[][]]> {
-    const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
+    const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
 
     const calls = [];
     for (const addr of factorySwapAddresses) {
@@ -217,7 +217,8 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
     setFactoryGaugeContracts.call(this, gaugeAddresses);
     setFactoryCoinsContracts.call(this, coinAddresses);
     setFactoryZapContracts.call(this, false);
-    const [coinAddressNameDict, coinAddressDecimalsDict] = await getCoinsData.call(this, coinAddresses, getExistingCoinAddressNameDict.call(this), this.constants.DECIMALS);
+    const [coinAddressNameDict, coinAddressDecimalsDict] =
+        await getCoinsData.call(this, coinAddresses, getExistingCoinAddressNameDict.call(this), this.constants.DECIMALS);
     const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
     const basePoolIds = implementations.map((addr: string) => implementationBasePoolIdDict[addr]);
 

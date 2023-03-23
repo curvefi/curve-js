@@ -546,6 +546,19 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
+    async fetchNewCryptoFactoryPools(): Promise<string[]> {
+        if (![1, 137, 250].includes(this.chainId)) return [];
+
+        const currentPoolIds = Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+        const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
+        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, lastPoolIdx + 1));
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
+
+        return Object.keys(poolData)
+    }
+
     async fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
         if (this.chainId === 1313161554) return '';
 
@@ -560,7 +573,7 @@ class Curve implements ICurve {
     async fetchRecentlyDeployedCryptoFactoryPool(poolAddress: string): Promise<string> {
         if (![1, 137, 250].includes(this.chainId)) return '';
 
-        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, poolAddress));
+        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];

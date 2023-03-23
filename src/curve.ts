@@ -533,10 +533,23 @@ class Curve implements ICurve {
         await _killGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
     }
 
+    async fetchNewFactoryPools(): Promise<string[]> {
+        if (this.chainId === 1313161554) return [];
+
+        const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA);
+        const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
+        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, lastPoolIdx + 1));
+        this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
+        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
+
+        return Object.keys(poolData)
+    }
+
     async fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
         if (this.chainId === 1313161554) return '';
 
-        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, poolAddress));
+        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, poolAddress));
         this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];

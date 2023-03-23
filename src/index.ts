@@ -90,6 +90,10 @@ async function fetchCryptoFactoryPools(useApi = true): Promise<void> {
     await _curve.fetchCryptoFactoryPools(useApi);
 }
 
+async function fetchNewFactoryPools(): Promise<void> {
+    await _curve.fetchNewFactoryPools();
+}
+
 async function fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
     return await _curve.fetchRecentlyDeployedFactoryPool(poolAddress);
 }
@@ -128,6 +132,7 @@ const curve = {
     getCoinsData,
     getVolume,
     factory: {
+        fetchNewPools: fetchNewFactoryPools,
         deployPlainPool: deployStablePlainPool,
         deployMetaPool: deployStableMetaPool,
         deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, false),

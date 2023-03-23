@@ -34,19 +34,19 @@ async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string): Prom
     throw Error("Unknown pool")
 }
 
-async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], string[]]> {
+async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
     const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
 
     const poolCount = Number(ethers.utils.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     const calls = [];
-    for (let i = 0; i < poolCount; i++) {
+    for (let i = fromIdx; i < poolCount; i++) {
         calls.push(factoryMulticallContract.pool_list(i));
     }
     if (calls.length === 0) return [[], []];
 
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
-        (addr, i) => ({ id: `factory-v2-${i}`, address: addr.toLowerCase()})
+        (addr, i) => ({ id: `factory-v2-${fromIdx + i}`, address: addr.toLowerCase()})
     );
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     const blacklist = BLACK_LIST[this.chainId] ?? [];
@@ -186,10 +186,10 @@ async function getCoinsData(
 }
 
 
-export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Promise<IDict<IPoolData>> {
+export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string): Promise<IDict<IPoolData>> {
     const [rawPoolIds, rawSwapAddresses] = swapAddress ?
         [[await getRecentlyCreatedPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
-        : await getFactoryIdsAndSwapAddresses.call(this);
+        : await getFactoryIdsAndSwapAddresses.call(this, fromIdx);
     if (rawPoolIds.length === 0) return {};
 
     const [rawImplementations, rawGauges, rawReferenceAssets, rawPoolSymbols, rawPoolNames, rawIsMeta, rawCoinAddresses] = await getPoolsData.call(this, rawSwapAddresses);

@@ -90,8 +90,8 @@ async function fetchCryptoFactoryPools(useApi = true): Promise<void> {
     await _curve.fetchCryptoFactoryPools(useApi);
 }
 
-async function fetchNewFactoryPools(): Promise<void> {
-    await _curve.fetchNewFactoryPools();
+async function fetchNewFactoryPools(): Promise<string[]> {
+    return await _curve.fetchNewFactoryPools();
 }
 
 async function fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {

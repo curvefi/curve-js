@@ -55,7 +55,7 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
 }
 
-function handleReferenceAssets(referenceAssets: ethers.BigNumber[]): REFERENCE_ASSET[] {
+function _handleReferenceAssets(referenceAssets: ethers.BigNumber[]): REFERENCE_ASSET[] {
     return referenceAssets.map((t: ethers.BigNumber) => {
         return {
             0: "USD",
@@ -65,7 +65,7 @@ function handleReferenceAssets(referenceAssets: ethers.BigNumber[]): REFERENCE_A
     }) as REFERENCE_ASSET[];
 }
 
-function handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[][] {
+function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[][] {
     return coinAddresses.map(
         (addresses) => addresses
             .filter((addr) => addr !== ethers.constants.AddressZero)
@@ -92,11 +92,11 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
     const res = await this.multicallProvider.all(calls);
     const implememntationAddresses = (res.filter((a, i) => i % 7 == 0) as string[]).map((a) => a.toLowerCase());
     const gaugeAddresses = (res.filter((a, i) => i % 7 == 1) as string[]).map((a) => a.toLowerCase());
-    const referenceAssets = handleReferenceAssets(res.filter((a, i) => i % 7 == 2) as ethers.BigNumber[]);
+    const referenceAssets = _handleReferenceAssets(res.filter((a, i) => i % 7 == 2) as ethers.BigNumber[]);
     const symbols = res.filter((a, i) => i % 7 == 3) as string[];
     const names = res.filter((a, i) => i % 7 == 4) as string[];
     const isMeta = res.filter((a, i) => i % 7 == 5) as boolean[];
-    const coinAddresses = handleCoinAddresses.call(this, res.filter((a, i) => i % 7 == 6) as string[][]);
+    const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 7 == 6) as string[][]);
 
     return [implememntationAddresses, gaugeAddresses, referenceAssets, symbols, names, isMeta, coinAddresses]
 }
@@ -117,11 +117,7 @@ function setFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     for (const addr of flattenedCoinAddresses) {
         if (addr in this.contracts) continue;
-
-        this.contracts[addr] = {
-            contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(addr, ERC20ABI),
-        }
+        this.setContract(addr, ERC20ABI);
     }
 }
 
@@ -151,7 +147,7 @@ async function getCoinsData(
     this: ICurve,
     coinAddresses: string[][],
     existingCoinAddrNameDict: IDict<string>,
-    existingCoinAddressDecimalsDict: IDict<number>
+    existingCoinAddrDecimalsDict: IDict<number>
 ): Promise<[IDict<string>, IDict<number>]> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
@@ -161,7 +157,7 @@ async function getCoinsData(
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
             coinAddrNamesDict[addr] = existingCoinAddrNameDict[addr];
-            coinAddrDecimalsDict[addr] = existingCoinAddressDecimalsDict[addr];
+            coinAddrDecimalsDict[addr] = existingCoinAddrDecimalsDict[addr];
         } else {
             newCoinAddresses.push(addr);
         }

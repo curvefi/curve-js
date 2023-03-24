@@ -6,13 +6,6 @@ import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils";
 import { _getPoolsFromApi } from "../external-api";
 import ERC20Abi from "../constants/abis/ERC20.json";
 
-
-export const getPoolList = (): string[] => Object.keys(curve.constants.POOLS_DATA);
-
-export const getFactoryPoolList = (): string[] => Object.keys(curve.constants.FACTORY_POOLS_DATA);
-
-export const getCryptoFactoryPoolList = (): string[] => Object.keys(curve.constants.CRYPTO_FACTORY_POOLS_DATA);
-
 // _userLpBalance: { address: { poolId: { _lpBalance: 0, time: 0 } } }
 const _userLpBalanceCache: IDict<IDict<{ _lpBalance: ethers.BigNumber, time: number }>> = {};
 const _isUserLpBalanceCacheExpired = (address: string, poolId: string) => (_userLpBalanceCache[address]?.[poolId]?.time || 0) + 600000 < Date.now();
@@ -46,7 +39,7 @@ const _getUserLpBalances = async (pools: string[], address: string, useCache: bo
 }
 
 export const getUserPoolListByLiquidity = async (address = curve.signerAddress): Promise<string[]> => {
-    const pools = [...getPoolList(), ...getFactoryPoolList(), ...getCryptoFactoryPoolList()];
+    const pools = [...curve.getPoolList(), ...curve.getFactoryPoolList(), ...curve.getCryptoFactoryPoolList()];
     const _lpBalances = await _getUserLpBalances(pools, address, false);
 
     const userPoolList: string[] = []
@@ -317,7 +310,7 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
 }
 
 export const getUserPoolListByClaimable = async (address = curve.signerAddress): Promise<string[]> => {
-    const pools = [...getPoolList(), ...getFactoryPoolList(), ...getCryptoFactoryPoolList()];
+    const pools = [...curve.getPoolList(), ...curve.getFactoryPoolList(), ...curve.getCryptoFactoryPoolList()];
     const _claimable = await _getUserClaimable(pools, address, false);
 
     const userPoolList: string[] = []
@@ -347,7 +340,7 @@ export const getUserClaimable = async (pools: string[], address = curve.signerAd
 }
 
 export const getUserPoolList = async (address = curve.signerAddress, useApi = true): Promise<string[]> => {
-    const pools = [...getPoolList(), ...getFactoryPoolList(), ...getCryptoFactoryPoolList()];
+    const pools = [...curve.getPoolList(), ...curve.getFactoryPoolList(), ...curve.getCryptoFactoryPoolList()];
     const [_lpBalances, _claimable] = await Promise.all([
         _getUserLpBalances(pools, address, false),
         useApi ? _getUserClaimableUseApi(pools, address, false) : _getUserClaimable(pools, address, false),

@@ -503,7 +503,12 @@ class Curve implements ICurve {
         return Object.fromEntries(Object.entries(pools).filter(([id]) => !hiddenPools.includes(id)));
     }
 
-    async fetchFactoryPools(useApi = true): Promise<void> {
+    _updateDecimalsAndGauges(pools: IDict<IPoolData>): void {
+        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(pools) };
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(pools) ];
+    }
+
+    fetchFactoryPools = async (useApi = true): Promise<void> => {
         if (this.chainId === 1313161554) return;
 
         if (useApi) {
@@ -512,13 +517,12 @@ class Curve implements ICurve {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
         }
         this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
-        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
+        this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
         await _killGauges(this.constants.FACTORY_POOLS_DATA);
     }
 
-    async fetchCryptoFactoryPools(useApi = true): Promise<void> {
+    fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
         if (![1, 137, 250].includes(this.chainId)) return;
 
         if (useApi) {
@@ -527,33 +531,60 @@ class Curve implements ICurve {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
         this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA);
-        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
+        this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
         await _killGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
     }
 
-    async fetchRecentlyDeployedFactoryPool(poolAddress: string): Promise<string> {
+    fetchNewFactoryPools = async (): Promise<string[]> => {
+        if (this.chainId === 1313161554) return [];
+
+        const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA);
+        const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
+        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, lastPoolIdx + 1));
+        this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)
+    }
+
+    fetchNewCryptoFactoryPools = async (): Promise<string[]> => {
+        if (![1, 137, 250].includes(this.chainId)) return [];
+
+        const currentPoolIds = Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+        const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
+        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, lastPoolIdx + 1));
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)
+    }
+
+    fetchRecentlyDeployedFactoryPool = async (poolAddress: string): Promise<string> => {
         if (this.chainId === 1313161554) return '';
 
-        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, poolAddress));
+        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, poolAddress));
         this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
-        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.FACTORY_POOLS_DATA) ];
+        this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
         return Object.keys(poolData)[0]  // id
     }
 
-    async fetchRecentlyDeployedCryptoFactoryPool(poolAddress: string): Promise<string> {
+    fetchRecentlyDeployedCryptoFactoryPool = async (poolAddress: string): Promise<string> => {
         if (![1, 137, 250].includes(this.chainId)) return '';
 
-        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, poolAddress));
+        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
-        this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(this.constants.CRYPTO_FACTORY_POOLS_DATA) };
-        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA) ];
+        this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
         return Object.keys(poolData)[0]  // id
     }
+
+    getPoolList = (): string[] => Object.keys(this.constants.POOLS_DATA);
+
+    getFactoryPoolList = (): string[] => Object.keys(this.constants.FACTORY_POOLS_DATA);
+
+    getCryptoFactoryPoolList = (): string[] => Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
         this.feeData = { ...this.feeData, ...customFeeData };

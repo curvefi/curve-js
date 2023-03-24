@@ -1,8 +1,6 @@
 import { assert } from "chai";
-import { getPool } from "../src/pools/poolConstructor";
-import { PoolTemplate } from "../src/pools/PoolTemplate";
-import { curve } from "../src/curve";
-import {ethers} from "ethers";
+import { getPool, PoolTemplate } from "../src/pools";
+import curve from "../src";
 
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth'];
@@ -35,10 +33,13 @@ const MOONBEAM_FACTORY_PLAIN_POOLS = ['factory-v2-6']; // ['DAI Multi Nomad'];
 // const MOONBEAM_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
 const MOONBEAM_POOLS = [...MOONBEAM_MAIN_POOLS, ...MOONBEAM_FACTORY_PLAIN_POOLS];
 
-
 const AURORA_POOLS = ['3pool'];
 
 const KAVA_POOLS = ['factory-v2-0'];
+
+// ------------------------------------------------------------------------
+
+const POOLS_FOR_TESTING = FACTORY_CRYPTO_META_POOLS;
 
 const balancedAmountsTest = (name: string) => {
     describe(`${name} balanced amounts`, function () {
@@ -81,55 +82,11 @@ describe('Underlying test', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
-        await curve.fetchFactoryPools();
-        await curve.fetchCryptoFactoryPools();
+        await curve.factory.fetchPools();
+        await curve.cryptoFactory.fetchPools();
     });
 
-    // for (const poolName of PLAIN_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-    //
-    // for (const poolName of LENDING_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-    //
-    // for (const poolName of META_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-
-    for (const poolName of FACTORY_CRYPTO_META_POOLS) {
-        balancedAmountsTest(poolName);
+    for (const poolId of POOLS_FOR_TESTING) {
+        balancedAmountsTest(poolId);
     }
-
-    // for (const poolName of POLYGON_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-    //
-    // for (const poolName of AVALANCHE_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-
-    // for (const poolName of ARBITRUM_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-
-    // for (const poolName of OPTIMISM_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-
-    // for (const poolName of XDAI_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-
-    // for (const poolName of MOONBEAM_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-
-    // for (const poolName of AURORA_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
-
-    // for (const poolName of KAVA_POOLS) {
-    //     balancedAmountsTest(poolName);
-    // }
 })

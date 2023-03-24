@@ -39,18 +39,18 @@ const generalMethodsTest = async () => {
 
 const availablePoolsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
-    await curve.fetchCryptoFactoryPools();
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
 
     console.log(curve.getPoolList());
-    console.log(curve.getFactoryPoolList());
-    console.log(curve.getCryptoFactoryPoolList());
+    console.log(curve.factory.getPoolList());
+    console.log(curve.cryptoFactory.getPoolList());
 }
 
 const poolFieldsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
-    await curve.getCryptoFactoryPoolList();
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.getPoolList();
 
     const pool = curve.getPool('factory-v2-11');
 
@@ -507,6 +507,20 @@ const userBalancesBaseProfitAndShareTest = async () => {
     console.log(await pool.userLiquidityUSD());
     console.log(await pool.baseProfit());
     console.log(await pool.userShare());
+}
+
+const fetchNewFactoryPoolsTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    // Fetch pools from api (if false arg is not passed)
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
+
+    // Fetch very new pools (that haven't been added to api yet) from blockchain
+    await curve.factory.fetchNewPools();
+    // [ 'factory-v2-285' ]
+    await curve.cryptoFactory.fetchNewPools();
+    // [ 'factory-crypto-232' ]
 }
 
 const deployPlainPoolTest = async () => {

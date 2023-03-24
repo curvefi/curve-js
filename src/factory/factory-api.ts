@@ -204,6 +204,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 token_address: pool.address,
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress : ethers.constants.AddressZero,
                 deposit_address: basePoolZap.address,
+                implementation_address: pool.implementationAddress, // Only for testing
                 is_meta: true,
                 is_factory: true,
                 base_pool: basePoolId,
@@ -228,6 +229,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 swap_address: pool.address,
                 token_address: pool.address,
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress : ethers.constants.AddressZero,
+                implementation_address: pool.implementationAddress, // Only for testing
                 is_plain: true,
                 is_factory: true,
                 underlying_coins: coinNames,

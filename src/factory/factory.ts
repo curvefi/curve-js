@@ -1,6 +1,6 @@
-import { Contract, ethers } from "ethers";
+import { ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
-import { IDict, IPoolData, ICurve, REFERENCE_ASSET } from "../interfaces";
+import { IDict, IPoolData, ICurve, REFERENCE_ASSET, IChainId } from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json";
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json";
@@ -8,7 +8,11 @@ import gaugeChildABI from "../constants/abis/gauge_child.json";
 import { setFactoryZapContracts } from "./common";
 import { FACTORY_CONSTANTS } from "./constants";
 
+
 const BLACK_LIST: { [index: number]: any } = {
+    1: [
+        "0x066b6e1e93fa7dcd3f0eb7f8bac7d5a747ce0bf9",
+    ],
     137: [
         "0x666dc3b4babfd063faf965bd020024af0dc51b64",
         "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
@@ -30,18 +34,19 @@ async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string): Prom
     throw Error("Unknown pool")
 }
 
-async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], string[]]> {
+async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
     const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
 
     const poolCount = Number(ethers.utils.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     const calls = [];
-    for (let i = 0; i < poolCount; i++) {
+    for (let i = fromIdx; i < poolCount; i++) {
         calls.push(factoryMulticallContract.pool_list(i));
     }
+    if (calls.length === 0) return [[], []];
 
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
-        (addr, i) => ({ id: `factory-v2-${i}`, address: addr.toLowerCase()})
+        (addr, i) => ({ id: `factory-v2-${fromIdx + i}`, address: addr.toLowerCase()})
     );
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     const blacklist = BLACK_LIST[this.chainId] ?? [];
@@ -50,73 +55,8 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve): Promise<[string[], s
     return [factories.map((f) => f.id), factories.map((f) => f.address)]
 }
 
-async function getFactoryImplementations(this: ICurve, factorySwapAddresses: string[]): Promise<string[]> {
-    const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
-
-    const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_implementation_address(addr));
-    }
-
-    return (await this.multicallProvider.all(calls) as string[]).map((a) => a.toLowerCase());
-}
-
-function setFactorySwapContracts(this: ICurve, factorySwapAddresses: string[], factorySwapABIs: any[]): void {
-    factorySwapAddresses.forEach((addr, i) => {
-        this.contracts[addr] = {
-            contract: new Contract(addr, factorySwapABIs[i], this.signer || this.provider),
-            multicallContract: new MulticallContract(addr, factorySwapABIs[i]),
-        }
-    });
-}
-
-async function getFactoryGaugeAddresses(this: ICurve, factorySwapAddresses: string[]): Promise<string[]> {
-    const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
-
-    const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_gauge(addr));
-    }
-
-    return (await this.multicallProvider.all(calls) as string[]).map((addr) => addr.toLowerCase());
-}
-
-function setFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[]): void {
-    factoryGaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero).forEach((addr, i) => {
-        this.contracts[addr] = {
-            contract: new Contract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI),
-        }
-    });
-}
-
-async function getFactorySymbolsAndNames(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[]]> {
-    const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(this.contracts[addr].multicallContract.symbol(), this.contracts[addr].multicallContract.name());
-    }
-
-    const res = (await this.multicallProvider.all(calls) as string[]);
-
-    const symbols: string[] = [];
-    const names: string[] = [];
-    for (let i = 0; i < factorySwapAddresses.length; i++) {
-        symbols.push(res[2 * i]);
-        names.push(res[(2 * i) + 1]);
-    }
-
-    return [symbols, names]
-}
-
-async function getFactoryReferenceAssets(this: ICurve, factorySwapAddresses: string[]): Promise<REFERENCE_ASSET[]> {
-    const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
-
-    const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_pool_asset_type(addr));
-    }
-
-    return (await this.multicallProvider.all(calls) as ethers.BigNumber[]).map((t: ethers.BigNumber) => {
+function _handleReferenceAssets(referenceAssets: ethers.BigNumber[]): REFERENCE_ASSET[] {
+    return referenceAssets.map((t: ethers.BigNumber) => {
         return {
             0: "USD",
             1: "ETH",
@@ -125,32 +65,62 @@ async function getFactoryReferenceAssets(this: ICurve, factorySwapAddresses: str
     }) as REFERENCE_ASSET[];
 }
 
-async function getFactoryCoinAddresses(this: ICurve, factorySwapAddresses: string[]): Promise<string[][]> {
-    const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
-
-    const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_coins(addr));
-    }
-
-    return (await this.multicallProvider.all(calls) as string[][]).map(
+function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[][] {
+    return coinAddresses.map(
         (addresses) => addresses
             .filter((addr) => addr !== ethers.constants.AddressZero)
             .map((addr) => this.chainId === 137 && addr === "0x0000000000000000000000000000000000001010" ? this.constants.NATIVE_TOKEN.address : addr.toLowerCase())
     );
 }
 
+async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], REFERENCE_ASSET[], string[], string[], boolean[], string[][]]> {
+    const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
+
+    const calls = [];
+    for (const addr of factorySwapAddresses) {
+        const tempSwapContract = new MulticallContract(addr, ERC20ABI);
+
+        calls.push(factoryMulticallContract.get_implementation_address(addr));
+        calls.push(factoryMulticallContract.get_gauge(addr));
+        calls.push(factoryMulticallContract.get_pool_asset_type(addr));
+        calls.push(tempSwapContract.symbol());
+        calls.push(tempSwapContract.name());
+        calls.push(factoryMulticallContract.is_meta(addr));
+        calls.push(factoryMulticallContract.get_coins(addr));
+    }
+
+    const res = await this.multicallProvider.all(calls);
+    const implememntationAddresses = (res.filter((a, i) => i % 7 == 0) as string[]).map((a) => a.toLowerCase());
+    const gaugeAddresses = (res.filter((a, i) => i % 7 == 1) as string[]).map((a) => a.toLowerCase());
+    const referenceAssets = _handleReferenceAssets(res.filter((a, i) => i % 7 == 2) as ethers.BigNumber[]);
+    const symbols = res.filter((a, i) => i % 7 == 3) as string[];
+    const names = res.filter((a, i) => i % 7 == 4) as string[];
+    const isMeta = res.filter((a, i) => i % 7 == 5) as boolean[];
+    const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 7 == 6) as string[][]);
+
+    return [implememntationAddresses, gaugeAddresses, referenceAssets, symbols, names, isMeta, coinAddresses]
+}
+
+function setFactorySwapContracts(this: ICurve, factorySwapAddresses: string[], factorySwapABIs: any[]): void {
+    factorySwapAddresses.forEach((addr, i) => {
+        this.setContract(addr, factorySwapABIs[i]);
+    });
+}
+
+function setFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[]): void {
+    factoryGaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero).forEach((addr, i) => {
+        this.setContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI);
+    });
+}
+
 function setFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     for (const addr of flattenedCoinAddresses) {
         if (addr in this.contracts) continue;
-
-        this.contracts[addr] = {
-            contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(addr, ERC20ABI),
-        }
+        this.setContract(addr, ERC20ABI);
     }
 }
+
 
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     const dict: IDict<string> = {}
@@ -173,110 +143,84 @@ function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {
     return dict
 }
 
-async function getCoinAddressNameDict(
+async function getCoinsData(
     this: ICurve,
     coinAddresses: string[][],
-    existingCoinAddrNameDict: IDict<string>
-): Promise<IDict<string>> {
+    existingCoinAddrNameDict: IDict<string>,
+    existingCoinAddrDecimalsDict: IDict<number>
+): Promise<[IDict<string>, IDict<number>]> {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
     const coinAddrNamesDict: IDict<string> = {};
+    const coinAddrDecimalsDict: IDict<number> = {};
 
     for (const addr of flattenedCoinAddresses) {
         if (addr in existingCoinAddrNameDict) {
             coinAddrNamesDict[addr] = existingCoinAddrNameDict[addr];
+            coinAddrDecimalsDict[addr] = existingCoinAddrDecimalsDict[addr];
         } else {
             newCoinAddresses.push(addr);
         }
     }
-
-    const calls = newCoinAddresses.map((addr) => {
-        return this.contracts[addr].multicallContract.symbol();
-    });
-
-    const names = await this.multicallProvider.all(calls) as string[];
-
-    newCoinAddresses.forEach((addr, i) => {
-        coinAddrNamesDict[addr] = names[i];
-    });
-
-    return coinAddrNamesDict
-}
-
-async function getCoinAddressDecimalsDict(
-    this: ICurve,
-    coinAddresses: string[][],
-    existingCoinAddressDecimalsDict: IDict<number>
-): Promise<IDict<number>> {
-    const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses))).filter((addr) => addr !== this.constants.NATIVE_TOKEN.address);
-    const newCoinAddresses = [];
-    const coinAddrNamesDict: IDict<number> = {};
-
-    for (const addr of flattenedCoinAddresses) {
-        if (addr in existingCoinAddressDecimalsDict) {
-            coinAddrNamesDict[addr] = existingCoinAddressDecimalsDict[addr];
-        } else {
-            newCoinAddresses.push(addr);
-        }
-    }
-
-    const calls = newCoinAddresses.map((addr) => {
-        return this.contracts[addr].multicallContract.decimals();
-    });
-
-    const decimals = (await this.multicallProvider.all(calls) as ethers.BigNumber[]).map((_d) => Number(ethers.utils.formatUnits(_d, 0)));
-
-    newCoinAddresses.forEach((addr, i) => {
-        coinAddrNamesDict[addr] = decimals[i];
-    });
-
-    coinAddrNamesDict[this.constants.NATIVE_TOKEN.address] = 18
-
-    return coinAddrNamesDict
-}
-
-async function getFactoryIsMeta(this: ICurve, factorySwapAddresses: string[]): Promise<boolean[]> {
-    const factoryMulticallContract = await this.contracts[this.constants.ALIASES.factory].multicallContract;
 
     const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.is_meta(addr));
+    for (const addr of newCoinAddresses) {
+        calls.push(this.contracts[addr].multicallContract.symbol());
+        calls.push(this.contracts[addr].multicallContract.decimals());
     }
 
-    return await this.multicallProvider.all(calls);
+    const res = await this.multicallProvider.all(calls);
+    const symbols = res.filter((a, i) => i % 2 == 0) as string[];
+    const decimals = (res.filter((a, i) => i % 2 == 1) as ethers.BigNumber[]).map((_d) => Number(ethers.utils.formatUnits(_d, 0)));
+
+    newCoinAddresses.forEach((addr, i) => {
+        coinAddrNamesDict[addr] = symbols[i];
+        coinAddrDecimalsDict[addr] = decimals[i];
+    });
+
+    return [coinAddrNamesDict, coinAddrDecimalsDict]
 }
 
-export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Promise<IDict<IPoolData>> {
+
+export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string): Promise<IDict<IPoolData>> {
     const [rawPoolIds, rawSwapAddresses] = swapAddress ?
         [[await getRecentlyCreatedPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
-        : await getFactoryIdsAndSwapAddresses.call(this);
-    const rawImplementations = await getFactoryImplementations.call(this, rawSwapAddresses);
+        : await getFactoryIdsAndSwapAddresses.call(this, fromIdx);
+    if (rawPoolIds.length === 0) return {};
+
+    const [rawImplementations, rawGauges, rawReferenceAssets, rawPoolSymbols, rawPoolNames, rawIsMeta, rawCoinAddresses] = await getPoolsData.call(this, rawSwapAddresses);
     const poolIds: string[] = [];
     const swapAddresses: string[] = [];
     const implementations: string[] = [];
+    const gaugeAddresses: string[] = [];
+    const referenceAssets: REFERENCE_ASSET[] = [];
+    const poolSymbols: string[] = [];
+    const poolNames: string[] = [];
+    const isMeta: boolean[] = [];
+    const coinAddresses: string[][] = [];
     const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
     for (let i = 0; i < rawPoolIds.length; i++) {
         if (rawImplementations[i] in implementationABIDict) {
             poolIds.push(rawPoolIds[i]);
             swapAddresses.push(rawSwapAddresses[i]);
             implementations.push(rawImplementations[i]);
+            gaugeAddresses.push(rawGauges[i]);
+            referenceAssets.push(rawReferenceAssets[i]);
+            poolSymbols.push(rawPoolSymbols[i]);
+            poolNames.push(rawPoolNames[i]);
+            isMeta.push(rawIsMeta[i]);
+            coinAddresses.push(rawCoinAddresses[i]);
         }
     }
     const swapABIs = implementations.map((addr: string) => implementationABIDict[addr]);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
-    const gaugeAddresses = await getFactoryGaugeAddresses.call(this, swapAddresses);
     setFactoryGaugeContracts.call(this, gaugeAddresses);
-    const [poolSymbols, poolNames] = await getFactorySymbolsAndNames.call(this, swapAddresses);
-    const referenceAssets = await getFactoryReferenceAssets.call(this, swapAddresses);
-    const coinAddresses = await getFactoryCoinAddresses.call(this, swapAddresses);
     setFactoryCoinsContracts.call(this, coinAddresses);
-    const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
-    const coinAddressNameDict = await getCoinAddressNameDict.call(this, coinAddresses, existingCoinAddressNameDict);
-    const coinAddressDecimalsDict = await getCoinAddressDecimalsDict.call(this, coinAddresses, this.constants.DECIMALS);
-    const isMeta = await getFactoryIsMeta.call(this, swapAddresses);
+    setFactoryZapContracts.call(this, false);
+    const [coinAddressNameDict, coinAddressDecimalsDict] =
+        await getCoinsData.call(this, coinAddresses, getExistingCoinAddressNameDict.call(this), this.constants.DECIMALS);
     const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
     const basePoolIds = implementations.map((addr: string) => implementationBasePoolIdDict[addr]);
-    setFactoryZapContracts.call(this, false);
 
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
@@ -289,6 +233,7 @@ export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Pr
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
+                implementation_address: implementations[i], // Only for testing
                 is_plain: true,
                 is_factory: true,
                 underlying_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
@@ -312,6 +257,7 @@ export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Pr
             const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+            const basePoolZap = basePoolIdZapDict[basePoolIds[i]];
 
             FACTORY_POOLS_DATA[poolIds[i]] = {
                 name: poolNames[i].split(": ")[1].trim(),
@@ -322,6 +268,7 @@ export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Pr
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
                 deposit_address: basePoolIdZapDict[basePoolIds[i]].address,
+                implementation_address: implementations[i], // Only for testing
                 is_meta: true,
                 is_factory: true,
                 base_pool: basePoolIds[i],
@@ -333,7 +280,7 @@ export async function getFactoryPoolData(this: ICurve, swapAddress?: string): Pr
                 wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
-                deposit_abi: factoryDepositABI,
+                deposit_abi: basePoolZap.ABI,
             };
         }
     }

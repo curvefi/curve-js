@@ -23,8 +23,8 @@ import curve from "@curvefi/api";
     await curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
     
     // Fetch factory pools
-    await curve.fetchFactoryPools();
-    await curve.getCryptoFactoryPoolList();
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
 })()
 ```
 **Note 1.** ```chainId``` parameter is optional, but you must specify it in the case you use Metamask on localhost network, because Metamask has that [bug](https://hardhat.org/metamask-issue.html)
@@ -184,8 +184,8 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
-    await curve.fetchCryptoFactoryPools();
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
 
     curve.getPoolList();
     // [
@@ -204,7 +204,7 @@ import curve from "@curvefi/api";
     //     '2pool',    '4pool'
     // ]
     
-    curve.getFactoryPoolList();
+    curve.factory.getPoolList();
     // [
     //     'factory-v2-0',   'factory-v2-2',   'factory-v2-3',   'factory-v2-4',
     //     'factory-v2-5',   'factory-v2-6',   'factory-v2-7',   'factory-v2-8',
@@ -234,7 +234,7 @@ import curve from "@curvefi/api";
     //     ... 27 more items
     // ]
     
-    curve.getCryptoFactoryPoolList();
+    curve.cryptoFactory.getPoolList();
     // [
     //     'factory-crypto-0',  'factory-crypto-1',  'factory-crypto-2',
     //     'factory-crypto-3',  'factory-crypto-4',  'factory-crypto-5',
@@ -267,8 +267,8 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
-    await curve.fetchCryptoFactoryPools();
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
 
     const pool = curve.getPool('factory-v2-11');
 
@@ -970,8 +970,8 @@ import curve from "@curvefi/api";
 
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.fetchFactoryPools();
-    await curve.getCryptoFactoryPoolList();
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '9900.0', '100049.744832225238317557' ]
@@ -1282,6 +1282,26 @@ import curve from "@curvefi/api";
 ```
 
 ## Factory
+
+### Fetch new pools from blockchain
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    // Fetch pools from api (if false arg is not passed)
+    await curve.factory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
+
+    // Fetch very new pools (that haven't been added to api yet) from blockchain
+    await curve.factory.fetchNewPools();
+    // [ 'factory-v2-285' ]
+    await curve.cryptoFactory.fetchNewPools();
+    // [ 'factory-crypto-232' ]
+})()
+```
 
 ### Deploy stable plain pool
 

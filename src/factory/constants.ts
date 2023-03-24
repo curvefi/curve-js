@@ -41,8 +41,8 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0x213be373FDff327658139C7df330817DAD2d5bBE": MetaUSDABI,
     "0x55Aa9BF126bCABF0bDC17Fa9E39Ec9239e1ce7A9": MetaUSDBalancesABI,
 
-    "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": MetaFraxUSDABI,
-    "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": MetaFraxUSDBalancesABI,
+    "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": MetaFraxUSDABI,  // fraxusdc
+    "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": MetaFraxUSDBalancesABI,  // fraxusdc
 
     "0xF9B62b61d108232Ef0C9DD143bb3c22c7D4A715a": MetaFraxUSDABI,  // fraxusdp
     "0xB172AC2Fe440B5dA74Dc460e5E9d96bc2BF6261F": MetaFraxUSDBalancesABI,  // fraxusdp
@@ -352,6 +352,10 @@ export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     },
     fraxusdc: {
         address: "0x08780fb7E580e492c1935bEe4fA5920b94AA95Da".toLowerCase(),
+        ABI: fraxusdcMetaZapABI,
+    },
+    fraxusdp: {
+        address: "0x63B709d2118Ba0389ee75A131d1F9a473e06afbD".toLowerCase(),
         ABI: fraxusdcMetaZapABI,
     },
     sbtc: {

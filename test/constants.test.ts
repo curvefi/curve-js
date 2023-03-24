@@ -7,8 +7,8 @@ describe('Checking constants', async function () {
 
     before(async function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
-        await curve.fetchCryptoFactoryPools();
         await curve.fetchFactoryPools();
+        await curve.fetchCryptoFactoryPools();
     });
 
     it('POOLS_DATA <-> COINS match', async function () {

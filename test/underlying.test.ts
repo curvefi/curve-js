@@ -260,8 +260,8 @@ describe('Underlying test', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
-        await curve.fetchFactoryPools();
-        await curve.fetchCryptoFactoryPools();
+        await curve.factory.fetchPools();
+        await curve.cryptoFactory.fetchPools();
     });
 
     for (const poolId of POOLS_FOR_TESTING) {

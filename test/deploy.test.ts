@@ -12,8 +12,7 @@ describe('Factory deploy', function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
         // address = curve.signerAddress;
         if (curve.chainId !== 1) {
-            console.log('Run this test on Ethereum network');
-            return;
+            throw Error('Run this test only on Ethereum network');
         }
     });
 
@@ -621,7 +620,7 @@ describe('Factory deploy', function() {
 
     // --- CRYPTO ---
 
-    it('Deploy stable meta pool and gauge (ren, implementation 1)', async function () {
+    it('Deploy crypto factory pool and gauge', async function () {
         const coins = [_curve.constants.COINS['eurt'], _curve.constants.COINS['weth']];
 
         // Deploy pool

@@ -21,6 +21,7 @@ export interface IPoolData {
     deposit_address?: string,
     sCurveRewards_address?: string,
     reward_contract?: string,
+    implementation_address?: string,  // Only for testing
     is_plain?: boolean,
     is_lending?: boolean,
     is_meta?: boolean,

@@ -1,4 +1,4 @@
-import { Contract, ethers } from "ethers";
+import { ethers } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
 import { IDict, IPoolData, ICurve, REFERENCE_ASSET, IChainId } from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json";
@@ -233,6 +233,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
+                implementation_address: implementations[i], // Only for testing
                 is_plain: true,
                 is_factory: true,
                 underlying_coins: coinAddresses[i].map((addr) => coinAddressNameDict[addr]),
@@ -256,6 +257,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
             const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+            const basePoolZap = basePoolIdZapDict[basePoolIds[i]];
 
             FACTORY_POOLS_DATA[poolIds[i]] = {
                 name: poolNames[i].split(": ")[1].trim(),
@@ -266,6 +268,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
                 deposit_address: basePoolIdZapDict[basePoolIds[i]].address,
+                implementation_address: implementations[i], // Only for testing
                 is_meta: true,
                 is_factory: true,
                 base_pool: basePoolIds[i],
@@ -277,7 +280,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 wrapped_decimals: coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr]),
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
-                deposit_abi: factoryDepositABI,
+                deposit_abi: basePoolZap.ABI,
             };
         }
     }

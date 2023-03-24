@@ -620,7 +620,7 @@ describe('Factory deploy', function() {
 
     // --- CRYPTO ---
 
-    it('Deploy stable meta pool and gauge (ren, implementation 1)', async function () {
+    it('Deploy crypto factory pool and gauge', async function () {
         const coins = [_curve.constants.COINS['eurt'], _curve.constants.COINS['weth']];
 
         // Deploy pool

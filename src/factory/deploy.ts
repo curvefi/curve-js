@@ -1,6 +1,6 @@
 import { ethers, Contract} from "ethers";
 import { curve } from "../curve";
-import { parseUnits } from "../utils";
+import { parseUnits, BN } from "../utils";
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json";
 
 
@@ -11,8 +11,8 @@ const _deployStablePlainPool = async (
     name: string,
     symbol: string,
     coins: string[],
-    A: number,
-    fee: number, // %
+    A: number | string,
+    fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
     implementationIdx: 0 | 1 | 2 | 3,
     estimateGas: boolean
@@ -20,8 +20,8 @@ const _deployStablePlainPool = async (
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
     if (![2, 3, 4].includes(coins.length)) throw Error("Invalid number of coins. Must be 2, 3 or 4");
-    if (fee < 0.04) throw Error("Fee must be >= 0.04%");
-    if (fee > 1) throw Error("Fee must be <= 1%");
+    if (BN(fee).lt(0.04)) throw Error(`fee must be >= 0.04%. Passed fee = ${fee}`);
+    if (BN(fee).gt(1)) throw Error(`fee must be <= 1%. Passed fee = ${fee}`);
     if (![0, 1, 2, 3].includes(assetType)) throw Error("Invalid assetType. Must be one of: 0 = USD, 1 = ETH, 2 = BTC, 3 = Other");
     if (![0, 1, 2, 3].includes(implementationIdx)) throw Error("Invalid implementationIdx. Must be one 0, 1, 2 or 3");
 
@@ -42,8 +42,8 @@ export const deployStablePlainPoolEstimateGas = async (
     name: string,
     symbol: string,
     coins: string[],
-    A: number,
-    fee: number, // %
+    A: number | string,
+    fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
     implementationIdx: 0 | 1 | 2 | 3
 ): Promise<number> => {
@@ -54,8 +54,8 @@ export const deployStablePlainPool = async (
     name: string,
     symbol: string,
     coins: string[],
-    A: number,
-    fee: number, // %
+    A: number | string,
+    fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
     implementationIdx: 0 | 1 | 2 | 3
 ): Promise<ethers.ContractTransaction> => {
@@ -74,15 +74,15 @@ const _deployStableMetaPool = async (
     name: string,
     symbol: string,
     coin: string,
-    A: number,
-    fee: number, // %
+    A: number | string,
+    fee: number | string, // %
     implementationIdx: 0 | 1,
     estimateGas: boolean
 ): Promise<ethers.ContractTransaction | number> => {
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
-    if (fee < 0.04) throw Error("Fee must be >= 0.04%");
-    if (fee > 1) throw Error("Fee must be <= 1%");
+    if (BN(fee).lt(0.04)) throw Error(`fee must be >= 0.04%. Passed fee = ${fee}`);
+    if (BN(fee).gt(1)) throw Error(`fee must be <= 1%. Passed fee = ${fee}`);
     if (![0, 1].includes(implementationIdx)) throw Error("Invalid implementationIdx. Must be one 0 or 1");
 
     const _A = parseUnits(A, 0);
@@ -102,8 +102,8 @@ export const deployStableMetaPoolEstimateGas = async (
     name: string,
     symbol: string,
     coin: string,
-    A: number,
-    fee: number, // %
+    A: number | string,
+    fee: number | string, // %
     implementationIdx: 0 | 1
 ): Promise<number> => {
     return await _deployStableMetaPool(basePool, name, symbol, coin, A, fee, implementationIdx, true) as number;
@@ -114,8 +114,8 @@ export const deployStableMetaPool = async (
     name: string,
     symbol: string,
     coin: string,
-    A: number,
-    fee: number, // %
+    A: number | string,
+    fee: number | string, // %
     implementationIdx: 0 | 1
 ): Promise<ethers.ContractTransaction> => {
     return await _deployStableMetaPool(basePool, name, symbol, coin, A, fee, implementationIdx, false) as ethers.ContractTransaction;
@@ -134,46 +134,48 @@ const _deployCryptoPool = async (
     name: string,
     symbol: string,
     coins: string[],
-    A: number,
-    gamma: number,
-    midFee: number, // %
-    outFee: number, // %
-    allowedExtraProfit: number,
-    feeGamma: number,
-    adjustmentStep: number,
-    maHalfTime: number, // Seconds
-    initialPrice: number,
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    maHalfTime: number | string, // Seconds
+    initialPrice: number | string,
     estimateGas: boolean
 ): Promise<ethers.ContractTransaction | number> => {
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
     if (coins.length !== 2) throw Error("Invalid number of coins. Must be 2");
     if (coins[1] === coins[2]) throw Error("Coins must be different");
-    if (A < 4000) throw Error("A must be >= 4000");
-    if (A > 4 * (10 ** 9)) throw Error("A must be <= 4 * 10 ** 9");
-    if (gamma < 1e-8) throw Error("gamma must be >= 1e-8");
-    if (gamma > 0.02) throw Error("gamma must be <= 0.02");
-    if (midFee < 0.005) throw Error("midFee must be >= 0.005");
-    if (midFee > 100) throw Error("midFee must be <= 100");
-    if (outFee < midFee) throw Error("outFee must be >= midFee");
-    if (outFee > 100) throw Error("outFee must be <= 100");
-    if (allowedExtraProfit < 0) throw Error("allowedExtraProfit must be >= 0");
-    if (allowedExtraProfit > 0.01) throw Error("allowedExtraProfit must be <= 0.01");
-    if (feeGamma < 0) throw Error("feeGamma must be >= 0");
-    if (feeGamma > 1) throw Error("feeGamma must be <= 1");
-    if (adjustmentStep < 0) throw Error("adjustmentStep must be >= 0");
-    if (adjustmentStep > 1) throw Error("adjustmentStep must be <= 1");
-    if (maHalfTime < 0) throw Error("daoFee must be >= 0");
-    if (maHalfTime > 604800) throw Error("daoFee must be <= 604800");
-    if (initialPrice < 1e-12) throw Error("initialPrice must be >= 1e-12");
-    if (initialPrice > 1e12) throw Error("initialPrice must be <= 1e12");
+    if (BN(A).lt(4000)) throw Error(`A must be >= 4000. Passed A = ${A}`);
+    if (BN(A).gt(4 * (10 ** 9))) throw Error(`A must be <= 4 * 10 ** 9. Passed A = ${A}`);
+    if (BN(gamma).lt(1e-8)) throw Error(`gamma must be >= 1e-8. Passed gamma = ${gamma}`);
+    if (BN(gamma).gt(0.02)) throw Error(`gamma must be <= 0.02. Passed gamma = ${gamma}`);
+    if (BN(midFee).lt(0.005)) throw Error(`midFee must be >= 0.005. Passed midFee = ${midFee}`);
+    if (BN(midFee).gt(100)) throw Error(`midFee must be <= 100. Passed midFee = ${midFee}`);
+    if (BN(outFee).lt(BN(midFee))) throw Error(`outFee must be >= midFee. Passed outFee = ${outFee} < midFee = ${midFee}`);
+    if (BN(outFee).gt(100)) throw Error(`outFee must be <= 100. Passed outFee = ${outFee}`);
+    if (BN(allowedExtraProfit).lt(0)) throw Error(`allowedExtraProfit must be >= 0. Passed allowedExtraProfit = ${allowedExtraProfit}`);
+    if (BN(allowedExtraProfit).gt(0.01)) throw Error(`allowedExtraProfit must be <= 0.01. Passed allowedExtraProfit = ${allowedExtraProfit}`);
+    if (BN(feeGamma).lt(0)) throw Error(`feeGamma must be >= 0. Passed feeGamma = ${feeGamma}`);
+    if (BN(feeGamma).gt(1)) throw Error(`feeGamma must be <= 1. Passed feeGamma = ${feeGamma}`);
+    if (BN(adjustmentStep).lt(0)) throw Error(`adjustmentStep must be >= 0. Passed adjustmentStep=${adjustmentStep}`);
+    if (BN(adjustmentStep).gt(1)) throw Error(`adjustmentStep must be <= 1. Passed adjustmentStep=${adjustmentStep}`);
+    if (BN(maHalfTime).lt(0)) throw Error(`maHalfTime must be >= 0. Passed maHalfTime=${maHalfTime}`);
+    if (BN(maHalfTime).gt(604800)) throw Error(`maHalfTime must be <= 604800. Passed maHalfTime=${maHalfTime}`);
+    if (BN(initialPrice).lt(1e-12)) throw Error(`initialPrice must be >= 1e-12. Passed initialPrice=${initialPrice}`);
+    if (BN(initialPrice).gt(1e12)) throw Error(`initialPrice must be <= 1e12. Passed initialPrice=${initialPrice}`);
 
+    const _A = parseUnits(A, 0);
     const _gamma = parseUnits(gamma);
     const _midFee = parseUnits(midFee, 8);
     const _outFee = parseUnits(outFee, 8);
     const _allowedExtraProfit = parseUnits(allowedExtraProfit);
     const _feeGamma = parseUnits(feeGamma);
     const _adjustmentStep = parseUnits(adjustmentStep);
+    const _maHalfTime = parseUnits(maHalfTime, 0);
     const _initialPrice = parseUnits(initialPrice);
     const contract = curve.contracts[curve.constants.ALIASES.crypto_factory].contract;
 
@@ -181,7 +183,7 @@ const _deployCryptoPool = async (
         name,
         symbol,
         coins,
-        A,
+        _A,
         _gamma,
         _midFee,
         _outFee,
@@ -189,7 +191,7 @@ const _deployCryptoPool = async (
         _feeGamma,
         _adjustmentStep,
         5000000000,
-        maHalfTime,
+        _maHalfTime,
         _initialPrice,
         curve.constantOptions
     );
@@ -201,7 +203,7 @@ const _deployCryptoPool = async (
         name,
         symbol,
         coins,
-        A,
+        _A,
         _gamma,
         _midFee,
         _outFee,
@@ -209,7 +211,7 @@ const _deployCryptoPool = async (
         _feeGamma,
         _adjustmentStep,
         5000000000, // 50%
-        maHalfTime,
+        _maHalfTime,
         _initialPrice,
         { ...curve.options, gasLimit }
     );
@@ -219,15 +221,15 @@ export const deployCryptoPoolEstimateGas = async (
     name: string,
     symbol: string,
     coins: string[],
-    A: number,
-    gamma: number,
-    midFee: number, // %
-    outFee: number, // %
-    allowedExtraProfit: number,
-    feeGamma: number,
-    adjustmentStep: number,
-    maHalfTime: number, // Seconds
-    initialPrice: number
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    maHalfTime: number | string, // Seconds
+    initialPrice: number | string
 ): Promise<number> => {
     return await _deployCryptoPool(
         name,
@@ -250,15 +252,15 @@ export const deployCryptoPool = async (
     name: string,
     symbol: string,
     coins: string[],
-    A: number,
-    gamma: number,
-    midFee: number, // %
-    outFee: number, // %
-    allowedExtraProfit: number,
-    feeGamma: number,
-    adjustmentStep: number,
-    maHalfTime: number, // Seconds
-    initialPrice: number
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    maHalfTime: number | string, // Seconds
+    initialPrice: number | string
 ): Promise<ethers.ContractTransaction> => {
     return await _deployCryptoPool(
         name,

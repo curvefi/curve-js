@@ -40,6 +40,7 @@ export interface IPoolData {
     gauge_abi: any,
     deposit_abi?: any,
     sCurveRewards_abi?: any,
+    in_api?: boolean,
 }
 
 export interface ICurve {

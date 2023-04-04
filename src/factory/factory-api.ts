@@ -150,6 +150,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                     swap_abi: cryptoFactorySwapABI,
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                     deposit_abi: basePoolZap.ABI,
+                    in_api: true,
                 };
             } else {
                 FACTORY_POOLS_DATA[pool.id] = {
@@ -171,6 +172,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                     wrapped_decimals: coinDecimals,
                     swap_abi: cryptoFactorySwapABI,
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
+                    in_api: true,
                 };
             }
         } else if (pool.implementation.includes("meta")) {
@@ -217,6 +219,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 deposit_abi: basePoolZap.ABI,
+                in_api: true,
             };
         } else {
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
@@ -240,6 +243,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 wrapped_decimals: coinDecimals,
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
+                in_api: true,
             };
         }
     })

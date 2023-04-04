@@ -376,6 +376,7 @@ class Curve implements ICurve {
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
         this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
         this.constants.POOLS_DATA = NETWORK_CONSTANTS[this.chainId].POOLS_DATA;
+        for (const poolId in this.constants.POOLS_DATA) this.constants.POOLS_DATA[poolId].in_api = true;
         this.constants.COINS = NETWORK_CONSTANTS[this.chainId].COINS;
         this.constants.DECIMALS = extractDecimals(this.constants.POOLS_DATA);
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.address] = 18;

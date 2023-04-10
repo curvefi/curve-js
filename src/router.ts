@@ -3,7 +3,7 @@ import memoize from "memoizee";
 import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import { curve } from "./curve";
-import { IDict, IRoute, IRouteTvl, IRouteOutputAndCost, IPoolData } from "./interfaces";
+import { IDict, IRoute, IRouteTvl, IRouteOutputAndCost, IPoolData, ICalldata } from "./interfaces";
 import {
     _getCoinAddresses,
     _getCoinDecimals,
@@ -622,7 +622,7 @@ export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amo
     return gas
 }
 
-export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5, retrieveCallDataOnly?: boolean): Promise<ethers.ContractTransaction | { route: IRoute, actualQuote: string, minReturnAmount: string, targetDex: string, calldata: string }> => {
+export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5, retrieveCallDataOnly?: boolean): Promise<ethers.ContractTransaction | ICalldata> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     if (!retrieveCallDataOnly) {

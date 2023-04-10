@@ -622,11 +622,12 @@ export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amo
     return gas
 }
 
-export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<ethers.ContractTransaction> => {
+export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5, retrieveCallDataOnly?: boolean): Promise<ethers.ContractTransaction | { route: IRoute, actualQuote: string, minReturnAmount: string, targetDex: string, calldata: string }> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
-
-    await swapApprove(inputCoin, amount);
+    if (!retrieveCallDataOnly) {
+        await swapApprove(inputCoin, amount);
+    }
     const { route, output } = await getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
     if (route.length === 0) {
@@ -640,19 +641,29 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
     const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
+    if (!retrieveCallDataOnly) {
+        await curve.updateFeeData();
+        const gasLimit = (await contract.estimateGas.exchange_multiple(
+            _route,
+            _swapParams,
+            _amount,
+            _minRecvAmount,
+            _factorySwapAddresses,
+            { ...curve.constantOptions, value }
+        )).mul(curve.chainId === 1 ? 130 : 160).div(100);
+        return await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })
+    } else {
+        let calldata = contract.interface.encodeFunctionData("exchange_multiple", [_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses])
+        return {
+            route: route,
+            actualQuote: fromBN(BN(output), outputCoinDecimals).toString(),
+            minReturnAmount: _minRecvAmount.toString(),
+            targetDex: contract.address,
+            calldata: calldata
+        }
 
-    await curve.updateFeeData();
-    const gasLimit = (await contract.estimateGas.exchange_multiple(
-        _route,
-        _swapParams,
-        _amount,
-        _minRecvAmount,
-        _factorySwapAddresses,
-        { ...curve.constantOptions, value }
-    )).mul(curve.chainId === 1 ? 130 : 160).div(100);
-    return await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })
+    }
 }
-
 export const getSwappedAmount = async (tx: ethers.ContractTransaction, outputCoin: string): Promise<string> => {
     const [outputCoinAddress] = _getCoinAddresses(outputCoin);
     const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);

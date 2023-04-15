@@ -79,6 +79,7 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         is_crypto: true,
         is_fake: true,
         base_pool: 'aave',
+        meta_coin_idx: 0,
         underlying_coins: ['DAI.e', 'USDC.e', 'USDT.e', 'WBTC.e', 'WETH.e'],
         wrapped_coins: ['av3CRV', 'avWBTC', 'avWETH'],
         underlying_coin_addresses: [

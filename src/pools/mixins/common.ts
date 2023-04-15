@@ -20,11 +20,15 @@ export async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: e
     return expectedAmountsBN.map((amount: BigNumber, i: number) => fromBN(amount, this.wrappedDecimals[i]));
 }
 
-export async function _atricrypto3CalcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> {
+export async function _calcExpectedUnderlyingAmountsMeta(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> {
     const _expectedWrappedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
-    const [_expectedMetaCoinAmount, ..._expectedUnderlyingAmounts] = _expectedWrappedAmounts;
+    const [_expectedMetaCoinAmount] = _expectedWrappedAmounts.splice(this.metaCoinIdx, 1);
+    const _expectedUnderlyingAmounts = _expectedWrappedAmounts;
     const basePool = new PoolTemplate(this.basePool);
-    const _basePoolExpectedAmounts = await _calcExpectedAmounts.call(basePool, _expectedMetaCoinAmount);
+    const _basePoolExpectedAmounts = basePool.isMeta ?
+        await _calcExpectedUnderlyingAmountsMeta.call(basePool, _expectedMetaCoinAmount) :
+        await _calcExpectedAmounts.call(basePool, _expectedMetaCoinAmount);
+    _expectedUnderlyingAmounts.splice(this.metaCoinIdx, 0, ..._basePoolExpectedAmounts);
 
-    return [..._basePoolExpectedAmounts, ..._expectedUnderlyingAmounts];
+    return _expectedUnderlyingAmounts;
 }

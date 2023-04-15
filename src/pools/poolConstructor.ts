@@ -1,10 +1,10 @@
 import { curve } from "../curve";
 import { PoolTemplate } from "./PoolTemplate";
-import { poolBalancesAtricrypto3Mixin, poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
+import { poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
 import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins";
 import { depositMetaFactoryMixin, depositCryptoMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins";
 import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins";
-import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawExpectedAtricrypto3Mixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
+import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
 import { withdrawMetaFactoryMixin, withdrawCryptoMetaFactoryMixin, withdrawZapMixin, withdrawLendingOrCryptoMixin, withdrawPlainMixin } from "./mixins/withdrawMixins";
 import { withdrawWrapped2argsMixin, withdrawWrapped3argsMixin } from "./mixins/withdrawWrappedMixins";
 import { withdrawImbalanceMetaFactoryMixin, withdrawImbalanceZapMixin, withdrawImbalanceLendingMixin, withdrawImbalancePlainMixin } from "./mixins/withdrawImbalanceMixins";
@@ -22,9 +22,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     class Pool extends PoolTemplate {}
 
     // statsBalances
-    if (poolDummy.isFake || (curve.chainId === 100 && poolDummy.id === "tricrypto")) {  // 100 is xDAI
-        Object.assign(Pool.prototype, poolBalancesAtricrypto3Mixin);
-    } else if (poolDummy.isMeta) {
+    if (poolDummy.isMeta) {
         Object.assign(Pool.prototype, poolBalancesMetaMixin);
     } else if (poolDummy.useLending.reduce((x, y) => x || y)) {
         Object.assign(Pool.prototype, poolBalancesLendingMixin);
@@ -71,9 +69,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     }
 
     // withdrawExpected
-    if (poolDummy.isFake || (curve.chainId === 100 && poolDummy.id === "tricrypto")) {  // 100 is xDAI
-        Object.assign(Pool.prototype, withdrawExpectedAtricrypto3Mixin);
-    } else if (poolDummy.isMeta) {
+    if (poolDummy.isMeta) {
         Object.assign(Pool.prototype, withdrawExpectedMetaMixin);
     } else if (poolDummy.isLending || (poolDummy.isCrypto && !poolDummy.isPlain)) {
         Object.assign(Pool.prototype, withdrawExpectedLendingOrCryptoMixin);

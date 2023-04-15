@@ -86,6 +86,7 @@ export const POOLS_DATA_POLYGON: { [index: string]: IPoolData } = lowerCasePoolD
         is_crypto: true,
         is_fake: true,
         base_pool: 'aave',
+        meta_coin_idx: 0,
         underlying_coins: ['DAI', 'USDC', 'USDT', 'WBTC', 'WETH'],
         wrapped_coins: ['am3CRV', 'amWBTC', 'amWETH'],
         underlying_coin_addresses: [

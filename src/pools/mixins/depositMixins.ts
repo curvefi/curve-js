@@ -117,11 +117,18 @@ export const depositZapMixin: PoolTemplate = {
         const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
         const contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
+        const args: any[] = [_amounts, _minMintAmount];
+        for (let i = 2; i <= 6; i++) {
+            if (`add_liquidity(uint256[${i}],uint256,bool)` in contract) {
+                args.push(true);
+                break;
+            }
+        }
+        const gas = await contract.estimateGas.add_liquidity(...args, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
+        return (await contract.add_liquidity(...args, { ...curve.options, gasLimit, value })).hash;
     },
 
     async depositEstimateGas(amounts: (number | string)[]): Promise<number> {

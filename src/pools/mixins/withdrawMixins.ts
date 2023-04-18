@@ -103,11 +103,18 @@ export const withdrawZapMixin: PoolTemplate = {
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, slippage);
         const contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
+        const args: any[] = [_lpTokenAmount, _minAmounts];
+        for (let i = 2; i <= 6; i++) {
+            if (`remove_liquidity(uint256,uint256[${i}],bool)` in contract) {
+                args.push(true);
+                break;
+            }
+        }
+        const gas = await contract.estimateGas.remove_liquidity(...args, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(...args, { ...curve.options, gasLimit })).hash;
     },
 
     async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
@@ -131,7 +138,6 @@ export const withdrawZapMixin: PoolTemplate = {
 export const withdrawLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
     async _withdraw(_lpTokenAmount: ethers.BigNumber, slippage?: number, estimateGas = false): Promise<string | number> {
-        // @ts-ignore
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, slippage);
         const contract = curve.contracts[this.address].contract;
 

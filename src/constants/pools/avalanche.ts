@@ -4,6 +4,8 @@ import aaveSwapABI from '../abis/aave/swap.json';
 import renSwapABI from '../abis/ren-polygon/swap.json';
 import atricrypto3Swap from '../abis/atricrypto3/swap.json';
 import atricrypto3Zap from '../abis/atricrypto3/zap.json';
+import AVAXCryptoSwapABI from "../abis/avaxcrypto/swap.json";
+import AVAXCryptoZapABI from "../abis/avaxcrypto/zap.json";
 import gaugeChildABI from '../abis/gauge_child.json';
 
 
@@ -130,5 +132,37 @@ export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoo
         // sCurveRewards_abi: paaveRewardsabi,
         // sCurveRewards_address: '0xB504b6EB06760019801a91B451d3f7BD9f027fC9',
         // reward_token: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
+    },
+    avaxcrypto: {
+        name: "avaxcrypto",
+        full_name: "avaxcrypto",
+        symbol: "avaxcrypto",
+        reference_asset: 'CRYPTO',
+        swap_address: '0x204f0620E7E7f07B780535711884835977679bba',
+        token_address: '0x6a4aC4DE3bF6bCD2975E2cb15A46954D9bA43fDb',
+        gauge_address: '0xf6C5Be565A25Be925c9D8fB0368a87bd20ee470b',
+        deposit_address: '0x25b3D0eeBcd85Ea5A970981c5E2A342f4e1064e8',
+        is_meta: true,
+        is_crypto: true,
+        base_pool: 'factory-v2-99',
+        meta_coin_idx: 0,
+        underlying_coins: ['USDC', 'USDt', 'BTC.b', 'AVAX'],
+        wrapped_coins: ['2CRV', 'BTC.b', 'WAVAX'],
+        underlying_coin_addresses: [
+            '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
+            '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7',
+            '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
+            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        ],
+        wrapped_coin_addresses: [
+            '0x0974D9d3bc463Fa17497aAFc3a87535553298FbE',
+            '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
+            '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+        ],
+        underlying_decimals: [6, 6, 8, 18],
+        wrapped_decimals: [18, 8, 18],
+        swap_abi: AVAXCryptoSwapABI,
+        gauge_abi: gaugeChildABI,
+        deposit_abi: AVAXCryptoZapABI,
     },
 });

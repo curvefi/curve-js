@@ -1455,7 +1455,7 @@ export class PoolTemplate {
         const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, decimals[i]));
 
         const contract = curve.contracts[curve.constants.ALIASES.deposit_and_stake].contract;
-        const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && !this.zap;
+        const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && (!this.zap || this.id == 'avaxcrypto');
         const _expectedLpTokenAmount = isUnderlying ?
             ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)) :
             ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts));

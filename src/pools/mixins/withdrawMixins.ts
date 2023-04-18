@@ -104,12 +104,7 @@ export const withdrawZapMixin: PoolTemplate = {
         const contract = curve.contracts[this.zap as string].contract;
 
         const args: any[] = [_lpTokenAmount, _minAmounts];
-        for (let i = 2; i <= 6; i++) {
-            if (`remove_liquidity(uint256,uint256[${i}],bool)` in contract) {
-                args.push(true);
-                break;
-            }
-        }
+        if (`remove_liquidity(uint256,uint256[${this.underlyingCoinAddresses.length}],bool)` in contract) args.push(true);
         const gas = await contract.estimateGas.remove_liquidity(...args, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
 

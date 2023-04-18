@@ -118,12 +118,7 @@ export const depositZapMixin: PoolTemplate = {
         const contract = curve.contracts[this.zap as string].contract;
 
         const args: any[] = [_amounts, _minMintAmount];
-        for (let i = 2; i <= 6; i++) {
-            if (`add_liquidity(uint256[${i}],uint256,bool)` in contract) {
-                args.push(true);
-                break;
-            }
-        }
+        if (`add_liquidity(uint256[${this.underlyingCoinAddresses.length}],uint256,bool)` in contract) args.push(true);
         const gas = await contract.estimateGas.add_liquidity(...args, { ...curve.constantOptions, value });
         if (estimateGas) return gas.toNumber();
 

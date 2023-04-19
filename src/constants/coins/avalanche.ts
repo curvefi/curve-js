@@ -15,17 +15,23 @@ export const COINS_AVALANCHE: { [index: string]: string } = lowerCaseValues({
     'avusdc': '0x46A51127C3ce23fb7AB1DE06226147F446e4a857',
     'avusdt': '0x532E6537FEA298397212F09A61e03311686f548e',
     'av3crv': '0x1337bedc9d22ecbe766df105c9623922a27963ec',
+    '2crv': '0x0974D9d3bc463Fa17497aAFc3a87535553298FbE',
 
     // --- BTC ---
 
     'wbtc.e': '0x50b7545627a5162F82A992c33b87aDc75187B218',
     'renbtc': '0xDBf31dF14B66535aF65AaC99C32e9eA844e14501',
     'avwbtc': '0x686bEF2417b6Dc32C50a3cBfbCC3bb60E1e9a15D',
+    'btc.b': '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
 
     // --- ETH ---
 
     'weth.e': '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB',
     'avweth': '0x53f7c5869a859F0AeC3D334ee8B4Cf01E3492f21',
+
+    // --- AVAX ---
+    'avax': '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+    'wavax': '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
 })
 
 export const cTokensAvalanche = []; //.map((a) => a.toLowerCase());

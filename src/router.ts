@@ -48,8 +48,34 @@ const getNewRoute = (
     }
 }
 
+// TODO REMOVE IT!!!
+const filterMaticFactory83Route = (routes: IRouteTvl[]) => {
+    return routes.filter((r) => {
+        for (const step of r.route) {
+            if (step.poolId === "factory-crypto-83" && step.inputCoinAddress === curve.constants.NATIVE_TOKEN.address) return false;
+        }
+
+        return true
+    });
+}
+
+// TODO REMOVE IT!!!
+const filterAvax = (routes: IRouteTvl[]) => {
+    return routes.filter((r) => {
+        for (const step of r.route) {
+            if (step.poolId == 'avaxcrypto' && step.swapType == 4 && (step.i === 3 || step.j === 3)) return false;
+        }
+
+        return true
+    });
+}
+
+
 const MAX_ROUTES_FOR_ONE_COIN = 3;
 const filterRoutes = (routes: IRouteTvl[], inputCoinAddress: string, sortFn: (a: IRouteTvl, b: IRouteTvl) => number) => {
+    // TODO REMOVE IT!!!
+    if (curve.chainId === 137) routes = filterMaticFactory83Route(routes);
+    if (curve.chainId === 43114) routes = filterAvax(routes);
     return routes
         .filter((r) => r.route.length > 0)
         .filter((r) => r.route[0].inputCoinAddress === inputCoinAddress) // Truncated routes
@@ -63,13 +89,6 @@ const filterRoutes = (routes: IRouteTvl[], inputCoinAddress: string, sortFn: (a:
 const sortByTvl = (a: IRouteTvl, b: IRouteTvl) => b.minTvl - a.minTvl || b.totalTvl - a.totalTvl || a.route.length - b.route.length;
 const sortByLength = (a: IRouteTvl, b: IRouteTvl) => a.route.length - b.route.length || b.minTvl - a.minTvl || b.totalTvl - a.totalTvl;
 
-// TODO REMOVE IT!!!
-const filterMaticFactory83Route = (routes: IRouteTvl[]) => {
-    return routes
-        .filter((r) =>
-            !(r.route.length === 1 && r.route[0].poolId === "factory-crypto-83" && r.route[0].inputCoinAddress === curve.constants.NATIVE_TOKEN.address)
-        );
-}
 
 // Inspired by Dijkstra's algorithm
 const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]> => {
@@ -271,7 +290,8 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         if (j === inCoinIndexes.wrapped_coin) continue;
                         // Native swaps spend less gas
-                        if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === curve.constants.NATIVE_TOKEN.wrappedAddress) continue;
+                        // TODO uncomment
+                        // if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === curve.constants.NATIVE_TOKEN.wrappedAddress) continue;
                         // Looking for outputCoinAddress only on the final step
                         if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
@@ -343,7 +363,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
                         const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) ? 6
                             : (base_pool?.is_lending && poolData.is_factory) ? 5
-                            : hasEth ? 3
+                            : hasEth && poolId !== 'avaxcrypto' ? 3
                             : poolData.is_crypto ? 4
                             : 2;
 
@@ -393,10 +413,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
         nextCoins = new Set();
     }
 
-    let routes = [...(routesByTvl[outputCoinAddress] ?? []), ...(routesByLength[outputCoinAddress] ?? [])];
-
-    // TODO REMOVE IT!!!
-    if (curve.chainId === 137) routes = filterMaticFactory83Route(routes);
+    const routes = [...(routesByTvl[outputCoinAddress] ?? []), ...(routesByLength[outputCoinAddress] ?? [])];
 
     return routes.map((r) => r.route);
 }
@@ -564,6 +581,8 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
     const route = await _getBestRoute(inputCoinAddress, outputCoinAddress, amount); // 5 minutes cache
+    if (route.length === 0) return { route, output: '0.0' };
+
     const _output = await _getOutputForRoute(route, parseUnits(amount, inputCoinDecimals)); // 15 seconds cache, so we call it to get fresh output estimation
 
     return { route, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }

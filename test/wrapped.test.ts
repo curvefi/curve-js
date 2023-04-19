@@ -20,7 +20,7 @@ const POLYGON_FACTORY_META_POOLS = ['factory-v2-11']; // ['FRAX3CRV-f3CRV-f'];
 const POLYGON_FACTORY_CRYPTO_META_POOLS = ['factory-crypto-1', 'factory-crypto-83']; // ['CRV/TRICRYPTO', 'WMATIC/TRICRYPTO'];
 const POLYGON_POOLS = ['eursusd'];
 
-const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'aaveV3'];
+const AVALANCHE_MAIN_POOLS = ['aave', 'ren', 'aaveV3', 'avaxcrypto'];
 const AVALANCHE_FACTORY_META_POOLS = ['factory-v2-0']; // ['MIM'];
 const AVALANCHE_POOLS = AVALANCHE_FACTORY_META_POOLS;
 
@@ -41,7 +41,7 @@ const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_META_POOLS];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = ['aaveV3'];
+const POOLS_FOR_TESTING = ['avaxcrypto'];
 
 const AAVE_POOLS = ['aave', 'saave', 'geist', 'aaveV3']
 
@@ -49,15 +49,16 @@ const wrappedLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake--deposit&stake-unstake-withdraw`, function () {
         let pool: PoolTemplate;
         let coinAddresses: string[];
+        let amounts: string[];
 
         before(async function () {
             pool = getPool(id);
             coinAddresses = pool.wrappedCoinAddresses;
+            amounts = await pool.stats.wrappedBalances();
+            amounts = amounts.map((a, i) => BN(a).div(10).lte(1) ? BN(a).div(10).toFixed(pool.wrappedDecimals[i]) : '1');
         });
 
         it('Deposit', async function () {
-            const amount = '1';
-            const amounts = coinAddresses.map(() => amount);
             const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositWrappedExpected(amounts)
 
@@ -65,14 +66,14 @@ const wrappedLiquidityTest = (id: string) => {
 
             const balances = await pool.wallet.balances() as IDict<string>;
 
-            coinAddresses.forEach((c: string) => {
+            coinAddresses.forEach((c, i) => {
                 if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
                     // Because of increasing quantity
-                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
+                    assert.approximately(Number(balances[c]), Number(BN(initialBalances[c]).minus(BN(amounts[i]).toString())), 1e-2);
                 } else if (pool.id === 'factory-v2-60') {
-                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-18);
+                    assert.approximately(Number(balances[c]), Number(BN(initialBalances[c]).minus(BN(amounts[i]).toString())), 1e-18);
                 } else {
-                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
+                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amounts[i])));
                 }
             })
 
@@ -102,9 +103,6 @@ const wrappedLiquidityTest = (id: string) => {
                 return;
             }
 
-            const amount = '1';
-            const amounts = coinAddresses.map(() => amount);
-
             const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositAndStakeWrappedExpected(amounts);
 
@@ -112,11 +110,11 @@ const wrappedLiquidityTest = (id: string) => {
 
             const balances = await pool.wallet.balances() as IDict<string>;
 
-            coinAddresses.forEach((c: string) => {
+            coinAddresses.forEach((c, i) => {
                 if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
-                    assert.approximately(Number(BN(balances[c])), Number(BN(initialBalances[c]).minus(BN(amount).toString())), 1e-2);
+                    assert.approximately(Number(balances[c]), Number(BN(initialBalances[c]).minus(BN(amounts[i]).toString())), 1e-2);
                 } else {
-                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amount)));
+                    assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amounts[i])));
                 }
             })
 
@@ -211,16 +209,25 @@ const wrappedLiquidityTest = (id: string) => {
 
 const wrappedSwapTest = (id: string) => {
     describe(`${id} exchange`, function () {
+        let pool: PoolTemplate;
+        let coinAddresses: string[];
+        let amounts: string[];
+
+        before(async function () {
+            pool = getPool(id);
+            coinAddresses = pool.wrappedCoinAddresses;
+            amounts = await pool.stats.wrappedBalances();
+            amounts = amounts.map((a, i) => BN(a).div(10).lte(1) ? BN(a).div(10).toFixed(pool.wrappedDecimals[i]) : '1');
+        });
+
         for (let i = 0; i < 5; i++) {
             for (let j = 0; j < 5; j++) {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
-                        const pool = getPool(id);
-                        const coinAddresses = pool.wrappedCoinAddresses;
                         if (i >= coinAddresses.length || j >= coinAddresses.length) {
                             console.log('Skip')
                         } else {
-                            const swapAmount = '1';
+                            const swapAmount = amounts[i];
                             const initialCoinBalances = await pool.wallet.wrappedCoinBalances() as IDict<string>;
                             const expected = await pool.swapWrappedExpected(i, j, swapAmount);
 

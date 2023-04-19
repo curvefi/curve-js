@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { _calcExpectedAmounts, _atricrypto3CalcExpectedAmounts } from "./common";
+import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./common";
 import { PoolTemplate } from "../PoolTemplate";
 import { parseUnits } from "../../utils";
 
@@ -30,24 +30,8 @@ export const withdrawExpectedLendingOrCryptoMixin: PoolTemplate = {
 export const withdrawExpectedMetaMixin: PoolTemplate = {
     async withdrawExpected(lpTokenAmount: number | string): Promise<string[]> {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
-        const _expectedWrappedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
-        _expectedWrappedAmounts.unshift(_expectedWrappedAmounts.pop() as ethers.BigNumber);
-        const [_expectedMetaCoinAmount, ..._expectedUnderlyingAmounts] = _expectedWrappedAmounts;
-        const basePool = new PoolTemplate(this.basePool);
-        const _basePoolExpectedAmounts = this.basePool === "atricrypto3" ?
-            await _atricrypto3CalcExpectedAmounts.call(basePool, _expectedMetaCoinAmount) :
-            await _calcExpectedAmounts.call(basePool, _expectedMetaCoinAmount);
-        const _expected = [..._expectedUnderlyingAmounts, ..._basePoolExpectedAmounts];
+        const _expected = await _calcExpectedUnderlyingAmountsMeta.call(this, _lpTokenAmount)
 
-        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
-    },
-}
-
-// @ts-ignore
-export const withdrawExpectedAtricrypto3Mixin: PoolTemplate = {
-    async withdrawExpected(lpTokenAmount: number | string): Promise<string[]> {
-        const _lpTokenAmount = parseUnits(lpTokenAmount);
-        const _expected = await _atricrypto3CalcExpectedAmounts.call(this, _lpTokenAmount);
         return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
     },
 }

@@ -59,6 +59,7 @@ export class PoolTemplate {
     isFactory: boolean;
     isMetaFactory: boolean;
     basePool: string;
+    metaCoinIdx: number;
     underlyingCoins: string[];
     wrappedCoins: string[];
     underlyingCoinAddresses: string[];
@@ -148,6 +149,7 @@ export class PoolTemplate {
         this.isFactory = poolData.is_factory || false;
         this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xa79828df1850e8a3a3064576f380d90aecdd3359';
         this.basePool = poolData.base_pool || '';
+        this.metaCoinIdx = this.isMeta ? poolData.meta_coin_idx ?? poolData.wrapped_coins.length - 1 : -1;
         this.underlyingCoins = poolData.underlying_coins;
         this.wrappedCoins = poolData.wrapped_coins;
         this.underlyingCoinAddresses = poolData.underlying_coin_addresses;
@@ -1453,7 +1455,7 @@ export class PoolTemplate {
         const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, decimals[i]));
 
         const contract = curve.contracts[curve.constants.ALIASES.deposit_and_stake].contract;
-        const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && !this.zap;
+        const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && (!this.zap || this.id == 'avaxcrypto');
         const _expectedLpTokenAmount = isUnderlying ?
             ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)) :
             ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts));

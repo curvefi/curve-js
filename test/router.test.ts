@@ -7,7 +7,7 @@ import { COINS_ETHEREUM } from "../src/constants/coins/ethereum";
 const AAVE_TOKENS = ['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc', 'amdai', 'amusdt', 'amusdc', 'amwbtc', 'avdai', 'avusdt', 'avusdc', 'avwbtc', 'gdai', 'gusdc', 'gfusdt'];
 
 const routerSwapTest = async (coin1: string, coin2: string) => {
-    const amount = '1';
+    const amount = '0.001';
     const initialBalances = await curve.getBalances([coin1, coin2]) as string[];
 
     const { route, output } = await curve.router.getBestRouteAndOutput(coin1, coin2, amount);
@@ -47,6 +47,7 @@ describe('Router swap', async function () {
 
     // AVALANCHE
     // const coins = ['dai.e', 'usdc.e', 'usdt.e', 'weth.e', 'wbtc.e', 'renbtc', 'avdai', 'avusdc', 'avusdt', 'avwbtc', 'av3crv', '0x130966628846bfd36ff31a822705796e8cb8c18d']; // mim
+    const coins = ['usdc', 'usdt', 'btc.b', 'avax', 'wavax', '2crv'];
 
     // FANTOM
     // const coins = ['dai', 'usdc', 'fusdt', 'idai', 'iusdc', 'ifusdt', 'gdai', 'gusdc', 'gfusdt', 'dai+usdc', 'eth', 'btc', 'renbtc', 'frax', 'crv', '0x666a3776b3e82f171cb1dff7428b6808d2cd7d02']; // aCRV
@@ -64,7 +65,8 @@ describe('Router swap', async function () {
     // const coins = ['dai', 'usdc', 'usdt', '3crv', '0x765277EebeCA2e31912C9946eAe1021199B39C61']; // DAI2
 
     // AURORA && KAVA && CELO
-    const coins = ['dai', 'usdc', 'usdt'];
+    // const coins = ['dai', 'usdc', 'usdt'];
+
     for (const coin1 of coins) {
         for (const coin2 of coins) {
             if (coin1 !== coin2) {

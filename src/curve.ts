@@ -339,7 +339,7 @@ class Curve implements ICurve {
             providerSettings = providerSettings as { url: string, privateKey: string };
 
             if (providerSettings.url) {
-                this.provider = this.provider = new ethers.providers.JsonRpcProvider(providerSettings.url);
+                this.provider = new ethers.providers.JsonRpcProvider(providerSettings.url);
             } else {
                 this.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
             }

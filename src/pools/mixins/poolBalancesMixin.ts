@@ -1,25 +1,8 @@
 import { ethers } from "ethers";
 import { curve } from "../../curve";
-import { _calcExpectedAmounts, _atricrypto3CalcExpectedAmounts } from "./common";
+import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./common";
 import { PoolTemplate } from "../PoolTemplate";
 
-
-// @ts-ignore
-export const poolBalancesAtricrypto3Mixin: PoolTemplate = {
-    async statsUnderlyingBalances(): Promise<string[]> {
-        const swapContract = curve.contracts[this.address].multicallContract;
-        const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
-        const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
-        const [_poolMetaCoinBalance, ..._poolNonMetaBalances] = _poolWrappedBalances;
-
-        const basePool = new PoolTemplate(this.basePool);
-        // @ts-ignore
-        const _basePoolExpectedAmounts = await _calcExpectedAmounts.call(basePool, _poolMetaCoinBalance);
-        const _poolUnderlyingBalances = [..._basePoolExpectedAmounts, ..._poolNonMetaBalances];
-
-        return  _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => ethers.utils.formatUnits(_b, this.underlyingDecimals[i]))
-    },
-}
 
 // @ts-ignore
 export const poolBalancesMetaMixin: PoolTemplate = {
@@ -27,15 +10,13 @@ export const poolBalancesMetaMixin: PoolTemplate = {
         const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
-        _poolWrappedBalances.unshift(_poolWrappedBalances.pop() as ethers.BigNumber);
-        const [_poolMetaCoinBalance, ..._poolNonMetaBalance] = _poolWrappedBalances;
-
+        const [_poolMetaCoinBalance] = _poolWrappedBalances.splice(this.metaCoinIdx, 1);
+        const _poolUnderlyingBalances = _poolWrappedBalances;
         const basePool = new PoolTemplate(this.basePool);
-        // @ts-ignore
-        const _basePoolExpectedAmounts = this.basePool === "atricrypto3" ?
-            await _atricrypto3CalcExpectedAmounts.call(basePool, _poolMetaCoinBalance) :
+        const _basePoolExpectedAmounts = basePool.isMeta ?
+            await _calcExpectedUnderlyingAmountsMeta.call(basePool, _poolMetaCoinBalance) :
             await _calcExpectedAmounts.call(basePool, _poolMetaCoinBalance);
-        const _poolUnderlyingBalances = [..._poolNonMetaBalance, ..._basePoolExpectedAmounts];
+        _poolUnderlyingBalances.splice(this.metaCoinIdx, 0, ..._basePoolExpectedAmounts);
 
         return  _poolUnderlyingBalances.map((_b: ethers.BigNumber, i: number) => ethers.utils.formatUnits(_b, this.underlyingDecimals[i]))
     },

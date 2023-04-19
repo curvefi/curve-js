@@ -108,11 +108,13 @@ export const withdrawOneCoinZapMixin: PoolTemplate = {
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
         const  contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
+        const args: any[] = [_lpTokenAmount, i, _minAmount];
+        if (`remove_liquidity_one_coin(uint256,uint256,uint256,bool)` in contract) args.push(true);
+        const gas = await contract.estimateGas.remove_liquidity_one_coin(...args, curve.constantOptions);
         if (estimateGas) return gas.toNumber();
 
         const gasLimit = gas.mul(130).div(100);
-        return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
+        return (await contract.remove_liquidity_one_coin(...args, { ...curve.options, gasLimit })).hash
     },
 
     async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number> {

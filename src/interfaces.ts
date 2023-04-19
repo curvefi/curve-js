@@ -29,6 +29,7 @@ export interface IPoolData {
     is_fake?: boolean,
     is_factory?: boolean,
     base_pool?: string,
+    meta_coin_idx?: number,
     underlying_coins: string[],
     wrapped_coins: string[],
     underlying_coin_addresses: string[],

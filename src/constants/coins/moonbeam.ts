@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "../utils";
+import { lowerCaseValues } from "../utils.js";
 
 export const COINS_MOONBEAM: { [index: string]: string } = lowerCaseValues({
     'crv': '0x712b3d230f3c1c19db860d80619288b1f0bdd0bd',

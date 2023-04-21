@@ -1,14 +1,14 @@
-import { POOLS_DATA_ETHEREUM } from "./ethereum";
-import { POOLS_DATA_POLYGON } from "./polygon";
-import { POOLS_DATA_FANTOM } from "./fantom";
-import { POOLS_DATA_AVALANCHE } from "./avalanche";
-import { POOLS_DATA_ARBITRUM } from "./arbitrum";
-import { POOLS_DATA_OPTIMISM } from "./optimism";
-import { POOLS_DATA_XDAI } from "./xdai";
-import { POOLS_DATA_MOONBEAM } from "./moonbeam";
-import { POOLS_DATA_AURORA } from "./aurora";
-import { POOLS_DATA_KAVA } from "./kava";
-import { POOLS_DATA_CELO } from "./celo";
+import { POOLS_DATA_ETHEREUM } from "./ethereum.js";
+import { POOLS_DATA_POLYGON } from "./polygon.js";
+import { POOLS_DATA_FANTOM } from "./fantom.js";
+import { POOLS_DATA_AVALANCHE } from "./avalanche.js";
+import { POOLS_DATA_ARBITRUM } from "./arbitrum.js";
+import { POOLS_DATA_OPTIMISM } from "./optimism.js";
+import { POOLS_DATA_XDAI } from "./xdai.js";
+import { POOLS_DATA_MOONBEAM } from "./moonbeam.js";
+import { POOLS_DATA_AURORA } from "./aurora.js";
+import { POOLS_DATA_KAVA } from "./kava.js";
+import { POOLS_DATA_CELO } from "./celo.js";
 
 export {
     POOLS_DATA_ETHEREUM,

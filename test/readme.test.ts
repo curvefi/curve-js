@@ -1,5 +1,5 @@
-import curve from "../src";
-import { IDict } from "../src/interfaces";
+import curve from "../src/index.js";
+import { IDict } from "../src/interfaces.js";
 
 
 const generalMethodsTest = async () => {

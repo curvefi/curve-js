@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { getPool, PoolTemplate } from "../src/pools";
-import curve from "../src";
+import { getPool, PoolTemplate } from "../src/pools/index.js";
+import curve from "../src/index.js";
 
 
 // const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth'];

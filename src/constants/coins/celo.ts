@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "../utils";
+import { lowerCaseValues } from "../utils.js";
 
 export const COINS_CELO: { [index: string]: string } = lowerCaseValues({
     'crv': '0x0a7432cF27F1aE3825c313F3C81e7D3efD7639aB',  // <--- TODO CHANGE

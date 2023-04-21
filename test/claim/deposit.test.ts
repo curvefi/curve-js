@@ -1,5 +1,4 @@
-import curve from "../../src";
-import {IDict} from "../../src/interfaces";
+import curve from "../../src/index.js";
 
 const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];

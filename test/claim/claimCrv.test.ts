@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import curve from "../../src/";
+import curve from "../../src/index.js";
 
 // ----------------
 // TO MAKE THIS TEST WORKING YOU NEED TO DO THESE STEPS FIRST

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getPoolsFromApi, _getSubgraphData, _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api';
+import { _getPoolsFromApi, _getSubgraphData, _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api.js';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -24,14 +24,15 @@ import {
     checkNumber,
     _getCrvApyFromApi,
     _getRewardsFromApi,
-} from '../utils';
+    mulBy1_3,
+} from '../utils.js';
 import {
     IDict,
     IReward,
     IProfit,
 } from '../interfaces';
-import { curve as _curve, curve } from "../curve";
-import ERC20Abi from '../constants/abis/ERC20.json';
+import { curve as _curve, curve } from "../curve.js";
+import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
 
 
 const DAY = 86400;
@@ -207,7 +208,7 @@ export class PoolTemplate {
 
     public rewardsOnly(): boolean {
         if (curve.chainId === 2222) return true;  // TODO remove this for Kava and Celo
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         const gaugeContract = curve.contracts[this.gauge].contract;
 
         return !('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
@@ -260,33 +261,33 @@ export class PoolTemplate {
             );
         }
 
-        let _virtualPrice = ethers.BigNumber.from(0);
-        let _fee = ethers.BigNumber.from(0);
+        let _virtualPrice = 0n;
+        let _fee = 0n;
         let _prices, _adminFee, _A, _lpTokenSupply, _gamma;
         try {
-            [_virtualPrice, _fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+            [_virtualPrice, _fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
         } catch (e) { // Empty pool
             calls.shift();
             if (this.isCrypto) {
                 calls.shift();
-                [_adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+                [_adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
             } else {
-                [_fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+                [_fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
             }
         }
 
         const [virtualPrice, fee, adminFee, A, lpTokenSupply, gamma] = [
-            ethers.utils.formatUnits(_virtualPrice),
-            ethers.utils.formatUnits(_fee, 8),
-            ethers.utils.formatUnits(_adminFee.mul(_fee)),
-            ethers.utils.formatUnits(_A, 0),
-            ethers.utils.formatUnits(_lpTokenSupply),
-            _gamma ? ethers.utils.formatUnits(_gamma) : _gamma,
+            curve.formatUnits(_virtualPrice),
+            curve.formatUnits(_fee, 8),
+            curve.formatUnits(_adminFee * _fee),
+            curve.formatUnits(_A, 0),
+            curve.formatUnits(_lpTokenSupply),
+            _gamma ? curve.formatUnits(_gamma) : undefined,
         ]
 
         let priceOracle, priceScale;
         if (this.isCrypto) {
-            const prices = _prices.map((_p) => ethers.utils.formatUnits(_p));
+            const prices = _prices.map((_p) => curve.formatUnits(_p));
             priceOracle = [];
             priceScale = [];
             for (let i = 0; i < this.wrappedCoins.length - 1; i++) {
@@ -296,12 +297,12 @@ export class PoolTemplate {
         }
 
         const A_PRECISION = curve.chainId === 1 && ['compound', 'usdt', 'y', 'busd', 'susd', 'pax', 'ren', 'sbtc', 'hbtc', '3pool'].includes(this.id) ? 1 : 100;
-        const [_future_A, _initial_A, _future_A_time, _initial_A_time] = await curve.multicallProvider.all(additionalCalls) as ethers.BigNumber[]
+        const [_future_A, _initial_A, _future_A_time, _initial_A_time] = await curve.multicallProvider.all(additionalCalls) as bigint[]
         const [future_A, initial_A, future_A_time, initial_A_time] = [
-            _future_A ? String(Number(ethers.utils.formatUnits(_future_A, 0)) / A_PRECISION) : undefined,
-            _initial_A ? String(Number(ethers.utils.formatUnits(_initial_A, 0)) / A_PRECISION) : undefined,
-            _future_A_time ? Number(ethers.utils.formatUnits(_future_A_time, 0)) * 1000 : undefined,
-            _initial_A_time ? Number(ethers.utils.formatUnits(_initial_A_time, 0)) * 1000 : undefined,
+            _future_A ? String(Number(curve.formatUnits(_future_A, 0)) / A_PRECISION) : undefined,
+            _initial_A ? String(Number(curve.formatUnits(_initial_A, 0)) / A_PRECISION) : undefined,
+            _future_A_time ? Number(curve.formatUnits(_future_A_time, 0)) * 1000 : undefined,
+            _initial_A_time ? Number(curve.formatUnits(_initial_A_time, 0)) * 1000 : undefined,
         ]
 
         return { lpTokenSupply, virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma, priceOracle, priceScale };
@@ -310,9 +311,9 @@ export class PoolTemplate {
     private async statsWrappedBalances(): Promise<string[]> {
         const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
-        const _wrappedBalances: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+        const _wrappedBalances: bigint[] = await curve.multicallProvider.all(contractCalls);
 
-        return _wrappedBalances.map((_b, i) => ethers.utils.formatUnits(_b, this.wrappedDecimals[i]));
+        return _wrappedBalances.map((_b, i) => curve.formatUnits(_b, this.wrappedDecimals[i]));
     }
 
     // OVERRIDE
@@ -428,7 +429,7 @@ export class PoolTemplate {
                 gaugeContract.inflation_rate(currentWeek),
                 gaugeContract.working_supply(),
                 lpTokenContract.totalSupply(),
-            ]) as ethers.BigNumber[]).map((value) => toBN(value));
+            ]) as bigint[]).map((value) => toBN(value));
 
             if (inflationRateBN.eq(0)) {
                 inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(WEEK);
@@ -444,7 +445,7 @@ export class PoolTemplate {
                 gaugeControllerContract.gauge_relative_weight(this.gauge),
                 gaugeContract.working_supply(),
                 lpTokenContract.totalSupply(),
-            ]) as ethers.BigNumber[]).map((value) => toBN(value));
+            ]) as bigint[]).map((value) => toBN(value));
 
             inflationRateBN = inflationRateBN.times(weightBN);
         }
@@ -460,7 +461,7 @@ export class PoolTemplate {
     }
 
     private statsRewardsApy = async (useApi = true): Promise<IReward[]> => {
-        if (this.gauge === ethers.constants.AddressZero) return [];
+        if (this.gauge === curve.constants.ZERO_ADDRESS) return [];
 
         const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
         if (curve.chainId === 1 || (useApi && !isDisabledChain)) {
@@ -484,10 +485,10 @@ export class PoolTemplate {
                 gaugeContract.totalSupply(),
                 lpTokenContract.totalSupply(),
             ]) as any[]);
-            const stakedSupplyBN = toBN(_stakedSupply as ethers.BigNumber);
-            const totalSupplyBN = toBN(_totalSupply as ethers.BigNumber);
+            const stakedSupplyBN = toBN(_stakedSupply as bigint);
+            const totalSupplyBN = toBN(_totalSupply as bigint);
             const inflationBN = toBN(rewardData.rate, rewardToken.decimals);
-            const periodFinish = Number(ethers.utils.formatUnits(rewardData.period_finish, 0)) * 1000;
+            const periodFinish = Number(curve.formatUnits(rewardData.period_finish, 0)) * 1000;
             const baseApy = periodFinish > Date.now() ?
                 inflationBN.times(31536000).times(rewardRate).div(stakedSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD)) :
                 BN(0);
@@ -503,7 +504,7 @@ export class PoolTemplate {
         return apy
     }
 
-    private async _pureCalcLpTokenAmount(_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> {
+    private async _pureCalcLpTokenAmount(_amounts: bigint[], isDeposit = true, useUnderlying = true): Promise<bigint> {
         const calcContractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
         const N_coins = useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
         const contract = curve.contracts[calcContractAddress].contract;
@@ -522,13 +523,12 @@ export class PoolTemplate {
         return await contract.calc_token_amount(_amounts, curve.constantOptions);
     }
 
-    private _calcLpTokenAmount = memoize(async (_amounts: ethers.BigNumber[], isDeposit = true, useUnderlying = true): Promise<ethers.BigNumber> => {
-        let _rates: ethers.BigNumber[] = [];
+    private _calcLpTokenAmount = memoize(async (_amounts: bigint[], isDeposit = true, useUnderlying = true): Promise<bigint> => {
+        let _rates: bigint[] = [];
         if (!this.isMeta && useUnderlying) {
             // For lending pools. For others rate = 1
             _rates = await this._getRates();
-            _amounts = _amounts.map((_amount: ethers.BigNumber, i: number) =>
-                _amount.mul(ethers.BigNumber.from(10).pow(18)).div(_rates[i]));
+            _amounts = _amounts.map((_amount: bigint, i: number) => _amount * (10n**18n) /_rates[i]);
         }
 
         if (this.isCrypto) {
@@ -536,13 +536,13 @@ export class PoolTemplate {
                 return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
             } catch (e) {
                 const lpContract = curve.contracts[this.lpToken].contract;
-                const _lpTotalSupply: ethers.BigNumber = await lpContract.totalSupply(curve.constantOptions);
-                if (_lpTotalSupply.gt(0)) throw e; // Already seeded
+                const _lpTotalSupply: bigint = await lpContract.totalSupply(curve.constantOptions);
+                if (_lpTotalSupply > 0n) throw e; // Already seeded
 
                 if (this.isMeta && useUnderlying) throw Error("Initial deposit for crypto meta pools must be in wrapped coins");
 
                 const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
-                const amounts = _amounts.map((_a, i) => ethers.utils.formatUnits(_a, decimals[i]));
+                const amounts = _amounts.map((_a, i) => curve.formatUnits(_a, decimals[i]));
                 const seedAmounts = await this.cryptoSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
                 amounts.forEach((a, i) => {
                     if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
@@ -578,7 +578,7 @@ export class PoolTemplate {
                 curve.multicallProvider.all(calls),
                 this.isMeta && useUnderlying ? this.stats.underlyingBalances() : this.stats.wrappedBalances(),
             ]);
-            const [_totalSupply, _fee, _lpTokenAmount] = res[0] as ethers.BigNumber[];
+            const [_totalSupply, _fee, _lpTokenAmount] = res[0] as bigint[];
 
             const balances = res[1] as string[];
             const [totalSupplyBN, feeBN, lpTokenAmountBN] = [toBN(_totalSupply), toBN(_fee, 10).times(N_coins).div(4 * (N_coins - 1)), toBN(_lpTokenAmount)];
@@ -600,33 +600,33 @@ export class PoolTemplate {
             // --- Getting final lpAmount ---
 
             let _lpTokenFee = await this._pureCalcLpTokenAmount(_fees, !isDeposit, this.isMeta && useUnderlying);
-            if (isDeposit) _lpTokenFee = _lpTokenFee.mul(-1);
+            if (isDeposit) _lpTokenFee = _lpTokenFee * (-1n);
 
-            return _lpTokenAmount.add(_lpTokenFee)
+            return _lpTokenAmount + _lpTokenFee
         } catch (e: any) { // Seeding
             if (!isDeposit) throw e; // Seeding is only for deposit
 
             const lpContract = curve.contracts[this.lpToken].contract;
-            const _lpTotalSupply: ethers.BigNumber = await lpContract.totalSupply(curve.constantOptions);
-            if (_lpTotalSupply.gt(0)) throw e; // Already seeded
+            const _lpTotalSupply: bigint = await lpContract.totalSupply(curve.constantOptions);
+            if (_lpTotalSupply > 0n) throw e; // Already seeded
 
             const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
-            const amounts = _amounts.map((_a, i) => ethers.utils.formatUnits(_a, decimals[i]));
+            const amounts = _amounts.map((_a, i) => curve.formatUnits(_a, decimals[i]));
 
             if (this.isMeta && useUnderlying) {
-                const seedAmounts = await this.metaUnderlyingSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
+                const seedAmounts = this.metaUnderlyingSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
                 amounts.forEach((a, i) => {
                     if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
                 });
             } else {
-                if (_amounts[0].lte(0)) throw Error("Initial deposit amounts must be >0");
+                if (_amounts[0] <= 0n) throw Error("Initial deposit amounts must be >0");
                 amounts.forEach((a) => {
                     if (a !== amounts[0]) throw Error("Initial deposit amounts must be equal");
                 });
             }
 
-            const _amounts18Decimals: ethers.BigNumber[] = amounts.map((a) => parseUnits(a));
-            return _amounts18Decimals.reduce((_a, _b) => _a.add(_b));
+            const _amounts18Decimals: bigint[] = amounts.map((a) => parseUnits(a));
+            return _amounts18Decimals.reduce((_a, _b) => _a + _b);
         }
     },
     {
@@ -640,10 +640,10 @@ export class PoolTemplate {
             throw Error(`${this.name} pool has ${this.underlyingCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
 
-        const _underlyingAmounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
+        const _underlyingAmounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
         const _expected = await this._calcLpTokenAmount(_underlyingAmounts, isDeposit, true);
 
-        return ethers.utils.formatUnits(_expected);
+        return curve.formatUnits(_expected);
     }
 
     private async calcLpTokenAmountWrapped(amounts: (number | string)[], isDeposit = true): Promise<string> {
@@ -655,10 +655,10 @@ export class PoolTemplate {
             throw Error(`${this.name} pool doesn't have this method`);
         }
 
-        const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, this.wrappedDecimals[i]));
+        const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.wrappedDecimals[i]));
         const _expected = await this._calcLpTokenAmount(_amounts, isDeposit, false);
 
-        return ethers.utils.formatUnits(_expected);
+        return curve.formatUnits(_expected);
     }
 
 
@@ -825,62 +825,62 @@ export class PoolTemplate {
     // ---------------- STAKING ----------------
 
     public async stakeIsApproved(lpTokenAmount: number | string): Promise<boolean> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`stakeIsApproved method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         return await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.gauge);
     }
 
     private async stakeApproveEstimateGas(lpTokenAmount: number | string): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`stakeApproveEstimateGas method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         return await ensureAllowanceEstimateGas([this.lpToken], [lpTokenAmount], this.gauge);
     }
 
     public async stakeApprove(lpTokenAmount: number | string): Promise<string[]> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`stakeApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         return await ensureAllowance([this.lpToken], [lpTokenAmount], this.gauge);
     }
 
     private async stakeEstimateGas(lpTokenAmount: number | string): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`stakeEstimateGas method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const _lpTokenAmount = parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).toNumber();
+        return Number(await curve.contracts[this.gauge].contract.deposit.estimateGas(_lpTokenAmount, curve.constantOptions));
     }
 
     public async stake(lpTokenAmount: number | string): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`stake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)
 
         await curve.updateFeeData();
-        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.deposit(_lpTokenAmount, curve.constantOptions)).mul(150).div(100);
+        const gasLimit = mulBy1_3(await curve.contracts[this.gauge].contract.deposit.estimateGas(_lpTokenAmount, curve.constantOptions));
         return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
     private async unstakeEstimateGas(lpTokenAmount: number | string): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`unstakeEstimateGas method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const _lpTokenAmount = parseUnits(lpTokenAmount);
-        return (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).toNumber();
+        return Number(await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions));
     }
 
     public async unstake(lpTokenAmount: number | string): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`unstake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const _lpTokenAmount = parseUnits(lpTokenAmount);
 
         await curve.updateFeeData();
-        const gasLimit = (await curve.contracts[this.gauge].contract.estimateGas.withdraw(_lpTokenAmount, curve.constantOptions)).mul(200).div(100);
+        const gasLimit = (await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions)) * 200n / 100n;
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
@@ -902,7 +902,7 @@ export class PoolTemplate {
                 gaugeContract.inflation_rate(currentWeek),
                 gaugeContract.working_balances(address),
                 gaugeContract.working_supply(),
-            ]) as ethers.BigNumber[]).map((value) => toBN(value));
+            ]) as bigint[]).map((value) => toBN(value));
 
             if (inflationRateBN.eq(0)) {
                 inflationRateBN = toBN(await crvContract.balanceOf(this.gauge, curve.constantOptions)).div(WEEK);
@@ -917,7 +917,7 @@ export class PoolTemplate {
                 gaugeControllerContract.gauge_relative_weight(this.gauge),
                 gaugeContract.working_balances(address),
                 gaugeContract.working_supply(),
-            ]) as ethers.BigNumber[]).map((value) => toBN(value));
+            ]) as bigint[]).map((value) => toBN(value));
 
             inflationRateBN = inflationRateBN.times(weightBN);
         }
@@ -955,26 +955,26 @@ export class PoolTemplate {
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
-        return ethers.utils.formatUnits(await curve.contracts[this.gauge].contract.claimable_tokens(address, curve.constantOptions));
+        return curve.formatUnits(await curve.contracts[this.gauge].contract.claimable_tokens(address, curve.constantOptions));
     }
 
     public async claimCrvEstimateGas(): Promise<number> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
 
-        return (await curve.contracts[curve.constants.ALIASES.minter].contract.estimateGas.mint(this.gauge, curve.constantOptions)).toNumber();
+        return Number(await curve.contracts[curve.constants.ALIASES.minter].contract.mint.estimateGas(this.gauge, curve.constantOptions));
     }
 
     public async claimCrv(): Promise<string> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
         const contract = curve.contracts[curve.constants.ALIASES.minter].contract;
 
-        const gasLimit = (await contract.estimateGas.mint(this.gauge, curve.constantOptions)).mul(130).div(100);
+        const gasLimit = mulBy1_3(await contract.mint.estimateGas(this.gauge, curve.constantOptions));
         return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
 
     public boost = async (address = ""): Promise<string> => {
         if (curve.chainId !== 1) throw Error("Boosting is available only on Ethereum network");
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -983,7 +983,7 @@ export class PoolTemplate {
         const [workingBalanceBN, balanceBN] = (await curve.multicallProvider.all([
             gaugeContract.working_balances(address),
             gaugeContract.balanceOf(address),
-        ]) as ethers.BigNumber[]).map((value: ethers.BigNumber) => toBN(value));
+        ]) as bigint[]).map((value: bigint) => toBN(value));
 
         const boostBN = workingBalanceBN.div(0.4).div(balanceBN);
 
@@ -1006,7 +1006,7 @@ export class PoolTemplate {
 
     public maxBoostedStake = async (...addresses: string[]): Promise<IDict<string> | string> => {
         if (curve.chainId !== 1) throw Error("Boosting is available only on Ethereum network");
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         if (addresses.length === 0 && curve.signerAddress !== '') addresses = [curve.signerAddress];
 
@@ -1020,8 +1020,8 @@ export class PoolTemplate {
             contractCalls.push(votingEscrowContract.balanceOf(account));
         });
 
-        const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
-        const responseBN: BigNumber[] = _response.map((value: ethers.BigNumber) => toBN(value));
+        const _response: bigint[] = await curve.multicallProvider.all(contractCalls);
+        const responseBN: BigNumber[] = _response.map((value: bigint) => toBN(value));
 
         const [veTotalSupplyBN, gaugeTotalSupplyBN] = responseBN.splice(0, 2);
 
@@ -1041,7 +1041,7 @@ export class PoolTemplate {
     // ---------------- REWARDS PROFIT, CLAIM ----------------
 
     public rewardTokens = memoize(async (useApi = true): Promise<{token: string, symbol: string, decimals: number}[]> => {
-        if (this.gauge === ethers.constants.AddressZero) return []
+        if (this.gauge === curve.constants.ZERO_ADDRESS) return []
 
         if (useApi) {
             const rewards = await _getRewardsFromApi();
@@ -1055,7 +1055,7 @@ export class PoolTemplate {
         if ("reward_tokens(uint256)" in gaugeContract) {
             let rewardCount = 8; // gauge_v2, gauge_v3, gauge_rewards_only, gauge_child
             if ("reward_count()" in gaugeContract) { // gauge_v4, gauge_v5, gauge_factory
-                rewardCount = Number(ethers.utils.formatUnits(await gaugeContract.reward_count(curve.constantOptions), 0));
+                rewardCount = Number(curve.formatUnits(await gaugeContract.reward_count(curve.constantOptions), 0));
             }
 
             const tokenCalls = [];
@@ -1063,7 +1063,7 @@ export class PoolTemplate {
                 tokenCalls.push(gaugeMulticallContract.reward_tokens(i));
             }
             const tokens = (await curve.multicallProvider.all(tokenCalls) as string[])
-                .filter((addr) => addr !== ethers.constants.AddressZero)
+                .filter((addr) => addr !== curve.constants.ZERO_ADDRESS)
                 .map((addr) => addr.toLowerCase());
 
             const tokenInfoCalls = [];
@@ -1102,7 +1102,7 @@ export class PoolTemplate {
     });
 
     public rewardsProfit = async (address = ""): Promise<IProfit[]> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -1118,11 +1118,11 @@ export class PoolTemplate {
             }
             const res = await curve.multicallProvider.all(calls);
 
-            const balanceBN = toBN(res.shift() as ethers.BigNumber);
-            const totalSupplyBN = toBN(res.shift() as ethers.BigNumber);
+            const balanceBN = toBN(res.shift() as bigint);
+            const totalSupplyBN = toBN(res.shift() as bigint);
             for (const rewardToken of rewardTokens) {
-                const _rewardData = res.shift() as { period_finish: ethers.BigNumber, rate: ethers.BigNumber };
-                const periodFinish = Number(ethers.utils.formatUnits(_rewardData.period_finish, 0)) * 1000;
+                const _rewardData = res.shift() as { period_finish: bigint, rate: bigint };
+                const periodFinish = Number(curve.formatUnits(_rewardData.period_finish, 0)) * 1000;
                 const inflationRateBN = periodFinish > Date.now() ? toBN(_rewardData.rate, rewardToken.decimals) : BN(0);
                 const tokenPrice = await _getUsdRate(rewardToken.token);
 
@@ -1146,9 +1146,9 @@ export class PoolTemplate {
                 sRewardContract.periodFinish(),
                 gaugeContract.balanceOf(address),
                 gaugeContract.totalSupply(),
-            ]) as ethers.BigNumber[];
+            ]) as bigint[];
 
-            const periodFinish = _periodFinish.toNumber() * 1000;
+            const periodFinish = Number(_periodFinish) * 1000;
             const inflationRateBN = periodFinish > Date.now() ? toBN(_inflationRate, rewardToken.decimals) : BN(0);
             const balanceBN = toBN(_balance);
             const totalSupplyBN = toBN(_totalSupply);
@@ -1187,7 +1187,7 @@ export class PoolTemplate {
 
     // TODO 1. Fix aave and saave error
     public async claimableRewards(address = ""): Promise<{token: string, symbol: string, amount: string}[]> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`claimableRewards method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         address = address || curve.signerAddress;
@@ -1202,7 +1202,7 @@ export class PoolTemplate {
                 rewards.push({
                     token: rewardToken.token,
                     symbol: rewardToken.symbol,
-                    amount: ethers.utils.formatUnits(_amount, rewardToken.decimals),
+                    amount: curve.formatUnits(_amount, rewardToken.decimals),
                 });
             }
         } else if ('claimable_reward(address)' in gaugeContract && rewardTokens.length > 0) { // Synthetix Gauge
@@ -1212,7 +1212,7 @@ export class PoolTemplate {
             rewards.push({
                 token: rewardToken.token,
                 symbol: rewardToken.symbol,
-                amount: ethers.utils.formatUnits(_totalAmount.sub(_claimedAmount), rewardToken.decimals),
+                amount: curve.formatUnits(_totalAmount.sub(_claimedAmount), rewardToken.decimals),
             })
         }
 
@@ -1220,30 +1220,30 @@ export class PoolTemplate {
     }
 
     public async claimRewardsEstimateGas(): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`claimRewards method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
 
-        return (await gaugeContract.estimateGas.claim_rewards(curve.constantOptions)).toNumber();
+        return Number(await gaugeContract.claim_rewards.estimateGas(curve.constantOptions));
     }
 
     public async claimRewards(): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`claimRewards method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
 
-        const gasLimit = (await gaugeContract.estimateGas.claim_rewards(curve.constantOptions)).mul(130).div(100);
+        const gasLimit = mulBy1_3(await gaugeContract.claim_rewards.estimateGas(curve.constantOptions));
         return (await gaugeContract.claim_rewards({ ...curve.options, gasLimit })).hash;
     }
 
     // ---------------- DEPOSIT & STAKE ----------------
 
     public async depositAndStakeExpected(amounts: (number | string)[]): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeExpected method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
@@ -1251,7 +1251,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStakeBonus(amounts: (number | string)[]): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeBonus method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
@@ -1259,7 +1259,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStakeIsApproved(amounts: (number | string)[]): Promise<boolean> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeIsApproved method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const coinsAllowance: boolean = await hasAllowance(this.underlyingCoinAddresses, amounts, curve.signerAddress, curve.constants.ALIASES.deposit_and_stake);
@@ -1274,7 +1274,7 @@ export class PoolTemplate {
     }
 
     private async depositAndStakeApproveEstimateGas(amounts: (number | string)[]): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const approveCoinsGas: number = await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, curve.constants.ALIASES.deposit_and_stake);
@@ -1283,7 +1283,7 @@ export class PoolTemplate {
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
             const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
-                const approveGaugeGas = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).toNumber();
+                const approveGaugeGas = Number(await gaugeContract.set_approve_deposit.estimateGas(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions));
                 return approveCoinsGas + approveGaugeGas;
             }
         }
@@ -1292,7 +1292,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStakeApprove(amounts: (number | string)[]): Promise<string[]> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const approveCoinsTx: string[] = await ensureAllowance(this.underlyingCoinAddresses, amounts, curve.constants.ALIASES.deposit_and_stake);
@@ -1301,7 +1301,7 @@ export class PoolTemplate {
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
             const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
-                const gasLimit = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).mul(130).div(100);
+                const gasLimit = mulBy1_3(await gaugeContract.set_approve_deposit.estimateGas(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions));
                 const approveGaugeTx: string = (await gaugeContract.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, { ...curve.options, gasLimit })).hash;
                 return [...approveCoinsTx, approveGaugeTx];
             }
@@ -1311,7 +1311,7 @@ export class PoolTemplate {
     }
 
     private async depositAndStakeEstimateGas(amounts: (number | string)[]): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
@@ -1319,7 +1319,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStake(amounts: (number | string)[], slippage = 0.1): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
@@ -1329,7 +1329,7 @@ export class PoolTemplate {
     // ---------------- DEPOSIT & STAKE WRAPPED ----------------
 
     public async depositAndStakeWrappedExpected(amounts: (number | string)[]): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1338,7 +1338,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStakeWrappedBonus(amounts: (number | string)[]): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedBonus method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1347,7 +1347,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStakeWrappedIsApproved(amounts: (number | string)[]): Promise<boolean> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1364,7 +1364,7 @@ export class PoolTemplate {
     }
 
     private async depositAndStakeWrappedApproveEstimateGas(amounts: (number | string)[]): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1375,7 +1375,7 @@ export class PoolTemplate {
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
             const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
-                const approveGaugeGas = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).toNumber();
+                const approveGaugeGas = Number(await gaugeContract.set_approve_deposit.estimateGas(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions));
                 return approveCoinsGas + approveGaugeGas;
             }
         }
@@ -1384,7 +1384,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStakeWrappedApprove(amounts: (number | string)[]): Promise<string[]> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrappedApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1395,7 +1395,7 @@ export class PoolTemplate {
         if (Object.prototype.hasOwnProperty.call(gaugeContract, 'approved_to_deposit')) {
             const gaugeAllowance: boolean = await gaugeContract.approved_to_deposit(curve.constants.ALIASES.deposit_and_stake, curve.signerAddress, curve.constantOptions);
             if (!gaugeAllowance) {
-                const gasLimit = (await gaugeContract.estimateGas.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions)).mul(130).div(100);
+                const gasLimit = mulBy1_3(await gaugeContract.set_approve_deposit.estimateGas(curve.constants.ALIASES.deposit_and_stake, true, curve.constantOptions));
                 const approveGaugeTx: string = (await gaugeContract.set_approve_deposit(curve.constants.ALIASES.deposit_and_stake, true, { ...curve.options, gasLimit })).hash;
                 return [...approveCoinsTx, approveGaugeTx];
             }
@@ -1405,7 +1405,7 @@ export class PoolTemplate {
     }
 
     private async depositAndStakeWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1414,7 +1414,7 @@ export class PoolTemplate {
     }
 
     public async depositAndStakeWrapped(amounts: (number | string)[], slippage = 0.1): Promise<string> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
@@ -1452,25 +1452,25 @@ export class PoolTemplate {
             }
         }
 
-        const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, decimals[i]));
+        const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, decimals[i]));
 
         const contract = curve.contracts[curve.constants.ALIASES.deposit_and_stake].contract;
         const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && (!this.zap || this.id == 'avaxcrypto');
         const _expectedLpTokenAmount = isUnderlying ?
-            ethers.utils.parseUnits(await this.depositAndStakeExpected(amounts)) :
-            ethers.utils.parseUnits(await this.depositAndStakeWrappedExpected(amounts));
+            curve.parseUnits(await this.depositAndStakeExpected(amounts)) :
+            curve.parseUnits(await this.depositAndStakeWrappedExpected(amounts));
         const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
         const _minMintAmount = fromBN(minAmountBN);
         const ethIndex = getEthIndex(coinAddresses);
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const value = _amounts[ethIndex] || 0n;
 
         const maxCoins = curve.chainId === 137 ? 6 : 5;
         for (let i = 0; i < maxCoins; i++) {
-            coinAddresses[i] = coinAddresses[i] || ethers.constants.AddressZero;
-            _amounts[i] = _amounts[i] || ethers.BigNumber.from(0);
+            coinAddresses[i] = coinAddresses[i] || curve.constants.ZERO_ADDRESS;
+            _amounts[i] = _amounts[i] || 0n;
         }
 
-        const _gas = (await contract.estimateGas.deposit_and_stake(
+        const _gas = (await contract.deposit_and_stake.estimateGas(
             depositAddress,
             this.lpToken,
             this.gauge,
@@ -1479,14 +1479,14 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isMetaFactory && isUnderlying ? this.address : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.constantOptions, value }
         ))
 
-        if (estimateGas) return _gas.toNumber()
+        if (estimateGas) return Number(_gas)
 
         await curve.updateFeeData();
-        const gasLimit = _gas.mul(200).div(100);
+        const gasLimit = _gas * 200n / 100n;
         return (await contract.deposit_and_stake(
             depositAddress,
             this.lpToken,
@@ -1496,7 +1496,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isMetaFactory && isUnderlying ? this.address : ethers.constants.AddressZero,
+            this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.options, gasLimit, value }
         )).hash
     }
@@ -1574,9 +1574,9 @@ export class PoolTemplate {
         if (this.isCrypto) throw Error(`withdrawImbalanceIsApproved method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         if (this.zap) {
-            const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
-            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
-            return await hasAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], curve.signerAddress, this.zap as string);
+            const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * 101n / 100n;
+            return await hasAllowance([this.lpToken], [curve.formatUnits(_maxBurnAmount, 18)], curve.signerAddress, this.zap as string);
         }
 
         return true;
@@ -1586,9 +1586,9 @@ export class PoolTemplate {
         if (this.isCrypto) throw Error(`withdrawImbalanceApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         if (this.zap) {
-            const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
-            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
-            return await ensureAllowanceEstimateGas([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
+            const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * 101n / 100n;
+            return await ensureAllowanceEstimateGas([this.lpToken], [curve.formatUnits(_maxBurnAmount, 18)], this.zap as string);
         }
 
         return 0;
@@ -1598,9 +1598,9 @@ export class PoolTemplate {
         if (this.isCrypto) throw Error(`withdrawImbalanceApprove method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
         if (this.zap) {
-            const _amounts: ethers.BigNumber[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
-            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)).mul(101).div(100);
-            return await ensureAllowance([this.lpToken], [ethers.utils.formatUnits(_maxBurnAmount, 18)], this.zap as string);
+            const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * 101n / 100n;
+            return await ensureAllowance([this.lpToken], [curve.formatUnits(_maxBurnAmount, 18)], this.zap as string);
         }
 
         return [];
@@ -1649,7 +1649,7 @@ export class PoolTemplate {
     // ---------------- WITHDRAW ONE COIN ----------------
 
     // OVERRIDE
-    private async _withdrawOneCoinExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
+    private async _withdrawOneCoinExpected(_lpTokenAmount: bigint, i: number): Promise<bigint> {
         throw Error(`withdrawOneCoinExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1658,7 +1658,7 @@ export class PoolTemplate {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await this._withdrawOneCoinExpected(_lpTokenAmount, i);
 
-        return ethers.utils.formatUnits(_expected, this.underlyingDecimals[i]);
+        return curve.formatUnits(_expected, this.underlyingDecimals[i]);
     }
 
     public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
@@ -1702,7 +1702,7 @@ export class PoolTemplate {
     // ---------------- WITHDRAW ONE COIN WRAPPED ----------------
 
     // OVERRIDE
-    private async _withdrawOneCoinWrappedExpected(_lpTokenAmount: ethers.BigNumber, i: number): Promise<ethers.BigNumber> {
+    private async _withdrawOneCoinWrappedExpected(_lpTokenAmount: bigint, i: number): Promise<bigint> {
         throw Error(`withdrawOneCoinWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1712,7 +1712,7 @@ export class PoolTemplate {
 
         const _expected = await this._withdrawOneCoinWrappedExpected(_lpTokenAmount, i);
 
-        return ethers.utils.formatUnits(_expected, this.wrappedDecimals[i]);
+        return curve.formatUnits(_expected, this.wrappedDecimals[i]);
     }
 
     public async withdrawOneCoinWrappedBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
@@ -1741,7 +1741,7 @@ export class PoolTemplate {
     // ---------------- WALLET BALANCES ----------------
 
     private async walletBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             return await this._balances(
                 ['lpToken', ...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
                 [this.lpToken, ...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
@@ -1757,7 +1757,7 @@ export class PoolTemplate {
     }
 
     private async walletLpTokenBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        if (this.gauge === ethers.constants.AddressZero) {
+        if (this.gauge === curve.constants.ZERO_ADDRESS) {
             return await this._balances(['lpToken'], [this.lpToken], ...addresses);
         } else {
             return await this._balances(['lpToken', 'gauge'], [this.lpToken, this.gauge], ...addresses);
@@ -1840,7 +1840,7 @@ export class PoolTemplate {
     public async userShare(address = ""):
         Promise<{ lpUser: string, lpTotal: string, lpShare: string, gaugeUser?: string, gaugeTotal?: string, gaugeShare?: string }>
     {
-        const withGauge = this.gauge !== ethers.constants.AddressZero;
+        const withGauge = this.gauge !== curve.constants.ZERO_ADDRESS;
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
@@ -1853,9 +1853,9 @@ export class PoolTemplate {
             [totalLp, gaugeLp] = (await curve.multicallProvider.all([
                 curve.contracts[this.lpToken].multicallContract.totalSupply(),
                 curve.contracts[this.gauge].multicallContract.totalSupply(),
-            ]) as ethers.BigNumber[]).map((_supply) => ethers.utils.formatUnits(_supply));
+            ]) as bigint[]).map((_supply) => curve.formatUnits(_supply));
         } else {
-            totalLp = ethers.utils.formatUnits(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
+            totalLp = curve.formatUnits(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
         }
 
         return {
@@ -1870,7 +1870,7 @@ export class PoolTemplate {
 
     // ---------------- SWAP ----------------
 
-    private async _swapExpected(i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> {
+    private async _swapExpected(i: number, j: number, _amount: bigint): Promise<bigint> {
         const contractAddress = this.isCrypto && this.isMeta ? this.zap as string : this.address;
         const contract = curve.contracts[contractAddress].contract;
         if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
@@ -1889,7 +1889,7 @@ export class PoolTemplate {
         const _amount = parseUnits(amount, this.underlyingDecimals[i]);
         const _expected = await this._swapExpected(i, j, _amount);
 
-        return ethers.utils.formatUnits(_expected, this.underlyingDecimals[j])
+        return curve.formatUnits(_expected, this.underlyingDecimals[j])
     }
 
     public async swapPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
@@ -1944,7 +1944,7 @@ export class PoolTemplate {
 
     // ---------------- SWAP WRAPPED ----------------
 
-    private async _swapWrappedExpected(i: number, j: number, _amount: ethers.BigNumber): Promise<ethers.BigNumber> {
+    private async _swapWrappedExpected(i: number, j: number, _amount: bigint): Promise<bigint> {
         return await curve.contracts[this.address].contract.get_dy(i, j, _amount, curve.constantOptions);
     }
 
@@ -2003,7 +2003,7 @@ export class PoolTemplate {
     // ---------------- ... ----------------
 
     public gaugeOptimalDeposits = async (...accounts: string[]): Promise<IDict<string>> => {
-        if (this.gauge === ethers.constants.AddressZero) throw Error(`${this.name} doesn't have gauge`);
+        if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
 
         const votingEscrowContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
@@ -2018,8 +2018,8 @@ export class PoolTemplate {
             )
         });
 
-        const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
-        const response: BigNumber[] = _response.map((value: ethers.BigNumber) => toBN(value));
+        const _response: bigint[] = await curve.multicallProvider.all(contractCalls);
+        const response: BigNumber[] = _response.map((value: bigint) => toBN(value));
 
         const [veTotalSupply, gaugeTotalSupply] = response.splice(0,2);
 
@@ -2092,8 +2092,8 @@ export class PoolTemplate {
         return idx
     }
 
-    private _getRates = async(): Promise<ethers.BigNumber[]> => {
-        const _rates: ethers.BigNumber[] = [];
+    private _getRates = async(): Promise<bigint[]> => {
+        const _rates: bigint[] = [];
         for (let i = 0; i < this.wrappedCoinAddresses.length; i++) {
             const addr = this.wrappedCoinAddresses[i];
             if (this.useLending[i]) {
@@ -2102,10 +2102,10 @@ export class PoolTemplate {
                 } else if (['y', 'busd', 'pax'].includes(this.id)) {
                     _rates.push(await curve.contracts[addr].contract.getPricePerFullShare());
                 } else {
-                    _rates.push(ethers.BigNumber.from(10).pow(18)); // Aave ratio 1:1
+                    _rates.push(10n**18n); // Aave ratio 1:1
                 }
             } else {
-                _rates.push(ethers.BigNumber.from(10).pow(18));
+                _rates.push(10n**18n);
             }
         }
 

@@ -1,6 +1,5 @@
 import { assert } from "chai";
-import { ethers } from "ethers";
-import { curve } from "../src/curve";
+import { curve } from "../src/curve.js";
 
 describe('Checking constants', async function () {
     this.timeout(120000);
@@ -48,7 +47,7 @@ describe('Checking constants', async function () {
             // if (address === "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f") continue; // SNX
             if (curve.contracts[address] === undefined) console.log(address);
             const contract = curve.contracts[address].contract;
-            assert.equal(decimals, Number(ethers.utils.formatUnits(await contract.decimals(curve.constantOptions), 0)), address);
+            assert.equal(decimals, Number(curve.formatUnits(await contract.decimals(curve.constantOptions), 0)), address);
         }
     });
 

@@ -1,15 +1,15 @@
 import axios from 'axios';
-import { ethers, Contract } from 'ethers';
+import { Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
-import { curve, NETWORK_CONSTANTS } from "./curve";
-import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getPoolsFromApi, _getSubgraphData } from "./external-api";
-import ERC20Abi from './constants/abis/ERC20.json';
+import { curve, NETWORK_CONSTANTS } from "./curve.js";
+import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getPoolsFromApi, _getSubgraphData } from "./external-api.js";
+import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-export const MAX_ALLOWANCE = ethers.BigNumber.from(2).pow(ethers.BigNumber.from(256)).sub(ethers.BigNumber.from(1));
+export const MAX_ALLOWANCE = (2n**256n) - 1n;
 
 
 // Formatting numbers
@@ -31,24 +31,24 @@ export const formatNumber = (n: number | string, decimals = 18): string => {
     return !fractional ? integer : integer + "." + fractional.slice(0, decimals);
 }
 
-export const parseUnits = (n: number | string, decimals = 18): ethers.BigNumber => {
-    return ethers.utils.parseUnits(formatNumber(n, decimals), decimals);
+export const parseUnits = (n: number | string, decimals = 18): bigint => {
+    return curve.parseUnits(formatNumber(n, decimals), decimals);
 }
 
 // bignumber.js
 
 export const BN = (val: number | string): BigNumber => new BigNumber(checkNumber(val));
 
-export const toBN = (n: ethers.BigNumber, decimals = 18): BigNumber => {
-    return BN(ethers.utils.formatUnits(n, decimals));
+export const toBN = (n: bigint, decimals = 18): BigNumber => {
+    return BN(curve.formatUnits(n, decimals));
 }
 
 export const toStringFromBN = (bn: BigNumber, decimals = 18): string => {
     return bn.toFixed(decimals);
 }
 
-export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
-    return ethers.utils.parseUnits(toStringFromBN(bn, decimals), decimals)
+export const fromBN = (bn: BigNumber, decimals = 18): bigint => {
+    return curve.parseUnits(toStringFromBN(bn, decimals), decimals)
 }
 
 // -------------------
@@ -56,6 +56,7 @@ export const fromBN = (bn: BigNumber, decimals = 18): ethers.BigNumber => {
 
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
+export const mulBy1_3 = (n: bigint): bigint => n * 130n / 100n;
 
 // coins can be either addresses or symbols
 export const _getCoinAddressesNoCheck = (...coins: string[] | string[][]): string[] => {
@@ -94,24 +95,24 @@ export const _getBalances = async (coins: string[], addresses: string[]): Promis
     for (const coinAddr of coinAddresses) {
         contractCalls.push(...addresses.map((address: string) => curve.contracts[coinAddr].multicallContract.balanceOf(address)));
     }
-    const _response: ethers.BigNumber[] = await curve.multicallProvider.all(contractCalls);
+    const _response: bigint[] = await curve.multicallProvider.all(contractCalls);
 
     if (ethIndex !== -1) {
-        const ethBalances: ethers.BigNumber[] = [];
+        const ethBalances: bigint[] = [];
         for (const address of addresses) {
             ethBalances.push(await curve.provider.getBalance(address));
         }
         _response.splice(ethIndex * addresses.length, 0, ...ethBalances);
     }
 
-    const _balances: IDict<ethers.BigNumber[]>  = {};
+    const _balances: IDict<bigint[]>  = {};
     addresses.forEach((address: string, i: number) => {
         _balances[address] = coins.map((_, j: number ) => _response[i + (j * addresses.length)]);
     });
 
     const balances: IDict<string[]>  = {};
     for (const address of addresses) {
-        balances[address] = _balances[address].map((b, i: number ) => ethers.utils.formatUnits(b, decimals[i]));
+        balances[address] = _balances[address].map((b, i: number ) => curve.formatUnits(b, decimals[i]));
     }
 
     return balances;
@@ -133,7 +134,7 @@ export const getBalances = async (coins: string[], ...addresses: string[] | stri
 }
 
 
-export const _getAllowance = async (coins: string[], address: string, spender: string): Promise<ethers.BigNumber[]> => {
+export const _getAllowance = async (coins: string[], address: string, spender: string): Promise<bigint[]> => {
     const _coins = [...coins]
     const ethIndex = getEthIndex(_coins);
     if (ethIndex !== -1) {
@@ -141,7 +142,7 @@ export const _getAllowance = async (coins: string[], address: string, spender: s
 
     }
 
-    let allowance: ethers.BigNumber[];
+    let allowance: bigint[];
     if (_coins.length === 1) {
         allowance = [await curve.contracts[_coins[0]].contract.allowance(address, spender, curve.constantOptions)];
     } else {
@@ -163,7 +164,7 @@ export const getAllowance = async (coins: string[], address: string, spender: st
     const decimals = _getCoinDecimals(coinAddresses);
     const _allowance = await _getAllowance(coinAddresses, address, spender);
 
-    return _allowance.map((a, i) => ethers.utils.formatUnits(a, decimals[i]))
+    return _allowance.map((a, i) => curve.formatUnits(a, decimals[i]))
 }
 
 // coins can be either addresses or symbols
@@ -173,24 +174,24 @@ export const hasAllowance = async (coins: string[], amounts: (number | string)[]
     const _allowance = await _getAllowance(coinAddresses, address, spender);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
-    return _allowance.map((a, i) => a.gte(_amounts[i])).reduce((a, b) => a && b);
+    return _allowance.map((a, i) => a >= _amounts[i]).reduce((a, b) => a && b);
 }
 
-export const _ensureAllowance = async (coins: string[], amounts: ethers.BigNumber[], spender: string, isMax = true): Promise<string[]> => {
+export const _ensureAllowance = async (coins: string[], amounts: bigint[], spender: string, isMax = true): Promise<string[]> => {
     const address = curve.signerAddress;
-    const allowance: ethers.BigNumber[] = await _getAllowance(coins, address, spender);
+    const allowance: bigint[] = await _getAllowance(coins, address, spender);
 
     const txHashes: string[] = []
     for (let i = 0; i < allowance.length; i++) {
-        if (allowance[i].lt(amounts[i])) {
+        if (allowance[i] < amounts[i]) {
             const contract = curve.contracts[coins[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : amounts[i];
             await curve.updateFeeData();
-            if (allowance[i].gt(ethers.BigNumber.from(0))) {
-                const gasLimit = (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).mul(130).div(100);
-                txHashes.push((await contract.approve(spender, ethers.BigNumber.from(0), { ...curve.options, gasLimit })).hash);
+            if (allowance[i] > 0n) {
+                const gasLimit = mulBy1_3(await contract.approve.estimateGas(spender, 0n, curve.constantOptions));
+                txHashes.push((await contract.approve(spender, 0n, { ...curve.options, gasLimit })).hash);
             }
-            const gasLimit = (await contract.estimateGas.approve(spender, _approveAmount, curve.constantOptions)).mul(130).div(100);
+            const gasLimit = mulBy1_3(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
             txHashes.push((await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit })).hash);
         }
     }
@@ -204,17 +205,17 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
     const decimals = _getCoinDecimals(coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     const address = curve.signerAddress;
-    const allowance: ethers.BigNumber[] = await _getAllowance(coinAddresses, address, spender);
+    const allowance: bigint[] = await _getAllowance(coinAddresses, address, spender);
 
     let gas = 0;
     for (let i = 0; i < allowance.length; i++) {
-        if (allowance[i].lt(_amounts[i])) {
+        if (allowance[i] < _amounts[i]) {
             const contract = curve.contracts[coinAddresses[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
-            if (allowance[i].gt(ethers.BigNumber.from(0))) {
-                gas += (await contract.estimateGas.approve(spender, ethers.BigNumber.from(0), curve.constantOptions)).toNumber();
+            if (allowance[i] > 0n) {
+                gas += Number(await contract.approve.estimateGas(spender, 0n, curve.constantOptions));
             }
-            gas += (await contract.estimateGas.approve(spender, _approveAmount, curve.constantOptions)).toNumber();
+            gas += Number(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
         }
     }
 
@@ -470,7 +471,7 @@ export const _setContracts = (address: string, abi: any): void => {
 // Find k for which x * k = target_x or y * k = target_y
 // k = max(target_x / x, target_y / y)
 // small_x = x * k
-export const _get_small_x = (_x: ethers.BigNumber, _y: ethers.BigNumber, x_decimals: number, y_decimals: number): BigNumber => {
+export const _get_small_x = (_x: bigint, _y: bigint, x_decimals: number, y_decimals: number): BigNumber => {
     const target_x = BN(10 ** (x_decimals > 5 ? x_decimals - 3 : x_decimals));
     const target_y = BN(10 ** (y_decimals > 5 ? y_decimals - 3 : y_decimals));
     const x_int_BN = toBN(_x, 0);
@@ -481,10 +482,10 @@ export const _get_small_x = (_x: ethers.BigNumber, _y: ethers.BigNumber, x_decim
 }
 
 export const _get_price_impact = (
-    _x: ethers.BigNumber,
-    _y: ethers.BigNumber,
-    _small_x: ethers.BigNumber,
-    _small_y: ethers.BigNumber,
+    _x: bigint,
+    _y: bigint,
+    _small_x: bigint,
+    _small_y: bigint,
     x_decimals: number,
     y_decimals: number
 ): BigNumber => {
@@ -526,7 +527,7 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
         res.push({
             name: _response.shift() as string,
             symbol: _response.shift() as string,
-            decimals: Number(ethers.utils.formatUnits(_response.shift() as string, 0)),
+            decimals: Number(curve.formatUnits(_response.shift() as string, 0)),
         })
     });
 

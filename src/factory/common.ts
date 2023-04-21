@@ -1,6 +1,6 @@
 import { ICurve } from "../interfaces";
-import { FACTORY_CONSTANTS } from "./constants";
-import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto";
+import { FACTORY_CONSTANTS } from "./constants.js";
+import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 
 export function setFactoryZapContracts(this: ICurve, isCrypto: boolean): void {
     const basePoolIdZapDict = (isCrypto ? CRYPTO_FACTORY_CONSTANTS : FACTORY_CONSTANTS)[this.chainId].basePoolIdZapDict;

@@ -1,15 +1,15 @@
-import { lowerCasePoolDataAddresses } from "../utils";
-import { IPoolData } from "../../interfaces";
-import aaveSwapABI from '../abis/aave/swap.json';
-import renSwapABI from '../abis/ren-polygon/swap.json';
-import atricrypto3Swap from '../abis/atricrypto3/swap.json';
-import atricrypto3Zap from '../abis/atricrypto3/zap.json';
-import AVAXCryptoSwapABI from "../abis/avaxcrypto/swap.json";
-import AVAXCryptoZapABI from "../abis/avaxcrypto/zap.json";
-import gaugeChildABI from '../abis/gauge_child.json';
+import { IDict, IPoolData } from "../../interfaces";
+import { lowerCasePoolDataAddresses } from "../utils.js";
+import aaveSwapABI from '../abis/aave/swap.json' assert { type: 'json' };
+import renSwapABI from '../abis/ren-polygon/swap.json' assert { type: 'json' };
+import atricrypto3Swap from '../abis/atricrypto3/swap.json' assert { type: 'json' };
+import atricrypto3Zap from '../abis/atricrypto3/zap.json' assert { type: 'json' };
+import AVAXCryptoSwapABI from "../abis/avaxcrypto/swap.json" assert { type: 'json' };
+import AVAXCryptoZapABI from "../abis/avaxcrypto/zap.json" assert { type: 'json' };
+import gaugeChildABI from '../abis/gauge_child.json' assert { type: 'json' };
 
 
-export const POOLS_DATA_AVALANCHE: { [index: string]: IPoolData } = lowerCasePoolDataAddresses({
+export const POOLS_DATA_AVALANCHE: IDict<IPoolData> = lowerCasePoolDataAddresses({
     aave: {
         name: "aave",
         full_name: "aave",

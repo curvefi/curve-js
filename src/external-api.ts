@@ -1,6 +1,6 @@
-import { IExtendedPoolDataFromApi, ISubgraphPoolData, IDict, INetworkName } from "./interfaces";
 import axios from "axios";
 import memoize from "memoizee";
+import { IExtendedPoolDataFromApi, ISubgraphPoolData, IDict, INetworkName } from "./interfaces";
 
 
 export const _getPoolsFromApi = memoize(

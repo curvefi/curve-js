@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { curve } from "../curve.js";
 import { IDict, IPoolData } from "../interfaces";
 
 
@@ -45,7 +46,7 @@ export const extractDecimals = (poolsData: IDict<IPoolData>): IDict<number> => {
 export const extractGauges = (poolsData: IDict<IPoolData>): string[] => {
     const GAUGES: string[] = [];
     for (const poolData of Object.values(poolsData)) {
-        if (poolData.gauge_address === ethers.constants.AddressZero) continue;
+        if (poolData.gauge_address === curve.constants.ZERO_ADDRESS) continue;
         GAUGES.push(poolData.gauge_address);
     }
 

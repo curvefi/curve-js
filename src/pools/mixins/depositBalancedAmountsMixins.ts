@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
-import { PoolTemplate } from "../PoolTemplate";
-import { BN } from "../../utils";
+import { PoolTemplate } from "../PoolTemplate.js";
+import { BN } from "../../utils.js";
 
 
 function _depositBalancedAmounts(poolBalances: string[], walletBalances: string[], decimals: number[]): string[] {

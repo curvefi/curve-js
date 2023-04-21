@@ -1,10 +1,9 @@
-import { ethers } from "ethers";
-import { PoolTemplate } from "../PoolTemplate";
-import { curve } from "../../curve";
-import { fromBN, toBN, parseUnits } from "../../utils";
+import { curve } from "../../curve.js";
+import { PoolTemplate } from "../PoolTemplate.js";
+import { fromBN, toBN, parseUnits, mulBy1_3 } from "../../utils.js";
 
 // @ts-ignore
-async function _withdrawWrappedCheck(this: PoolTemplate, lpTokenAmount: number | string): Promise<ethers.BigNumber> {
+async function _withdrawWrappedCheck(this: PoolTemplate, lpTokenAmount: number | string): Promise<bigint> {
     const lpTokenBalance = (await this.wallet.lpTokenBalances())['lpToken'];
     if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
@@ -15,9 +14,9 @@ async function _withdrawWrappedCheck(this: PoolTemplate, lpTokenAmount: number |
     return parseUnits(lpTokenAmount);
 }
 
-async function _withdrawWrappedMinAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber, slippage = 0.5): Promise<ethers.BigNumber[]> {
-    const expectedAmounts = await this.withdrawWrappedExpected(ethers.utils.formatUnits(_lpTokenAmount));
-    const _expectedAmounts = expectedAmounts.map((a, i) => ethers.utils.parseUnits(a, this.wrappedDecimals[i]));
+async function _withdrawWrappedMinAmounts(this: PoolTemplate, _lpTokenAmount: bigint, slippage = 0.5): Promise<bigint[]> {
+    const expectedAmounts = await this.withdrawWrappedExpected(curve.formatUnits(_lpTokenAmount));
+    const _expectedAmounts = expectedAmounts.map((a, i) => curve.parseUnits(a, this.wrappedDecimals[i]));
     const minRecvAmountsBN = _expectedAmounts.map((_a, i) => toBN(_a, this.wrappedDecimals[i]).times(100 - slippage).div(100));
 
     return minRecvAmountsBN.map((a, i) => fromBN(a, this.wrappedDecimals[i]));
@@ -26,14 +25,14 @@ async function _withdrawWrappedMinAmounts(this: PoolTemplate, _lpTokenAmount: et
 // @ts-ignore
 export const withdrawWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawWrapped(_lpTokenAmount: ethers.BigNumber, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawWrapped(_lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmounts = await _withdrawWrappedMinAmounts.call(this, _lpTokenAmount, slippage);
         const contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, curve.constantOptions);
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.remove_liquidity.estimateGas(_lpTokenAmount, _minAmounts, curve.constantOptions);
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
     },
 
@@ -57,14 +56,14 @@ export const withdrawWrapped2argsMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawWrapped(_lpTokenAmount: ethers.BigNumber, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawWrapped(_lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmounts = await _withdrawWrappedMinAmounts.call(this, _lpTokenAmount, slippage);
         const contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity(_lpTokenAmount, _minAmounts, false, curve.constantOptions);
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.remove_liquidity.estimateGas(_lpTokenAmount, _minAmounts, false, curve.constantOptions);
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, false, { ...curve.options, gasLimit })).hash;
     },
 

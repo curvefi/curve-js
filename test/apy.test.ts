@@ -1,9 +1,9 @@
-import { ethers } from "ethers";
 import { assert } from "chai";
-import curve from "../src/";
-import { getPool, PoolTemplate } from "../src/pools";
-import { IReward } from "../src/interfaces";
-import { ETH_RPC, OPTIMISM_RPC, XDAI_RPC, POLYGON_RPC, FANTOM_RPC, MOONBEAM_RPC, KAVA_RPC, ARBITRUM_RPC, CELO_RPC, AVALANCHE_RPC, AURORA_RPC } from "./rpcUrls.test";
+import curve from "../src/index.js";
+import { curve as _curve } from "../src/curve.js";
+import { getPool, PoolTemplate } from "../src/pools/index.js";
+import { IReward } from "../src/interfaces.js";
+import { ETH_RPC, OPTIMISM_RPC, XDAI_RPC, POLYGON_RPC, FANTOM_RPC, MOONBEAM_RPC, KAVA_RPC, ARBITRUM_RPC, CELO_RPC, AVALANCHE_RPC, AURORA_RPC } from "./rpcUrls.test.js";
 
 
 const poolStatsTest = (name: string) => {
@@ -17,7 +17,7 @@ const poolStatsTest = (name: string) => {
 
 
         it('Token (CRV) APY', async function () {
-            if (pool.gauge === ethers.constants.AddressZero || pool.rewardsOnly()) return;
+            if (pool.gauge === _curve.constants.ZERO_ADDRESS || pool.rewardsOnly()) return;
 
             const apy = await pool.stats.tokenApy(false);
             const apyFromApi = await pool.stats.tokenApy();
@@ -36,7 +36,7 @@ const poolStatsTest = (name: string) => {
         });
 
         it('Rewards APY', async function () {
-            if (pool.gauge === ethers.constants.AddressZero) return;
+            if (pool.gauge === _curve.constants.ZERO_ADDRESS) return;
 
             const rewardsApy = (await pool.stats.rewardsApy(false)).filter((r) => r.apy > 0);
             const rewardsApyFromApi = (await pool.stats.rewardsApy()).filter((r) => r.apy > 0);

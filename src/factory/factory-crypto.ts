@@ -1,11 +1,11 @@
-import { ethers } from "ethers";
 import { IDict, IPoolData, ICurve } from "../interfaces";
-import ERC20ABI from "../constants/abis/ERC20.json";
-import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
-import factoryGaugeABI from "../constants/abis/gauge_factory.json";
-import gaugeChildABI from "../constants/abis/gauge_child.json";
-import { setFactoryZapContracts } from "./common";
-import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto";
+import { curve } from "../curve.js";
+import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" assert { type: 'json' };
+import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
+import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
+import { setFactoryZapContracts } from "./common.js";
+import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -13,7 +13,7 @@ const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.is
 async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string): Promise<string> {
     const factoryContract = this.contracts[this.constants.ALIASES.crypto_factory].contract;
 
-    const poolCount = Number(ethers.utils.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
+    const poolCount = Number(curve.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     for (let i = 1; i <= poolCount; i++) {
         const address: string = await factoryContract.pool_list(poolCount - i);
         if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-crypto-${poolCount - i}`
@@ -26,7 +26,7 @@ async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): P
     const factoryContract = this.contracts[this.constants.ALIASES.crypto_factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
 
-    const poolCount = Number(ethers.utils.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
+    const poolCount = Number(curve.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     const calls = [];
     for (let i = fromIdx; i < poolCount; i++) {
         calls.push(factoryMulticallContract.pool_list(i));
@@ -81,7 +81,7 @@ function setCryptoFactoryTokenContracts(this: ICurve, factoryTokenAddresses: str
 }
 
 function setCryptoFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[]): void {
-    factoryGaugeAddresses.filter((addr) => addr !== ethers.constants.AddressZero).forEach((addr, i) => {
+    factoryGaugeAddresses.filter((addr) => addr !== curve.constants.ZERO_ADDRESS).forEach((addr, i) => {
         this.setContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI);
     });
 }
@@ -161,7 +161,7 @@ async function getCoinsData(
 
     const res2 = res.slice(tokenAddresses.length * 2);
     const symbols = res2.filter((a, i) => i % 2 == 0) as string[];
-    const decimals = (res2.filter((a, i) => i % 2 == 1) as ethers.BigNumber[]).map((_d) => Number(ethers.utils.formatUnits(_d, 0)));
+    const decimals = (res2.filter((a, i) => i % 2 == 1) as bigint[]).map((_d) => Number(curve.formatUnits(_d, 0)));
 
     newCoinAddresses.forEach((addr, i) => {
         coinAddrNamesDict[addr] = symbols[i];

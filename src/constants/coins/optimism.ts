@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "../utils";
+import { lowerCaseValues } from "../utils.js";
 
 export const COINS_OPTIMISM: { [index: string]: string } = lowerCaseValues({
     'crv': '0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53',

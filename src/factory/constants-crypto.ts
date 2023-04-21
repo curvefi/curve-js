@@ -1,9 +1,9 @@
 import { IDict } from "../interfaces";
-import { lowerCaseKeys } from "../constants/utils";
+import { lowerCaseKeys } from "../constants/utils.js";
 // --- ZAPS --
-import atricrypto3ZapABI from "../constants/abis/atricrypto3/base_pool_zap.json";
-import tripoolZapABI from "../constants/abis/3pool/meta_zap_crypto.json";
-import fraxusdcZapABI from "../constants/abis/fraxusdc/meta_zap_crypto.json";
+import atricrypto3ZapABI from "../constants/abis/atricrypto3/base_pool_zap.json" assert { type: 'json' };
+import tripoolZapABI from "../constants/abis/3pool/meta_zap_crypto.json" assert { type: 'json' };
+import fraxusdcZapABI from "../constants/abis/fraxusdc/meta_zap_crypto.json" assert { type: 'json' };
 
 export const lpTokenBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys({
     '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490': '3pool',

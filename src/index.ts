@@ -1,13 +1,12 @@
-import { ethers } from "ethers";
-import { Networkish } from "@ethersproject/networks";
-import { PoolTemplate, getPool } from "./pools";
+import { ethers, Networkish } from "ethers";
+import { PoolTemplate, getPool } from "./pools/index.js";
 import {
     getUserPoolListByLiquidity,
     getUserPoolListByClaimable,
     getUserPoolList,
     getUserLiquidityUSD,
     getUserClaimable,
-} from "./pools/utils";
+} from "./pools/utils.js";
 import {
     getBestRouteAndOutput,
     swapExpected,
@@ -18,8 +17,8 @@ import {
     swapEstimateGas,
     swap,
     getSwappedAmount,
-} from "./router";
-import { curve as _curve } from "./curve";
+} from "./router.js";
+import { curve as _curve } from "./curve.js";
 import {
     getCrv,
     getLockedAmountAndUnlockTime,
@@ -40,7 +39,7 @@ import {
     claimableFees,
     claimFeesEstimateGas,
     claimFees,
-} from "./boosting";
+} from "./boosting.js";
 import {
     getBalances,
     getAllowance,
@@ -51,7 +50,7 @@ import {
     getTVL,
     getCoinsData,
     getVolume,
-} from "./utils";
+} from "./utils.js";
 import {
     deployStablePlainPool,
     deployStablePlainPoolEstimateGas,
@@ -65,11 +64,11 @@ import {
     getDeployedStableMetaPoolAddress,
     getDeployedCryptoPoolAddress,
     getDeployedGaugeAddress,
-} from './factory/deploy';
+} from './factory/deploy.js';
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
-    providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
+    providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
     options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {}
 ): Promise<void> {
     await _curve.init(providerType, providerSettings, options);
@@ -110,7 +109,7 @@ const curve = {
         getPoolList: _curve.getFactoryPoolList,
         deployPlainPool: deployStablePlainPool,
         deployMetaPool: deployStableMetaPool,
-        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, false),
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, false),
         getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
         getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
@@ -126,7 +125,7 @@ const curve = {
         fetchNewPools: _curve.fetchNewCryptoFactoryPools,
         getPoolList: _curve.getCryptoFactoryPoolList,
         deployPool: deployCryptoPool,
-        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransaction> => deployGauge(poolAddress, true),
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, true),
         getDeployed: getDeployedStablePlainPoolAddress,
         getDeployedPoolAddress: getDeployedCryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,

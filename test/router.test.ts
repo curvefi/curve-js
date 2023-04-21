@@ -1,8 +1,7 @@
 import { assert } from "chai";
-import { BN } from "../src/utils";
-import curve from "../src";
-import { COINS_POLYGON } from "../src/constants/coins/polygon";
-import { COINS_ETHEREUM } from "../src/constants/coins/ethereum";
+import { BN } from "../src/utils.js";
+import curve from "../src/index.js";
+
 
 const AAVE_TOKENS = ['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc', 'amdai', 'amusdt', 'amusdc', 'amwbtc', 'avdai', 'avusdt', 'avusdc', 'avwbtc', 'gdai', 'gusdc', 'gfusdt'];
 

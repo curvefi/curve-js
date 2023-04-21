@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "../utils";
+import { lowerCaseValues } from "../utils.js";
 
 
 export const COINS_POLYGON: { [index: string]: string } = lowerCaseValues({

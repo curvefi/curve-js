@@ -1,9 +1,8 @@
-import { PoolTemplate } from "../PoolTemplate";
-import { _ensureAllowance, fromBN, getEthIndex, hasAllowance, toBN, parseUnits } from "../../utils";
-import { curve } from "../../curve";
-import { ethers } from "ethers";
+import { curve } from "../../curve.js";
+import { PoolTemplate } from "../PoolTemplate.js";
+import { _ensureAllowance, fromBN, getEthIndex, hasAllowance, toBN, parseUnits, mulBy1_3 } from "../../utils.js";
 
-async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | string)[], estimateGas = false): Promise<ethers.BigNumber[]> {
+async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | string)[], estimateGas = false): Promise<bigint[]> {
     if (this.isFake) {
         throw Error(`depositWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
@@ -28,7 +27,7 @@ async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | strin
     return  amounts.map((amount, i) => parseUnits(amount, this.wrappedDecimals[i]));
 }
 
-async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], slippage = 0.5): Promise<ethers.BigNumber> {
+async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: bigint[], slippage = 0.5): Promise<bigint> {
     // @ts-ignore
     const _expectedLpTokenAmount = await this._calcLpTokenAmount(_amounts, true, false);
     const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
@@ -39,19 +38,19 @@ async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: ethers.Big
 // @ts-ignore
 export const depositWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _depositWrapped(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _depositWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.wrappedCoinAddresses);
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const value = _amounts[ethIndex] || 0n;
         const contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, { ...curve.constantOptions, value });
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, { ...curve.constantOptions, value });
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
     },
 
@@ -75,19 +74,19 @@ export const depositWrapped2argsMixin: PoolTemplate = {
 // @ts-ignore
 export const depositWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _depositWrapped(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _depositWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.wrappedCoinAddresses);
-        const value = _amounts[ethIndex] || ethers.BigNumber.from(0);
+        const value = _amounts[ethIndex] || 0n;
         const contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.add_liquidity(_amounts, _minMintAmount, false, { ...curve.constantOptions, value });
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, false, { ...curve.constantOptions, value });
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.add_liquidity(_amounts, _minMintAmount, false, { ...curve.options, gasLimit, value })).hash;
     },
 

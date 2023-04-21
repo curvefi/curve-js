@@ -1,4 +1,4 @@
-import { lowerCasePoolDataAddresses } from "../utils";
-import { IPoolData } from "../../interfaces";
+import { IDict, IPoolData } from "../../interfaces";
+import { lowerCasePoolDataAddresses } from "../utils.js";
 
-export const POOLS_DATA_KAVA: { [index: string]: IPoolData } = lowerCasePoolDataAddresses({});
+export const POOLS_DATA_KAVA: IDict<IPoolData> = lowerCasePoolDataAddresses({});

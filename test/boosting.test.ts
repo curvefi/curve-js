@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { BN, getAllowance } from "../src/utils";
-import { getCrv, createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime, calcUnlockTime } from '../src/boosting';
-import { curve } from "../src/curve";
+import { BN, getAllowance } from "../src/utils.js";
+import { getCrv, createLock, increaseAmount, increaseUnlockTime, getLockedAmountAndUnlockTime, calcUnlockTime } from '../src/boosting.js';
+import { curve } from "../src/curve.js";
 
 describe('Boosting', function() {
     this.timeout(120000);

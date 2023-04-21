@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "../utils";
+import { lowerCaseValues } from "../utils.js";
 
 export const COINS_KAVA: { [index: string]: string } = lowerCaseValues({
     'crv': '0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205',  // <--- TODO CHANGE

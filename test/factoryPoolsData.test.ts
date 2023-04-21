@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { curve } from "../src/curve";
-import { ETH_RPC } from "./rpcUrls.test";
-import { IDict, IPoolData } from "../src/interfaces";
+import { curve } from "../src/curve.js";
+import { ETH_RPC } from "./rpcUrls.test.js";
+import { IDict, IPoolData } from "../src/interfaces.js";
 
 
 const factoryPoolsDataTest = (factoryPoolsDataFromApi: IDict<IPoolData>, factoryPoolsData: IDict<IPoolData>, isStrict: boolean) => {

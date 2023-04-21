@@ -45,7 +45,7 @@ export interface IPoolData {
 }
 
 export interface ICurve {
-    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider,
+    provider: ethers.BrowserProvider | ethers.JsonRpcProvider,
     multicallProvider: MulticallProvider,
     signer: ethers.Signer | null,
     signerAddress: string,
@@ -53,7 +53,7 @@ export interface ICurve {
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
     constantOptions: { gasLimit: number },
-    options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber },
+    options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint },
     constants: {
         NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
         NETWORK_NAME: INetworkName,
@@ -144,7 +144,7 @@ export interface IRouteTvl {
 
 export interface IRouteOutputAndCost {
     route: IRoute,
-    _output: ethers.BigNumber,
+    _output: bigint,
     outputUsd: number,
     txCostUsd: number,
 }

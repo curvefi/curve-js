@@ -1,26 +1,25 @@
-import { ethers, Contract } from "ethers";
-import { Networkish } from "@ethersproject/networks";
+import { ethers, Contract, Networkish, BigNumberish, Numeric } from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
-import { getFactoryPoolData } from "./factory/factory";
-import { getFactoryPoolsDataFromApi } from "./factory/factory-api";
-import { getCryptoFactoryPoolData } from "./factory/factory-crypto";
+import { getFactoryPoolData } from "./factory/factory.js";
+import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
+import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
 import { IPoolData, IDict, ICurve, INetworkName, IChainId } from "./interfaces";
-import ERC20Abi from './constants/abis/ERC20.json';
-import cERC20Abi from './constants/abis/cERC20.json';
-import yERC20Abi from './constants/abis/yERC20.json';
-import minterABI from './constants/abis/minter.json';
-import minterChildABI from './constants/abis/minter_child.json';
-import votingEscrowABI from './constants/abis/votingescrow.json';
-import feeDistributorABI from './constants/abis/fee_distributor.json';
-import addressProviderABI from './constants/abis/address_provider.json';
-import gaugeControllerABI from './constants/abis/gaugecontroller.json';
-import routerABI from './constants/abis/router.json';
-import depositAndStakeABI from './constants/abis/deposit_and_stake.json';
-import depositAndStake6CoinsABI from './constants/abis/deposit_and_stake_6coins.json';
-import registryExchangeABI from './constants/abis/registry_exchange.json';
-import streamerABI from './constants/abis/streamer.json';
-import factoryABI from './constants/abis/factory.json';
-import cryptoFactoryABI from './constants/abis/factory-crypto.json';
+import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
+import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
+import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
+import minterABI from './constants/abis/minter.json' assert { type: 'json' };
+import minterChildABI from './constants/abis/minter_child.json' assert { type: 'json' };
+import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
+import feeDistributorABI from './constants/abis/fee_distributor.json' assert { type: 'json' };
+import addressProviderABI from './constants/abis/address_provider.json' assert { type: 'json' };
+import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert { type: 'json' };
+import routerABI from './constants/abis/router.json' assert { type: 'json' };
+import depositAndStakeABI from './constants/abis/deposit_and_stake.json' assert { type: 'json' };
+import depositAndStake6CoinsABI from './constants/abis/deposit_and_stake_6coins.json' assert { type: 'json' };
+import registryExchangeABI from './constants/abis/registry_exchange.json' assert { type: 'json' };
+import streamerABI from './constants/abis/streamer.json' assert { type: 'json' };
+import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
+import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
 import {
     POOLS_DATA_ETHEREUM,
     POOLS_DATA_POLYGON,
@@ -33,7 +32,7 @@ import {
     POOLS_DATA_AURORA,
     POOLS_DATA_KAVA,
     POOLS_DATA_CELO,
-} from './constants/pools';
+} from './constants/pools/index.js';
 import {
     ALIASES_ETHEREUM,
     ALIASES_OPTIMISM,
@@ -46,20 +45,20 @@ import {
     ALIASES_AURORA,
     ALIASES_KAVA,
     ALIASES_CELO,
-} from "./constants/aliases";
-import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum";
-import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism";
-import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon";
-import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom";
-import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche";
-import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum";
-import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai";
-import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam";
-import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora";
-import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava";
-import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo";
-import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils";
-import { _getAllGauges, _getHiddenPools } from "./external-api";
+} from "./constants/aliases.js";
+import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
+import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
+import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon.js";
+import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom.js";
+import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche.js";
+import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum.js";
+import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai.js";
+import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam.js";
+import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora.js";
+import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava.js";
+import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo.js";
+import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
+import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -70,7 +69,7 @@ const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
 
     for (const poolId in poolsData) {
         if (isKilled[poolsData[poolId].gauge_address]) {
-            poolsData[poolId].gauge_address = ethers.constants.AddressZero;
+            poolsData[poolId].gauge_address = ethers.ZeroAddress;
         }
     }
 }
@@ -258,7 +257,7 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
 }
 
 class Curve implements ICurve {
-    provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider;
+    provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
     signerAddress: string;
@@ -266,7 +265,7 @@ class Curve implements ICurve {
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
     constantOptions: { gasLimit: number };
-    options: { gasPrice?: number | ethers.BigNumber, maxFeePerGas?: number | ethers.BigNumber, maxPriorityFeePerGas?: number | ethers.BigNumber };
+    options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };
     constants: {
         NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
         NETWORK_NAME: INetworkName,
@@ -277,6 +276,7 @@ class Curve implements ICurve {
         COINS: IDict<string>,
         DECIMALS: IDict<number>,
         GAUGES: string[],
+        ZERO_ADDRESS: string,
     };
 
     constructor() {
@@ -302,12 +302,13 @@ class Curve implements ICurve {
             COINS: {},
             DECIMALS: {},
             GAUGES: [],
+            ZERO_ADDRESS: ethers.ZeroAddress,
         };
     }
 
     async init(
         providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
-        providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.providers.ExternalProvider } | { network?: Networkish, apiKey?: string },
+        providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
         // @ts-ignore
@@ -332,6 +333,7 @@ class Curve implements ICurve {
             COINS: {},
             DECIMALS: {},
             GAUGES: [],
+            ZERO_ADDRESS: ethers.ZeroAddress,
         };
 
         // JsonRpc provider
@@ -339,38 +341,42 @@ class Curve implements ICurve {
             providerSettings = providerSettings as { url: string, privateKey: string };
 
             if (providerSettings.url) {
-                this.provider = new ethers.providers.JsonRpcProvider(providerSettings.url);
+                this.provider = new ethers.JsonRpcProvider(providerSettings.url);
             } else {
-                this.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545/');
+                this.provider = new ethers.JsonRpcProvider('http://localhost:8545/');
             }
 
             if (providerSettings.privateKey) {
                 this.signer = new ethers.Wallet(providerSettings.privateKey, this.provider);
             } else if (!providerSettings.url?.startsWith("https://rpc.gnosischain.com")) {
-                this.signer = this.provider.getSigner();
+                try {
+                    this.signer = await this.provider.getSigner();
+                } catch (e) {
+                    this.signer = null;
+                }
             }
         // Web3 provider
         } else if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
-            providerSettings = providerSettings as { externalProvider: ethers.providers.ExternalProvider };
-            this.provider = new ethers.providers.Web3Provider(providerSettings.externalProvider);
-            this.signer = this.provider.getSigner();
+            providerSettings = providerSettings as { externalProvider: ethers.Eip1193Provider };
+            this.provider = new ethers.BrowserProvider(providerSettings.externalProvider);
+            this.signer = await this.provider.getSigner();
         // Infura provider
         } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
-            this.provider = new ethers.providers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
+            this.provider = new ethers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
         // Alchemy provider
         } else if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
-            this.provider = new ethers.providers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
+            this.provider = new ethers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
         } else {
             throw Error('Wrong providerType');
         }
 
-        const network = this.provider.network || await this.provider._networkPromise;
-        console.log("CURVE-JS IS CONNECTED TO NETWORK:", network);
-        this.chainId = network.chainId === 1337 ? 1 : network.chainId as IChainId;
+        const network = await this.provider.getNetwork();
+        console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
+        this.chainId = Number(network.chainId) === 1337 ? 1 : Number(network.chainId) as IChainId;
 
         this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
@@ -392,8 +398,7 @@ class Curve implements ICurve {
 
         await _killGauges(this.constants.POOLS_DATA);
 
-        this.multicallProvider = new MulticallProvider();
-        await this.multicallProvider.init(this.provider);
+        this.multicallProvider = new MulticallProvider(this.chainId, this.provider);
 
         if (this.signer) {
             try {
@@ -415,7 +420,7 @@ class Curve implements ICurve {
                 this.setContract(pool.token_address, ERC20Abi);
             }
 
-            if (pool.gauge_address !== ethers.constants.AddressZero) {
+            if (pool.gauge_address !== this.constants.ZERO_ADDRESS) {
                 this.setContract(pool.gauge_address, pool.gauge_abi);
             }
 
@@ -591,6 +596,14 @@ class Curve implements ICurve {
         this.feeData = { ...this.feeData, ...customFeeData };
     }
 
+    formatUnits(value: BigNumberish, unit?: string | Numeric): string {
+        return ethers.formatUnits(value, unit);
+    }
+
+    parseUnits(value: string, unit?: string | Numeric): bigint {
+        return ethers.parseUnits(value, unit);
+    }
+
     async updateFeeData(): Promise<void> {
         const feeData = await this.provider.getFeeData();
         if (feeData.maxFeePerGas === null || feeData.maxPriorityFeePerGas === null) {
@@ -598,16 +611,16 @@ class Curve implements ICurve {
             delete this.options.maxPriorityFeePerGas;
 
             this.options.gasPrice = this.feeData.gasPrice !== undefined ?
-                ethers.utils.parseUnits(this.feeData.gasPrice.toString(), "gwei") :
-                (feeData.gasPrice || await this.provider.getGasPrice());
+                this.parseUnits(this.feeData.gasPrice.toString(), "gwei") :
+                (feeData.gasPrice || this.parseUnits("20", "gwei"));
         } else {
             delete this.options.gasPrice;
 
             this.options.maxFeePerGas = this.feeData.maxFeePerGas !== undefined ?
-                ethers.utils.parseUnits(this.feeData.maxFeePerGas.toString(), "gwei") :
+                this.parseUnits(this.feeData.maxFeePerGas.toString(), "gwei") :
                 feeData.maxFeePerGas;
             this.options.maxPriorityFeePerGas = this.feeData.maxPriorityFeePerGas !== undefined ?
-                ethers.utils.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
+                this.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
                 feeData.maxPriorityFeePerGas;
         }
     }

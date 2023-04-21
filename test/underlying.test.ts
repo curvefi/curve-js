@@ -1,9 +1,9 @@
-import { ethers } from "ethers";
 import { assert } from "chai";
-import curve from "../src";
-import { PoolTemplate, getPool } from "../src/pools";
-import { BN } from "../src/utils";
-import { IDict } from "../src/interfaces";
+import curve from "../src/index.js";
+import { curve as _curve } from "../src/curve.js";
+import { PoolTemplate } from "../src/pools/index.js";
+import { BN } from "../src/utils.js";
+import { IDict } from "../src/interfaces.js";
 
 const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt', '2pool', '4pool', 'fraxusdc', 'frxeth', 'sbtc2', 'fraxusdp'];
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
@@ -71,7 +71,7 @@ const underlyingLiquidityTest = (id: string) => {
         let amounts: string[];
 
         before(async function () {
-            pool = getPool(id);
+            pool = curve.getPool(id);
             coinAddresses = pool.underlyingCoinAddresses;
             amounts = await pool.stats.underlyingBalances();
             amounts = amounts.map((a, i) => BN(a).div(10).lte(1) ? BN(a).div(10).toFixed(pool.underlyingDecimals[i]) : '1');
@@ -99,7 +99,7 @@ const underlyingLiquidityTest = (id: string) => {
         });
 
         it('Stake', async function () {
-            if (pool.gauge === ethers.constants.AddressZero) {
+            if (pool.gauge === _curve.constants.ZERO_ADDRESS) {
                 console.log('Skip');
                 return
             }
@@ -115,7 +115,7 @@ const underlyingLiquidityTest = (id: string) => {
         });
 
         it('Deposit&stake', async function () {
-            if (pool.gauge === ethers.constants.AddressZero) {
+            if (pool.gauge === _curve.constants.ZERO_ADDRESS) {
                 console.log('Skip');
                 return;
             }
@@ -140,7 +140,7 @@ const underlyingLiquidityTest = (id: string) => {
         });
 
         it('Unstake', async function () {
-            if (pool.gauge === ethers.constants.AddressZero) {
+            if (pool.gauge === _curve.constants.ZERO_ADDRESS) {
                 console.log('Skip');
                 return
             }
@@ -225,7 +225,7 @@ const underlyingSwapTest = (id: string) => {
         let amounts: string[];
 
         before(async function () {
-            pool = getPool(id);
+            pool = curve.getPool(id);
             coinAddresses = pool.underlyingCoinAddresses;
             amounts = await pool.stats.underlyingBalances();
             amounts = amounts.map((a, i) => BN(a).div(10).lte(1) ? BN(a).div(10).toFixed(pool.underlyingDecimals[i]) : '1');

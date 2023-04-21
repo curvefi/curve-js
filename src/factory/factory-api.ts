@@ -1,14 +1,15 @@
-import { Contract, ethers } from "ethers";
+import { Contract } from "ethers";
 import { Contract as MulticallContract } from "ethcall";
+import { curve } from "../curve.js";
 import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
-import factoryGaugeABI from "../constants/abis/gauge_factory.json";
-import gaugeChildABI from "../constants/abis/gauge_child.json";
-import ERC20ABI from "../constants/abis/ERC20.json";
-import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json";
-import { FACTORY_CONSTANTS } from "./constants";
-import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto";
-import { setFactoryZapContracts } from "./common";
-import { _getPoolsFromApi } from "../external-api";
+import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
+import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
+import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" assert { type: 'json' };
+import { FACTORY_CONSTANTS } from "./constants.js";
+import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
+import { setFactoryZapContracts } from "./common.js";
+import { _getPoolsFromApi } from "../external-api.js";
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -135,7 +136,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                     reference_asset: "CRYPTO",
                     swap_address: pool.address,
                     token_address: pool.lpTokenAddress as string,
-                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : ethers.constants.AddressZero,
+                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
                     deposit_address: basePoolZap.address,
                     is_meta: true,
                     is_crypto: true,
@@ -160,7 +161,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                     reference_asset: "CRYPTO",
                     swap_address: pool.address,
                     token_address: pool.lpTokenAddress as string,
-                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : ethers.constants.AddressZero,
+                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
                     is_crypto: true,
                     is_plain: isPlain,
                     is_factory: true,
@@ -204,7 +205,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
                 swap_address: pool.address,
                 token_address: pool.address,
-                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : ethers.constants.AddressZero,
+                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
                 deposit_address: basePoolZap.address,
                 implementation_address: pool.implementationAddress, // Only for testing
                 is_meta: true,
@@ -231,7 +232,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, isCrypto: boolean
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
                 swap_address: pool.address,
                 token_address: pool.address,
-                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : ethers.constants.AddressZero,
+                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
                 implementation_address: pool.implementationAddress, // Only for testing
                 is_plain: true,
                 is_factory: true,

@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "../utils";
+import { lowerCaseValues } from "../utils.js";
 
 export const COINS_FANTOM: { [index: string]: string } = lowerCaseValues({
     'crv': '0x1E4F97b9f9F913c46F1632781732927B9019C68b',

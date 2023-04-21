@@ -1,13 +1,12 @@
-import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
-import { PoolTemplate } from "../PoolTemplate";
-import { curve } from "../../curve";
-import { fromBN, toBN } from "../../utils";
+import { PoolTemplate } from "../PoolTemplate.js";
+import { curve } from "../../curve.js";
+import { fromBN, toBN } from "../../utils.js";
 
-export async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> {
+export async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: bigint): Promise<bigint[]> {
     const coinBalancesBN: BigNumber[] = [];
     for (let i = 0; i < this.wrappedCoinAddresses.length; i++) {
-        const _balance: ethers.BigNumber = await curve.contracts[this.address].contract.balances(i, curve.constantOptions);
+        const _balance: bigint = await curve.contracts[this.address].contract.balances(i, curve.constantOptions);
         coinBalancesBN.push(toBN(_balance, this.wrappedDecimals[i]));
     }
     const totalSupplyBN: BigNumber = toBN(await curve.contracts[this.lpToken].contract.totalSupply(curve.constantOptions));
@@ -20,7 +19,7 @@ export async function _calcExpectedAmounts(this: PoolTemplate, _lpTokenAmount: e
     return expectedAmountsBN.map((amount: BigNumber, i: number) => fromBN(amount, this.wrappedDecimals[i]));
 }
 
-export async function _calcExpectedUnderlyingAmountsMeta(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber): Promise<ethers.BigNumber[]> {
+export async function _calcExpectedUnderlyingAmountsMeta(this: PoolTemplate, _lpTokenAmount: bigint): Promise<bigint[]> {
     const _expectedWrappedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
     const [_expectedMetaCoinAmount] = _expectedWrappedAmounts.splice(this.metaCoinIdx, 1);
     const _expectedUnderlyingAmounts = _expectedWrappedAmounts;

@@ -1,38 +1,38 @@
 import { ethers } from "ethers";
-import { getPool } from "./poolConstructor";
+import { getPool } from "./poolConstructor.js";
 import { IDict } from "../interfaces";
-import { curve } from "../curve";
-import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils";
-import { _getPoolsFromApi } from "../external-api";
-import ERC20Abi from "../constants/abis/ERC20.json";
+import { curve } from "../curve.js";
+import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils.js";
+import { _getPoolsFromApi } from "../external-api.js";
+import ERC20Abi from "../constants/abis/ERC20.json" assert { type: 'json' };
 
 // _userLpBalance: { address: { poolId: { _lpBalance: 0, time: 0 } } }
-const _userLpBalanceCache: IDict<IDict<{ _lpBalance: ethers.BigNumber, time: number }>> = {};
+const _userLpBalanceCache: IDict<IDict<{ _lpBalance: bigint, time: number }>> = {};
 const _isUserLpBalanceCacheExpired = (address: string, poolId: string) => (_userLpBalanceCache[address]?.[poolId]?.time || 0) + 600000 < Date.now();
 
-const _getUserLpBalances = async (pools: string[], address: string, useCache: boolean): Promise<ethers.BigNumber[]> => {
+const _getUserLpBalances = async (pools: string[], address: string, useCache: boolean): Promise<bigint[]> => {
     const poolsToFetch: string[] = useCache ? pools.filter((poolId) => _isUserLpBalanceCacheExpired(address as string, poolId)) : pools;
     if (poolsToFetch.length > 0) {
         const calls = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
             calls.push(curve.contracts[pool.lpToken].multicallContract.balanceOf(address));
-            if (pool.gauge !== ethers.constants.AddressZero) calls.push(curve.contracts[pool.gauge].multicallContract.balanceOf(address));
+            if (pool.gauge !== curve.constants.ZERO_ADDRESS) calls.push(curve.contracts[pool.gauge].multicallContract.balanceOf(address));
         }
-        const _rawBalances: ethers.BigNumber[] = await curve.multicallProvider.all(calls);
+        const _rawBalances: bigint[] = await curve.multicallProvider.all(calls);
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            let _balance = _rawBalances.shift() as ethers.BigNumber;
-            if (pool.gauge !== ethers.constants.AddressZero) _balance = _balance.add(_rawBalances.shift() as ethers.BigNumber);
+            let _balance = _rawBalances.shift() as bigint;
+            if (pool.gauge !== curve.constants.ZERO_ADDRESS) _balance = _balance + (_rawBalances.shift() as bigint);
 
             if (!_userLpBalanceCache[address]) _userLpBalanceCache[address] = {};
             _userLpBalanceCache[address][poolId] = {'_lpBalance': _balance, 'time': Date.now()}
         }
     }
 
-    const _lpBalances: ethers.BigNumber[] = []
+    const _lpBalances: bigint[] = []
     for (const poolId of pools) {
-        _lpBalances.push(_userLpBalanceCache[address]?.[poolId]._lpBalance as ethers.BigNumber)
+        _lpBalances.push(_userLpBalanceCache[address]?.[poolId]._lpBalance as bigint)
     }
 
     return _lpBalances
@@ -44,7 +44,7 @@ export const getUserPoolListByLiquidity = async (address = curve.signerAddress):
 
     const userPoolList: string[] = []
     for (let i = 0; i < pools.length; i++) {
-        if (_lpBalances[i].gt(0)) {
+        if (_lpBalances[i] > 0) {
             userPoolList.push(pools[i]);
         }
     }
@@ -80,7 +80,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (curve.chainId === 2222 || pool.gauge === ethers.constants.AddressZero) { // TODO remove this for Kava
+            if (curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for Kava
                 hasCrvReward.push(false);
                 continue;
 
@@ -94,7 +94,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         const rewardCount: number[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (pool.gauge === ethers.constants.AddressZero) {
+            if (pool.gauge === curve.constants.ZERO_ADDRESS) {
                 rewardCount.push(0);
                 continue;
             }
@@ -134,7 +134,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             rewardTokens[poolsToFetch[i]] = [];
             for (let j = 0; j < rewardCount[i]; j++) {
                 const rewardAddress = rawRewardTokens.shift();
-                if (rewardAddress === ethers.constants.AddressZero) continue;
+                if (rewardAddress === curve.constants.ZERO_ADDRESS) continue;
                 // REYIELD shitcoin which breaks things, because symbol() throws an error
                 if (rewardAddress === "0xf228ec3476318aCB4E719D2b290bb2ef8B34DFfA".toLowerCase()) continue;
                 rewardTokens[poolsToFetch[i]].push(rewardAddress as string);
@@ -147,7 +147,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         for (let i = 0; i < poolsToFetch.length; i++) {
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);
-            if (pool.gauge === ethers.constants.AddressZero) continue;
+            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
 
             const gaugeContract = curve.contracts[pool.gauge].contract;
             const gaugeMulticallContract = curve.contracts[pool.gauge].multicallContract;
@@ -176,7 +176,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
 
             if (!_userClaimableCache[address]) _userClaimableCache[address] = {};
             _userClaimableCache[address][poolId] = { rewards: [], time: Date.now() };
-            if (pool.gauge === ethers.constants.AddressZero) continue;
+            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
 
             const gaugeContract = curve.contracts[pool.gauge].contract;
 
@@ -184,8 +184,8 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
                 const token = curve.constants.ALIASES.crv;
                 const symbol = 'CRV';
                 const decimals = 18;
-                const _amount = rawRewardInfo.shift() as ethers.BigNumber;
-                const amount = ethers.utils.formatUnits(_amount, decimals);
+                const _amount = rawRewardInfo.shift() as bigint;
+                const amount = curve.formatUnits(_amount, decimals);
 
                 if (Number(amount) > 0) _userClaimableCache[address][poolId].rewards.push({ token, symbol, amount });
             }
@@ -193,12 +193,12 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             for (const token of rewardTokens[poolId]) {
                 const symbol = rawRewardInfo.shift() as string;
                 const decimals = rawRewardInfo.shift() as number;
-                let _amount = rawRewardInfo.shift() as ethers.BigNumber;
+                let _amount = rawRewardInfo.shift() as bigint;
                 if ('claimable_reward(address)' in gaugeContract) {
-                    const _claimedAmount = rawRewardInfo.shift() as ethers.BigNumber;
-                    _amount = _amount.sub(_claimedAmount);
+                    const _claimedAmount = rawRewardInfo.shift() as bigint;
+                    _amount = _amount - _claimedAmount;
                 }
-                const amount = ethers.utils.formatUnits(_amount, decimals);
+                const amount = curve.formatUnits(_amount, decimals);
 
                 if (Number(amount) > 0) _userClaimableCache[address][poolId].rewards.push({ token, symbol, amount });
             }
@@ -224,7 +224,7 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (curve.chainId === 2222 || pool.gauge === ethers.constants.AddressZero) { // TODO remove this for Kava
+            if (curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for Kava
                 hasCrvReward.push(false);
                 continue;
 
@@ -248,7 +248,7 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
         for (let i = 0; i < poolsToFetch.length; i++) {
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);
-            if (pool.gauge === ethers.constants.AddressZero) continue;
+            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
 
             const gaugeContract = curve.contracts[pool.gauge].contract;
             const gaugeMulticallContract = curve.contracts[pool.gauge].multicallContract;
@@ -274,7 +274,7 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
 
             if (!_userClaimableCache[address]) _userClaimableCache[address] = {};
             _userClaimableCache[address][poolId] = { rewards: [], time: Date.now() };
-            if (pool.gauge === ethers.constants.AddressZero) continue;
+            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
 
             const gaugeContract = curve.contracts[pool.gauge].contract;
 
@@ -282,19 +282,19 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
                 const token = curve.constants.ALIASES.crv;
                 const symbol = 'CRV';
                 const decimals = 18;
-                const _amount = rawRewardInfo.shift() as ethers.BigNumber;
-                const amount = ethers.utils.formatUnits(_amount, decimals);
+                const _amount = rawRewardInfo.shift() as bigint;
+                const amount = curve.formatUnits(_amount, decimals);
 
                 if (Number(amount) > 0) _userClaimableCache[address][poolId].rewards.push({ token, symbol, amount });
             }
 
             for (const r of rewardTokens[poolId]) {
-                let _amount = rawRewardInfo.shift() as ethers.BigNumber;
+                let _amount = rawRewardInfo.shift() as bigint;
                 if ('claimable_reward(address)' in gaugeContract) {
-                    const _claimedAmount = rawRewardInfo.shift() as ethers.BigNumber;
-                    _amount = _amount.sub(_claimedAmount);
+                    const _claimedAmount = rawRewardInfo.shift() as bigint;
+                    _amount = _amount - _claimedAmount;
                 }
-                const amount = ethers.utils.formatUnits(_amount, r.decimals);
+                const amount = curve.formatUnits(_amount, r.decimals);
 
                 if (Number(amount) > 0) _userClaimableCache[address][poolId].rewards.push({ token: r.token, symbol: r.symbol, amount });
             }
@@ -348,7 +348,7 @@ export const getUserPoolList = async (address = curve.signerAddress, useApi = tr
 
     const userPoolList: string[] = []
     for (let i = 0; i < pools.length; i++) {
-        if (_lpBalances[i].gt(0) || _claimable[i].length > 0) {
+        if (_lpBalances[i] > 0 || _claimable[i].length > 0) {
             userPoolList.push(pools[i]);
         }
     }

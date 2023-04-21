@@ -1,7 +1,7 @@
-import { ethers } from "ethers";
-import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./common";
-import { PoolTemplate } from "../PoolTemplate";
-import { parseUnits } from "../../utils";
+import { curve } from "../../curve.js";
+import { PoolTemplate } from "../PoolTemplate.js";
+import { parseUnits } from "../../utils.js";
+import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./common.js";
 
 // @ts-ignore
 export const withdrawExpectedMixin: PoolTemplate = {
@@ -9,7 +9,7 @@ export const withdrawExpectedMixin: PoolTemplate = {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount);
 
-        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
+        return _expected.map((amount: bigint, i: number) => curve.formatUnits(amount, this.underlyingDecimals[i]));
     },
 }
 
@@ -19,10 +19,10 @@ export const withdrawExpectedLendingOrCryptoMixin: PoolTemplate = {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expectedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
         // @ts-ignore
-        const _rates: ethers.BigNumber[] = await this._getRates();
-        const _expected = _expectedAmounts.map((_amount: ethers.BigNumber, i: number) => _amount.mul(_rates[i]).div(ethers.BigNumber.from(10).pow(18)))
+        const _rates: bigint[] = await this._getRates();
+        const _expected = _expectedAmounts.map((_amount: bigint, i: number) => _amount * _rates[i] / (10n**18n))
 
-        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
+        return _expected.map((amount: bigint, i: number) => curve.formatUnits(amount, this.underlyingDecimals[i]));
     },
 }
 
@@ -32,7 +32,7 @@ export const withdrawExpectedMetaMixin: PoolTemplate = {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await _calcExpectedUnderlyingAmountsMeta.call(this, _lpTokenAmount)
 
-        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.underlyingDecimals[i]));
+        return _expected.map((amount: bigint, i: number) => curve.formatUnits(amount, this.underlyingDecimals[i]));
     },
 }
 
@@ -42,6 +42,6 @@ export const withdrawWrappedExpectedMixin: PoolTemplate = {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount)
 
-        return _expected.map((amount: ethers.BigNumber, i: number) => ethers.utils.formatUnits(amount, this.wrappedDecimals[i]));
+        return _expected.map((amount: bigint, i: number) => curve.formatUnits(amount, this.wrappedDecimals[i]));
     },
 }

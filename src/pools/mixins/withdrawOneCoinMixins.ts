@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
-import { PoolTemplate } from "../PoolTemplate";
-import { curve } from "../../curve";
-import { _ensureAllowance, fromBN, hasAllowance, toBN, parseUnits } from "../../utils";
+import { curve } from "../../curve.js";
+import { PoolTemplate } from "../PoolTemplate.js";
+import { _ensureAllowance, fromBN, hasAllowance, toBN, parseUnits, mulBy1_3 } from "../../utils.js";
 
 // @ts-ignore
 async function _withdrawOneCoinCheck(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, estimateGas = false):
-    Promise<[ethers.BigNumber, number]>
+    Promise<[bigint, number]>
 {
     const lpTokenBalance = (await this.wallet.lpTokenBalances())['lpToken'];
     if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
@@ -25,7 +25,7 @@ async function _withdrawOneCoinCheck(this: PoolTemplate, lpTokenAmount: number |
     return [_lpTokenAmount, i];
 }
 
-async function _withdrawOneCoinMinAmount(this: PoolTemplate, _lpTokenAmount: ethers.BigNumber, i: number, slippage = 0.5): Promise<ethers.BigNumber> {
+async function _withdrawOneCoinMinAmount(this: PoolTemplate, _lpTokenAmount: bigint, i: number, slippage = 0.5): Promise<bigint> {
     // @ts-ignore
     const _expectedLpTokenAmount = await this._withdrawOneCoinExpected(_lpTokenAmount, i);
     const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
@@ -36,16 +36,16 @@ async function _withdrawOneCoinMinAmount(this: PoolTemplate, _lpTokenAmount: eth
 // @ts-ignore
 export const withdrawOneCoinMetaFactoryMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawOneCoin(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
 
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
         const  contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, curve.constantOptions);
-        if (estimateGas) return gas.toNumber()
+        const gas = await contract.remove_liquidity_one_coin.estimateGas(this.address, _lpTokenAmount, i, _minAmount, curve.constantOptions);
+        if (estimateGas) return Number(gas)
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
     },
 
@@ -69,16 +69,16 @@ export const withdrawOneCoinMetaFactoryMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawOneCoinCryptoMetaFactoryMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawOneCoin(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
 
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
         const  contract = curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, true, curve.constantOptions);
-        if (estimateGas) return gas.toNumber()
+        const gas = await contract.remove_liquidity_one_coin.estimateGas(this.address, _lpTokenAmount, i, _minAmount, true, curve.constantOptions);
+        if (estimateGas) return Number(gas)
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, true, { ...curve.options, gasLimit })).hash
     },
 
@@ -102,7 +102,7 @@ export const withdrawOneCoinCryptoMetaFactoryMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawOneCoinZapMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawOneCoin(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
         if (!estimateGas) await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
 
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
@@ -110,10 +110,10 @@ export const withdrawOneCoinZapMixin: PoolTemplate = {
 
         const args: any[] = [_lpTokenAmount, i, _minAmount];
         if (`remove_liquidity_one_coin(uint256,uint256,uint256,bool)` in contract) args.push(true);
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(...args, curve.constantOptions);
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.remove_liquidity_one_coin.estimateGas(...args, curve.constantOptions);
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.remove_liquidity_one_coin(...args, { ...curve.options, gasLimit })).hash
     },
 
@@ -137,14 +137,14 @@ export const withdrawOneCoinZapMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawOneCoinLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawOneCoin(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
         const  contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, true, curve.constantOptions);
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.remove_liquidity_one_coin.estimateGas(_lpTokenAmount, i, _minAmount, true, curve.constantOptions);
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas.mul(160).div(100) : gas.mul(130).div(100);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * 160n / 100n : mulBy1_3(gas);
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, true, { ...curve.options, gasLimit })).hash
     },
 
@@ -168,14 +168,14 @@ export const withdrawOneCoinLendingOrCryptoMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawOneCoinPlainMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoin(_lpTokenAmount: ethers.BigNumber, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawOneCoin(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
         const  contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, curve.constantOptions);
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.remove_liquidity_one_coin.estimateGas(_lpTokenAmount, i, _minAmount, curve.constantOptions);
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
     },
 

@@ -1,4 +1,4 @@
-import { lowerCaseValues } from "../utils";
+import { lowerCaseValues } from "../utils.js";
 
 export const COINS_ARBITRUM: { [index: string]: string } = lowerCaseValues({
     'crv': '0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978',

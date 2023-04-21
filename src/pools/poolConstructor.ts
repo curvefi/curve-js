@@ -1,20 +1,20 @@
-import { curve } from "../curve";
-import { PoolTemplate } from "./PoolTemplate";
-import { poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin";
-import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins";
-import { depositMetaFactoryMixin, depositCryptoMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins";
-import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins";
-import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins";
-import { withdrawMetaFactoryMixin, withdrawCryptoMetaFactoryMixin, withdrawZapMixin, withdrawLendingOrCryptoMixin, withdrawPlainMixin } from "./mixins/withdrawMixins";
-import { withdrawWrapped2argsMixin, withdrawWrapped3argsMixin } from "./mixins/withdrawWrappedMixins";
-import { withdrawImbalanceMetaFactoryMixin, withdrawImbalanceZapMixin, withdrawImbalanceLendingMixin, withdrawImbalancePlainMixin } from "./mixins/withdrawImbalanceMixins";
-import { withdrawImbalanceWrapped2argsMixin, withdrawImbalanceWrapped3argsMixin } from "./mixins/withdrawImbalanceWrappedMixins";
-import { withdrawOneCoinExpectedMetaFactoryMixin, withdrawOneCoinExpectedZapMixin, withdrawOneCoinExpected3argsMixin, withdrawOneCoinExpected2argsMixin } from "./mixins/withdrawOneCoinExpectedMixins";
-import { withdrawOneCoinMetaFactoryMixin, withdrawOneCoinCryptoMetaFactoryMixin, withdrawOneCoinZapMixin, withdrawOneCoinLendingOrCryptoMixin, withdrawOneCoinPlainMixin } from "./mixins/withdrawOneCoinMixins";
-import { withdrawOneCoinWrappedExpected2argsMixin, withdrawOneCoinWrappedExpected3argsMixin } from "./mixins/withdrawOneCoinWrappedExpectedMixins";
-import { withdrawOneCoinWrappedLendingOrCryptoMixin, withdrawOneCoinWrappedMixin } from "./mixins/withdrawOneCoinWrappedMixins";
-import { swapTricrypto2Mixin, swapMetaFactoryMixin, swapCryptoMetaFactoryMixin, swapMixin } from "./mixins/swapMixins";
-import { swapWrappedExpectedAndApproveMixin, swapWrappedTricrypto2Mixin, swapWrappedMixin } from "./mixins/swapWrappedMixins";
+import { curve } from "../curve.js";
+import { PoolTemplate } from "./PoolTemplate.js";
+import { poolBalancesMetaMixin, poolBalancesLendingMixin } from "./mixins/poolBalancesMixin.js";
+import { depositBalancedAmountsMixin, depositBalancedAmountsCryptoMixin, depositWrappedBalancedAmountsMixin, depositWrappedBalancedAmountsCryptoMixin } from "./mixins/depositBalancedAmountsMixins.js";
+import { depositMetaFactoryMixin, depositCryptoMetaFactoryMixin, depositZapMixin, depositLendingOrCryptoMixin, depositPlainMixin } from "./mixins/depositMixins.js";
+import { depositWrapped2argsMixin, depositWrapped3argsMixin } from "./mixins/depositWrappedMixins.js";
+import { withdrawExpectedMixin, withdrawExpectedLendingOrCryptoMixin, withdrawExpectedMetaMixin, withdrawWrappedExpectedMixin } from "./mixins/withdrawExpectedMixins.js";
+import { withdrawMetaFactoryMixin, withdrawCryptoMetaFactoryMixin, withdrawZapMixin, withdrawLendingOrCryptoMixin, withdrawPlainMixin } from "./mixins/withdrawMixins.js";
+import { withdrawWrapped2argsMixin, withdrawWrapped3argsMixin } from "./mixins/withdrawWrappedMixins.js";
+import { withdrawImbalanceMetaFactoryMixin, withdrawImbalanceZapMixin, withdrawImbalanceLendingMixin, withdrawImbalancePlainMixin } from "./mixins/withdrawImbalanceMixins.js";
+import { withdrawImbalanceWrapped2argsMixin, withdrawImbalanceWrapped3argsMixin } from "./mixins/withdrawImbalanceWrappedMixins.js";
+import { withdrawOneCoinExpectedMetaFactoryMixin, withdrawOneCoinExpectedZapMixin, withdrawOneCoinExpected3argsMixin, withdrawOneCoinExpected2argsMixin } from "./mixins/withdrawOneCoinExpectedMixins.js";
+import { withdrawOneCoinMetaFactoryMixin, withdrawOneCoinCryptoMetaFactoryMixin, withdrawOneCoinZapMixin, withdrawOneCoinLendingOrCryptoMixin, withdrawOneCoinPlainMixin } from "./mixins/withdrawOneCoinMixins.js";
+import { withdrawOneCoinWrappedExpected2argsMixin, withdrawOneCoinWrappedExpected3argsMixin } from "./mixins/withdrawOneCoinWrappedExpectedMixins.js";
+import { withdrawOneCoinWrappedLendingOrCryptoMixin, withdrawOneCoinWrappedMixin } from "./mixins/withdrawOneCoinWrappedMixins.js";
+import { swapTricrypto2Mixin, swapMetaFactoryMixin, swapCryptoMetaFactoryMixin, swapMixin } from "./mixins/swapMixins.js";
+import { swapWrappedExpectedAndApproveMixin, swapWrappedTricrypto2Mixin, swapWrappedMixin } from "./mixins/swapWrappedMixins.js";
 
 
 export const getPool = (poolId: string): PoolTemplate => {

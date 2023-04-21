@@ -1,16 +1,16 @@
-import { lowerCasePoolDataAddresses } from "../utils";
-import { IPoolData } from "../../interfaces";
-import twopoolSwapABI from '../abis/2pool/swap.json';
-import tricrypto2SwapABI from '../abis/tricrypto2/swap.json';
-import tricrypto2DepositABI from '../abis/tricrypto2/deposit.json';
-import eursusdSwapABI from '../abis/eursusd2/swap.json';
-import eursusdZapABI from '../abis/eursusd2/zap.json';
-import renSwapABI from '../abis/ren-arbitrum/swap.json';
-import gaugeChildABI from '../abis/gauge_child.json';
-import wstETHSwapABI from "../abis/wsteth/swap.json";
+import { IDict, IPoolData } from "../../interfaces";
+import { lowerCasePoolDataAddresses } from "../utils.js";
+import twopoolSwapABI from '../abis/2pool/swap.json' assert { type: 'json' };
+import tricrypto2SwapABI from '../abis/tricrypto2/swap.json' assert { type: 'json' };
+import tricrypto2DepositABI from '../abis/tricrypto2/deposit.json' assert { type: 'json' };
+import eursusdSwapABI from '../abis/eursusd2/swap.json' assert { type: 'json' };
+import eursusdZapABI from '../abis/eursusd2/zap.json' assert { type: 'json' };
+import renSwapABI from '../abis/ren-arbitrum/swap.json' assert { type: 'json' };
+import gaugeChildABI from '../abis/gauge_child.json' assert { type: 'json' };
+import wstETHSwapABI from "../abis/wsteth/swap.json" assert { type: 'json' };
 
 
-export const POOLS_DATA_ARBITRUM: { [index: string]: IPoolData } = lowerCasePoolDataAddresses({
+export const POOLS_DATA_ARBITRUM: IDict<IPoolData> = lowerCasePoolDataAddresses({
     '2pool': {
         name: "2pool",
         full_name: "2pool",

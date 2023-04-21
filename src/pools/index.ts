@@ -1,5 +1,5 @@
-import { getPool } from "./poolConstructor";
-import { PoolTemplate } from "./PoolTemplate";
+import { getPool } from "./poolConstructor.js";
+import { PoolTemplate } from "./PoolTemplate.js";
 
 export {
     getPool,

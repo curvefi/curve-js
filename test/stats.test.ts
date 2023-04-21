@@ -1,8 +1,8 @@
 import { assert } from "chai";
-import curve from "../src/";
-import { getPool, PoolTemplate } from "../src/pools";
-import { IReward } from "../src/interfaces";
-import { ethers } from "ethers";
+import curve from "../src/index.js";
+import { curve as _curve } from "../src/curve.js";
+import { getPool, PoolTemplate } from "../src/pools/index.js";
+import { IReward } from "../src/interfaces.js";
 
 
 const MAIN_POOLS_ETHEREUM = [
@@ -92,7 +92,7 @@ const poolStatsTest = (name: string) => {
         });
 
         it('Token APY', async function () {
-            if (pool.gauge === ethers.constants.AddressZero || pool.rewardsOnly()) {
+            if (pool.gauge === _curve.constants.ZERO_ADDRESS || pool.rewardsOnly()) {
                 console.log("Skip");
                 return
             }

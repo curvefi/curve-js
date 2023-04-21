@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import curve from "../src";
+import curve from "../src/index.js";
 
 
 const checkNumber = (n: string) => Number(n) === Number(n);

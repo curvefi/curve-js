@@ -2,7 +2,7 @@ import axios from "axios";
 import memoize from "memoizee";
 import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
-import { curve } from "./curve";
+import { curve } from "./curve.js";
 import { IDict, IRoute, IRouteTvl, IRouteOutputAndCost, IPoolData } from "./interfaces";
 import {
     _getCoinAddresses,
@@ -20,9 +20,9 @@ import {
     ETH_ADDRESS,
     _get_small_x,
     _get_price_impact,
-} from "./utils";
-import { getPool } from "./pools";
-import { _getAmplificationCoefficientsFromApi } from "./pools/utils";
+} from "./utils.js";
+import { getPool } from "./pools/index.js";
+import { _getAmplificationCoefficientsFromApi } from "./pools/utils.js";
 
 const getNewRoute = (
     routeTvl: IRouteTvl,
@@ -130,7 +130,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         0,
                         0,
                         15,
-                        ethers.constants.AddressZero,
+                        curve.constants.ZERO_ADDRESS,
                         Infinity
                     )
                 );
@@ -145,7 +145,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         0,
                         0,
                         15,
-                        ethers.constants.AddressZero,
+                        curve.constants.ZERO_ADDRESS,
                         Infinity
                     )
                 );
@@ -205,7 +205,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 0,
                                 j,
                                 swapType,
-                                ethers.constants.AddressZero,
+                                curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -220,7 +220,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 0,
                                 j,
                                 swapType,
-                                ethers.constants.AddressZero,
+                                curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -255,7 +255,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 coin_addresses.indexOf(inCoin),
                                 0,
                                 swapType,
-                                ethers.constants.AddressZero,
+                                curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -270,7 +270,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 coin_addresses.indexOf(inCoin),
                                 0,
                                 swapType,
-                                ethers.constants.AddressZero,
+                                curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -310,7 +310,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 inCoinIndexes.wrapped_coin,
                                 j,
                                 swapType,
-                                ethers.constants.AddressZero,
+                                curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -325,7 +325,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 inCoinIndexes.wrapped_coin,
                                 j,
                                 swapType,
-                                ethers.constants.AddressZero,
+                                curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -377,7 +377,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 inCoinIndexes.underlying_coin,
                                 j,
                                 swapType,
-                                (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
+                                (swapType === 5 || swapType === 6) ? poolData.swap_address : curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -392,7 +392,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                                 inCoinIndexes.underlying_coin,
                                 j,
                                 swapType,
-                                (swapType === 5 || swapType === 6) ? poolData.swap_address : ethers.constants.AddressZero,
+                                (swapType === 5 || swapType === 6) ? poolData.swap_address : curve.constants.ZERO_ADDRESS,
                                 tvl
                             )
                         );
@@ -439,29 +439,29 @@ const _getExchangeMultipleArgs = (route: IRoute): { _route: string[], _swapParam
         _swapParams.push([routeStep.i, routeStep.j, routeStep.swapType]);
         _factorySwapAddresses.push(routeStep.swapAddress);
     }
-    _route = _route.concat(Array(9 - _route.length).fill(ethers.constants.AddressZero));
+    _route = _route.concat(Array(9 - _route.length).fill(curve.constants.ZERO_ADDRESS));
     _swapParams = _swapParams.concat(Array(4 - _swapParams.length).fill([0, 0, 0]));
-    _factorySwapAddresses = _factorySwapAddresses.concat(Array(4 - _factorySwapAddresses.length).fill(ethers.constants.AddressZero));
+    _factorySwapAddresses = _factorySwapAddresses.concat(Array(4 - _factorySwapAddresses.length).fill(curve.constants.ZERO_ADDRESS));
 
     return { _route, _swapParams, _factorySwapAddresses }
 }
 
-const _estimatedGasForDifferentRoutesCache: IDict<{ gas: ethers.BigNumber, time: number }> = {};
+const _estimatedGasForDifferentRoutesCache: IDict<{ gas: bigint, time: number }> = {};
 
-const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress: string, outputCoinAddress: string, _amount: ethers.BigNumber): Promise<number[]> => {
+const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress: string, outputCoinAddress: string, _amount: bigint): Promise<number[]> => {
     inputCoinAddress = inputCoinAddress.toLowerCase();
     outputCoinAddress = outputCoinAddress.toLowerCase();
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
-    const gasPromises: Promise<ethers.BigNumber>[] = [];
-    const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
+    const gasPromises: Promise<bigint>[] = [];
+    const value = isEth(inputCoinAddress) ? _amount : 0n;
     for (const route of routes) {
         const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
-        let gasPromise: Promise<ethers.BigNumber>;
+        let gasPromise: Promise<bigint>;
         const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(route);
 
         if ((_estimatedGasForDifferentRoutesCache[routeKey]?.time || 0) + 3600000 < Date.now()) {
-            gasPromise = contract.estimateGas.exchange_multiple(_route, _swapParams, _amount, 0, _factorySwapAddresses, { ...curve.constantOptions, value});
+            gasPromise = contract.exchange_multiple.estimateGas(_route, _swapParams, _amount, 0, _factorySwapAddresses, { ...curve.constantOptions, value});
         } else {
             gasPromise = Promise.resolve(_estimatedGasForDifferentRoutesCache[routeKey].gas);
         }
@@ -470,14 +470,14 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
     }
 
     try {
-        const _gasAmounts: ethers.BigNumber[] = await Promise.all(gasPromises);
+        const _gasAmounts: bigint[] = await Promise.all(gasPromises);
 
         routes.forEach((route, i: number) => {
             const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
             _estimatedGasForDifferentRoutesCache[routeKey] = { 'gas': _gasAmounts[i], 'time': Date.now() };
         })
 
-        return _gasAmounts.map((_g) => Number(ethers.utils.formatUnits(_g, 0)));
+        return _gasAmounts.map((_g) => Number(curve.formatUnits(_g, 0)));
     } catch (err) { // No allowance
         return routes.map(() => 0);
     }
@@ -487,10 +487,10 @@ const _getBestRoute = memoize(
     async (inputCoinAddress: string, outputCoinAddress: string, amount: number | string): Promise<IRoute> => {
         const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
         const _amount = parseUnits(amount, inputCoinDecimals);
-        if (_amount.eq(0)) return [];
+        if (_amount === 0n) return [];
 
         const routesRaw: IRouteOutputAndCost[] = (await _findAllRoutes(inputCoinAddress, outputCoinAddress)).map(
-            (route) => ({ route, _output: ethers.BigNumber.from(0), outputUsd: 0, txCostUsd: 0 })
+            (route) => ({ route, _output: 0n, outputUsd: 0, txCostUsd: 0 })
         );
         const routes: IRouteOutputAndCost[] = [];
 
@@ -502,7 +502,7 @@ const _getBestRoute = memoize(
                 calls.push(multicallContract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses));
             }
 
-            const _outputAmounts = await curve.multicallProvider.all(calls) as ethers.BigNumber[];
+            const _outputAmounts = await curve.multicallProvider.all(calls) as bigint[];
 
             for (let i = 0; i < _outputAmounts.length; i++) {
                 routesRaw[i]._output = _outputAmounts[i];
@@ -524,7 +524,7 @@ const _getBestRoute = memoize(
                     console.log(`Route ${(routesRaw[i].route.map((s) => s.poolId)).join(" --> ")} is unavailable`);
                     continue;
                 }
-                routesRaw[i]._output = res[i].value;
+                routesRaw[i]._output = (res[i] as PromiseFulfilledResult<bigint>).value;
                 routes.push(routesRaw[i]);
             }
         }
@@ -540,7 +540,7 @@ const _getBestRoute = memoize(
         ]);
         const gasPrice = gasData.data.data.gas.standard;
         const expectedAmounts = (routes).map(
-            (route) => Number(ethers.utils.formatUnits(route._output, outputCoinDecimals))
+            (route) => Number(curve.formatUnits(route._output, outputCoinDecimals))
         );
 
         const expectedAmountsUsd = expectedAmounts.map((a) => a * outputCoinUsdRate);
@@ -565,7 +565,7 @@ const _getBestRoute = memoize(
 )
 
 const _getOutputForRoute = memoize(
-    async (route: IRoute, _amount: ethers.BigNumber): Promise<ethers.BigNumber> => {
+    async (route: IRoute, _amount: bigint): Promise<bigint> => {
         const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
         const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(route);
         return await contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions);
@@ -585,7 +585,7 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
 
     const _output = await _getOutputForRoute(route, parseUnits(amount, inputCoinDecimals)); // 15 seconds cache, so we call it to get fresh output estimation
 
-    return { route, output: ethers.utils.formatUnits(_output, outputCoinDecimals) }
+    return { route, output: curve.formatUnits(_output, outputCoinDecimals) }
 }
 
 export const swapExpected = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<string> => {
@@ -606,11 +606,11 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
     let _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
     const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(route);
-    let _smallOutput: ethers.BigNumber;
+    let _smallOutput: bigint;
     try {
         _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
     } catch (e) {
-        _smallAmount = ethers.utils.parseUnits("1", inputCoinDecimals);  // Dirty hack
+        _smallAmount = curve.parseUnits("1", inputCoinDecimals);  // Dirty hack
         _smallOutput = await contract.get_exchange_multiple_amount(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
     }
     const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals);
@@ -641,7 +641,7 @@ export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amo
     return gas
 }
 
-export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<ethers.ContractTransaction> => {
+export const swap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<ethers.ContractTransactionResponse> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
@@ -658,37 +658,40 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
-    const value = isEth(inputCoinAddress) ? _amount : ethers.BigNumber.from(0);
+    const value = isEth(inputCoinAddress) ? _amount : 0n;
 
     await curve.updateFeeData();
-    const gasLimit = (await contract.estimateGas.exchange_multiple(
+    const gasLimit = (await contract.exchange_multiple.estimateGas(
         _route,
         _swapParams,
         _amount,
         _minRecvAmount,
         _factorySwapAddresses,
         { ...curve.constantOptions, value }
-    )).mul(curve.chainId === 1 ? 130 : 160).div(100);
+    )) * (curve.chainId === 1 ? 130n : 160n) / 100n;
     return await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })
 }
 
-export const getSwappedAmount = async (tx: ethers.ContractTransaction, outputCoin: string): Promise<string> => {
+export const getSwappedAmount = async (tx: ethers.ContractTransactionResponse, outputCoin: string): Promise<string> => {
     const [outputCoinAddress] = _getCoinAddresses(outputCoin);
     const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
-    const txInfo: ethers.ContractReceipt = await tx.wait();
+    const txInfo: ethers.ContractTransactionReceipt | null = await tx.wait();
+
+    if (txInfo === null) return '0.0'
 
     let res;
     for (let i = 1; i <= txInfo.logs.length; i++) {
         try {
-            res = ethers.utils.defaultAbiCoder.decode(
+            const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+            res = abiCoder.decode(
                 ['address[9]', 'uint256[3][4]', 'address[4]', 'uint256', 'uint256'],
-                ethers.utils.hexDataSlice(txInfo.logs[txInfo.logs.length - i].data, 0)
+                ethers.dataSlice(txInfo.logs[txInfo.logs.length - i].data, 0)
             );
             break;
         } catch (err) {}
     }
 
-    if (res === undefined) return '0'
+    if (res === undefined) return '0.0'
 
-    return ethers.utils.formatUnits(res[res.length - 1], outputCoinDecimals);
+    return curve.formatUnits(res[res.length - 1], outputCoinDecimals);
 }

@@ -1,7 +1,7 @@
-import { PoolTemplate } from "../PoolTemplate";
-import { fromBN, toBN, parseUnits } from "../../utils";
-import { curve } from "../../curve";
 import { ethers } from "ethers";
+import { curve } from "../../curve.js";
+import { PoolTemplate } from "../PoolTemplate.js";
+import { fromBN, toBN, parseUnits, mulBy1_3 } from "../../utils.js";
 
 // @ts-ignore
 async function _withdrawImbalanceWrappedCheck(this: PoolTemplate, amounts: (number | string)[]): Promise<ethers.BigNumbe[]> {
@@ -16,7 +16,7 @@ async function _withdrawImbalanceWrappedCheck(this: PoolTemplate, amounts: (numb
     return  amounts.map((amount, i) => parseUnits(amount, this.wrappedDecimals[i]));
 }
 
-async function _withdrawImbalanceWrappedMaxBurnAmount(this: PoolTemplate, _amounts: ethers.BigNumber[], slippage = 0.5): Promise<ethers.BigNumber> {
+async function _withdrawImbalanceWrappedMaxBurnAmount(this: PoolTemplate, _amounts: bigint[], slippage = 0.5): Promise<bigint> {
     // @ts-ignore
     const _expectedLpTokenAmount = await this._calcLpTokenAmount(_amounts, false, false);
     const maxBurnAmountBN = toBN(_expectedLpTokenAmount).times(100 + slippage).div(100);
@@ -27,14 +27,14 @@ async function _withdrawImbalanceWrappedMaxBurnAmount(this: PoolTemplate, _amoun
 // @ts-ignore
 export const withdrawImbalanceWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalanceWrapped(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawImbalanceWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
         const _maxBurnAmount = await _withdrawImbalanceWrappedMaxBurnAmount.call(this, _amounts, slippage);
         const  contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, curve.constantOptions);
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.remove_liquidity_imbalance.estimateGas(_amounts, _maxBurnAmount, curve.constantOptions);
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = gas.mul(130).div(100);
+        const gasLimit = mulBy1_3(gas);
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit })).hash;
     },
 
@@ -58,14 +58,14 @@ export const withdrawImbalanceWrapped2argsMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawImbalanceWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalanceWrapped(_amounts: ethers.BigNumber[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawImbalanceWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
         const _maxBurnAmount = await _withdrawImbalanceWrappedMaxBurnAmount.call(this, _amounts, slippage);
         const  contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.estimateGas.remove_liquidity_imbalance(_amounts, _maxBurnAmount, false, curve.constantOptions);
-        if (estimateGas) return gas.toNumber();
+        const gas = await contract.remove_liquidity_imbalance.estimateGas(_amounts, _maxBurnAmount, false, curve.constantOptions);
+        if (estimateGas) return Number(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas.mul(140).div(100) : gas.mul(130).div(100);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * 140n / 100n : mulBy1_3(gas);
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, false, { ...curve.options, gasLimit })).hash;
     },
 

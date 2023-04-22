@@ -1,6 +1,5 @@
-import { ethers } from "ethers";
 import { curve } from "../curve.js";
-import { IDict, IPoolData } from "../interfaces";
+import { IDict, IPoolData } from "../interfaces.js";
 
 
 export const lowerCasePoolDataAddresses = (poolsData: IDict<IPoolData>): IDict<IPoolData> => {

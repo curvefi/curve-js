@@ -10,6 +10,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0x271fbE8aB7f1fB262f81C77Ea5303F03DA9d3d6A", // <--- CHANGE
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4', // <--- CHANGE
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- CHANGE
     "registry_exchange": "",
@@ -24,6 +25,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
     "registry_exchange": "",
@@ -38,6 +40,7 @@ export const ALIASES_FANTOM = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": "0x686d67265703d1f124c45e33d47d794c566889ba",
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
     "registry_exchange": "",
@@ -52,6 +55,7 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0xb17b674D9c5CB2e441F8e196a2f048A81355d031',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
@@ -66,6 +70,7 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0xb17b674D9c5CB2e441F8e196a2f048A81355d031',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
@@ -80,6 +85,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0x2db0E83599a91b508Ac268a6197b8B14F5e72840',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
@@ -94,6 +100,7 @@ export const ALIASES_XDAI = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0xD19Baeadc667Cf2015e395f2B08668Ef120f41F5',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
@@ -108,6 +115,7 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0x4244eB811D6e0Ef302326675207A95113dB4E1F8',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
@@ -122,6 +130,7 @@ export const ALIASES_AURORA = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4', // <--- TODO CHANGE
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
@@ -136,6 +145,7 @@ export const ALIASES_KAVA = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0x40bc62805471eF53DdD5C5cF99ed3d9e5aa81b48',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
@@ -150,6 +160,7 @@ export const ALIASES_CELO = lowerCaseValues({
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58",
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "factory": '0x5277A0226d10392295E8D383E9724D6E416d6e6C',
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",

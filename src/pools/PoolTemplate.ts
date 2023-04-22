@@ -524,17 +524,10 @@ export class PoolTemplate {
     }
 
     private _calcLpTokenAmount = memoize(async (_amounts: bigint[], isDeposit = true, useUnderlying = true): Promise<bigint> => {
-        let _rates: bigint[] = [];
-        if (!this.isMeta && useUnderlying) {
-            // For lending pools. For others rate = 1
-            _rates = await this._getRates();
-            _amounts = _amounts.map((_amount: bigint, i: number) => _amount * (10n**18n) /_rates[i]);
-        }
-
         if (this.isCrypto) {
             try {
                 return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
-            } catch (e) {
+            } catch (e) { // Seeding
                 const lpContract = curve.contracts[this.lpToken].contract;
                 const _lpTotalSupply: bigint = await lpContract.totalSupply(curve.constantOptions);
                 if (_lpTotalSupply > 0n) throw e; // Already seeded
@@ -553,56 +546,30 @@ export class PoolTemplate {
         }
 
         try {
-            // --- Getting lpAmount before fees and pool params ---
+            const contract = curve.contracts[curve.constants.ALIASES.stable_calc].contract;
 
-            const N_coins = this.isMeta && useUnderlying ? this.underlyingCoins.length : this.wrappedCoins.length;
-            const decimals = this.isMeta && useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
-            const calcContractAddress = this.isMeta && useUnderlying ? this.zap as string : this.address;
-            const calcContract = curve.contracts[calcContractAddress].multicallContract;
-            const poolContract = curve.contracts[this.address].multicallContract;
-            const lpContract = curve.contracts[this.lpToken].multicallContract;
-
-            // totalSupply and fee
-            const calls = [lpContract.totalSupply(), poolContract.fee()];
-
-            // lpAmount before fees
-            if (this.isMetaFactory && useUnderlying) {
-                calls.push(calcContract.calc_token_amount(this.address, _amounts, isDeposit));
-            } else if (calcContract[`calc_token_amount(uint256[${N_coins}],bool)`]) {
-                calls.push(calcContract.calc_token_amount(_amounts, isDeposit, curve.constantOptions));
+            if (this.isMeta) {
+                const basePool = new PoolTemplate(this.basePool);
+                return await contract.calc_token_amount_meta(
+                    this.address,
+                    this.lpToken,
+                    _amounts.concat(Array(5 - _amounts.length).fill(0n)),
+                    _amounts.length,
+                    basePool.address,
+                    basePool.lpToken,
+                    isDeposit,
+                    useUnderlying
+                );
             } else {
-                calls.push(calcContract.calc_token_amount(_amounts, curve.constantOptions));
+                return await contract.calc_token_amount(
+                    this.address,
+                    this.lpToken,
+                    _amounts.concat(Array(5 - _amounts.length).fill(0n)),
+                    _amounts.length,
+                    isDeposit,
+                    useUnderlying && this.isLending
+                );
             }
-
-            const res = await Promise.all([
-                curve.multicallProvider.all(calls),
-                this.isMeta && useUnderlying ? this.stats.underlyingBalances() : this.stats.wrappedBalances(),
-            ]);
-            const [_totalSupply, _fee, _lpTokenAmount] = res[0] as bigint[];
-
-            const balances = res[1] as string[];
-            const [totalSupplyBN, feeBN, lpTokenAmountBN] = [toBN(_totalSupply), toBN(_fee, 10).times(N_coins).div(4 * (N_coins - 1)), toBN(_lpTokenAmount)];
-            const balancesBN = balances.map((b) => BN(b));
-            const amountsBN = _amounts.map((_a, i) => toBN(_a, decimals[i]));
-
-            // --- Calculating new amounts (old amounts minus fees) ---
-
-            // fees[i] = | expected1/total_supply * balances[i] - amounts[i] | * fee
-            const feesBN: BigNumber[] = Array(N_coins).fill(BN(0));
-            if (totalSupplyBN.gt(0)) {
-                for (let i = 0; i < N_coins; i++) {
-                    feesBN[i] = balancesBN[i].times(lpTokenAmountBN).div(totalSupplyBN).minus(amountsBN[i]).times(feeBN);
-                    if (feesBN[i].lt(0)) feesBN[i] = feesBN[i].times(-1);
-                }
-            }
-            const _fees = feesBN.map((fBN, i) => fromBN(fBN, decimals[i]));
-
-            // --- Getting final lpAmount ---
-
-            let _lpTokenFee = await this._pureCalcLpTokenAmount(_fees, !isDeposit, this.isMeta && useUnderlying);
-            if (isDeposit) _lpTokenFee = _lpTokenFee * (-1n);
-
-            return _lpTokenAmount + _lpTokenFee
         } catch (e: any) { // Seeding
             if (!isDeposit) throw e; // Seeding is only for deposit
 
@@ -619,7 +586,7 @@ export class PoolTemplate {
                     if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
                 });
             } else {
-                if (_amounts[0] <= 0n) throw Error("Initial deposit amounts must be >0");
+                if (_amounts[0] <= 0n) throw Error("Initial deposit amounts must be > 0");
                 amounts.forEach((a) => {
                     if (a !== amounts[0]) throw Error("Initial deposit amounts must be equal");
                 });
@@ -632,7 +599,8 @@ export class PoolTemplate {
     {
         primitive: true,
         promise: true,
-        maxAge: 60 * 1000, // 1m
+        maxAge: 30 * 1000, // 30 sec
+        length: 3,
     });
 
     private async calcLpTokenAmount(amounts: (number | string)[], isDeposit = true): Promise<string> {
@@ -2092,6 +2060,7 @@ export class PoolTemplate {
         return idx
     }
 
+    // Used by mixins
     private _getRates = async(): Promise<bigint[]> => {
         const _rates: bigint[] = [];
         for (let i = 0; i < this.wrappedCoinAddresses.length; i++) {
@@ -2111,6 +2080,7 @@ export class PoolTemplate {
 
         return _rates
     }
+
 
     private _balances = async (rawCoinNames: string[], rawCoinAddresses: string[], ...addresses: string[] | string[][]):
         Promise<IDict<IDict<string>> | IDict<string>> => {

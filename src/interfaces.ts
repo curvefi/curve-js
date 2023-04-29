@@ -136,12 +136,6 @@ export interface IRouteStep {
 
 export type IRoute = IRouteStep[];
 
-export interface IRouteTvl {
-    route: IRoute,
-    minTvl: number,
-    totalTvl: number,
-}
-
 export interface IRouteOutputAndCost {
     route: IRoute,
     _output: bigint,

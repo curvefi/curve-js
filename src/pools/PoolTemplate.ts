@@ -1015,7 +1015,7 @@ export class PoolTemplate {
             const rewards = await _getRewardsFromApi();
             if (!rewards[this.gauge]) return [];
             rewards[this.gauge].forEach((r) => _setContracts(r.tokenAddress, ERC20Abi));
-            return rewards[this.gauge].map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: r.decimals }));
+            return rewards[this.gauge].map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: Number(r.decimals) }));
         }
 
         const gaugeContract = curve.contracts[this.gauge].contract;

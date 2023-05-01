@@ -88,7 +88,7 @@ export interface IRewardFromApi {
     tokenPrice: number,
     name: string,
     symbol: string,
-    decimals: number,
+    decimals: number | string,
     apy: number
 }
 

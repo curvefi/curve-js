@@ -5,7 +5,7 @@ import { PoolTemplate } from "../src/pools/index.js";
 import { BN } from "../src/utils.js";
 import { IDict } from "../src/interfaces.js";
 
-const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt', '2pool', '4pool', 'fraxusdc', 'frxeth', 'sbtc2', 'fraxusdp'];
+const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt', '2pool', '4pool', 'fraxusdc', 'frxeth', 'sbtc2', 'fraxusdp', 'wbeth'];
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
 const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'eursusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth', 'euroc'];
@@ -62,7 +62,7 @@ const CELO_POOLS = ['factory-v2-0'];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = META_POOLS;
+const POOLS_FOR_TESTING = ['wbeth'];
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-deposit&stake-unstake-withdraw`, function () {

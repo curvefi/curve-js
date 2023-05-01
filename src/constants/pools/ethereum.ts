@@ -88,6 +88,7 @@ import fourpoolSwapABI from '../abis/4pool/swap.json' assert { type: 'json' };
 import fraxusdcSwapABI from '../abis/fraxusdc/swap.json' assert { type: 'json' };
 import frxethSwapABI from '../abis/frxeth/swap.json' assert { type: 'json' };
 import sbtc2SwapABI from '../abis/sbtc2/swap.json' assert { type: 'json' };
+import wbethSwapABI from '../abis/wbeth/swap.json' assert { type: 'json' };
 
 
 export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses({
@@ -1648,6 +1649,30 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         underlying_decimals: [18, 18],
         wrapped_decimals: [18, 18],
         swap_abi: fraxusdcSwapABI,
+        gauge_abi: gaugeV5ABI,
+    },
+    wbeth: {
+        name: "wbeth",
+        full_name: "wbeth",
+        symbol: "wbeth",
+        reference_asset: 'ETH',
+        swap_address: '0xBfAb6FA95E0091ed66058ad493189D2cB29385E6',
+        token_address: '0xBfAb6FA95E0091ed66058ad493189D2cB29385E6',
+        gauge_address: '0x0000000000000000000000000000000000000000',
+        is_plain: true,
+        underlying_coins: ['ETH', 'wBETH'],
+        wrapped_coins: ['ETH', 'wBETH'],
+        underlying_coin_addresses: [
+            "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            "0xa2E3356610840701BDf5611a53974510Ae27E2e1",
+        ],
+        wrapped_coin_addresses: [
+            "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            "0xa2E3356610840701BDf5611a53974510Ae27E2e1",
+        ],
+        underlying_decimals: [18, 18],
+        wrapped_decimals: [18, 18],
+        swap_abi: wbethSwapABI,
         gauge_abi: gaugeV5ABI,
     },
 });

@@ -53,7 +53,7 @@ export const swapTricrypto2Mixin: PoolTemplate = {
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[contractAddress].contract;
-        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : 0n;
 
         const gas = await contract[exchangeMethod].estimateGas(i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value });
@@ -90,7 +90,7 @@ export const swapMetaFactoryMixin: PoolTemplate = {
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[contractAddress].contract;
-        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : 0n;
 
         const gas = await contract[exchangeMethod].estimateGas(this.address, i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
@@ -127,7 +127,7 @@ export const swapCryptoMetaFactoryMixin: PoolTemplate = {
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[contractAddress].contract;
-        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : 0n;
 
         const gas = await contract[exchangeMethod].estimateGas(this.address, i, j, _amount, _minRecvAmount, true, { ...curve.constantOptions, value });
@@ -164,7 +164,7 @@ export const swapMixin: PoolTemplate = {
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[contractAddress].contract;
-        const exchangeMethod = Object.prototype.hasOwnProperty.call(contract, 'exchange_underlying') ? 'exchange_underlying' : 'exchange';
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : 0n;
 
         const gas = await contract[exchangeMethod].estimateGas(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });

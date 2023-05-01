@@ -1841,7 +1841,7 @@ export class PoolTemplate {
     private async _swapExpected(i: number, j: number, _amount: bigint): Promise<bigint> {
         const contractAddress = this.isCrypto && this.isMeta ? this.zap as string : this.address;
         const contract = curve.contracts[contractAddress].contract;
-        if (Object.prototype.hasOwnProperty.call(contract, 'get_dy_underlying')) {
+        if ('get_dy_underlying' in contract) {
             return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
         } else {
             if ('get_dy(address,uint256,uint256,uint256)' in contract) {  // atricrypto3 based metapools

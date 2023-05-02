@@ -6,7 +6,7 @@ import { IDict } from "../src/interfaces.js";
 import { PoolTemplate } from "../src/pools/index.js";
 
 const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
-const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
+const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth', 'euroc'];
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', 'factory-v2-136']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)', 'sUSDFRAXBP'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8']; // ['YFIETH-fV2'];
@@ -41,9 +41,9 @@ const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_META_POOLS];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = ['avaxcrypto'];
+const POOLS_FOR_TESTING = META_POOLS;
 
-const AAVE_POOLS = ['aave', 'saave', 'geist', 'aaveV3']
+const AAVE_POOLS = ['aave', 'saave', 'geist', 'aaveV3'];
 
 const wrappedLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake--deposit&stake-unstake-withdraw`, function () {
@@ -62,10 +62,13 @@ const wrappedLiquidityTest = (id: string) => {
             const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositWrappedExpected(amounts)
 
+            coinAddresses.forEach((c, i) => {
+                if (Number(initialBalances[c]) === 0) throw Error(`${pool.wrappedCoins[i]} balance = 0`);
+            })
+
             await pool.depositWrapped(amounts);
 
             const balances = await pool.wallet.balances() as IDict<string>;
-
             coinAddresses.forEach((c, i) => {
                 if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
                     // Because of increasing quantity
@@ -76,7 +79,6 @@ const wrappedLiquidityTest = (id: string) => {
                     assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amounts[i])));
                 }
             })
-
             const delta = id === 'factory-v2-80' ? 2 : 0.01
             assert.approximately(Number(balances.lpToken) - Number(initialBalances.lpToken), Number(lpTokenExpected), delta);
         });
@@ -106,10 +108,13 @@ const wrappedLiquidityTest = (id: string) => {
             const initialBalances = await pool.wallet.balances() as IDict<string>;
             const lpTokenExpected = await pool.depositAndStakeWrappedExpected(amounts);
 
+            coinAddresses.forEach((c, i) => {
+                if (Number(initialBalances[c]) === 0) throw Error(`${pool.wrappedCoins[i]} balance = 0`);
+            })
+
             await pool.depositAndStakeWrapped(amounts);
 
             const balances = await pool.wallet.balances() as IDict<string>;
-
             coinAddresses.forEach((c, i) => {
                 if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
                     assert.approximately(Number(balances[c]), Number(BN(initialBalances[c]).minus(BN(amounts[i]).toString())), 1e-2);
@@ -117,7 +122,6 @@ const wrappedLiquidityTest = (id: string) => {
                     assert.deepStrictEqual(BN(balances[c]), BN(initialBalances[c]).minus(BN(amounts[i])));
                 }
             })
-
             assert.approximately(Number(balances.gauge) - Number(initialBalances.gauge), Number(lpTokenExpected), 0.01);
             assert.strictEqual(Number(balances.lpToken) - Number(initialBalances.lpToken), 0);
         });
@@ -158,22 +162,21 @@ const wrappedLiquidityTest = (id: string) => {
             if (pool.isCrypto) {
                 console.log("No such method")
             } else {
-                const amount = '1';
-                const amounts = coinAddresses.map(() => amount);
+                const withdrawAmounts = amounts.map((a, i) => BN(a).div(10).toFixed(pool.underlyingDecimals[i]));
                 const initialBalances = await pool.wallet.balances() as IDict<string>;
-                const lpTokenExpected = await pool.withdrawImbalanceWrappedExpected(amounts);
+                const lpTokenExpected = await pool.withdrawImbalanceWrappedExpected(withdrawAmounts);
 
-                await pool.withdrawImbalanceWrapped(amounts);
+                await pool.withdrawImbalanceWrapped(withdrawAmounts);
 
                 const balances = await pool.wallet.balances() as IDict<string>;
 
                 const delta = id === 'factory-v2-80' ? 2 : 0.01
                 assert.approximately(Number(initialBalances.lpToken) - Number(balances.lpToken), Number(lpTokenExpected), delta);
-                coinAddresses.forEach((c: string) => {
+                coinAddresses.forEach((c, i) => {
                     if (AAVE_POOLS.includes(id) || (pool.isLending && pool.id === 'ren')) {
-                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(amount)).toString()), 1e-4);
+                        assert.approximately(Number(initialBalances[c]), Number(BN(balances[c]).minus(BN(withdrawAmounts[i])).toString()), 1e-4);
                     } else {
-                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(amount)));
+                        assert.deepStrictEqual(BN(initialBalances[c]), BN(balances[c]).minus(BN(withdrawAmounts[i])));
                     }
                 });
             }

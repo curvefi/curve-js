@@ -16,6 +16,7 @@ import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert { 
 import routerABI from './constants/abis/router.json' assert { type: 'json' };
 import depositAndStakeABI from './constants/abis/deposit_and_stake.json' assert { type: 'json' };
 import depositAndStake6CoinsABI from './constants/abis/deposit_and_stake_6coins.json' assert { type: 'json' };
+import StableCalcZapABI from './constants/abis/stable_calc.json' assert { type: 'json' };
 import registryExchangeABI from './constants/abis/registry_exchange.json' assert { type: 'json' };
 import streamerABI from './constants/abis/streamer.json' assert { type: 'json' };
 import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
@@ -490,6 +491,8 @@ class Curve implements ICurve {
         } else {
             this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI);
         }
+
+        this.setContract(this.constants.ALIASES.stable_calc, StableCalcZapABI);
 
         this.setContract(this.constants.ALIASES.factory, factoryABI);
 

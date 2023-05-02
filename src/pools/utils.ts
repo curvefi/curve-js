@@ -239,7 +239,8 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
         for (let i = 0; i < poolsToFetch.length; i++) {
             const pool = getPool(poolsToFetch[i]);
             const rewards = await _getRewardsFromApi();
-            rewardTokens[poolsToFetch[i]] = (rewards[pool.gauge] ?? []).map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: r.decimals}));
+            rewardTokens[poolsToFetch[i]] = (rewards[pool.gauge] ?? [])
+                .map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: Number(r.decimals)}));
         }
 
         // --- 3. Reward info ---

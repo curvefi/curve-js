@@ -88,7 +88,7 @@ export interface IRewardFromApi {
     tokenPrice: number,
     name: string,
     symbol: string,
-    decimals: number,
+    decimals: number | string,
     apy: number
 }
 
@@ -135,12 +135,6 @@ export interface IRouteStep {
 }
 
 export type IRoute = IRouteStep[];
-
-export interface IRouteTvl {
-    route: IRoute,
-    minTvl: number,
-    totalTvl: number,
-}
 
 export interface IRouteOutputAndCost {
     route: IRoute,

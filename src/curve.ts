@@ -496,6 +496,8 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.factory, factoryABI);
 
+        this.setContract(this.constants.ALIASES.crvusd_factory, factoryABI);
+
         this.setContract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI);
     }
 
@@ -522,8 +524,12 @@ class Curve implements ICurve {
 
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, false));
+            const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
+            this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
         } else {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
+            const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
+            this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
         }
         this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);

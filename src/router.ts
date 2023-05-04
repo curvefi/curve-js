@@ -176,7 +176,8 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 // Skip pools which don't contain inCoin
                 if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1 && inCoin !== token_address) continue;
 
-                const tvl = Number(await (getPool(poolId)).stats.totalLiquidity()) * tvlMultiplier;
+                // TODO remove it!!!!
+                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : Number(await (getPool(poolId)).stats.totalLiquidity()) * tvlMultiplier;
                 // Skip empty pools
                 if (tvl === 0) continue;
 

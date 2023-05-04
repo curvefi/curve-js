@@ -31,7 +31,7 @@ export const poolBalancesLendingMixin: PoolTemplate = {
         // @ts-ignore
         const _rates: bigint[] = await this._getRates();
         const _poolUnderlyingBalances = _poolWrappedBalances.map(
-            (_b: bigint, i: number) => _b * _rates[i] / (10n**18n));
+            (_b: bigint, i: number) => _b * _rates[i] / curve.parseUnits(String(10**18), 0));
 
         return  _poolUnderlyingBalances.map((_b: bigint, i: number) => curve.formatUnits(_b, this.underlyingDecimals[i]))
     },

@@ -42,7 +42,7 @@ export const depositMetaFactoryMixin: PoolTemplate = {
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
         const contract = curve.contracts[this.zap as string].contract;
 
         const gas = await contract.add_liquidity.estimateGas(this.address, _amounts, _minMintAmount, { ...curve.constantOptions, value });
@@ -78,7 +78,7 @@ export const depositCryptoMetaFactoryMixin: PoolTemplate = {
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
         const contract = curve.contracts[this.zap as string].contract;
 
         const gas = await contract.add_liquidity.estimateGas(this.address, _amounts, _minMintAmount, true, { ...curve.constantOptions, value });
@@ -114,7 +114,7 @@ export const depositZapMixin: PoolTemplate = {
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
         const contract = curve.contracts[this.zap as string].contract;
 
         const args: any[] = [_amounts, _minMintAmount];
@@ -152,7 +152,7 @@ export const depositLendingOrCryptoMixin: PoolTemplate = {
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.underlyingCoinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, true, { ...curve.constantOptions, value });
@@ -188,7 +188,7 @@ export const depositPlainMixin: PoolTemplate = {
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.wrappedCoinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, { ...curve.constantOptions, value });

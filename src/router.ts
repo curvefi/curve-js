@@ -61,7 +61,7 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
     const gasPromises: Promise<bigint>[] = [];
-    const value = isEth(inputCoinAddress) ? _amount : 0n;
+    const value = isEth(inputCoinAddress) ? _amount : curve.parseUnits("0");
     for (const route of routes) {
         const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
         let gasPromise: Promise<bigint>;
@@ -94,7 +94,7 @@ const _getBestRoute = memoize(
     async (inputCoinAddress: string, outputCoinAddress: string, amount: number | string): Promise<IRoute> => {
         const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
         const _amount = parseUnits(amount, inputCoinDecimals);
-        if (_amount === 0n) return [];
+        if (_amount === curve.parseUnits("0")) return [];
 
         const pools = {
             ...curve.constants.POOLS_DATA,
@@ -109,7 +109,7 @@ const _getBestRoute = memoize(
         }
         const routesRaw: IRouteOutputAndCost[] = (
             findAllRoutes(inputCoinAddress, outputCoinAddress, pools, ADict, curve.chainId, curve.constants.NATIVE_TOKEN, tvlDict)
-        ).map((route) => ({ route, _output: 0n, outputUsd: 0, txCostUsd: 0 }));
+        ).map((route) => ({ route, _output: curve.parseUnits("0"), outputUsd: 0, txCostUsd: 0 }));
         const routes: IRouteOutputAndCost[] = [];
 
         try {
@@ -275,7 +275,7 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
-    const value = isEth(inputCoinAddress) ? _amount : 0n;
+    const value = isEth(inputCoinAddress) ? _amount : curve.parseUnits("0");
 
     await curve.updateFeeData();
     const gasLimit = (await contract.exchange_multiple.estimateGas(
@@ -285,7 +285,7 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
         _minRecvAmount,
         _factorySwapAddresses,
         { ...curve.constantOptions, value }
-    )) * (curve.chainId === 1 ? 130n : 160n) / 100n;
+    )) * (curve.chainId === 1 ? curve.parseUnits("130", 0) : curve.parseUnits("160", 0)) / curve.parseUnits("100", 0);
     return await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })
 }
 

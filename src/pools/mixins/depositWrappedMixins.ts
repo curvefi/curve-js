@@ -44,7 +44,7 @@ export const depositWrapped2argsMixin: PoolTemplate = {
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.wrappedCoinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, { ...curve.constantOptions, value });
@@ -80,7 +80,7 @@ export const depositWrapped3argsMixin: PoolTemplate = {
         // @ts-ignore
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.wrappedCoinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, false, { ...curve.constantOptions, value });

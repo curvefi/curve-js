@@ -20,7 +20,7 @@ export const withdrawExpectedLendingOrCryptoMixin: PoolTemplate = {
         const _expectedAmounts = await _calcExpectedAmounts.call(this, _lpTokenAmount);
         // @ts-ignore
         const _rates: bigint[] = await this._getRates();
-        const _expected = _expectedAmounts.map((_amount: bigint, i: number) => _amount * _rates[i] / (10n**18n))
+        const _expected = _expectedAmounts.map((_amount: bigint, i: number) => _amount * _rates[i] / curve.parseUnits(String(10**18), 0));
 
         return _expected.map((amount: bigint, i: number) => curve.formatUnits(amount, this.underlyingDecimals[i]));
     },

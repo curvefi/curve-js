@@ -60,7 +60,7 @@ export const swapWrappedTricrypto2Mixin: PoolTemplate = {
 
         const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[this.address].contract;
-        const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : 0n;
+        const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : curve.parseUnits("0");
 
         const gas = await contract.exchange.estimateGas(i, j, _amount, _minRecvAmount, false, { ...curve.constantOptions, value });
         if (estimateGas) return Number(gas);
@@ -94,12 +94,12 @@ export const swapWrappedMixin: PoolTemplate = {
 
         const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[this.address].contract;
-        const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : 0n;
+        const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : curve.parseUnits("0");
 
         const gas = await contract.exchange.estimateGas(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
         if (estimateGas) return Number(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * 140n / 100n : mulBy1_3(gas);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * curve.parseUnits("140", 0) / curve.parseUnits("100", 0) : mulBy1_3(gas);
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     },
 

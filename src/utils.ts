@@ -9,7 +9,8 @@ import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
-export const MAX_ALLOWANCE = (2n**256n) - 1n;
+// export const MAX_ALLOWANCE = curve.parseUnits(new BigNumber(2).pow(256).minus(1).toFixed(), 0);
+export const MAX_ALLOWANCE = BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935");  // 2**256 - 1
 
 
 // Formatting numbers
@@ -56,7 +57,7 @@ export const fromBN = (bn: BigNumber, decimals = 18): bigint => {
 
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
-export const mulBy1_3 = (n: bigint): bigint => n * 130n / 100n;
+export const mulBy1_3 = (n: bigint): bigint => n * curve.parseUnits("130", 0) / curve.parseUnits("100", 0);
 
 // coins can be either addresses or symbols
 export const _getCoinAddressesNoCheck = (...coins: string[] | string[][]): string[] => {
@@ -187,9 +188,9 @@ export const _ensureAllowance = async (coins: string[], amounts: bigint[], spend
             const contract = curve.contracts[coins[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : amounts[i];
             await curve.updateFeeData();
-            if (allowance[i] > 0n) {
-                const gasLimit = mulBy1_3(await contract.approve.estimateGas(spender, 0n, curve.constantOptions));
-                txHashes.push((await contract.approve(spender, 0n, { ...curve.options, gasLimit })).hash);
+            if (allowance[i] > curve.parseUnits("0")) {
+                const gasLimit = mulBy1_3(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions));
+                txHashes.push((await contract.approve(spender, curve.parseUnits("0"), { ...curve.options, gasLimit })).hash);
             }
             const gasLimit = mulBy1_3(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
             txHashes.push((await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit })).hash);
@@ -212,8 +213,8 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
         if (allowance[i] < _amounts[i]) {
             const contract = curve.contracts[coinAddresses[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
-            if (allowance[i] > 0n) {
-                gas += Number(await contract.approve.estimateGas(spender, 0n, curve.constantOptions));
+            if (allowance[i] > curve.parseUnits("0")) {
+                gas += Number(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions));
             }
             gas += Number(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
         }

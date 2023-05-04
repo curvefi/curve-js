@@ -32,7 +32,6 @@
     "vue-eslint-parser": "^7.6.0"
   },
   "dependencies": {
-    "@curvefi/router": "^0.1.0",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "ethcall": "^6.0.0",

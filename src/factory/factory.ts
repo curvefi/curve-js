@@ -33,9 +33,9 @@ async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string): Prom
     throw Error("Unknown pool")
 }
 
-async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
-    const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
-    const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
+async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0, factoryAddress: string): Promise<[string[], string[]]> {
+    const factoryContract = this.contracts[factoryAddress].contract;
+    const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
 
     const poolCount = Number(curve.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     const calls = [];
@@ -44,8 +44,9 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise
     }
     if (calls.length === 0) return [[], []];
 
+    const prefix = factoryAddress === this.constants.ALIASES.factory ? "factory-v2-" : "factory-crvusd-";
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
-        (addr, i) => ({ id: `factory-v2-${fromIdx + i}`, address: addr.toLowerCase()})
+        (addr, i) => ({ id: prefix + (fromIdx + i), address: addr.toLowerCase()})
     );
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     const blacklist = BLACK_LIST[this.chainId] ?? [];
@@ -72,8 +73,8 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
     );
 }
 
-async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], REFERENCE_ASSET[], string[], string[], boolean[], string[][]]> {
-    const factoryMulticallContract = this.contracts[this.constants.ALIASES.factory].multicallContract;
+async function getPoolsData(this: ICurve, factorySwapAddresses: string[], factoryAddress: string): Promise<[string[], string[], REFERENCE_ASSET[], string[], string[], boolean[], string[][]]> {
+    const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
 
     const calls = [];
     for (const addr of factorySwapAddresses) {
@@ -181,13 +182,13 @@ async function getCoinsData(
 }
 
 
-export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string): Promise<IDict<IPoolData>> {
+export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string, factoryAddress = curve.constants.ALIASES.factory): Promise<IDict<IPoolData>> {
     const [rawPoolIds, rawSwapAddresses] = swapAddress ?
         [[await getRecentlyCreatedPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
-        : await getFactoryIdsAndSwapAddresses.call(this, fromIdx);
+        : await getFactoryIdsAndSwapAddresses.call(this, fromIdx, factoryAddress);
     if (rawPoolIds.length === 0) return {};
 
-    const [rawImplementations, rawGauges, rawReferenceAssets, rawPoolSymbols, rawPoolNames, rawIsMeta, rawCoinAddresses] = await getPoolsData.call(this, rawSwapAddresses);
+    const [rawImplementations, rawGauges, rawReferenceAssets, rawPoolSymbols, rawPoolNames, rawIsMeta, rawCoinAddresses] = await getPoolsData.call(this, rawSwapAddresses, factoryAddress);
     const poolIds: string[] = [];
     const swapAddresses: string[] = [];
     const implementations: string[] = [];

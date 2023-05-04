@@ -65,7 +65,7 @@ export const withdrawImbalanceWrapped3argsMixin: PoolTemplate = {
         const gas = await contract.remove_liquidity_imbalance.estimateGas(_amounts, _maxBurnAmount, false, curve.constantOptions);
         if (estimateGas) return Number(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * 140n / 100n : mulBy1_3(gas);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * curve.parseUnits("140", 0) / curve.parseUnits("100", 0) : mulBy1_3(gas);
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, false, { ...curve.options, gasLimit })).hash;
     },
 

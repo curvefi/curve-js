@@ -38,7 +38,7 @@ export const withdrawOneCoinWrappedLendingOrCryptoMixin: PoolTemplate = {
         const gas = await contract.remove_liquidity_one_coin.estimateGas(_lpTokenAmount, i, _minAmount, false, curve.constantOptions);
         if (estimateGas) return Number(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * 160n / 100n : mulBy1_3(gas);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * curve.parseUnits("160", 0) / curve.parseUnits("100", 0) : mulBy1_3(gas);
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, false, { ...curve.options, gasLimit })).hash
     },
 

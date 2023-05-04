@@ -62,6 +62,7 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0x4A4d7868390EF5CaC51cDA262888f34bD3025C3F": Plain2OptimizedABI,
     "0xc629a01eC23AB04E1050500A3717A2a5c0701497": Plain2BasicABI, // EMA
     "0x94b4DFd9Ba5865Cc931195c99A2db42F3fc5d45B": Plain2ETHABI,   // EMA
+    "0xb9f861B7755Ff09cFD65CfE262D19823607b1f24": Plain2BasicABI, // !!! crvUSD Factory !!!
 
     "0x9B52F13DF69D79Ec5aAB6D1aCe3157d29B409cC3": Plain3BasicABI,
     "0x50b085f2e5958C4A87baf93A8AB79F6bec068494": Plain3BalancesABI,

@@ -261,8 +261,8 @@ export class PoolTemplate {
             );
         }
 
-        let _virtualPrice = 0n;
-        let _fee = 0n;
+        let _virtualPrice = curve.parseUnits("0");
+        let _fee = curve.parseUnits("0");
         let _prices, _adminFee, _A, _lpTokenSupply, _gamma;
         try {
             [_virtualPrice, _fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
@@ -530,7 +530,7 @@ export class PoolTemplate {
             } catch (e) { // Seeding
                 const lpContract = curve.contracts[this.lpToken].contract;
                 const _lpTotalSupply: bigint = await lpContract.totalSupply(curve.constantOptions);
-                if (_lpTotalSupply > 0n) throw e; // Already seeded
+                if (_lpTotalSupply > curve.parseUnits("0")) throw e; // Already seeded
 
                 if (this.isMeta && useUnderlying) throw Error("Initial deposit for crypto meta pools must be in wrapped coins");
 
@@ -553,7 +553,7 @@ export class PoolTemplate {
                 return await contract.calc_token_amount_meta(
                     this.address,
                     this.lpToken,
-                    _amounts.concat(Array(5 - _amounts.length).fill(0n)),
+                    _amounts.concat(Array(5 - _amounts.length).fill(curve.parseUnits("0"))),
                     _amounts.length,
                     basePool.address,
                     basePool.lpToken,
@@ -564,7 +564,7 @@ export class PoolTemplate {
                 return await contract.calc_token_amount(
                     this.address,
                     this.lpToken,
-                    _amounts.concat(Array(5 - _amounts.length).fill(0n)),
+                    _amounts.concat(Array(5 - _amounts.length).fill(curve.parseUnits("0"))),
                     _amounts.length,
                     isDeposit,
                     useUnderlying && this.isLending
@@ -575,7 +575,7 @@ export class PoolTemplate {
 
             const lpContract = curve.contracts[this.lpToken].contract;
             const _lpTotalSupply: bigint = await lpContract.totalSupply(curve.constantOptions);
-            if (_lpTotalSupply > 0n) throw e; // Already seeded
+            if (_lpTotalSupply > curve.parseUnits("0")) throw e; // Already seeded
 
             const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
             const amounts = _amounts.map((_a, i) => curve.formatUnits(_a, decimals[i]));
@@ -586,7 +586,7 @@ export class PoolTemplate {
                     if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
                 });
             } else {
-                if (_amounts[0] <= 0n) throw Error("Initial deposit amounts must be > 0");
+                if (_amounts[0] <= curve.parseUnits("0")) throw Error("Initial deposit amounts must be > 0");
                 amounts.forEach((a) => {
                     if (a !== amounts[0]) throw Error("Initial deposit amounts must be equal");
                 });
@@ -848,7 +848,7 @@ export class PoolTemplate {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
 
         await curve.updateFeeData();
-        const gasLimit = (await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions)) * 200n / 100n;
+        const gasLimit = (await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions)) * curve.parseUnits("200", 0) / curve.parseUnits("100", 0);
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
@@ -1430,12 +1430,12 @@ export class PoolTemplate {
         const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
         const _minMintAmount = fromBN(minAmountBN);
         const ethIndex = getEthIndex(coinAddresses);
-        const value = _amounts[ethIndex] || 0n;
+        const value = _amounts[ethIndex] || curve.parseUnits("0");
 
         const maxCoins = curve.chainId === 137 ? 6 : 5;
         for (let i = 0; i < maxCoins; i++) {
             coinAddresses[i] = coinAddresses[i] || curve.constants.ZERO_ADDRESS;
-            _amounts[i] = _amounts[i] || 0n;
+            _amounts[i] = _amounts[i] || curve.parseUnits("0");
         }
 
         const _gas = (await contract.deposit_and_stake.estimateGas(
@@ -1454,7 +1454,7 @@ export class PoolTemplate {
         if (estimateGas) return Number(_gas)
 
         await curve.updateFeeData();
-        const gasLimit = _gas * 200n / 100n;
+        const gasLimit = _gas * curve.parseUnits("200", 0) / curve.parseUnits("100", 0);
         return (await contract.deposit_and_stake(
             depositAddress,
             this.lpToken,
@@ -1543,7 +1543,7 @@ export class PoolTemplate {
 
         if (this.zap) {
             const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
-            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * 101n / 100n;
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * curve.parseUnits("101", 0) / curve.parseUnits("100", 0);
             return await hasAllowance([this.lpToken], [curve.formatUnits(_maxBurnAmount, 18)], curve.signerAddress, this.zap as string);
         }
 
@@ -1555,7 +1555,7 @@ export class PoolTemplate {
 
         if (this.zap) {
             const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
-            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * 101n / 100n;
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * curve.parseUnits("101", 0) / curve.parseUnits("100", 0);
             return await ensureAllowanceEstimateGas([this.lpToken], [curve.formatUnits(_maxBurnAmount, 18)], this.zap as string);
         }
 
@@ -1567,7 +1567,7 @@ export class PoolTemplate {
 
         if (this.zap) {
             const _amounts: bigint[] = amounts.map((amount, i) => parseUnits(amount, this.underlyingDecimals[i]));
-            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * 101n / 100n;
+            const _maxBurnAmount = (await this._calcLpTokenAmount(_amounts, false)) * curve.parseUnits("101", 0) / curve.parseUnits("100", 0);
             return await ensureAllowance([this.lpToken], [curve.formatUnits(_maxBurnAmount, 18)], this.zap as string);
         }
 
@@ -2071,10 +2071,10 @@ export class PoolTemplate {
                 } else if (['y', 'busd', 'pax'].includes(this.id)) {
                     _rates.push(await curve.contracts[addr].contract.getPricePerFullShare());
                 } else {
-                    _rates.push(10n**18n); // Aave ratio 1:1
+                    _rates.push(curve.parseUnits(String(10**18), 0)); // Aave ratio 1:1
                 }
             } else {
-                _rates.push(10n**18n);
+                _rates.push(curve.parseUnits(String(10**18), 0));
             }
         }
 

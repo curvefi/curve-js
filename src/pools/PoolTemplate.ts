@@ -510,13 +510,13 @@ export class PoolTemplate {
         const contract = curve.contracts[calcContractAddress].contract;
 
         if (this.isMetaFactory && useUnderlying) {
-            if (contract[`calc_token_amount(address,uint256[${N_coins}],bool)`]) {
+            if (`calc_token_amount(address,uint256[${N_coins}],bool)` in contract) {
                 return await contract.calc_token_amount(this.address, _amounts, isDeposit, curve.constantOptions);
             }
             return await contract.calc_token_amount(this.address, _amounts, curve.constantOptions);
         }
 
-        if (contract[`calc_token_amount(uint256[${N_coins}],bool)`]) {
+        if (`calc_token_amount(uint256[${N_coins}],bool)` in contract) {
             return await contract.calc_token_amount(_amounts, isDeposit, curve.constantOptions);
         }
 

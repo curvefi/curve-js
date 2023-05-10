@@ -89,6 +89,7 @@ import fraxusdcSwapABI from '../abis/fraxusdc/swap.json' assert { type: 'json' }
 import frxethSwapABI from '../abis/frxeth/swap.json' assert { type: 'json' };
 import sbtc2SwapABI from '../abis/sbtc2/swap.json' assert { type: 'json' };
 import wbethSwapABI from '../abis/wbeth/swap.json' assert { type: 'json' };
+import LlammaABI from '../abis/llamma.json' assert { type: 'json' };
 
 
 export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses({
@@ -1673,6 +1674,35 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         underlying_decimals: [18, 18],
         wrapped_decimals: [18, 18],
         swap_abi: wbethSwapABI,
+        gauge_abi: gaugeV5ABI,
+    },
+});
+
+export const LLAMMAS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses({
+    'sfrxeth-llamma': {
+        name: "sfrxeth",
+        full_name: "sfrxeth",
+        symbol: "sfrxeth",
+        reference_asset: 'CRYPTO',
+        swap_address: '0x77fCFB78151c676f390a6236A78b5d3152e43384',
+        token_address: '0x0000000000000000000000000000000000000000',
+        gauge_address: '0x0000000000000000000000000000000000000000',
+        is_crypto: true,
+        is_plain: true,
+        is_llamma: true,
+        underlying_coins: ['crvUSD', 'sfrxETH'],
+        wrapped_coins: ['crvUSD', 'sfrxETH'],
+        underlying_coin_addresses: [
+            '0xf71040d20Cc3FFBb28c1abcEF46134C7936624e0',
+            '0xac3E018457B222d93114458476f3E3416Abbe38F',
+        ],
+        wrapped_coin_addresses: [
+            '0xf71040d20Cc3FFBb28c1abcEF46134C7936624e0',
+            '0xac3E018457B222d93114458476f3E3416Abbe38F',
+        ],
+        underlying_decimals: [18, 18],
+        wrapped_decimals: [18, 18],
+        swap_abi: LlammaABI,
         gauge_abi: gaugeV5ABI,
     },
 });

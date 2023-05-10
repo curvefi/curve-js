@@ -1,4 +1,5 @@
 import { POOLS_DATA_ETHEREUM } from "./ethereum.js";
+import { LLAMMAS_DATA_ETHEREUM } from "./ethereum.js";
 import { POOLS_DATA_POLYGON } from "./polygon.js";
 import { POOLS_DATA_FANTOM } from "./fantom.js";
 import { POOLS_DATA_AVALANCHE } from "./avalanche.js";
@@ -12,6 +13,7 @@ import { POOLS_DATA_CELO } from "./celo.js";
 
 export {
     POOLS_DATA_ETHEREUM,
+    LLAMMAS_DATA_ETHEREUM,
     POOLS_DATA_POLYGON,
     POOLS_DATA_FANTOM,
     POOLS_DATA_AVALANCHE,

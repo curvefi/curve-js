@@ -89,6 +89,12 @@ const filterRoutes = (routes: IRouteTvl[], inputCoinAddress: string, sortFn: (a:
 const sortByTvl = (a: IRouteTvl, b: IRouteTvl) => b.minTvl - a.minTvl || b.totalTvl - a.totalTvl || a.route.length - b.route.length;
 const sortByLength = (a: IRouteTvl, b: IRouteTvl) => a.route.length - b.route.length || b.minTvl - a.minTvl || b.totalTvl - a.totalTvl;
 
+const _getTVL = memoize(
+    async (poolId: string) => Number(await (getPool(poolId)).stats.totalLiquidity()),
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    });
 
 // Inspired by Dijkstra's algorithm
 const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]> => {
@@ -99,6 +105,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
         ...curve.constants.POOLS_DATA,
         ...curve.constants.FACTORY_POOLS_DATA as IDict<IPoolData>,
         ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<IPoolData>,
+        ...curve.constants.LLAMMAS_DATA as IDict<IPoolData>,
     });
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
 
@@ -177,7 +184,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1 && inCoin !== token_address) continue;
 
                 // TODO remove it!!!!
-                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : Number(await (getPool(poolId)).stats.totalLiquidity()) * tvlMultiplier;
+                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : (await _getTVL(poolId))* tvlMultiplier;
                 // Skip empty pools
                 if (tvl === 0) continue;
 
@@ -238,7 +245,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
 
                 // Wrapped coin (underlying for lending or fake pool) -> LP "swaps" (actually add_liquidity)
                 const inCoinIndex = (is_aave_like_lending || poolData.is_fake) ? inCoinIndexes.underlying_coin : inCoinIndexes.wrapped_coin;
-                if (coin_addresses.length < 6 && inCoinIndex >= 0) {
+                if (coin_addresses.length < 6 && inCoinIndex >= 0 && !poolData.is_llamma) {
                     // Looking for outputCoinAddress only on the final step
                     if (!(step === 3 && token_address !== outputCoinAddress)) {
                         const swapType = is_aave_like_lending ? 9
@@ -356,9 +363,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
                         const outputCoinIdx = underlying_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
-
                         // Skip empty pools
-                        const tvl = Number(await (getPool(poolId)).stats.totalLiquidity());
                         if (tvl === 0) continue;
 
                         const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);

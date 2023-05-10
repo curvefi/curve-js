@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
 import { _getPoolsFromApi, _getSubgraphData, _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api.js';
@@ -59,6 +58,7 @@ export class PoolTemplate {
     isFake: boolean;
     isFactory: boolean;
     isMetaFactory: boolean;
+    isLlamma: boolean;
     basePool: string;
     metaCoinIdx: number;
     underlyingCoins: string[];
@@ -129,7 +129,12 @@ export class PoolTemplate {
     };
 
     constructor(id: string) {
-        const poolData = { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA, ...curve.constants.CRYPTO_FACTORY_POOLS_DATA }[id];
+        const poolData = {
+            ...curve.constants.POOLS_DATA,
+            ...curve.constants.FACTORY_POOLS_DATA,
+            ...curve.constants.CRYPTO_FACTORY_POOLS_DATA,
+            ...curve.constants.LLAMMAS_DATA,
+        }[id];
 
         this.id = id;
         this.name = poolData.name;
@@ -149,6 +154,7 @@ export class PoolTemplate {
         this.isFake = poolData.is_fake || false;
         this.isFactory = poolData.is_factory || false;
         this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xa79828df1850e8a3a3064576f380d90aecdd3359';
+        this.isLlamma = poolData.is_llamma || false;
         this.basePool = poolData.base_pool || '';
         this.metaCoinIdx = this.isMeta ? poolData.meta_coin_idx ?? poolData.wrapped_coins.length - 1 : -1;
         this.underlyingCoins = poolData.underlying_coins;
@@ -322,6 +328,25 @@ export class PoolTemplate {
     }
 
     private statsTotalLiquidity = async (useApi = true): Promise<string> => {
+        if (this.isLlamma) {
+            const stablecoinContract = curve.contracts[this.underlyingCoinAddresses[0]].multicallContract;
+            const collateralContract = curve.contracts[this.underlyingCoinAddresses[1]].multicallContract;
+            const ammContract = curve.contracts[this.address].multicallContract;
+
+            const [_balance_x, _fee_x, _balance_y, _fee_y]: bigint[] = await curve.multicallProvider.all([
+                stablecoinContract.balanceOf(this.address),
+                ammContract.admin_fees_x(),
+                collateralContract.balanceOf(this.address),
+                ammContract.admin_fees_y(),
+            ]);
+            const collateralRate = await _getUsdRate(this.underlyingCoinAddresses[1]);
+
+            const stablecoinTvlBN = toBN(_balance_x).minus(toBN(_fee_x));
+            const collateralTvlBN = toBN(_balance_y).minus(toBN(_fee_y)).times(collateralRate);
+
+            return stablecoinTvlBN.plus(collateralTvlBN).toString()
+        }
+
         if (useApi) {
             const network = curve.constants.NETWORK_NAME;
             const poolType = !this.isFactory && !this.isCrypto ? "main" :

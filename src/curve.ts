@@ -23,6 +23,7 @@ import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
 import {
     POOLS_DATA_ETHEREUM,
+    LLAMMAS_DATA_ETHEREUM,
     POOLS_DATA_POLYGON,
     POOLS_DATA_FANTOM,
     POOLS_DATA_AVALANCHE,
@@ -149,6 +150,7 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         NAME: 'ethereum',
         ALIASES: ALIASES_ETHEREUM,
         POOLS_DATA: POOLS_DATA_ETHEREUM,
+        LLAMMAS_DATA: LLAMMAS_DATA_ETHEREUM,
         COINS: COINS_ETHEREUM,
         cTokens: cTokensEthereum,
         yTokens: yTokensEthereum,
@@ -274,6 +276,7 @@ class Curve implements ICurve {
         POOLS_DATA: IDict<IPoolData>,
         FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+        LLAMMAS_DATA: IDict<IPoolData>,
         COINS: IDict<string>,
         DECIMALS: IDict<number>,
         GAUGES: string[],
@@ -300,6 +303,7 @@ class Curve implements ICurve {
             POOLS_DATA: {},
             FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
+            LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},
             GAUGES: [],
@@ -331,6 +335,7 @@ class Curve implements ICurve {
             POOLS_DATA: {},
             FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
+            LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},
             GAUGES: [],
@@ -383,9 +388,10 @@ class Curve implements ICurve {
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
         this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
         this.constants.POOLS_DATA = NETWORK_CONSTANTS[this.chainId].POOLS_DATA;
+        if (this.chainId === 1) this.constants.LLAMMAS_DATA = NETWORK_CONSTANTS[this.chainId].LLAMMAS_DATA;
         for (const poolId in this.constants.POOLS_DATA) this.constants.POOLS_DATA[poolId].in_api = true;
         this.constants.COINS = NETWORK_CONSTANTS[this.chainId].COINS;
-        this.constants.DECIMALS = extractDecimals(this.constants.POOLS_DATA);
+        this.constants.DECIMALS = extractDecimals({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA});
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.address] = 18;
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.wrappedAddress] = 18;
         this.constants.GAUGES = extractGauges(this.constants.POOLS_DATA);
@@ -414,7 +420,7 @@ class Curve implements ICurve {
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };
         await this.updateFeeData();
 
-        for (const pool of Object.values(this.constants.POOLS_DATA)) {
+        for (const pool of Object.values({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA})) {
             this.setContract(pool.swap_address, pool.swap_abi);
 
             if (pool.token_address !== pool.swap_address) {
@@ -524,12 +530,16 @@ class Curve implements ICurve {
 
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, false));
-            const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
-            this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
+            if (this.chainId === 1) {
+                const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
+                this.constants.FACTORY_POOLS_DATA = {...this.constants.FACTORY_POOLS_DATA, ...poolData};
+            }
         } else {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
-            const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
-            this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
+            if (this.chainId === 1) {
+                const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
+                this.constants.FACTORY_POOLS_DATA = {...this.constants.FACTORY_POOLS_DATA, ...poolData};
+            }
         }
         this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);

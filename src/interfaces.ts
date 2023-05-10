@@ -28,6 +28,7 @@ export interface IPoolData {
     is_crypto?: boolean,
     is_fake?: boolean,
     is_factory?: boolean,
+    is_llamma?: boolean,
     base_pool?: string,
     meta_coin_idx?: number,
     underlying_coins: string[],

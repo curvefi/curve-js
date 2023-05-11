@@ -315,9 +315,10 @@ export class PoolTemplate {
     }
 
     private async statsWrappedBalances(): Promise<string[]> {
-        const swapContract = curve.contracts[this.address].multicallContract;
-        const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
-        const _wrappedBalances: bigint[] = await curve.multicallProvider.all(contractCalls);
+        const contract = curve.contracts[this.address].multicallContract;
+        const calls = [];
+        for (let i = 0; i < this.wrappedCoins.length; i++) calls.push(contract.balances(i));
+        const _wrappedBalances: bigint[] = await curve.multicallProvider.all(calls);
 
         return _wrappedBalances.map((_b, i) => curve.formatUnits(_b, this.wrappedDecimals[i]));
     }

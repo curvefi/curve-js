@@ -564,7 +564,7 @@ class Curve implements ICurve {
     fetchNewFactoryPools = async (): Promise<string[]> => {
         if (this.chainId === 1313161554) return [];
 
-        const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA);
+        const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA).filter((id) => !id.includes('crvusd'));
         const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, lastPoolIdx + 1));
         this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };

@@ -515,21 +515,41 @@ const _getBestRoute = memoize(
                 routes.push(routesRaw[i]);
             }
         } catch (err) {
-            const promises = [];
+            // const promises = [];
+            // const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+            // for (const r of routesRaw) {
+            //     const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(r.route);
+            //     promises.push(contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
+            // }
+            //
+            // const res = await Promise.allSettled(promises);
+            //
+            // for (let i = 0; i < res.length; i++) {
+            //     if (res[i].status === 'rejected') {
+            //         console.log(`Route ${(routesRaw[i].route.map((s) => s.poolId)).join(" --> ")} is unavailable`);
+            //         continue;
+            //     }
+            //     routesRaw[i]._output = (res[i] as PromiseFulfilledResult<bigint>).value;
+            //     routes.push(routesRaw[i]);
+            // }
+
             const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+            const _outputs = [];
             for (const r of routesRaw) {
                 const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(r.route);
-                promises.push(contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
+                try {
+                    _outputs.push(await contract.get_exchange_multiple_amount(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
+                } catch (e) {
+                    _outputs.push(curve.parseUnits('-1', 0));
+                }
             }
 
-            const res = await Promise.allSettled(promises);
-
-            for (let i = 0; i < res.length; i++) {
-                if (res[i].status === 'rejected') {
+            for (let i = 0; i < _outputs.length; i++) {
+                if (_outputs[i] < 0) {
                     console.log(`Route ${(routesRaw[i].route.map((s) => s.poolId)).join(" --> ")} is unavailable`);
                     continue;
                 }
-                routesRaw[i]._output = (res[i] as PromiseFulfilledResult<bigint>).value;
+                routesRaw[i]._output = _outputs[i];
                 routes.push(routesRaw[i]);
             }
         }

@@ -120,6 +120,10 @@ const curve = {
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, false),
         },
     },
+    crvUSDFactory: {
+        fetchPools: _curve.fetchCrvusdFactoryPools,
+        getPoolList: _curve.getCrvusdFactoryPoolList,
+    },
     cryptoFactory: {
         fetchPools: _curve.fetchCryptoFactoryPools,
         fetchNewPools: _curve.fetchNewCryptoFactoryPools,

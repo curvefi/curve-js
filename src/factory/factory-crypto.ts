@@ -169,6 +169,7 @@ async function getCoinsData(
     });
 
     coinAddrNamesDict[this.constants.NATIVE_TOKEN.address] = this.constants.NATIVE_TOKEN.symbol;
+    coinAddrDecimalsDict[this.constants.NATIVE_TOKEN.address] = 18;
 
     return [tokenSymbols, tokenNames, coinAddrNamesDict, coinAddrDecimalsDict]
 }

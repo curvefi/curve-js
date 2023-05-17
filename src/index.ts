@@ -88,6 +88,7 @@ const curve = {
     signerAddress: '',
     setCustomFeeData,
     getPoolList: _curve.getPoolList,
+    getMainPoolList: _curve.getMainPoolList,
     getUserPoolListByLiquidity,
     getUserPoolListByClaimable,
     getUserPoolList,

@@ -189,7 +189,7 @@ import curve from "@curvefi/api";
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
 
-    curve.getPoolList();
+    curve.getMainPoolList();
     // [
     //     'compound', 'usdt',    'y',          'busd',
     //     'susd',     'pax',     'ren',        'sbtc',
@@ -262,6 +262,36 @@ import curve from "@curvefi/api";
     //     'factory-crypto-54', 'factory-crypto-55', 'factory-crypto-56',
     //     'factory-crypto-57', 'factory-crypto-58', 'factory-crypto-59',
     //     'factory-crypto-60', 'factory-crypto-61', 'factory-crypto-62'
+    // ]
+
+    curve.getPoolList();
+    // [
+    //     'compound',      'usdt',          'y',             'busd',
+    //     'susd',          'pax',           'ren',           'sbtc',
+    //     'hbtc',          '3pool',         'gusd',          'husd',
+    //     'usdk',          'usdn',          'musd',          'rsv',
+    //     'tbtc',          'dusd',          'pbtc',          'bbtc',
+    //     'obtc',          'seth',          'eurs',          'ust',
+    //     'aave',          'steth',         'saave',         'ankreth',
+    //     'usdp',          'ib',            'link',          'tusd',
+    //     'frax',          'lusd',          'busdv2',        'reth',
+    //     'alusd',         'mim',           'tricrypto2',    'eurt',
+    //     'eurtusd',       'eursusd',       'crveth',        'rai',
+    //     'cvxeth',        'xautusd',       'spelleth',      'teth',
+    //     '2pool',         '4pool',         'fraxusdc',      'euroc',
+    //     'frxeth',        'sbtc2',         'fraxusdp',      'wbeth',
+    //     'factory-v2-2',  'factory-v2-3',  'factory-v2-5',  'factory-v2-7',
+    //     'factory-v2-9',  'factory-v2-10', 'factory-v2-11', 'factory-v2-14',
+    //     'factory-v2-21', 'factory-v2-22', 'factory-v2-23', 'factory-v2-24',
+    //     'factory-v2-25', 'factory-v2-27', 'factory-v2-28', 'factory-v2-29',
+    //     'factory-v2-30', 'factory-v2-31', 'factory-v2-32', 'factory-v2-33',
+    //     'factory-v2-34', 'factory-v2-35', 'factory-v2-37', 'factory-v2-38',
+    //     'factory-v2-41', 'factory-v2-42', 'factory-v2-43', 'factory-v2-44',
+    //     'factory-v2-45', 'factory-v2-47', 'factory-v2-48', 'factory-v2-49',
+    //     'factory-v2-50', 'factory-v2-51', 'factory-v2-52', 'factory-v2-53',
+    //     'factory-v2-55', 'factory-v2-56', 'factory-v2-57', 'factory-v2-58',
+    //     'factory-v2-59', 'factory-v2-60', 'factory-v2-61', 'factory-v2-62',
+    //     ... 493 more items
     // ]
 })()
 ````

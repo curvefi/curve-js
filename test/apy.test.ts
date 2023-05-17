@@ -64,7 +64,7 @@ describe('Compare calculated APY with APY from API', async function () {
         await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
         await curve.factory.fetchPools();
         await curve.cryptoFactory.fetchPools();
-        POOLS = [...curve.getPoolList(), ...curve.factory.getPoolList(), ...curve.cryptoFactory.getPoolList()];
+        POOLS = curve.getPoolList();
     });
 
     it('', async function () {

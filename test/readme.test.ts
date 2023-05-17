@@ -43,10 +43,11 @@ const availablePoolsTest = async () => {
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
 
-    console.log(curve.getPoolList());
+    console.log(curve.getMainPoolList());
     console.log(curve.factory.getPoolList());
     console.log(curve.crvUSDFactory.getPoolList());
     console.log(curve.cryptoFactory.getPoolList());
+    console.log(curve.getPoolList());
 }
 
 const poolFieldsTest = async () => {

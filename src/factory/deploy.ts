@@ -14,7 +14,7 @@ const _deployStablePlainPool = async (
     A: number | string,
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
-    implementationIdx: 0 | 1 | 2 | 3,
+    implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
     estimateGas: boolean
 ): Promise<ethers.ContractTransactionResponse | number> => {
     if (name.length > 32) throw Error("Max name length = 32");
@@ -23,7 +23,11 @@ const _deployStablePlainPool = async (
     if (BN(fee).lt(0.04)) throw Error(`fee must be >= 0.04%. Passed fee = ${fee}`);
     if (BN(fee).gt(1)) throw Error(`fee must be <= 1%. Passed fee = ${fee}`);
     if (![0, 1, 2, 3].includes(assetType)) throw Error("Invalid assetType. Must be one of: 0 = USD, 1 = ETH, 2 = BTC, 3 = Other");
-    if (![0, 1, 2, 3].includes(implementationIdx)) throw Error("Invalid implementationIdx. Must be one 0, 1, 2 or 3");
+    if (curve.chainId !== 1 || coins.length > 2) {
+        if (![0, 1, 2, 3].includes(implementationIdx)) throw Error("Invalid implementationIdx. Must be one 0, 1, 2 or 3");
+    } else {
+        if (![0, 1, 2, 3, 4, 5].includes(implementationIdx)) throw Error("Invalid implementationIdx. Must be one 0, 1, 2, 3, 4 or 5");
+    }
 
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
@@ -45,7 +49,7 @@ export const deployStablePlainPoolEstimateGas = async (
     A: number | string,
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
-    implementationIdx: 0 | 1 | 2 | 3
+    implementationIdx: 0 | 1 | 2 | 3 | 4 | 5
 ): Promise<number> => {
     return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, true) as number;
 }
@@ -57,7 +61,7 @@ export const deployStablePlainPool = async (
     A: number | string,
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
-    implementationIdx: 0 | 1 | 2 | 3
+    implementationIdx: 0 | 1 | 2 | 3 | 4 | 5
 ): Promise<ethers.ContractTransactionResponse> => {
     return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, false) as ethers.ContractTransactionResponse;
 }

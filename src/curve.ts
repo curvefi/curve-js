@@ -616,13 +616,20 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
-    getPoolList = (): string[] => Object.keys(this.constants.POOLS_DATA);
+    getMainPoolList = (): string[] => Object.keys(this.constants.POOLS_DATA);
 
     getFactoryPoolList = (): string[] => Object.keys(this.constants.FACTORY_POOLS_DATA);
 
     getCrvusdFactoryPoolList = (): string[] => Object.keys(this.constants.CRVUSD_FACTORY_POOLS_DATA);
 
     getCryptoFactoryPoolList = (): string[] => Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+
+    getPoolList = (): string[] => [
+        ...this.getMainPoolList(),
+        ...this.getFactoryPoolList(),
+        ...this.getCrvusdFactoryPoolList(),
+        ...this.getCryptoFactoryPoolList(),
+    ];
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
         this.feeData = { ...this.feeData, ...customFeeData };

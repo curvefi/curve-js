@@ -14,7 +14,12 @@ describe('Rewards test', async function () {
     });
 
     it('crvProfit', async function () {
-        const pools = [...curve.getPoolList(), ...curve.factory.getPoolList().slice(0, 10), ...curve.cryptoFactory.getPoolList().slice(0, 10)];
+        const pools = [
+            ...curve.getMainPoolList(),
+            ...curve.factory.getPoolList().slice(0, 10),
+            ...curve.crvUSDFactory.getPoolList(),
+            ...curve.cryptoFactory.getPoolList().slice(0, 10),
+        ];
         for (const poolId of pools) {
             console.log(poolId);
             const pool = curve.getPool(poolId);
@@ -42,7 +47,7 @@ describe('Rewards test', async function () {
     });
 
     it('rewardsProfit', async function () {
-        const pools = [...curve.getPoolList(), ...curve.factory.getPoolList(), ...curve.cryptoFactory.getPoolList()];
+        const pools = curve.getPoolList();
         for (const poolId of pools) {
             console.log(poolId);
             const pool = curve.getPool(poolId);

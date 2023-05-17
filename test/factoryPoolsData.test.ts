@@ -70,7 +70,6 @@ describe('Factory pools data', async function () {
 
     before(async function() {
         await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
-        // await curve.fetchCryptoFactoryPools();
     });
 
     it('Factory', async function () {
@@ -83,10 +82,19 @@ describe('Factory pools data', async function () {
         factoryPoolsDataTest(factoryPoolsDataFromApi, factoryPoolsData, false);
     });
 
+    it('crvUSD factory', async function () {
+        await curve.fetchCrvusdFactoryPools();
+        const factoryPoolsDataFromApi = { ...curve.constants.CRVUSD_FACTORY_POOLS_DATA };
+        await curve.fetchCrvusdFactoryPools(false);
+        const factoryPoolsData = { ...curve.constants.CRVUSD_FACTORY_POOLS_DATA };
+
+        factoryPoolsDataTest(factoryPoolsDataFromApi, factoryPoolsData, false);
+    });
+
     it('Crypto factory', async function () {
-        await curve.fetchFactoryPools();
+        await curve.fetchCryptoFactoryPools();
         const cryptoFactoryPoolsDataFromApi = { ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };
-        await curve.fetchFactoryPools(false);
+        await curve.fetchCryptoFactoryPools(false);
         const cryptoFactoryPoolsData = { ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };
 
         factoryPoolsDataTest(cryptoFactoryPoolsDataFromApi, cryptoFactoryPoolsData, true);

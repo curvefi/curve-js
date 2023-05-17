@@ -11,6 +11,7 @@ const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd
 const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'eursusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth', 'euroc'];
 const FACTORY_PLAIN_POOLS = ['factory-v2-3', 'factory-v2-57', 'factory-v2-7']; // ['ibEUR+sEUR-f(2)', 'D3-f', 'crvCRV-f'];
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', 'factory-v2-136']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)', 'sUSDFRAXBP'];
+const FACTORY_CRVUSD_POOLS = ['factory-crvusd-0', 'factory-crvusd-1', 'factory-crvusd-2', 'factory-crvusd-3'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8', 'factory-crypto-4']; // ['YFIETH-fV2', 'BADGERWBTC-fV2'];
 const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
@@ -62,7 +63,7 @@ const CELO_POOLS = ['factory-v2-0'];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = ['wbeth'];
+const POOLS_FOR_TESTING = FACTORY_CRVUSD_POOLS;
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-deposit&stake-unstake-withdraw`, function () {
@@ -272,6 +273,7 @@ describe('Underlying test', async function () {
     before(async function () {
         await curve.init('JsonRpc', {},{ gasPrice: 0 });
         await curve.factory.fetchPools();
+        await curve.crvUSDFactory.fetchPools();
         await curve.cryptoFactory.fetchPools();
     });
 

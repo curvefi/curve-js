@@ -104,6 +104,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
     const ALL_POOLS = Object.entries({
         ...curve.constants.POOLS_DATA,
         ...curve.constants.FACTORY_POOLS_DATA as IDict<IPoolData>,
+        ...curve.constants.CRVUSD_FACTORY_POOLS_DATA as IDict<IPoolData>,
         ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<IPoolData>,
         ...curve.constants.LLAMMAS_DATA as IDict<IPoolData>,
     });
@@ -168,7 +169,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
             for (const [poolId, poolData] of ALL_POOLS) {
                 const wrapped_coin_addresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
                 const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
-                const base_pool = poolData.is_meta ? curve.constants.POOLS_DATA[poolData.base_pool as string] : null;
+                const base_pool = poolData.is_meta ? { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA }[poolData.base_pool as string] : null;
                 const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
                 const token_address = poolData.token_address.toLowerCase();
                 const is_aave_like_lending = poolData.is_lending && wrapped_coin_addresses.length === 3 && !poolData.deposit_address;

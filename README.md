@@ -24,6 +24,7 @@ import curve from "@curvefi/api";
     
     // Fetch factory pools
     await curve.factory.fetchPools();
+    await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
 })()
 ```
@@ -185,6 +186,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
+    await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
 
     curve.getPoolList();
@@ -233,6 +235,9 @@ import curve from "@curvefi/api";
     //     'factory-v2-101', 'factory-v2-102', 'factory-v2-103', 'factory-v2-104',
     //     ... 27 more items
     // ]
+
+    curve.crvUSDFactory.getPoolList();
+    // ['factory-crvusd-0',  'factory-crvusd-1',  'factory-crvusd-2', 'factory-crvusd-3']
     
     curve.cryptoFactory.getPoolList();
     // [
@@ -268,6 +273,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
+    await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
 
     const pool = curve.getPool('factory-v2-11');
@@ -973,6 +979,7 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
+    await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
 
     await curve.getBalances(['DAI', 'CRV']);

@@ -40,17 +40,20 @@ const generalMethodsTest = async () => {
 const availablePoolsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
+    await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
 
     console.log(curve.getPoolList());
     console.log(curve.factory.getPoolList());
+    console.log(curve.crvUSDFactory.getPoolList());
     console.log(curve.cryptoFactory.getPoolList());
 }
 
 const poolFieldsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
-    await curve.cryptoFactory.getPoolList();
+    await curve.crvUSDFactory.fetchPools();
+    await curve.cryptoFactory.fetchPools();
 
     const pool = curve.getPool('factory-v2-11');
 

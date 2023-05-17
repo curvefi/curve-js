@@ -132,6 +132,7 @@ export class PoolTemplate {
         const poolData = {
             ...curve.constants.POOLS_DATA,
             ...curve.constants.FACTORY_POOLS_DATA,
+            ...curve.constants.CRVUSD_FACTORY_POOLS_DATA,
             ...curve.constants.CRYPTO_FACTORY_POOLS_DATA,
             ...curve.constants.LLAMMAS_DATA,
         }[id];

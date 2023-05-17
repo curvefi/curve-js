@@ -275,6 +275,7 @@ class Curve implements ICurve {
         ALIASES: IDict<string>,
         POOLS_DATA: IDict<IPoolData>,
         FACTORY_POOLS_DATA: IDict<IPoolData>,
+        CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
         LLAMMAS_DATA: IDict<IPoolData>,
         COINS: IDict<string>,
@@ -302,6 +303,7 @@ class Curve implements ICurve {
             ALIASES: {},
             POOLS_DATA: {},
             FACTORY_POOLS_DATA: {},
+            CRVUSD_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
             COINS: {},
@@ -334,6 +336,7 @@ class Curve implements ICurve {
             ALIASES: {},
             POOLS_DATA: {},
             FACTORY_POOLS_DATA: {},
+            CRVUSD_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
             COINS: {},
@@ -529,17 +532,9 @@ class Curve implements ICurve {
         if (this.chainId === 1313161554) return;
 
         if (useApi) {
-            this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, false));
-            if (this.chainId === 1) {
-                const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
-                this.constants.FACTORY_POOLS_DATA = {...this.constants.FACTORY_POOLS_DATA, ...poolData};
-            }
+            this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory"));
         } else {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
-            if (this.chainId === 1) {
-                const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory));
-                this.constants.FACTORY_POOLS_DATA = {...this.constants.FACTORY_POOLS_DATA, ...poolData};
-            }
         }
         this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
@@ -547,11 +542,27 @@ class Curve implements ICurve {
         await _killGauges(this.constants.FACTORY_POOLS_DATA);
     }
 
+    fetchCrvusdFactoryPools = async (useApi = true): Promise<void> => {
+        if (this.chainId != 1) return;
+
+        if (useApi) {
+            this.constants.CRVUSD_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-crvusd"));
+        } else {
+            this.constants.CRVUSD_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(
+                await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory)
+            );
+        }
+        this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA);
+        this._updateDecimalsAndGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
+
+        await _killGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
+    }
+
     fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
         if (![1, 137, 250].includes(this.chainId)) return;
 
         if (useApi) {
-            this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, true));
+            this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-crypto"));
         } else {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
@@ -564,7 +575,7 @@ class Curve implements ICurve {
     fetchNewFactoryPools = async (): Promise<string[]> => {
         if (this.chainId === 1313161554) return [];
 
-        const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA).filter((id) => !id.includes('crvusd'));
+        const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA);
         const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, lastPoolIdx + 1));
         this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
@@ -608,6 +619,8 @@ class Curve implements ICurve {
     getPoolList = (): string[] => Object.keys(this.constants.POOLS_DATA);
 
     getFactoryPoolList = (): string[] => Object.keys(this.constants.FACTORY_POOLS_DATA);
+
+    getCrvusdFactoryPoolList = (): string[] => Object.keys(this.constants.CRVUSD_FACTORY_POOLS_DATA);
 
     getCryptoFactoryPoolList = (): string[] => Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 

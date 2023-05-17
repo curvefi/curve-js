@@ -1684,7 +1684,7 @@ export const LLAMMAS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresse
         full_name: "sfrxeth",
         symbol: "sfrxeth",
         reference_asset: 'CRYPTO',
-        swap_address: '0x77fCFB78151c676f390a6236A78b5d3152e43384',
+        swap_address: '0x136e783846ef68C8Bd00a3369F787dF8d683a696',
         token_address: '0x0000000000000000000000000000000000000000',
         gauge_address: '0x0000000000000000000000000000000000000000',
         is_crypto: true,
@@ -1693,11 +1693,11 @@ export const LLAMMAS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresse
         underlying_coins: ['crvUSD', 'sfrxETH'],
         wrapped_coins: ['crvUSD', 'sfrxETH'],
         underlying_coin_addresses: [
-            '0xf71040d20Cc3FFBb28c1abcEF46134C7936624e0',
+            '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
             '0xac3E018457B222d93114458476f3E3416Abbe38F',
         ],
         wrapped_coin_addresses: [
-            '0xf71040d20Cc3FFBb28c1abcEF46134C7936624e0',
+            '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
             '0xac3E018457B222d93114458476f3E3416Abbe38F',
         ],
         underlying_decimals: [18, 18],

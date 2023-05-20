@@ -15,6 +15,16 @@ export const _getPoolsFromApi = memoize(
     }
 )
 
+export const _getAllPoolsFromApi = async (network: INetworkName): Promise<IExtendedPoolDataFromApi[]> => {
+    return await Promise.all([
+        _getPoolsFromApi(network, "main"),
+        _getPoolsFromApi(network, "crypto"),
+        _getPoolsFromApi(network, "factory"),
+        _getPoolsFromApi(network, "factory-crvusd"),
+        _getPoolsFromApi(network, "factory-crypto"),
+    ]);
+}
+
 export const _getSubgraphData = memoize(
     async (network: INetworkName): Promise<{ poolsData: ISubgraphPoolData[], totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
         const url = `https://api.curve.fi/api/getSubgraphData/${network}`;

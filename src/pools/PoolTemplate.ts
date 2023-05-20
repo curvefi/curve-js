@@ -551,7 +551,7 @@ export class PoolTemplate {
     }
 
     private _calcLpTokenAmount = memoize(async (_amounts: bigint[], isDeposit = true, useUnderlying = true): Promise<bigint> => {
-        if (this.isCrypto) {
+        if (this.isCrypto || this.id === "wbeth") {  // TODO remove wbeth
             try {
                 return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
             } catch (e) { // Seeding

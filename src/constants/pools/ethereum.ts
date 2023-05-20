@@ -1659,7 +1659,7 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         reference_asset: 'ETH',
         swap_address: '0xBfAb6FA95E0091ed66058ad493189D2cB29385E6',
         token_address: '0xBfAb6FA95E0091ed66058ad493189D2cB29385E6',
-        gauge_address: '0x0000000000000000000000000000000000000000',
+        gauge_address: '0x50161102a240b1456d770Dbb55c76d8dc2D160Aa',
         is_plain: true,
         underlying_coins: ['ETH', 'wBETH'],
         wrapped_coins: ['ETH', 'wBETH'],

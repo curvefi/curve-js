@@ -4,7 +4,7 @@ import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
-import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getPoolsFromApi, _getSubgraphData } from "./external-api.js";
+import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getAllPoolsFromApi, _getSubgraphData } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 
 
@@ -256,13 +256,7 @@ const _getTokenAddressBySwapAddress = (swapAddress: string): string => {
 
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     const network = curve.constants.NETWORK_NAME;
-    const promises = [
-        _getPoolsFromApi(network, "main"),
-        _getPoolsFromApi(network, "crypto"),
-        _getPoolsFromApi(network, "factory"),
-        _getPoolsFromApi(network, "factory-crypto"),
-    ];
-    const allTypesExtendedPoolData = await Promise.all(promises);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
     const priceDict: IDict<number> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
@@ -286,13 +280,7 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
 
 export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
     const network = curve.constants.NETWORK_NAME;
-    const promises = [
-        _getPoolsFromApi(network, "main"),
-        _getPoolsFromApi(network, "crypto"),
-        _getPoolsFromApi(network, "factory"),
-        _getPoolsFromApi(network, "factory-crypto"),
-    ];
-    const allTypesExtendedPoolData = await Promise.all(promises);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
     const apyDict: IDict<[number, number]> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
@@ -312,13 +300,7 @@ export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
 
 export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => {
     const network = curve.constants.NETWORK_NAME;
-    const promises = [
-        _getPoolsFromApi(network, "main"),
-        _getPoolsFromApi(network, "crypto"),
-        _getPoolsFromApi(network, "factory"),
-        _getPoolsFromApi(network, "factory-crypto"),
-    ];
-    const allTypesExtendedPoolData = await Promise.all(promises);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
     const rewardsDict: IDict<IRewardFromApi[]> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
@@ -435,13 +417,7 @@ const _getChainId = (network: INetworkName | IChainId = curve.chainId): IChainId
 
 export const getTVL = async (network: INetworkName | IChainId = curve.chainId): Promise<number> => {
     network = _getNetworkName(network);
-    const promises = [
-        _getPoolsFromApi(network, "main"),
-        _getPoolsFromApi(network, "crypto"),
-        _getPoolsFromApi(network, "factory"),
-        _getPoolsFromApi(network, "factory-crypto"),
-    ];
-    const allTypesExtendedPoolData = await Promise.all(promises);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }

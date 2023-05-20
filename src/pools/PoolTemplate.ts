@@ -351,10 +351,10 @@ export class PoolTemplate {
 
         if (useApi) {
             const network = curve.constants.NETWORK_NAME;
-            const poolType = !this.isFactory && !this.isCrypto ? "main" :
-                !this.isFactory ? "crypto" :
-                !(this.isCrypto && this.isFactory) ? "factory" :
-                "factory-crypto";
+            let poolType: "main" | "crypto" | "factory" | "factory-crvusd" | "factory-crypto" = this.isCrypto ? "crypto" : "main";
+            if (this.id.startsWith("factory-v2-")) poolType = "factory";
+            if (this.id.startsWith("factory-crvusd-")) poolType = "factory-crvusd";
+            if (this.id.startsWith("factory-crypto-")) poolType = "factory-crypto";
             const poolsData = (await _getPoolsFromApi(network, poolType)).poolData;
 
             try {
@@ -551,7 +551,7 @@ export class PoolTemplate {
     }
 
     private _calcLpTokenAmount = memoize(async (_amounts: bigint[], isDeposit = true, useUnderlying = true): Promise<bigint> => {
-        if (this.isCrypto) {
+        if (this.isCrypto || this.id === "wbeth") {  // TODO remove wbeth
             try {
                 return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
             } catch (e) { // Seeding

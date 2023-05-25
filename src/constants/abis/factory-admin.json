@@ -1,0 +1,604 @@
+[
+  {
+    "name": "CommitAdmins",
+    "inputs": [
+      {
+        "name": "ownership_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "parameter_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "emergency_admin",
+        "type": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "ApplyAdmins",
+    "inputs": [
+      {
+        "name": "ownership_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "parameter_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "emergency_admin",
+        "type": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_ownership_admin",
+        "type": "address"
+      },
+      {
+        "name": "_parameter_admin",
+        "type": "address"
+      },
+      {
+        "name": "_emergency_admin",
+        "type": "address"
+      },
+      {
+        "name": "_factory",
+        "type": "address"
+      },
+      {
+        "name": "_old_manager_proxy",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "deploy_plain_pool",
+    "inputs": [
+      {
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "name": "_symbol",
+        "type": "string"
+      },
+      {
+        "name": "_coins",
+        "type": "address[4]"
+      },
+      {
+        "name": "_A",
+        "type": "uint256"
+      },
+      {
+        "name": "_fee",
+        "type": "uint256"
+      },
+      {
+        "name": "_asset_type",
+        "type": "uint256"
+      },
+      {
+        "name": "_implementation_idx",
+        "type": "uint256"
+      },
+      {
+        "name": "_ma_exp_time",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "deploy_gauge",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "deploy_gauge",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      },
+      {
+        "name": "_manager",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "commit_set_admins",
+    "inputs": [
+      {
+        "name": "_o_admin",
+        "type": "address"
+      },
+      {
+        "name": "_p_admin",
+        "type": "address"
+      },
+      {
+        "name": "_e_admin",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "apply_set_admins",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_ma_exp_time",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      },
+      {
+        "name": "_ma_exp_time",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "commit_new_fee",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      },
+      {
+        "name": "_new_fee",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "apply_new_fee",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "ramp_A",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      },
+      {
+        "name": "_future_A",
+        "type": "uint256"
+      },
+      {
+        "name": "_future_time",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "stop_ramp_A",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "add_base_pool",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "name": "_base_pool",
+        "type": "address"
+      },
+      {
+        "name": "_fee_receiver",
+        "type": "address"
+      },
+      {
+        "name": "_asset_type",
+        "type": "uint256"
+      },
+      {
+        "name": "_implementations",
+        "type": "address[10]"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_metapool_implementations",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "name": "_base_pool",
+        "type": "address"
+      },
+      {
+        "name": "_implementations",
+        "type": "address[10]"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_plain_implementations",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "name": "_n_coins",
+        "type": "uint256"
+      },
+      {
+        "name": "_implementations",
+        "type": "address[10]"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_gauge_implementation",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "name": "_gauge_implementation",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_fee_receiver",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "name": "_base_pool",
+        "type": "address"
+      },
+      {
+        "name": "_fee_receiver",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_factory_manager",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "name": "_manager",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_gauge_manager",
+    "inputs": [
+      {
+        "name": "_gauge",
+        "type": "address"
+      },
+      {
+        "name": "_manager",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "commit_transfer_ownership",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      },
+      {
+        "name": "_new_admin",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "accept_transfer_ownership",
+    "inputs": [
+      {
+        "name": "_target",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_killed",
+    "inputs": [
+      {
+        "name": "_gauge",
+        "type": "address"
+      },
+      {
+        "name": "_is_killed",
+        "type": "bool"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "add_reward",
+    "inputs": [
+      {
+        "name": "_gauge",
+        "type": "address"
+      },
+      {
+        "name": "_reward_token",
+        "type": "address"
+      },
+      {
+        "name": "_distributor",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "set_reward_distributor",
+    "inputs": [
+      {
+        "name": "_gauge",
+        "type": "address"
+      },
+      {
+        "name": "_reward_token",
+        "type": "address"
+      },
+      {
+        "name": "_distributor",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "migrate_gauge_manager",
+    "inputs": [
+      {
+        "name": "_gauge",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "FACTORY",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "OLD_MANAGER_PROXY",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "ownership_admin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "parameter_admin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "emergency_admin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "future_ownership_admin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "future_parameter_admin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "future_emergency_admin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "gauge_manager",
+    "inputs": [
+      {
+        "name": "arg0",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  }
+]

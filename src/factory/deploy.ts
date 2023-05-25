@@ -15,6 +15,7 @@ const _deployStablePlainPool = async (
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
     implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
+    emaTime: number,
     estimateGas: boolean
 ): Promise<ethers.ContractTransactionResponse | number> => {
     if (name.length > 32) throw Error("Max name length = 32");
@@ -28,18 +29,23 @@ const _deployStablePlainPool = async (
     } else {
         if (![0, 1, 2, 3, 4, 5].includes(implementationIdx)) throw Error("Invalid implementationIdx. Must be one 0, 1, 2, 3, 4 or 5");
     }
+    if (emaTime <= 0) throw Error(`emaTime must be > 0. Passed emaTime = ${emaTime}`);
 
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
     const _coins = coins.concat(Array(4 - coins.length).fill(curve.constants.ZERO_ADDRESS));
-    const contract = curve.contracts[curve.constants.ALIASES.factory].contract;
+    const useProxy = (curve.chainId === 1 && coins.length === 2 && implementationIdx === 4 && emaTime !== 600);
+    const contractAddress = useProxy ? curve.constants.ALIASES.factory_admin : curve.constants.ALIASES.factory;
+    const contract = curve.contracts[contractAddress].contract;
 
-    const gas = await contract.deploy_plain_pool.estimateGas(name, symbol, _coins, _A, _fee, assetType, implementationIdx, curve.constantOptions);
+    const args = [name, symbol, _coins, _A, _fee, assetType, implementationIdx];
+    if (useProxy) args.push(curve.parseUnits((emaTime / Math.log(2)).toFixed(0), 0));
+    const gas = await contract.deploy_plain_pool.estimateGas(...args, curve.constantOptions);
     if (estimateGas) return Number(gas);
 
     const gasLimit = mulBy1_3(gas);
     await curve.updateFeeData();
-    return await contract.deploy_plain_pool(name, symbol, _coins, _A, _fee, assetType, implementationIdx, { ...curve.options, gasLimit });
+    return await contract.deploy_plain_pool(...args, { ...curve.options, gasLimit });
 }
 
 export const deployStablePlainPoolEstimateGas = async (
@@ -49,9 +55,10 @@ export const deployStablePlainPoolEstimateGas = async (
     A: number | string,
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
-    implementationIdx: 0 | 1 | 2 | 3 | 4 | 5
+    implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
+    emaTime = 600
 ): Promise<number> => {
-    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, true) as number;
+    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, emaTime, true) as number;
 }
 
 export const deployStablePlainPool = async (
@@ -61,14 +68,15 @@ export const deployStablePlainPool = async (
     A: number | string,
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3,
-    implementationIdx: 0 | 1 | 2 | 3 | 4 | 5
+    implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
+    emaTime = 600
 ): Promise<ethers.ContractTransactionResponse> => {
-    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, false) as ethers.ContractTransactionResponse;
+    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, emaTime, false) as ethers.ContractTransactionResponse;
 }
 
 export const getDeployedStablePlainPoolAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
     const txInfo = await tx.wait();
-    if (!txInfo) throw Error("Can't get tx info")
+    if (!txInfo) throw Error("Can't get tx info");
     return txInfo.logs[0].address.toLowerCase();
 }
 
@@ -128,7 +136,7 @@ export const deployStableMetaPool = async (
 
 export const getDeployedStableMetaPoolAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
     const txInfo = await tx.wait();
-    if (!txInfo) throw Error("Can't get tx info")
+    if (!txInfo) throw Error("Can't get tx info");
     return txInfo.logs[3].address.toLowerCase();
 }
 

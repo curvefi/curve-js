@@ -2,6 +2,7 @@ import { ethers, Contract} from "ethers";
 import { curve } from "../curve.js";
 import { parseUnits, BN, mulBy1_3 } from "../utils.js";
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" assert { type: 'json' };
+import Plain2ETHOracleABIABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
 
 
 // ------- STABLE PLAIN POOLS -------
@@ -13,7 +14,7 @@ const _deployStablePlainPool = async (
     coins: string[],
     A: number | string,
     fee: number | string, // %
-    assetType: 0 | 1 | 2 | 3,
+    assetType: 0 | 1 | 2 | 3, // 0 = USD, 1 = ETH, 2 = BTC, 3 = Other
     implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
     emaTime: number,
     estimateGas: boolean
@@ -34,7 +35,8 @@ const _deployStablePlainPool = async (
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
     const _coins = coins.concat(Array(4 - coins.length).fill(curve.constants.ZERO_ADDRESS));
-    const useProxy = (curve.chainId === 1 && coins.length === 2 && implementationIdx === 4 && emaTime !== 600);
+    const useProxy = (curve.chainId === 1 && coins.length === 2 && implementationIdx === 4 && emaTime !== 600) ||
+        (curve.chainId === 1 && coins.length === 2 && implementationIdx === 5 && emaTime !== 600);
     const contractAddress = useProxy ? curve.constants.ALIASES.factory_admin : curve.constants.ALIASES.factory;
     const contract = curve.contracts[contractAddress].contract;
 
@@ -54,7 +56,7 @@ export const deployStablePlainPoolEstimateGas = async (
     coins: string[],
     A: number | string,
     fee: number | string, // %
-    assetType: 0 | 1 | 2 | 3,
+    assetType: 0 | 1 | 2 | 3, // 0 = USD, 1 = ETH, 2 = BTC, 3 = Other
     implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
     emaTime = 600
 ): Promise<number> => {
@@ -67,7 +69,7 @@ export const deployStablePlainPool = async (
     coins: string[],
     A: number | string,
     fee: number | string, // %
-    assetType: 0 | 1 | 2 | 3,
+    assetType: 0 | 1 | 2 | 3, // 0 = USD, 1 = ETH, 2 = BTC, 3 = Other
     implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
     emaTime = 600
 ): Promise<ethers.ContractTransactionResponse> => {
@@ -78,6 +80,26 @@ export const getDeployedStablePlainPoolAddress = async (tx: ethers.ContractTrans
     const txInfo = await tx.wait();
     if (!txInfo) throw Error("Can't get tx info");
     return txInfo.logs[0].address.toLowerCase();
+}
+
+export const _setOracle = async (poolAddress: string, oracleAddress: string, methodName: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+    curve.setContract(poolAddress, Plain2ETHOracleABIABI);
+    const poolContract = curve.contracts[poolAddress].contract;
+    const methodId = methodName === "0x00000000" ? "0x00000000" : ethers.id(methodName).substring(0, 10);
+    const _gas =  await poolContract.set_oracle.estimateGas(methodId, oracleAddress, curve.constantOptions);
+    if (estimateGas) return Number(_gas);
+
+    const gasLimit = mulBy1_3(_gas);
+    await curve.updateFeeData();
+    return await poolContract.set_oracle(methodId, oracleAddress, { ...curve.options, gasLimit });
+}
+
+export const setOracleEstimateGas = async (poolAddress: string, oracleAddress = curve.constants.ZERO_ADDRESS, methodName = "0x00000000"): Promise<number> => {
+    return await _setOracle(poolAddress, oracleAddress, methodName, true) as number;
+}
+
+export const setOracle = async (poolAddress: string, oracleAddress = curve.constants.ZERO_ADDRESS, methodName = "0x00000000"): Promise<ethers.ContractTransactionResponse> => {
+    return await _setOracle(poolAddress, oracleAddress, methodName, false) as ethers.ContractTransactionResponse;
 }
 
 // ------- STABLE META POOLS -------

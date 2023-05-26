@@ -54,6 +54,8 @@ import {
 import {
     deployStablePlainPool,
     deployStablePlainPoolEstimateGas,
+    setOracle,
+    setOracleEstimateGas,
     deployStableMetaPool,
     deployStableMetaPoolEstimateGas,
     deployCryptoPool,
@@ -109,6 +111,7 @@ const curve = {
         fetchNewPools: _curve.fetchNewFactoryPools,
         getPoolList: _curve.getFactoryPoolList,
         deployPlainPool: deployStablePlainPool,
+        setOracle,
         deployMetaPool: deployStableMetaPool,
         deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, false),
         getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
@@ -117,6 +120,7 @@ const curve = {
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedFactoryPool,
         estimateGas: {
             deployPlainPool: deployStablePlainPoolEstimateGas,
+            setOracle: setOracleEstimateGas,
             deployMetaPool: deployStableMetaPoolEstimateGas,
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, false),
         },

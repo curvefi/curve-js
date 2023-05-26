@@ -14,6 +14,7 @@ import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json" ass
 import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json" assert { type: 'json' };
 import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json" assert { type: 'json' };
 import Plain2ETHABI from "../constants/abis/factory-v2/Plain2ETH.json" assert { type: 'json' };
+import Plain2ETHOracleABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
 import Plain2OptimizedABI from "../constants/abis/factory-v2/Plain2Optimized.json" assert { type: 'json' };
 import Plain3BasicABI from "../constants/abis/factory-v2/Plain3Basic.json" assert { type: 'json' };
 import Plain3BalancesABI from "../constants/abis/factory-v2/Plain3Balances.json" assert { type: 'json' };
@@ -60,9 +61,9 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0x24D937143d3F5cF04c72bA112735151A8CAE2262": Plain2BalancesABI,
     "0x6326DEbBAa15bCFE603d831e7D75f4fc10d9B43E": Plain2ETHABI,
     "0x4A4d7868390EF5CaC51cDA262888f34bD3025C3F": Plain2OptimizedABI,
-    "0xc629a01eC23AB04E1050500A3717A2a5c0701497": Plain2BasicABI, // EMA id 4
-    "0x847ee1227A9900B73aEeb3a47fAc92c52FD54ed9": Plain2ETHABI,   // EMA id 5
-    "0x94b4DFd9Ba5865Cc931195c99A2db42F3fc5d45B": Plain2ETHABI,   // EMA deprecated
+    "0xc629a01eC23AB04E1050500A3717A2a5c0701497": Plain2BasicABI,       // EMA id 4
+    "0x847ee1227A9900B73aEeb3a47fAc92c52FD54ed9": Plain2ETHOracleABI,   // EMA id 5
+    "0x94b4DFd9Ba5865Cc931195c99A2db42F3fc5d45B": Plain2ETHABI,         // EMA deprecated
 
     "0x67fe41A94e779CcFa22cff02cc2957DC9C0e4286": Plain2BasicABI, // !!! crvUSD Factory !!!
 

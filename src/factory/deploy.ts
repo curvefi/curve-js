@@ -323,5 +323,5 @@ export const getDeployedGaugeAddress = async (tx: ethers.ContractTransactionResp
     const txInfo = await tx.wait();
     if (!txInfo) throw Error("Can't get tx info")
     // @ts-ignore
-    return txInfo.events[0].args[txInfo.events[0].args.length - 1].toLowerCase();
+    return txInfo.logs[0].args[1].toLowerCase();
 }

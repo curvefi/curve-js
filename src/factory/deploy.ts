@@ -343,7 +343,7 @@ export const deployGauge = async (pool: string, isCrypto: boolean): Promise<ethe
 
 export const getDeployedGaugeAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
     const txInfo = await tx.wait();
-    if (!txInfo) throw Error("Can't get tx info")
+    if (!txInfo) throw Error("Can't get tx info");
     // @ts-ignore
-    return txInfo.logs[0].args[1].toLowerCase();
+    return txInfo.logs[0].args[txInfo.logs[0].args.length - 1].toLowerCase();
 }

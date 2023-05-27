@@ -17,7 +17,9 @@ const _deployStablePlainPool = async (
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3, // 0 = USD, 1 = ETH, 2 = BTC, 3 = Other
     implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
-    emaTime: number,
+    emaTime: number, // seconds
+    oracleAddress: string,
+    methodName: string,
     estimateGas: boolean
 ): Promise<ethers.ContractTransactionResponse | number> => {
     if (name.length > 32) throw Error("Max name length = 32");
@@ -36,19 +38,27 @@ const _deployStablePlainPool = async (
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
     const _coins = coins.concat(Array(4 - coins.length).fill(curve.constants.ZERO_ADDRESS));
-    const useProxy = (curve.chainId === 1 && coins.length === 2 && implementationIdx === 4 && emaTime !== 600) ||
-        (curve.chainId === 1 && coins.length === 2 && implementationIdx === 5 && emaTime !== 600);
-    const contractAddress = useProxy ? curve.constants.ALIASES.factory_admin : curve.constants.ALIASES.factory;
-    const contract = curve.contracts[contractAddress].contract;
 
+    const useProxy = (curve.chainId === 1 && coins.length === 2 && implementationIdx === 4 && emaTime !== 600) ||
+        (curve.chainId === 1 && coins.length === 2 && implementationIdx === 5 && emaTime !== 600) ||
+        ((curve.chainId === 42161 || curve.chainId == 10) && coins.length === 2 && implementationIdx === 0 && emaTime !== 600);
+    const setOracle = ((curve.chainId === 42161 || curve.chainId == 10) && coins.length === 2 && implementationIdx === 2);
+
+    const contractAddress = (useProxy || setOracle) ? curve.constants.ALIASES.factory_admin : curve.constants.ALIASES.factory;
+    const contract = curve.contracts[contractAddress].contract;
     const args = [name, symbol, _coins, _A, _fee, assetType, implementationIdx];
-    if (useProxy) args.push(curve.parseUnits((emaTime / Math.log(2)).toFixed(0), 0));
-    const gas = await contract.deploy_plain_pool.estimateGas(...args, curve.constantOptions);
+    if (useProxy || setOracle) args.push(curve.parseUnits((emaTime / Math.log(2)).toFixed(0), 0));
+    if (setOracle) {
+        const methodId = methodName === "0x00000000" ? "0x00000000" : ethers.id(methodName).substring(0, 10);
+        args.push(methodId, oracleAddress);
+    }
+    const methodToCall = setOracle ? "deploy_plain_pool_and_set_oracle" : "deploy_plain_pool";
+    const gas = await contract[methodToCall].estimateGas(...args, curve.constantOptions);
     if (estimateGas) return Number(gas);
 
     const gasLimit = mulBy1_3(gas);
     await curve.updateFeeData();
-    return await contract.deploy_plain_pool(...args, { ...curve.options, gasLimit });
+    return await contract[methodToCall](...args, { ...curve.options, gasLimit });
 }
 
 export const deployStablePlainPoolEstimateGas = async (
@@ -59,9 +69,11 @@ export const deployStablePlainPoolEstimateGas = async (
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3, // 0 = USD, 1 = ETH, 2 = BTC, 3 = Other
     implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
-    emaTime = 600
+    emaTime = 600, // seconds
+    oracleAddress = curve.constants.ZERO_ADDRESS,
+    methodName = "0x00000000"
 ): Promise<number> => {
-    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, emaTime, true) as number;
+    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, emaTime, oracleAddress, methodName, true) as number;
 }
 
 export const deployStablePlainPool = async (
@@ -72,9 +84,11 @@ export const deployStablePlainPool = async (
     fee: number | string, // %
     assetType: 0 | 1 | 2 | 3, // 0 = USD, 1 = ETH, 2 = BTC, 3 = Other
     implementationIdx: 0 | 1 | 2 | 3 | 4 | 5,
-    emaTime = 600
+    emaTime = 600, // seconds
+    oracleAddress = curve.constants.ZERO_ADDRESS,
+    methodName = "0x00000000"
 ): Promise<ethers.ContractTransactionResponse> => {
-    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, emaTime, false) as ethers.ContractTransactionResponse;
+    return await _deployStablePlainPool(name, symbol, coins, A, fee, assetType, implementationIdx, emaTime, oracleAddress, methodName, false) as ethers.ContractTransactionResponse;
 }
 
 export const getDeployedStablePlainPoolAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {

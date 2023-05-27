@@ -115,6 +115,60 @@
       }
     ]
   },
+
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "deploy_plain_pool_and_set_oracle",
+    "inputs": [
+      {
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "name": "_symbol",
+        "type": "string"
+      },
+      {
+        "name": "_coins",
+        "type": "address[4]"
+      },
+      {
+        "name": "_A",
+        "type": "uint256"
+      },
+      {
+        "name": "_fee",
+        "type": "uint256"
+      },
+      {
+        "name": "_asset_type",
+        "type": "uint256"
+      },
+      {
+        "name": "_implementation_idx",
+        "type": "uint256"
+      },
+      {
+        "name": "_ma_exp_time",
+        "type": "uint256"
+      },
+      {
+        "name": "_oracle_method_id",
+        "type": "bytes4"
+      },
+      {
+        "name": "_oracle_address",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
   {
     "stateMutability": "nonpayable",
     "type": "function",

@@ -1,6 +1,7 @@
 import { ethers, Contract} from "ethers";
 import { curve } from "../curve.js";
-import { parseUnits, BN, mulBy1_3 } from "../utils.js";
+import { getPool } from "../pools/index.js";
+import { parseUnits, BN, mulBy1_3, getPoolIdBySwapAddress } from "../utils.js";
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" assert { type: 'json' };
 import Plain2ETHOracleABIABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
 
@@ -159,7 +160,14 @@ export const deployStableMetaPool = async (
 export const getDeployedStableMetaPoolAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
     const txInfo = await tx.wait();
     if (!txInfo) throw Error("Can't get tx info");
-    return txInfo.logs[3].address.toLowerCase();
+    for (let i = txInfo.logs.length - 1; i > -1; i--) {
+        if ("args" in txInfo.logs[i]) {
+            const basePoolId = getPoolIdBySwapAddress((txInfo.logs[i] as ethers.EventLog).args[1]);
+            const basePool = getPool(basePoolId);
+            return txInfo.logs[basePool.underlyingCoins.length].address.toLowerCase();
+        }
+    }
+    throw Error("Can't get deployed metapool address");
 }
 
 

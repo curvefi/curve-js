@@ -232,7 +232,7 @@ export const ensureAllowance = async (coins: string[], amounts: (number | string
     return await _ensureAllowance(coinAddresses, _amounts, spender, isMax)
 }
 
-export const getPoolNameBySwapAddress = (swapAddress: string): string => {
+export const getPoolIdBySwapAddress = (swapAddress: string): string => {
     const poolsData = {
         ...curve.constants.POOLS_DATA,
         ...curve.constants.FACTORY_POOLS_DATA,

@@ -9,6 +9,7 @@ export const COINS_OPTIMISM: { [index: string]: string } = lowerCaseValues({
     'usdc': '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
     'usdt': '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58',
     'susd': '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',
+    'mim': '0xb153fb3d196a8eb25522705560ac152eeec57901',
     '3crv': '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
 
     // --- ETH ---

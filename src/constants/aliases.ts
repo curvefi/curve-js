@@ -15,6 +15,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <--- CHANGE
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_POLYGON = lowerCaseValues({
@@ -31,6 +32,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_FANTOM = lowerCaseValues({
@@ -47,6 +49,7 @@ export const ALIASES_FANTOM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_AVALANCHE = lowerCaseValues({
@@ -63,6 +66,7 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_ARBITRUM = lowerCaseValues({
@@ -79,6 +83,7 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_OPTIMISM = lowerCaseValues({
@@ -95,6 +100,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_XDAI = lowerCaseValues({
@@ -111,6 +117,7 @@ export const ALIASES_XDAI = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_MOONBEAM = lowerCaseValues({
@@ -127,6 +134,7 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_AURORA = lowerCaseValues({
@@ -143,6 +151,7 @@ export const ALIASES_AURORA = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_KAVA = lowerCaseValues({
@@ -159,6 +168,7 @@ export const ALIASES_KAVA = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });
 
 export const ALIASES_CELO = lowerCaseValues({
@@ -175,4 +185,5 @@ export const ALIASES_CELO = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "registry_exchange": "",
+    "factory_admin": "",
 });

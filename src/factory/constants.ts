@@ -14,6 +14,7 @@ import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json" ass
 import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json" assert { type: 'json' };
 import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json" assert { type: 'json' };
 import Plain2ETHABI from "../constants/abis/factory-v2/Plain2ETH.json" assert { type: 'json' };
+import Plain2ETHOracleABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
 import Plain2OptimizedABI from "../constants/abis/factory-v2/Plain2Optimized.json" assert { type: 'json' };
 import Plain3BasicABI from "../constants/abis/factory-v2/Plain3Basic.json" assert { type: 'json' };
 import Plain3BalancesABI from "../constants/abis/factory-v2/Plain3Balances.json" assert { type: 'json' };
@@ -60,9 +61,9 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0x24D937143d3F5cF04c72bA112735151A8CAE2262": Plain2BalancesABI,
     "0x6326DEbBAa15bCFE603d831e7D75f4fc10d9B43E": Plain2ETHABI,
     "0x4A4d7868390EF5CaC51cDA262888f34bD3025C3F": Plain2OptimizedABI,
-    "0xc629a01eC23AB04E1050500A3717A2a5c0701497": Plain2BasicABI, // EMA
-    "0x94b4DFd9Ba5865Cc931195c99A2db42F3fc5d45B": Plain2ETHABI,   // EMA deprecated
-    "0x847ee1227A9900B73aEeb3a47fAc92c52FD54ed9": Plain2ETHABI,   // EMA
+    "0xc629a01eC23AB04E1050500A3717A2a5c0701497": Plain2BasicABI,       // EMA id 4
+    "0x847ee1227A9900B73aEeb3a47fAc92c52FD54ed9": Plain2ETHOracleABI,   // EMA id 5
+    "0x94b4DFd9Ba5865Cc931195c99A2db42F3fc5d45B": Plain2ETHABI,         // EMA deprecated
 
     "0x67fe41A94e779CcFa22cff02cc2957DC9C0e4286": Plain2BasicABI, // !!! crvUSD Factory !!!
 
@@ -159,9 +160,11 @@ export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({
     "0x8DEb66a4A40E370355bEe35f12E55Fe9c755d686": MetaFraxUSDABI, // fraxbp
     "0x3edE9b145F82e9e46C03f8A8F67B77aEE847b632": MetaFraxUSDBalancesABI, // fraxbp
 
-    "0x54e8A25d0Ac0E4945b697C80b8372445FEA17A62": Plain2BasicABI,
+    "0x54e8A25d0Ac0E4945b697C80b8372445FEA17A62": Plain2BasicABI, // id 0
+    "0x73Ec37618683C274D0bBf5f5726aA856B2BDAB81": Plain2BasicABI, // id 0 EMA
     "0xD68970e266cE1A015953897C7055a5E0bC657Af8": Plain2BalancesABI,
-    "0x7DA64233Fefb352f8F501B357c018158ED8aA455": Plain2ETHABI,
+    "0x7DA64233Fefb352f8F501B357c018158ED8aA455": Plain2ETHABI, // id 2
+    "0x6F9fb833501f46CBE6f6A4b6Cf32C834E5A5e8C5": Plain2ETHOracleABI, // id 2 EMA
     "0x0100fBf414071977B19fC38e6fc7c32FE444F5C9": Plain2OptimizedABI,
 
     "0xe381C25de995d62b453aF8B931aAc84fcCaa7A62": Plain3BasicABI,
@@ -182,9 +185,11 @@ export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
     "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": MetaFraxUSDABI,
     "0x114C4042B11a2b16F58Fe1BFe847589a122F678a": MetaFraxUSDBalancesABI,
 
-    "0xC2b1DF84112619D190193E48148000e3990Bf627": Plain2BasicABI,
+    "0xC2b1DF84112619D190193E48148000e3990Bf627": Plain2BasicABI, // id 0
+    "0x73Ec37618683C274D0bBf5f5726aA856B2BDAB81": Plain2BasicABI, // id 0 EMA
     "0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90": Plain2BalancesABI,
-    "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522": Plain2ETHABI,
+    "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522": Plain2ETHABI,  // id 2
+    "0x6F9fb833501f46CBE6f6A4b6Cf32C834E5A5e8C5": Plain2ETHOracleABI, // id 2 EMA
     "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1": Plain2OptimizedABI,
 
     "0x78D0fC2B9D5AE65512DB242e424a9c683F18c243": Plain3BasicABI,

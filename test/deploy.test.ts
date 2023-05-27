@@ -18,12 +18,12 @@ describe('Factory deploy', function() {
 
     // --- PLAIN (2 COINS) ---
 
-    it('Deploy stable plain pool and gauge (2 coins, implementation 0)', async function () {
+    it('Deploy stable plain pool and gauge (2 coins, implementation 4 (0 with ema))', async function () {
         const coins = [_curve.constants.COINS['usdp'], _curve.constants.COINS['mim']];
 
         // Deploy pool
 
-        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 0);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 4, 600);
         const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.isAddress(poolAddress));
 
@@ -76,14 +76,53 @@ describe('Factory deploy', function() {
         }
     });
 
-    it('Deploy stable plain pool and gauge (2 coins, implementation 2)', async function () {
+    it('Deploy stable plain pool and gauge (2 coins, implementation 5 (2 with ema and oracle), no oracle)', async function () {
         const coins = [_curve.constants.COINS['eth'], _curve.constants.COINS['steth']];
 
         // Deploy pool
 
-        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 1, 5);
         const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
+        await curve.factory.setOracle(poolAddress);
+        const poolContract = _curve.contracts[poolAddress].contract;
+        const methodId = await poolContract.oracle_method(_curve.constantOptions);
+
         assert.isTrue(ethers.isAddress(poolAddress));
+        assert.equal(methodId.toString(), "0");
+
+        // Deploy gauge
+
+        const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+        assert.isTrue(ethers.isAddress(gaugeAddress));
+
+        // Deposit & Stake
+
+        const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
+        const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
+        await pool.depositAndStake([10, 10]);
+        const balances = await pool.stats.underlyingBalances();
+        for (const b of balances) {
+            assert.equal(Number(b), 10);
+        }
+    });
+
+    it('Deploy stable plain pool and gauge (2 coins, implementation 5 (2 with ema and oracle), with oracle)', async function () {
+        const coins = [_curve.constants.COINS['eth'], _curve.constants.COINS['wbeth']];
+
+        // Deploy pool
+
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 1, 5, 300);
+        const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
+        await curve.factory.setOracle(poolAddress, _curve.constants.COINS['wbeth'], "exchangeRate()");
+        const poolContract = _curve.contracts[poolAddress].contract;
+        const methodId = await poolContract.oracle_method(_curve.constantOptions);
+
+        assert.isTrue(ethers.isAddress(poolAddress));
+        assert.equal(methodId.toString(), "26970434976082401409518253780829902607332438938587170119746310637809052410593");
 
         // Deploy gauge
 
@@ -199,7 +238,7 @@ describe('Factory deploy', function() {
 
         // Deploy pool
 
-        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 1, 2);
         const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.isAddress(poolAddress));
 
@@ -313,11 +352,11 @@ describe('Factory deploy', function() {
     });
 
     it('Deploy stable plain pool and gauge (4 coins, implementation 2)', async function () {
-        const coins = [_curve.constants.COINS['eth'], _curve.constants.COINS['steth'], _curve.constants.COINS['weth'], _curve.constants.COINS['reth']];
+        const coins = [_curve.constants.COINS['eth'], _curve.constants.COINS['steth'], _curve.constants.COINS['weth'], _curve.constants.COINS['frxeth']];
 
         // Deploy pool
 
-        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 0, 2);
+        const deployPoolTx = await curve.factory.deployPlainPool('Test pool', 'TST', coins, 200, 0.1, 1, 2);
         const poolAddress = await curve.factory.getDeployedPlainPoolAddress(deployPoolTx);
         assert.isTrue(ethers.isAddress(poolAddress));
 

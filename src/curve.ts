@@ -20,6 +20,7 @@ import StableCalcZapABI from './constants/abis/stable_calc.json' assert { type: 
 import registryExchangeABI from './constants/abis/registry_exchange.json' assert { type: 'json' };
 import streamerABI from './constants/abis/streamer.json' assert { type: 'json' };
 import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
+import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
 import {
     POOLS_DATA_ETHEREUM,
@@ -504,6 +505,12 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.stable_calc, StableCalcZapABI);
 
         this.setContract(this.constants.ALIASES.factory, factoryABI);
+
+        if (this.chainId !== 1313161554) {
+            const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
+            this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
+            this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
+        }
 
         this.setContract(this.constants.ALIASES.crvusd_factory, factoryABI);
 

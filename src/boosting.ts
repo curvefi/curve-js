@@ -1,10 +1,11 @@
 import { Contract } from "ethers";
 import BigNumber from "bignumber.js";
 import { curve } from "./curve.js";
-import { IDict } from "./interfaces";
+import { IDict, IChainId } from "./interfaces";
 import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" assert { type: 'json' };
 import { _getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance, mulBy1_3 } from "./utils.js";
 import { _ensureAllowance, toBN, toStringFromBN, parseUnits } from './utils.js';
+import { _generateBoostingProof } from './external-api.js';
 
 
 export const getCrv = async (...addresses: string[] | string[][]): Promise<IDict<string> | string> => {
@@ -205,4 +206,95 @@ export const claimFees = async (address = ""): Promise<string> => {
     await curve.updateFeeData();
     const gasLimit = mulBy1_3(await contract.claim.estimateGas(address, curve.constantOptions));
     return (await contract.claim(address, { ...curve.options, gasLimit })).hash
+}
+
+
+//  ------------ SIDECHAIN ------------
+
+
+export const lastBlockhash = async (): Promise<number> => {
+    if (curve.chainId === 1) throw Error("There is no lastBlock method on ethereum network");
+    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
+
+    return Number(await veOracleContract.last_eth_block_number(curve.constantOptions));
+}
+
+export const checkBlockhash = async (block: number): Promise<boolean> => {
+    if (curve.chainId === 1) throw Error("There is no checkBlockhash method on ethereum network");
+    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
+    try {
+        await veOracleContract.get_eth_blockhash(block, curve.constantOptions);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+export const getAnycallBalance = async (): Promise<string> => {
+    if (curve.chainId === 1) throw Error("There is no getAnycallBalance method on ethereum network");
+    const anycallContract = curve.contracts[curve.constants.ALIASES.anycall].contract;
+    const _balance = await anycallContract.executionBudget(curve.constants.ALIASES.voting_escrow_oracle, curve.constantOptions);
+
+    return curve.formatUnits(_balance)
+}
+
+const DEFAULT_AMOUNT = (curve.chainId === 42161 || curve.chainId === 10) ? 0.00001 : 0.1;
+const _topUpAnycall = async (amount: number | string, estimateGas: boolean): Promise<string | number> => {
+    if (curve.chainId === 1) throw Error("There is no topUpAnycall method on ethereum network");
+    const anycallContract = curve.contracts[curve.constants.ALIASES.anycall].contract;
+    const value = curve.parseUnits(String(amount));
+    const gas = await anycallContract.deposit.estimateGas(curve.constants.ALIASES.voting_escrow_oracle, { ...curve.constantOptions, value});
+    if (estimateGas) return Number(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(gas);
+    return (await anycallContract.deposit(curve.constants.ALIASES.voting_escrow_oracle, { ...curve.options, gasLimit, value })).hash;
+}
+
+export const topUpAnycallEstimateGas = async (amount: number | string = DEFAULT_AMOUNT): Promise<number> => {
+    return await _topUpAnycall(amount, true) as number;
+}
+
+export const topUpAnycall = async (amount: number | string = DEFAULT_AMOUNT): Promise<string> => {
+    return await _topUpAnycall(amount, false) as string;
+}
+
+const _sendBlockhash = async (block: number, chainId: IChainId, estimateGas: boolean): Promise<string | number> => {
+    if (curve.chainId !== 1) throw Error("sendBlockhash method is on ethereum network only");
+    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
+    const gas = await veOracleContract.send_blockhash.estimateGas(block, chainId, curve.constantOptions);
+    if (estimateGas) return Number(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(gas);
+    return (await veOracleContract.deposit(curve.constants.ALIASES.voting_escrow_oracle, { ...curve.options, gasLimit })).hash;
+}
+
+export const sendBlockhashEstimateGas = async (block: number, chainId: IChainId): Promise<number> => {
+    return await _sendBlockhash(block, chainId, true) as number;
+}
+
+export const sendBlockhash = async (block: number, chainId: IChainId): Promise<string> => {
+    return await _sendBlockhash(block, chainId, false) as string;
+}
+
+const _submitProof = async (block: number, address = curve.signerAddress, estimateGas: boolean): Promise<string | number> => {
+    if (curve.chainId === 1) throw Error("submitProof method is on ethereum network only");
+    if (address === "") throw Error("Pass address you want to submit proof for")
+    const proof = await _generateBoostingProof(block, address);
+    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
+    const gas = await veOracleContract.submit_state.estimateGas(address, "0x" + proof.block_header_rlp, "0x" + proof.proof_rlp, curve.constantOptions);
+    if (estimateGas) return Number(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(gas);
+    return (await veOracleContract.submit_state(address, "0x" + proof.block_header_rlp, "0x" + proof.proof_rlp, { ...curve.options, gasLimit })).hash;
+}
+
+export const submitProofEstimateGas = async (block: number, address = curve.signerAddress): Promise<number> => {
+    return await _submitProof(block, address, true) as number;
+}
+
+export const submitProof = async (block: number, address = curve.signerAddress): Promise<string> => {
+    return await _submitProof(block, address, false) as string;
 }

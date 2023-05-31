@@ -105,3 +105,16 @@ export const _getHiddenPools = memoize(
         maxAge: 5 * 60 * 1000, // 5m
     }
 )
+
+export const _generateBoostingProof = memoize(
+    async (block: number, address: string): Promise<{ block_header_rlp: string, proof_rlp: string }> => {
+        const url = `https://prices.curve.fi/v1/general/get_merkle_proof?block=${block}&account_address=${address}`;
+        const response = await axios.get(url, { validateStatus: () => true });
+
+        return { block_header_rlp: response.data.block_header_rlp, proof_rlp: response.data.proof_rlp };
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)

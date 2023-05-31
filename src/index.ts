@@ -39,6 +39,15 @@ import {
     claimableFees,
     claimFeesEstimateGas,
     claimFees,
+    lastBlockhash,
+    checkBlockhash,
+    getAnycallBalance,
+    topUpAnycall,
+    topUpAnycallEstimateGas,
+    sendBlockhash,
+    sendBlockhashEstimateGas,
+    submitProof,
+    submitProofEstimateGas,
 } from "./boosting.js";
 import {
     getBalances,
@@ -168,6 +177,19 @@ const curve = {
             increaseUnlockTime: increaseUnlockTimeEstimateGas,
             withdrawLockedCrv: withdrawLockedCrvEstimateGas,
             claimFees: claimFeesEstimateGas,
+        },
+        sidechain: {
+            lastBlockhash,
+            checkBlockhash,
+            getAnycallBalance,
+            topUpAnycall,
+            sendBlockhash,
+            submitProof,
+            estimateGas: {
+                topUpAnycall: topUpAnycallEstimateGas,
+                sendBlockhash: sendBlockhashEstimateGas,
+                submitProof: submitProofEstimateGas,
+            },
         },
     },
     router: {

@@ -1,0 +1,76 @@
+[
+  {
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "name": "send_blockhash",
+    "inputs": [
+      {
+        "name": "_block_number",
+        "type": "uint256"
+      },
+      {
+        "name": "_chain_id",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [],
+    "gas": "54147"
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "block_number_bounds",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[2]"
+      }
+    ],
+    "gas": "740"
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "generate_eth_get_proof_params",
+    "inputs": [
+      {
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256[20]"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "gas": "21089"
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "get_last_block_number_sent",
+    "inputs": [
+      {
+        "name": "_chain_id",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "gas": "2747"
+  }
+]

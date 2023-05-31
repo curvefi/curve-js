@@ -10,6 +10,9 @@ import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
 import minterABI from './constants/abis/minter.json' assert { type: 'json' };
 import minterChildABI from './constants/abis/minter_child.json' assert { type: 'json' };
 import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
+import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };
+import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' assert { type: 'json' };
+import votingEscrowOracleEthABI from './constants/abis/voting_escrow_oracle_eth.json' assert { type: 'json' };
 import feeDistributorABI from './constants/abis/fee_distributor.json' assert { type: 'json' };
 import addressProviderABI from './constants/abis/address_provider.json' assert { type: 'json' };
 import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert { type: 'json' };
@@ -391,6 +394,8 @@ class Curve implements ICurve {
         this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
         this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
+        this.constants.ALIASES.anycall = "0x37414a8662bc1d25be3ee51fb27c2686e2490a89";
+        this.constants.ALIASES.voting_escrow_oracle = "0x12F407340697Ae0b177546E535b91A5be021fBF9";
         this.constants.POOLS_DATA = NETWORK_CONSTANTS[this.chainId].POOLS_DATA;
         if (this.chainId === 1) this.constants.LLAMMAS_DATA = NETWORK_CONSTANTS[this.chainId].LLAMMAS_DATA;
         for (const poolId in this.constants.POOLS_DATA) this.constants.POOLS_DATA[poolId].in_api = true;
@@ -515,6 +520,10 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.crvusd_factory, factoryABI);
 
         this.setContract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI);
+
+        this.setContract(this.constants.ALIASES.anycall, anycallABI);
+
+        this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
     }
 
     setContract(address: string, abi: any): void {

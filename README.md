@@ -1144,6 +1144,42 @@ import curve from "@curvefi/api";
     // 0.0
 })()
 ```
+### Sidechain
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+
+    // --- SIDECHAIN ---
+
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    await curve.boosting.sidechain.lastBlockhash();
+    // 16931944
+    await curve.boosting.sidechain.checkBlockhash(17377005);
+    // false
+    
+    await curve.boosting.sidechain.getAnycallBalance();
+    // 0.033837278711248954
+    await curve.boosting.sidechain.topUpAnycall(0.1);
+    await curve.boosting.sidechain.getAnycallBalance();
+    // 0.133837278711248954
+
+
+    // --- MAINNET (ETHEREUM) ---
+
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+    await curve.boosting.sidechain.sendBlockhash(17377005, 137); // Polygon
+
+    // --- SIDECHAIN ---
+
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+    await curve.boosting.sidechain.checkBlockhash(17377005);
+    // true
+    await curve.boosting.sidechain.submitProof(17377005, "0x33A4622B82D4c04a53e170c638B944ce27cffce3");
+})()
+```
+
 
 ## CRV. Profit, claim, boosting
 ```ts

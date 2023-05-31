@@ -968,7 +968,6 @@ export class PoolTemplate {
     }
 
     public boost = async (address = ""): Promise<string> => {
-        if (curve.chainId !== 1) throw Error("Boosting is available only on Ethereum network");
         if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
 
         address = address || curve.signerAddress;
@@ -981,6 +980,8 @@ export class PoolTemplate {
         ]) as bigint[]).map((value: bigint) => toBN(value));
 
         const boostBN = workingBalanceBN.div(0.4).div(balanceBN);
+        if (boostBN.lt(1)) return '1.0';
+        if (boostBN.gt(2.5)) return '2.5';
 
         return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
     }
@@ -1000,7 +1001,6 @@ export class PoolTemplate {
     }
 
     public maxBoostedStake = async (...addresses: string[]): Promise<IDict<string> | string> => {
-        if (curve.chainId !== 1) throw Error("Boosting is available only on Ethereum network");
         if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         if (addresses.length == 1 && Array.isArray(addresses[0])) addresses = addresses[0];
         if (addresses.length === 0 && curve.signerAddress !== '') addresses = [curve.signerAddress];

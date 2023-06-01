@@ -26,6 +26,7 @@ import curve from "@curvefi/api";
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 })()
 ```
 **Note 1.** ```chainId``` parameter is optional, but you must specify it in the case you use Metamask on localhost network, because Metamask has that [bug](https://hardhat.org/metamask-issue.html)
@@ -188,6 +189,7 @@ import curve from "@curvefi/api";
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 
     curve.getMainPoolList();
     // [
@@ -264,6 +266,9 @@ import curve from "@curvefi/api";
     //     'factory-crypto-60', 'factory-crypto-61', 'factory-crypto-62'
     // ]
 
+    curve.tricryptoFactory.getPoolList();
+    // ['factory-tricrypto-0', 'factory-tricrypto-1']
+
     curve.getPoolList();
     // [
     //     'compound',      'usdt',          'y',             'busd',
@@ -305,6 +310,7 @@ import curve from "@curvefi/api";
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 
     const pool = curve.getPool('factory-v2-11');
 
@@ -1011,6 +1017,7 @@ import curve from "@curvefi/api";
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '9900.0', '100049.744832225238317557' ]
@@ -1369,12 +1376,15 @@ import curve from "@curvefi/api";
     // Fetch pools from api (if false arg is not passed)
     await curve.factory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 
     // Fetch very new pools (that haven't been added to api yet) from blockchain
     await curve.factory.fetchNewPools();
     // [ 'factory-v2-285' ]
     await curve.cryptoFactory.fetchNewPools();
     // [ 'factory-crypto-232' ]
+    await curve.tricryptoFactory.fetchNewPools();
+    // [ 'factory-tricrypto-2' ]
 })()
 ```
 

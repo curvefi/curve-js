@@ -3,6 +3,7 @@ import { Provider as MulticallProvider, Contract as MulticallContract } from 'et
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
+import { getTricryptoFactoryPoolData } from "./factory/factory-tricrypto.js";
 import { IPoolData, IDict, ICurve, INetworkName, IChainId } from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
@@ -25,6 +26,7 @@ import streamerABI from './constants/abis/streamer.json' assert { type: 'json' }
 import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
 import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
+import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
 import {
     POOLS_DATA_ETHEREUM,
     LLAMMAS_DATA_ETHEREUM,
@@ -281,6 +283,7 @@ class Curve implements ICurve {
         FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+        TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
         LLAMMAS_DATA: IDict<IPoolData>,
         COINS: IDict<string>,
         DECIMALS: IDict<number>,
@@ -309,6 +312,7 @@ class Curve implements ICurve {
             FACTORY_POOLS_DATA: {},
             CRVUSD_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
+            TRICRYPTO_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},
@@ -342,6 +346,7 @@ class Curve implements ICurve {
             FACTORY_POOLS_DATA: {},
             CRVUSD_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
+            TRICRYPTO_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},
@@ -389,7 +394,7 @@ class Curve implements ICurve {
 
         const network = await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
-        this.chainId = Number(network.chainId) === 1337 ? 1 : Number(network.chainId) as IChainId;
+        this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
 
         this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
@@ -521,6 +526,8 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI);
 
+        this.setContract(this.constants.ALIASES.tricrypto_factory, tricryptoFactoryABI);
+
         this.setContract(this.constants.ALIASES.anycall, anycallABI);
 
         this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
@@ -588,6 +595,20 @@ class Curve implements ICurve {
         await _killGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
     }
 
+    fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
+        if (![1].includes(this.chainId)) return;
+
+        if (useApi) {
+            this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-tricrypto"));
+        } else {
+            this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this));
+        }
+        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+        this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+
+        await _killGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+    }
+
     fetchNewFactoryPools = async (): Promise<string[]> => {
         if (this.chainId === 1313161554) return [];
 
@@ -612,6 +633,18 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
+    fetchNewTricryptoFactoryPools = async (): Promise<string[]> => {
+        if (![1].includes(this.chainId)) return [];
+
+        const currentPoolIds = Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+        const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
+        const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, lastPoolIdx + 1));
+        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)
+    }
+
     fetchRecentlyDeployedFactoryPool = async (poolAddress: string): Promise<string> => {
         if (this.chainId === 1313161554) return '';
 
@@ -632,6 +665,16 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
+    fetchRecentlyDeployedTricryptoFactoryPool = async (poolAddress: string): Promise<string> => {
+        if (![1].includes(this.chainId)) return '';
+
+        const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
+        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)[0]  // id
+    }
+
     getMainPoolList = (): string[] => Object.keys(this.constants.POOLS_DATA);
 
     getFactoryPoolList = (): string[] => Object.keys(this.constants.FACTORY_POOLS_DATA);
@@ -640,12 +683,24 @@ class Curve implements ICurve {
 
     getCryptoFactoryPoolList = (): string[] => Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
+    getTricryptoFactoryPoolList = (): string[] => Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+
     getPoolList = (): string[] => [
         ...this.getMainPoolList(),
         ...this.getFactoryPoolList(),
         ...this.getCrvusdFactoryPoolList(),
         ...this.getCryptoFactoryPoolList(),
+        ...this.getTricryptoFactoryPoolList(),
     ];
+
+    getPoolsData = (): IDict<IPoolData> => ({
+        ...this.constants.POOLS_DATA,
+        ...this.constants.FACTORY_POOLS_DATA,
+        ...this.constants.CRVUSD_FACTORY_POOLS_DATA,
+        ...this.constants.CRYPTO_FACTORY_POOLS_DATA,
+        ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA,
+        ...this.constants.LLAMMAS_DATA,
+    });
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
         this.feeData = { ...this.feeData, ...customFeeData };

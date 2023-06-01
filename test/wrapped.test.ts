@@ -11,6 +11,7 @@ const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth', 'xautusd', 's
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', 'factory-v2-136']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)', 'sUSDFRAXBP'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8']; // ['YFIETH-fV2'];
 const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
+const FACTORY_TRICRYPTO_POOLS = ['factory-tricrypto-0', 'factory-tricrypto-1']; // ['crvUSDCWBTCWETH', 'crvUSDTWBTCWETH']
 // const ETHEREUM_POOLS = [...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 // const ETHEREUM_POOLS = [...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS];
 const ETHEREUM_POOLS = ['factory-v2-136']//['compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
@@ -41,7 +42,7 @@ const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_META_POOLS];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = META_POOLS;
+const POOLS_FOR_TESTING = FACTORY_TRICRYPTO_POOLS;
 
 const AAVE_POOLS = ['aave', 'saave', 'geist', 'aaveV3'];
 
@@ -262,6 +263,7 @@ describe('Wrapped test', async function () {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
         await curve.factory.fetchPools();
         await curve.cryptoFactory.fetchPools();
+        await curve.tricryptoFactory.fetchPools();
     });
 
 

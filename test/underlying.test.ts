@@ -14,6 +14,7 @@ const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', '
 const FACTORY_CRVUSD_POOLS = ['factory-crvusd-0', 'factory-crvusd-1', 'factory-crvusd-2', 'factory-crvusd-3'];
 const FACTORY_CRYPTO_POOLS = ['factory-crypto-8', 'factory-crypto-4']; // ['YFIETH-fV2', 'BADGERWBTC-fV2'];
 const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
+const FACTORY_TRICRYPTO_POOLS = ['factory-tricrypto-0', 'factory-tricrypto-1']; // ['crvUSDCWBTCWETH', 'crvUSDTWBTCWETH']
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 // const ETHEREUM_POOLS = [...FACTORY_PLAIN_POOLS, ...FACTORY_META_POOLS, ...FACTORY_CRYPTO_POOLS, ...FACTORY_CRYPTO_META_POOLS];
 // const ETHEREUM_POOLS = ['susd', '3pool', 'compound', 'aave', 'ib', 'gusd', 'mim', 'tricrypto2', 'crveth'];
@@ -63,7 +64,7 @@ const CELO_POOLS = ['factory-v2-0'];
 
 // ------------------------------------------
 
-const POOLS_FOR_TESTING = FACTORY_CRVUSD_POOLS;
+const POOLS_FOR_TESTING = FACTORY_TRICRYPTO_POOLS;
 
 const underlyingLiquidityTest = (id: string) => {
     describe(`${id} deposit-stake-deposit&stake-unstake-withdraw`, function () {
@@ -275,6 +276,7 @@ describe('Underlying test', async function () {
         await curve.factory.fetchPools();
         await curve.crvUSDFactory.fetchPools();
         await curve.cryptoFactory.fetchPools();
+        await curve.tricryptoFactory.fetchPools();
     });
 
     for (const poolId of POOLS_FOR_TESTING) {

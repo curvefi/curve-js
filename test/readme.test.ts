@@ -42,11 +42,13 @@ const availablePoolsTest = async () => {
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 
     console.log(curve.getMainPoolList());
     console.log(curve.factory.getPoolList());
     console.log(curve.crvUSDFactory.getPoolList());
     console.log(curve.cryptoFactory.getPoolList());
+    console.log(curve.tricryptoFactory.getPoolList());
     console.log(curve.getPoolList());
 }
 
@@ -55,6 +57,7 @@ const poolFieldsTest = async () => {
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 
     const pool = curve.getPool('factory-v2-11');
 
@@ -547,12 +550,15 @@ const fetchNewFactoryPoolsTest = async () => {
     // Fetch pools from api (if false arg is not passed)
     await curve.factory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.tricryptoFactory.fetchPools();
 
     // Fetch very new pools (that haven't been added to api yet) from blockchain
     await curve.factory.fetchNewPools();
     // [ 'factory-v2-285' ]
     await curve.cryptoFactory.fetchNewPools();
     // [ 'factory-crypto-232' ]
+    await curve.tricryptoFactory.fetchNewPools();
+    // [ 'factory-tricrypto-2' ]
 }
 
 const deployPlainPoolTest = async () => {

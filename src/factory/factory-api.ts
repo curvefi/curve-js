@@ -6,6 +6,7 @@ import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
 import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" assert { type: 'json' };
+import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" assert { type: 'json' };
 import { FACTORY_CONSTANTS } from "./constants.js";
 import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 import { setFactoryZapContracts } from "./common.js";
@@ -16,7 +17,7 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
         poolData.address = poolData.address.toLowerCase();
         if (poolData.lpTokenAddress) poolData.lpTokenAddress = poolData.lpTokenAddress.toLowerCase();
         if (poolData.gaugeAddress) poolData.gaugeAddress = poolData.gaugeAddress.toLowerCase();
-        poolData.implementationAddress = poolData.implementationAddress.toLowerCase();
+        if (poolData.implementationAddress) poolData.implementationAddress = poolData.implementationAddress.toLowerCase();
         for (const coin of poolData.coins) {
             coin.address = coin.address.toLowerCase();
         }
@@ -29,45 +30,33 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
     return poolsData
 }
 
-function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], isCrypto: boolean): void {
-    if (isCrypto) {
+function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], factoryType: "factory" | "factory-crvusd" | "factory-crypto" | "factory-tricrypto"): void {
+    if (factoryType === "factory-crypto") {
         rawPoolList.forEach((pool) => {
-            const addr = pool.address;
-            this.contracts[addr] = {
-                contract: new Contract(addr, cryptoFactorySwapABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, cryptoFactorySwapABI),
-            }
+            this.setContract(pool.address, cryptoFactorySwapABI);
+        });
+    } else if (factoryType === "factory-tricrypto") {
+        rawPoolList.forEach((pool) => {
+            this.setContract(pool.address, tricryptoFactorySwapABI);
         });
     } else {
         const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
         rawPoolList.forEach((pool) => {
-            const addr = pool.address;
-            this.contracts[addr] = {
-                contract: new Contract(addr, implementationABIDict[pool.implementationAddress], this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, implementationABIDict[pool.implementationAddress]),
-            }
+            this.setContract(pool.address, implementationABIDict[pool.implementationAddress]);
         });
     }
 }
 
 function setCryptoFactoryTokenContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
     rawPoolList.forEach((pool) => {
-        const addr = pool.lpTokenAddress as string;
-        this.contracts[addr] = {
-            contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
-            multicallContract: new MulticallContract(addr, ERC20ABI),
-        }
+        this.setContract(pool.lpTokenAddress as string, ERC20ABI);
     });
 }
 
 function setFactoryGaugeContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
     rawPoolList.forEach((pool)  => {
         if (pool.gaugeAddress) {
-            const addr = pool.gaugeAddress;
-            this.contracts[addr] = {
-                contract: new Contract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI),
-            }
+            this.setContract(pool.gaugeAddress, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI);
         }
     });
 }
@@ -75,20 +64,15 @@ function setFactoryGaugeContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
 function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
     for (const pool of rawPoolList) {
         for (const coin of pool.coins) {
-            const addr = coin.address;
-            if (addr in this.contracts) continue;
-
-            this.contracts[addr] = {
-                contract: new Contract(addr, ERC20ABI, this.signer || this.provider),
-                multicallContract: new MulticallContract(addr, ERC20ABI),
-            }
+            if (coin.address in this.contracts) continue;
+            this.setContract(coin.address, ERC20ABI);
         }
     }
 }
 
-export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: "factory" | "factory-crvusd" | "factory-crypto"): Promise<IDict<IPoolData>> {
+export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: "factory" | "factory-crvusd" | "factory-crypto" | "factory-tricrypto"): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
-    const isCrypto = factoryType === "factory-crypto";
+    const isCrypto = factoryType === "factory-crypto" || factoryType === "factory-tricrypto";
     let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType)).poolData);
     if (!isCrypto) {
         rawPoolList = rawPoolList.filter((p) => p.implementationAddress in FACTORY_CONSTANTS[this.chainId].implementationABIDict);
@@ -97,8 +81,8 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: "fac
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address);
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address));
 
-    setFactorySwapContracts.call(this, rawPoolList, isCrypto);
-    if (isCrypto) setCryptoFactoryTokenContracts.call(this, rawPoolList);
+    setFactorySwapContracts.call(this, rawPoolList, factoryType);
+    if (factoryType === "factory-crypto") setCryptoFactoryTokenContracts.call(this, rawPoolList);
     setFactoryGaugeContracts.call(this, rawPoolList);
     setFactoryCoinsContracts.call(this, rawPoolList);
     setFactoryZapContracts.call(this, isCrypto);
@@ -122,7 +106,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: "fac
             const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
             const basePoolId = lpTokenBasePoolIdDict[coinAddresses[1]];
 
-            if (basePoolId) {  // isMeta
+            if (factoryType !== "factory-tricrypto" && basePoolId) {  // isMeta
                 const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
                 const basePoolCoinNames = [...allPoolsData[basePoolId].underlying_coins];
                 const basePoolCoinAddresses = [...allPoolsData[basePoolId].underlying_coin_addresses];
@@ -155,7 +139,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: "fac
                 };
             } else {
                 FACTORY_POOLS_DATA[pool.id] = {
-                    name: pool.name.split(": ")[1].trim(),
+                    name: factoryType === "factory-tricrypto" ? pool.name : pool.name.split(": ")[1].trim(),
                     full_name: pool.name,
                     symbol: pool.symbol,
                     reference_asset: "CRYPTO",
@@ -171,7 +155,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: "fac
                     wrapped_coin_addresses: coinAddresses,
                     underlying_decimals: coinDecimals,
                     wrapped_decimals: coinDecimals,
-                    swap_abi: cryptoFactorySwapABI,
+                    swap_abi: factoryType === "factory-tricrypto" ? tricryptoFactorySwapABI : cryptoFactorySwapABI,
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                     in_api: true,
                 };

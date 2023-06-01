@@ -101,13 +101,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
     inputCoinAddress = inputCoinAddress.toLowerCase();
     outputCoinAddress = outputCoinAddress.toLowerCase();
 
-    const ALL_POOLS = Object.entries({
-        ...curve.constants.POOLS_DATA,
-        ...curve.constants.FACTORY_POOLS_DATA as IDict<IPoolData>,
-        ...curve.constants.CRVUSD_FACTORY_POOLS_DATA as IDict<IPoolData>,
-        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA as IDict<IPoolData>,
-        ...curve.constants.LLAMMAS_DATA as IDict<IPoolData>,
-    });
+    const ALL_POOLS = Object.entries(curve.getPoolsData());
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
 
     // Coins we are searching routes for on the current step

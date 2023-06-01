@@ -144,7 +144,6 @@ const curve = {
         getPoolList: _curve.getCryptoFactoryPoolList,
         deployPool: deployCryptoPool,
         deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, true),
-        getDeployed: getDeployedStablePlainPoolAddress,
         getDeployedPoolAddress: getDeployedCryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedCryptoFactoryPool,
@@ -152,6 +151,20 @@ const curve = {
             deployPool: deployCryptoPoolEstimateGas,
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, true),
         },
+    },
+    tricryptoFactory: {
+        fetchPools: _curve.fetchTricryptoFactoryPools,
+        fetchNewPools: _curve.fetchNewTricryptoFactoryPools,
+        getPoolList: _curve.getTricryptoFactoryPoolList,
+        // deployPool: deployCryptoPool,
+        // deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, true),
+        // getDeployedPoolAddress: getDeployedCryptoPoolAddress,
+        // getDeployedGaugeAddress: getDeployedGaugeAddress,
+        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTricryptoFactoryPool,
+        // estimateGas: {
+        //     deployPool: deployCryptoPoolEstimateGas,
+        //     deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, true),
+        // },
     },
     estimateGas: {
         ensureAllowance: ensureAllowanceEstimateGas,

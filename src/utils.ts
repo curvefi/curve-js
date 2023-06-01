@@ -233,22 +233,12 @@ export const ensureAllowance = async (coins: string[], amounts: (number | string
 }
 
 export const getPoolIdBySwapAddress = (swapAddress: string): string => {
-    const poolsData = {
-        ...curve.constants.POOLS_DATA,
-        ...curve.constants.FACTORY_POOLS_DATA,
-        ...curve.constants.CRVUSD_FACTORY_POOLS_DATA,
-        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA,
-    };
+    const poolsData = curve.getPoolsData();
     return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
 }
 
 const _getTokenAddressBySwapAddress = (swapAddress: string): string => {
-    const poolsData = {
-        ...curve.constants.POOLS_DATA,
-        ...curve.constants.FACTORY_POOLS_DATA,
-        ...curve.constants.CRVUSD_FACTORY_POOLS_DATA,
-        ...curve.constants.CRYPTO_FACTORY_POOLS_DATA,
-    };
+    const poolsData = curve.getPoolsData()
     const res = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
     if (res.length === 0) return "";
     return res[0][1].token_address;

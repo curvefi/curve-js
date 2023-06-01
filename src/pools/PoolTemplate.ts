@@ -129,13 +129,7 @@ export class PoolTemplate {
     };
 
     constructor(id: string) {
-        const poolData = {
-            ...curve.constants.POOLS_DATA,
-            ...curve.constants.FACTORY_POOLS_DATA,
-            ...curve.constants.CRVUSD_FACTORY_POOLS_DATA,
-            ...curve.constants.CRYPTO_FACTORY_POOLS_DATA,
-            ...curve.constants.LLAMMAS_DATA,
-        }[id];
+        const poolData = curve.getPoolsData()[id];
 
         this.id = id;
         this.name = poolData.name;

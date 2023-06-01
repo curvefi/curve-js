@@ -1,30 +1,28 @@
 import { IDict, IPoolData, ICurve } from "../interfaces";
 import { curve } from "../curve.js";
 import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
-import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" assert { type: 'json' };
+import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" assert { type: 'json' };
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
-import { setFactoryZapContracts } from "./common.js";
-import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
 async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string): Promise<string> {
-    const factoryContract = this.contracts[this.constants.ALIASES.crypto_factory].contract;
+    const factoryContract = this.contracts[this.constants.ALIASES.tricrypto_factory].contract;
 
     const poolCount = Number(curve.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     for (let i = 1; i <= poolCount; i++) {
         const address: string = await factoryContract.pool_list(poolCount - i);
-        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-crypto-${poolCount - i}`
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-tricrypto-${poolCount - i}`
     }
 
     throw Error("Unknown pool")
 }
 
 async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
-    const factoryContract = this.contracts[this.constants.ALIASES.crypto_factory].contract;
-    const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
+    const factoryContract = this.contracts[this.constants.ALIASES.tricrypto_factory].contract;
+    const factoryMulticallContract = this.contracts[this.constants.ALIASES.tricrypto_factory].multicallContract;
 
     const poolCount = Number(curve.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     const calls = [];
@@ -34,7 +32,7 @@ async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): P
     if (calls.length === 0) return [[], []];
 
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
-        (addr, i) => ({ id: `factory-crypto-${fromIdx + i}`, address: addr.toLowerCase()})
+        (addr, i) => ({ id: `factory-tricrypto-${fromIdx + i}`, address: addr.toLowerCase()})
     );
 
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
@@ -50,27 +48,25 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
         ));
 }
 
-async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[][]]> {
-    const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
+async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[][]]> {
+    const factoryMulticallContract = this.contracts[this.constants.ALIASES.tricrypto_factory].multicallContract;
 
     const calls = [];
     for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_token(addr));
         calls.push(factoryMulticallContract.get_gauge(addr));
         calls.push(factoryMulticallContract.get_coins(addr));
     }
 
     const res = await this.multicallProvider.all(calls);
-    const tokenAddresses = (res.filter((a, i) => i % 3 == 0) as string[]).map((a) => a.toLowerCase());
-    const gaugeAddresses = (res.filter((a, i) => i % 3 == 1) as string[]).map((a) => a.toLowerCase());
-    const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 3 == 2) as string[][]);
+    const gaugeAddresses = (res.filter((a, i) => i % 2 == 0) as string[]).map((a) => a.toLowerCase());
+    const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 2 == 1) as string[][]);
 
-    return [tokenAddresses, gaugeAddresses, coinAddresses]
+    return [gaugeAddresses, coinAddresses]
 }
 
 function setCryptoFactorySwapContracts(this: ICurve, factorySwapAddresses: string[]): void {
     factorySwapAddresses.forEach((addr) => {
-        this.setContract(addr, cryptoFactorySwapABI);
+        this.setContract(addr, tricryptoFactorySwapABI);
     });
 }
 
@@ -174,82 +170,44 @@ async function getCoinsData(
     return [tokenSymbols, tokenNames, coinAddrNamesDict, coinAddrDecimalsDict]
 }
 
-export async function getCryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string): Promise<IDict<IPoolData>> {
+export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = swapAddress ?
         [[await getRecentlyCreatedCryptoPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
         : await getCryptoFactoryIdsAndSwapAddresses.call(this, fromIdx);
     if (poolIds.length === 0) return {};
 
-    const [tokenAddresses, gaugeAddresses, coinAddresses] = await getPoolsData.call(this, swapAddresses);
+    const [gaugeAddresses, coinAddresses] = await getPoolsData.call(this, swapAddresses);
     setCryptoFactorySwapContracts.call(this, swapAddresses);
-    setCryptoFactoryTokenContracts.call(this, tokenAddresses);
     setCryptoFactoryGaugeContracts.call(this, gaugeAddresses);
     setCryptoFactoryCoinsContracts.call(this, coinAddresses);
-    setFactoryZapContracts.call(this, true);
     const underlyingCoinAddresses = getCryptoFactoryUnderlyingCoinAddresses.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const [poolSymbols, poolNames, coinAddressNameDict, coinAddressDecimalsDict] =
-        await getCoinsData.call(this, tokenAddresses, coinAddresses, existingCoinAddressNameDict, this.constants.DECIMALS);
+        await getCoinsData.call(this, swapAddresses, coinAddresses, existingCoinAddressNameDict, this.constants.DECIMALS);
 
-    const CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
+    const TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
-        const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].lpTokenBasePoolIdDict;
-        const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
-        const basePoolId = lpTokenBasePoolIdDict[coinAddresses[i][1].toLowerCase()];
-
-        if (basePoolId) {  // isMeta
-            const allPoolsData = {...this.constants.POOLS_DATA, ...CRYPTO_FACTORY_POOLS_DATA};
-            const basePoolCoinNames = [...allPoolsData[basePoolId].underlying_coins];
-            const basePoolCoinAddresses = [...allPoolsData[basePoolId].underlying_coin_addresses];
-            const basePoolDecimals = [...allPoolsData[basePoolId].underlying_decimals];
-            const basePoolZap = basePoolIdZapDict[basePoolId];
-
-            CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
-                name: poolNames[i].split(": ")[1].trim(),
-                full_name: poolNames[i],
-                symbol: poolSymbols[i],
-                reference_asset: "CRYPTO",
-                swap_address: swapAddresses[i],
-                token_address: tokenAddresses[i],
-                gauge_address: gaugeAddresses[i],
-                deposit_address: basePoolZap.address,
-                is_meta: true,
-                is_crypto: true,
-                is_factory: true,
-                base_pool: basePoolId,
-                underlying_coins: [coinAddressNameDict[underlyingCoinAddresses[i][0]], ...basePoolCoinNames],
-                wrapped_coins: [...coinAddresses[i].map((addr) => coinAddressNameDict[addr])],
-                underlying_coin_addresses: [underlyingCoinAddresses[i][0], ...basePoolCoinAddresses],
-                wrapped_coin_addresses: coinAddresses[i],
-                underlying_decimals: [coinAddressDecimalsDict[underlyingCoinAddresses[i][0]], ...basePoolDecimals],
-                wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
-                swap_abi: cryptoFactorySwapABI,
-                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
-                deposit_abi: basePoolZap.ABI,
-            };
-        } else {
-            CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
-                name: poolNames[i].split(": ")[1].trim(),
-                full_name: poolNames[i],
-                symbol: poolSymbols[i],
-                reference_asset: "CRYPTO",
-                swap_address: swapAddresses[i],
-                token_address: tokenAddresses[i],
-                gauge_address: gaugeAddresses[i],
-                is_crypto: true,
-                is_plain: underlyingCoinAddresses[i].toString() === coinAddresses[i].toString(),  // WETH/ETH - NOT Plain
-                is_factory: true,
-                underlying_coins: [...underlyingCoinAddresses[i].map((addr) => coinAddressNameDict[addr])],
-                wrapped_coins: [...coinAddresses[i].map((addr) => coinAddressNameDict[addr])],
-                underlying_coin_addresses: underlyingCoinAddresses[i],
-                wrapped_coin_addresses: coinAddresses[i],
-                underlying_decimals: [...underlyingCoinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
-                wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
-                swap_abi: cryptoFactorySwapABI,
-                gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
-            };
-        }
+        TRICRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
+            name: poolNames[i],
+            full_name: poolNames[i],
+            symbol: poolSymbols[i],
+            reference_asset: "CRYPTO",
+            swap_address: swapAddresses[i],
+            token_address: swapAddresses[i],
+            gauge_address: gaugeAddresses[i],
+            is_crypto: true,
+            is_plain: underlyingCoinAddresses[i].toString() === coinAddresses[i].toString(),  // WETH/ETH - NOT Plain
+            is_factory: true,
+            underlying_coins: [...underlyingCoinAddresses[i].map((addr) => coinAddressNameDict[addr])],
+            wrapped_coins: [...coinAddresses[i].map((addr) => coinAddressNameDict[addr])],
+            underlying_coin_addresses: underlyingCoinAddresses[i],
+            wrapped_coin_addresses: coinAddresses[i],
+            underlying_decimals: [...underlyingCoinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
+            wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
+            swap_abi: tricryptoFactorySwapABI,
+            gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
+        };
     }
 
-    return CRYPTO_FACTORY_POOLS_DATA
+    return TRICRYPTO_FACTORY_POOLS_DATA
 }

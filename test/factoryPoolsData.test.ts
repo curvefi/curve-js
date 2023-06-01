@@ -99,4 +99,13 @@ describe('Factory pools data', async function () {
 
         factoryPoolsDataTest(cryptoFactoryPoolsDataFromApi, cryptoFactoryPoolsData, true);
     });
+
+    it('Tricrypto factory', async function () {
+        await curve.fetchTricryptoFactoryPools();
+        const tricryptoFactoryPoolsDataFromApi = { ...curve.constants.TRICRYPTO_FACTORY_POOLS_DATA };
+        await curve.fetchTricryptoFactoryPools(false);
+        const tricryptoFactoryPoolsData = { ...curve.constants.TRICRYPTO_FACTORY_POOLS_DATA };
+
+        factoryPoolsDataTest(tricryptoFactoryPoolsDataFromApi, tricryptoFactoryPoolsData, true);
+    });
 });

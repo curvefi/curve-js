@@ -235,7 +235,7 @@ export class PoolTemplate {
         const calls = [
             multicallContract.get_virtual_price(),
             multicallContract.fee(),
-            multicallContract.admin_fee(),
+            "admin_fee" in multicallContract ? multicallContract.admin_fee() : multicallContract.ADMIN_FEE(),
             multicallContract.A(),
             lpMulticallContract.totalSupply(),
         ]

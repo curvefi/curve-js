@@ -47,7 +47,7 @@ const _deployStablePlainPool = async (
     const contractAddress = (useProxy || setOracle) ? curve.constants.ALIASES.factory_admin : curve.constants.ALIASES.factory;
     const contract = curve.contracts[contractAddress].contract;
     const args = [name, symbol, _coins, _A, _fee, assetType, implementationIdx];
-    if (useProxy || setOracle) args.push(curve.parseUnits((emaTime / Math.log(2)).toFixed(0), 0));
+    if (useProxy || setOracle) args.push(parseUnits(Math.floor(emaTime / Math.log(2)), 0));
     if (setOracle) {
         const methodId = methodName === "0x00000000" ? "0x00000000" : ethers.id(methodName).substring(0, 10);
         args.push(methodId, oracleAddress);
@@ -199,14 +199,14 @@ const _deployCryptoPool = async (
     allowedExtraProfit: number | string,
     feeGamma: number | string,
     adjustmentStep: number | string,
-    maHalfTime: number | string, // Seconds
+    maHalfTime: number, // Seconds
     initialPrice: number | string,
     estimateGas: boolean
 ): Promise<ethers.ContractTransactionResponse | number> => {
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
     if (coins.length !== 2) throw Error("Invalid number of coins. Must be 2");
-    if (coins[1] === coins[2]) throw Error("Coins must be different");
+    if (coins[0] === coins[1]) throw Error("Coins must be different");
     if (BN(A).lt(4000)) throw Error(`A must be >= 4000. Passed A = ${A}`);
     if (BN(A).gt(4 * (10 ** 9))) throw Error(`A must be <= 4 * 10 ** 9. Passed A = ${A}`);
     if (BN(gamma).lt(1e-8)) throw Error(`gamma must be >= 1e-8. Passed gamma = ${gamma}`);
@@ -286,7 +286,7 @@ export const deployCryptoPoolEstimateGas = async (
     allowedExtraProfit: number | string,
     feeGamma: number | string,
     adjustmentStep: number | string,
-    maHalfTime: number | string, // Seconds
+    maHalfTime: number, // Seconds
     initialPrice: number | string
 ): Promise<number> => {
     return await _deployCryptoPool(
@@ -317,7 +317,7 @@ export const deployCryptoPool = async (
     allowedExtraProfit: number | string,
     feeGamma: number | string,
     adjustmentStep: number | string,
-    maHalfTime: number | string, // Seconds
+    maHalfTime: number, // Seconds
     initialPrice: number | string
 ): Promise<ethers.ContractTransactionResponse> => {
     return await _deployCryptoPool(
@@ -346,11 +346,180 @@ export const getDeployedCryptoPoolAddress = async (tx: ethers.ContractTransactio
 }
 
 
+// ------- TRICRYPTO POOLS -------
+
+
+const _deployTricryptoPool = async (
+    name: string,
+    symbol: string,
+    coins: string[],
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    emaTime: number, // Seconds
+    initialPrices: (number | string)[],
+    estimateGas: boolean
+): Promise<ethers.ContractTransactionResponse | number> => {
+    if (name.length > 64) throw Error("Max name length = 64");
+    if (symbol.length > 32) throw Error("Max symbol length = 32");
+    if (coins.length !== 3) throw Error("Invalid number of coins. Must be 3");
+    if (coins[0] === coins[1] || coins[1] === coins[2] || coins[0] === coins[2]) throw Error("Coins must be different");
+    if (BN(A).lt(2700)) throw Error(`A must be >= 2700. Passed A = ${A}`);
+    if (BN(A).gt(27 * (10 ** 7))) throw Error(`A must be <= 27 * 10 ** 7. Passed A = ${A}`);
+    if (BN(gamma).lt(1e-8)) throw Error(`gamma must be >= 1e-8. Passed gamma = ${gamma}`);
+    if (BN(gamma).gt(0.05)) throw Error(`gamma must be <= 0.05. Passed gamma = ${gamma}`);
+    if (BN(midFee).lt(0)) throw Error(`midFee must be >= 0. Passed midFee = ${midFee}`);
+    if (BN(midFee).gt(100)) throw Error(`midFee must be <= 100. Passed midFee = ${midFee}`);
+    if (BN(outFee).lt(BN(midFee))) throw Error(`outFee must be >= midFee. Passed outFee = ${outFee} < midFee = ${midFee}`);
+    if (BN(outFee).gt(100)) throw Error(`outFee must be <= 100. Passed outFee = ${outFee}`);
+    if (BN(allowedExtraProfit).lt(0)) throw Error(`allowedExtraProfit must be >= 0. Passed allowedExtraProfit = ${allowedExtraProfit}`);
+    if (BN(allowedExtraProfit).gt(1)) throw Error(`allowedExtraProfit must be <= 1. Passed allowedExtraProfit = ${allowedExtraProfit}`);
+    if (BN(feeGamma).lt(0)) throw Error(`feeGamma must be >= 0. Passed feeGamma = ${feeGamma}`);
+    if (BN(feeGamma).gt(1)) throw Error(`feeGamma must be <= 1. Passed feeGamma = ${feeGamma}`);
+    if (BN(adjustmentStep).lt(0)) throw Error(`adjustmentStep must be >= 0. Passed adjustmentStep=${adjustmentStep}`);
+    if (BN(adjustmentStep).gt(1)) throw Error(`adjustmentStep must be <= 1. Passed adjustmentStep=${adjustmentStep}`);
+    if (BN(emaTime).lt(60)) throw Error(`maHalfTime must be >= 60. Passed maHalfTime=${emaTime}`);
+    if (BN(emaTime).gt(604800)) throw Error(`maHalfTime must be <= 604800. Passed maHalfTime=${emaTime}`);
+    if (initialPrices.length !== 2) throw Error("Invalid number of initial prices. Must be 2");
+    if (BN(initialPrices[0]).lt(1e-12)) throw Error(`initialPrices[0] must be >= 1e-12. Passed initialPrices[0]=${initialPrices[0]}`);
+    if (BN(initialPrices[0]).gt(1e12)) throw Error(`initialPrices[0] must be <= 1e12. Passed initialPrices[0]=${initialPrices[0]}`);
+    if (BN(initialPrices[1]).lt(1e-12)) throw Error(`initialPrices[1] must be >= 1e-12. Passed initialPrices[1]=${initialPrices[1]}`);
+    if (BN(initialPrices[1]).gt(1e12)) throw Error(`initialPrices[1] must be <= 1e12. Passed initialPrices[1]=${initialPrices[1]}`);
+
+    const _A = parseUnits(A, 0);
+    const _gamma = parseUnits(gamma);
+    const _midFee = parseUnits(midFee, 8);
+    const _outFee = parseUnits(outFee, 8);
+    const _allowedExtraProfit = parseUnits(allowedExtraProfit);
+    const _feeGamma = parseUnits(feeGamma);
+    const _adjustmentStep = parseUnits(adjustmentStep);
+    const _emaTime = parseUnits(Math.floor(emaTime / Math.log(2)), 0);
+    const _initialPrices = [parseUnits(initialPrices[0]), parseUnits(initialPrices[1])];
+    const contract = curve.contracts[curve.constants.ALIASES.tricrypto_factory].contract;
+
+    const gas = await contract.deploy_pool.estimateGas(
+        name,
+        symbol,
+        coins,
+        curve.constants.NATIVE_TOKEN.wrappedAddress,
+        0,
+        _A,
+        _gamma,
+        _midFee,
+        _outFee,
+        _feeGamma,
+        _allowedExtraProfit,
+        _adjustmentStep,
+        _emaTime,
+        _initialPrices,
+        curve.constantOptions
+    );
+    if (estimateGas) return Number(gas);
+
+    const gasLimit = mulBy1_3(gas);
+    await curve.updateFeeData();
+    return await contract.deploy_pool(
+        name,
+        symbol,
+        coins,
+        curve.constants.NATIVE_TOKEN.wrappedAddress,
+        0,
+        _A,
+        _gamma,
+        _midFee,
+        _outFee,
+        _feeGamma,
+        _allowedExtraProfit,
+        _adjustmentStep,
+        _emaTime,
+        _initialPrices,
+        { ...curve.options, gasLimit }
+    );
+}
+
+export const deployTricryptoPoolEstimateGas = async (
+    name: string,
+    symbol: string,
+    coins: string[],
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    emaTime: number, // Seconds
+    initialPrices: (number | string)[]
+): Promise<number> => {
+    return await _deployTricryptoPool(
+        name,
+        symbol,
+        coins,
+        A,
+        gamma,
+        midFee,
+        outFee,
+        allowedExtraProfit,
+        feeGamma,
+        adjustmentStep,
+        emaTime,
+        initialPrices,
+        true
+    ) as number
+}
+
+export const deployTricryptoPool = async (
+    name: string,
+    symbol: string,
+    coins: string[],
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    emaTime: number, // Seconds
+    initialPrices: (number | string)[]
+): Promise<ethers.ContractTransactionResponse> => {
+    return await _deployTricryptoPool(
+        name,
+        symbol,
+        coins,
+        A,
+        gamma,
+        midFee,
+        outFee,
+        allowedExtraProfit,
+        feeGamma,
+        adjustmentStep,
+        emaTime,
+        initialPrices,
+        false
+    ) as ethers.ContractTransactionResponse
+}
+
+export const getDeployedTricryptoPoolAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
+    const txInfo = await tx.wait();
+    if (!txInfo) throw Error("Can't get tx info");
+    for (let i = txInfo.logs.length - 1; i > -1; i--) {
+        if ("args" in txInfo.logs[i]) {
+            // @ts-ignore
+            return txInfo.logs[i].args[0];
+        }
+    }
+    throw Error("Can't get deployed tricrypto pool address");
+}
+
+
 // ------- GAUGE -------
 
-const _deployGauge = async (pool: string, isCrypto: boolean, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
-    const contractAddress = isCrypto ? curve.constants.ALIASES.crypto_factory : curve.constants.ALIASES.factory;
-    const contract = curve.contracts[contractAddress].contract;
+const _deployGauge = async (pool: string, factory: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+    const contract = curve.contracts[factory].contract;
     const gas = await contract.deploy_gauge.estimateGas(pool, curve.constantOptions);
     if (estimateGas) return Number(gas);
 
@@ -359,9 +528,9 @@ const _deployGauge = async (pool: string, isCrypto: boolean, estimateGas: boolea
     return await contract.deploy_gauge(pool, { ...curve.options, gasLimit });
 }
 
-export const deployGaugeEstimateGas = async (pool: string, isCrypto: boolean): Promise<number> => await _deployGauge(pool, isCrypto, true) as number;
+export const deployGaugeEstimateGas = async (pool: string, factory: string): Promise<number> => await _deployGauge(pool, factory, true) as number;
 
-export const deployGauge = async (pool: string, isCrypto: boolean): Promise<ethers.ContractTransactionResponse> => await _deployGauge(pool, isCrypto, false) as ethers.ContractTransactionResponse;
+export const deployGauge = async (pool: string, factory: string): Promise<ethers.ContractTransactionResponse> => await _deployGauge(pool, factory, false) as ethers.ContractTransactionResponse;
 
 export const getDeployedGaugeAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
     const txInfo = await tx.wait();

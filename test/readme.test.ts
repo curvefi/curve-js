@@ -707,3 +707,69 @@ const deployCryptoPoolTest = async () => {
     const underlyingBalances = await pool.stats.underlyingBalances();
     console.log(underlyingBalances);
 }
+
+const deployTricryptoPoolTest = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const coins = [
+        "0xC581b735A1688071A1746c968e0798D642EDE491", // EURT
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+        "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", // WBTC
+    ];
+
+    // Deploy pool
+
+    const gas = await curve.tricryptoFactory.estimateGas.deployPool(
+        "Test tricrypto pool",
+        "TTP",
+        coins,
+        400000,
+        0.0000725,
+        0.25,
+        0.45,
+        0.000002,
+        0.00023,
+        0.000146,
+        600,
+        [1700, 27000]
+    );
+    console.log(gas);
+    const deployPoolTx = await curve.tricryptoFactory.deployPool(
+        "Test tricrypto pool",
+        "TTP",
+        coins,
+        400000,
+        0.0000725,
+        0.25,
+        0.45,
+        0.000002,
+        0.00023,
+        0.000146,
+        600,
+        [1700, 27000]
+    );
+    console.log(deployPoolTx);
+    const poolAddress = await curve.tricryptoFactory.getDeployedPoolAddress(deployPoolTx);
+    console.log(poolAddress);
+
+    // Deploy gauge
+
+    const gaugeGas = await curve.tricryptoFactory.estimateGas.deployGauge(poolAddress);
+    console.log(gaugeGas);
+    const deployGaugeTx = await curve.tricryptoFactory.deployGauge(poolAddress);
+    console.log(deployPoolTx);
+    const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+    console.log(gaugeAddress);
+
+    // Deposit & Stake
+
+    const poolId = await curve.tricryptoFactory.fetchRecentlyDeployedPool(poolAddress);
+    console.log(poolId);
+    const pool = curve.getPool(poolId);
+
+    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    console.log(amounts);
+    await pool.depositAndStake(amounts);
+    const underlyingBalances = await pool.stats.underlyingBalances();
+    console.log(underlyingBalances);
+}

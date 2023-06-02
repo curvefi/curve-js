@@ -235,7 +235,7 @@ export class PoolTemplate {
         const calls = [
             multicallContract.get_virtual_price(),
             multicallContract.fee(),
-            multicallContract.admin_fee(),
+            "admin_fee" in multicallContract ? multicallContract.admin_fee() : multicallContract.ADMIN_FEE(),
             multicallContract.A(),
             lpMulticallContract.totalSupply(),
         ]
@@ -557,12 +557,12 @@ export class PoolTemplate {
 
                 const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
                 const amounts = _amounts.map((_a, i) => curve.formatUnits(_a, decimals[i]));
-                const seedAmounts = await this.cryptoSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
+                const seedAmounts = await this.cryptoSeedAmounts(amounts[0]); // Checks N coins is 2 or 3 and amounts > 0
                 amounts.forEach((a, i) => {
                     if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
                 });
 
-                return parseUnits(Math.sqrt(Number(amounts[0]) * Number(amounts[1])));
+                return parseUnits(Math.sqrt(amounts.map(Number).reduce((a, b) => a * b)));
             }
         }
 
@@ -670,16 +670,26 @@ export class PoolTemplate {
 
     public async cryptoSeedAmounts(amount1: number | string): Promise<string[]> {
         if (!this.isCrypto) throw Error("cryptoSeedAmounts method doesn't exist for stable pools");
-
         const decimals = this.isMeta ? this.wrappedDecimals : this.underlyingDecimals;
-        if (decimals.length > 2) throw Error("cryptoSeedAmounts method doesn't exist for pools with N coins > 2");
-
         const amount1BN = BN(amount1);
         if (amount1BN.lte(0)) throw Error("Initial deposit amounts must be > 0");
 
-        const priceScaleBN = toBN(await curve.contracts[this.address].contract.price_scale(curve.constantOptions));
+        if (decimals.length === 2) {
+            const priceScaleBN = toBN(await curve.contracts[this.address].contract.price_scale(curve.constantOptions));
+            return [_cutZeros(amount1BN.toFixed(decimals[0])), _cutZeros(amount1BN.div(priceScaleBN).toFixed(decimals[1]))];
+        } else if (decimals.length === 3) {
+            const priceScaleBN = (await curve.multicallProvider.all([
+                curve.contracts[this.address].multicallContract.price_scale(0),
+                curve.contracts[this.address].multicallContract.price_scale(1),
+            ]) as bigint[]).map((_p) => toBN(_p));
+            return [
+                _cutZeros(amount1BN.toFixed(decimals[0])),
+                _cutZeros(amount1BN.div(priceScaleBN[0]).toFixed(decimals[1])),
+                _cutZeros(amount1BN.div(priceScaleBN[1]).toFixed(decimals[2])),
+            ];
+        }
 
-        return [_cutZeros(amount1BN.toFixed(decimals[0])), _cutZeros(amount1BN.div(priceScaleBN).toFixed(decimals[1]))]
+        throw Error("cryptoSeedAmounts method doesn't exist for pools with N coins > 3");
     }
 
     // OVERRIDE

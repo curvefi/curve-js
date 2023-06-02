@@ -701,4 +701,51 @@ describe('Factory deploy', function() {
             assert.equal(Number(wrappedBalances[i]), Number(amounts[i]));
         }
     });
+
+    // --- TRICRYPTO ---
+
+    it('Deploy tricrypto factory pool and gauge', async function () {
+        const coins = [_curve.constants.COINS['eurt'], _curve.constants.COINS['weth'], _curve.constants.COINS['wbtc']];
+
+        // Deploy pool
+
+        const deployPoolTx = await curve.tricryptoFactory.deployPool(
+            "Test tricrypto pool",
+            "TTP",
+            coins,
+            400000,
+            0.0000725,
+            0.25,
+            0.45,
+            0.000002,
+            0.00023,
+            0.000146,
+            600,
+            [1900, 27000]
+        );
+        const poolAddress = await curve.tricryptoFactory.getDeployedPoolAddress(deployPoolTx);
+        console.log(poolAddress);
+
+        // Deploy gauge
+
+        const deployGaugeTx = await curve.tricryptoFactory.deployGauge(poolAddress);
+        const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+
+        // Deposit & Stake
+
+        const poolId = await curve.tricryptoFactory.fetchRecentlyDeployedPool(poolAddress);
+        const pool = curve.getPool(poolId);
+        assert.equal(poolAddress.toLowerCase(), pool.address);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+
+        const amounts = await pool.cryptoSeedAmounts(30);
+        console.log(amounts);
+        await pool.depositAndStake(amounts);
+        const underlyingBalances = await pool.stats.underlyingBalances();
+        const wrappedBalances = await pool.stats.wrappedBalances();
+        for (let i = 0; i < amounts.length; i++) {
+            assert.equal(Number(underlyingBalances[i]), Number(amounts[i]));
+            assert.equal(Number(wrappedBalances[i]), Number(amounts[i]));
+        }
+    });
 });

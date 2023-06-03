@@ -25,11 +25,7 @@ import {
     _getRewardsFromApi,
     mulBy1_3,
 } from '../utils.js';
-import {
-    IDict,
-    IReward,
-    IProfit,
-} from '../interfaces';
+import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
 import { curve as _curve, curve } from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
 
@@ -345,11 +341,13 @@ export class PoolTemplate {
 
         if (useApi) {
             const network = curve.constants.NETWORK_NAME;
-            let poolType: "main" | "crypto" | "factory" | "factory-crvusd" | "factory-crypto" = this.isCrypto ? "crypto" : "main";
-            if (this.id.startsWith("factory-v2-")) poolType = "factory";
-            if (this.id.startsWith("factory-crvusd-")) poolType = "factory-crvusd";
-            if (this.id.startsWith("factory-crypto-")) poolType = "factory-crypto";
-            const poolsData = (await _getPoolsFromApi(network, poolType)).poolData;
+            let poolType = this.isCrypto ? "crypto" : "main";
+            if (this.id.startsWith("factory")) {
+                poolType = "factory";
+                const factoryType = this.id.split("-")[1];
+                if (factoryType) poolType += "-" + factoryType;
+            }
+            const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType)).poolData;
 
             try {
                 const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.address.toLowerCase())[0].usdTotal;
@@ -485,7 +483,7 @@ export class PoolTemplate {
         if (this.gauge === curve.constants.ZERO_ADDRESS) return [];
 
         const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
-        if (curve.chainId === 1 || (useApi && !isDisabledChain)) {
+        if (useApi && !isDisabledChain) {
             const rewards = await _getRewardsFromApi();
             if (!rewards[this.gauge]) return [];
             return rewards[this.gauge].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));

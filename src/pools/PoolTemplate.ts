@@ -345,7 +345,7 @@ export class PoolTemplate {
             if (this.id.startsWith("factory")) {
                 poolType = "factory";
                 const factoryType = this.id.split("-")[1];
-                if (factoryType) poolType += "-" + factoryType;
+                if (factoryType !== "v2") poolType += "-" + factoryType;
             }
             const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType)).poolData;
 

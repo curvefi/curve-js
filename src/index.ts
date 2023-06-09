@@ -130,6 +130,7 @@ const curve = {
         getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedFactoryPool,
+        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory"),
         estimateGas: {
             deployPlainPool: deployStablePlainPoolEstimateGas,
             setOracle: setOracleEstimateGas,
@@ -154,6 +155,7 @@ const curve = {
         getDeployedPoolAddress: getDeployedCryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedCryptoFactoryPool,
+        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-crypto"),
         estimateGas: {
             deployPool: deployCryptoPoolEstimateGas,
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.crypto_factory),
@@ -168,6 +170,7 @@ const curve = {
         getDeployedPoolAddress: getDeployedTricryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTricryptoFactoryPool,
+        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-tricrypto"),
         estimateGas: {
             deployPool: deployTricryptoPoolEstimateGas,
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.tricrypto_factory),

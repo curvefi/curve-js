@@ -4,7 +4,7 @@ import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
 import { getTricryptoFactoryPoolData } from "./factory/factory-tricrypto.js";
-import { IPoolData, IDict, ICurve, INetworkName, IChainId } from "./interfaces";
+import { IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType } from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
@@ -290,6 +290,7 @@ class Curve implements ICurve {
         COINS: IDict<string>,
         DECIMALS: IDict<number>,
         GAUGES: string[],
+        FACTORY_GAUGE_IMPLEMENTATIONS: IDict<IFactoryPoolType>,
         ZERO_ADDRESS: string,
     };
 
@@ -320,6 +321,7 @@ class Curve implements ICurve {
             COINS: {},
             DECIMALS: {},
             GAUGES: [],
+            FACTORY_GAUGE_IMPLEMENTATIONS: {},
             ZERO_ADDRESS: ethers.ZeroAddress,
         };
     }
@@ -355,6 +357,7 @@ class Curve implements ICurve {
             COINS: {},
             DECIMALS: {},
             GAUGES: [],
+            FACTORY_GAUGE_IMPLEMENTATIONS: {},
             ZERO_ADDRESS: ethers.ZeroAddress,
         };
 
@@ -569,6 +572,8 @@ class Curve implements ICurve {
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
         await _killGauges(this.constants.FACTORY_POOLS_DATA);
+
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
     }
 
     fetchCrvusdFactoryPools = async (useApi = true): Promise<void> => {
@@ -615,6 +620,8 @@ class Curve implements ICurve {
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
         await _killGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
     fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
@@ -629,6 +636,8 @@ class Curve implements ICurve {
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
         await _killGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = await this.contracts[this.constants.ALIASES.tricrypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
     fetchNewFactoryPools = async (): Promise<string[]> => {
@@ -727,6 +736,8 @@ class Curve implements ICurve {
         ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA,
         ...this.constants.LLAMMAS_DATA,
     });
+
+    getGaugeImplementation = (factoryType: IFactoryPoolType): string => this.constants.FACTORY_GAUGE_IMPLEMENTATIONS[factoryType] || this.constants.ZERO_ADDRESS;
 
     setCustomFeeData(customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
         this.feeData = { ...this.feeData, ...customFeeData };

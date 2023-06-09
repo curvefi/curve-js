@@ -41,12 +41,14 @@ const availablePoolsTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
+    await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
 
     console.log(curve.getMainPoolList());
     console.log(curve.factory.getPoolList());
     console.log(curve.crvUSDFactory.getPoolList());
+    console.log(curve.EYWAFactory.getPoolList());
     console.log(curve.cryptoFactory.getPoolList());
     console.log(curve.tricryptoFactory.getPoolList());
     console.log(curve.getPoolList());
@@ -57,6 +59,7 @@ const poolFieldsTest = async () => {
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.EYWAFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
 
     const pool = curve.getPool('factory-v2-11');
@@ -581,6 +584,7 @@ const deployPlainPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.factory.gaugeImplementation());
     const gaugeGas = await curve.factory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
@@ -616,6 +620,7 @@ const deployMetaPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.factory.gaugeImplementation());
     const gaugeGas = await curve.factory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
@@ -688,6 +693,7 @@ const deployCryptoPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.cryptoFactory.gaugeImplementation());
     const gaugeGas = await curve.cryptoFactory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.cryptoFactory.deployGauge(poolAddress);
@@ -754,6 +760,7 @@ const deployTricryptoPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.tricryptoFactory.gaugeImplementation());
     const gaugeGas = await curve.tricryptoFactory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.tricryptoFactory.deployGauge(poolAddress);

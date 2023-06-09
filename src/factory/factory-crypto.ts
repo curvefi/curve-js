@@ -137,6 +137,7 @@ async function getCoinsData(
             coinAddrDecimalsDict[addr] = existingCoinAddrDecimalsDict[addr];
         } else if (addr === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2") {
             coinAddrNamesDict[addr] = "MKR";
+            coinAddrDecimalsDict[addr] = 18;
         } else {
             newCoinAddresses.push(addr);
         }

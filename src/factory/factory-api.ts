@@ -1,7 +1,5 @@
-import { Contract } from "ethers";
-import { Contract as MulticallContract } from "ethcall";
 import { curve } from "../curve.js";
-import { IDict, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
+import { IDict, IFactoryPoolType, IPoolData, ICurve, IPoolDataFromApi, REFERENCE_ASSET } from "../interfaces";
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
 import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
@@ -30,7 +28,7 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
     return poolsData
 }
 
-function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], factoryType: "factory" | "factory-crvusd" | "factory-crypto" | "factory-tricrypto"): void {
+function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], factoryType: IFactoryPoolType): void {
     if (factoryType === "factory-crypto") {
         rawPoolList.forEach((pool) => {
             this.setContract(pool.address, cryptoFactorySwapABI);
@@ -70,7 +68,7 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
     }
 }
 
-export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: "factory" | "factory-crvusd" | "factory-crypto" | "factory-tricrypto"): Promise<IDict<IPoolData>> {
+export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFactoryPoolType): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
     const isCrypto = factoryType === "factory-crypto" || factoryType === "factory-tricrypto";
     let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType)).poolData);

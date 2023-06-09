@@ -7,7 +7,8 @@ export interface IDict<T> {
 
 export type INetworkName = "ethereum" | "optimism" | "xdai" | "polygon" | "fantom" | "moonbeam" | "kava" | "arbitrum" | "celo" | "avalanche" | "aurora";
 export type IChainId = 1 | 10 | 100 | 137 | 250 | 1284 | 2222 | 42161 | 42220 | 43114 | 1313161554;
-export type IPoolType = "main" | "crypto" | "factory" | "factory-crvusd" | "factory-crypto" | "factory-tricrypto";
+export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-eywa" | "factory-crypto" | "factory-tricrypto";
+export type IPoolType = "main" | "crypto" | IFactoryPoolType;
 
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
 

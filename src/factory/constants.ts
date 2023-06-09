@@ -24,6 +24,10 @@ import Plain4BasicABI from "../constants/abis/factory-v2/Plain4Basic.json" asser
 import Plain4BalancesABI from "../constants/abis/factory-v2/Plain4Balances.json" assert { type: 'json' };
 import Plain4ETHABI from "../constants/abis/factory-v2/Plain4ETH.json" assert { type: 'json' };
 import Plain4OptimizedABI from "../constants/abis/factory-v2/Plain4Optimized.json" assert { type: 'json' };
+import Plain6BasicABI from "../constants/abis/factory-v2/Plain6Basic.json" assert { type: 'json' };
+import Plain6BalancesABI from "../constants/abis/factory-v2/Plain6Balances.json" assert { type: 'json' };
+import Plain6ETHABI from "../constants/abis/factory-v2/Plain6ETH.json" assert { type: 'json' };
+import Plain6OptimizedABI from "../constants/abis/factory-v2/Plain6Optimized.json" assert { type: 'json' };
 // --- ZAPS --
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json" assert { type: 'json' };
 import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/meta_zap.json" assert { type: 'json' };
@@ -125,6 +129,13 @@ export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
     "0x775A21E0dfE25aF30FF2FCAC37512EbD8fD36471": Plain4BalancesABI,
     "0xb11Dc44A9f981fAF1669dca6DD40c3cc2554A2ce": Plain4ETHABI,
     "0x9D7C28226AA7142cBF234ab9aa9C203D095c528B": Plain4OptimizedABI,
+
+    // !!! EYWA Factory !!!
+
+    "0x736FB582A39BC8f7685f87010c76C674F7fB583e": Plain6BasicABI,
+    "0x2C996b11a73276787Eb637D4459d1A7fea16B310": Plain6BalancesABI,
+    "0xa4Fc50E45aF5bF22b519468c7c342C704e1F3d44": Plain6ETHABI,
+    "0x65e38C41CcE6D9Bc202209Cc546B2f63985D4139": Plain6OptimizedABI,
 });
 
 export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({

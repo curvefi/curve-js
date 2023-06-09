@@ -1440,6 +1440,9 @@ import curve from "@curvefi/api";
 
     // Deploy gauge
     
+    console.log(curve.factory.gaugeImplementation());
+    // 0x5aE854b098727a9f1603A1E21c50D52DC834D846
+    
     const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
     // {
     //     hash: '0x8bb0eb63430e6c522c30922a833fee263816ebc0f30367d53ecfe52e17b7c3a0',
@@ -1486,6 +1489,9 @@ import curve from "@curvefi/api";
     // 0xd87f26c2f658657779e452dd043df9b2751ae7c4
 
     // Deploy gauge
+
+    console.log(curve.factory.gaugeImplementation());
+    // 0x5aE854b098727a9f1603A1E21c50D52DC834D846
     
     const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
     // {
@@ -1558,6 +1564,9 @@ import curve from "@curvefi/api";
     // 0xe01a9ecdb0aaabe2f12a25a0d289480debf09e89
     
     // Deploy gauge
+
+    console.log(curve.cryptoFactory.gaugeImplementation());
+    // 0xdc892358d55d5Ae1Ec47a531130D62151EBA36E5
     
     const deployGaugeTx = await curve.cryptoFactory.deployGauge(poolAddress);
     // {
@@ -1623,6 +1632,9 @@ import curve from "@curvefi/api";
     // 0x2889302a794dA87fBF1D6Db415C1492194663D13
     
     // Deploy gauge
+
+    console.log(curve.tricryptoFactory.gaugeImplementation());
+    // 0x5fC124a161d888893529f67580ef94C2784e9233
     
     const deployGaugeTx = await curve.tricryptoFactory.deployGauge(poolAddress);
     // ContractTransactionResponse {

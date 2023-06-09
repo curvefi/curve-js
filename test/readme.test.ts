@@ -584,6 +584,7 @@ const deployPlainPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.factory.gaugeImplementation());
     const gaugeGas = await curve.factory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
@@ -619,6 +620,7 @@ const deployMetaPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.factory.gaugeImplementation());
     const gaugeGas = await curve.factory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.factory.deployGauge(poolAddress);
@@ -691,6 +693,7 @@ const deployCryptoPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.cryptoFactory.gaugeImplementation());
     const gaugeGas = await curve.cryptoFactory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.cryptoFactory.deployGauge(poolAddress);
@@ -757,6 +760,7 @@ const deployTricryptoPoolTest = async () => {
 
     // Deploy gauge
 
+    console.log(curve.tricryptoFactory.gaugeImplementation());
     const gaugeGas = await curve.tricryptoFactory.estimateGas.deployGauge(poolAddress);
     console.log(gaugeGas);
     const deployGaugeTx = await curve.tricryptoFactory.deployGauge(poolAddress);

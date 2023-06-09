@@ -141,6 +141,10 @@ const curve = {
         fetchPools: _curve.fetchCrvusdFactoryPools,
         getPoolList: _curve.getCrvusdFactoryPoolList,
     },
+    EYWAFactory: {
+        fetchPools: _curve.fetchEywaFactoryPools,
+        getPoolList: _curve.getEywaFactoryPoolList,
+    },
     cryptoFactory: {
         fetchPools: _curve.fetchCryptoFactoryPools,
         fetchNewPools: _curve.fetchNewCryptoFactoryPools,

@@ -16,7 +16,7 @@
     "name": "constructor"
   },
   {
-    "gas": 4244,
+    "gas": "4244",
     "inputs": [],
     "name": "price_oracle",
     "outputs": [
@@ -29,7 +29,7 @@
     "type": "function"
   },
   {
-    "gas": 4274,
+    "gas": "4274",
     "inputs": [],
     "name": "price_scale",
     "outputs": [
@@ -42,7 +42,7 @@
     "type": "function"
   },
   {
-    "gas": 21320,
+    "gas": "21320",
     "inputs": [
       {
         "name": "_amounts",
@@ -59,7 +59,7 @@
     "type": "function"
   },
   {
-    "gas": 23822,
+    "gas": "23822",
     "inputs": [
       {
         "name": "i",
@@ -89,7 +89,7 @@
     "type": "function"
   },
   {
-    "gas": 31724,
+    "gas": "31724",
     "inputs": [
       {
         "name": "_amount",
@@ -106,7 +106,7 @@
     "type": "function"
   },
   {
-    "gas": 14811,
+    "gas": "14811",
     "inputs": [
       {
         "name": "_token_amount",
@@ -127,7 +127,7 @@
     "type": "function"
   },
   {
-    "gas": 9456,
+    "gas": "9456",
     "inputs": [
       {
         "name": "i",
@@ -153,7 +153,7 @@
     "type": "function"
   },
   {
-    "gas": 4764,
+    "gas": "4764",
     "inputs": [
       {
         "name": "_amounts",
@@ -171,7 +171,7 @@
     "type": "function"
   },
   {
-    "gas": 6585,
+    "gas": "6585",
     "inputs": [
       {
         "name": "token_amount",
@@ -193,7 +193,7 @@
     "type": "function"
   },
   {
-    "gas": 1535,
+    "gas": "1535",
     "inputs": [
       {
         "name": "arg0",
@@ -211,7 +211,7 @@
     "type": "function"
   },
   {
-    "gas": 1571,
+    "gas": "1571",
     "inputs": [
       {
         "name": "arg0",
@@ -229,7 +229,7 @@
     "type": "function"
   },
   {
-    "gas": 1556,
+    "gas": "1556",
     "inputs": [],
     "name": "pool",
     "outputs": [
@@ -242,7 +242,7 @@
     "type": "function"
   },
   {
-    "gas": 1586,
+    "gas": "1586",
     "inputs": [],
     "name": "base_pool",
     "outputs": [
@@ -255,7 +255,7 @@
     "type": "function"
   },
   {
-    "gas": 1616,
+    "gas": "1616",
     "inputs": [],
     "name": "token",
     "outputs": [

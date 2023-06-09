@@ -3,7 +3,7 @@ import memoize from "memoizee";
 import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import { curve } from "./curve.js";
-import { IDict, IRoute, IRouteTvl, IRouteOutputAndCost, IPoolData } from "./interfaces";
+import { IDict, IRoute, IRouteTvl, IRouteOutputAndCost } from "./interfaces";
 import {
     _getCoinAddresses,
     _getCoinDecimals,

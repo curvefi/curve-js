@@ -25,6 +25,7 @@ import curve from "@curvefi/api";
     // Fetch factory pools
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
+    await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
 })()
@@ -188,6 +189,7 @@ import curve from "@curvefi/api";
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
+    await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
 
@@ -240,6 +242,10 @@ import curve from "@curvefi/api";
 
     curve.crvUSDFactory.getPoolList();
     // ['factory-crvusd-0',  'factory-crvusd-1',  'factory-crvusd-2', 'factory-crvusd-3']
+
+    // On Fantom network
+    curve.EYWAFactory.getPoolList();
+    // ['factory-eywa-0',  'factory-eywa-1',  'factory-eywa-2', 'factory-eywa-3']
     
     curve.cryptoFactory.getPoolList();
     // [
@@ -309,6 +315,7 @@ import curve from "@curvefi/api";
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
+    await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
 
@@ -1016,6 +1023,7 @@ import curve from "@curvefi/api";
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
+    await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
 

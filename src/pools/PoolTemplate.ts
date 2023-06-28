@@ -993,7 +993,6 @@ export class PoolTemplate {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const [baseApy, maxApy] = await this.statsTokenApy();
-        if (curve.chainId !== 1) return baseApy;
 
         const boost = await this.boost(address);
         if (boost == "2.5") return maxApy;

@@ -1218,7 +1218,7 @@ import curve from "@curvefi/api";
     // }
     await pool.stats.tokenApy();
     // [ '0.3324', '0.8309' ]
-    await pool.currentCrvApy();
+    await pool.userCrvApy();
     // 0.3324
     await pool.boost();
     // 1.0

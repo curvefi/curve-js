@@ -988,7 +988,7 @@ export class PoolTemplate {
         return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
     }
 
-    public currentCrvApy = async (address = ""): Promise<number> => {
+    public userCrvApy = async (address = ""): Promise<number> => {
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 

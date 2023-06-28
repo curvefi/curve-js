@@ -496,14 +496,14 @@ const crvTest = async () => {
     console.log(await pool.depositAndStake([1000, 1000]));
     console.log(await pool.crvProfit());
     console.log(await pool.stats.tokenApy());
-    console.log(await pool.currentCrvApy());
+    console.log(await pool.userCrvApy());
     console.log(await pool.boost());
 
     await curve.boosting.createLock(10000, 365 * 4);
     console.log(await pool.depositAndStake([1000, 1000]));
     console.log(await pool.crvProfit());
     console.log(await pool.stats.tokenApy());
-    console.log(await pool.currentCrvApy());
+    console.log(await pool.userCrvApy());
     console.log(await pool.boost());
     console.log(await pool.wallet.lpTokenBalances());
     console.log(await pool.maxBoostedStake());

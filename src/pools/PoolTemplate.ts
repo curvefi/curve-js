@@ -988,12 +988,11 @@ export class PoolTemplate {
         return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
     }
 
-    public currentCrvApy = async (address = ""): Promise<number> => {
+    public userCrvApy = async (address = ""): Promise<number> => {
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const [baseApy, maxApy] = await this.statsTokenApy();
-        if (curve.chainId !== 1) return baseApy;
 
         const boost = await this.boost(address);
         if (boost == "2.5") return maxApy;

@@ -267,7 +267,7 @@ const _sendBlockhash = async (block: number, chainId: IChainId, estimateGas: boo
 
     await curve.updateFeeData();
     const gasLimit = mulBy1_3(gas);
-    return (await veOracleContract.deposit(curve.constants.ALIASES.voting_escrow_oracle, { ...curve.options, gasLimit })).hash;
+    return (await veOracleContract.send_blockhash(block, chainId, { ...curve.options, gasLimit })).hash;
 }
 
 export const sendBlockhashEstimateGas = async (block: number, chainId: IChainId): Promise<number> => {

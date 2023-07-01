@@ -328,7 +328,7 @@ class Curve implements ICurve {
 
     async init(
         providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
-        providerSettings: { url?: string, privateKey?: string } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
+        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
         // @ts-ignore
@@ -363,12 +363,20 @@ class Curve implements ICurve {
 
         // JsonRpc provider
         if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
-            providerSettings = providerSettings as { url: string, privateKey: string };
+            providerSettings = providerSettings as { url: string, privateKey: string, batchMaxCount? : number };
+
+            let jsonRpcApiProviderOptions;
+            if ( providerSettings.batchMaxCount ) {
+                jsonRpcApiProviderOptions = {
+                    batchMaxCount: providerSettings.batchMaxCount,
+                };
+            }
+
 
             if (providerSettings.url) {
-                this.provider = new ethers.JsonRpcProvider(providerSettings.url);
+                this.provider = new ethers.JsonRpcProvider(providerSettings.url, undefined, jsonRpcApiProviderOptions);
             } else {
-                this.provider = new ethers.JsonRpcProvider('http://localhost:8545/');
+                this.provider = new ethers.JsonRpcProvider('http://localhost:8545/', undefined, jsonRpcApiProviderOptions);
             }
 
             if (providerSettings.privateKey) {

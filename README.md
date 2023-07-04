@@ -1171,8 +1171,6 @@ import curve from "@curvefi/api";
 
     await curve.boosting.sidechain.lastBlockhash();
     // 16931944
-    await curve.boosting.sidechain.checkBlockhash(17377005);
-    // false
     
     await curve.boosting.sidechain.getAnycallBalance();
     // 0.033837278711248954
@@ -1195,9 +1193,9 @@ import curve from "@curvefi/api";
     // Wait until blockhash is delivered
     
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    await curve.boosting.sidechain.checkBlockhash(17377005);
-    // true
-    await curve.boosting.sidechain.submitProof(17377005, "0x33A4622B82D4c04a53e170c638B944ce27cffce3");
+    const lastEthBlock = await curve.boosting.sidechain.lastBlockhash();
+    // 17377005
+    await curve.boosting.sidechain.submitProof(lastEthBlock, "0x33A4622B82D4c04a53e170c638B944ce27cffce3");
 })()
 ```
 

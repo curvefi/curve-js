@@ -40,7 +40,6 @@ import {
     claimFeesEstimateGas,
     claimFees,
     lastBlockhash,
-    checkBlockhash,
     getAnycallBalance,
     topUpAnycall,
     topUpAnycallEstimateGas,
@@ -205,7 +204,6 @@ const curve = {
         },
         sidechain: {
             lastBlockhash,
-            checkBlockhash,
             getAnycallBalance,
             topUpAnycall,
             lastBlockSent,

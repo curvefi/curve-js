@@ -219,17 +219,6 @@ export const lastBlockhash = async (): Promise<number> => {
     return Number(await veOracleContract.last_eth_block_number(curve.constantOptions));
 }
 
-export const checkBlockhash = async (block: number): Promise<boolean> => {
-    if (curve.chainId === 1) throw Error("There is no checkBlockhash method on ethereum network");
-    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
-    try {
-        await veOracleContract.get_eth_blockhash(block, curve.constantOptions);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
 export const getAnycallBalance = async (): Promise<string> => {
     if (curve.chainId === 1) throw Error("There is no getAnycallBalance method on ethereum network");
     const anycallContract = curve.contracts[curve.constants.ALIASES.anycall].contract;

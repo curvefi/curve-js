@@ -1184,6 +1184,8 @@ import curve from "@curvefi/api";
     // --- MAINNET (ETHEREUM) ---
 
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+    await curve.boosting.sidechain.lastBlockSent(137);
+    // 17038505
     await curve.boosting.sidechain.sendBlockhash(17377005, 137); // Polygon
 
     // --- SIDECHAIN ---

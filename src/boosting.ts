@@ -259,6 +259,13 @@ export const topUpAnycall = async (amount: number | string = DEFAULT_AMOUNT): Pr
     return await _topUpAnycall(amount, false) as string;
 }
 
+export const lastBlockSent = async (chainId: IChainId): Promise<number> => {
+    if (curve.chainId !== 1) throw Error("lastBlockNumberSent method is on ethereum network only");
+    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
+
+    return Number(await veOracleContract.get_last_block_number_sent(chainId, curve.constantOptions));
+}
+
 const _sendBlockhash = async (block: number, chainId: IChainId, estimateGas: boolean): Promise<string | number> => {
     if (curve.chainId !== 1) throw Error("sendBlockhash method is on ethereum network only");
     const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;

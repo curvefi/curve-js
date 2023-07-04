@@ -45,6 +45,7 @@ import {
     topUpAnycall,
     topUpAnycallEstimateGas,
     lastBlockSent,
+    blockToSend,
     sendBlockhash,
     sendBlockhashEstimateGas,
     submitProof,
@@ -208,6 +209,7 @@ const curve = {
             getAnycallBalance,
             topUpAnycall,
             lastBlockSent,
+            blockToSend,
             sendBlockhash,
             submitProof,
             estimateGas: {

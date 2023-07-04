@@ -462,9 +462,11 @@ const sidechainBoostingTest = async () => {
     // --- MAINNET (ETHEREUM) ---
 
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    console.log(await curve.boosting.sidechain.lastBlockSent(137));
+    console.log(await curve.boosting.sidechain.lastBlockSent(137)); // Polygon
     // 17038505
-    console.log(await curve.boosting.sidechain.sendBlockhash(17377005, 137)); // Polygon
+    const blockToSend = await curve.boosting.sidechain.blockToSend();  // currentBlock - 128
+    // 17377005
+    console.log(await curve.boosting.sidechain.sendBlockhash(blockToSend, 137)); // Polygon
 
 
     // --- SIDECHAIN ---

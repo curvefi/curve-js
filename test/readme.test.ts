@@ -451,7 +451,7 @@ const sidechainBoostingTest = async () => {
 
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
-    console.log(await curve.boosting.sidechain.lastBlockhash());
+    console.log(await curve.boosting.sidechain.lastEthBlock());
 
     console.log(await curve.boosting.sidechain.getAnycallBalance());
     console.log(await curve.boosting.sidechain.topUpAnycall(0.1));
@@ -473,7 +473,7 @@ const sidechainBoostingTest = async () => {
     // Wait until blockhash is delivered
 
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    const lastEthBlock = await curve.boosting.sidechain.lastBlockhash();
+    const lastEthBlock = await curve.boosting.sidechain.lastEthBlock();
     // 17377005
     console.log(await curve.boosting.sidechain.submitProof(lastEthBlock, "0x33A4622B82D4c04a53e170c638B944ce27cffce3"));
 }

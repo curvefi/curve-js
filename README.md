@@ -1169,7 +1169,7 @@ import curve from "@curvefi/api";
 
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
-    await curve.boosting.sidechain.lastBlockhash();
+    await curve.boosting.sidechain.lastEthBlock();
     // 16931944
     
     await curve.boosting.sidechain.getAnycallBalance();
@@ -1193,7 +1193,7 @@ import curve from "@curvefi/api";
     // Wait until blockhash is delivered
     
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
-    const lastEthBlock = await curve.boosting.sidechain.lastBlockhash();
+    const lastEthBlock = await curve.boosting.sidechain.lastEthBlock();
     // 17377005
     await curve.boosting.sidechain.submitProof(lastEthBlock, "0x33A4622B82D4c04a53e170c638B944ce27cffce3");
 })()

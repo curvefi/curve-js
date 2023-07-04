@@ -212,7 +212,7 @@ export const claimFees = async (address = ""): Promise<string> => {
 //  ------------ SIDECHAIN ------------
 
 
-export const lastBlockhash = async (): Promise<number> => {
+export const lastEthBlock = async (): Promise<number> => {
     if (curve.chainId === 1) throw Error("There is no lastBlock method on ethereum network");
     const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
 

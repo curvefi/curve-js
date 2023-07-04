@@ -39,7 +39,7 @@ import {
     claimableFees,
     claimFeesEstimateGas,
     claimFees,
-    lastBlockhash,
+    lastEthBlock,
     getAnycallBalance,
     topUpAnycall,
     topUpAnycallEstimateGas,
@@ -203,7 +203,7 @@ const curve = {
             claimFees: claimFeesEstimateGas,
         },
         sidechain: {
-            lastBlockhash,
+            lastEthBlock,
             getAnycallBalance,
             topUpAnycall,
             lastBlockSent,

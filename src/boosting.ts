@@ -212,22 +212,11 @@ export const claimFees = async (address = ""): Promise<string> => {
 //  ------------ SIDECHAIN ------------
 
 
-export const lastBlockhash = async (): Promise<number> => {
+export const lastEthBlock = async (): Promise<number> => {
     if (curve.chainId === 1) throw Error("There is no lastBlock method on ethereum network");
     const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
 
     return Number(await veOracleContract.last_eth_block_number(curve.constantOptions));
-}
-
-export const checkBlockhash = async (block: number): Promise<boolean> => {
-    if (curve.chainId === 1) throw Error("There is no checkBlockhash method on ethereum network");
-    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
-    try {
-        await veOracleContract.get_eth_blockhash(block, curve.constantOptions);
-        return true;
-    } catch (e) {
-        return false;
-    }
 }
 
 export const getAnycallBalance = async (): Promise<string> => {
@@ -257,6 +246,18 @@ export const topUpAnycallEstimateGas = async (amount: number | string = DEFAULT_
 
 export const topUpAnycall = async (amount: number | string = DEFAULT_AMOUNT): Promise<string> => {
     return await _topUpAnycall(amount, false) as string;
+}
+
+export const lastBlockSent = async (chainId: IChainId): Promise<number> => {
+    if (curve.chainId !== 1) throw Error("lastBlockNumberSent method is on ethereum network only");
+    const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
+
+    return Number(await veOracleContract.get_last_block_number_sent(chainId, curve.constantOptions));
+}
+
+export const blockToSend = async (): Promise<number> => {
+    if (curve.chainId !== 1) throw Error("blockToSend method is on ethereum network only");
+    return (await curve.provider.getBlockNumber()) - 128;
 }
 
 const _sendBlockhash = async (block: number, chainId: IChainId, estimateGas: boolean): Promise<string | number> => {

@@ -65,6 +65,7 @@ export class PoolTemplate {
     wrappedDecimals: number[];
     useLending: boolean[];
     inApi: boolean;
+    isGaugeKilled: boolean;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number>,
         deposit: (amounts: (number | string)[]) => Promise<number>,
@@ -156,6 +157,7 @@ export class PoolTemplate {
         this.wrappedDecimals = poolData.wrapped_decimals;
         this.useLending = poolData.use_lending || poolData.underlying_coin_addresses.map(() => false);
         this.inApi = poolData.in_api ?? false;
+        this.isGaugeKilled = poolData.is_gauge_killed ?? false;
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),

@@ -89,6 +89,7 @@ const poolFieldsTest = async () => {
     console.log(pool.wrappedDecimals);
     console.log(pool.useLending);
     console.log(pool.inApi);
+    console.log(pool.isGaugeKilled);
 }
 
 const walletBalancesTest = async () => {

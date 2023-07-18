@@ -1,5 +1,5 @@
-import { lowerCaseValues } from "../utils";
-import { IDict } from "../../interfaces";
+import { lowerCaseValues } from "../utils.js";
+import { IDict } from "../../interfaces.js";
 
 
 export const COINS_ZKSYNC: IDict<string> = lowerCaseValues({

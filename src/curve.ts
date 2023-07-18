@@ -78,7 +78,7 @@ const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
 
     for (const poolId in poolsData) {
         if (isKilled[poolsData[poolId].gauge_address]) {
-            poolsData[poolId].gauge_address = ethers.ZeroAddress;
+            poolsData[poolId].is_gauge_killed = true;
         }
     }
 }

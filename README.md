@@ -381,6 +381,8 @@ import curve from "@curvefi/api";
     // [ false, false, false, false ]
     pool.inApi;
     // true
+    pool.isGaugeKilled;
+    // false
 })()
 ````
 

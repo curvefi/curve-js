@@ -41,6 +41,7 @@ import {
     POOLS_DATA_AURORA,
     POOLS_DATA_KAVA,
     POOLS_DATA_CELO,
+    POOLS_DATA_ZKSYNC,
 } from './constants/pools/index.js';
 import {
     ALIASES_ETHEREUM,
@@ -54,6 +55,7 @@ import {
     ALIASES_AURORA,
     ALIASES_KAVA,
     ALIASES_CELO,
+    ALIASES_ZKSYNC,
 } from "./constants/aliases.js";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
@@ -66,6 +68,7 @@ import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aT
 import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora.js";
 import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava.js";
 import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo.js";
+import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkSync } from "./constants/coins/zksync.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 
@@ -113,6 +116,12 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WFTM',
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
+    },
+    324: {  // ZKSYNC
+        symbol: 'ETH',
+        wrappedSymbol: 'WETH',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91'.toLowerCase(),
     },
     1284: {  // MOONBEAM
         symbol: 'GLMR',
@@ -203,6 +212,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensFantom,
         ycTokens: ycTokensFantom,
         aTokens: aTokensFantom,
+    },
+    324: {
+        NAME: 'zksync',
+        ALIASES: ALIASES_ZKSYNC,
+        POOLS_DATA: POOLS_DATA_ZKSYNC,
+        COINS: COINS_ZKSYNC,
+        cTokens: cTokensZkSync,
+        yTokens: yTokensZkSync,
+        ycTokens: ycTokensZkSync,
+        aTokens: aTokensZkSync,
     },
     1284: {
         NAME: 'moonbeam',
@@ -513,9 +532,11 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.address_provider, addressProviderABI);
 
-        const addressProviderContract = this.contracts[this.constants.ALIASES.address_provider].contract;
-        this.constants.ALIASES.registry_exchange = (await addressProviderContract.get_address(2, this.constantOptions) as string).toLowerCase();
-        this.setContract(this.constants.ALIASES.registry_exchange, registryExchangeABI);
+        if (this.chainId !== 324) {
+            const addressProviderContract = this.contracts[this.constants.ALIASES.address_provider].contract;
+            this.constants.ALIASES.registry_exchange = (await addressProviderContract.get_address(2, this.constantOptions) as string).toLowerCase();
+            this.setContract(this.constants.ALIASES.registry_exchange, registryExchangeABI);
+        }
 
         this.setContract(this.constants.ALIASES.gauge_controller, gaugeControllerABI);
 

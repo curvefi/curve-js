@@ -101,7 +101,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
     inputCoinAddress = inputCoinAddress.toLowerCase();
     outputCoinAddress = outputCoinAddress.toLowerCase();
 
-    const ALL_POOLS = Object.entries(curve.getPoolsData());
+    const ALL_POOLS = Object.entries(curve.getPoolsData()).filter(([id, _]) => id !== "crveth");
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
 
     // Coins we are searching routes for on the current step

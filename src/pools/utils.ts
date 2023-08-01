@@ -79,7 +79,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for Kava
+            if (curve.chainId === 324 || curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
                 hasCrvReward.push(false);
                 continue;
 
@@ -223,7 +223,7 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for Kava
+            if (curve.chainId === 324 || curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
                 hasCrvReward.push(false);
                 continue;
 

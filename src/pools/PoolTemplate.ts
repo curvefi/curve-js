@@ -206,7 +206,7 @@ export class PoolTemplate {
     }
 
     public rewardsOnly(): boolean {
-        if (curve.chainId === 2222) return true;  // TODO remove this for Kava and Celo
+        if (curve.chainId === 2222 || curve.chainId === 324) return true;  // TODO remove this for Kava and ZkSync
         if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         const gaugeContract = curve.contracts[this.gauge].contract;
 
@@ -372,7 +372,7 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
-        if ([1284, 2222, 42220, 1313161554].includes(curve.chainId)) {  // Moonbeam || Kava || Celo || Aurora
+        if ([324, 1284, 2222, 42220, 1313161554].includes(curve.chainId)) {  // ZkSync || Moonbeam || Kava || Celo || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
                 _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),
@@ -395,7 +395,7 @@ export class PoolTemplate {
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        if ([1284, 2222, 42220, 1313161554].includes(curve.chainId)) {  // Moonbeam || Kava || Celo || Aurora
+        if ([324, 1284, 2222, 42220, 1313161554].includes(curve.chainId)) {  // ZkSync || Moonbeam || Kava || Celo || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
                 _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),

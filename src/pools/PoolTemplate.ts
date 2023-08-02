@@ -47,6 +47,7 @@ export class PoolTemplate {
     zap: string | null;
     sRewardContract: string | null;
     rewardContract: string | null;
+    implementation: string | null;
     isPlain: boolean;
     isLending: boolean;
     isMeta: boolean;
@@ -139,6 +140,7 @@ export class PoolTemplate {
         this.zap = poolData.deposit_address || null;
         this.sRewardContract = poolData.sCurveRewards_address || null;
         this.rewardContract = poolData.reward_contract || null;
+        this.implementation = poolData.implementation_address || null;
         this.isPlain = poolData.is_plain || false;
         this.isLending = poolData.is_lending || false;
         this.isMeta = poolData.is_meta || false;
@@ -203,6 +205,42 @@ export class PoolTemplate {
             wrappedCoinBalances: this.walletWrappedCoinBalances.bind(this),
             allCoinBalances: this.walletAllCoinBalances.bind(this),
         }
+    }
+
+    public hasVyperVulnerability(): boolean {
+        if (curve.chainId === 1 && this.id === "crveth") return true;
+        if (curve.chainId === 42161 && this.id === "tricrypto") return true;
+
+        // @ts-ignore
+        const vulnerable_implementations: string[] = {
+            1: [  // ethereum
+                "0x6326DEbBAa15bCFE603d831e7D75f4fc10d9B43E",
+                "0x8c1aB78601c259E1B43F19816923609dC7d7de9B",
+                "0x88855cdF2b0A8413D470B86952E726684de915be",
+            ].map((a) => a.toLowerCase()),
+            137: [  // polygon
+                "0xAe00f57663F4C85FC948B13963cd4627dAF01061",
+                "0xA9134FaE98F92217f457918505375Ae91fdc5e3c",
+                "0xf31bcdf0B9a5eCD7AB463eB905551fBc32e51856",
+            ].map((a) => a.toLowerCase()),
+            250: [  // fantom
+                "0xE6358f6a45B502477e83CC1CDa759f540E4459ee",
+                "0x5d58Eb45e97B43e471AF05cD2b11CeB4106E1b1a",
+                "0xb11Dc44A9f981fAF1669dca6DD40c3cc2554A2ce",
+            ].map((a) => a.toLowerCase()),
+            42161: [  // arbitrum
+                "0x7DA64233Fefb352f8F501B357c018158ED8aA455",
+                "0xAAe75FAebCae43b9d541Fd875622BE48D9B4f5D0",
+                "0x89287c32c2CAC1C76227F6d300B2DBbab6b75C08",
+            ].map((a) => a.toLowerCase()),
+            43114: [  // avalanche
+                "0x64448B78561690B70E17CBE8029a3e5c1bB7136e",
+                "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc",
+                "0x0eb0F1FaF5F509Ac53fA224477509EAD167cf410",
+            ].map((a) => a.toLowerCase()),
+        }[curve.chainId] ?? [];
+
+        return vulnerable_implementations.includes(this.implementation ?? "");
     }
 
     public rewardsOnly(): boolean {

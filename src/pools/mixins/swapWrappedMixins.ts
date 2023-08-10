@@ -152,3 +152,18 @@ export const swapWrappedExpectedAndApproveMixin: PoolTemplate = {
         return await ensureAllowance([this.wrappedCoinAddresses[i]], [amount], this.address);
     },
 }
+
+// @ts-ignore
+export const swapWrappedRequiredMixin: PoolTemplate = {
+    async swapWrappedRequired(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<string> {
+        // @ts-ignore
+        const i = this._getCoinIdx(inputCoin, false);
+        // @ts-ignore
+        const j = this._getCoinIdx(outputCoin, false);
+        const _amount = parseUnits(amount, this.wrappedDecimals[j]);
+        // @ts-ignore
+        const _required = await this._swapRequired(i, j, _amount, false);
+
+        return curve.formatUnits(_required, this.wrappedDecimals[i])
+    }
+}

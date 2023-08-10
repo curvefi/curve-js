@@ -14,7 +14,12 @@ import { withdrawOneCoinMetaFactoryMixin, withdrawOneCoinCryptoMetaFactoryMixin,
 import { withdrawOneCoinWrappedExpected2argsMixin, withdrawOneCoinWrappedExpected3argsMixin } from "./mixins/withdrawOneCoinWrappedExpectedMixins.js";
 import { withdrawOneCoinWrappedLendingOrCryptoMixin, withdrawOneCoinWrappedMixin } from "./mixins/withdrawOneCoinWrappedMixins.js";
 import { swapTricrypto2Mixin, swapMetaFactoryMixin, swapCryptoMetaFactoryMixin, swapMixin } from "./mixins/swapMixins.js";
-import { swapWrappedExpectedAndApproveMixin, swapWrappedTricrypto2Mixin, swapWrappedMixin } from "./mixins/swapWrappedMixins.js";
+import {
+    swapWrappedExpectedAndApproveMixin,
+    swapWrappedTricrypto2Mixin,
+    swapWrappedMixin,
+    swapWrappedRequiredMixin
+} from "./mixins/swapWrappedMixins.js";
 
 
 export const getPool = (poolId: string): PoolTemplate => {
@@ -186,6 +191,7 @@ export const getPool = (poolId: string): PoolTemplate => {
     // swapWrapped and swapWrappedEstimateGas
     if (!poolDummy.isPlain && !poolDummy.isFake) {
         Object.assign(Pool.prototype, swapWrappedExpectedAndApproveMixin);
+        Object.assign(Pool.prototype, swapWrappedRequiredMixin);
         if ('exchange(uint256,uint256,uint256,uint256,bool)' in curve.contracts[poolDummy.address].contract) { // tricrypto2 (eth), tricrypto (arbitrum)
             Object.assign(Pool.prototype, swapWrappedTricrypto2Mixin);
         } else {

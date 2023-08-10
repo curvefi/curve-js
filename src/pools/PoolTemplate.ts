@@ -1928,6 +1928,57 @@ export class PoolTemplate {
         return curve.formatUnits(_expected, this.underlyingDecimals[j])
     }
 
+    private async _swapRequired(i: number, j: number, _amount: bigint, isUnderlying: boolean): Promise<any> {
+        const poolAddress = this.address;
+
+        const contract = this.isCrypto ? curve.contracts[curve.constants.ALIASES.crypto_calc].contract : curve.contracts[curve.constants.ALIASES.stable_calc].contract;
+
+        if(this.isCrypto) {
+            if(this.isMeta && isUnderlying) {
+                const basePool = new PoolTemplate(this.basePool);
+                if(this.wrappedCoins.length === 3) {
+                    return await contract.get_dx_tricrypto_meta_underlying(poolAddress,i,j, _amount, this.wrappedCoins.length, basePool.address, basePool.lpToken, curve.constantOptions)
+                }
+                if(basePool.isFake) {
+                    const secondPool = new PoolTemplate(basePool.basePool)
+                    return await contract.get_dx_double_meta_underlying(poolAddress,i,j, _amount, basePool.address, basePool.zap, secondPool.address, secondPool.lpToken, curve.constantOptions)
+                }
+                return await contract.get_dx_meta_underlying(poolAddress,i,j, _amount, this.underlyingCoins.length, basePool.address, basePool.lpToken, curve.constantOptions)
+            } else {
+                return await contract.get_dx(poolAddress,i,j, _amount, this.wrappedCoins.length, curve.constantOptions)
+            }
+        } else {
+            if(this.isMeta) {
+                const basePool = new PoolTemplate(this.basePool);
+                if(isUnderlying) {
+                    return await contract.get_dx_meta_underlying(poolAddress,i,j, _amount, this.underlyingCoins.length, basePool.address, basePool.lpToken, curve.constantOptions)
+                } else {
+                    return await contract. get_dx_meta(poolAddress,i,j, _amount, this.wrappedCoins.length, basePool.address, curve.constantOptions)
+                }
+            } else {
+                if(isUnderlying && this.isLending) {
+                    return await contract.get_dx_underlying(poolAddress,i,j, _amount, this.underlyingCoins.length, curve.constantOptions)
+                } else {
+                    return await contract.get_dx(poolAddress,i,j, _amount, this.wrappedCoins.length, curve.constantOptions)
+                }
+            }
+        }
+    }
+
+    public async swapRequired(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<string> {
+        const i = this._getCoinIdx(inputCoin);
+        const j = this._getCoinIdx(outputCoin);
+        const _amount = parseUnits(amount, this.underlyingDecimals[j]);
+        const _required = await this._swapRequired(i, j, _amount, true);
+
+        return curve.formatUnits(_required, this.underlyingDecimals[i])
+    }
+
+    // OVERRIDE
+    public async swapWrappedRequired(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<string> {
+        throw Error(`swapWrappedRequired method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
     public async swapPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);

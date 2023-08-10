@@ -881,6 +881,11 @@ import curve from "@curvefi/api";
     // OR const underlyingExpected = await pool.swapExpected(0, 1, '10');
     console.log(underlyingExpected);
     // 9.984619933234026875
+    const underlyingRequired = await pool.swapRequired('MIM', 'DAI', 10);
+    // OR const underlyingRequired = await pool.swapRequired('0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '10');
+    // OR const underlyingRequired = await pool.swapRequired(0, 1, '10');
+    console.log(underlyingRequired);
+    //10.049378645129545758
     const underlyingPriceImpact = await pool.swapPriceImpact('MIM','DAI', 10);
     // OR const underlyingPriceImpact = await pool.swapPriceImpact('0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '10');
     // OR const underlyingPriceImpact = await pool.swapPriceImpact(0, 1, '10');
@@ -918,6 +923,11 @@ import curve from "@curvefi/api";
     // OR const wrappedExpected = await pool.swapWrappedExpected(1, 0, '10');
     console.log(wrappedExpected);
     // 10.217756467720521951
+    const wrappedRequired = await pool.swapWrappedRequired('3crv', 'MIM', 10);
+    // OR const wrappedRequired = await pool.swapWrappedRequired('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '10');
+    // OR const wrappedRequired = await pool.swapWrappedRequired(1, 0, '10');
+    console.log(wrappedRequired);
+    //9.702940994847188442
     const wrappedPriceImpact = await pool.swapWrappedPriceImpact('3crv','MIM', 10);
     // OR const wrappedPriceImpact = await pool.swapWrappedPriceImpact('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '10');
     // OR const wrappedPriceImpact = await pool.swapWrappedPriceImpact(1, 0, '10');

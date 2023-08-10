@@ -322,6 +322,10 @@ const poolSwapTest = async () => {
     // OR const underlyingExpected = await pool.swapExpected('0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '10');
     // OR const underlyingExpected = await pool.swapExpected(0, 1, '10');
     console.log(underlyingExpected);
+    const underlyingRequired = await pool.swapRequired('MIM', 'DAI', 10);
+    // OR const underlyingRequired = await pool.swapRequired('0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '0x6B175474E89094C44Da98b954EedeAC495271d0F', '10');
+    // OR const underlyingRequired = await pool.swapRequired(0, 1, '10');
+    console.log(underlyingRequired);
     console.log(await pool.swapIsApproved('MIM', 10));
     console.log(await pool.swapApprove('MIM', 10));
     const swapTx = await pool.swap('MIM','DAI', 10, 0.1);
@@ -340,6 +344,10 @@ const poolSwapTest = async () => {
     // OR const wrappedExpected = await pool.swapWrappedExpected('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '10');
     // OR const wrappedExpected = await pool.swapWrappedExpected(1, 0, '10');
     console.log(wrappedExpected);
+    const wrappedRequired = await pool.swapWrappedRequired('3crv', 'MIM', 10);
+    // OR const wrappedRequired = await pool.swapWrappedRequired('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', '10');
+    // OR const wrappedRequired = await pool.swapWrappedRequired(1, 0, '10');
+    console.log(wrappedRequired);
     console.log(await pool.swapWrappedIsApproved('3crv', 10));
     console.log(await pool.swapWrappedApprove('3crv', 10));
     const swapWrappedTx = await pool.swapWrapped('3crv','MIM', 10, 0.1);

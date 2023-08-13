@@ -1,7 +1,7 @@
 import axios from "axios";
 import memoize from "memoizee";
 import BigNumber from "bignumber.js";
-import { ethers } from "ethers";
+import { ethers, Contract } from "ethers";
 import { curve } from "./curve.js";
 import { IDict, IRoute, IRouteTvl, IRouteOutputAndCost } from "./interfaces";
 import {
@@ -179,7 +179,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1 && inCoin !== token_address) continue;
 
                 // TODO remove it!!!!
-                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : (await _getTVL(poolId))* tvlMultiplier;
+                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : (await _getTVL(poolId)) * tvlMultiplier;
                 // Skip empty pools
                 if (tvl === 0) continue;
 
@@ -245,8 +245,8 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     if (!(step === 3 && token_address !== outputCoinAddress)) {
                         const swapType = is_aave_like_lending ? 9
                             : coin_addresses.length === 2 ? 7
-                            : coin_addresses.length === 3 ? 8
-                            : coin_addresses.length === 4 ? 10 : 11;
+                                : coin_addresses.length === 3 ? 8
+                                    : coin_addresses.length === 4 ? 10 : 11;
 
                         const newRoutesByTvl: IRouteTvl[] = routesByTvl[inCoin].map(
                             (route) => getNewRoute(
@@ -364,9 +364,9 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
                         const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) ? 6
                             : (base_pool?.is_lending && poolData.is_factory) ? 5
-                            : hasEth && poolId !== 'avaxcrypto' ? 3
-                            : poolData.is_crypto ? 4
-                            : 2;
+                                : hasEth && poolId !== 'avaxcrypto' ? 3
+                                    : poolData.is_crypto ? 4
+                                        : 2;
 
                         const newRoutesByTvl: IRouteTvl[] = routesByTvl[inCoin].map(
                             (route) => getNewRoute(
@@ -462,7 +462,7 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
         const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(route);
 
         if ((_estimatedGasForDifferentRoutesCache[routeKey]?.time || 0) + 3600000 < Date.now()) {
-            gasPromise = contract.exchange_multiple.estimateGas(_route, _swapParams, _amount, 0, _factorySwapAddresses, { ...curve.constantOptions, value});
+            gasPromise = contract.exchange_multiple.estimateGas(_route, _swapParams, _amount, 0, _factorySwapAddresses, { ...curve.constantOptions, value });
         } else {
             gasPromise = Promise.resolve(_estimatedGasForDifferentRoutesCache[routeKey].gas);
         }
@@ -692,6 +692,39 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
     return await contract.exchange_multiple(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })
 }
 
+export const modifiedSwap = async (inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<{
+    contract: Contract;
+    methodName: string;
+    methodParams: {
+        _route: string[];
+        _swapParams: number[][];
+        _amount: bigint;
+        _minRecvAmount: bigint;
+        _factorySwapAddresses: string[];
+    };
+    value: bigint;
+}> => {
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
+
+    await swapApprove(inputCoin, amount);
+    const { route, output } = await getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+
+    if (route.length === 0) {
+        throw new Error("This pair can't be exchanged");
+    }
+
+    const { _route, _swapParams, _factorySwapAddresses } = _getExchangeMultipleArgs(route);
+    const _amount = parseUnits(amount, inputCoinDecimals);
+    const minRecvAmountBN: BigNumber = BN(output).times(100 - slippage).div(100);
+    const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
+    const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+    const value = isEth(inputCoinAddress) ? _amount : curve.parseUnits("0");
+
+    return { contract, methodName: 'exchange_multiple', methodParams: { _route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses }, value }
+}
+
 export const getSwappedAmount = async (tx: ethers.ContractTransactionResponse, outputCoin: string): Promise<string> => {
     const [outputCoinAddress] = _getCoinAddresses(outputCoin);
     const [outputCoinDecimals] = _getCoinDecimals(outputCoinAddress);
@@ -708,7 +741,7 @@ export const getSwappedAmount = async (tx: ethers.ContractTransactionResponse, o
                 ethers.dataSlice(txInfo.logs[txInfo.logs.length - i].data, 0)
             );
             break;
-        } catch (err) {}
+        } catch (err) { }
     }
 
     if (res === undefined) return '0.0'

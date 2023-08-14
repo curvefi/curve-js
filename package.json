@@ -1,17 +1,17 @@
 {
   "name": "@curvefi/api",
-  "version": "2.44.0",
+  "version": "2.44.1",
   "description": "JavaScript library for curve.fi",
-  "main": "lib/index.js",
+  "main": "lib/index",
   "author": "Macket",
   "license": "MIT",
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/curvefi/curve-js.git"
+    "url": "https://github.com/vic-en/curve-js.git"
   },
   "bugs": {
-    "url": "https://github.com/curvefi/curve-js/issues"
+    "url": "https://github.com/vic-en/curve-js/issues"
   },
   "scripts": {
     "build": "rm -rf lib && tsc -p tsconfig.build.json"

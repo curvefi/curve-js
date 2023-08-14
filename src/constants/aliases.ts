@@ -96,7 +96,7 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
-    "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
+    "tricrypto_factory": '0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8',
     "registry_exchange": "",
     "factory_admin": "",
 });

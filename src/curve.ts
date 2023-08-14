@@ -559,6 +559,7 @@ class Curve implements ICurve {
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
             this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
             this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
+
         }
 
         this.setContract(this.constants.ALIASES.crvusd_factory, factoryABI);
@@ -657,7 +658,7 @@ class Curve implements ICurve {
     }
 
     fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
-        if (![1].includes(this.chainId)) return;
+        if (![1, 42161].includes(this.chainId)) return;  // Ethereum, Arbitrum
 
         if (useApi) {
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-tricrypto"));
@@ -669,7 +670,13 @@ class Curve implements ICurve {
 
         await _killGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
-        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = await this.contracts[this.constants.ALIASES.tricrypto_factory].contract.gauge_implementation(this.constantOptions);
+        if (this.chainId === 1) {
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] =
+                await this.contracts[this.constants.ALIASES.tricrypto_factory].contract.gauge_implementation(this.constantOptions);
+        } else {
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] =
+                await this.contracts[this.constants.ALIASES.minter].contract.get_implementation(this.constantOptions);
+        }
     }
 
     fetchNewFactoryPools = async (): Promise<string[]> => {
@@ -697,7 +704,7 @@ class Curve implements ICurve {
     }
 
     fetchNewTricryptoFactoryPools = async (): Promise<string[]> => {
-        if (![1].includes(this.chainId)) return [];
+        if (![1, 42161].includes(this.chainId)) return [];  // Ethereum, Arbitrum
 
         const currentPoolIds = Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
         const lastPoolIdx = Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -729,7 +736,7 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedTricryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if (![1].includes(this.chainId)) return '';
+        if (![1, 42161].includes(this.chainId)) return '';  // Ethereum, Arbitrum
 
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };

@@ -47,7 +47,7 @@ export const _getSubgraphData = memoize(
 // Moonbeam and Aurora only
 export const _getLegacyAPYsAndVolumes = memoize(
     async (network: string): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {
-        if (network === "kava" || network === "celo" || network === "zksync") return {}; // Exclude Kava, Celo and ZkSync
+        if (["kava", "celo", "zksync", "base"].includes(network)) return {}; // Exclude Kava, Celo, ZkSync and Base
         const url = "https://api.curve.fi/api/getMainPoolsAPYs/" + network;
         const data = (await axios.get(url, { validateStatus: () => true })).data;
         const result: IDict<{ apy: { day: number, week: number }, volume: number }> = {};
@@ -66,7 +66,7 @@ export const _getLegacyAPYsAndVolumes = memoize(
     }
 )
 
-// ZkSync, Moonbeam, Kava and Celo only
+// Base, ZkSync, Moonbeam, Kava and Celo only
 export const _getFactoryAPYsAndVolumes = memoize(
     async (network: string): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
         if (network === "aurora") return [];  // Exclude Aurora

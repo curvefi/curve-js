@@ -410,7 +410,7 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
-        if ([324, 1284, 2222, 42220, 1313161554].includes(curve.chainId)) {  // ZkSync || Moonbeam || Kava || Celo || Aurora
+        if ([324, 1284, 2222, 8453, 42220, 1313161554].includes(curve.chainId)) {  // ZkSync || Moonbeam || Kava || Base || Celo || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
                 _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),
@@ -433,7 +433,7 @@ export class PoolTemplate {
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        if ([324, 1284, 2222, 42220, 1313161554].includes(curve.chainId)) {  // ZkSync || Moonbeam || Kava || Celo || Aurora
+        if ([324, 1284, 2222, 8453, 42220, 1313161554].includes(curve.chainId)) {  // ZkSync || Moonbeam || Kava || Base || Celo || Aurora
             const [mainPoolsData, factoryPoolsData] = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
                 _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),

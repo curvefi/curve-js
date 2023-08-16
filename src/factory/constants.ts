@@ -285,7 +285,7 @@ export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
     "0xA73b02a97B45604cd9f0BBAA153eCfe01f409350": Plain4OptimizedABI,
 });
 
-export const implementationABIDictZkSync: IDict<any> = {
+export const implementationABIDictZkSync: IDict<any> = lowerCaseKeys({
     "0x7c2a205C52361410233540008f7095dEF5915843": Plain2BasicABI,
     "0xEF04fC6b95b1658AfdFd527aF9b947cd7BD46bde": Plain2BalancesABI,
     "0x4887ef1a68f30364a25a8b0bAA13EeeA7eeBE574": Plain2ETHABI,
@@ -300,7 +300,24 @@ export const implementationABIDictZkSync: IDict<any> = {
     "0x3D21E268d6A526948e978ad1595052c949927e54": Plain4BalancesABI,
     "0xD46aed59fBd5eB6c134b1AFb364240bb62dA0451": Plain4ETHABI,
     "0xE80AeF1a4782eA7b7f9Ad9F0c2ed9343861934e3": Plain4OptimizedABI,
-}
+})
+
+export const implementationABIDictBase: IDict<any> = lowerCaseKeys({
+    "0xD166EEdf272B860E991d331B71041799379185D5": Plain2BasicABI,
+    "0x5C627d6925e448Ae418BC8a45d56B31fe5009Bea": Plain2BalancesABI,
+    "0x22D710931F01c1681Ca1570Ff016eD42EB7b7c2a": Plain2ETHABI,
+    "0xA50d9a424A14aF0b9e7e9243dc1597d977f6cB09": Plain2OptimizedABI,
+
+    "0xeD49979026DC44DC7E83b1471794ec9b2a365Ea2": Plain3BasicABI,
+    "0x0Cc51c9786f3777a6d50961CEBb2BB6E69ec5e07": Plain3BalancesABI,
+    "0x0a31527a8dE2Ee97BBD8cCE14Db8E8826a0b6C4f": Plain3ETHABI,
+    "0x1086F023146f9026A9Bb22983CE866813C59518A": Plain3OptimizedABI,
+
+    "0x1621E58d36EB5Ef26F9768Ebe9DB77181b1f5a02": Plain4BasicABI,
+    "0x2FdDeDF2D842f23da2B81b9144e75cEcb691Bf19": Plain4BalancesABI,
+    "0x50E09Ee7080b32aef3e92346891dD2DD389B5fAf": Plain4ETHABI,
+    "0x44d9B3f4EE15AC81FEb918501fca0ddc9d83C976": Plain4OptimizedABI,
+})
 
 export const implementationBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys({
     "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
@@ -382,6 +399,8 @@ export const implementationBasePoolIdDictKava: IDict<string> = lowerCaseKeys({})
 export const implementationBasePoolIdDictCelo: IDict<string> = lowerCaseKeys({});
 
 export const implementationBasePoolIdDictZkSync: IDict<string> = lowerCaseKeys({});
+
+export const implementationBasePoolIdDictBase: IDict<string> = lowerCaseKeys({});
 
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
@@ -488,6 +507,8 @@ export const basePoolIdZapDictCelo: IDict<{ address: string, ABI: any }> = {}
 
 export const basePoolIdZapDictZkSync: IDict<{ address: string, ABI: any }> = {}
 
+export const basePoolIdZapDictBase: IDict<{ address: string, ABI: any }> = {}
+
 export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
@@ -528,6 +549,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         implementationABIDict: implementationABIDictKava,
         implementationBasePoolIdDict: implementationBasePoolIdDictKava,
         basePoolIdZapDict: basePoolIdZapDictKava,
+    },
+    8453: {  // BASE
+        implementationABIDict: implementationABIDictBase,
+        implementationBasePoolIdDict: implementationBasePoolIdDictBase,
+        basePoolIdZapDict: basePoolIdZapDictBase,
     },
     42220: {  // CELO
         implementationABIDict: implementationABIDictCelo,

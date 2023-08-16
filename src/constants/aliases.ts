@@ -231,11 +231,32 @@ export const ALIASES_ZKSYNC = lowerCaseValues({
     "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58", // <--- TODO CHANGE
     "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685", // <--- TODO CHANGE
     "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7", // <--- TODO CHANGE
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- TODO CHANGE
     "factory": '0xAF5261eD780fd5b80CF6E206b6BF90CbB97F511B',
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
+    "registry_exchange": "0x0000000000000000000000000000000000000000",
+    "factory_admin": "0x0000000000000000000000000000000000000000",
+});
+
+export const ALIASES_BASE = lowerCaseValues({
+    "crv": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415", // <--- TODO CHANGE
+    "minter": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
+    "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
+    "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB", // <--- TODO CHANGE
+    "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383", // <--- TODO CHANGE
+    "router": "0xfA9a30350048B2BF66865ee20363067c66f67e58", // <--- TODO CHANGE
+    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685", // <--- TODO CHANGE
+    "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7", // <--- TODO CHANGE
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- TODO CHANGE
+    "factory": '0x3093f9B57A428F3EB6285a589cb35bEA6e78c336',
+    "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
+    "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
+    "crypto_factory": '0x5EF72230578b3e399E6C6F4F6360edF95e83BBfd',
+    "tricrypto_factory": '0xA5961898870943c68037F6848d2D866Ed2016bcB',
     "registry_exchange": "0x0000000000000000000000000000000000000000",
     "factory_admin": "0x0000000000000000000000000000000000000000",
 });

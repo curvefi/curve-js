@@ -32,6 +32,8 @@ export const lpTokenBasePoolIdDictCelo: IDict<string> = lowerCaseKeys({});
 
 export const lpTokenBasePoolIdDictZkSync: IDict<string> = lowerCaseKeys({});
 
+export const lpTokenBasePoolIdDictBase: IDict<string> = lowerCaseKeys({});
+
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
         address: "0x97aDC08FA1D849D2C48C5dcC1DaB568B169b0267".toLowerCase(),
@@ -68,6 +70,8 @@ export const basePoolIdZapDictCelo: IDict<{ address: string, ABI: any }> = {};
 
 export const basePoolIdZapDictZkSync: IDict<{ address: string, ABI: any }> = {};
 
+export const basePoolIdZapDictBase: IDict<{ address: string, ABI: any }> = {};
+
 export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: { lpTokenBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
         lpTokenBasePoolIdDict: lpTokenBasePoolIdDictEthereum,
@@ -100,6 +104,10 @@ export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: { lpTokenBasePoolIdDic
     2222: {  // KAVA
         lpTokenBasePoolIdDict: lpTokenBasePoolIdDictKava,
         basePoolIdZapDict: basePoolIdZapDictKava,
+    },
+    8453: {  // BASE
+        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictBase,
+        basePoolIdZapDict: basePoolIdZapDictBase,
     },
     42220: {  // CELO
         lpTokenBasePoolIdDict: lpTokenBasePoolIdDictCelo,

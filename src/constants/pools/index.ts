@@ -11,6 +11,7 @@ import { POOLS_DATA_AURORA } from "./aurora.js";
 import { POOLS_DATA_KAVA } from "./kava.js";
 import { POOLS_DATA_CELO } from "./celo.js";
 import { POOLS_DATA_ZKSYNC } from "./zksync.js";
+import { POOLS_DATA_BASE } from "./base.js";
 
 export {
     POOLS_DATA_ETHEREUM,
@@ -26,4 +27,5 @@ export {
     POOLS_DATA_KAVA,
     POOLS_DATA_CELO,
     POOLS_DATA_ZKSYNC,
+    POOLS_DATA_BASE,
 };

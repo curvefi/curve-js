@@ -583,7 +583,7 @@ export class PoolTemplate {
     }
 
     private _calcLpTokenAmount = memoize(async (_amounts: bigint[], isDeposit = true, useUnderlying = true): Promise<bigint> => {
-        if (this.isCrypto || this.id === "wbeth") {  // TODO remove wbeth
+        if (this.isCrypto || curve.constants.ALIASES.stable_calc === curve.constants.ZERO_ADDRESS) {
             try {
                 return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
             } catch (e) { // Seeding
@@ -612,7 +612,7 @@ export class PoolTemplate {
                 return await contract.calc_token_amount_meta(
                     this.address,
                     this.lpToken,
-                    _amounts.concat(Array(5 - _amounts.length).fill(curve.parseUnits("0"))),
+                    _amounts.concat(Array(10 - _amounts.length).fill(curve.parseUnits("0"))),
                     _amounts.length,
                     basePool.address,
                     basePool.lpToken,
@@ -623,7 +623,7 @@ export class PoolTemplate {
                 return await contract.calc_token_amount(
                     this.address,
                     this.lpToken,
-                    _amounts.concat(Array(5 - _amounts.length).fill(curve.parseUnits("0"))),
+                    _amounts.concat(Array(10 - _amounts.length).fill(curve.parseUnits("0"))),
                     _amounts.length,
                     isDeposit,
                     useUnderlying && this.isLending

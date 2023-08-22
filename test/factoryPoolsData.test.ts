@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { curve } from "../src/curve.js";
 import { ETH_RPC } from "./rpcUrls.test.js";
 import { IDict, IPoolData } from "../src/interfaces.js";
+import { BLACK_LIST } from "../src/factory/factory.js";
 
 
 const factoryPoolsDataTest = (factoryPoolsDataFromApi: IDict<IPoolData>, factoryPoolsData: IDict<IPoolData>, isStrict: boolean) => {
@@ -76,7 +77,13 @@ describe('Factory pools data', async function () {
     it('Factory', async function () {
         await curve.fetchFactoryPools();
         const factoryPoolsDataFromApi = { ...curve.constants.FACTORY_POOLS_DATA };
-        delete factoryPoolsDataFromApi['factory-v2-234'];
+        BLACK_LIST[1].forEach((item:string) => {
+            for(let key in factoryPoolsDataFromApi) {
+                if(factoryPoolsDataFromApi[key].swap_address === item) {
+                    delete factoryPoolsDataFromApi[key]
+                }
+            }
+        })
         await curve.fetchFactoryPools(false);
         const factoryPoolsData = { ...curve.constants.FACTORY_POOLS_DATA };
 

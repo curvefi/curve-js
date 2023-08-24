@@ -7,10 +7,10 @@ import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'j
 import { setFactoryZapContracts } from "./common.js";
 import { FACTORY_CONSTANTS } from "./constants.js";
 
-
-const BLACK_LIST: { [index: number]: any } = {
+export const BLACK_LIST: { [index: number]: any } = {
     1: [
         "0x066b6e1e93fa7dcd3f0eb7f8bac7d5a747ce0bf9",
+        "0xc61557c5d177bd7dc889a3b621eec333e168f68a",
     ],
     137: [
         "0x666dc3b4babfd063faf965bd020024af0dc51b64",
@@ -247,7 +247,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
             };
         } else {
-            const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
+            const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
             // @ts-ignore
             const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_coins]));

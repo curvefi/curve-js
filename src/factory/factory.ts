@@ -247,7 +247,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
             };
         } else {
-            const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA};
+            const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
             // @ts-ignore
             const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_coins]));

@@ -134,6 +134,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             for (let j = 0; j < rewardCount[i]; j++) {
                 const rewardAddress = rawRewardTokens.shift();
                 if (rewardAddress === curve.constants.ZERO_ADDRESS) continue;
+                if (curve.chainId !== 1 && rewardAddress === curve.constants.COINS.crv) continue;
                 // REYIELD shitcoin which breaks things, because symbol() throws an error
                 if (rewardAddress === "0xf228ec3476318aCB4E719D2b290bb2ef8B34DFfA".toLowerCase()) continue;
                 rewardTokens[poolsToFetch[i]].push(rewardAddress as string);

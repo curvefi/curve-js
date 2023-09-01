@@ -79,6 +79,7 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[], factoryAddress: string): Promise<[string[], string[], REFERENCE_ASSET[], string[], string[], boolean[], string[][]]> {
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
+    const isFactoryGaugeNull = this.constants.ALIASES.gauge_factory === '0x0000000000000000000000000000000000000000'
     const factoryGaugeContract = this.contracts[this.constants.ALIASES.gauge_factory].multicallContract
 
     const calls = [];
@@ -88,7 +89,7 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[], factor
         calls.push(factoryMulticallContract.get_implementation_address(addr));
         if(this.chainId === 1) {
             calls.push(factoryMulticallContract.get_gauge(addr));
-        } else {
+        } else if(!isFactoryGaugeNull) {
             calls.push(factoryGaugeContract.get_gauge_from_lp_token(addr));
         }
         calls.push(factoryMulticallContract.get_pool_asset_type(addr));
@@ -99,15 +100,28 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[], factor
     }
 
     const res = await this.multicallProvider.all(calls);
-    const implememntationAddresses = (res.filter((a, i) => i % 7 == 0) as string[]).map((a) => a.toLowerCase());
-    const gaugeAddresses = (res.filter((a, i) => i % 7 == 1) as string[]).map((a) => a.toLowerCase());
-    const referenceAssets = _handleReferenceAssets(res.filter((a, i) => i % 7 == 2) as bigint[]);
-    const symbols = res.filter((a, i) => i % 7 == 3) as string[];
-    const names = res.filter((a, i) => i % 7 == 4) as string[];
-    const isMeta = res.filter((a, i) => i % 7 == 5) as boolean[];
-    const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 7 == 6) as string[][]);
 
-    return [implememntationAddresses, gaugeAddresses, referenceAssets, symbols, names, isMeta, coinAddresses]
+    if(!isFactoryGaugeNull) {
+        const implememntationAddresses = (res.filter((a, i) => i % 7 == 0) as string[]).map((a) => a.toLowerCase());
+        const gaugeAddresses = (res.filter((a, i) => i % 7 == 1) as string[]).map((a) => a.toLowerCase());
+        const referenceAssets = _handleReferenceAssets(res.filter((a, i) => i % 7 == 2) as bigint[]);
+        const symbols = res.filter((a, i) => i % 7 == 3) as string[];
+        const names = res.filter((a, i) => i % 7 == 4) as string[];
+        const isMeta = res.filter((a, i) => i % 7 == 5) as boolean[];
+        const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 7 == 6) as string[][]);
+
+        return [implememntationAddresses, gaugeAddresses, referenceAssets, symbols, names, isMeta, coinAddresses]
+    } else {
+        const implememntationAddresses = (res.filter((a, i) => i % 7 == 0) as string[]).map((a) => a.toLowerCase());
+        const referenceAssets = _handleReferenceAssets(res.filter((a, i) => i % 7 == 1) as bigint[]);
+        const symbols = res.filter((a, i) => i % 7 == 2) as string[];
+        const names = res.filter((a, i) => i % 7 == 3) as string[];
+        const isMeta = res.filter((a, i) => i % 7 == 4) as boolean[];
+        const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 7 == 5) as string[][]);
+        const gaugeAddresses = Array.from(Array(factorySwapAddresses.length)).map(() => '0x0000000000000000000000000000000000000000')
+
+        return [implememntationAddresses, gaugeAddresses, referenceAssets, symbols, names, isMeta, coinAddresses]
+    }
 }
 
 function setFactorySwapContracts(this: ICurve, factorySwapAddresses: string[], factorySwapABIs: any[]): void {

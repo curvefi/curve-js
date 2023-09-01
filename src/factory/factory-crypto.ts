@@ -50,22 +50,68 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
         ));
 }
 
-async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[][]]> {
+async function _getLpTokenMap(this: ICurve,factorySwapAddresses: string[]): Promise<Record<string, string>> {
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
 
+    const LpTokenMap: Record<string, string> = {}
+    const getLpTokenCalls = []
+    for(const addr of factorySwapAddresses) {
+        getLpTokenCalls.push(factoryMulticallContract.get_token(addr));
+    }
+    const lpTokens = await this.multicallProvider.all(getLpTokenCalls);
+
+    lpTokens.forEach((item, index) => {
+        if (typeof item === "string") {
+            LpTokenMap[factorySwapAddresses[index]] = item
+        } else {
+            throw Error("Lp token is not string")
+        }
+    })
+    return LpTokenMap
+}
+
+async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[][]]> {
+    const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
+    const isfactoryGaugeNull = this.constants.ALIASES.gauge_factory === '0x0000000000000000000000000000000000000000'
+
     const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_token(addr));
-        calls.push(factoryMulticallContract.get_gauge(addr));
-        calls.push(factoryMulticallContract.get_coins(addr));
+
+    if(this.chainId === 1) {
+        for (const addr of factorySwapAddresses) {
+            calls.push(factoryMulticallContract.get_token(addr));
+            calls.push(factoryMulticallContract.get_gauge(addr));
+            calls.push(factoryMulticallContract.get_coins(addr));
+        }
+
+    } else {
+        const factoryMulticallGaugeContract = this.contracts[this.constants.ALIASES.gauge_factory].multicallContract
+
+        const LpTokenMap = await _getLpTokenMap.call(this, factorySwapAddresses)
+
+        for (const addr of factorySwapAddresses) {
+            calls.push(factoryMulticallContract.get_token(addr));
+            if(!isfactoryGaugeNull) {
+                calls.push(factoryMulticallGaugeContract.get_gauge_from_lp_token(LpTokenMap[addr]))
+            }
+            calls.push(factoryMulticallContract.get_coins(addr));
+        }
     }
 
     const res = await this.multicallProvider.all(calls);
-    const tokenAddresses = (res.filter((a, i) => i % 3 == 0) as string[]).map((a) => a.toLowerCase());
-    const gaugeAddresses = (res.filter((a, i) => i % 3 == 1) as string[]).map((a) => a.toLowerCase());
-    const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 3 == 2) as string[][]);
 
-    return [tokenAddresses, gaugeAddresses, coinAddresses]
+    if(isfactoryGaugeNull) {
+        const tokenAddresses = (res.filter((a, i) => i % 3 == 0) as string[]).map((a) => a.toLowerCase());
+        const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 3 == 1) as string[][]);
+        const gaugeAddresses = Array.from(Array(factorySwapAddresses.length)).map(() => '0x0000000000000000000000000000000000000000')
+
+        return [tokenAddresses, gaugeAddresses, coinAddresses]
+    } else {
+        const tokenAddresses = (res.filter((a, i) => i % 3 == 0) as string[]).map((a) => a.toLowerCase());
+        const gaugeAddresses = (res.filter((a, i) => i % 3 == 1) as string[]).map((a) => a.toLowerCase());
+        const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 3 == 2) as string[][]);
+
+        return [tokenAddresses, gaugeAddresses, coinAddresses]
+    }
 }
 
 function setCryptoFactorySwapContracts(this: ICurve, factorySwapAddresses: string[]): void {

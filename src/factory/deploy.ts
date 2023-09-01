@@ -530,7 +530,6 @@ const _deployGauge = async (pool: string, factory: string, estimateGas: boolean)
 }
 
 const _deployGaugeSidechain = async (pool: string, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
-    console.log('this WORK')
     if (curve.chainId === 1) throw Error("There is no deployGaugeSidechain method on ethereum network");
     const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
     const _salt = ethers.encodeBytes32String(salt)

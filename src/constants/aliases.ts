@@ -163,7 +163,7 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
 
 export const ALIASES_AURORA = lowerCaseValues({
     "crv": "0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "gauge_factory": "0x0000000000000000000000000000000000000000", // <-- CHANGED
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -223,7 +223,7 @@ export const ALIASES_CELO = lowerCaseValues({
 
 export const ALIASES_ZKSYNC = lowerCaseValues({
     "crv": "0x0a7432cF27F1aE3825c313F3C81e7D3efD7639aB", // <--- TODO CHANGE
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5", // <-- DUMMY
+    "gauge_factory": "0x0000000000000000000000000000000000000000", // <-- CHANGED
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB", // <--- TODO CHANGE

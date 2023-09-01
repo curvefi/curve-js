@@ -1,4 +1,4 @@
-import { ethers, Contract} from "ethers";
+import {ethers, Contract, Typed} from "ethers";
 import { curve } from "../curve.js";
 import { getPool } from "../pools/index.js";
 import { parseUnits, BN, mulBy1_3, getPoolIdBySwapAddress } from "../utils.js";
@@ -519,6 +519,7 @@ export const getDeployedTricryptoPoolAddress = async (tx: ethers.ContractTransac
 // ------- GAUGE -------
 
 const _deployGauge = async (pool: string, factory: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+    if (curve.chainId !== 1) throw Error("There is no deployGauge method on sidechain network");
     const contract = curve.contracts[factory].contract;
     const gas = await contract.deploy_gauge.estimateGas(pool, curve.constantOptions);
     if (estimateGas) return Number(gas);
@@ -528,9 +529,42 @@ const _deployGauge = async (pool: string, factory: string, estimateGas: boolean)
     return await contract.deploy_gauge(pool, { ...curve.options, gasLimit });
 }
 
+const _deployGaugeSidechain = async (pool: string, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+    console.log('this WORK')
+    if (curve.chainId === 1) throw Error("There is no deployGaugeSidechain method on ethereum network");
+    const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
+    const _salt = ethers.encodeBytes32String(salt)
+    const gas = await contract.deploy_gauge.estimateGas(pool, Typed.bytes32(_salt), curve.signerAddress, curve.constantOptions);
+    if (estimateGas) return Number(gas);
+
+    const gasLimit = mulBy1_3(gas);
+    await curve.updateFeeData();
+    return await contract.deploy_gauge(pool,Typed.bytes32(_salt),curve.signerAddress, { ...curve.options, gasLimit });
+}
+
+const _deployGaugeMirror = async (chainId: number, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+    if (curve.chainId !== 1) throw Error("There is no deployGaugeMirror method on sidechain network");
+    const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
+    const _salt = ethers.encodeBytes32String(salt)
+    const gas = await contract.deploy_gauge.estimateGas(chainId, Typed.bytes32(_salt), curve.constantOptions);
+    if (estimateGas) return Number(gas);
+
+    const gasLimit = mulBy1_3(gas);
+    await curve.updateFeeData();
+    return await contract.deploy_gauge(chainId,Typed.bytes32(_salt), { ...curve.options, gasLimit });
+}
+
 export const deployGaugeEstimateGas = async (pool: string, factory: string): Promise<number> => await _deployGauge(pool, factory, true) as number;
 
 export const deployGauge = async (pool: string, factory: string): Promise<ethers.ContractTransactionResponse> => await _deployGauge(pool, factory, false) as ethers.ContractTransactionResponse;
+
+export const deployGaugeSidechainEstimateGas = async (pool: string, salt: string): Promise<number> => await _deployGaugeSidechain(pool, salt, true) as number;
+
+export const deployGaugeSidechain = async (pool: string, salt: string): Promise<ethers.ContractTransactionResponse> => await _deployGaugeSidechain(pool, salt, false) as ethers.ContractTransactionResponse;
+
+export const deployGaugeMirrorEstimateGas = async (chainId: number, salt: string): Promise<number> => await _deployGaugeMirror(chainId, salt, true) as number;
+
+export const deployGaugeMirror = async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => await _deployGaugeMirror(chainId, salt, false) as ethers.ContractTransactionResponse;
 
 export const getDeployedGaugeAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
     const txInfo = await tx.wait();

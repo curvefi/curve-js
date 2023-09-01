@@ -17,6 +17,9 @@ export const BLACK_LIST: { [index: number]: any } = {
         "0xe4199bc5c5c1f63dba47b56b6db7144c51cf0bf8",
         "0x88c4d6534165510b2e2caf0a130d4f70aa4b6d71",
     ],
+    42161: [
+        "0xd7bb79aee866672419999a0496d99c54741d67b5"
+    ]
 }
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -76,13 +79,18 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[], factoryAddress: string): Promise<[string[], string[], REFERENCE_ASSET[], string[], string[], boolean[], string[][]]> {
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
+    const factoryGaugeContract = this.contracts[this.constants.ALIASES.gauge_factory].multicallContract
 
     const calls = [];
     for (const addr of factorySwapAddresses) {
         const tempSwapContract = new MulticallContract(addr, ERC20ABI);
 
         calls.push(factoryMulticallContract.get_implementation_address(addr));
-        calls.push(factoryMulticallContract.get_gauge(addr));
+        if(this.chainId === 1) {
+            calls.push(factoryMulticallContract.get_gauge(addr));
+        } else {
+            calls.push(factoryGaugeContract.get_gauge_from_lp_token(addr));
+        }
         calls.push(factoryMulticallContract.get_pool_asset_type(addr));
         calls.push(tempSwapContract.symbol());
         calls.push(tempSwapContract.name());

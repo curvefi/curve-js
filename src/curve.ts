@@ -8,8 +8,8 @@ import { IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType } fr
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
-import minterABI from './constants/abis/minter.json' assert { type: 'json' };
-import minterChildABI from './constants/abis/minter_child.json' assert { type: 'json' };
+import gaugeFactoryABI from './constants/abis/gauge_factory.json' assert { type: 'json' };
+import gaugeFactorySidechainABI from './constants/abis/gauge_factory_sidechain.json' assert { type: 'json' };
 import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
 import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };
 import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' assert { type: 'json' };
@@ -427,17 +427,17 @@ class Curve implements ICurve {
                     this.signer = null;
                 }
             }
-        // Web3 provider
+            // Web3 provider
         } else if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
             providerSettings = providerSettings as { externalProvider: ethers.Eip1193Provider };
             this.provider = new ethers.BrowserProvider(providerSettings.externalProvider);
             this.signer = await this.provider.getSigner();
-        // Infura provider
+            // Infura provider
         } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
-        // Alchemy provider
+            // Alchemy provider
         } else if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
@@ -543,8 +543,8 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.crv, ERC20Abi);
         this.constants.DECIMALS[this.constants.ALIASES.crv] = 18;
 
-        const _minterABI = this.chainId === 1 ? minterABI : minterChildABI
-        this.setContract(this.constants.ALIASES.minter, _minterABI);
+        const _gaugeFactoryABI = this.chainId === 1 ? gaugeFactoryABI : gaugeFactorySidechainABI
+        this.setContract(this.constants.ALIASES.gauge_factory, _gaugeFactoryABI);
 
         this.setContract(this.constants.ALIASES.voting_escrow, votingEscrowABI);
 
@@ -694,7 +694,7 @@ class Curve implements ICurve {
                 await this.contracts[this.constants.ALIASES.tricrypto_factory].contract.gauge_implementation(this.constantOptions);
         } else {
             this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] =
-                await this.contracts[this.constants.ALIASES.minter].contract.get_implementation(this.constantOptions);
+                await this.contracts[this.constants.ALIASES.gauge_factory].contract.get_implementation(this.constantOptions);
         }
     }
 
@@ -756,7 +756,6 @@ class Curve implements ICurve {
 
     fetchRecentlyDeployedTricryptoFactoryPool = async (poolAddress: string): Promise<string> => {
         if (![1, 8453, 42161].includes(this.chainId)) return '';  // Ethereum, Arbitrum
-
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);

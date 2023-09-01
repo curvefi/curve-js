@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { curve } from "../src/curve.js";
-import { ETH_RPC } from "./rpcUrls.test.js";
+import { ETH_RPC, ARBITRUM_RPC, AURORA_RPC } from "./rpcUrls.test.js";
 import { IDict, IPoolData } from "../src/interfaces.js";
 import { BLACK_LIST } from "../src/factory/factory.js";
 
@@ -70,14 +70,16 @@ describe('Factory pools data', async function () {
     this.timeout(120000);
 
     before(async function() {
-        await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
+        await curve.init('JsonRpc', { url: AURORA_RPC }, { gasPrice: 0 });
         // await curve.init('JsonRpc', {},{ gasPrice: 0 });
     });
 
     it('Factory', async function () {
         await curve.fetchFactoryPools();
         const factoryPoolsDataFromApi = { ...curve.constants.FACTORY_POOLS_DATA };
-        BLACK_LIST[1].forEach((item:string) => {
+        const blacklist = BLACK_LIST[curve.chainId] ?? [];
+
+        blacklist.forEach((item:string) => {
             for(let key in factoryPoolsDataFromApi) {
                 if(factoryPoolsDataFromApi[key].swap_address === item) {
                     delete factoryPoolsDataFromApi[key]

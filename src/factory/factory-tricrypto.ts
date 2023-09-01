@@ -49,19 +49,47 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 }
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[][]]> {
-    const factoryMulticallContract = this.contracts[this.constants.ALIASES.tricrypto_factory].multicallContract;
+    if(this.chainId === 1) {
+        const factoryMulticallContract = this.contracts[this.constants.ALIASES.tricrypto_factory].multicallContract;
 
-    const calls = [];
-    for (const addr of factorySwapAddresses) {
-        calls.push(factoryMulticallContract.get_gauge(addr));
-        calls.push(factoryMulticallContract.get_coins(addr));
+        const calls = [];
+        for (const addr of factorySwapAddresses) {
+            calls.push(factoryMulticallContract.get_gauge(addr));
+            calls.push(factoryMulticallContract.get_coins(addr));
+        }
+
+        const res = await this.multicallProvider.all(calls);
+        const gaugeAddresses = (res.filter((a, i) => i % 2 == 0) as string[]).map((a) => a.toLowerCase());
+        const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 2 == 1) as string[][]);
+
+        return [gaugeAddresses, coinAddresses]
+    } else {
+        const factoryMulticallContract = this.contracts[this.constants.ALIASES.tricrypto_factory].multicallContract;
+        const isFactoryGaugeNull = this.constants.ALIASES.gauge_factory === '0x0000000000000000000000000000000000000000'
+        const factoryMulticallGaugeContract = this.contracts[this.constants.ALIASES.gauge_factory].multicallContract
+
+        const calls = [];
+
+        for (const addr of factorySwapAddresses) {
+            if(!isFactoryGaugeNull) {
+                calls.push(factoryMulticallGaugeContract.get_gauge_from_lp_token(addr))
+            }
+            calls.push(factoryMulticallContract.get_coins(addr));
+        }
+
+        const res = await this.multicallProvider.all(calls);
+        if(!isFactoryGaugeNull) {
+            const gaugeAddresses = (res.filter((a, i) => i % 2 == 0) as string[]).map((a) => a.toLowerCase());
+            const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 2 == 1) as string[][]);
+
+            return [gaugeAddresses, coinAddresses]
+        } else {
+            const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 2 == 0) as string[][]);
+            const gaugeAddresses = Array.from(Array(factorySwapAddresses.length)).map(() => '0x0000000000000000000000000000000000000000')
+
+            return [gaugeAddresses, coinAddresses]
+        }
     }
-
-    const res = await this.multicallProvider.all(calls);
-    const gaugeAddresses = (res.filter((a, i) => i % 2 == 0) as string[]).map((a) => a.toLowerCase());
-    const coinAddresses = _handleCoinAddresses.call(this, res.filter((a, i) => i % 2 == 1) as string[][]);
-
-    return [gaugeAddresses, coinAddresses]
 }
 
 function setCryptoFactorySwapContracts(this: ICurve, factorySwapAddresses: string[]): void {

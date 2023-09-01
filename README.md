@@ -1652,6 +1652,7 @@ import curve from "@curvefi/api";
     console.log(curve.tricryptoFactory.gaugeImplementation());
     // 0x5fC124a161d888893529f67580ef94C2784e9233
     
+    //For mainnet
     const deployGaugeTx = await curve.tricryptoFactory.deployGauge(poolAddress);
     // ContractTransactionResponse {
     //     provider: JsonRpcProvider {},
@@ -1661,7 +1662,22 @@ import curve from "@curvefi/api";
     // }
     const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
     // 0x60d3d7ebbc44dc810a743703184f062d00e6db7e
-
+    
+    //For sidechain
+    const salt = '15'
+    //salt - unical random string
+    const deployGaugeSidechain = await curve.tricryptoFactory.deployGaugeSidechain(poolAddress, salt);
+    // ContractTransactionResponse {
+    //     provider: JsonRpcProvider {},
+    //     blockNumber: 17393463,
+    //     blockHash: '0x7f393493d7eb30b39aeef3118b51925426946eb83b72b18946f0da8c7bec40a0',
+    //     ...
+    // }
+    const gaugeSidechainAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeSidechain);
+    // 0x60d3d7ebbc44dc810a743703184f062d00e6db7e
+    //After that should be deployed mirror gauge on mainnet with same salt
+    //await curve.tricryptoFactory.deployGaugeMirror(sidechainId, salt);
+    
     // Deposit & Stake
 
     const poolId = await curve.tricryptoFactory.fetchRecentlyDeployedPool(poolAddress);

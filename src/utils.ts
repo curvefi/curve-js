@@ -296,7 +296,8 @@ export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => 
     for (const extendedPoolData of allTypesExtendedPoolData) {
         for (const pool of extendedPoolData.poolData) {
             if (pool.gaugeAddress) {
-                rewardsDict[pool.gaugeAddress.toLowerCase()] = pool.gaugeRewards;
+                rewardsDict[pool.gaugeAddress.toLowerCase()] = pool.gaugeRewards
+                    .filter((r) => curve.chainId === 1 || r.tokenAddress.toLowerCase() !== curve.constants.COINS.crv);
             }
         }
     }

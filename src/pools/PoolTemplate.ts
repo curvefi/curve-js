@@ -1102,7 +1102,8 @@ export class PoolTemplate {
             }
             const tokens = (await curve.multicallProvider.all(tokenCalls) as string[])
                 .filter((addr) => addr !== curve.constants.ZERO_ADDRESS)
-                .map((addr) => addr.toLowerCase());
+                .map((addr) => addr.toLowerCase())
+                .filter((addr) => curve.chainId === 1 || addr !== curve.constants.COINS.crv);
 
             const tokenInfoCalls = [];
             for (const token of tokens) {

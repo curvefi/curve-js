@@ -8,7 +8,7 @@ import { IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType } fr
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
-import gaugeFactoryABI from './constants/abis/gauge_factory.json' assert { type: 'json' };
+import gaugeFactoryABI from './constants/abis/gauge_factory_mainnet.json' assert { type: 'json' };
 import gaugeFactorySidechainABI from './constants/abis/gauge_factory_sidechain.json' assert { type: 'json' };
 import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
 import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };

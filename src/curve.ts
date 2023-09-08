@@ -10,6 +10,7 @@ import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
 import gaugeFactoryABI from './constants/abis/gauge_factory_mainnet.json' assert { type: 'json' };
 import gaugeFactorySidechainABI from './constants/abis/gauge_factory_sidechain.json' assert { type: 'json' };
+import minterMainnetABI from './constants/abis/minter_mainnet.json' assert { type: 'json' };
 import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
 import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };
 import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' assert { type: 'json' };
@@ -545,6 +546,10 @@ class Curve implements ICurve {
 
         const _gaugeFactoryABI = this.chainId === 1 ? gaugeFactoryABI : gaugeFactorySidechainABI
         this.setContract(this.constants.ALIASES.gauge_factory, _gaugeFactoryABI);
+
+        if(this.chainId === 1) {
+            this.setContract(this.constants.ALIASES.minter, minterMainnetABI )
+        }
 
         this.setContract(this.constants.ALIASES.voting_escrow, votingEscrowABI);
 

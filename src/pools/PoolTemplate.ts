@@ -1000,12 +1000,12 @@ export class PoolTemplate {
     public async claimCrvEstimateGas(): Promise<number> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
 
-        return Number(await curve.contracts[curve.constants.ALIASES.minter].contract.mint.estimateGas(this.gauge, curve.constantOptions));
+        return Number(await curve.contracts[curve.constants.ALIASES.gauge_factory].contract.mint.estimateGas(this.gauge, curve.constantOptions));
     }
 
     public async claimCrv(): Promise<string> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
-        const contract = curve.contracts[curve.constants.ALIASES.minter].contract;
+        const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
 
         const gasLimit = mulBy1_3(await contract.mint.estimateGas(this.gauge, curve.constantOptions));
         return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;

@@ -9,6 +9,7 @@ export type INetworkName = "ethereum" | "optimism" | "xdai" | "polygon" | "fanto
 export type IChainId = 1 | 10 | 100 | 137 | 250 | 324 | 1284 | 2222 | 8453 | 42161 | 42220 | 43114 | 1313161554;
 export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-eywa" | "factory-crypto" | "factory-tricrypto";
 export type IPoolType = "main" | "crypto" | IFactoryPoolType;
+export type ISwapType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
 
@@ -135,10 +136,8 @@ export interface IRouteStep {
     poolAddress: string,
     inputCoinAddress: string,
     outputCoinAddress: string,
-    i: number,
-    j: number,
-    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
-    swapAddress: string,  // for swapType == 4
+    swapParams: [number, number, ISwapType, number, number],  // i, j, swap_type, pool_type, n_coins
+    swapAddress: string,
 }
 
 export type IRoute = IRouteStep[];

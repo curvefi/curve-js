@@ -32,7 +32,7 @@ const _getNewRoute = (
     outputCoinAddress: string,
     i: number,
     j: number,
-    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15,
+    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
     swapAddress: string,
     tvl: number
 ): IRouteTvl => {
@@ -86,7 +86,7 @@ const _updateRoutes = (
     outCoin: string,
     i: number,
     j: number,
-    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15,
+    swapType: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
     swapAddress: string,
     tvl: number
 ): void => {
@@ -148,7 +148,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     outCoin,
                     0,
                     0,
-                    15,
+                    8,
                     curve.constants.ZERO_ADDRESS,
                     Infinity
                 )
@@ -191,7 +191,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         const outputCoinIdx = coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
-                        const swapType = poolData.is_crypto ? 14 : is_aave_like_lending ? 13 : 12;
+                        const swapType = is_aave_like_lending ? 7 : 6;
 
                         _updateRoutes(
                             inputCoinAddress,
@@ -217,10 +217,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 if (coin_addresses.length < 6 && inCoinIndex >= 0 && !poolData.is_llamma) {
                     // Looking for outputCoinAddress only on the final step
                     if (!(step === 3 && token_address !== outputCoinAddress)) {
-                        const swapType = is_aave_like_lending ? 9
-                            : coin_addresses.length === 2 ? 7
-                            : coin_addresses.length === 3 ? 8
-                            : coin_addresses.length === 4 ? 10 : 11;
+                        const swapType = is_aave_like_lending ? 5 : 4;
 
                         _updateRoutes(
                             inputCoinAddress,
@@ -253,7 +250,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         const outputCoinIdx = wrapped_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
-                        const swapType = poolData.is_crypto ? 3 : 1;
+                        const swapType = 1;
 
                         _updateRoutes(
                             inputCoinAddress,
@@ -293,10 +290,8 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         if (tvl === 0) continue;
 
                         const hasEth = (inCoin === curve.constants.NATIVE_TOKEN.address || underlying_coin_addresses[j] === curve.constants.NATIVE_TOKEN.address);
-                        const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) ? 6
-                            : (base_pool?.is_lending && poolData.is_factory) ? 5
-                            : hasEth && poolId !== 'avaxcrypto' ? 3
-                            : poolData.is_crypto ? 4
+                        const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) || (base_pool?.is_lending && poolData.is_factory) ? 3
+                            : hasEth && poolId !== 'avaxcrypto' ? 1
                             : 2;
 
                         _updateRoutes(
@@ -310,7 +305,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             inCoinIndexes.underlying_coin,
                             j,
                             swapType,
-                            (swapType === 5 || swapType === 6) ? poolData.swap_address : curve.constants.ZERO_ADDRESS,
+                            (swapType === 3) ? poolData.swap_address : curve.constants.ZERO_ADDRESS,
                             tvl
                         )
 

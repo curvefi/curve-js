@@ -24,6 +24,7 @@ import {
 import { getPool } from "./pools/index.js";
 import { _getAmplificationCoefficientsFromApi } from "./pools/utils.js";
 
+
 const _getNewRoute = (
     routeTvl: IRouteTvl,
     poolId: string,
@@ -135,14 +136,82 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
     // No more than 4 steps (swaps)
     for (let step = 0; step < 4; step++) {
         for (const inCoin of curCoins) {
-            if (curve.chainId !== 42220 && [curve.constants.NATIVE_TOKEN.address, curve.constants.NATIVE_TOKEN.wrappedAddress].includes(inCoin)) { // Exclude Celo
+
+            // ETH <-> WETH (exclude Celo)
+            if (curve.chainId !== 42220 && [curve.constants.NATIVE_TOKEN.address, curve.constants.NATIVE_TOKEN.wrappedAddress].includes(inCoin)) {
                 const outCoin = inCoin === curve.constants.NATIVE_TOKEN.address ? curve.constants.NATIVE_TOKEN.wrappedAddress : curve.constants.NATIVE_TOKEN.address;
 
                 _updateRoutes(
                     inputCoinAddress,
                     routesByTvl,
                     routesByLength,
-                    "wrapper",
+                    "WETH",
+                    curve.constants.NATIVE_TOKEN.wrappedAddress,
+                    inCoin,
+                    outCoin,
+                    0,
+                    0,
+                    8,
+                    curve.constants.ZERO_ADDRESS,
+                    Infinity
+                )
+
+                nextCoins.add(outCoin);
+            }
+
+            // ETH -> stETH, ETH -> frxETH, ETH -> wBETH (Ethereum only)
+            if (curve.chainId == 1 && inCoin === curve.constants.NATIVE_TOKEN.address) {
+                for (const outCoin of ["stETH", "frxETH", "wBETH"]) {
+                    _updateRoutes(
+                        inputCoinAddress,
+                        routesByTvl,
+                        routesByLength,
+                        outCoin,
+                        curve.constants.NATIVE_TOKEN.wrappedAddress,
+                        inCoin,
+                        curve.constants.COINS[outCoin.toLowerCase()],
+                        0,
+                        0,
+                        8,
+                        curve.constants.ZERO_ADDRESS,
+                        Infinity
+                    )
+
+                    nextCoins.add(curve.constants.COINS[outCoin.toLowerCase()]);
+                }
+            }
+
+            // stETH <-> wstETH (Ethereum only)
+            if (curve.chainId === 1 && [curve.constants.COINS.steth, curve.constants.COINS.wsteth].includes(inCoin)) {
+                const outCoin = inCoin === curve.constants.COINS.steth ? curve.constants.COINS.wsteth : curve.constants.COINS.steth;
+
+                _updateRoutes(
+                    inputCoinAddress,
+                    routesByTvl,
+                    routesByLength,
+                    "wstETH",
+                    curve.constants.NATIVE_TOKEN.wrappedAddress,
+                    inCoin,
+                    outCoin,
+                    0,
+                    0,
+                    8,
+                    curve.constants.ZERO_ADDRESS,
+                    Infinity
+                )
+
+                nextCoins.add(outCoin);
+            }
+
+            // frxETH <-> sfrxETH (Ethereum only)
+            if (curve.chainId === 1 && [curve.constants.COINS.frxeth, curve.constants.COINS.sfrxeth].includes(inCoin)) {
+                const outCoin = inCoin === curve.constants.COINS.frxeth ? curve.constants.COINS.sfrxeth : curve.constants.COINS.frxeth;
+
+                _updateRoutes(
+                    inputCoinAddress,
+                    routesByTvl,
+                    routesByLength,
+                    "frxETH",
                     curve.constants.NATIVE_TOKEN.wrappedAddress,
                     inCoin,
                     outCoin,
@@ -250,8 +319,6 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         const outputCoinIdx = wrapped_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
-                        const swapType = 1;
-
                         _updateRoutes(
                             inputCoinAddress,
                             routesByTvl,
@@ -262,7 +329,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             wrapped_coin_addresses[j],
                             inCoinIndexes.wrapped_coin,
                             j,
-                            swapType,
+                            1,
                             curve.constants.ZERO_ADDRESS,
                             tvl
                         )

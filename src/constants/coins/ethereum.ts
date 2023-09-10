@@ -60,12 +60,13 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
 
     // --- ETH ---
 
-    steth: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",  // stETH
     eth: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  // ETH
+    weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
     ankreth: "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb",  // ankrETH
     seth: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",  // sETH
     reth: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593", // rETH
-    weth: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+    steth: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",  // stETH
+    wsteth: "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",  // wstETH
     frxeth: "0x5E8422345238F34275888049021821E8E08CAa1f", // frxETH
     sfrxeth: "0xac3E018457B222d93114458476f3E3416Abbe38F", // sfrxETH
     wbeth: "0xa2E3356610840701BDf5611a53974510Ae27E2e1", // wBETH

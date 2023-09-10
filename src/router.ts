@@ -25,6 +25,9 @@ import { getPool } from "./pools/index.js";
 import { _getAmplificationCoefficientsFromApi } from "./pools/utils.js";
 
 
+const MAX_STEPS = 5;
+const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
+
 const _getNewRoute = (
     routeTvl: IRouteTvl,
     poolId: string,
@@ -36,8 +39,8 @@ const _getNewRoute = (
     tvl: number
 ): IRouteTvl => {
     const routePoolIds = routeTvl.route.map((s) => s.poolId);
-    // Steps <= 4
-    if (routePoolIds.length >= 4) return { route: [], minTvl: Infinity, totalTvl: 0 };
+    // Steps <= MAX_STEPS
+    if (routePoolIds.length >= MAX_STEPS) return { route: [], minTvl: Infinity, totalTvl: 0 };
     // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
     if (routePoolIds.includes(poolId)) return { route: [], minTvl: Infinity, totalTvl: 0 };
     return {
@@ -144,8 +147,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
         [inputCoinAddress]: [{ route: [], minTvl: Infinity, totalTvl: 0 }],
     };
 
-    // No more than 4 steps (swaps)
-    for (let step = 0; step < 4; step++) {
+    for (let step = 0; step < MAX_STEPS; step++) {
         for (const inCoin of curCoins) {
 
             // ETH <-> WETH (exclude Celo)
@@ -431,9 +433,9 @@ const _getExchangeArgs = (route: IRoute): { _route: string[], _swapParams: numbe
         _swapParams.push(routeStep.swapParams);
         _factorySwapAddresses.push(routeStep.swapAddress);
     }
-    _route = _route.concat(Array(9 - _route.length).fill(curve.constants.ZERO_ADDRESS));
-    _swapParams = _swapParams.concat(Array(4 - _swapParams.length).fill([0, 0, 0]));
-    _factorySwapAddresses = _factorySwapAddresses.concat(Array(4 - _factorySwapAddresses.length).fill(curve.constants.ZERO_ADDRESS));
+    _route = _route.concat(Array(ROUTE_LENGTH - _route.length).fill(curve.constants.ZERO_ADDRESS));
+    _swapParams = _swapParams.concat(Array(MAX_STEPS - _swapParams.length).fill([0, 0, 0, 0, 0]));
+    _factorySwapAddresses = _factorySwapAddresses.concat(Array(MAX_STEPS - _factorySwapAddresses.length).fill(curve.constants.ZERO_ADDRESS));
 
     return { _route, _swapParams, _factorySwapAddresses }
 }
@@ -695,7 +697,7 @@ export const getSwappedAmount = async (tx: ethers.ContractTransactionResponse, o
         try {
             const abiCoder = ethers.AbiCoder.defaultAbiCoder()
             res = abiCoder.decode(
-                ['address[9]', 'uint256[3][4]', 'address[4]', 'uint256', 'uint256'],
+                [`address[${ROUTE_LENGTH}]`, `uint256[${MAX_STEPS}][${MAX_STEPS}]`, `address[${MAX_STEPS}]`, 'uint256', 'uint256'],
                 ethers.dataSlice(txInfo.logs[txInfo.logs.length - i].data, 0)
             );
             break;

@@ -133,11 +133,15 @@ export interface IExtendedPoolDataFromApi {
 
 export interface IRouteStep {
     poolId: string,
-    poolAddress: string,
+    swapAddress: string,
     inputCoinAddress: string,
     outputCoinAddress: string,
     swapParams: [number, number, ISwapType, number, number],  // i, j, swap_type, pool_type, n_coins
-    swapAddress: string,
+    poolAddress: string,
+    basePool: string,
+    baseToken: string,
+    secondBasePool: string,
+    secondBaseToken: string,
 }
 
 export type IRoute = IRouteStep[];

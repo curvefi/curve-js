@@ -36,6 +36,10 @@ const _getNewRoute = (
     outputCoinAddress: string,
     swapParams: [number, number, ISwapType, number, number],  // i, j, swap_type, pool_type, n_coins
     poolAddress: string,
+    basePool: string,
+    baseToken: string,
+    secondBasePool: string,
+    secondBaseToken: string,
     tvl: number
 ): IRouteTvl => {
     const routePoolIds = routeTvl.route.map((s) => s.poolId);
@@ -44,7 +48,10 @@ const _getNewRoute = (
     // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
     if (routePoolIds.includes(poolId)) return { route: [], minTvl: Infinity, totalTvl: 0 };
     return {
-        route: [...routeTvl.route, { poolId, swapAddress, inputCoinAddress, outputCoinAddress, swapParams, poolAddress }],
+        route: [
+            ...routeTvl.route,
+            { poolId, swapAddress, inputCoinAddress, outputCoinAddress, swapParams, poolAddress, basePool, baseToken, secondBasePool, secondBaseToken },
+        ],
         minTvl: Math.min(tvl, routeTvl.minTvl),
         totalTvl: routeTvl.totalTvl + tvl,
     }
@@ -88,14 +95,18 @@ const _updateRoutes = (
     outCoin: string,
     swapParams: [number, number, ISwapType, number, number],  // i, j, swap_type, pool_type, n_coins
     poolAddress: string,
+    basePool: string,
+    baseToken: string,
+    secondBasePool: string,
+    secondBaseToken: string,
     tvl: number
 ): void => {
-    const newRoutesByTvl: IRouteTvl[] = routesByTvl[inCoin].map(
-        (route) => _getNewRoute(route, poolId, swapAddress, inCoin, outCoin, swapParams, poolAddress, tvl)
+    const newRoutesByTvl: IRouteTvl[] = routesByTvl[inCoin].map((route) =>
+        _getNewRoute(route, poolId, swapAddress, inCoin, outCoin, swapParams, poolAddress, basePool, baseToken, secondBasePool, secondBaseToken, tvl)
     );
 
-    const newRoutesByLength: IRouteTvl[] = routesByLength[inCoin].map(
-        (route) => _getNewRoute(route, poolId, swapAddress, inCoin, outCoin, swapParams, poolAddress, tvl)
+    const newRoutesByLength: IRouteTvl[] = routesByLength[inCoin].map((route) =>
+        _getNewRoute(route, poolId, swapAddress, inCoin, outCoin, swapParams, poolAddress, basePool, baseToken, secondBasePool, secondBaseToken, tvl)
     );
 
     routesByTvl[outCoin] = [...(routesByTvl[outCoin] ?? []), ...newRoutesByTvl]
@@ -164,6 +175,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     outCoin,
                     [0, 0, 8, 0, 0],
                     curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
                     Infinity
                 )
 
@@ -182,6 +197,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         inCoin,
                         curve.constants.COINS[outCoin.toLowerCase()],
                         [0, 0, 8, 0, 0],
+                        curve.constants.ZERO_ADDRESS,
+                        curve.constants.ZERO_ADDRESS,
+                        curve.constants.ZERO_ADDRESS,
+                        curve.constants.ZERO_ADDRESS,
                         curve.constants.ZERO_ADDRESS,
                         Infinity
                     )
@@ -204,6 +223,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     outCoin,
                     [0, 0, 8, 0, 0],
                     curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
                     Infinity
                 )
 
@@ -224,12 +247,17 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     outCoin,
                     [0, 0, 8, 0, 0],
                     curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
+                    curve.constants.ZERO_ADDRESS,
                     Infinity
                 )
 
                 nextCoins.add(outCoin);
             }
 
+            // SNX swaps
             // @ts-ignore
             if ((SNX_COINS[curve.chainId] ?? []).includes(inCoin)) {
                 // @ts-ignore
@@ -245,6 +273,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         outCoin,
                         [0, 0, 9, 0, 0],
                         curve.constants.ZERO_ADDRESS,
+                        curve.constants.ZERO_ADDRESS,
+                        curve.constants.ZERO_ADDRESS,
+                        curve.constants.ZERO_ADDRESS,
+                        curve.constants.ZERO_ADDRESS,
                         Infinity
                     )
 
@@ -255,13 +287,24 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
             for (const [poolId, poolData] of ALL_POOLS) {
                 const wrapped_coin_addresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
                 const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
-                const base_pool = poolData.is_meta ? { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA }[poolData.base_pool as string] : null;
-                const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
                 const pool_address = poolData.swap_address.toLowerCase();
                 const token_address = poolData.token_address.toLowerCase();
                 const is_aave_like_lending = poolData.is_lending && wrapped_coin_addresses.length === 3 && !poolData.deposit_address;
                 const pool_type = poolData.is_llamma ? 4 : poolData.is_crypto ? Math.min(poolData.wrapped_coins.length, 3) : 1;
                 const tvl_multiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
+                const base_pool = poolData.is_meta ? { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA }[poolData.base_pool as string] : null;
+                const base_pool_address = base_pool ? base_pool.swap_address : curve.constants.ZERO_ADDRESS;
+                let base_token_address = base_pool ? base_pool.token_address : curve.constants.ZERO_ADDRESS;
+                const second_base_pool = base_pool && base_pool.base_pool ? {
+                    ...curve.constants.POOLS_DATA,
+                    ...curve.constants.FACTORY_POOLS_DATA,
+                    ...curve.constants.CRVUSD_FACTORY_POOLS_DATA,
+                }[base_pool.base_pool as string] : null;
+                const second_base_pool_address = second_base_pool ? second_base_pool.swap_address : curve.constants.ZERO_ADDRESS;
+                // for double meta underlying (crv/tricrypto, wmatic/tricrypto)
+                if (base_pool && second_base_pool_address) base_token_address = base_pool.deposit_address as string;
+                const second_base_token_address = second_base_pool ? second_base_pool.token_address : curve.constants.ZERO_ADDRESS;
+                const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
                 let swap_address = poolData.is_fake ? poolData.deposit_address?.toLowerCase() as string : pool_address;
 
                 const inCoinIndexes = {
@@ -302,6 +345,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             coin_addresses[j],
                             [0, j, swapType, pool_type, wrapped_coin_addresses.length],
                             curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
                             tvl
                         )
 
@@ -325,6 +372,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             inCoin,
                             token_address,
                             [coin_addresses.indexOf(inCoin), 0, swapType, pool_type, wrapped_coin_addresses.length],
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
                             tvl
                         )
@@ -355,6 +406,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             wrapped_coin_addresses[j],
                             [inCoinIndexes.wrapped_coin, j, 1, pool_type, wrapped_coin_addresses.length],
                             pool_address,
+                            base_pool_address,
+                            base_token_address,
+                            second_base_pool_address,
+                            second_base_token_address,
                             tvl
                         )
 
@@ -395,6 +450,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             underlying_coin_addresses[j],
                             [inCoinIndexes.underlying_coin, j, swapType, pool_type, underlying_coin_addresses.length],
                             pool_address,
+                            base_pool_address,
+                            base_token_address,
+                            second_base_pool_address,
+                            second_base_token_address,
                             tvl
                         )
 
@@ -424,21 +483,41 @@ const _getRouteKey = (route: IRoute, inputCoinAddress: string, outputCoinAddress
     return key
 }
 
-const _getExchangeArgs = (route: IRoute): { _route: string[], _swapParams: number[][], _factorySwapAddresses: string[] } => {
+const _getExchangeArgs = (route: IRoute): {
+    _route: string[],
+    _swapParams: number[][],
+    _pools: string[],
+    _basePools: string[],
+    _baseTokens: string[],
+    _secondBasePools: string[],
+    _secondBaseTokens: string[]
+} => {
     let _route = [];
     if (route.length > 0) _route.push(route[0].inputCoinAddress);
     let _swapParams = [];
-    let _factorySwapAddresses = [];
+    let _pools = [];
+    let _basePools = [];
+    let _baseTokens = [];
+    let _secondBasePools = [];
+    let _secondBaseTokens = [];
     for (const routeStep of route) {
         _route.push(routeStep.swapAddress, routeStep.outputCoinAddress);
         _swapParams.push(routeStep.swapParams);
-        _factorySwapAddresses.push(routeStep.poolAddress);
+        _pools.push(routeStep.poolAddress);
+        _basePools.push(routeStep.basePool);
+        _baseTokens.push(routeStep.baseToken);
+        _secondBasePools.push(routeStep.secondBasePool);
+        _secondBaseTokens.push(routeStep.secondBaseToken);
     }
     _route = _route.concat(Array(ROUTE_LENGTH - _route.length).fill(curve.constants.ZERO_ADDRESS));
     _swapParams = _swapParams.concat(Array(MAX_STEPS - _swapParams.length).fill([0, 0, 0, 0, 0]));
-    _factorySwapAddresses = _factorySwapAddresses.concat(Array(MAX_STEPS - _factorySwapAddresses.length).fill(curve.constants.ZERO_ADDRESS));
+    _pools = _pools.concat(Array(MAX_STEPS - _pools.length).fill(curve.constants.ZERO_ADDRESS));
+    _basePools = _basePools.concat(Array(MAX_STEPS - _basePools.length).fill(curve.constants.ZERO_ADDRESS));
+    _baseTokens = _baseTokens.concat(Array(MAX_STEPS - _baseTokens.length).fill(curve.constants.ZERO_ADDRESS));
+    _secondBasePools = _secondBasePools.concat(Array(MAX_STEPS - _secondBasePools.length).fill(curve.constants.ZERO_ADDRESS));
+    _secondBaseTokens = _secondBaseTokens.concat(Array(MAX_STEPS - _secondBaseTokens.length).fill(curve.constants.ZERO_ADDRESS));
 
-    return { _route, _swapParams, _factorySwapAddresses }
+    return { _route, _swapParams, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens }
 }
 
 const _estimatedGasForDifferentRoutesCache: IDict<{ gas: bigint, time: number }> = {};
@@ -453,10 +532,10 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
     for (const route of routes) {
         const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
         let gasPromise: Promise<bigint>;
-        const { _route, _swapParams, _factorySwapAddresses } = _getExchangeArgs(route);
+        const { _route, _swapParams, _pools } = _getExchangeArgs(route);
 
         if ((_estimatedGasForDifferentRoutesCache[routeKey]?.time || 0) + 3600000 < Date.now()) {
-            gasPromise = contract.exchange.estimateGas(_route, _swapParams, _amount, 0, _factorySwapAddresses, { ...curve.constantOptions, value});
+            gasPromise = contract.exchange.estimateGas(_route, _swapParams, _amount, 0, _pools, { ...curve.constantOptions, value});
         } else {
             gasPromise = Promise.resolve(_estimatedGasForDifferentRoutesCache[routeKey].gas);
         }
@@ -493,8 +572,8 @@ const _getBestRoute = memoize(
             const calls = [];
             const multicallContract = curve.contracts[curve.constants.ALIASES.registry_exchange].multicallContract;
             for (const r of routesRaw) {
-                const { _route, _swapParams, _factorySwapAddresses } = _getExchangeArgs(r.route);
-                calls.push(multicallContract.get_dy(_route, _swapParams, _amount, _factorySwapAddresses));
+                const { _route, _swapParams, _pools } = _getExchangeArgs(r.route);
+                calls.push(multicallContract.get_dy(_route, _swapParams, _amount, _pools));
             }
 
             const _outputAmounts = await curve.multicallProvider.all(calls) as bigint[];
@@ -507,8 +586,8 @@ const _getBestRoute = memoize(
             // const promises = [];
             // const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
             // for (const r of routesRaw) {
-            //     const { _route, _swapParams, _factorySwapAddresses } = _getExchangeArgs(r.route);
-            //     promises.push(contract.get_dy(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
+            //     const { _route, _swapParams, _pools } = _getExchangeArgs(r.route);
+            //     promises.push(contract.get_dy(_route, _swapParams, _amount, _pools, curve.constantOptions));
             // }
             //
             // const res = await Promise.allSettled(promises);
@@ -525,9 +604,9 @@ const _getBestRoute = memoize(
             const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
             const _outputs = [];
             for (const r of routesRaw) {
-                const { _route, _swapParams, _factorySwapAddresses } = _getExchangeArgs(r.route);
+                const { _route, _swapParams, _pools } = _getExchangeArgs(r.route);
                 try {
-                    _outputs.push(await contract.get_dy(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions));
+                    _outputs.push(await contract.get_dy(_route, _swapParams, _amount, _pools, curve.constantOptions));
                 } catch (e) {
                     _outputs.push(curve.parseUnits('-1', 0));
                 }
@@ -581,8 +660,8 @@ const _getBestRoute = memoize(
 const _getOutputForRoute = memoize(
     async (route: IRoute, _amount: bigint): Promise<bigint> => {
         const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
-        const { _route, _swapParams, _factorySwapAddresses } = _getExchangeArgs(route);
-        return await contract.get_dy(_route, _swapParams, _amount, _factorySwapAddresses, curve.constantOptions);
+        const { _route, _swapParams, _pools } = _getExchangeArgs(route);
+        return await contract.get_dy(_route, _swapParams, _amount, _pools, curve.constantOptions);
     },
     {
         promise: true,
@@ -619,13 +698,13 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
 
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
     let _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
-    const { _route, _swapParams, _factorySwapAddresses } = _getExchangeArgs(route);
+    const { _route, _swapParams, _pools } = _getExchangeArgs(route);
     let _smallOutput: bigint;
     try {
-        _smallOutput = await contract.get_dy(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
+        _smallOutput = await contract.get_dy(_route, _swapParams, _smallAmount, _pools, curve.constantOptions);
     } catch (e) {
         _smallAmount = curve.parseUnits("1", inputCoinDecimals);  // Dirty hack
-        _smallOutput = await contract.get_dy(_route, _swapParams, _smallAmount, _factorySwapAddresses, curve.constantOptions);
+        _smallOutput = await contract.get_dy(_route, _swapParams, _smallAmount, _pools, curve.constantOptions);
     }
     const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals);
 
@@ -666,7 +745,7 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
         throw new Error("This pair can't be exchanged");
     }
 
-    const { _route, _swapParams, _factorySwapAddresses } = _getExchangeArgs(route);
+    const { _route, _swapParams, _pools } = _getExchangeArgs(route);
     const _amount = parseUnits(amount, inputCoinDecimals);
     const minRecvAmountBN: BigNumber = BN(output).times(100 - slippage).div(100);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
@@ -680,10 +759,10 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
         _swapParams,
         _amount,
         _minRecvAmount,
-        _factorySwapAddresses,
+        _pools,
         { ...curve.constantOptions, value }
     )) * (curve.chainId === 1 ? curve.parseUnits("130", 0) : curve.parseUnits("160", 0)) / curve.parseUnits("100", 0);
-    return await contract.exchange(_route, _swapParams, _amount, _minRecvAmount, _factorySwapAddresses, { ...curve.options, value, gasLimit })
+    return await contract.exchange(_route, _swapParams, _amount, _minRecvAmount, _pools, { ...curve.options, value, gasLimit })
 }
 
 export const getSwappedAmount = async (tx: ethers.ContractTransactionResponse, outputCoin: string): Promise<string> => {

@@ -353,7 +353,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             inCoin,
                             wrapped_coin_addresses[j],
                             [inCoinIndexes.wrapped_coin, j, 1, pool_type, wrapped_coin_addresses.length],
-                            curve.constants.ZERO_ADDRESS,
+                            poolData.swap_address,
                             tvl
                         )
 
@@ -393,7 +393,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             inCoin,
                             underlying_coin_addresses[j],
                             [inCoinIndexes.underlying_coin, j, swapType, pool_type, underlying_coin_addresses.length],
-                            (swapType === 3) ? poolData.swap_address : curve.constants.ZERO_ADDRESS,
+                            poolData.swap_address,
                             tvl
                         )
 

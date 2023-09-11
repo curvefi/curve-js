@@ -31,11 +31,11 @@ const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
 const _getNewRoute = (
     routeTvl: IRouteTvl,
     poolId: string,
-    poolAddress: string,
+    swapAddress: string,
     inputCoinAddress: string,
     outputCoinAddress: string,
     swapParams: [number, number, ISwapType, number, number],  // i, j, swap_type, pool_type, n_coins
-    swapAddress: string,
+    poolAddress: string,
     tvl: number
 ): IRouteTvl => {
     const routePoolIds = routeTvl.route.map((s) => s.poolId);
@@ -44,7 +44,7 @@ const _getNewRoute = (
     // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
     if (routePoolIds.includes(poolId)) return { route: [], minTvl: Infinity, totalTvl: 0 };
     return {
-        route: [...routeTvl.route, { poolId, poolAddress, inputCoinAddress, outputCoinAddress, swapParams, swapAddress }],
+        route: [...routeTvl.route, { poolId, swapAddress, inputCoinAddress, outputCoinAddress, swapParams, poolAddress }],
         minTvl: Math.min(tvl, routeTvl.minTvl),
         totalTvl: routeTvl.totalTvl + tvl,
     }
@@ -83,19 +83,19 @@ const _updateRoutes = (
     routesByTvl: IDict<IRouteTvl[]>,
     routesByLength: IDict<IRouteTvl[]>,
     poolId: string,
-    poolAddress: string,
+    swapAddress: string,
     inCoin: string,
     outCoin: string,
     swapParams: [number, number, ISwapType, number, number],  // i, j, swap_type, pool_type, n_coins
-    swapAddress: string,
+    poolAddress: string,
     tvl: number
 ): void => {
     const newRoutesByTvl: IRouteTvl[] = routesByTvl[inCoin].map(
-        (route) => _getNewRoute(route, poolId, poolAddress, inCoin, outCoin, swapParams, swapAddress, tvl)
+        (route) => _getNewRoute(route, poolId, swapAddress, inCoin, outCoin, swapParams, poolAddress, tvl)
     );
 
     const newRoutesByLength: IRouteTvl[] = routesByLength[inCoin].map(
-        (route) => _getNewRoute(route, poolId, poolAddress, inCoin, outCoin, swapParams, swapAddress, tvl)
+        (route) => _getNewRoute(route, poolId, swapAddress, inCoin, outCoin, swapParams, poolAddress, tvl)
     );
 
     routesByTvl[outCoin] = [...(routesByTvl[outCoin] ?? []), ...newRoutesByTvl]
@@ -257,10 +257,12 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 const underlying_coin_addresses = poolData.underlying_coin_addresses.map((a: string) => a.toLowerCase());
                 const base_pool = poolData.is_meta ? { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA }[poolData.base_pool as string] : null;
                 const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
+                const pool_address = poolData.swap_address.toLowerCase();
                 const token_address = poolData.token_address.toLowerCase();
                 const is_aave_like_lending = poolData.is_lending && wrapped_coin_addresses.length === 3 && !poolData.deposit_address;
                 const pool_type = poolData.is_llamma ? 4 : poolData.is_crypto ? Math.min(poolData.wrapped_coins.length, 3) : 1;
-                const tvlMultiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
+                const tvl_multiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
+                let swap_address = poolData.is_fake ? poolData.deposit_address?.toLowerCase() as string : pool_address;
 
                 const inCoinIndexes = {
                     wrapped_coin: wrapped_coin_addresses.indexOf(inCoin),
@@ -272,11 +274,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1 && inCoin !== token_address) continue;
 
                 // TODO remove it!!!!
-                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : (await _getTVL(poolId)) * tvlMultiplier;
+                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : (await _getTVL(poolId)) * tvl_multiplier;
                 // Skip empty pools
                 if (tvl === 0) continue;
 
-                let poolAddress = poolData.is_fake ? poolData.deposit_address as string : poolData.swap_address;
                 const coin_addresses = (is_aave_like_lending || poolData.is_fake) ? underlying_coin_addresses : wrapped_coin_addresses;
 
                 // LP -> wrapped coin (underlying for lending or fake pool) "swaps" (actually remove_liquidity_one_coin)
@@ -296,7 +297,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             routesByTvl,
                             routesByLength,
                             poolId,
-                            poolAddress,
+                            swap_address,
                             inCoin,
                             coin_addresses[j],
                             [0, j, swapType, pool_type, wrapped_coin_addresses.length],
@@ -320,7 +321,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             routesByTvl,
                             routesByLength,
                             poolId,
-                            poolAddress,
+                            swap_address,
                             inCoin,
                             token_address,
                             [coin_addresses.indexOf(inCoin), 0, swapType, pool_type, wrapped_coin_addresses.length],
@@ -349,11 +350,11 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             routesByTvl,
                             routesByLength,
                             poolId,
-                            poolData.swap_address,
+                            pool_address,
                             inCoin,
                             wrapped_coin_addresses[j],
                             [inCoinIndexes.wrapped_coin, j, 1, pool_type, wrapped_coin_addresses.length],
-                            poolData.swap_address,
+                            pool_address,
                             tvl
                         )
 
@@ -362,7 +363,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 }
 
                 // Only for underlying swaps
-                poolAddress = (poolData.is_crypto && poolData.is_meta) || (base_pool?.is_lending && poolData.is_factory) ?
+                swap_address = (poolData.is_crypto && poolData.is_meta) || (base_pool?.is_lending && poolData.is_factory) ?
                     poolData.deposit_address as string : poolData.swap_address;
 
                 // Underlying swaps
@@ -389,11 +390,11 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             routesByTvl,
                             routesByLength,
                             poolId,
-                            poolAddress,
+                            swap_address,
                             inCoin,
                             underlying_coin_addresses[j],
                             [inCoinIndexes.underlying_coin, j, swapType, pool_type, underlying_coin_addresses.length],
-                            poolData.swap_address,
+                            pool_address,
                             tvl
                         )
 
@@ -429,9 +430,9 @@ const _getExchangeArgs = (route: IRoute): { _route: string[], _swapParams: numbe
     let _swapParams = [];
     let _factorySwapAddresses = [];
     for (const routeStep of route) {
-        _route.push(routeStep.poolAddress, routeStep.outputCoinAddress);
+        _route.push(routeStep.swapAddress, routeStep.outputCoinAddress);
         _swapParams.push(routeStep.swapParams);
-        _factorySwapAddresses.push(routeStep.swapAddress);
+        _factorySwapAddresses.push(routeStep.poolAddress);
     }
     _route = _route.concat(Array(ROUTE_LENGTH - _route.length).fill(curve.constants.ZERO_ADDRESS));
     _swapParams = _swapParams.concat(Array(MAX_STEPS - _swapParams.length).fill([0, 0, 0, 0, 0]));

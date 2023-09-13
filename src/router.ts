@@ -686,13 +686,21 @@ export const swapExpected = async (inputCoin: string, outputCoin: string, amount
 }
 
 export const swapRequired = async (route: IRoute, outAmount: number | string): Promise<string> => {
+    const inputCoinAddress = route[0].inputCoinAddress;
+    const outputCoinAddress = route[route.length - 1].outputCoinAddress;
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
+    const _outAmount = parseUnits(outAmount, outputCoinDecimals);
     const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
     const { _route, _swapParams, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens } = _getExchangeArgs(route);
+
+    let _required = 0;
     if ("get_dx(address[11],uint256[5][5],uint256,address[5],address[5],address[5],address[5],address[5]" in contract) {
-        return await contract.get_dx(_route, _swapParams, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens, curve.constantOptions);
+        _required = await contract.get_dx(_route, _swapParams, _outAmount, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens, curve.constantOptions);
     } else {
-        return await contract.get_dx(_route, _swapParams, _pools, _basePools, _baseTokens, curve.constantOptions);
+        _required = await contract.get_dx(_route, _swapParams, _outAmount, _pools, _basePools, _baseTokens, curve.constantOptions);
     }
+
+    return curve.formatUnits(_required, inputCoinDecimals)
 }
 
 export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number> => {

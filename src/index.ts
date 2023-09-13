@@ -10,6 +10,7 @@ import {
 import {
     getBestRouteAndOutput,
     swapExpected,
+    swapRequired,
     swapPriceImpact,
     swapIsApproved,
     swapApproveEstimateGas,
@@ -236,6 +237,7 @@ const curve = {
     router: {
         getBestRouteAndOutput,
         expected: swapExpected,
+        required: swapRequired,
         priceImpact: swapPriceImpact,
         isApproved: swapIsApproved,
         approve: swapApprove,

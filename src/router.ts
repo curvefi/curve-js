@@ -526,7 +526,7 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
     inputCoinAddress = inputCoinAddress.toLowerCase();
     outputCoinAddress = outputCoinAddress.toLowerCase();
 
-    const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.router].contract;
     const gasPromises: Promise<bigint>[] = [];
     const value = isEth(inputCoinAddress) ? _amount : curve.parseUnits("0");
     for (const route of routes) {
@@ -570,7 +570,7 @@ const _getBestRoute = memoize(
 
         try {
             const calls = [];
-            const multicallContract = curve.contracts[curve.constants.ALIASES.registry_exchange].multicallContract;
+            const multicallContract = curve.contracts[curve.constants.ALIASES.router].multicallContract;
             for (const r of routesRaw) {
                 const { _route, _swapParams, _pools } = _getExchangeArgs(r.route);
                 calls.push(multicallContract.get_dy(_route, _swapParams, _amount, _pools));
@@ -584,7 +584,7 @@ const _getBestRoute = memoize(
             }
         } catch (err) {
             // const promises = [];
-            // const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+            // const contract = curve.contracts[curve.constants.ALIASES.router].contract;
             // for (const r of routesRaw) {
             //     const { _route, _swapParams, _pools } = _getExchangeArgs(r.route);
             //     promises.push(contract.get_dy(_route, _swapParams, _amount, _pools, curve.constantOptions));
@@ -601,7 +601,7 @@ const _getBestRoute = memoize(
             //     routes.push(routesRaw[i]);
             // }
 
-            const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+            const contract = curve.contracts[curve.constants.ALIASES.router].contract;
             const _outputs = [];
             for (const r of routesRaw) {
                 const { _route, _swapParams, _pools } = _getExchangeArgs(r.route);
@@ -659,7 +659,7 @@ const _getBestRoute = memoize(
 
 const _getOutputForRoute = memoize(
     async (route: IRoute, _amount: bigint): Promise<bigint> => {
-        const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+        const contract = curve.contracts[curve.constants.ALIASES.router].contract;
         const { _route, _swapParams, _pools } = _getExchangeArgs(route);
         return await contract.get_dy(_route, _swapParams, _amount, _pools, curve.constantOptions);
     },
@@ -690,7 +690,7 @@ export const swapRequired = async (route: IRoute, outAmount: number | string): P
     const outputCoinAddress = route[route.length - 1].outputCoinAddress;
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const _outAmount = parseUnits(outAmount, outputCoinDecimals);
-    const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.router].contract;
     const { _route, _swapParams, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens } = _getExchangeArgs(route);
 
     let _required = 0;
@@ -714,7 +714,7 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
     const amountIntBN = toBN(_amount, 0);
     if (smallAmountIntBN.gte(amountIntBN)) return 0;
 
-    const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.router].contract;
     let _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
     const { _route, _swapParams, _pools } = _getExchangeArgs(route);
     let _smallOutput: bigint;
@@ -730,15 +730,15 @@ export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amo
 }
 
 export const swapIsApproved = async (inputCoin: string, amount: number | string): Promise<boolean> => {
-    return await hasAllowance([inputCoin], [amount], curve.signerAddress, curve.constants.ALIASES.registry_exchange);
+    return await hasAllowance([inputCoin], [amount], curve.signerAddress, curve.constants.ALIASES.router);
 }
 
 export const swapApproveEstimateGas = async (inputCoin: string, amount: number | string): Promise<number> => {
-    return await ensureAllowanceEstimateGas([inputCoin], [amount], curve.constants.ALIASES.registry_exchange);
+    return await ensureAllowanceEstimateGas([inputCoin], [amount], curve.constants.ALIASES.router);
 }
 
 export const swapApprove = async (inputCoin: string, amount: number | string): Promise<string[]> => {
-    return await ensureAllowance([inputCoin], [amount], curve.constants.ALIASES.registry_exchange);
+    return await ensureAllowance([inputCoin], [amount], curve.constants.ALIASES.router);
 }
 
 export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number> => {
@@ -768,7 +768,7 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
     const minRecvAmountBN: BigNumber = BN(output).times(100 - slippage).div(100);
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
-    const contract = curve.contracts[curve.constants.ALIASES.registry_exchange].contract;
+    const contract = curve.contracts[curve.constants.ALIASES.router].contract;
     const value = isEth(inputCoinAddress) ? _amount : curve.parseUnits("0");
 
     await curve.updateFeeData();

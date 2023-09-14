@@ -65,21 +65,8 @@ const _getNewRoute = (
     }
 }
 
-// TODO REMOVE IT!!!
-const _filterAvax = (routes: IRouteTvl[]) => {
-    return routes.filter((r) => {
-        for (const step of r.route) {
-            if (step.poolId == 'avaxcrypto' && step.swapParams[2] == 2 && (step.swapParams[0] === 3 || step.swapParams[1] === 3)) return false;
-        }
-
-        return true
-    });
-}
-
 const MAX_ROUTES_FOR_ONE_COIN = 3;
 const _filterRoutes = (routes: IRouteTvl[], inputCoinAddress: string, sortFn: (a: IRouteTvl, b: IRouteTvl) => number) => {
-    // TODO REMOVE IT!!!
-    if (curve.chainId === 43114) routes = _filterAvax(routes);
     return routes
         .filter((r) => r.route.length > 0)
         .filter((r) => r.route[0].inputCoinAddress === inputCoinAddress) // Truncated routes

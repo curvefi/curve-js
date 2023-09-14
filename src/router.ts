@@ -28,6 +28,14 @@ import { _getAmplificationCoefficientsFromApi } from "./pools/utils.js";
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
 
+// 4 --> 6, 5 --> 7 not allowed
+// 4 --> 7, 5 --> 6 allowed
+const _handleSwapType = (swapType: ISwapType): string => {
+    if (swapType === 6) return "4";
+    if (swapType === 7) return "5";
+    return swapType.toString()
+}
+
 const _getNewRoute = (
     routeTvl: IRouteTvl,
     poolId: string,
@@ -42,11 +50,11 @@ const _getNewRoute = (
     secondBaseToken: string,
     tvl: number
 ): IRouteTvl => {
-    const routePoolIdsPlusSwapType = routeTvl.route.map((s) => s.poolId + "+" + s.swapParams[2]);
+    const routePoolIdsPlusSwapType = routeTvl.route.map((s) => s.poolId + "+" + _handleSwapType(s.swapParams[2]));
     // Steps <= MAX_STEPS
     if (routePoolIdsPlusSwapType.length >= MAX_STEPS) return { route: [], minTvl: Infinity, totalTvl: 0 };
     // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
-    if (routePoolIdsPlusSwapType.includes(poolId + "+" + swapParams[2])) return { route: [], minTvl: Infinity, totalTvl: 0 };
+    if (routePoolIdsPlusSwapType.includes(poolId + "+" + _handleSwapType(swapParams[2]))) return { route: [], minTvl: Infinity, totalTvl: 0 };
     return {
         route: [
             ...routeTvl.route,

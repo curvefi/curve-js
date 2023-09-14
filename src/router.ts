@@ -218,7 +218,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     routesByTvl,
                     routesByLength,
                     "wstETH",
-                    curve.constants.COINS["wstETH"],
+                    curve.constants.COINS["wsteth"],
                     inCoin,
                     outCoin,
                     [0, 0, 8, 0, 0],
@@ -241,8 +241,8 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                     inputCoinAddress,
                     routesByTvl,
                     routesByLength,
-                    "frxETH",
-                    curve.constants.COINS["frxETH"],
+                    "sfrxETH",
+                    curve.constants.COINS["sfrxeth"],
                     inCoin,
                     outCoin,
                     [0, 0, 8, 0, 0],
@@ -293,17 +293,17 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 const pool_type = poolData.is_llamma ? 4 : poolData.is_crypto ? Math.min(poolData.wrapped_coins.length, 3) : 1;
                 const tvl_multiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
                 const base_pool = poolData.is_meta ? { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA }[poolData.base_pool as string] : null;
-                const base_pool_address = base_pool ? base_pool.swap_address : curve.constants.ZERO_ADDRESS;
-                let base_token_address = base_pool ? base_pool.token_address : curve.constants.ZERO_ADDRESS;
+                const base_pool_address = base_pool ? base_pool.swap_address.toLowerCase() : curve.constants.ZERO_ADDRESS;
+                let base_token_address = base_pool ? base_pool.token_address.toLowerCase() : curve.constants.ZERO_ADDRESS;
                 const second_base_pool = base_pool && base_pool.base_pool ? {
                     ...curve.constants.POOLS_DATA,
                     ...curve.constants.FACTORY_POOLS_DATA,
                     ...curve.constants.CRVUSD_FACTORY_POOLS_DATA,
                 }[base_pool.base_pool as string] : null;
-                const second_base_pool_address = second_base_pool ? second_base_pool.swap_address : curve.constants.ZERO_ADDRESS;
+                const second_base_pool_address = second_base_pool ? second_base_pool.swap_address.toLowerCase() : curve.constants.ZERO_ADDRESS;
                 // for double meta underlying (crv/tricrypto, wmatic/tricrypto)
-                if (base_pool && second_base_pool_address) base_token_address = base_pool.deposit_address as string;
-                const second_base_token_address = second_base_pool ? second_base_pool.token_address : curve.constants.ZERO_ADDRESS;
+                if (base_pool && second_base_pool_address !== curve.constants.ZERO_ADDRESS) base_token_address = base_pool.deposit_address?.toLowerCase() as string;
+                const second_base_token_address = second_base_pool ? second_base_pool.token_address.toLowerCase() : curve.constants.ZERO_ADDRESS;
                 const meta_coin_addresses = base_pool ? base_pool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
                 let swap_address = poolData.is_fake ? poolData.deposit_address?.toLowerCase() as string : pool_address;
 
@@ -343,7 +343,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             swap_address,
                             inCoin,
                             coin_addresses[j],
-                            [0, j, swapType, pool_type, wrapped_coin_addresses.length],
+                            [0, j, swapType, pool_type, coin_addresses.length],
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
@@ -371,7 +371,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             swap_address,
                             inCoin,
                             token_address,
-                            [coin_addresses.indexOf(inCoin), 0, swapType, pool_type, wrapped_coin_addresses.length],
+                            [coin_addresses.indexOf(inCoin), 0, swapType, pool_type, coin_addresses.length],
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
@@ -694,7 +694,7 @@ export const swapRequired = async (route: IRoute, outAmount: number | string): P
     const { _route, _swapParams, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens } = _getExchangeArgs(route);
 
     let _required = 0;
-    if ("get_dx(address[11],uint256[5][5],uint256,address[5],address[5],address[5],address[5],address[5]" in contract) {
+    if ("get_dx(address[11],uint256[5][5],uint256,address[5],address[5],address[5],address[5],address[5])" in contract) {
         _required = await contract.get_dx(_route, _swapParams, _outAmount, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens, curve.constantOptions);
     } else {
         _required = await contract.get_dx(_route, _swapParams, _outAmount, _pools, _basePools, _baseTokens, curve.constantOptions);

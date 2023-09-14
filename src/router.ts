@@ -325,7 +325,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 if (!poolData.is_fake && !poolData.is_llamma && wrapped_coin_addresses.length < 6 && inCoin === token_address) {
                     for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === MAX_STEPS - 1 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
 
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
                         const outputCoinIdx = wrapped_coin_addresses.indexOf(outputCoinAddress);
@@ -356,7 +356,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 if ((poolData.is_fake || is_aave_like_lending) && underlying_coin_addresses.length < 6 && inCoin === token_address) {
                     for (let j = 0; j < underlying_coin_addresses.length; j++) {
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === MAX_STEPS - 1 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
 
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
                         const outputCoinIdx = underlying_coin_addresses.indexOf(outputCoinAddress);
@@ -388,7 +388,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 // Wrapped coin -> LP "swaps" (actually add_liquidity)
                 if (!poolData.is_fake && !poolData.is_llamma && wrapped_coin_addresses.length < 6 && inCoinIndexes.wrapped_coin >= 0) {
                     // Looking for outputCoinAddress only on the final step
-                    if (!(step === 3 && token_address !== outputCoinAddress)) {
+                    if (!(step === MAX_STEPS - 1 && token_address !== outputCoinAddress)) {
 
                         _updateRoutes(
                             inputCoinAddress,
@@ -414,7 +414,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 // Underlying coin -> LP "swaps" (actually add_liquidity)
                 if ((poolData.is_fake || is_aave_like_lending) && underlying_coin_addresses.length < 6 && inCoinIndexes.underlying_coin >= 0) {
                     // Looking for outputCoinAddress only on the final step
-                    if (!(step === 3 && token_address !== outputCoinAddress)) {
+                    if (!(step === MAX_STEPS - 1 && token_address !== outputCoinAddress)) {
                         const swapType = is_aave_like_lending ? 5 : 4;
 
                         _updateRoutes(
@@ -445,7 +445,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         // Native swaps spend less gas
                         if (wrapped_coin_addresses[j] !== outputCoinAddress && wrapped_coin_addresses[j] === curve.constants.NATIVE_TOKEN.wrappedAddress) continue;
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === MAX_STEPS - 1 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
                         const outputCoinIdx = wrapped_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
@@ -482,7 +482,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                         // Don't swap metacoins since they can be swapped directly in base pool
                         if (inCoinIndexes.meta_coin >= 0 && meta_coin_addresses.includes(underlying_coin_addresses[j])) continue;
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === MAX_STEPS - 1 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
                         const outputCoinIdx = underlying_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;

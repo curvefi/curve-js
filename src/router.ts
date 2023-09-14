@@ -42,11 +42,11 @@ const _getNewRoute = (
     secondBaseToken: string,
     tvl: number
 ): IRouteTvl => {
-    const routePoolIds = routeTvl.route.map((s) => s.poolId);
+    const routePoolIdsPlusSwapType = routeTvl.route.map((s) => s.poolId + "+" + s.swapParams[2]);
     // Steps <= MAX_STEPS
-    if (routePoolIds.length >= MAX_STEPS) return { route: [], minTvl: Infinity, totalTvl: 0 };
+    if (routePoolIdsPlusSwapType.length >= MAX_STEPS) return { route: [], minTvl: Infinity, totalTvl: 0 };
     // Exclude such cases as cvxeth -> tricrypto2 -> tricrypto2 -> susd
-    if (routePoolIds.includes(poolId)) return { route: [], minTvl: Infinity, totalTvl: 0 };
+    if (routePoolIdsPlusSwapType.includes(poolId + "+" + swapParams[2])) return { route: [], minTvl: Infinity, totalTvl: 0 };
     return {
         route: [
             ...routeTvl.route,

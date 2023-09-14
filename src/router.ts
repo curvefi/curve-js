@@ -321,16 +321,45 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 // Skip empty pools
                 if (tvl === 0) continue;
 
-                const coin_addresses = (is_aave_like_lending || poolData.is_fake) ? underlying_coin_addresses : wrapped_coin_addresses;
-
-                // LP -> wrapped coin (underlying for lending or fake pool) "swaps" (actually remove_liquidity_one_coin)
-                if (coin_addresses.length < 6 && inCoin === token_address) {
-                    for (let j = 0; j < coin_addresses.length; j++) {
+                // LP -> wrapped coin "swaps" (actually remove_liquidity_one_coin)
+                if (!poolData.is_fake && !poolData.is_llamma && wrapped_coin_addresses.length < 6 && inCoin === token_address) {
+                    for (let j = 0; j < wrapped_coin_addresses.length; j++) {
                         // Looking for outputCoinAddress only on the final step
-                        if (step === 3 && coin_addresses[j] !== outputCoinAddress) continue;
+                        if (step === 3 && wrapped_coin_addresses[j] !== outputCoinAddress) continue;
 
                         // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
-                        const outputCoinIdx = coin_addresses.indexOf(outputCoinAddress);
+                        const outputCoinIdx = wrapped_coin_addresses.indexOf(outputCoinAddress);
+                        if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
+
+                        _updateRoutes(
+                            inputCoinAddress,
+                            routesByTvl,
+                            routesByLength,
+                            poolId,
+                            swap_address,
+                            inCoin,
+                            wrapped_coin_addresses[j],
+                            [0, j, 6, pool_type, wrapped_coin_addresses.length],
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            tvl
+                        )
+
+                        nextCoins.add(wrapped_coin_addresses[j]);
+                    }
+                }
+
+                // LP -> underlying coin "swaps" (actually remove_liquidity_one_coin)
+                if ((poolData.is_fake || is_aave_like_lending) && underlying_coin_addresses.length < 6 && inCoin === token_address) {
+                    for (let j = 0; j < underlying_coin_addresses.length; j++) {
+                        // Looking for outputCoinAddress only on the final step
+                        if (step === 3 && underlying_coin_addresses[j] !== outputCoinAddress) continue;
+
+                        // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
+                        const outputCoinIdx = underlying_coin_addresses.indexOf(outputCoinAddress);
                         if (outputCoinIdx >= 0 && j !== outputCoinIdx) continue;
 
                         const swapType = is_aave_like_lending ? 7 : 6;
@@ -342,8 +371,8 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             poolId,
                             swap_address,
                             inCoin,
-                            coin_addresses[j],
-                            [0, j, swapType, pool_type, coin_addresses.length],
+                            underlying_coin_addresses[j],
+                            [0, j, swapType, pool_type, underlying_coin_addresses.length],
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
@@ -352,13 +381,38 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             tvl
                         )
 
-                        nextCoins.add(coin_addresses[j]);
+                        nextCoins.add(underlying_coin_addresses[j]);
                     }
                 }
 
-                // Wrapped coin (underlying for lending or fake pool) -> LP "swaps" (actually add_liquidity)
-                const inCoinIndex = (is_aave_like_lending || poolData.is_fake) ? inCoinIndexes.underlying_coin : inCoinIndexes.wrapped_coin;
-                if (coin_addresses.length < 6 && inCoinIndex >= 0 && !poolData.is_llamma) {
+                // Wrapped coin -> LP "swaps" (actually add_liquidity)
+                if (!poolData.is_fake && !poolData.is_llamma && wrapped_coin_addresses.length < 6 && inCoinIndexes.wrapped_coin >= 0) {
+                    // Looking for outputCoinAddress only on the final step
+                    if (!(step === 3 && token_address !== outputCoinAddress)) {
+
+                        _updateRoutes(
+                            inputCoinAddress,
+                            routesByTvl,
+                            routesByLength,
+                            poolId,
+                            swap_address,
+                            inCoin,
+                            token_address,
+                            [wrapped_coin_addresses.indexOf(inCoin), 0, 4, pool_type, wrapped_coin_addresses.length],
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            curve.constants.ZERO_ADDRESS,
+                            tvl
+                        )
+
+                        nextCoins.add(token_address);
+                    }
+                }
+
+                // Underlying coin -> LP "swaps" (actually add_liquidity)
+                if ((poolData.is_fake || is_aave_like_lending) && underlying_coin_addresses.length < 6 && inCoinIndexes.underlying_coin >= 0) {
                     // Looking for outputCoinAddress only on the final step
                     if (!(step === 3 && token_address !== outputCoinAddress)) {
                         const swapType = is_aave_like_lending ? 5 : 4;
@@ -371,7 +425,7 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                             swap_address,
                             inCoin,
                             token_address,
-                            [coin_addresses.indexOf(inCoin), 0, swapType, pool_type, coin_addresses.length],
+                            [underlying_coin_addresses.indexOf(inCoin), 0, swapType, pool_type, underlying_coin_addresses.length],
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,
                             curve.constants.ZERO_ADDRESS,

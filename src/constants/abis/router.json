@@ -144,43 +144,6 @@
       {
         "name": "_amount",
         "type": "uint256"
-      },
-      {
-        "name": "_expected",
-        "type": "uint256"
-      },
-      {
-        "name": "_pools",
-        "type": "address[5]"
-      },
-      {
-        "name": "_receiver",
-        "type": "address"
-      }
-    ],
-    "name": "exchange",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "_route",
-        "type": "address[11]"
-      },
-      {
-        "name": "_swap_params",
-        "type": "uint256[5][5]"
-      },
-      {
-        "name": "_amount",
-        "type": "uint256"
       }
     ],
     "name": "get_dy",

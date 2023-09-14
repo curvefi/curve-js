@@ -118,19 +118,25 @@ const _getTVL = memoize(
         maxAge: 5 * 60 * 1000, // 5m
     });
 
-const SNX_COINS = {
-    1: [  // Ethereum
-        "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51", // sUSD
-        "0xD71eCFF9342A5Ced620049e616c5035F1dB98620", // sEUR
-        "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb", // sETH
-        "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6", // sBTC
-    ].map((a) => a.toLowerCase()),
-    10: [  // Optimism
-        "0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9", // sUSD
-        "0xFBc4198702E81aE77c06D58f81b629BDf36f0a71", // sEUR
-        "0xe405de8f52ba7559f9df3c368500b6e6ae6cee49", // sETH
-        "0x298b9b95708152ff6968aafd889c6586e9169f1d", // sBTC
-    ].map((a) => a.toLowerCase()),
+const SNX = {
+    1: {
+        swap: "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F".toLowerCase(),
+        coins: [  // Ethereum
+            "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51", // sUSD
+            "0xD71eCFF9342A5Ced620049e616c5035F1dB98620", // sEUR
+            "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb", // sETH
+            "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6", // sBTC
+        ].map((a) => a.toLowerCase()),
+    },
+    10: {
+        swap: "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4".toLowerCase(),
+        coins: [  // Optimism
+            "0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9", // sUSD
+            "0xFBc4198702E81aE77c06D58f81b629BDf36f0a71", // sEUR
+            "0xe405de8f52ba7559f9df3c368500b6e6ae6cee49", // sETH
+            "0x298b9b95708152ff6968aafd889c6586e9169f1d", // sBTC
+        ].map((a) => a.toLowerCase()),
+    },
 }
 
 // Inspired by Dijkstra's algorithm
@@ -254,16 +260,17 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
 
             // SNX swaps
             // @ts-ignore
-            if ((SNX_COINS[curve.chainId] ?? []).includes(inCoin)) {
+            if ((SNX[curve.chainId]?.coins ?? []).includes(inCoin)) {
                 // @ts-ignore
-                for (const outCoin of SNX_COINS[curve.chainId]) {
+                for (const outCoin of SNX[curve.chainId].coins) {
                     if (inCoin === outCoin) continue;
                     _updateRoutes(
                         inputCoinAddress,
                         routesByTvl,
                         routesByLength,
                         "SNX exchange",
-                        "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F".toLowerCase(),
+                        // @ts-ignore
+                        SNX[curve.chainId].swap,
                         inCoin,
                         outCoin,
                         [0, 0, 9, 0, 0],

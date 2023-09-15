@@ -955,6 +955,9 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     
+    curve.hasDepositAndStake()
+    // true
+    
     const pool = curve.getPool('compound');
     const amounts = [1000, 1000];
 
@@ -1038,6 +1041,9 @@ import curve from "@curvefi/api";
     await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
+
+    curve.hasRouter();
+    // true
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '9900.0', '100049.744832225238317557' ]

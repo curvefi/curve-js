@@ -361,6 +361,8 @@ const poolSwapTest = async () => {
 const depositAndStakeTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
+    console.log(curve.hasDepositAndStake());
+
     const pool = curve.getPool('compound');
     const amounts = [1000, 1000];
 
@@ -402,6 +404,8 @@ const depositAndStakeTest = async () => {
 
 const routerSwapTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    console.log(curve.hasRouter());
 
     console.log(await curve.getBalances(['DAI', 'CRV']));
 

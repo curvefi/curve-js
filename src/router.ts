@@ -318,10 +318,10 @@ const _findAllRoutes = async (inputCoinAddress: string, outputCoinAddress: strin
                 // Skip pools which don't contain inCoin
                 if (inCoinIndexes.wrapped_coin === -1 && inCoinIndexes.underlying_coin === -1 && inCoinIndexes.meta_coin === -1 && inCoin !== token_address) continue;
 
-                // TODO remove it!!!!
-                const tvl = poolId.startsWith('factory-crvusd-') ? 500000 * 100 : (await _getTVL(poolId)) * tvl_multiplier;
+                const tvl = (await _getTVL(poolId)) * tvl_multiplier;
                 // Skip empty pools
-                if (tvl === 0) continue;
+                if (curve.chainId === 1 && tvl < 1000) continue;
+                if (curve.chainId !== 1 && tvl < 100) continue;
 
                 // LP -> wrapped coin "swaps" (actually remove_liquidity_one_coin)
                 if (!poolData.is_fake && !poolData.is_llamma && wrapped_coin_addresses.length < 6 && inCoin === token_address) {

@@ -11,7 +11,7 @@ const routerSwapTest = async (coin1: string, coin2: string) => {
 
     const { route, output } = await curve.router.getBestRouteAndOutput(coin1, coin2, amount);
     assert.isTrue(route.length > 0);
-    const required = await curve.router.required(route, output);
+    const required = await curve.router.required(coin1, coin2, output);
 
     let routeStr = ''
     for (const step of route) {

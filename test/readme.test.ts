@@ -361,6 +361,8 @@ const poolSwapTest = async () => {
 const depositAndStakeTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
+    console.log(curve.hasDepositAndStake());
+
     const pool = curve.getPool('compound');
     const amounts = [1000, 1000];
 
@@ -403,14 +405,20 @@ const depositAndStakeTest = async () => {
 const routerSwapTest = async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
+    console.log(curve.hasRouter());
+
     console.log(await curve.getBalances(['DAI', 'CRV']));
 
     const { route, output } = await curve.router.getBestRouteAndOutput('DAI', 'CRV', 1000);
     // OR await curve.router.getBestPoolAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
     const expected = await curve.router.expected('DAI', 'CRV', 1000);
     // OR await curve.router.expected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '10000');
+    const required = await curve.router.required(route, output);
+    const priceImpact = await curve.router.priceImpact('DAI', 'CRV', '1000');
+    // OR await curve.router.priceImpact('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
+    const args = curve.router.getArgs(route);
 
-    console.log(route, output, expected);
+    console.log(route, output, expected, required, priceImpact, args);
 
     console.log(await curve.router.isApproved('DAI', 1000));
     console.log(await curve.router.approve('DAI', 1000));

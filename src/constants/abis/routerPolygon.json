@@ -272,6 +272,14 @@
       {
         "name": "_base_tokens",
         "type": "address[5]"
+      },
+      {
+        "name": "_second_base_pools",
+        "type": "address[5]"
+      },
+      {
+        "name": "_second_base_tokens",
+        "type": "address[5]"
       }
     ],
     "name": "get_dx",

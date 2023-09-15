@@ -16,14 +16,13 @@ import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };
 import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' assert { type: 'json' };
 import votingEscrowOracleEthABI from './constants/abis/voting_escrow_oracle_eth.json' assert { type: 'json' };
 import feeDistributorABI from './constants/abis/fee_distributor.json' assert { type: 'json' };
-import addressProviderABI from './constants/abis/address_provider.json' assert { type: 'json' };
 import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert { type: 'json' };
-import routerABI from './constants/abis/router.json' assert { type: 'json' };
 import depositAndStakeABI from './constants/abis/deposit_and_stake.json' assert { type: 'json' };
 import cryptoCalcZapABI from './constants/abis/crypto_calc.json' assert { type: 'json'};
 import depositAndStake6CoinsABI from './constants/abis/deposit_and_stake_6coins.json' assert { type: 'json' };
 import StableCalcZapABI from './constants/abis/stable_calc.json' assert { type: 'json' };
-import registryExchangeABI from './constants/abis/registry_exchange.json' assert { type: 'json' };
+import routerABI from './constants/abis/router.json' assert { type: 'json' };
+import routerPolygonABI from './constants/abis/routerPolygon.json' assert { type: 'json' };
 import streamerABI from './constants/abis/streamer.json' assert { type: 'json' };
 import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
 import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: 'json' };
@@ -555,17 +554,13 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.fee_distributor, feeDistributorABI);
 
-        this.setContract(this.constants.ALIASES.address_provider, addressProviderABI);
-
-        if (this.chainId !== 324 && this.chainId !== 8453) {
-            const addressProviderContract = this.contracts[this.constants.ALIASES.address_provider].contract;
-            this.constants.ALIASES.registry_exchange = (await addressProviderContract.get_address(2, this.constantOptions) as string).toLowerCase();
-            this.setContract(this.constants.ALIASES.registry_exchange, registryExchangeABI);
-        }
-
         this.setContract(this.constants.ALIASES.gauge_controller, gaugeControllerABI);
 
-        this.setContract(this.constants.ALIASES.router, routerABI);
+        if (this.chainId == 137) {
+            this.setContract(this.constants.ALIASES.router, routerPolygonABI);
+        } else {
+            this.setContract(this.constants.ALIASES.router, routerABI);
+        }
 
         if (this.chainId === 137) {
             this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStake6CoinsABI);

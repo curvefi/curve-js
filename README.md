@@ -955,6 +955,9 @@ import curve from "@curvefi/api";
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
     
+    curve.hasDepositAndStake()
+    // true
+    
     const pool = curve.getPool('compound');
     const amounts = [1000, 1000];
 
@@ -1039,6 +1042,9 @@ import curve from "@curvefi/api";
     await curve.cryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
 
+    curve.hasRouter();
+    // true
+
     await curve.getBalances(['DAI', 'CRV']);
     // [ '9900.0', '100049.744832225238317557' ]
 
@@ -1046,44 +1052,114 @@ import curve from "@curvefi/api";
     // OR await curve.router.getBestRouteAndOutput('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     const expected = await curve.router.expected('DAI', 'CRV', '1000');
     // OR await curve.router.expected('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
+    const required = await curve.router.required(route, output);
     const priceImpact = await curve.router.priceImpact('DAI', 'CRV', '1000');
     // OR await curve.router.priceImpact('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
+    const args = curve.router.getArgs(route);
 
-    console.log(route, output, expected, priceImpact);
+    console.log(route, output, expected, required, priceImpact, args);
     // route = [
     //     {
-    //         poolId: '3pool',
-    //         poolAddress: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',
-    //         outputCoinAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-    //         i: 0,
-    //         j: 2,
-    //         swapType: 1,
-    //         swapAddress: '0x0000000000000000000000000000000000000000'
+    //         poolId: 'mim',
+    //         swapAddress: '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',
+    //         inputCoinAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    //         outputCoinAddress: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
+    //         swapParams: [ 1, 0, 2, 1, 4 ],
+    //         poolAddress: '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',
+    //         basePool: '0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7',
+    //         baseToken: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
+    //         secondBasePool: '0x0000000000000000000000000000000000000000',
+    //         secondBaseToken: '0x0000000000000000000000000000000000000000'
     //     },
     //     {
-    //         poolId: 'tricrypto2',
-    //         poolAddress: '0xD51a44d3FaE010294C616388b506AcdA1bfAAE46',
-    //         outputCoinAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    //         i: 0,
-    //         j: 2,
-    //         swapType: 3,
-    //         swapAddress: '0x0000000000000000000000000000000000000000'
+    //         poolId: 'factory-crvusd-6',
+    //         swapAddress: '0xbe426b0f37c112dd20d5866769c8034171567b31',
+    //         inputCoinAddress: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
+    //         outputCoinAddress: '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
+    //         swapParams: [ 0, 1, 1, 1, 2 ],
+    //         poolAddress: '0xbe426b0f37c112dd20d5866769c8034171567b31',
+    //         basePool: '0x0000000000000000000000000000000000000000',
+    //         baseToken: '0x0000000000000000000000000000000000000000',
+    //         secondBasePool: '0x0000000000000000000000000000000000000000',
+    //         secondBaseToken: '0x0000000000000000000000000000000000000000'
     //     },
     //     {
-    //         poolId: 'crveth',
-    //         poolAddress: '0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511',
+    //         poolId: 'factory-tricrypto-4',
+    //         swapAddress: '0x4ebdf703948ddcea3b11f675b4d1fba9d2414a14',
+    //         inputCoinAddress: '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
     //         outputCoinAddress: '0xd533a949740bb3306d119cc777fa900ba034cd52',
-    //         i: 0,
-    //         j: 1,
-    //         swapType: 3,
-    //         swapAddress: '0x0000000000000000000000000000000000000000'
+    //         swapParams: [ 0, 2, 1, 3, 3 ],
+    //         poolAddress: '0x4ebdf703948ddcea3b11f675b4d1fba9d2414a14',
+    //         basePool: '0x0000000000000000000000000000000000000000',
+    //         baseToken: '0x0000000000000000000000000000000000000000',
+    //         secondBasePool: '0x0000000000000000000000000000000000000000',
+    //         secondBaseToken: '0x0000000000000000000000000000000000000000'
     //     }
     // ]
     // 
-    // output = expected = 378.881631202862354937
-    // 
+    // output = expected = 2359.161199223806107003
+    // required = 999.898950158673335108
     // priceImpact = 0.158012 %
-    
+    //
+    // args = {
+    //     _route: [
+    //         '0x6b175474e89094c44da98b954eedeac495271d0f',
+    //         '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',
+    //         '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
+    //         '0xbe426b0f37c112dd20d5866769c8034171567b31',
+    //         '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
+    //         '0x4ebdf703948ddcea3b11f675b4d1fba9d2414a14',
+    //         '0xd533a949740bb3306d119cc777fa900ba034cd52',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000'
+    //     ],
+    //         _swapParams: [
+    //         [ 1, 0, 2, 1, 4 ],
+    //         [ 0, 1, 1, 1, 2 ],
+    //         [ 0, 2, 1, 3, 3 ],
+    //         [ 0, 0, 0, 0, 0 ],
+    //         [ 0, 0, 0, 0, 0 ]
+    //     ],
+    //         _pools: [
+    //         '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',
+    //         '0xbe426b0f37c112dd20d5866769c8034171567b31',
+    //         '0x4ebdf703948ddcea3b11f675b4d1fba9d2414a14',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000'
+    //     ],
+    //         _basePools: [
+    //         '0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000'
+    //     ],
+    //         _baseTokens: [
+    //         '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000'
+    //     ],
+    //         _secondBasePools: [
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000'
+    //     ],
+    //         _secondBaseTokens: [
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000',
+    //         '0x0000000000000000000000000000000000000000'
+    //     ]
+    // }
+
+
     await curve.router.isApproved('DAI', 1000);
     // false
     await curve.router.approve('DAI', 1000);

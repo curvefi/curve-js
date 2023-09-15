@@ -9,7 +9,9 @@ import {
 } from "./pools/utils.js";
 import {
     getBestRouteAndOutput,
+    getArgs,
     swapExpected,
+    swapRequired,
     swapPriceImpact,
     swapIsApproved,
     swapApproveEstimateGas,
@@ -60,6 +62,8 @@ import {
     getTVL,
     getCoinsData,
     getVolume,
+    hasDepositAndStake,
+    hasRouter,
 } from "./utils.js";
 import {
     deployStablePlainPool,
@@ -123,6 +127,8 @@ const curve = {
     ensureAllowance,
     getCoinsData,
     getVolume,
+    hasDepositAndStake,
+    hasRouter,
     factory: {
         fetchPools: _curve.fetchFactoryPools,
         fetchNewPools: _curve.fetchNewFactoryPools,
@@ -235,7 +241,9 @@ const curve = {
     },
     router: {
         getBestRouteAndOutput,
+        getArgs,
         expected: swapExpected,
+        required: swapRequired,
         priceImpact: swapPriceImpact,
         isApproved: swapIsApproved,
         approve: swapApprove,

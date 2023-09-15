@@ -61,6 +61,8 @@ import {
     getTVL,
     getCoinsData,
     getVolume,
+    hasDepositAndStake,
+    hasRouter,
 } from "./utils.js";
 import {
     deployStablePlainPool,
@@ -124,6 +126,8 @@ const curve = {
     ensureAllowance,
     getCoinsData,
     getVolume,
+    hasDepositAndStake,
+    hasRouter,
     factory: {
         fetchPools: _curve.fetchFactoryPools,
         fetchNewPools: _curve.fetchNewFactoryPools,

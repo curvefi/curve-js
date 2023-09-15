@@ -737,6 +737,18 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
     return { route, output: curve.formatUnits(_output, outputCoinDecimals) }
 }
 
+export const getArgs = (route: IRoute): {
+    _route: string[],
+    _swapParams: number[][],
+    _pools: string[],
+    _basePools: string[],
+    _baseTokens: string[],
+    _secondBasePools: string[],
+    _secondBaseTokens: string[]
+} => {
+    return _getExchangeArgs(route);
+}
+
 export const swapExpected = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<string> => {
     return (await getBestRouteAndOutput(inputCoin, outputCoin, amount))['output'];
 }

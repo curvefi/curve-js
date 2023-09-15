@@ -9,6 +9,7 @@ import {
 } from "./pools/utils.js";
 import {
     getBestRouteAndOutput,
+    getArgs,
     swapExpected,
     swapRequired,
     swapPriceImpact,
@@ -240,6 +241,7 @@ const curve = {
     },
     router: {
         getBestRouteAndOutput,
+        getArgs,
         expected: swapExpected,
         required: swapRequired,
         priceImpact: swapPriceImpact,

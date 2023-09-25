@@ -77,7 +77,7 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     hbtc: "0x0316EB71485b0Ab14103307bf65a021042c6d380",  // HBTC
     renbtc: "0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D",  // renBTC
     wbtc: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",  // WBTC
-    tbtc: "0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa",  // TBTC
+    tbtc: "0x18084fba666a33d37592fa2633fd49a74dd93a88",  // tBTC v2
     pbtc: "0x5228a22e72ccC52d415EcFd199F99D0665E7733b",  // pBTC
     bbtc: "0x9be89d2a4cd102d8fecc6bf9da793be995c22541",  // bBTC
     obtc: "0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68",  // oBTC

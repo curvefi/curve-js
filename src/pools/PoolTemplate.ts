@@ -600,7 +600,7 @@ export class PoolTemplate {
                     if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
                 });
 
-                return parseUnits(Math.sqrt(amounts.map(Number).reduce((a, b) => a * b)));
+                return parseUnits(Math.pow(amounts.map(Number).reduce((a, b) => a * b), 1 / amounts.length));
             }
         }
 

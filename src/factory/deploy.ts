@@ -571,3 +571,12 @@ export const getDeployedGaugeAddress = async (tx: ethers.ContractTransactionResp
     // @ts-ignore
     return txInfo.logs[0].args[txInfo.logs[0].args.length - 1].toLowerCase();
 }
+
+export const getDeployedGaugeMirrorAddress = async (chainId: number): Promise<string> => {
+    if (curve.chainId !== 1) throw Error("There is no getDeployedGaugeMirrorAddress method on sidechain network");
+    const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
+    const gaugeCount = await contract.get_gauge_count(chainId);
+    const currentIndex: number = Number(gaugeCount) - 1;
+
+    return await contract.get_gauge(chainId, currentIndex);
+}

@@ -572,6 +572,13 @@ export const getDeployedGaugeAddress = async (tx: ethers.ContractTransactionResp
     return txInfo.logs[0].args[txInfo.logs[0].args.length - 1].toLowerCase();
 }
 
+export const getDeployedGaugeMirrorAddressByTx = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
+    const txInfo = await tx.wait();
+    if (!txInfo) throw Error("Can't get tx info");
+    // @ts-ignore
+    return txInfo.logs[1].args[txInfo.logs[1].args.length - 1].toLowerCase();
+}
+
 export const getDeployedGaugeMirrorAddress = async (chainId: number): Promise<string> => {
     if (curve.chainId !== 1) throw Error("There is no getDeployedGaugeMirrorAddress method on sidechain network");
     const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;

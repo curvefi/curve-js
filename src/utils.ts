@@ -257,13 +257,13 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
             if(lpTokenAddress.toLowerCase() in priceDict) {
                 priceDict[lpTokenAddress.toLowerCase()].push({
                     price: pool.usdTotal && totalSupply ? pool.usdTotal / totalSupply : 0,
-                    tvl: pool.usdTotal
+                    tvl: pool.usdTotal,
                 })
             } else {
                 priceDict[lpTokenAddress.toLowerCase()] = []
                 priceDict[lpTokenAddress.toLowerCase()].push({
                     price: pool.usdTotal && totalSupply ? pool.usdTotal / totalSupply : 0,
-                    tvl: pool.usdTotal
+                    tvl: pool.usdTotal,
                 })
             }
 
@@ -272,13 +272,13 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
                     if(coin.address.toLowerCase() in priceDict) {
                         priceDict[coin.address.toLowerCase()].push({
                             price: coin.usdPrice,
-                            tvl: pool.usdTotal
+                            tvl: pool.usdTotal,
                         })
                     } else {
                         priceDict[coin.address.toLowerCase()] = []
                         priceDict[coin.address.toLowerCase()].push({
                             price: coin.usdPrice,
-                            tvl: pool.usdTotal
+                            tvl: pool.usdTotal,
                         })
                     }
                 }
@@ -289,13 +289,13 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
                     if(coin.tokenAddress.toLowerCase() in priceDict) {
                         priceDict[coin.tokenAddress.toLowerCase()].push({
                             price: coin.tokenPrice,
-                            tvl: pool.usdTotal
+                            tvl: pool.usdTotal,
                         });
                     } else {
                         priceDict[coin.tokenAddress.toLowerCase()] = []
                         priceDict[coin.tokenAddress.toLowerCase()].push({
                             price: coin.tokenPrice,
-                            tvl: pool.usdTotal
+                            tvl: pool.usdTotal,
                         });
                     }
                 }

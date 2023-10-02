@@ -88,6 +88,7 @@ import {
     deployGaugeMirror,
     deployGaugeMirrorEstimateGas,
     getDeployedGaugeMirrorAddress,
+    getDeployedGaugeMirrorAddressByTx,
 } from './factory/deploy.js';
 
 async function init (
@@ -144,6 +145,7 @@ const curve = {
         getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedFactoryPool,
         gaugeImplementation: (): string => _curve.getGaugeImplementation("factory"),
         estimateGas: {
@@ -174,6 +176,7 @@ const curve = {
         getDeployedPoolAddress: getDeployedCryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedCryptoFactoryPool,
         gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-crypto"),
         estimateGas: {
@@ -194,6 +197,7 @@ const curve = {
         getDeployedPoolAddress: getDeployedTricryptoPoolAddress,
         getDeployedGaugeAddress: getDeployedGaugeAddress,
         getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
         fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTricryptoFactoryPool,
         gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-tricrypto"),
         estimateGas: {

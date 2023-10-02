@@ -573,6 +573,7 @@ export const getDeployedGaugeAddress = async (tx: ethers.ContractTransactionResp
 }
 
 export const getDeployedGaugeMirrorAddressByTx = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
+    if(curve.chainId !== 1) throw Error("There is no getDeployedGaugeMirrorAddressByTx method on sidechain network");
     const txInfo = await tx.wait();
     if (!txInfo) throw Error("Can't get tx info");
     // @ts-ignore

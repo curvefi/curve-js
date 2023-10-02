@@ -1753,7 +1753,9 @@ import curve from "@curvefi/api";
     const gaugeSidechainAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeSidechain);
     // 0x60d3d7ebbc44dc810a743703184f062d00e6db7e
     //After that should be deployed mirror gauge on mainnet with same salt
-    //await curve.tricryptoFactory.deployGaugeMirror(sidechainId, salt);
+    //const gaugeMirrorTx = await curve.tricryptoFactory.deployGaugeMirror(sidechainId, salt);
+    //const deployedGaugeMirrorAddress = await curve.tricryptoFactory.getDeployedGaugeMirrorAddressByTx(gaugeMirrorTx);
+    //OR
     //const deployedGaugeMirrorAddress = await curve.tricryptoFactory.getDeployedGaugeMirrorAddress(sidechainId);
     
     // Deposit & Stake

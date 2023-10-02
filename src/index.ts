@@ -87,7 +87,8 @@ import {
     deployGaugeSidechainEstimateGas,
     deployGaugeMirror,
     deployGaugeMirrorEstimateGas,
-    getDeployedGaugeMirrorAddress, getDeployedGaugeMirrorAddressByTx,
+    getDeployedGaugeMirrorAddress,
+    getDeployedGaugeMirrorAddressByTx,
 } from './factory/deploy.js';
 
 async function init (

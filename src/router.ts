@@ -444,8 +444,12 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStepWithTvl
     maxAge: 5 * 1000, // 5m
 });
 
-const _isVisited = (coinAddress: string, route: IRouteTvl): boolean => {
+const _isVisitedCoin = (coinAddress: string, route: IRouteTvl): boolean => {
     return route.route.map((r) => r.inputCoinAddress).includes(coinAddress);
+}
+
+const _isVisitedPool = (poolId: string, route: IRouteTvl): boolean => {
+    return route.route.map((r) => r.poolId).includes(poolId);
 }
 
 // Breadth-first search
@@ -471,9 +475,10 @@ const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string):
             targetRoutes.push(route);
         } else if (route.route.length < 5) {
             for (const outCoin in routerGraph[inCoin]) {
-                if (_isVisited(outCoin, route)) continue;
+                if (_isVisitedCoin(outCoin, route)) continue;
 
                 for (const step of routerGraph[inCoin][outCoin]) {
+                    if (_isVisitedPool(step.poolId, route)) continue;
                     // Exclude such cases as cvxeth -> tricrypto2 -> tusd -> susd or cvxeth -> tricrypto2 -> susd -> susd
                     const poolData = ALL_POOLS[step.poolId];
                     const poolCoins = poolData ? poolData.wrapped_coin_addresses.concat(poolData.underlying_coin_addresses) : [];

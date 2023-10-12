@@ -360,11 +360,11 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStepWithTvl
 
                     if (!routerGraph[coins[k]]) routerGraph[coins[k]] = {};
                     if (!routerGraph[coins[k]][coins[l]]) routerGraph[coins[k]][coins[l]] = [];
-                    routerGraph[tokenAddress][underlyingCoinAddresses[j]].push({
+                    routerGraph[coins[k]][coins[l]].push({
                         poolId,
                         swapAddress,
-                        inputCoinAddress: tokenAddress,
-                        outputCoinAddress: underlyingCoinAddresses[j],
+                        inputCoinAddress: coins[k],
+                        outputCoinAddress: coins[l],
                         swapParams: [i, j, swapType, poolType, underlyingCoinAddresses.length],
                         poolAddress: curve.constants.ZERO_ADDRESS,
                         basePool: curve.constants.ZERO_ADDRESS,

@@ -318,90 +318,62 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStepWithTvl
         if (curve.chainId === 1 && tvl < 1000) continue;
         if (curve.chainId !== 1 && tvl < 100) continue;
 
-        // LP -> wrapped coin "swaps" (actually remove_liquidity_one_coin)
+        // Wrapped coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)
         if (!poolData.is_fake && !poolData.is_llamma && wrappedCoinAddresses.length < 6) {
-            for (let j = 0; j < wrappedCoinAddresses.length; j++) {
-                if (!routerGraph[tokenAddress]) routerGraph[tokenAddress] = {};
-                if (!routerGraph[tokenAddress][wrappedCoinAddresses[j]]) routerGraph[tokenAddress][wrappedCoinAddresses[j]] = [];
-                routerGraph[tokenAddress][wrappedCoinAddresses[j]] = routerGraph[tokenAddress][wrappedCoinAddresses[j]].concat({
-                    poolId,
-                    swapAddress,
-                    inputCoinAddress: tokenAddress,
-                    outputCoinAddress: wrappedCoinAddresses[j],
-                    swapParams: [0, j, 6, poolType, wrappedCoinAddresses.length],
-                    poolAddress: curve.constants.ZERO_ADDRESS,
-                    basePool: curve.constants.ZERO_ADDRESS,
-                    baseToken: curve.constants.ZERO_ADDRESS,
-                    secondBasePool: curve.constants.ZERO_ADDRESS,
-                    secondBaseToken: curve.constants.ZERO_ADDRESS,
-                    tvl,
-                }).sort((a, b) => b.tvl - a.tvl).slice(0, GRAPH_MAX_EDGES);
+            const coins = [tokenAddress, ...wrappedCoinAddresses];
+            for (let k = 0; k < coins.length; k++) {
+                for (let l = 0; l < coins.length; l++) {
+                    if (k > 0 && l > 0) continue;
+                    const i = Math.max(k - 1, 0);
+                    const j = Math.max(l - 1, 0);
+                    const swapType = k == 0 ? 6 : 4;
+
+                    if (!routerGraph[coins[k]]) routerGraph[coins[k]] = {};
+                    if (!routerGraph[coins[k]][coins[l]]) routerGraph[coins[k]][coins[l]] = [];
+                    routerGraph[coins[k]][coins[l]].push({
+                        poolId,
+                        swapAddress,
+                        inputCoinAddress: coins[k],
+                        outputCoinAddress: coins[l],
+                        swapParams: [i, j, swapType, poolType, wrappedCoinAddresses.length],
+                        poolAddress: curve.constants.ZERO_ADDRESS,
+                        basePool: curve.constants.ZERO_ADDRESS,
+                        baseToken: curve.constants.ZERO_ADDRESS,
+                        secondBasePool: curve.constants.ZERO_ADDRESS,
+                        secondBaseToken: curve.constants.ZERO_ADDRESS,
+                        tvl,
+                    });
+                }
             }
         }
 
-        // LP -> underlying coin "swaps" (actually remove_liquidity_one_coin)
+        // Underlying coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)
         if ((poolData.is_fake || isAaveLikeLending) && underlyingCoinAddresses.length < 6) {
-            for (let j = 0; j < underlyingCoinAddresses.length; j++) {
-                const swapType = isAaveLikeLending ? 7 : 6;
-                if (!routerGraph[tokenAddress]) routerGraph[tokenAddress] = {};
-                if (!routerGraph[tokenAddress][underlyingCoinAddresses[j]]) routerGraph[tokenAddress][underlyingCoinAddresses[j]] = [];
-                routerGraph[tokenAddress][underlyingCoinAddresses[j]] = routerGraph[tokenAddress][underlyingCoinAddresses[j]].concat({
-                    poolId,
-                    swapAddress,
-                    inputCoinAddress: tokenAddress,
-                    outputCoinAddress: underlyingCoinAddresses[j],
-                    swapParams: [0, j, swapType, poolType, underlyingCoinAddresses.length],
-                    poolAddress: curve.constants.ZERO_ADDRESS,
-                    basePool: curve.constants.ZERO_ADDRESS,
-                    baseToken: curve.constants.ZERO_ADDRESS,
-                    secondBasePool: curve.constants.ZERO_ADDRESS,
-                    secondBaseToken: curve.constants.ZERO_ADDRESS,
-                    tvl,
-                }).sort((a, b) => b.tvl - a.tvl).slice(0, GRAPH_MAX_EDGES);
-            }
-        }
+            const coins = [tokenAddress, ...underlyingCoinAddresses];
+            for (let k = 0; k < coins.length; k++) {
+                for (let l = 0; l < coins.length; l++) {
+                    if (k > 0 && l > 0) continue;
+                    const i = Math.max(k - 1, 0);
+                    const j = Math.max(l - 1, 0);
+                    let swapType: ISwapType = isAaveLikeLending ? 7 : 6;
+                    if (k > 0) swapType = isAaveLikeLending ? 5 : 4;
 
-        // Wrapped coin -> LP "swaps" (actually add_liquidity)
-        if (!poolData.is_fake && !poolData.is_llamma) {
-            for (let i = 0; i < wrappedCoinAddresses.length; i++) {
-                if (!routerGraph[wrappedCoinAddresses[i]]) routerGraph[wrappedCoinAddresses[i]] = {};
-                if (!routerGraph[wrappedCoinAddresses[i]][tokenAddress]) routerGraph[wrappedCoinAddresses[i]][tokenAddress] = [];
-                routerGraph[wrappedCoinAddresses[i]][tokenAddress] = routerGraph[wrappedCoinAddresses[i]][tokenAddress].concat({
-                    poolId,
-                    swapAddress,
-                    inputCoinAddress: wrappedCoinAddresses[i],
-                    outputCoinAddress: tokenAddress,
-                    swapParams: [i, 0, 4, poolType, wrappedCoinAddresses.length],
-                    poolAddress: curve.constants.ZERO_ADDRESS,
-                    basePool: curve.constants.ZERO_ADDRESS,
-                    baseToken: curve.constants.ZERO_ADDRESS,
-                    secondBasePool: curve.constants.ZERO_ADDRESS,
-                    secondBaseToken: curve.constants.ZERO_ADDRESS,
-                    tvl,
-                }).sort((a, b) => b.tvl - a.tvl).slice(0, GRAPH_MAX_EDGES);
-            }
-        }
-
-        // Underlying coin -> LP "swaps" (actually add_liquidity)
-        if ((poolData.is_fake || isAaveLikeLending) && underlyingCoinAddresses.length < 6) {
-            const swapType = isAaveLikeLending ? 5 : 4;
-
-            for (let i = 0; i < underlyingCoinAddresses.length; i++) {
-                if (!routerGraph[underlyingCoinAddresses[i]]) routerGraph[underlyingCoinAddresses[i]] = {};
-                if (!routerGraph[underlyingCoinAddresses[i]][tokenAddress]) routerGraph[underlyingCoinAddresses[i]][tokenAddress] = [];
-                routerGraph[underlyingCoinAddresses[i]][tokenAddress] = routerGraph[underlyingCoinAddresses[i]][tokenAddress].concat({
-                    poolId,
-                    swapAddress,
-                    inputCoinAddress: underlyingCoinAddresses[i],
-                    outputCoinAddress: tokenAddress,
-                    swapParams: [i, 0, swapType, poolType, underlyingCoinAddresses.length],
-                    poolAddress: curve.constants.ZERO_ADDRESS,
-                    basePool: curve.constants.ZERO_ADDRESS,
-                    baseToken: curve.constants.ZERO_ADDRESS,
-                    secondBasePool: curve.constants.ZERO_ADDRESS,
-                    secondBaseToken: curve.constants.ZERO_ADDRESS,
-                    tvl,
-                }).sort((a, b) => b.tvl - a.tvl).slice(0, GRAPH_MAX_EDGES);
+                    if (!routerGraph[coins[k]]) routerGraph[coins[k]] = {};
+                    if (!routerGraph[coins[k]][coins[l]]) routerGraph[coins[k]][coins[l]] = [];
+                    routerGraph[tokenAddress][underlyingCoinAddresses[j]].push({
+                        poolId,
+                        swapAddress,
+                        inputCoinAddress: tokenAddress,
+                        outputCoinAddress: underlyingCoinAddresses[j],
+                        swapParams: [i, j, swapType, poolType, underlyingCoinAddresses.length],
+                        poolAddress: curve.constants.ZERO_ADDRESS,
+                        basePool: curve.constants.ZERO_ADDRESS,
+                        baseToken: curve.constants.ZERO_ADDRESS,
+                        secondBasePool: curve.constants.ZERO_ADDRESS,
+                        secondBaseToken: curve.constants.ZERO_ADDRESS,
+                        tvl,
+                    });
+                }
             }
         }
 

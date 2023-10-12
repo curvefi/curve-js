@@ -142,19 +142,6 @@ export interface IRouteStep {
     baseToken: string,
     secondBasePool: string,
     secondBaseToken: string,
-}
-
-export interface IRouteStepWithTvl {
-    poolId: string,
-    swapAddress: string,
-    inputCoinAddress: string,
-    outputCoinAddress: string,
-    swapParams: [number, number, ISwapType, number, number],  // i, j, swap_type, pool_type, n_coins
-    poolAddress: string,
-    basePool: string,
-    baseToken: string,
-    secondBasePool: string,
-    secondBaseToken: string,
     tvl: number,
 }
 

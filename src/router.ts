@@ -3,7 +3,7 @@ import memoize from "memoizee";
 import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import { curve } from "./curve.js";
-import { IDict, ISwapType, IRoute, IRouteStepWithTvl, IRouteTvl, IRouteOutputAndCost } from "./interfaces";
+import { IDict, ISwapType, IRoute, IRouteStep, IRouteTvl, IRouteOutputAndCost } from "./interfaces";
 import {
     _getCoinAddresses,
     _getCoinDecimals,
@@ -77,8 +77,8 @@ const SNX = {
     },
 }
 
-const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStepWithTvl[]>>> => {
-    const routerGraph: IDict<IDict<IRouteStepWithTvl[]>> = {}
+const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> => {
+    const routerGraph: IDict<IDict<IRouteStep[]>> = {}
 
     // ETH <-> WETH (exclude Celo)
     if (curve.chainId !== 42220) {

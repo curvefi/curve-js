@@ -142,6 +142,7 @@ export interface IRouteStep {
     baseToken: string,
     secondBasePool: string,
     secondBaseToken: string,
+    tvl: number,
 }
 
 export type IRoute = IRouteStep[];

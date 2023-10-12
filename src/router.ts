@@ -27,7 +27,7 @@ import { _getAmplificationCoefficientsFromApi } from "./pools/utils.js";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
-const GRAPH_MAX_EDGES = 2;
+const GRAPH_MAX_EDGES = 3;
 
 // 4 --> 6, 5 --> 7 not allowed
 // 4 --> 7, 5 --> 6 allowed
@@ -66,7 +66,7 @@ const _getNewRoute = (
     }
 }
 
-const MAX_ROUTES_FOR_ONE_COIN = 3;
+const MAX_ROUTES_FOR_ONE_COIN = 5;
 const _filterRoutes = (routes: IRouteTvl[], inputCoinAddress: string, sortFn: (a: IRouteTvl, b: IRouteTvl) => number) => {
     return routes
         .filter((r) => r.route.length > 0)

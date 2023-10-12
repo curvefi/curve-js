@@ -78,6 +78,13 @@ const _filterRoutes = (routes: IRouteTvl[], inputCoinAddress: string, sortFn: (a
         .sort(sortFn).slice(0, MAX_ROUTES_FOR_ONE_COIN);
 }
 
+const _removeDuplications = (routes: IRouteTvl[]) => {
+    return routes.filter((r, i, _routes) => {
+        const routesByPoolIds = _routes.map((r) => r.route.map((s) => s.poolId).toString());
+        return routesByPoolIds.indexOf(r.route.map((s) => s.poolId).toString()) === i;
+    })
+}
+
 const _sortByTvl = (a: IRouteTvl, b: IRouteTvl) => b.minTvl - a.minTvl || b.totalTvl - a.totalTvl || a.route.length - b.route.length;
 const _sortByLength = (a: IRouteTvl, b: IRouteTvl) => a.route.length - b.route.length || b.minTvl - a.minTvl || b.totalTvl - a.totalTvl;
 
@@ -496,10 +503,10 @@ const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string):
     console.log("Find routes:", (Date.now() - d) / 1000, "s");
     console.log("Number of routes:", targetRoutes.length);
 
-    targetRoutes = [
+    targetRoutes = _removeDuplications([
         ...targetRoutes.sort(_sortByTvl).slice(0, MAX_ROUTES_FOR_ONE_COIN),
         ...targetRoutes.sort(_sortByLength).slice(0, MAX_ROUTES_FOR_ONE_COIN),
-    ];
+    ]);
     console.log("Number of filtered routes:", targetRoutes.length);
 
     return targetRoutes.map((r) => r.route);

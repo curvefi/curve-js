@@ -6,6 +6,7 @@ import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
 import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getAllPoolsFromApi, _getSubgraphData } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
+import { L2Networks } from './constants/L2Networks';
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -58,6 +59,22 @@ export const fromBN = (bn: BigNumber, decimals = 18): bigint => {
 export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
 export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 export const mulBy1_3 = (n: bigint): bigint => n * curve.parseUnits("130", 0) / curve.parseUnits("100", 0);
+
+export const smartNumber = (abstractNumber: bigint | bigint[]): number | number[] => {
+    if(Array.isArray(abstractNumber)) {
+        return [Number(abstractNumber[0]), Number(abstractNumber[1])];
+    } else {
+        return Number(abstractNumber);
+    }
+}
+
+export const DIGas = (gas: bigint | Array<bigint>): bigint => {
+    if(Array.isArray(gas)) {
+        return gas[0];
+    } else {
+        return gas;
+    }
+}
 
 // coins can be either addresses or symbols
 export const _getCoinAddressesNoCheck = (...coins: string[] | string[][]): string[] => {
@@ -189,10 +206,10 @@ export const _ensureAllowance = async (coins: string[], amounts: bigint[], spend
             const _approveAmount = isMax ? MAX_ALLOWANCE : amounts[i];
             await curve.updateFeeData();
             if (allowance[i] > curve.parseUnits("0")) {
-                const gasLimit = mulBy1_3(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions));
+                const gasLimit = mulBy1_3(DIGas(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions)));
                 txHashes.push((await contract.approve(spender, curve.parseUnits("0"), { ...curve.options, gasLimit })).hash);
             }
-            const gasLimit = mulBy1_3(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
+            const gasLimit = mulBy1_3(DIGas(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions)));
             txHashes.push((await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit })).hash);
         }
     }
@@ -214,9 +231,9 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
             const contract = curve.contracts[coinAddresses[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
             if (allowance[i] > curve.parseUnits("0")) {
-                gas += Number(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions));
+                gas += Number(DIGas(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions)));
             }
-            gas += Number(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
+            gas += Number(DIGas(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions)));
         }
     }
 
@@ -305,7 +322,7 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
 
     for(const address in priceDict) {
         if(priceDict[address].length > 0) {
-            let maxTvlItem = priceDict[address].reduce((prev, current) => {
+            const maxTvlItem = priceDict[address].reduce((prev, current) => {
                 if (+current.tvl > +prev.tvl) {
                     return current;
                 } else {
@@ -441,6 +458,14 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 export const getUsdRate = async (coin: string): Promise<number> => {
     const [coinAddress] = _getCoinAddressesNoCheck(coin);
     return await _getUsdRate(coinAddress);
+}
+
+export const getGasPriceFromL1 = async (): Promise<number> => {
+    if(L2Networks.includes(curve.chainId)) {
+        return await curve.contracts[curve.constants.ALIASES.gas_oracle].contract.gasPrice();
+    } else {
+        throw Error("This method exists only for L2 networks");
+    }
 }
 
 const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INetworkName => {

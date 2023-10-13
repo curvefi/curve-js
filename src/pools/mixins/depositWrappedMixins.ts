@@ -1,6 +1,6 @@
 import { curve } from "../../curve.js";
 import { PoolTemplate } from "../PoolTemplate.js";
-import { _ensureAllowance, fromBN, getEthIndex, hasAllowance, toBN, parseUnits, mulBy1_3 } from "../../utils.js";
+import { _ensureAllowance, fromBN, getEthIndex, hasAllowance, toBN, parseUnits, mulBy1_3, DIGas, smartNumber } from '../../utils.js';
 
 async function _depositWrappedCheck(this: PoolTemplate, amounts: (number | string)[], estimateGas = false): Promise<bigint[]> {
     if (this.isFake) {
@@ -38,7 +38,7 @@ async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: bigint[], 
 // @ts-ignore
 export const depositWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _depositWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _depositWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
@@ -48,9 +48,9 @@ export const depositWrapped2argsMixin: PoolTemplate = {
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, { ...curve.constantOptions, value });
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = mulBy1_3(gas);
+        const gasLimit = mulBy1_3(DIGas(gas));
         return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
     },
 
@@ -74,7 +74,7 @@ export const depositWrapped2argsMixin: PoolTemplate = {
 // @ts-ignore
 export const depositWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _depositWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _depositWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
 
         // @ts-ignore
@@ -84,9 +84,9 @@ export const depositWrapped3argsMixin: PoolTemplate = {
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, false, { ...curve.constantOptions, value });
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = mulBy1_3(gas);
+        const gasLimit = mulBy1_3(DIGas(gas));
         return (await contract.add_liquidity(_amounts, _minMintAmount, false, { ...curve.options, gasLimit, value })).hash;
     },
 

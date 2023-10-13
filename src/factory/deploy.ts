@@ -1,7 +1,7 @@
 import {ethers, Contract, Typed} from "ethers";
 import { curve } from "../curve.js";
 import { getPool } from "../pools/index.js";
-import { parseUnits, BN, mulBy1_3, getPoolIdBySwapAddress } from "../utils.js";
+import { parseUnits, BN, mulBy1_3, getPoolIdBySwapAddress, DIGas, smartNumber } from '../utils.js';
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" assert { type: 'json' };
 import Plain2ETHOracleABIABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
 
@@ -21,7 +21,7 @@ const _deployStablePlainPool = async (
     oracleAddress: string,
     methodName: string,
     estimateGas: boolean
-): Promise<ethers.ContractTransactionResponse | number> => {
+): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
     if (![2, 3, 4].includes(coins.length)) throw Error("Invalid number of coins. Must be 2, 3 or 4");
@@ -54,9 +54,9 @@ const _deployStablePlainPool = async (
     }
     const methodToCall = setOracle ? "deploy_plain_pool_and_set_oracle" : "deploy_plain_pool";
     const gas = await contract[methodToCall].estimateGas(...args, curve.constantOptions);
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract[methodToCall](...args, { ...curve.options, gasLimit });
 }
@@ -128,7 +128,7 @@ const _deployStableMetaPool = async (
     fee: number | string, // %
     implementationIdx: 0 | 1,
     estimateGas: boolean
-): Promise<ethers.ContractTransactionResponse | number> => {
+): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
     if (BN(fee).lt(0.04)) throw Error(`fee must be >= 0.04%. Passed fee = ${fee}`);
@@ -140,9 +140,9 @@ const _deployStableMetaPool = async (
 
     const contract = curve.contracts[curve.constants.ALIASES.factory].contract;
     const gas = await contract.deploy_metapool.estimateGas(basePool, name, symbol, coin, _A, _fee, implementationIdx, curve.constantOptions);
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract.deploy_metapool(basePool, name, symbol, coin, _A, _fee, implementationIdx, { ...curve.options, gasLimit });
 }
@@ -202,7 +202,7 @@ const _deployCryptoPool = async (
     maHalfTime: number, // Seconds
     initialPrice: number | string,
     estimateGas: boolean
-): Promise<ethers.ContractTransactionResponse | number> => {
+): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
     if (coins.length !== 2) throw Error("Invalid number of coins. Must be 2");
@@ -253,9 +253,9 @@ const _deployCryptoPool = async (
         _initialPrice,
         curve.constantOptions
     );
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract.deploy_pool(
         name,
@@ -363,7 +363,7 @@ const _deployTricryptoPool = async (
     emaTime: number, // Seconds
     initialPrices: (number | string)[],
     estimateGas: boolean
-): Promise<ethers.ContractTransactionResponse | number> => {
+): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (name.length > 64) throw Error("Max name length = 64");
     if (symbol.length > 32) throw Error("Max symbol length = 32");
     if (coins.length !== 3) throw Error("Invalid number of coins. Must be 3");
@@ -418,9 +418,9 @@ const _deployTricryptoPool = async (
         _initialPrices,
         curve.constantOptions
     );
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract.deploy_pool(
         name,
@@ -518,37 +518,37 @@ export const getDeployedTricryptoPoolAddress = async (tx: ethers.ContractTransac
 
 // ------- GAUGE -------
 
-const _deployGauge = async (pool: string, factory: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+const _deployGauge = async (pool: string, factory: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (curve.chainId !== 1) throw Error("There is no deployGauge method on sidechain network");
     const contract = curve.contracts[factory].contract;
     const gas = await contract.deploy_gauge.estimateGas(pool, curve.constantOptions);
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract.deploy_gauge(pool, { ...curve.options, gasLimit });
 }
 
-const _deployGaugeSidechain = async (pool: string, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+const _deployGaugeSidechain = async (pool: string, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (curve.chainId === 1) throw Error("There is no deployGaugeSidechain method on ethereum network");
     const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
     const _salt = ethers.encodeBytes32String(salt)
     const gas = await contract.deploy_gauge.estimateGas(pool, Typed.bytes32(_salt), curve.signerAddress, curve.constantOptions);
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract.deploy_gauge(pool,Typed.bytes32(_salt),curve.signerAddress, { ...curve.options, gasLimit });
 }
 
-const _deployGaugeMirror = async (chainId: number, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number> => {
+const _deployGaugeMirror = async (chainId: number, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (curve.chainId !== 1) throw Error("There is no deployGaugeMirror method on sidechain network");
     const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
     const _salt = ethers.encodeBytes32String(salt)
     const gas = await contract.deploy_gauge.estimateGas(chainId, Typed.bytes32(_salt), curve.constantOptions);
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract.deploy_gauge(chainId,Typed.bytes32(_salt), { ...curve.options, gasLimit });
 }

@@ -1,0 +1,1 @@
+export const L2Networks = [10] // <-- Will be added later: 8453 (base), 42161 (arbitrum)

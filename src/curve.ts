@@ -1,4 +1,4 @@
-import { ethers, Contract, Networkish, BigNumberish, Numeric } from "ethers";
+import { ethers, Contract, Networkish, BigNumberish, Numeric, JsonRpcSigner } from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
@@ -29,6 +29,8 @@ import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: '
 import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
 import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
+import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'} ;
+
 import {
     POOLS_DATA_ETHEREUM,
     LLAMMAS_DATA_ETHEREUM,
@@ -75,6 +77,7 @@ import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkS
 import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from "./constants/coins/base.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
+import { L2Networks } from "./constants/L2Networks";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -412,6 +415,7 @@ class Curve implements ICurve {
             }
 
 
+
             if (providerSettings.url) {
                 this.provider = new ethers.JsonRpcProvider(providerSettings.url, undefined, jsonRpcApiProviderOptions);
             } else {
@@ -592,6 +596,28 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.anycall, anycallABI);
 
         this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
+
+        if(L2Networks.includes(this.chainId)) {
+            const curveInstance = this
+            curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle, gasOracleABI);
+
+            const originalEstimate = JsonRpcSigner.prototype.estimateGas
+
+            //Override
+            const newEstimate = async function(arg: any) {
+                // @ts-ignore
+                const L2EstimateGas = originalEstimate.bind(this);
+
+                const L1GasUsed = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle].contract.getL1GasUsed(arg.data);
+
+                const L2GasUsed = await L2EstimateGas(arg);
+
+                return [L2GasUsed,L1GasUsed]
+            }
+
+            // @ts-ignore
+            JsonRpcSigner.prototype.estimateGas = newEstimate
+        }
     }
 
     setContract(address: string, abi: any): void {

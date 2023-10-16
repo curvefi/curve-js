@@ -1464,6 +1464,20 @@ import curve from "@curvefi/api";
 })()
 ```
 
+## Gas estimation L2
+For L2 networks `estimateGas` return array `[L2GasUsed, L1GasUsed]`, where `L2GasUsed` -  gas estimate for execution transaction in current L2 network, and `L1GasUsed` - gas estimate for data storage in parent L1 network.
+
+Gas Price in L1 is required to calculate the fee.
+You can use `getGasPriceFromL1` for get Gas Price in L1.
+````ts
+ const L1GasPrice = await curve.L1GasPrice()
+ // 13161051
+````
+
+**Calculate fee**
+`fee = L2GasUsed*L2GasPrice + L1GasUsed*L1GasPrice`
+
+
 ## Factory
 
 ### Fetch new pools from blockchain

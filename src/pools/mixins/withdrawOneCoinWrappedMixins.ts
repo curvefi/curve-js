@@ -1,6 +1,6 @@
 import { curve } from "../../curve.js";
 import { PoolTemplate } from "../PoolTemplate.js";
-import { fromBN, toBN, parseUnits, mulBy1_3 } from "../../utils.js";
+import { fromBN, toBN, parseUnits, mulBy1_3, smartNumber, DIGas } from '../../utils.js';
 
 // @ts-ignore
 async function _withdrawOneCoinWrappedCheck(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number):
@@ -31,14 +31,14 @@ async function _withdrawOneCoinWrappedMinAmount(this: PoolTemplate, _lpTokenAmou
 // @ts-ignore
 export const withdrawOneCoinWrappedLendingOrCryptoMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoinWrapped(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawOneCoinWrapped(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, slippage);
         const contract = curve.contracts[this.address].contract;
 
         const gas = await contract.remove_liquidity_one_coin.estimateGas(_lpTokenAmount, i, _minAmount, false, curve.constantOptions);
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * curve.parseUnits("160", 0) / curve.parseUnits("100", 0) : mulBy1_3(gas);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? DIGas(gas) * curve.parseUnits("160", 0) / curve.parseUnits("100", 0) : mulBy1_3(DIGas(gas));
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, false, { ...curve.options, gasLimit })).hash
     },
 
@@ -62,14 +62,14 @@ export const withdrawOneCoinWrappedLendingOrCryptoMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawOneCoinWrappedMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawOneCoinWrapped(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawOneCoinWrapped(_lpTokenAmount: bigint, i: number, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, slippage);
         const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.remove_liquidity_one_coin.estimateGas(_lpTokenAmount, i, _minAmount, curve.constantOptions);
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = mulBy1_3(gas);
+        const gasLimit = mulBy1_3(DIGas(gas));
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
     },
 

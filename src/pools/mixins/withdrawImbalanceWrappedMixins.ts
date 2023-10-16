@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { curve } from "../../curve.js";
 import { PoolTemplate } from "../PoolTemplate.js";
-import { fromBN, toBN, parseUnits, mulBy1_3 } from "../../utils.js";
+import { fromBN, toBN, parseUnits, mulBy1_3, smartNumber, DIGas } from '../../utils.js';
 
 // @ts-ignore
 async function _withdrawImbalanceWrappedCheck(this: PoolTemplate, amounts: (number | string)[]): Promise<ethers.BigNumbe[]> {
@@ -27,14 +27,14 @@ async function _withdrawImbalanceWrappedMaxBurnAmount(this: PoolTemplate, _amoun
 // @ts-ignore
 export const withdrawImbalanceWrapped2argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalanceWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawImbalanceWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         const _maxBurnAmount = await _withdrawImbalanceWrappedMaxBurnAmount.call(this, _amounts, slippage);
         const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.remove_liquidity_imbalance.estimateGas(_amounts, _maxBurnAmount, curve.constantOptions);
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = mulBy1_3(gas);
+        const gasLimit = mulBy1_3(DIGas(gas));
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...curve.options, gasLimit })).hash;
     },
 
@@ -58,14 +58,14 @@ export const withdrawImbalanceWrapped2argsMixin: PoolTemplate = {
 // @ts-ignore
 export const withdrawImbalanceWrapped3argsMixin: PoolTemplate = {
     // @ts-ignore
-    async _withdrawImbalanceWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number> {
+    async _withdrawImbalanceWrapped(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         const _maxBurnAmount = await _withdrawImbalanceWrappedMaxBurnAmount.call(this, _amounts, slippage);
         const  contract = curve.contracts[this.address].contract;
 
         const gas = await contract.remove_liquidity_imbalance.estimateGas(_amounts, _maxBurnAmount, false, curve.constantOptions);
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * curve.parseUnits("140", 0) / curve.parseUnits("100", 0) : mulBy1_3(gas);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? DIGas(gas) * curve.parseUnits("140", 0) / curve.parseUnits("100", 0) : mulBy1_3(DIGas(gas));
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, false, { ...curve.options, gasLimit })).hash;
     },
 

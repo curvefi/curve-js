@@ -114,6 +114,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
     "factory_admin": "",
+    "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f', // <-- NEW
 });
 
 export const ALIASES_XDAI = lowerCaseValues({

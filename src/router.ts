@@ -19,7 +19,7 @@ import {
     _cutZeros,
     ETH_ADDRESS,
     _get_small_x,
-    _get_price_impact,
+    _get_price_impact, DIGas,
 } from "./utils.js";
 import { getPool } from "./pools/index.js";
 import { _getAmplificationCoefficientsFromApi } from "./pools/utils.js";
@@ -526,7 +526,7 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
             _estimatedGasForDifferentRoutesCache[routeKey] = { 'gas': _gasAmounts[i], 'time': Date.now() };
         })
 
-        return _gasAmounts.map((_g) => Number(curve.formatUnits(_g, 0)));
+        return _gasAmounts.map((_g) => Number(curve.formatUnits(DIGas(_g), 0)));
     } catch (err) { // No allowance
         return routes.map(() => 0);
     }
@@ -764,14 +764,14 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
     const value = isEth(inputCoinAddress) ? _amount : curve.parseUnits("0");
 
     await curve.updateFeeData();
-    const gasLimit = (await contract.exchange.estimateGas(
+    const gasLimit = (DIGas(await contract.exchange.estimateGas(
         _route,
         _swapParams,
         _amount,
         _minRecvAmount,
         _pools,
         { ...curve.constantOptions, value }
-    )) * (curve.chainId === 1 ? curve.parseUnits("130", 0) : curve.parseUnits("160", 0)) / curve.parseUnits("100", 0);
+    ))) * (curve.chainId === 1 ? curve.parseUnits("130", 0) : curve.parseUnits("160", 0)) / curve.parseUnits("100", 0);
     return await contract.exchange(_route, _swapParams, _amount, _minRecvAmount, _pools, { ...curve.options, value, gasLimit })
 }
 

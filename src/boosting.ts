@@ -3,7 +3,15 @@ import BigNumber from "bignumber.js";
 import { curve } from "./curve.js";
 import { IDict, IChainId } from "./interfaces";
 import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" assert { type: 'json' };
-import { _getBalances, _prepareAddresses, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance, mulBy1_3 } from "./utils.js";
+import {
+    _getBalances,
+    _prepareAddresses, DIGas,
+    ensureAllowance,
+    ensureAllowanceEstimateGas,
+    hasAllowance,
+    mulBy1_3,
+    smartNumber
+} from "./utils.js";
 import { _ensureAllowance, toBN, toStringFromBN, parseUnits } from './utils.js';
 import { _generateBoostingProof } from './external-api.js';
 
@@ -123,7 +131,7 @@ export const createLock = async (amount: number | string, days: number): Promise
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(await contract.create_lock.estimateGas(_amount, unlockTime, curve.constantOptions));
+    const gasLimit = mulBy1_3(DIGas(await contract.create_lock.estimateGas(_amount, unlockTime, curve.constantOptions)));
     return (await contract.create_lock(_amount, unlockTime, { ...curve.options, gasLimit })).hash
 }
 
@@ -150,7 +158,7 @@ export const increaseAmount = async (amount: number | string): Promise<string> =
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(await contract.increase_amount.estimateGas(_amount, curve.constantOptions));
+    const gasLimit = mulBy1_3(DIGas(await contract.increase_amount.estimateGas(_amount, curve.constantOptions)));
     return (await contract.increase_amount(_amount, { ...curve.options, gasLimit })).hash
 }
 
@@ -159,7 +167,7 @@ export const increaseUnlockTimeEstimateGas = async (days: number): Promise<numbe
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
-    return Number(await contract.increase_unlock_time.estimateGas(newUnlockTime, curve.constantOptions))
+    return Number(DIGas(await contract.increase_unlock_time.estimateGas(newUnlockTime, curve.constantOptions)))
 }
 
 export const increaseUnlockTime = async (days: number): Promise<string> => {
@@ -168,21 +176,21 @@ export const increaseUnlockTime = async (days: number): Promise<string> => {
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(await contract.increase_unlock_time.estimateGas(newUnlockTime, curve.constantOptions));
+    const gasLimit = mulBy1_3(DIGas(await contract.increase_unlock_time.estimateGas(newUnlockTime, curve.constantOptions)));
     return (await contract.increase_unlock_time(newUnlockTime, { ...curve.options, gasLimit })).hash
 }
 
 export const withdrawLockedCrvEstimateGas = async (): Promise<number> => {
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
-    return Number(await contract.withdraw.estimateGas(curve.constantOptions))
+    return Number(DIGas(await contract.withdraw.estimateGas(curve.constantOptions)))
 }
 
 export const withdrawLockedCrv = async (): Promise<string> => {
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(await contract.withdraw.estimateGas(curve.constantOptions));
+    const gasLimit = mulBy1_3(DIGas(await contract.withdraw.estimateGas(curve.constantOptions)));
     return (await contract.withdraw({ ...curve.options, gasLimit })).hash
 }
 
@@ -196,7 +204,7 @@ export const claimFeesEstimateGas = async (address = ""): Promise<number> => {
     address = address || curve.signerAddress;
     const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
 
-    return Number(await contract.claim.estimateGas(address, curve.constantOptions));
+    return Number(DIGas(await contract.claim.estimateGas(address, curve.constantOptions)));
 }
 
 export const claimFees = async (address = ""): Promise<string> => {
@@ -204,7 +212,7 @@ export const claimFees = async (address = ""): Promise<string> => {
     const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(await contract.claim.estimateGas(address, curve.constantOptions));
+    const gasLimit = mulBy1_3(DIGas(await contract.claim.estimateGas(address, curve.constantOptions)));
     return (await contract.claim(address, { ...curve.options, gasLimit })).hash
 }
 
@@ -228,15 +236,15 @@ export const getAnycallBalance = async (): Promise<string> => {
 }
 
 const DEFAULT_AMOUNT = (curve.chainId === 42161 || curve.chainId === 10) ? 0.00001 : 0.1;
-const _topUpAnycall = async (amount: number | string, estimateGas: boolean): Promise<string | number> => {
+const _topUpAnycall = async (amount: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId === 1) throw Error("There is no topUpAnycall method on ethereum network");
     const anycallContract = curve.contracts[curve.constants.ALIASES.anycall].contract;
     const value = curve.parseUnits(String(amount));
     const gas = await anycallContract.deposit.estimateGas(curve.constants.ALIASES.voting_escrow_oracle, { ...curve.constantOptions, value});
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     return (await anycallContract.deposit(curve.constants.ALIASES.voting_escrow_oracle, { ...curve.options, gasLimit, value })).hash;
 }
 
@@ -260,14 +268,14 @@ export const blockToSend = async (): Promise<number> => {
     return (await curve.provider.getBlockNumber()) - 128;
 }
 
-const _sendBlockhash = async (block: number, chainId: IChainId, estimateGas: boolean): Promise<string | number> => {
+const _sendBlockhash = async (block: number, chainId: IChainId, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("sendBlockhash method is on ethereum network only");
     const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
     const gas = await veOracleContract.send_blockhash.estimateGas(block, chainId, curve.constantOptions);
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     return (await veOracleContract.send_blockhash(block, chainId, { ...curve.options, gasLimit })).hash;
 }
 
@@ -279,16 +287,16 @@ export const sendBlockhash = async (block: number, chainId: IChainId): Promise<s
     return await _sendBlockhash(block, chainId, false) as string;
 }
 
-const _submitProof = async (block: number, address = curve.signerAddress, estimateGas: boolean): Promise<string | number> => {
+const _submitProof = async (block: number, address = curve.signerAddress, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId === 1) throw Error("submitProof method is on ethereum network only");
     if (address === "") throw Error("Pass address you want to submit proof for")
     const proof = await _generateBoostingProof(block, address);
     const veOracleContract = curve.contracts[curve.constants.ALIASES.voting_escrow_oracle].contract;
     const gas = await veOracleContract.submit_state.estimateGas(address, "0x" + proof.block_header_rlp, "0x" + proof.proof_rlp, curve.constantOptions);
-    if (estimateGas) return Number(gas);
+    if (estimateGas) return smartNumber(gas);
 
     await curve.updateFeeData();
-    const gasLimit = mulBy1_3(gas);
+    const gasLimit = mulBy1_3(DIGas(gas));
     return (await veOracleContract.submit_state(address, "0x" + proof.block_header_rlp, "0x" + proof.proof_rlp, { ...curve.options, gasLimit })).hash;
 }
 

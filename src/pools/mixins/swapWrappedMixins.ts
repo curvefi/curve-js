@@ -12,7 +12,8 @@ import {
     toBN,
     parseUnits,
     mulBy1_3,
-} from "../../utils.js";
+    DIGas,
+    smartNumber } from '../../utils.js';
 
 // @ts-ignore
 async function _swapWrappedCheck(
@@ -55,7 +56,7 @@ async function _swapWrappedMinAmount(this: PoolTemplate, i: number, j: number, _
 // @ts-ignore
 export const swapWrappedTricrypto2Mixin: PoolTemplate = {
     // @ts-ignore
-    async _swapWrapped(i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _swapWrapped(i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         if (!estimateGas) await _ensureAllowance([this.wrappedCoinAddresses[i]], [_amount], this.address);
 
         const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
@@ -63,9 +64,9 @@ export const swapWrappedTricrypto2Mixin: PoolTemplate = {
         const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : curve.parseUnits("0");
 
         const gas = await contract.exchange.estimateGas(i, j, _amount, _minRecvAmount, false, { ...curve.constantOptions, value });
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = mulBy1_3(gas);
+        const gasLimit = mulBy1_3(DIGas(gas));
         return (await contract.exchange(i, j, _amount, _minRecvAmount, false, { ...curve.options, value, gasLimit })).hash
     },
 
@@ -89,7 +90,7 @@ export const swapWrappedTricrypto2Mixin: PoolTemplate = {
 // @ts-ignore
 export const swapWrappedMixin: PoolTemplate = {
     // @ts-ignore
-    async _swapWrapped(i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number> {
+    async _swapWrapped(i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         if (!estimateGas) await _ensureAllowance([this.wrappedCoinAddresses[i]], [_amount], this.address);
 
         const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
@@ -97,9 +98,9 @@ export const swapWrappedMixin: PoolTemplate = {
         const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : curve.parseUnits("0");
 
         const gas = await contract.exchange.estimateGas(i, j, _amount, _minRecvAmount, { ...curve.constantOptions, value });
-        if (estimateGas) return Number(gas);
+        if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * curve.parseUnits("140", 0) / curve.parseUnits("100", 0) : mulBy1_3(gas);
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? DIGas(gas) * curve.parseUnits("140", 0) / curve.parseUnits("100", 0) : mulBy1_3(DIGas(gas));
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...curve.options, value, gasLimit })).hash
     },
 
@@ -165,5 +166,5 @@ export const swapWrappedRequiredMixin: PoolTemplate = {
         const _required = await this._swapRequired(i, j, _amount, false);
 
         return curve.formatUnits(_required, this.wrappedDecimals[i])
-    }
+    },
 }

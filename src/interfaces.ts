@@ -47,6 +47,7 @@ export interface IPoolData {
     sCurveRewards_abi?: any,
     in_api?: boolean,
     is_gauge_killed?: boolean,
+    gauge_status?: Record<string, boolean> | null,
 }
 
 export interface ICurve {

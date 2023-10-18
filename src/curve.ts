@@ -82,13 +82,18 @@ import { L2Networks } from "./constants/L2Networks";
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
     const isKilled: IDict<boolean> = {};
+    const gaugeStatuses: IDict<Record<string, boolean> | null> = {};
     Object.values(gaugeData).forEach((d) => {
         isKilled[d.gauge.toLowerCase()] = d.is_killed ?? false;
+        gaugeStatuses[d.gauge.toLowerCase()] = d.gaugeStatus ?? null;
     });
 
     for (const poolId in poolsData) {
         if (isKilled[poolsData[poolId].gauge_address]) {
             poolsData[poolId].is_gauge_killed = true;
+        }
+        if (gaugeStatuses[poolsData[poolId].gauge_address]) {
+            poolsData[poolId].gauge_status = gaugeStatuses[poolsData[poolId].gauge_address];
         }
     }
 }

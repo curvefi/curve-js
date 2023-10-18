@@ -67,6 +67,7 @@ export class PoolTemplate {
     useLending: boolean[];
     inApi: boolean;
     isGaugeKilled: boolean;
+    gaugeStatus: Record<string, boolean> | null;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number>,
         deposit: (amounts: (number | string)[]) => Promise<number>,
@@ -160,6 +161,7 @@ export class PoolTemplate {
         this.useLending = poolData.use_lending || poolData.underlying_coin_addresses.map(() => false);
         this.inApi = poolData.in_api ?? false;
         this.isGaugeKilled = poolData.is_gauge_killed ?? false;
+        this.gaugeStatus = poolData.gauge_status ?? null;
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),

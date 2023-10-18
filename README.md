@@ -383,6 +383,13 @@ import curve from "@curvefi/api";
     // true
     pool.isGaugeKilled;
     // false
+    pool.gaugeStatus;
+    // null OR
+    //{
+    //      rewardsNeedNudging: false,
+    //      areCrvRewardsStuckInBridge: false,
+    //
+    // }
 })()
 ````
 

@@ -83,7 +83,7 @@ export const _getFactoryAPYsAndVolumes = memoize(
 )
 
 export const _getAllGauges = memoize(
-    async (): Promise<IDict<{ gauge: string, is_killed?: boolean }>> => {
+    async (): Promise<IDict<{ gauge: string, is_killed?: boolean, gaugeStatus?: Record<string, boolean> | null }>> => {
         const url = `https://api.curve.fi/api/getAllGauges`;
         const response = await axios.get(url, { validateStatus: () => true });
 

@@ -29,7 +29,7 @@ import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: '
 import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
 import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
-import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'} ;
+import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
 
 import {
     POOLS_DATA_ETHEREUM,
@@ -408,6 +408,7 @@ class Curve implements ICurve {
             ZERO_ADDRESS: ethers.ZeroAddress,
         };
 
+
         // JsonRpc provider
         if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
             providerSettings = providerSettings as { url: string, privateKey: string, batchMaxCount? : number };
@@ -602,12 +603,28 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
 
+
         if(L2Networks.includes(this.chainId)) {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const curveInstance = this;
             curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle, gasOracleABI);
 
+            // @ts-ignore
+            if(JsonRpcSigner.prototype.originalEstimate) {
+                // @ts-ignore
+                JsonRpcSigner.prototype.estimateGas = JsonRpcSigner.prototype.originalEstimate;
+            }
+
             const originalEstimate = JsonRpcSigner.prototype.estimateGas;
+
+            const oldEstimate = async function(arg: any) {
+                // @ts-ignore
+                const originalEstimateFunc = originalEstimate.bind(this);
+
+                const gas = await originalEstimateFunc(arg);
+
+                return gas;
+            }
 
             //Override
             const newEstimate = async function(arg: any) {
@@ -618,11 +635,19 @@ class Curve implements ICurve {
 
                 const L2GasUsed = await L2EstimateGas(arg);
 
-                return [L2GasUsed,L1GasUsed]
+                return [L2GasUsed,L1GasUsed];
             }
 
             // @ts-ignore
-            JsonRpcSigner.prototype.estimateGas = newEstimate
+            JsonRpcSigner.prototype.estimateGas = newEstimate;
+            // @ts-ignore
+            JsonRpcSigner.prototype.originalEstimate = oldEstimate;
+        } else {
+            // @ts-ignore
+            if(JsonRpcSigner.prototype.originalEstimate) {
+                // @ts-ignore
+                JsonRpcSigner.prototype.estimateGas = JsonRpcSigner.prototype.originalEstimate;
+            }
         }
     }
 

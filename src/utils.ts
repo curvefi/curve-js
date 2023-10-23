@@ -76,6 +76,24 @@ export const DIGas = (gas: bigint | Array<bigint>): bigint => {
     }
 }
 
+export const getGasFromArray = (gas: number[]): number | number[] => {
+    if(gas.length === 1) {
+        return gas[0];
+    } else {
+        return gas;
+    }
+}
+
+export const gasSum = (gas: number[], currentGas: number | number[]): number[] => {
+    if(Array.isArray(currentGas)) {
+        gas[0] = gas[0] + currentGas[0];
+        gas[1] = gas[1] + currentGas[1];
+    } else {
+        gas[0] = gas[0] + currentGas;
+    }
+    return gas
+}
+
 // coins can be either addresses or symbols
 export const _getCoinAddressesNoCheck = (...coins: string[] | string[][]): string[] => {
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
@@ -218,26 +236,28 @@ export const _ensureAllowance = async (coins: string[], amounts: bigint[], spend
 }
 
 // coins can be either addresses or symbols
-export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<number> => {
+export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<number | number[]> => {
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     const address = curve.signerAddress;
     const allowance: bigint[] = await _getAllowance(coinAddresses, address, spender);
 
-    let gas = 0;
+    let gas = [0,0];
     for (let i = 0; i < allowance.length; i++) {
         if (allowance[i] < _amounts[i]) {
             const contract = curve.contracts[coinAddresses[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
             if (allowance[i] > curve.parseUnits("0")) {
-                gas += Number(DIGas(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions)));
+                const currentGas = smartNumber(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions));
+                gas = gasSum(gas, currentGas);
             }
-            gas += Number(DIGas(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions)));
+            const currentGas = smartNumber(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
+            gas = gasSum(gas, currentGas);
         }
     }
 
-    return gas
+    return getGasFromArray(gas);
 }
 
 // coins can be either addresses or symbols

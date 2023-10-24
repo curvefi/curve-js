@@ -6,7 +6,7 @@ import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
 import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getAllPoolsFromApi, _getSubgraphData } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
-import { L2Networks } from './constants/L2Networks';
+import { L2Networks } from './constants/L2Networks.js';
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

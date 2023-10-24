@@ -1,4 +1,4 @@
-import { ethers, Contract, Networkish, BigNumberish, Numeric, JsonRpcSigner } from "ethers";
+import { ethers, Contract, Networkish, BigNumberish, Numeric, AbstractProvider } from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
@@ -610,12 +610,12 @@ class Curve implements ICurve {
             curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle, gasOracleABI);
 
             // @ts-ignore
-            if(JsonRpcSigner.prototype.originalEstimate) {
+            if(AbstractProvider.prototype.originalEstimate) {
                 // @ts-ignore
-                JsonRpcSigner.prototype.estimateGas = JsonRpcSigner.prototype.originalEstimate;
+                AbstractProvider.prototype.estimateGas = AbstractProvider.prototype.originalEstimate;
             }
 
-            const originalEstimate = JsonRpcSigner.prototype.estimateGas;
+            const originalEstimate = AbstractProvider.prototype.estimateGas;
 
             const oldEstimate = async function(arg: any) {
                 // @ts-ignore
@@ -639,14 +639,14 @@ class Curve implements ICurve {
             }
 
             // @ts-ignore
-            JsonRpcSigner.prototype.estimateGas = newEstimate;
+            AbstractProvider.prototype.estimateGas = newEstimate;
             // @ts-ignore
-            JsonRpcSigner.prototype.originalEstimate = oldEstimate;
+            AbstractProvider.prototype.originalEstimate = oldEstimate;
         } else {
             // @ts-ignore
-            if(JsonRpcSigner.prototype.originalEstimate) {
+            if(AbstractProvider.prototype.originalEstimate) {
                 // @ts-ignore
-                JsonRpcSigner.prototype.estimateGas = JsonRpcSigner.prototype.originalEstimate;
+                AbstractProvider.prototype.estimateGas = AbstractProvider.prototype.originalEstimate;
             }
         }
     }

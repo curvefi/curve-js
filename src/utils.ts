@@ -77,7 +77,7 @@ export const DIGas = (gas: bigint | Array<bigint>): bigint => {
 }
 
 export const getGasFromArray = (gas: number[]): number | number[] => {
-    if(gas.length === 1) {
+    if(gas[1] === 0) {
         return gas[0];
     } else {
         return gas;
@@ -91,7 +91,7 @@ export const gasSum = (gas: number[], currentGas: number | number[]): number[] =
     } else {
         gas[0] = gas[0] + currentGas;
     }
-    return gas
+    return gas;
 }
 
 // coins can be either addresses or symbols

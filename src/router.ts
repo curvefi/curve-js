@@ -653,7 +653,7 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
 
     const _output = await _getOutputForRoute(route, parseUnits(amount, inputCoinDecimals)); // 15 seconds cache, so we call it to get fresh output estimation
 
-    return { route, output: curve.formatUnits(_output, outputCoinDecimals) }
+    return { route, output: curve.formatUnits(_output + BigInt(1), outputCoinDecimals) }
 }
 
 export const getArgs = (route: IRoute): {

@@ -77,7 +77,7 @@ import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkS
 import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from "./constants/coins/base.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
-import { L2Networks } from "./constants/L2Networks";
+import { L2Networks } from "./constants/L2Networks.js";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -603,10 +603,11 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
 
         if(L2Networks.includes(this.chainId)) {
-            const curveInstance = this
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const curveInstance = this;
             curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle, gasOracleABI);
 
-            const originalEstimate = JsonRpcSigner.prototype.estimateGas
+            const originalEstimate = JsonRpcSigner.prototype.estimateGas;
 
             //Override
             const newEstimate = async function(arg: any) {

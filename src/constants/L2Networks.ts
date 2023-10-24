@@ -1,1 +1,1 @@
-export const L2Networks = [10] // <-- Will be added later: 8453 (base), 42161 (arbitrum)
+export const L2Networks = [10, 8453] // 42161 (arbitrum) is L2 network, but does not need a change to estimateGas.

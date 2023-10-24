@@ -248,6 +248,7 @@ export const ALIASES_BASE = lowerCaseValues({
     "crypto_factory": '0x5EF72230578b3e399E6C6F4F6360edF95e83BBfd',
     "tricrypto_factory": '0xA5961898870943c68037F6848d2D866Ed2016bcB',
     "factory_admin": "0x0000000000000000000000000000000000000000",
+    "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f', // <-- NEW
 });
 
 

@@ -10,7 +10,7 @@ import {
     ensureAllowanceEstimateGas,
     hasAllowance,
     mulBy1_3,
-    smartNumber
+    smartNumber,
 } from "./utils.js";
 import { _ensureAllowance, toBN, toStringFromBN, parseUnits } from './utils.js';
 import { _generateBoostingProof } from './external-api.js';
@@ -91,7 +91,7 @@ export const isApproved = async (amount: number | string): Promise<boolean> => {
     return await hasAllowance([curve.constants.ALIASES.crv], [amount], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
 }
 
-export const approveEstimateGas = async (amount: number | string): Promise<number> => {
+export const approveEstimateGas = async (amount: number | string): Promise<number | number[]> => {
     return await ensureAllowanceEstimateGas([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow, false);
 }
 

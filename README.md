@@ -1472,6 +1472,11 @@ import curve from "@curvefi/api";
 ```
 
 ## Gas estimation L2
+
+**Only for OPTIMISM and BASE!**
+
+Arbitrium is also L2 network, but for estimateGas should use default method `estimateGas`, which return `Number`.
+
 For L2 networks `estimateGas` return array `[L2GasUsed, L1GasUsed]`, where `L2GasUsed` -  gas estimate for execution transaction in current L2 network, and `L1GasUsed` - gas estimate for data storage in parent L1 network.
 
 Gas Price in L1 is required to calculate the fee.

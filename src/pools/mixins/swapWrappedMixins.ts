@@ -141,7 +141,7 @@ export const swapWrappedExpectedAndApproveMixin: PoolTemplate = {
         return await hasAllowance([this.wrappedCoinAddresses[i]], [amount], curve.signerAddress, this.address);
     },
 
-    async swapWrappedApproveEstimateGas(inputCoin: string | number, amount: number | string): Promise<number> {
+    async swapWrappedApproveEstimateGas(inputCoin: string | number, amount: number | string): Promise<number | number[]> {
         // @ts-ignore
         const i = this._getCoinIdx(inputCoin, false);
         return await ensureAllowanceEstimateGas([this.wrappedCoinAddresses[i]], [amount], this.address);

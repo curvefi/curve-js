@@ -725,7 +725,7 @@ export const swapIsApproved = async (inputCoin: string, amount: number | string)
     return await hasAllowance([inputCoin], [amount], curve.signerAddress, curve.constants.ALIASES.router);
 }
 
-export const swapApproveEstimateGas = async (inputCoin: string, amount: number | string): Promise<number> => {
+export const swapApproveEstimateGas = async (inputCoin: string, amount: number | string): Promise<number | number[]> => {
     return await ensureAllowanceEstimateGas([inputCoin], [amount], curve.constants.ALIASES.router);
 }
 

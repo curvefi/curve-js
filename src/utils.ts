@@ -489,6 +489,15 @@ export const getGasPriceFromL1 = async (): Promise<number> => {
     }
 }
 
+export const getGasPriceFromL2 = async (): Promise<number> => {
+    if(L2Networks.includes(curve.chainId)) {
+        const gasPrice = await curve.contracts[curve.constants.ALIASES.gas_oracle].contract.gasPrice();
+        return Number(gasPrice);
+    } else {
+        throw Error("This method exists only for L2 networks");
+    }
+}
+
 export const getTxCostsUsd = (ethUsdRate: number, gasPrice: number, gas: number | number[], gasPriceL1 = 0): number => {
     if(Array.isArray(gas)) {
         return ethUsdRate * ((gas[0] * gasPrice / 1e18) + (gas[1] * gasPriceL1 / 1e18));

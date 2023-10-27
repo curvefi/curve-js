@@ -1482,7 +1482,7 @@ For L2 networks `estimateGas` return array `[L2GasUsed, L1GasUsed]`, where `L2Ga
 Gas Price in L1 is required to calculate the fee.
 You can use `getGasPriceFromL1` for get Gas Price in L1.
 ````ts
- const L1GasPrice = await curve.L1GasPrice()
+ const L1GasPrice = await curve.getGasPriceFromL1()
  // 13161051
 ````
 

@@ -19,10 +19,15 @@ import {
     _cutZeros,
     ETH_ADDRESS,
     _get_small_x,
-    _get_price_impact, DIGas,
+    _get_price_impact,
+    DIGas,
+    smartNumber,
+    getTxCostsUsd,
+    getGasPriceFromL1,
 } from "./utils.js";
 import { getPool } from "./pools/index.js";
 import { _getAmplificationCoefficientsFromApi } from "./pools/utils.js";
+import { L2Networks } from "./constants/L2Networks.js";
 
 
 const MAX_STEPS = 5;
@@ -495,18 +500,18 @@ const _getExchangeArgs = (route: IRoute): {
     return { _route, _swapParams, _pools, _basePools, _baseTokens, _secondBasePools, _secondBaseTokens }
 }
 
-const _estimatedGasForDifferentRoutesCache: IDict<{ gas: bigint, time: number }> = {};
+const _estimatedGasForDifferentRoutesCache: IDict<{ gas: bigint | bigint[], time: number }> = {};
 
-const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress: string, outputCoinAddress: string, _amount: bigint): Promise<number[]> => {
+const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress: string, outputCoinAddress: string, _amount: bigint): Promise<Array<number | number[]>> => {
     inputCoinAddress = inputCoinAddress.toLowerCase();
     outputCoinAddress = outputCoinAddress.toLowerCase();
 
     const contract = curve.contracts[curve.constants.ALIASES.router].contract;
-    const gasPromises: Promise<bigint>[] = [];
+    const gasPromises: Promise<bigint | bigint[]>[] = [];
     const value = isEth(inputCoinAddress) ? _amount : curve.parseUnits("0");
     for (const route of routes) {
         const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
-        let gasPromise: Promise<bigint>;
+        let gasPromise: Promise<bigint | bigint[]>;
         const { _route, _swapParams, _pools } = _getExchangeArgs(route);
 
         if ((_estimatedGasForDifferentRoutesCache[routeKey]?.time || 0) + 3600000 < Date.now()) {
@@ -517,16 +522,15 @@ const _estimateGasForDifferentRoutes = async (routes: IRoute[], inputCoinAddress
 
         gasPromises.push(gasPromise);
     }
-
     try {
-        const _gasAmounts: bigint[] = await Promise.all(gasPromises);
+        const _gasAmounts: Array<bigint | bigint[]> = await Promise.all(gasPromises);
 
         routes.forEach((route, i: number) => {
             const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
             _estimatedGasForDifferentRoutesCache[routeKey] = { 'gas': _gasAmounts[i], 'time': Date.now() };
         })
 
-        return _gasAmounts.map((_g) => Number(curve.formatUnits(DIGas(_g), 0)));
+        return _gasAmounts.map((_g) => smartNumber(_g));
     } catch (err) { // No allowance
         return routes.map(() => 0);
     }
@@ -596,7 +600,6 @@ const _getBestRoute = memoize(
                 routes.push(routesRaw[i]);
             }
         }
-
         if (routes.length === 0) return [];
         if (routes.length === 1) return routes[0].route;
 
@@ -612,7 +615,10 @@ const _getBestRoute = memoize(
         );
 
         const expectedAmountsUsd = expectedAmounts.map((a) => a * outputCoinUsdRate);
-        const txCostsUsd = gasAmounts.map((a) => ethUsdRate * a * gasPrice / 1e18);
+
+        const L1GasPrice = L2Networks.includes(curve.chainId) ? await getGasPriceFromL1() : 0;
+
+        const txCostsUsd = gasAmounts.map((a) => getTxCostsUsd(ethUsdRate, gasPrice, a, L1GasPrice));
 
         routes.forEach((route, i) => {
             route.outputUsd = expectedAmountsUsd[i];
@@ -733,7 +739,7 @@ export const swapApprove = async (inputCoin: string, amount: number | string): P
     return await ensureAllowance([inputCoin], [amount], curve.constants.ALIASES.router);
 }
 
-export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number> => {
+export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number | number[]> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
     const { route } = await getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);

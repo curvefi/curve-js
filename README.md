@@ -1483,11 +1483,17 @@ Gas Price in L1 is required to calculate the fee.
 You can use `getGasPriceFromL1` for get Gas Price in L1.
 ````ts
  const L1GasPrice = await curve.getGasPriceFromL1()
- // 13161051
+ // 23348207475
 ````
 
 **Calculate fee**
 `fee = L2GasUsed*L2GasPrice + L1GasUsed*L1GasPrice`
+
+For OP and Base networks you can get `L2GasPrice` from `curve.getGasPriceFromL2`
+````ts
+ const L2GasPrice = await curve.getGasPriceFromL2()
+ // 13161051
+````
 
 
 ## Factory

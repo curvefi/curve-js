@@ -25,6 +25,7 @@ import {
     _getRewardsFromApi,
     mulBy1_3,
     smartNumber,
+    DIGas,
 } from '../utils.js';
 import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
 import { curve as _curve, curve } from "../curve.js";
@@ -76,8 +77,8 @@ export class PoolTemplate {
         depositWrapped: (amounts: (number | string)[]) => Promise<number | number[]>,
         stakeApprove: (lpTokenAmount: number | string) => Promise<number | number[]>,
         stake: (lpTokenAmount: number | string) => Promise<number>,
-        unstake: (lpTokenAmount: number | string) => Promise<number>,
-        claimCrv: () => Promise<number>,
+        unstake: (lpTokenAmount: number | string) => Promise<number | number[]>,
+        claimCrv: () => Promise<number | number[]>,
         claimRewards: () => Promise<number>,
         depositAndStakeApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         depositAndStake: (amounts: (number | string)[]) => Promise<number>,
@@ -907,12 +908,12 @@ export class PoolTemplate {
         return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
-    private async unstakeEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    private async unstakeEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`unstakeEstimateGas method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const _lpTokenAmount = parseUnits(lpTokenAmount);
-        return Number(await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions));
+        return smartNumber(await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions));
     }
 
     public async unstake(lpTokenAmount: number | string): Promise<string> {
@@ -922,7 +923,7 @@ export class PoolTemplate {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
 
         await curve.updateFeeData();
-        const gasLimit = (await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions)) * curve.parseUnits("200", 0) / curve.parseUnits("100", 0);
+        const gasLimit = DIGas((await curve.contracts[this.gauge].contract.withdraw.estimateGas(_lpTokenAmount, curve.constantOptions))) * curve.parseUnits("200", 0) / curve.parseUnits("100", 0);
         return (await curve.contracts[this.gauge].contract.withdraw(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
@@ -1000,12 +1001,12 @@ export class PoolTemplate {
         return curve.formatUnits(await curve.contracts[this.gauge].contract.claimable_tokens(address, curve.constantOptions));
     }
 
-    public async claimCrvEstimateGas(): Promise<number> {
+    public async claimCrvEstimateGas(): Promise<number | number[]> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
         if(curve.chainId === 1) {
             return Number(await curve.contracts[curve.constants.ALIASES.minter].contract.mint.estimateGas(this.gauge, curve.constantOptions));
         } else {
-            return Number(await curve.contracts[curve.constants.ALIASES.gauge_factory].contract.mint.estimateGas(this.gauge, curve.constantOptions));
+            return smartNumber(await curve.contracts[curve.constants.ALIASES.gauge_factory].contract.mint.estimateGas(this.gauge, curve.constantOptions));
         }
     }
 
@@ -1013,7 +1014,7 @@ export class PoolTemplate {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
         const contract = curve.chainId === 1 ? curve.contracts[curve.constants.ALIASES.minter].contract : curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
 
-        const gasLimit = mulBy1_3(await contract.mint.estimateGas(this.gauge, curve.constantOptions));
+        const gasLimit = mulBy1_3(DIGas(await contract.mint.estimateGas(this.gauge, curve.constantOptions)));
         return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
 
@@ -1477,7 +1478,7 @@ export class PoolTemplate {
         return await this._depositAndStake(amounts, slippage, false, false) as string
     }
 
-    private async _depositAndStake(amounts: (number | string)[], slippage: number, isUnderlying: boolean, estimateGas: boolean): Promise<string | number> {
+    private async _depositAndStake(amounts: (number | string)[], slippage: number, isUnderlying: boolean, estimateGas: boolean): Promise<string | number | number[]> {
         const coinAddresses = isUnderlying ? [...this.underlyingCoinAddresses] : [...this.wrappedCoinAddresses];
         const coins = isUnderlying ? this.underlyingCoins : this.wrappedCoinAddresses;
         const decimals = isUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
@@ -1538,10 +1539,10 @@ export class PoolTemplate {
             { ...curve.constantOptions, value }
         ))
 
-        if (estimateGas) return Number(_gas)
+        if (estimateGas) return smartNumber(_gas)
 
         await curve.updateFeeData();
-        const gasLimit = _gas * curve.parseUnits("200", 0) / curve.parseUnits("100", 0);
+        const gasLimit = DIGas(_gas) * curve.parseUnits("200", 0) / curve.parseUnits("100", 0);
         return (await contract.deposit_and_stake(
             depositAddress,
             this.lpToken,

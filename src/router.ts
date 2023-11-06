@@ -266,6 +266,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
             for (let k = 0; k < coins.length; k++) {
                 for (let l = 0; l < coins.length; l++) {
                     if (k > 0 && l > 0) continue;
+                    if (k == 0 && l == 0) continue;
                     const i = Math.max(k - 1, 0);
                     const j = Math.max(l - 1, 0);
                     const swapType = k == 0 ? 6 : 4;
@@ -295,6 +296,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
             for (let k = 0; k < coins.length; k++) {
                 for (let l = 0; l < coins.length; l++) {
                     if (k > 0 && l > 0) continue;
+                    if (k == 0 && l == 0) continue;
                     const i = Math.max(k - 1, 0);
                     const j = Math.max(l - 1, 0);
                     let swapType: ISwapType = isAaveLikeLending ? 7 : 6;

@@ -46,6 +46,7 @@ import {
     POOLS_DATA_CELO,
     POOLS_DATA_ZKSYNC,
     POOLS_DATA_BASE,
+    POOLS_DATA_BSC,
 } from './constants/pools/index.js';
 import {
     ALIASES_ETHEREUM,
@@ -61,6 +62,7 @@ import {
     ALIASES_CELO,
     ALIASES_ZKSYNC,
     ALIASES_BASE,
+    ALIASES_BSC,
 } from "./constants/aliases.js";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
@@ -75,6 +77,7 @@ import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from
 import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo.js";
 import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkSync } from "./constants/coins/zksync.js";
 import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from "./constants/coins/base.js";
+import { COINS_BSC, cTokensBsc,  yTokensBsc, ycTokensBsc, aTokensBsc } from "./constants/coins/bsc.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
@@ -110,6 +113,12 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WETH',
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
+    },
+    56: { // BSC
+        symbol: 'BNB',
+        wrappedSymbol: 'WBNB',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'.toLowerCase(),
     },
     100: { // XDAI
         symbol: 'XDAi',
@@ -200,6 +209,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensOptimism,
         ycTokens: ycTokensOptimism,
         aTokens: aTokensOptimism,
+    },
+    56: {
+        NAME: 'bsc',
+        ALIASES: ALIASES_BSC,
+        POOLS_DATA: POOLS_DATA_BSC,
+        COINS: COINS_BSC,
+        cTokens: cTokensBsc,
+        yTokens: yTokensBsc,
+        ycTokens: ycTokensBsc,
+        aTokens: aTokensBsc ,
     },
     100: {
         NAME: 'xdai',
@@ -602,7 +621,6 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.anycall, anycallABI);
 
         this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
-
 
         if(L2Networks.includes(this.chainId)) {
             // eslint-disable-next-line @typescript-eslint/no-this-alias

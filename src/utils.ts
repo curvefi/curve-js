@@ -407,6 +407,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     let chainName = {
         1: 'ethereum',
         10: 'optimistic-ethereum',
+        56: "bsc",
         100: 'xdai',
         137: 'polygon-pos',
         250: 'fantom',
@@ -423,6 +424,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     const nativeTokenName = {
         1: 'ethereum',
         10: 'ethereum',
+        56: 'bnb',
         100: 'xdai',
         137: 'matic-network',
         250: 'fantom',
@@ -536,9 +538,9 @@ export const getTVL = async (network: INetworkName | IChainId = curve.chainId): 
 
 export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
     network = _getNetworkName(network);
-    if (["zksync", "moonbeam", "kava", "base", "celo", "aurora"].includes(network)) {
+    if (["zksync", "moonbeam", "kava", "base", "celo", "aurora", "bsc"].includes(network)) {
         const chainId = _getChainId(network);
-        if (curve.chainId !== chainId) throw Error("To get volume for ZkSync, Moonbeam, Kava, Base, Celo or Aurora connect to the network first");
+        if (curve.chainId !== chainId) throw Error("To get volume for ZkSync, Moonbeam, Kava, Base, Celo, Aurora or Bsc connect to the network first");
         const [mainPoolsData, factoryPoolsData] = await Promise.all([
             _getLegacyAPYsAndVolumes(network),
             _getFactoryAPYsAndVolumes(network),

@@ -18,8 +18,8 @@ export const BLACK_LIST: { [index: number]: any } = {
         "0x88c4d6534165510b2e2caf0a130d4f70aa4b6d71",
     ],
     42161: [
-        "0xd7bb79aee866672419999a0496d99c54741d67b5"
-    ]
+        "0xd7bb79aee866672419999a0496d99c54741d67b5",
+    ],
 }
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));

@@ -290,7 +290,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
         }
 
         // Underlying coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)
-        if ((poolData.is_fake || isAaveLikeLending) && underlyingCoinAddresses.length < 6) {
+        if ((poolData.is_fake || isAaveLikeLending) && (poolId !== 'aave' || curve.chainId !== 1) && underlyingCoinAddresses.length < 6) {
             const coins = [tokenAddress, ...underlyingCoinAddresses];
             for (let k = 0; k < coins.length; k++) {
                 for (let l = 0; l < coins.length; l++) {
@@ -348,7 +348,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
             poolData.deposit_address as string : poolData.swap_address;
 
         // Underlying swaps
-        if (!poolData.is_plain) {
+        if (!poolData.is_plain && (poolId !== 'aave' || curve.chainId !== 1)) {
             for (let i = 0; i < underlyingCoinAddresses.length; i++) {
                 for (let j = 0; j < underlyingCoinAddresses.length; j++) {
                     if (i === j) continue;

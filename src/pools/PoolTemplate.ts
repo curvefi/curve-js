@@ -76,25 +76,25 @@ export class PoolTemplate {
         depositWrappedApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         depositWrapped: (amounts: (number | string)[]) => Promise<number | number[]>,
         stakeApprove: (lpTokenAmount: number | string) => Promise<number | number[]>,
-        stake: (lpTokenAmount: number | string) => Promise<number>,
+        stake: (lpTokenAmount: number | string) => Promise<number | number[]>,
         unstake: (lpTokenAmount: number | string) => Promise<number | number[]>,
         claimCrv: () => Promise<number | number[]>,
-        claimRewards: () => Promise<number>,
+        claimRewards: () => Promise<number | number[]>,
         depositAndStakeApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         depositAndStake: (amounts: (number | string)[]) => Promise<number>,
         depositAndStakeWrappedApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
-        depositAndStakeWrapped: (amounts: (number | string)[]) => Promise<number>,
+        depositAndStakeWrapped: (amounts: (number | string)[]) => Promise<number | number[]>,
         withdrawApprove: (lpTokenAmount: number | string) => Promise<number | number[]>,
-        withdraw: (lpTokenAmount: number | string) => Promise<number>,
-        withdrawWrapped: (lpTokenAmount: number | string) => Promise<number>,
+        withdraw: (lpTokenAmount: number | string) => Promise<number | number[]>,
+        withdrawWrapped: (lpTokenAmount: number | string) => Promise<number | number[]>,
         withdrawImbalanceApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
-        withdrawImbalance: (amounts: (number | string)[]) => Promise<number>,
-        withdrawImbalanceWrapped: (amounts: (number | string)[]) => Promise<number>,
+        withdrawImbalance: (amounts: (number | string)[]) => Promise<number | number[]>,
+        withdrawImbalanceWrapped: (amounts: (number | string)[]) => Promise<number | number[]>,
         withdrawOneCoinApprove: (lpTokenAmount: number | string) => Promise<number | number[]>,
-        withdrawOneCoin: (lpTokenAmount: number | string, coin: string | number) => Promise<number>,
-        withdrawOneCoinWrapped: (lpTokenAmount: number | string, coin: string | number) => Promise<number>,
+        withdrawOneCoin: (lpTokenAmount: number | string, coin: string | number) => Promise<number | number[]>,
+        withdrawOneCoinWrapped: (lpTokenAmount: number | string, coin: string | number) => Promise<number | number[]>,
         swapApprove: (inputCoin: string | number, amount: number | string) => Promise<number | number[]>,
-        swap: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number>,
+        swap: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number | number[]>,
         swapWrappedApprove: (inputCoin: string | number, amount: number | string) => Promise<number | number[]>,
         swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number | number[]>,
     };
@@ -888,12 +888,12 @@ export class PoolTemplate {
         return await ensureAllowance([this.lpToken], [lpTokenAmount], this.gauge);
     }
 
-    private async stakeEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    private async stakeEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`stakeEstimateGas method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const _lpTokenAmount = parseUnits(lpTokenAmount);
-        return Number(await curve.contracts[this.gauge].contract.deposit.estimateGas(_lpTokenAmount, curve.constantOptions));
+        return smartNumber(await curve.contracts[this.gauge].contract.deposit.estimateGas(_lpTokenAmount, curve.constantOptions));
     }
 
     public async stake(lpTokenAmount: number | string): Promise<string> {
@@ -904,7 +904,7 @@ export class PoolTemplate {
         await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.gauge)
 
         await curve.updateFeeData();
-        const gasLimit = mulBy1_3(await curve.contracts[this.gauge].contract.deposit.estimateGas(_lpTokenAmount, curve.constantOptions));
+        const gasLimit = mulBy1_3(DIGas(await curve.contracts[this.gauge].contract.deposit.estimateGas(_lpTokenAmount, curve.constantOptions)));
         return (await curve.contracts[this.gauge].contract.deposit(_lpTokenAmount, { ...curve.options, gasLimit })).hash;
     }
 
@@ -1265,14 +1265,14 @@ export class PoolTemplate {
         return rewards
     }
 
-    public async claimRewardsEstimateGas(): Promise<number> {
+    public async claimRewardsEstimateGas(): Promise<number | number[]> {
         if (this.gauge === curve.constants.ZERO_ADDRESS) {
             throw Error(`claimRewards method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
 
-        return Number(await gaugeContract.claim_rewards.estimateGas(curve.constantOptions));
+        return smartNumber(await gaugeContract.claim_rewards.estimateGas(curve.constantOptions));
     }
 
     public async claimRewards(): Promise<string> {
@@ -1746,7 +1746,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    private async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number> {
+    private async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {
         throw Error(`withdrawOneCoin method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 

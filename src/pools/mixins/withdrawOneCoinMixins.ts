@@ -144,7 +144,7 @@ export const withdrawOneCoinLendingOrCryptoMixin: PoolTemplate = {
         const gas = await contract.remove_liquidity_one_coin.estimateGas(_lpTokenAmount, i, _minAmount, true, curve.constantOptions);
         if (estimateGas) return smartNumber(gas);
 
-        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? gas * curve.parseUnits("160", 0) / curve.parseUnits("100", 0) : mulBy1_3(DIGas(gas));
+        const gasLimit = curve.chainId === 137 && this.id === 'ren' ? DIGas(gas) * curve.parseUnits("160", 0) / curve.parseUnits("100", 0) : mulBy1_3(DIGas(gas));
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, true, { ...curve.options, gasLimit })).hash
     },
 

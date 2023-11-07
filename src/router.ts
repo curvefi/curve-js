@@ -260,6 +260,8 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
         if (curve.chainId === 1 && tvl < 1000) continue;
         if (curve.chainId !== 1 && tvl < 100) continue;
 
+        const excludedUnderlyingSwaps = (poolId === 'aave' && curve.chainId === 1) || (poolId === 'geist' && curve.chainId === 250);
+
         // Wrapped coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)
         if (!poolData.is_fake && !poolData.is_llamma && wrappedCoinAddresses.length < 6) {
             const coins = [tokenAddress, ...wrappedCoinAddresses];
@@ -291,7 +293,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
         }
 
         // Underlying coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)
-        if ((poolData.is_fake || isAaveLikeLending) && (poolId !== 'aave' || curve.chainId !== 1) && underlyingCoinAddresses.length < 6) {
+        if ((poolData.is_fake || isAaveLikeLending) && underlyingCoinAddresses.length < 6 && !excludedUnderlyingSwaps) {
             const coins = [tokenAddress, ...underlyingCoinAddresses];
             for (let k = 0; k < coins.length; k++) {
                 for (let l = 0; l < coins.length; l++) {
@@ -350,14 +352,14 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
             poolData.deposit_address as string : poolData.swap_address;
 
         // Underlying swaps
-        if (!poolData.is_plain && (poolId !== 'aave' || curve.chainId !== 1)) {
+        if (!poolData.is_plain && !excludedUnderlyingSwaps) {
             for (let i = 0; i < underlyingCoinAddresses.length; i++) {
                 for (let j = 0; j < underlyingCoinAddresses.length; j++) {
                     if (i === j) continue;
                     // Don't swap metacoins since they can be swapped directly in base pool
                     if (metaCoinAddresses.includes(underlyingCoinAddresses[i]) && metaCoinAddresses.includes(underlyingCoinAddresses[j])) continue;
 
-                    const hasEth = [underlyingCoinAddresses[i], underlyingCoinAddresses[j]].includes(curve.constants.NATIVE_TOKEN.address);
+                    const hasEth = underlyingCoinAddresses.includes(curve.constants.NATIVE_TOKEN.address);
                     const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) || (basePool?.is_lending && poolData.is_factory) ? 3
                         : hasEth && poolId !== 'avaxcrypto' ? 1 : 2;
 

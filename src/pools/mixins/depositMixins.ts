@@ -52,7 +52,7 @@ export const depositMetaFactoryMixin: PoolTemplate = {
         return (await contract.add_liquidity(this.address, _amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(amounts: (number | string)[]): Promise<number> {
+    async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts, true);
 
@@ -88,7 +88,7 @@ export const depositCryptoMetaFactoryMixin: PoolTemplate = {
         return (await contract.add_liquidity(this.address, _amounts, _minMintAmount, true, { ...curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(amounts: (number | string)[]): Promise<number> {
+    async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts, true);
 
@@ -126,7 +126,7 @@ export const depositZapMixin: PoolTemplate = {
         return (await contract.add_liquidity(...args, { ...curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(amounts: (number | string)[]): Promise<number> {
+    async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts, true);
 
@@ -162,7 +162,7 @@ export const depositLendingOrCryptoMixin: PoolTemplate = {
         return (await contract.add_liquidity(_amounts, _minMintAmount, true, { ...curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(amounts: (number | string)[]): Promise<number> {
+    async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts, true);
 
@@ -184,7 +184,6 @@ export const depositPlainMixin: PoolTemplate = {
     // @ts-ignore
     async _deposit(_amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         if (!estimateGas) await _ensureAllowance(this.wrappedCoinAddresses, _amounts, this.address);
-
         // @ts-ignore
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
         const ethIndex = getEthIndex(this.wrappedCoinAddresses);
@@ -195,10 +194,10 @@ export const depositPlainMixin: PoolTemplate = {
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
+        return (await contract.add_liquidity(_amounts, _minMintAmount, false, { ...curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(amounts: (number | string)[]): Promise<number> {
+    async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {
         // @ts-ignore
         const _amounts = await _depositCheck.call(this, amounts, true);
 

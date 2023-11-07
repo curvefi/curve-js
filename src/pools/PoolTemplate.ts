@@ -796,7 +796,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    private async depositEstimateGas(amounts: (number | string)[]): Promise<number> {
+    private async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {
         throw Error(`depositEstimateGas method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 

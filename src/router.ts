@@ -357,7 +357,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
                     // Don't swap metacoins since they can be swapped directly in base pool
                     if (metaCoinAddresses.includes(underlyingCoinAddresses[i]) && metaCoinAddresses.includes(underlyingCoinAddresses[j])) continue;
 
-                    const hasEth = [underlyingCoinAddresses[i], underlyingCoinAddresses[j]].includes(curve.constants.NATIVE_TOKEN.address);
+                    const hasEth = underlyingCoinAddresses.includes(curve.constants.NATIVE_TOKEN.address);
                     const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) || (basePool?.is_lending && poolData.is_factory) ? 3
                         : hasEth && poolId !== 'avaxcrypto' ? 1 : 2;
 

@@ -1282,7 +1282,7 @@ export class PoolTemplate {
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
 
-        const gasLimit = mulBy1_3(await gaugeContract.claim_rewards.estimateGas(curve.constantOptions));
+        const gasLimit = mulBy1_3(DIGas(await gaugeContract.claim_rewards.estimateGas(curve.constantOptions)));
         return (await gaugeContract.claim_rewards({ ...curve.options, gasLimit })).hash;
     }
 
@@ -1580,7 +1580,7 @@ export class PoolTemplate {
     }
 
     // OVERRIDE
-    private async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    private async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         throw Error(`withdraw method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 

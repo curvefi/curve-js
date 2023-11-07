@@ -42,7 +42,7 @@ export const withdrawMetaFactoryMixin: PoolTemplate = {
         return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
 
@@ -75,7 +75,7 @@ export const withdrawCryptoMetaFactoryMixin: PoolTemplate = {
         return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, true, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
 
@@ -111,7 +111,7 @@ export const withdrawZapMixin: PoolTemplate = {
         return (await contract.remove_liquidity(...args, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
 
@@ -142,7 +142,7 @@ export const withdrawLendingOrCryptoMixin: PoolTemplate = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, true, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
 
@@ -174,7 +174,7 @@ export const withdrawPlainMixin: PoolTemplate = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
         // @ts-ignore
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
 

@@ -176,7 +176,7 @@ export const withdrawOneCoinPlainMixin: PoolTemplate = {
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...curve.options, gasLimit })).hash
+        return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, false, { ...curve.options, gasLimit })).hash
     },
 
     async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {

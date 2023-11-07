@@ -92,6 +92,7 @@ import {
     getDeployedGaugeMirrorAddress,
     getDeployedGaugeMirrorAddressByTx,
 } from './factory/deploy.js';
+import { DummyFunction } from "./factory/factory-stable-ng.js";
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
@@ -207,6 +208,27 @@ const curve = {
         estimateGas: {
             deployPool: deployTricryptoPoolEstimateGas,
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.tricrypto_factory),
+            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
+            deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
+        },
+    },
+    stableNgFactory: {
+        fetchPools: _curve.fetchStableNgFactoryPools,
+        fetchNewPools: _curve.fetchNewStableNgFactoryPools,
+        getPoolList: _curve.getStableNgFactoryPoolList,
+        deployPool: DummyFunction, // <--- TODO CHANGE
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.stable_ng_factory),
+        deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
+        deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
+        getDeployedPoolAddress: DummyFunction, // <--- TODO CHANGE
+        getDeployedGaugeAddress: getDeployedGaugeAddress,
+        getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
+        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedStableNgFactoryPool,
+        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-stable-ng"),
+        estimateGas: {
+            deployPool: DummyFunction, // <--- TODO CHANGE
+            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.stable_ng_factory),
             deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
             deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
         },

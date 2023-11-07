@@ -28,6 +28,7 @@ import Plain6BasicABI from "../constants/abis/factory-v2/Plain6Basic.json" asser
 import Plain6BalancesABI from "../constants/abis/factory-v2/Plain6Balances.json" assert { type: 'json' };
 import Plain6ETHABI from "../constants/abis/factory-v2/Plain6ETH.json" assert { type: 'json' };
 import Plain6OptimizedABI from "../constants/abis/factory-v2/Plain6Optimized.json" assert { type: 'json' };
+import PlainStableswapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" assert { type: 'json' };
 // --- ZAPS --
 import factoryDepositABI from "../constants/abis/factoryPools/deposit.json" assert { type: 'json' };
 import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/meta_zap.json" assert { type: 'json' };
@@ -84,6 +85,8 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0xd35B58386705CE75CE6d09842E38E9BE9CDe5bF6": Plain4BalancesABI,
     "0x88855cdF2b0A8413D470B86952E726684de915be": Plain4ETHABI,
     "0xaD4753D045D3Aed5C1a6606dFb6a7D7AD67C1Ad7": Plain4OptimizedABI,
+
+    "0x3E3B5F27bbf5CC967E074b70E9f4046e31663181": PlainStableswapNGABI,
 });
 
 export const implementationABIDictPolygon: IDict<any> = lowerCaseKeys({
@@ -107,6 +110,8 @@ export const implementationABIDictPolygon: IDict<any> = lowerCaseKeys({
     "0xC7c46488566b9ef9B981b87E328939CaA5ca152f": Plain4BalancesABI,
     "0xf31bcdf0B9a5eCD7AB463eB905551fBc32e51856": Plain4ETHABI,
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
+
+    "0x506F594ceb4E33F5161139bAe3Ee911014df9f7f": PlainStableswapNGABI,
 });
 
 export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
@@ -140,6 +145,8 @@ export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
     "0x2C996b11a73276787Eb637D4459d1A7fea16B310": Plain6BalancesABI,
     "0xa4Fc50E45aF5bF22b519468c7c342C704e1F3d44": Plain6ETHABI,
     "0x65e38C41CcE6D9Bc202209Cc546B2f63985D4139": Plain6OptimizedABI,
+
+    "0xd2002373543Ce3527023C75e7518C274A51ce712": PlainStableswapNGABI,
 });
 
 export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({
@@ -191,6 +198,8 @@ export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({
     "0x2ac56cEBc2D27c9bB51a11773355E44371Eb88D3": Plain4BalancesABI,
     "0x89287c32c2CAC1C76227F6d300B2DBbab6b75C08": Plain4ETHABI,
     "0x06e3C4da96fd076b97b7ca3Ae23527314b6140dF": Plain4OptimizedABI,
+
+    "0x76303e4fDcA0AbF28aB3ee42Ce086E6503431F1D": PlainStableswapNGABI,
 });
 
 export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
@@ -216,6 +225,8 @@ export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
     "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9": Plain4BalancesABI,
     "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6": Plain4ETHABI,
     "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6": Plain4OptimizedABI,
+
+    "0x87FE17697D0f14A222e8bEf386a0860eCffDD617": PlainStableswapNGABI,
 })
 
 export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
@@ -236,6 +247,8 @@ export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
     "0xcB4eB43E31C830e22baF764c64F11F32C280496c": Plain4BalancesABI,
     "0xc1C49622b63B961ce1D352ecb7D8261Ab5556695": Plain4ETHABI,
     "0x0E2615ce69Cd3Dc3Ff6f66a975bEa0655F3bA7b9": Plain4OptimizedABI,
+
+    "0xd2002373543Ce3527023C75e7518C274A51ce712": PlainStableswapNGABI,
 });
 
 export const implementationABIDictMoonbeam: IDict<any> = lowerCaseKeys({
@@ -270,6 +283,8 @@ export const implementationABIDictKava: IDict<any> = lowerCaseKeys({
     "0xd59c875dccb6cdcb3a75b91b58a363b5e4b0ca9a": Plain4BalancesABI,
     "0x6378dd741b24bd884f3590d7bc7555fdb2f5b003": Plain4ETHABI,
     "0x509495dfeec3a53acb2f60669985d868131ad9a5": Plain4OptimizedABI,
+
+    "0x1764ee18e8B3ccA4787249Ceb249356192594585": PlainStableswapNGABI,
 });
 
 export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
@@ -287,6 +302,8 @@ export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
     "0x3730D8B82BF3fF6Cc6dFDBe2Fd7B2A655e74eAae": Plain4BalancesABI,
     "0x0F5390AB4C5456a769056C96E4D7C71770b52319": Plain4ETHABI,
     "0xA73b02a97B45604cd9f0BBAA153eCfe01f409350": Plain4OptimizedABI,
+
+    "0x506F594ceb4E33F5161139bAe3Ee911014df9f7f": PlainStableswapNGABI,
 });
 
 export const implementationABIDictZkSync: IDict<any> = lowerCaseKeys({
@@ -321,6 +338,8 @@ export const implementationABIDictBase: IDict<any> = lowerCaseKeys({
     "0x2FdDeDF2D842f23da2B81b9144e75cEcb691Bf19": Plain4BalancesABI,
     "0x50E09Ee7080b32aef3e92346891dD2DD389B5fAf": Plain4ETHABI,
     "0x44d9B3f4EE15AC81FEb918501fca0ddc9d83C976": Plain4OptimizedABI,
+
+    "0x1764ee18e8B3ccA4787249Ceb249356192594585": PlainStableswapNGABI,
 })
 
 export const implementationABIDictBsc: IDict<any> = lowerCaseKeys({
@@ -338,6 +357,8 @@ export const implementationABIDictBsc: IDict<any> = lowerCaseKeys({
     "0x0Cc51c9786f3777a6d50961CEBb2BB6E69ec5e07": Plain4BalancesABI,
     "0x0a31527a8dE2Ee97BBD8cCE14Db8E8826a0b6C4f": Plain4ETHABI,
     "0x1086F023146f9026A9Bb22983CE866813C59518A": Plain4OptimizedABI,
+
+    "0x604388Bb1159AFd21eB5191cE22b4DeCdEE2Ae22": PlainStableswapNGABI,
 })
 
 export const implementationBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys({

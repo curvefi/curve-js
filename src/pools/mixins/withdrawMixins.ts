@@ -171,7 +171,7 @@ export const withdrawPlainMixin: PoolTemplate = {
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, false, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
     },
 
     async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {

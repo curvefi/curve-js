@@ -18,8 +18,9 @@ import {
     swapWrappedExpectedAndApproveMixin,
     swapWrappedTricrypto2Mixin,
     swapWrappedMixin,
-    swapWrappedRequiredMixin
+    swapWrappedRequiredMixin,
 } from "./mixins/swapWrappedMixins.js";
+import { getCountArgsOfMethodByContract } from "../utils.js";
 
 
 export const getPool = (poolId: string): PoolTemplate => {
@@ -58,7 +59,7 @@ export const getPool = (poolId: string): PoolTemplate => {
         }
     } else if (poolDummy.zap && poolId !== 'susd') {
         Object.assign(Pool.prototype, depositZapMixin);
-    } else if (poolDummy.isLending || (poolDummy.isCrypto && !poolDummy.isPlain)) {
+    } else if (getCountArgsOfMethodByContract(curve.contracts[poolDummy.address].contract, 'add_liquidity') > 2) {
         Object.assign(Pool.prototype, depositLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, depositPlainMixin);
@@ -91,7 +92,7 @@ export const getPool = (poolId: string): PoolTemplate => {
         }
     } else if (poolDummy.zap && poolId !== 'susd') {
         Object.assign(Pool.prototype, withdrawZapMixin);
-    } else if (poolDummy.isLending || (poolDummy.isCrypto && !poolDummy.isPlain)) {
+    } else if (getCountArgsOfMethodByContract(curve.contracts[poolDummy.address].contract, 'remove_liquidity') > 2) {
         Object.assign(Pool.prototype, withdrawLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, withdrawPlainMixin);
@@ -150,7 +151,7 @@ export const getPool = (poolId: string): PoolTemplate => {
         }
     } else if (poolDummy.zap) { // including susd
         Object.assign(Pool.prototype, withdrawOneCoinZapMixin);
-    } else if (poolDummy.isLending || (poolDummy.isCrypto && !poolDummy.isPlain)) {
+    } else if (getCountArgsOfMethodByContract(curve.contracts[poolDummy.address].contract, 'remove_liquidity_one_coin') > 3) {
         Object.assign(Pool.prototype, withdrawOneCoinLendingOrCryptoMixin);
     } else {
         Object.assign(Pool.prototype, withdrawOneCoinPlainMixin);

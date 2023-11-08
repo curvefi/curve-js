@@ -638,3 +638,12 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
 
 export const hasDepositAndStake = (): boolean => curve.constants.ALIASES.deposit_and_stake !== curve.constants.ZERO_ADDRESS;
 export const hasRouter = (): boolean => curve.constants.ALIASES.router !== curve.constants.ZERO_ADDRESS;
+
+export const getCountArgsOfMethodByContract = (contract: Contract, methodName: string): number => {
+    const func = contract.interface.fragments.find((item: any) => item.name === methodName);
+    if(func) {
+        return func.inputs.length;
+    }
+
+    throw Error(`${methodName} method doesn't exist for contract`);
+}

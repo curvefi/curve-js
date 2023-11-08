@@ -194,7 +194,7 @@ export const depositPlainMixin: PoolTemplate = {
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.add_liquidity(_amounts, _minMintAmount, false, { ...curve.options, gasLimit, value })).hash;
+        return (await contract.add_liquidity(_amounts, _minMintAmount, { ...curve.options, gasLimit, value })).hash;
     },
 
     async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {

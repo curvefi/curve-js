@@ -643,7 +643,7 @@ export const getCountArgsOfMethodByContract = (contract: Contract, methodName: s
     const func = contract.interface.fragments.find((item: any) => item.name === methodName);
     if(func) {
         return func.inputs.length;
+    } else {
+        return -1;
     }
-
-    throw Error(`${methodName} method doesn't exist for contract`);
 }

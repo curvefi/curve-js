@@ -4,7 +4,6 @@ import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
 import { getTricryptoFactoryPoolData } from "./factory/factory-tricrypto.js";
-import { getStableNgFactoryPoolData } from "./factory/factory-stable-ng.js";
 import { IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType } from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
@@ -786,21 +785,13 @@ class Curve implements ICurve {
         if (useApi) {
             this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-stable-ng"));
         } else {
-            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getStableNgFactoryPoolData.call(this));
+            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
         }
         console.log(this.constants.STABLE_NG_FACTORY_POOLS_DATA)
         this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
 
         await _killGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-        console.log(this.constants.STABLE_NG_FACTORY_POOLS_DATA)
-        if (this.chainId === 1) {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-stable-ng"] =
-                await this.contracts[this.constants.ALIASES.stable_ng_factory].contract.gauge_implementation(this.constantOptions);
-        } else {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-stable-ng"] =
-                await this.contracts[this.constants.ALIASES.gauge_factory].contract.get_implementation(this.constantOptions);
-        }
     }
 
     fetchNewFactoryPools = async (): Promise<string[]> => {
@@ -839,18 +830,6 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
-    fetchNewStableNgFactoryPools = async (): Promise<string[]> => {
-        if (![1, 56, 8453, 42161].includes(this.chainId)) return [];  // Ethereum, Arbitrum
-
-        const currentPoolIds = Object.keys(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-        const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
-        const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, lastPoolIdx + 1));
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
-        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-
-        return Object.keys(poolData)
-    }
-
     fetchRecentlyDeployedFactoryPool = async (poolAddress: string): Promise<string> => {
         if (this.chainId === 1313161554) return '';
 
@@ -875,15 +854,6 @@ class Curve implements ICurve {
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
-
-        return Object.keys(poolData)[0]  // id
-    }
-
-    fetchRecentlyDeployedStableNgFactoryPool = async (poolAddress: string): Promise<string> => {
-        if (![1, 8453, 42161].includes(this.chainId)) return '';
-        const poolData = lowerCasePoolDataAddresses(await getStableNgFactoryPoolData.call(this, 0, poolAddress));
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
-        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
 
         return Object.keys(poolData)[0]  // id
     }

@@ -407,7 +407,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     let chainName = {
         1: 'ethereum',
         10: 'optimistic-ethereum',
-        56: "bsc",
+        56: "binance-smart-chain",
         100: 'xdai',
         137: 'polygon-pos',
         250: 'fantom',

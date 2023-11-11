@@ -647,3 +647,12 @@ export const getCountArgsOfMethodByContract = (contract: Contract, methodName: s
         return -1;
     }
 }
+
+export const getPoolName = (name: string): string => {
+    const separatedName = name.split(": ")
+    if(separatedName.length > 1) {
+        return separatedName[1].trim()
+    } else {
+        return separatedName[0].trim()
+    }
+}

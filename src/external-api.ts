@@ -24,6 +24,7 @@ export const _getAllPoolsFromApi = async (network: INetworkName): Promise<IExten
         _getPoolsFromApi(network, "factory-eywa"),
         _getPoolsFromApi(network, "factory-crypto"),
         _getPoolsFromApi(network, "factory-tricrypto"),
+        _getPoolsFromApi(network, "factory-stable-ng"),
     ]);
 }
 

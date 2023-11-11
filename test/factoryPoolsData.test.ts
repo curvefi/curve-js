@@ -70,7 +70,7 @@ describe('Factory pools data', async function () {
     this.timeout(120000);
 
     before(async function() {
-        await curve.init('JsonRpc', { url: AURORA_RPC }, { gasPrice: 0 });
+        await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
         // await curve.init('JsonRpc', {},{ gasPrice: 0 });
     });
 
@@ -80,7 +80,7 @@ describe('Factory pools data', async function () {
         const blacklist = BLACK_LIST[curve.chainId] ?? [];
 
         blacklist.forEach((item:string) => {
-            for(let key in factoryPoolsDataFromApi) {
+            for(const key in factoryPoolsDataFromApi) {
                 if(factoryPoolsDataFromApi[key].swap_address === item) {
                     delete factoryPoolsDataFromApi[key]
                 }

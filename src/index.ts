@@ -169,6 +169,10 @@ const curve = {
         fetchPools: _curve.fetchEywaFactoryPools,
         getPoolList: _curve.getEywaFactoryPoolList,
     },
+    stableNgFactory: {
+        fetchPools: _curve.fetchStableNgFactoryPools,
+        getPoolList: _curve.getStableNgFactoryPoolList,
+    },
     cryptoFactory: {
         fetchPools: _curve.fetchCryptoFactoryPools,
         fetchNewPools: _curve.fetchNewCryptoFactoryPools,

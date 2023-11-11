@@ -29,6 +29,7 @@ import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: '
 import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
 import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
+import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' assert { type: 'json' };
 import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
 
 import {
@@ -352,6 +353,7 @@ class Curve implements ICurve {
         EYWA_FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
         TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+        STABLE_NG_FACTORY_POOLS_DATA: IDict<IPoolData>,
         LLAMMAS_DATA: IDict<IPoolData>,
         COINS: IDict<string>,
         DECIMALS: IDict<number>,
@@ -383,6 +385,7 @@ class Curve implements ICurve {
             EYWA_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
+            STABLE_NG_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},
@@ -419,6 +422,7 @@ class Curve implements ICurve {
             EYWA_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
+            STABLE_NG_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},
@@ -618,6 +622,8 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.tricrypto_factory, tricryptoFactoryABI);
 
+        this.setContract(this.constants.ALIASES.stable_ng_factory, stableNgFactoryABI);
+
         this.setContract(this.constants.ALIASES.anycall, anycallABI);
 
         this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
@@ -773,6 +779,21 @@ class Curve implements ICurve {
         }
     }
 
+    fetchStableNgFactoryPools = async (useApi = true): Promise<void> => {
+        if (![1, 56, 8453, 42161].includes(this.chainId)) return;
+
+        if (useApi) {
+            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-stable-ng"));
+        } else {
+            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
+        }
+        console.log(this.constants.STABLE_NG_FACTORY_POOLS_DATA)
+        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+
+        await _killGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+    }
+
     fetchNewFactoryPools = async (): Promise<string[]> => {
         if (this.chainId === 1313161554) return [];
 
@@ -849,14 +870,19 @@ class Curve implements ICurve {
 
     getTricryptoFactoryPoolList = (): string[] => Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
-    getPoolList = (): string[] => [
-        ...this.getMainPoolList(),
-        ...this.getFactoryPoolList(),
-        ...this.getCrvusdFactoryPoolList(),
-        ...this.getEywaFactoryPoolList(),
-        ...this.getCryptoFactoryPoolList(),
-        ...this.getTricryptoFactoryPoolList(),
-    ];
+    getStableNgFactoryPoolList = (): string[] => Object.keys(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+
+    getPoolList = (): string[] => {
+        return [
+            ...this.getMainPoolList(),
+            ...this.getFactoryPoolList(),
+            ...this.getCrvusdFactoryPoolList(),
+            ...this.getEywaFactoryPoolList(),
+            ...this.getCryptoFactoryPoolList(),
+            ...this.getTricryptoFactoryPoolList(),
+            ...this.getStableNgFactoryPoolList(),
+        ]
+    };
 
     getPoolsData = (): IDict<IPoolData> => ({
         ...this.constants.POOLS_DATA,
@@ -865,6 +891,7 @@ class Curve implements ICurve {
         ...this.constants.EYWA_FACTORY_POOLS_DATA,
         ...this.constants.CRYPTO_FACTORY_POOLS_DATA,
         ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA,
+        ...this.constants.STABLE_NG_FACTORY_POOLS_DATA,
         ...this.constants.LLAMMAS_DATA,
     });
 

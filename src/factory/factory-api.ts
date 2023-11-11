@@ -9,6 +9,7 @@ import { FACTORY_CONSTANTS } from "./constants.js";
 import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 import { setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
+import { getPoolName } from "../utils.js";
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -112,7 +113,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 const basePoolZap = basePoolIdZapDict[basePoolId];
 
                 FACTORY_POOLS_DATA[pool.id] = {
-                    name: pool.name.split(": ")[1].trim(),
+                    name: getPoolName(pool.name),
                     full_name: pool.name,
                     symbol: pool.symbol,
                     reference_asset: "CRYPTO",
@@ -137,7 +138,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 };
             } else {
                 FACTORY_POOLS_DATA[pool.id] = {
-                    name: factoryType === "factory-tricrypto" ? pool.name : pool.name.split(": ")[1].trim(),
+                    name: factoryType === "factory-tricrypto" ? pool.name : getPoolName(pool.name),
                     full_name: pool.name,
                     symbol: pool.symbol,
                     reference_asset: "CRYPTO",
@@ -181,7 +182,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
             const basePoolZap = basePoolIdZapDict[basePoolId];
 
             FACTORY_POOLS_DATA[pool.id] = {
-                name: pool.name.split(": ")[1].trim(),
+                name: getPoolName(pool.name),
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
@@ -206,9 +207,8 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
             };
         } else {
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
-
             FACTORY_POOLS_DATA[pool.id] = {
-                name: pool.name.split(": ")[1].trim(),
+                name: getPoolName(pool.name),
                 full_name: pool.name,
                 symbol: pool.symbol,
                 reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
-import { IChainId, IDict, INetworkName, IRewardFromApi } from './interfaces';
+import {IChainId, IDict, INetworkName, IRewardFromApi, REFERENCE_ASSET} from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
 import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getAllPoolsFromApi, _getSubgraphData } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
@@ -654,5 +654,13 @@ export const getPoolName = (name: string): string => {
         return separatedName[1].trim()
     } else {
         return separatedName[0].trim()
+    }
+}
+
+export const assetTypeNameHandler = (assetTypeName: string): REFERENCE_ASSET => {
+    if (assetTypeName.toUpperCase() === 'UNKNOWN') {
+        return 'OTHER';
+    } else {
+        return assetTypeName.toUpperCase() as REFERENCE_ASSET;
     }
 }

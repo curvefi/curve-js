@@ -387,9 +387,8 @@ export class PoolTemplate {
             const network = curve.constants.NETWORK_NAME;
             let poolType = this.isCrypto ? "crypto" : "main";
             if (this.id.startsWith("factory")) {
-                poolType = "factory";
-                const factoryType = this.id.split("-")[1];
-                if (factoryType !== "v2") poolType += "-" + factoryType;
+                poolType = this.id.replace(/-\d+$/, '');
+                poolType = poolType.replace(/-v2$/, '');
             }
             const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType)).poolData;
 

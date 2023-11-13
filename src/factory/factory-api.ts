@@ -9,7 +9,7 @@ import { FACTORY_CONSTANTS } from "./constants.js";
 import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 import { setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
-import { getPoolName } from "../utils.js";
+import { assetTypeNameHandler, getPoolName } from "../utils.js";
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -185,7 +185,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 name: getPoolName(pool.name),
                 full_name: pool.name,
                 symbol: pool.symbol,
-                reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
+                reference_asset: assetTypeNameHandler(pool.assetTypeName),
                 swap_address: pool.address,
                 token_address: pool.address,
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
@@ -211,7 +211,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 name: getPoolName(pool.name),
                 full_name: pool.name,
                 symbol: pool.symbol,
-                reference_asset: pool.assetTypeName.toUpperCase() as REFERENCE_ASSET,
+                reference_asset: assetTypeNameHandler(pool.assetTypeName),
                 swap_address: pool.address,
                 token_address: pool.address,
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,

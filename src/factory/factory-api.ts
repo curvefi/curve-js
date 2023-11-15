@@ -7,7 +7,7 @@ import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypt
 import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" assert { type: 'json' };
 import { FACTORY_CONSTANTS } from "./constants.js";
 import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
-import { setFactoryZapContracts } from "./common.js";
+import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
 import { assetTypeNameHandler, getPoolName } from "../utils.js";
 
@@ -161,24 +161,15 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
             }
         } else if (pool.implementation.includes("meta")) {
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
-            const implementationBasePoolIdDict = FACTORY_CONSTANTS[this.chainId].implementationBasePoolIdDict;
-            const basePoolIds = Object.values(implementationBasePoolIdDict).filter((poolId, i, arr) => arr.indexOf(poolId) === i);
             const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
-            // @ts-ignore
-            const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
-                (poolId) => [poolId, allPoolsData[poolId]?.underlying_coins]));
-            // @ts-ignore
-            const basePoolIdCoinAddressesDict = Object.fromEntries(basePoolIds.map(
-                (poolId) => [poolId, allPoolsData[poolId]?.underlying_coin_addresses]));
-            // @ts-ignore
-            const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
-                (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
+            const basePoolId = getPoolIdByAddress(rawPoolList, pool.basePoolAddress as string);
+
+            const basePoolCoinNames = allPoolsData[basePoolId]?.underlying_coins;
+            const basePoolCoinAddresses = allPoolsData[basePoolId]?.underlying_coin_addresses;
+            const basePoolDecimals = allPoolsData[basePoolId]?.underlying_decimals;
+
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
 
-            const basePoolId = implementationBasePoolIdDict[pool.implementationAddress];
-            const basePoolCoinNames = basePoolIdCoinsDict[basePoolId];
-            const basePoolCoinAddresses = basePoolIdCoinAddressesDict[basePoolId];
-            const basePoolDecimals = basePoolIdDecimalsDict[basePoolId];
             const basePoolZap = basePoolIdZapDict[basePoolId];
 
             FACTORY_POOLS_DATA[pool.id] = {

@@ -107,6 +107,7 @@ export interface IPoolDataFromApi {
     symbol: string,
     assetTypeName: string,
     address: string,
+    basePoolAddress?: string,
     lpTokenAddress?: string,
     gaugeAddress?: string,
     implementation: string,
@@ -117,6 +118,11 @@ export interface IPoolDataFromApi {
     totalSupply: number,
     amplificationCoefficient: string,
     gaugeCrvApy: [number | null, number | null],
+}
+
+export interface IPoolDataShort {
+    id: string,
+    address: string,
 }
 
 export interface ISubgraphPoolData {

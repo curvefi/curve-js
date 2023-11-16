@@ -107,6 +107,7 @@ export interface IPoolDataFromApi {
     symbol: string,
     assetTypeName: string,
     address: string,
+    isMetaPool: boolean,
     basePoolAddress?: string,
     lpTokenAddress?: string,
     gaugeAddress?: string,

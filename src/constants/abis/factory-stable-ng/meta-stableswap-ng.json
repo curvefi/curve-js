@@ -448,7 +448,7 @@
     "inputs": [
       {
         "name": "_amounts",
-        "type": "uint256[]"
+        "type": "uint256[2]"
       },
       {
         "name": "_min_mint_amount",
@@ -494,7 +494,7 @@
     "inputs": [
       {
         "name": "_amounts",
-        "type": "uint256[]"
+        "type": "uint256[2]"
       },
       {
         "name": "_max_burn_amount",
@@ -519,42 +519,13 @@
       },
       {
         "name": "_min_amounts",
-        "type": "uint256[]"
+        "type": "uint256[2]"
       }
     ],
     "outputs": [
       {
         "name": "",
-        "type": "uint256[]"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "remove_liquidity",
-    "inputs": [
-      {
-        "name": "_burn_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "_min_amounts",
-        "type": "uint256[]"
-      },
-      {
-        "name": "_receiver",
-        "type": "address"
-      },
-      {
-        "name": "_claim_admin_fees",
-        "type": "bool"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256[]"
+        "type": "uint256[2]"
       }
     ]
   },
@@ -917,7 +888,7 @@
     "inputs": [
       {
         "name": "_amounts",
-        "type": "uint256[]"
+        "type": "uint256[2]"
       },
       {
         "name": "_is_deposit",

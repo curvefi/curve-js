@@ -23,26 +23,3 @@ export function getPoolIdByAddress(poolList: IPoolDataShort[] , address: string)
         return getPoolIdBySwapAddress(address.toLowerCase())
     }
 }
-
-export async function getBasePoolIds(this: ICurve, factoryAddress: string, rawSwapAddresses: string[], tmpPools: IPoolDataShort[]): Promise<Array<string>> {
-    const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
-
-    const calls = [];
-    for (const addr of rawSwapAddresses) {
-        calls.push(factoryMulticallContract.get_base_pool(addr));
-    }
-
-    const result: string[] = await this.multicallProvider.all(calls);
-
-    const basePoolIds: Array<string> = [];
-
-    result.forEach((item: string) => {
-        if(item !== '0x0000000000000000000000000000000000000000') {
-            basePoolIds.push(getPoolIdByAddress(tmpPools, item));
-        } else {
-            basePoolIds.push('')
-        }
-    })
-
-    return basePoolIds;
-}

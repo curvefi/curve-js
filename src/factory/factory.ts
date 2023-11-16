@@ -4,7 +4,7 @@ import {IDict, IPoolData, ICurve, REFERENCE_ASSET, IPoolDataShort} from "../inte
 import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
-import { getBasePoolIds, setFactoryZapContracts } from "./common.js";
+import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { FACTORY_CONSTANTS } from "./constants.js";
 import { getPoolName } from "../utils.js";
 
@@ -24,6 +24,29 @@ export const BLACK_LIST: { [index: number]: any } = {
 }
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
+
+export async function getBasePoolIds(this: ICurve, factoryAddress: string, rawSwapAddresses: string[], tmpPools: IPoolDataShort[]): Promise<Array<string>> {
+    const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
+
+    const calls = [];
+    for (const addr of rawSwapAddresses) {
+        calls.push(factoryMulticallContract.get_base_pool(addr));
+    }
+
+    const result: string[] = await this.multicallProvider.all(calls);
+
+    const basePoolIds: Array<string> = [];
+
+    result.forEach((item: string) => {
+        if(item !== '0x0000000000000000000000000000000000000000') {
+            basePoolIds.push(getPoolIdByAddress(tmpPools, item));
+        } else {
+            basePoolIds.push('')
+        }
+    })
+
+    return basePoolIds;
+}
 
 async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string): Promise<string> {
     const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;

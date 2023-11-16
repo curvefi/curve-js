@@ -110,6 +110,15 @@ describe('Factory pools data', async function () {
         factoryPoolsDataTest(factoryPoolsDataFromApi, factoryPoolsData, false);
     });
 
+    it('Stable NG factory', async function () {
+        await curve.fetchStableNgFactoryPools();
+        const factoryPoolsDataFromApi = { ...curve.constants.STABLE_NG_FACTORY_POOLS_DATA };
+        await curve.fetchStableNgFactoryPools(false);
+        const factoryPoolsData = { ...curve.constants.STABLE_NG_FACTORY_POOLS_DATA };
+
+        factoryPoolsDataTest(factoryPoolsDataFromApi, factoryPoolsData, false);
+    });
+
     it('Crypto factory', async function () {
         await curve.fetchCryptoFactoryPools();
         const cryptoFactoryPoolsDataFromApi = { ...curve.constants.CRYPTO_FACTORY_POOLS_DATA };

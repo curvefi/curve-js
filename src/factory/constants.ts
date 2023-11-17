@@ -375,91 +375,6 @@ export const implementationABIDictBsc: IDict<any> = lowerCaseKeys({
     //"0x06452f9c013fc37169B57Eab8F50A7A48c9198A3": MetaStableSwapNGABI,
 })
 
-export const implementationBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys({
-    "0x5F890841f657d90E081bAbdB532A05996Af79Fe6": "3pool",
-
-    "0x213be373FDff327658139C7df330817DAD2d5bBE": "3pool",
-    "0x55Aa9BF126bCABF0bDC17Fa9E39Ec9239e1ce7A9": "3pool",
-
-    "0x33bB0e62d5e8C688E645Dd46DFb48Cd613250067": "fraxusdc",
-    "0x2EB24483Ef551dA247ab87Cf18e1Cc980073032D": "fraxusdc",
-
-    "0xF9B62b61d108232Ef0C9DD143bb3c22c7D4A715a": "fraxusdp",
-    "0xB172AC2Fe440B5dA74Dc460e5E9d96bc2BF6261F": "fraxusdp",
-
-    "0xC6A8466d128Fbfd34AdA64a9FFFce325D57C9a52": "sbtc",
-    "0xc4C78b08fA0c3d0a312605634461A88184Ecd630": "sbtc",
-
-    "0xECAaecd9d2193900b424774133B1f51ae0F29d9E": "ren",
-    "0x40fD58D44cFE63E8517c9Bb3ac98676838Ea56A8": "ren",
-
-    "0x008CFa89df5B0c780cA3462fc2602D7F8c7Ac315": "sbtc2",
-    "0xAbc533EbCDdeD41215C46ee078C5818B5b0A252F": "sbtc2",
-});
-
-export const implementationBasePoolIdDictPolygon: IDict<string> = lowerCaseKeys({
-    "0x4fb93D7d320E8A263F22f62C2059dFC2A8bCbC4c": "aave",
-    "0x39fE1824f98CD828050D7c51dA443E84121c7cf1": "aave",
-
-    "0xC05EB760A135d3D0c839f1141423002681157a17": "ren",
-    "0xD8336532f6ED7b94282fAF724fe41d6145E07Cfc": "ren",
-});
-
-export const implementationBasePoolIdDictFantom: IDict<string> = lowerCaseKeys({
-    "0xfCE359115dFe1533a2458650123F86C454BC0213": "2pool",
-    "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": "2pool",
-
-    "0xC9438d8928486bD9621D326002F4672bF684187A": "ren",
-    "0x2b70A5B878665FfDB4A06Ba40a264d6c70f68F4B": "ren",
-
-    "0x210C806F6AE850279f7E298dE749EC4B427d00DD": "geist",
-    "0xf82162bB68aD5a168345bb7EFb2faA0EDCCA5177": "geist",
-});
-
-export const implementationBasePoolIdDictAvalanche: IDict<string> = lowerCaseKeys({
-    "0xA237034249290De2B07988Ac64b96f22c0E76fE0": "aave",
-    "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": "aave",
-
-    "0xa27f39E9C21b3376F43266E13Ad5A5d6E9BdB320": "ren",
-    "0x505C34ED8dBE96d2D5C7D83158aA844887770970": "ren",
-});
-
-export const implementationBasePoolIdDictArbitrum: IDict<string> = lowerCaseKeys({
-    "0x09672362833d8f703D5395ef3252D4Bfa51c15ca": "2pool",
-    "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5": "2pool",
-
-    "0x094d12e5b541784701FD8d65F11fc0598FBC6332": "ren",
-    "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc": "ren",
-
-    "0x8DEb66a4A40E370355bEe35f12E55Fe9c755d686": "factory-v2-41", // fraxbp
-    "0x3edE9b145F82e9e46C03f8A8F67B77aEE847b632": "factory-v2-41", // fraxbp
-});
-
-export const implementationBasePoolIdDictOptimism: IDict<string> = lowerCaseKeys({
-    "0x78CF256256C8089d68Cde634Cf7cDEFb39286470": "3pool",
-    "0xADf698e4d8Df08b3E2c79682891636eF00F6e205": "3pool",
-
-    "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": "factory-v2-16", // fraxusdc
-    "0x114C4042B11a2b16F58Fe1BFe847589a122F678a": "factory-v2-16", // fraxusdc
-});
-
-export const implementationBasePoolIdDictXDai: IDict<string> = lowerCaseKeys({
-    "0x4A5bF7Ab9A8202692051c19B102d3eDD62aaBAE6": "3pool",
-    "0x0B4dc7A945695D11FD83e40B2DfC2B896A02395F": "3pool",
-});
-
-export const implementationBasePoolIdDictMoonbeam: IDict<string> = lowerCaseKeys({});
-
-export const implementationBasePoolIdDictKava: IDict<string> = lowerCaseKeys({});
-
-export const implementationBasePoolIdDictCelo: IDict<string> = lowerCaseKeys({});
-
-export const implementationBasePoolIdDictZkSync: IDict<string> = lowerCaseKeys({});
-
-export const implementationBasePoolIdDictBase: IDict<string> = lowerCaseKeys({});
-
-export const implementationBasePoolIdDictBsc: IDict<string> = lowerCaseKeys({});
-
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
         address: "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
@@ -569,70 +484,57 @@ export const basePoolIdZapDictBase: IDict<{ address: string, ABI: any }> = {}
 
 export const basePoolIdZapDictBsc: IDict<{ address: string, ABI: any }> = {}
 
-export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, implementationBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
+export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
-        implementationBasePoolIdDict: implementationBasePoolIdDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,
     },
     10: {  // OPTIMISM
         implementationABIDict: implementationABIDictOptimism,
-        implementationBasePoolIdDict: implementationBasePoolIdDictOptimism,
         basePoolIdZapDict: basePoolIdZapDictOptimism,
     },
     56: {  // BSC
         implementationABIDict: implementationABIDictBsc,
-        implementationBasePoolIdDict: implementationBasePoolIdDictBsc,
         basePoolIdZapDict: basePoolIdZapDictBsc,
     },
     100: {  // XDAI
         implementationABIDict: implementationABIDictXDai,
-        implementationBasePoolIdDict: implementationBasePoolIdDictXDai,
         basePoolIdZapDict: basePoolIdZapDictXDai,
     },
     137: {  // POLYGON
         implementationABIDict: implementationABIDictPolygon,
-        implementationBasePoolIdDict: implementationBasePoolIdDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
     },
     250: {  // FANTOM
         implementationABIDict: implementationABIDictFantom,
-        implementationBasePoolIdDict: implementationBasePoolIdDictFantom,
         basePoolIdZapDict: basePoolIdZapDictFantom,
     },
     324: {  // ZKSYNC
         implementationABIDict: implementationABIDictZkSync,
-        implementationBasePoolIdDict: implementationBasePoolIdDictZkSync,
         basePoolIdZapDict: basePoolIdZapDictZkSync,
     },
     1284: {  // MOONBEAM
         implementationABIDict: implementationABIDictMoonbeam,
-        implementationBasePoolIdDict: implementationBasePoolIdDictMoonbeam,
         basePoolIdZapDict: basePoolIdZapDictMoonbeam,
     },
     2222: {  // KAVA
         implementationABIDict: implementationABIDictKava,
-        implementationBasePoolIdDict: implementationBasePoolIdDictKava,
         basePoolIdZapDict: basePoolIdZapDictKava,
     },
     8453: {  // BASE
         implementationABIDict: implementationABIDictBase,
-        implementationBasePoolIdDict: implementationBasePoolIdDictBase,
         basePoolIdZapDict: basePoolIdZapDictBase,
     },
     42220: {  // CELO
         implementationABIDict: implementationABIDictCelo,
-        implementationBasePoolIdDict: implementationBasePoolIdDictCelo,
         basePoolIdZapDict: basePoolIdZapDictCelo,
     },
     43114: {  // AVALANCHE
         implementationABIDict: implementationABIDictAvalanche,
-        implementationBasePoolIdDict: implementationBasePoolIdDictAvalanche,
         basePoolIdZapDict: basePoolIdZapDictAvalanche,
     },
     42161: {  // ARBITRUM
         implementationABIDict: implementationABIDictArbitrum,
-        implementationBasePoolIdDict: implementationBasePoolIdDictArbitrum,
         basePoolIdZapDict: basePoolIdZapDictArbitrum,
     },
 }

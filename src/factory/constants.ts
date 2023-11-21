@@ -118,6 +118,8 @@ export const implementationABIDictPolygon: IDict<any> = lowerCaseKeys({
 
     //"0x506F594ceb4E33F5161139bAe3Ee911014df9f7f": PlainStableSwapNGABI,
     //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": MetaStableSwapNGABI,
+    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
+    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
@@ -154,6 +156,8 @@ export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
 
     //"0xd2002373543Ce3527023C75e7518C274A51ce712": PlainStableSwapNGABI,
     //"0x686bdb3D24Bc6F3ED89ed3d3B659765c54aC78B4": MetaStableSwapNGABI,
+    "0xd7E72f3615aa65b92A4DBdC211E296a35512988B": PlainStableSwapNGABI,
+    "0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({
@@ -208,6 +212,8 @@ export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({
 
     //"0x76303e4fDcA0AbF28aB3ee42Ce086E6503431F1D": PlainStableSwapNGABI,
     //"0xd125E7a0cEddF89c6473412d85835450897be6Dc": MetaStableSwapNGABI,
+    "0x0458ea5f4cd00e873264be2031ceb8f9d9b3116c": PlainStableSwapNGABI,
+    "0xc6c09471ee39c7e30a067952fcc89c8922f9ab53": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
@@ -236,6 +242,8 @@ export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
 
     //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": PlainStableSwapNGABI,
     //"0x1764ee18e8B3ccA4787249Ceb249356192594585": MetaStableSwapNGABI,
+    "0x06452f9c013fc37169B57Eab8F50A7A48c9198A3": PlainStableSwapNGABI,
+    "0xd7E72f3615aa65b92A4DBdC211E296a35512988B": MetaStableSwapNGABI,
 })
 
 export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
@@ -259,6 +267,8 @@ export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
 
     //"0xd2002373543Ce3527023C75e7518C274A51ce712": PlainStableSwapNGABI,
     //"0xd3B17f862956464ae4403cCF829CE69199856e1e": MetaStableSwapNGABI,
+    "0xc9Fe0C63Af9A39402e8a5514f9c43Af0322b665F": PlainStableSwapNGABI,
+    "0x166c4084Ad2434E8F2425C64dabFE6875A0D45c5": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictMoonbeam: IDict<any> = lowerCaseKeys({
@@ -296,6 +306,8 @@ export const implementationABIDictKava: IDict<any> = lowerCaseKeys({
 
     //"0x1764ee18e8B3ccA4787249Ceb249356192594585": PlainStableSwapNGABI,
     //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": MetaStableSwapNGABI,
+    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
+    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
@@ -316,6 +328,8 @@ export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
 
     //"0x506F594ceb4E33F5161139bAe3Ee911014df9f7f": PlainStableSwapNGABI,
     //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": MetaStableSwapNGABI,
+    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
+    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictZkSync: IDict<any> = lowerCaseKeys({
@@ -353,6 +367,8 @@ export const implementationABIDictBase: IDict<any> = lowerCaseKeys({
 
     //"0x1764ee18e8B3ccA4787249Ceb249356192594585": PlainStableSwapNGABI,
     //"0x5eee3091f747e60a045a2e715a4c71e600e31f6e": MetaStableSwapNGABI,
+    "0x604388Bb1159AFd21eB5191cE22b4DeCdEE2Ae22": PlainStableSwapNGABI,
+    "0x06452f9c013fc37169B57Eab8F50A7A48c9198A3": MetaStableSwapNGABI,
 })
 
 export const implementationABIDictBsc: IDict<any> = lowerCaseKeys({
@@ -373,6 +389,8 @@ export const implementationABIDictBsc: IDict<any> = lowerCaseKeys({
 
     //"0x604388Bb1159AFd21eB5191cE22b4DeCdEE2Ae22": PlainStableSwapNGABI,
     //"0x06452f9c013fc37169B57Eab8F50A7A48c9198A3": MetaStableSwapNGABI,
+    "0x64379C265Fc6595065D7d835AAaa731c0584dB80": PlainStableSwapNGABI,
+    "0xd3B17f862956464ae4403cCF829CE69199856e1e": MetaStableSwapNGABI,
 })
 
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {

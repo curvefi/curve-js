@@ -100,7 +100,7 @@ const _deployStableNgPlainPool = async (
     offpegFeeMultiplier: number | string,
     assetTypes: Array<0 | 1 | 2 | 3>, // 0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
     implementationIdx: 0,
-    emaTime: number, // seconds
+    emaTime = 600, // seconds
     oracleAddresses: string[],
     methodNames: string[],
     estimateGas: boolean
@@ -111,9 +111,24 @@ const _deployStableNgPlainPool = async (
     if (coins.length > 9) throw Error("Invalid number of coins. Must be less than 9");
     if (BN(fee).lt(0.04)) throw Error(`fee must be >= 0.04%. Passed fee = ${fee}`);
     if (BN(fee).gt(1)) throw Error(`fee must be <= 1%. Passed fee = ${fee}`);
+
+    let _oracleAddresses: string[];
+    if(oracleAddresses.length === 0) {
+        _oracleAddresses = new Array(coins.length).fill(curve.constants.ZERO_ADDRESS);
+    } else {
+        _oracleAddresses = oracleAddresses;
+    }
+
+    let _methodNames: string[];
+    if(methodNames.length === 0) {
+        _methodNames = new Array(coins.length).fill("0x00000000");
+    } else {
+        _methodNames = methodNames;
+    }
+
     if(coins.length !== assetTypes.length) throw Error("Invalid length of assetTypes. Must be same coins length");
-    if(coins.length !== oracleAddresses.length) throw Error("Invalid length of oracleAddresses. Must be same coins length");
-    if(coins.length !== methodNames.length) throw Error("Invalid length of methodNames. Must be same coins length");
+    if(coins.length !== _oracleAddresses.length) throw Error("Invalid length of oracleAddresses. Must be same coins length");
+    if(coins.length !== _methodNames.length) throw Error("Invalid length of methodNames. Must be same coins length");
     assetTypes.forEach((item, index) => {
         if (![0, 1, 2, 3].includes(item)) throw Error(`Invalid assetType. Must be one of: 0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626 for assetTypes[${index}]`);
     })
@@ -122,14 +137,14 @@ const _deployStableNgPlainPool = async (
 
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
-    const _coins = coins.concat(Array(8 - coins.length).fill(curve.constants.ZERO_ADDRESS));
+    const _coins = coins;
 
     const contractAddress =  curve.constants.ALIASES.stable_ng_factory;
     const contract = curve.contracts[contractAddress].contract;
 
     const methodIds: string[] = [];
 
-    methodNames.forEach((item) => {
+    _methodNames.forEach((item) => {
         if(item === '0x00000000' || item === '') {
             methodIds.push('0x00000000')
         } else {
@@ -137,8 +152,8 @@ const _deployStableNgPlainPool = async (
         }
     })
 
-    const args = [name, symbol, _coins, _A, _fee, offpegFeeMultiplier, emaTime, implementationIdx, assetTypes, methodIds, oracleAddresses];
-
+    const args = [name, symbol, _coins, _A, _fee, offpegFeeMultiplier, emaTime, implementationIdx, assetTypes, methodIds, _oracleAddresses];
+    console.log(args);
     const gas = await contract.deploy_plain_pool.estimateGas(...args, curve.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
@@ -269,11 +284,11 @@ const _deployStableNgMetaPool = async (
     A: number | string,
     fee: number | string, // %
     offpegFeeMultiplier: number | string,
-    emaTime: number, // seconds
-    implementationIdx: 0 | 1,
     assetType: 0 | 1 | 2 | 3, // 0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
-    methodName: string,
-    oracleAddress: string,
+    emaTime = 600, // seconds
+    implementationIdx = 0,
+    methodName = "0x00000000",
+    oracleAddress = curve.constants.ZERO_ADDRESS,
     estimateGas: boolean
 ): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (name.length > 32) throw Error("Max name length = 32");
@@ -305,13 +320,13 @@ export const deployStableNgMetaPoolEstimateGas = async (
     A: number | string,
     fee: number | string, // %
     offpegFeeMultiplier: number | string,
-    emaTime: number, // seconds
-    implementationIdx: 0 | 1,
     assetType: 0 | 1 | 2 | 3, // 0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
+    emaTime: number, // seconds
+    implementationIdx: 0,
     methodName: string,
     oracleAddress: string
 ): Promise<number> => {
-    return await _deployStableNgMetaPool(basePool, name, symbol, coin, A, fee, offpegFeeMultiplier, emaTime, implementationIdx, assetType, methodName, oracleAddress, true) as number;
+    return await _deployStableNgMetaPool(basePool, name, symbol, coin, A, fee, offpegFeeMultiplier, assetType, emaTime, implementationIdx, methodName, oracleAddress, true) as number;
 }
 
 export const deployStableNgMetaPool = async (
@@ -323,12 +338,12 @@ export const deployStableNgMetaPool = async (
     fee: number | string, // %
     offpegFeeMultiplier: number | string,
     emaTime: number, // seconds
-    implementationIdx: 0 | 1,
+    implementationIdx: 0,
     assetType: 0 | 1 | 2 | 3, // 0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
     methodName: string,
     oracleAddress: string
 ): Promise<ethers.ContractTransactionResponse> => {
-    return await _deployStableNgMetaPool(basePool, name, symbol, coin, A, fee, offpegFeeMultiplier, emaTime, implementationIdx, assetType, methodName, oracleAddress, false) as ethers.ContractTransactionResponse;
+    return await _deployStableNgMetaPool(basePool, name, symbol, coin, A, fee, offpegFeeMultiplier, assetType, emaTime, implementationIdx, methodName, oracleAddress, false) as ethers.ContractTransactionResponse;
 }
 
 export const getDeployedStableMetaPoolAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {

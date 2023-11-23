@@ -173,6 +173,31 @@ describe('Factory deploy', function() {
         }
     });
 
+    it('Deploy stable-ng plain pool and gauge (2 coins, implementation 0, (2 with ema and oracle), with oracle)', async function () {
+        const coins = [
+            "0xae7ab96520de3a18e5e111b5eaab095312d7fe84", // stETH
+            "0xac3e018457b222d93114458476f3e3416abbe38f", // sfrxETH
+        ];
+
+        //0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
+        const assetTypes = [2, 1] as Array<0 | 1 | 2 | 3>;
+
+        const oracleAddresses = [
+            '0x0000000000000000000000000000000000000000',
+            '0xac3e018457b222d93114458476f3e3416abbe38f',
+        ];
+
+        const methodNames = [
+            '',
+            'pricePerShare',
+        ]
+        // Deploy pool
+
+        const deployPoolTx = await curve.stableNgFactory.deployPlainPool('Test pool', 'test', coins, 5, 0.05,5, assetTypes,0,600, oracleAddresses, methodNames);
+        const poolAddress = await curve.stableNgFactory.getDeployedPlainPoolAddress(deployPoolTx);
+        assert.isTrue(ethers.isAddress(poolAddress));
+    });
+
     // --- PLAIN (3 COINS) ---
 
     it('Deploy stable plain pool and gauge (3 coins, implementation 0)', async function () {
@@ -469,6 +494,19 @@ describe('Factory deploy', function() {
         for (const b of balances) {
             assert.equal(Number(b), 10);
         }
+    });
+
+    it('Deploy stable-ng meta pool (3pool, implementation 0)', async function () {
+        const basePool = _curve.constants.POOLS_DATA['3pool'].swap_address;
+        const coin = "0xac3e018457b222d93114458476f3e3416abbe38f"; // sfrxETH
+        const oracleAddress = '0xac3e018457b222d93114458476f3e3416abbe38f';
+        const methodName = 'pricePerShare';
+
+        // Deploy pool
+
+        const deployPoolTx = await curve.stableNgFactory.deployMetaPool(basePool, 'Test pool', 'test',coin, 5, 0.05, 5, 600, 0, 0, methodName, oracleAddress);
+        const poolAddress = await curve.stableNgFactory.getDeployedMetaPoolAddress(deployPoolTx);
+        assert.isTrue(ethers.isAddress(poolAddress));
     });
 
     // --- META (fraxusdc) ---

@@ -91,6 +91,10 @@ import {
     deployGaugeMirrorEstimateGas,
     getDeployedGaugeMirrorAddress,
     getDeployedGaugeMirrorAddressByTx,
+    deployStableNgPlainPool,
+    deployStableNgPlainPoolEstimateGas,
+    deployStableNgMetaPool,
+    deployStableNgMetaPoolEstimateGas,
 } from './factory/deploy.js';
 
 async function init (
@@ -171,7 +175,16 @@ const curve = {
     },
     stableNgFactory: {
         fetchPools: _curve.fetchStableNgFactoryPools,
+        fetchNewPools: _curve.fetchNewStableNgFactoryPools,
         getPoolList: _curve.getStableNgFactoryPoolList,
+        deployPlainPool: deployStableNgPlainPool,
+        deployMetaPool: deployStableNgMetaPool,
+        getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
+        getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
+        estimateGas: {
+            deployPlainPool: deployStableNgPlainPoolEstimateGas,
+            deployMetaPool: deployStableNgMetaPoolEstimateGas,
+        },
     },
     cryptoFactory: {
         fetchPools: _curve.fetchCryptoFactoryPools,

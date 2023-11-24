@@ -109,7 +109,6 @@ const _deployStableNgPlainPool = async (
     if (symbol.length > 10) throw Error("Max symbol length = 10");
     if (coins.length < 1) throw Error("Invalid number of coins. Must be more than 1");
     if (coins.length > 9) throw Error("Invalid number of coins. Must be less than 9");
-    if (BN(fee).lt(0.04)) throw Error(`fee must be >= 0.04%. Passed fee = ${fee}`);
     if (BN(fee).gt(1)) throw Error(`fee must be <= 1%. Passed fee = ${fee}`);
 
     let _oracleAddresses: string[];

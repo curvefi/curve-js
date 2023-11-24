@@ -181,6 +181,7 @@ const curve = {
         deployMetaPool: deployStableNgMetaPool,
         getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
         getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
+        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedStableNgFactoryPool,
         estimateGas: {
             deployPlainPool: deployStableNgPlainPoolEstimateGas,
             deployMetaPool: deployStableNgMetaPoolEstimateGas,

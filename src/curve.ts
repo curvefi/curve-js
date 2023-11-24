@@ -850,6 +850,16 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
+    fetchRecentlyDeployedStableNgFactoryPool = async (poolAddress: string): Promise<string> => {
+        if (this.chainId === 1313161554) return '';
+
+        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, poolAddress, this.constants.ALIASES.stable_ng_factory));
+        this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)[0]  // id
+    }
+
     fetchRecentlyDeployedCryptoFactoryPool = async (poolAddress: string): Promise<string> => {
         if (![1, 56, 137, 250, 8453].includes(this.chainId)) return '';
         const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, 0, poolAddress));

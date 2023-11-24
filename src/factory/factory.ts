@@ -48,13 +48,15 @@ export async function getBasePoolIds(this: ICurve, factoryAddress: string, rawSw
     return basePoolIds;
 }
 
-async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string): Promise<string> {
-    const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
+async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string, factoryAddress: string): Promise<string> {
+    const factoryContract = this.contracts[factoryAddress].contract;
+
+    const prefix = factoryAddress === this.constants.ALIASES.factory? 'factory-v2' : 'factory-stable-ng'
 
     const poolCount = Number(curve.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     for (let i = 1; i <= poolCount; i++) {
         const address: string = await factoryContract.pool_list(poolCount - i);
-        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-v2-${poolCount - i}`
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return `${prefix}-${poolCount - i}`
     }
 
     throw Error("Unknown pool")
@@ -241,7 +243,7 @@ async function getCoinsData(
 
 export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string, factoryAddress = curve.constants.ALIASES.factory): Promise<IDict<IPoolData>> {
     const [rawPoolIds, rawSwapAddresses] = swapAddress ?
-        [[await getRecentlyCreatedPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
+        [[await getRecentlyCreatedPoolId.call(this, swapAddress, factoryAddress)], [swapAddress.toLowerCase()]]
         : await getFactoryIdsAndSwapAddresses.call(this, fromIdx, factoryAddress);
     if (rawPoolIds.length === 0) return {};
 

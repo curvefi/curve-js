@@ -78,7 +78,7 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
-    "stable_ng_factory": '0x0000000000000000000000000000000000000000', // <--- TODO CHANGE
+    "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585', // <--- NEW
     "factory_admin": "",
 });
 

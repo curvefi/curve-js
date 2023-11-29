@@ -136,6 +136,7 @@ const _deployStableNgPlainPool = async (
 
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
+    const _offpegFeeMultiplier = parseUnits(offpegFeeMultiplier, 10)
     const _coins = coins;
 
     const contractAddress =  curve.constants.ALIASES.stable_ng_factory;
@@ -151,8 +152,7 @@ const _deployStableNgPlainPool = async (
         }
     })
 
-    const args = [name, symbol, _coins, _A, _fee, offpegFeeMultiplier, emaTime, implementationIdx, assetTypes, methodIds, _oracleAddresses];
-    console.log(args);
+    const args = [name, symbol, _coins, _A, _fee, _offpegFeeMultiplier, emaTime, implementationIdx, assetTypes, methodIds, _oracleAddresses];
     const gas = await contract.deploy_plain_pool.estimateGas(...args, curve.constantOptions);
     if (estimateGas) return smartNumber(gas);
 

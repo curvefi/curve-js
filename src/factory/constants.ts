@@ -181,6 +181,9 @@ export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({
     "0x7D86446dDb609eD0F5f8684AcF30380a356b2B4c": Plain4BalancesABI,
     "0x0eb0F1FaF5F509Ac53fA224477509EAD167cf410": Plain4ETHABI,
     "0xCE94D3E5b0D80565D7B713A687b39a3Dc81780BA": Plain4OptimizedABI,
+
+    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
+    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({

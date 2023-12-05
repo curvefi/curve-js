@@ -136,7 +136,7 @@ const _deployStableNgPlainPool = async (
 
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
-    const _offpegFeeMultiplier = parseUnits(offpegFeeMultiplier, 10)
+    const _offpegFeeMultiplier = parseUnits(offpegFeeMultiplier, 10);
     const _coins = coins;
 
     const contractAddress =  curve.constants.ALIASES.stable_ng_factory;
@@ -298,12 +298,13 @@ const _deployStableNgMetaPool = async (
 
     const _A = parseUnits(A, 0);
     const _fee = parseUnits(fee, 8);
+    const _offpegFeeMultiplier = parseUnits(offpegFeeMultiplier, 10);
 
     const methodId = methodName === "0x00000000" ? "0x00000000" : ethers.id(methodName).substring(0, 10);
 
     const contract = curve.contracts[curve.constants.ALIASES.stable_ng_factory].contract;
 
-    const gas = await contract.deploy_metapool.estimateGas(basePool, name, symbol, coin, _A, _fee, offpegFeeMultiplier, emaTime, implementationIdx, assetType, methodId, oracleAddress, curve.constantOptions);
+    const gas = await contract.deploy_metapool.estimateGas(basePool, name, symbol, coin, _A, _fee, _offpegFeeMultiplier, emaTime, implementationIdx, assetType, methodId, oracleAddress, curve.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
     const gasLimit = mulBy1_3(DIGas(gas));

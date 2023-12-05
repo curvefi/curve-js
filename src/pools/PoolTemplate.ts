@@ -771,7 +771,7 @@ export class PoolTemplate {
 
     public async depositBonus(amounts: (number | string)[]): Promise<string> {
         const amountsBN = amounts.map(BN);
-        const prices = (this.isCrypto || this.id === 'wsteth') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
+        const prices = await this._underlyingPrices();
         const pricesBN = prices.map(BN);
         const balancesBN = (await this.stats.underlyingBalances()).map(BN);
         const balancedAmounts = this._balancedAmountsWithSameValue(amountsBN, pricesBN, balancesBN);

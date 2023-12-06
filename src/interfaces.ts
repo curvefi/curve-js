@@ -177,3 +177,36 @@ export interface IProfit {
     symbol: string,
     price: number,
 }
+
+export interface IGaugesDataFromApi {
+    gauge: string,
+    swap: string,
+    swap_token: string,
+    shortName: string,
+    gauge_controller: {
+        gauge_relative_weight: string,
+        get_gauge_weight: string,
+    },
+    poolUrls: {
+        swap: string[],
+    }
+    is_killed?: boolean,
+    gaugeStatus?: Record<string, boolean> | null,
+}
+
+export interface IGaugeVote {
+    userPower: string,  // %
+    userVeCrv: string,
+    expired: boolean,
+    gaugeData: {
+        poolUrl: string,
+        network: string,
+        gaugeAddress: string,
+        poolAddress: string,
+        lpTokenAddress: string,
+        poolName: string,
+        totalVeCrv: string,
+        relativeWeight: string,
+    }
+}
+

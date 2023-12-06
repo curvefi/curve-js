@@ -162,6 +162,13 @@ export const _prepareAddresses = (addresses: string[] | string[][]): string[] =>
     return addresses.filter((val, idx, arr) => arr.indexOf(val) === idx)
 }
 
+export const _getAddress = (address: string): string => {
+    address = address || curve.signerAddress;
+    if (!address) throw Error("Need to connect wallet or pass address into args");
+
+    return address
+}
+
 export const getBalances = async (coins: string[], ...addresses: string[] | string[][]): Promise<IDict<string[]> | string[]> => {
     addresses = _prepareAddresses(addresses);
     const balances: IDict<string[]> = await _getBalances(coins, addresses);
@@ -271,7 +278,9 @@ export const ensureAllowance = async (coins: string[], amounts: (number | string
 
 export const getPoolIdBySwapAddress = (swapAddress: string): string => {
     const poolsData = curve.getPoolsData();
-    return Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase())[0][0];
+    const poolIds = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
+    if (poolIds.length === 0) return "";
+    return poolIds[0][0];
 }
 
 const _getTokenAddressBySwapAddress = (swapAddress: string): string => {

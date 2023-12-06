@@ -1,6 +1,6 @@
 import axios from "axios";
 import memoize from "memoizee";
-import { IExtendedPoolDataFromApi, ISubgraphPoolData, IDict, INetworkName, IPoolType } from "./interfaces";
+import { IExtendedPoolDataFromApi, ISubgraphPoolData, IDict, INetworkName, IPoolType, IGaugesDataFromApi } from "./interfaces";
 
 
 export const _getPoolsFromApi = memoize(
@@ -84,7 +84,7 @@ export const _getFactoryAPYsAndVolumes = memoize(
 )
 
 export const _getAllGauges = memoize(
-    async (): Promise<IDict<{ gauge: string, is_killed?: boolean, gaugeStatus?: Record<string, boolean> | null }>> => {
+    async (): Promise<IDict<IGaugesDataFromApi>> => {
         const url = `https://api.curve.fi/api/getAllGauges`;
         const response = await axios.get(url, { validateStatus: () => true });
 

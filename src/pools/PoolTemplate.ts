@@ -28,7 +28,7 @@ import {
     DIGas,
 } from '../utils.js';
 import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
-import { curve as _curve, curve } from "../curve.js";
+import { curve } from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
 
 
@@ -1183,7 +1183,7 @@ export class PoolTemplate {
                     }
                 )
             }
-        } else if (this.sRewardContract && "rewardRate()" in _curve.contracts[this.sRewardContract].contract && "periodFinish()" && rewardTokens.length === 1) {
+        } else if (this.sRewardContract && "rewardRate()" in curve.contracts[this.sRewardContract].contract && "periodFinish()" && rewardTokens.length === 1) {
             const rewardToken = rewardTokens[0];
             const sRewardContract = curve.contracts[this.sRewardContract].multicallContract;
             const [_inflationRate, _periodFinish, _balance, _totalSupply] = await curve.multicallProvider.all([

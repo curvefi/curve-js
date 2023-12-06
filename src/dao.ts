@@ -1,6 +1,6 @@
 import { _getAllGauges } from './external-api.js';
 import { _getAddress } from './utils.js';
-import { IGaugeVote } from './interfaces';
+import { IGaugeUserVote, IVotingGauge } from './interfaces';
 import { curve } from "./curve.js";
 
 
@@ -8,7 +8,7 @@ const _extractNetworkFromPoolUrl = (poolUrl: string): string => {
     return poolUrl.split("/")[4]
 }
 
-export const userVotes = async (address = ""): Promise<{ gauges: IGaugeVote[], powerUsed: string, veCrvUsed: string } > => {
+export const userVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } > => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     address = _getAddress(address);
     const multicallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
@@ -20,7 +20,7 @@ export const userVotes = async (address = ""): Promise<{ gauges: IGaugeVote[], p
     }
     const votes: bigint[][] = await curve.multicallProvider.all(calls);
 
-    const res: { gauges: IGaugeVote[], powerUsed: string, veCrvUsed: string } = { gauges: [], powerUsed: "0.0", veCrvUsed: "0.0" };
+    const res: { gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } = { gauges: [], powerUsed: "0.0", veCrvUsed: "0.0" };
     let powerUsed = BigInt(0);
     let veCrvUsed = BigInt(0);
     for (let i = 0; i < votes.length; i++) {
@@ -57,4 +57,26 @@ export const userVeCrv = async (address = ""): Promise<string> => {
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
 
     return curve.formatUnits(await veContract.balanceOf(address))
+}
+
+export const getVotingGauges = async (): Promise<IVotingGauge[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+
+    const gaugeData = Object.values(await _getAllGauges());
+    const res = [];
+    for (let i = 0; i < gaugeData.length; i++) {
+        if (gaugeData[i].is_killed || gaugeData[i].hasNoCrv) continue;
+        res.push({
+            poolUrl: gaugeData[i].poolUrls.swap[0],
+            network: _extractNetworkFromPoolUrl(gaugeData[i].poolUrls.swap[0]),
+            gaugeAddress: gaugeData[i].gauge,
+            poolAddress: gaugeData[i].swap,
+            lpTokenAddress: gaugeData[i].swap_token,
+            poolName: gaugeData[i].shortName,
+            totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
+            relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
+        });
+    }
+
+    return res
 }

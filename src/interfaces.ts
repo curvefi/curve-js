@@ -191,22 +191,24 @@ export interface IGaugesDataFromApi {
         swap: string[],
     }
     is_killed?: boolean,
+    hasNoCrv?: boolean,
     gaugeStatus?: Record<string, boolean> | null,
 }
 
-export interface IGaugeVote {
+export interface IVotingGauge {
+    poolUrl: string,
+    network: string,
+    gaugeAddress: string,
+    poolAddress: string,
+    lpTokenAddress: string,
+    poolName: string,
+    totalVeCrv: string,
+    relativeWeight: string,  // %
+}
+
+export interface IGaugeUserVote {
     userPower: string,  // %
     userVeCrv: string,
     expired: boolean,
-    gaugeData: {
-        poolUrl: string,
-        network: string,
-        gaugeAddress: string,
-        poolAddress: string,
-        lpTokenAddress: string,
-        poolName: string,
-        totalVeCrv: string,
-        relativeWeight: string,
-    }
+    gaugeData: IVotingGauge
 }
-

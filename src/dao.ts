@@ -5,6 +5,7 @@ import { curve } from "./curve.js";
 
 
 const _extractNetworkFromPoolUrl = (poolUrl: string): string => {
+    if (!poolUrl) return "unknown";
     return poolUrl.split("/")[4]
 }
 
@@ -40,6 +41,7 @@ export const userVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[
                 poolName: gaugeData[i].shortName,
                 totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
                 relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
+                isKilled: gaugeData[i].is_killed ?? false,
             },
         });
         powerUsed += votes[i][1];
@@ -65,7 +67,7 @@ export const getVotingGauges = async (): Promise<IVotingGauge[]> => {
     const gaugeData = Object.values(await _getAllGauges());
     const res = [];
     for (let i = 0; i < gaugeData.length; i++) {
-        if (gaugeData[i].is_killed || gaugeData[i].hasNoCrv) continue;
+        if ((gaugeData[i].is_killed || gaugeData[i].hasNoCrv) && Number(gaugeData[i].gauge_controller.gauge_relative_weight) === 0) continue;
         res.push({
             poolUrl: gaugeData[i].poolUrls.swap[0],
             network: _extractNetworkFromPoolUrl(gaugeData[i].poolUrls.swap[0]),
@@ -75,8 +77,10 @@ export const getVotingGauges = async (): Promise<IVotingGauge[]> => {
             poolName: gaugeData[i].shortName,
             totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
             relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
+            isKilled: gaugeData[i].is_killed ?? false,
         });
     }
 
     return res
 }
+

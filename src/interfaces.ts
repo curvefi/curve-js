@@ -204,6 +204,7 @@ export interface IVotingGauge {
     poolName: string,
     totalVeCrv: string,
     relativeWeight: string,  // %
+    isKilled: boolean,
 }
 
 export interface IGaugeUserVote {

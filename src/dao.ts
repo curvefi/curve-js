@@ -1,5 +1,5 @@
 import { _getAllGauges } from './external-api.js';
-import { _getAddress } from './utils.js';
+import { _getAddress, DIGas, mulBy1_3, parseUnits, smartNumber } from './utils.js';
 import { IGaugeUserVote, IVotingGauge } from './interfaces';
 import { curve } from "./curve.js";
 
@@ -84,3 +84,31 @@ export const getVotingGauges = async (): Promise<IVotingGauge[]> => {
     return res
 }
 
+export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
+    const lastVote = await curve.contracts[curve.constants.ALIASES.gauge_controller].contract.last_user_vote(curve.signerAddress, gauge, curve.constantOptions);
+    return (lastVote + (10 * 86400)) * 1000;
+}
+
+export const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
+    const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].contract;
+    const _power = parseUnits(power, 2);
+    const _powerUsed = await gaugeControllerContract.vote_user_power(curve.signerAddress, curve.constantOptions);
+    const _freePower = BigInt(10000) - _powerUsed;
+    if (_power > _freePower) throw Error(`User have only ${curve.formatUnits(_freePower, 2)} % free power. Trying to use ${curve.formatUnits(_power, 2)}`);
+    const nextVoteTime = await voteForGaugeNextTime(gauge);
+    if (Date.now() < nextVoteTime) throw Error(`User can't change vote for this gauge earlier than ${new Date(nextVoteTime)}`);
+
+    const gas = await gaugeControllerContract.vote_for_gauge_weights.estimateGas(gauge, _power, curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await gaugeControllerContract.vote_for_gauge_weights(gauge, _power, { ...curve.options, gasLimit })).hash;
+}
+
+export const voteForGaugeEstimateGas = async (gauge: string, power: number | string): Promise<number | number[]> => {
+    return await _voteForGauge(gauge, power, true) as number | number[];
+}
+
+export const voteForGauge = async (gauge: string, power: number | string): Promise<number | number[]> => {
+    return await _voteForGauge(gauge, power, false) as number | number[];
+}

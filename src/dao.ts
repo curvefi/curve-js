@@ -91,7 +91,7 @@ export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
     return (lastVote + (10 * 86400)) * 1000;
 }
 
-export const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
+const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
     const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].contract;
     const _power = parseUnits(power, 2);
     const _powerUsed = await gaugeControllerContract.vote_user_power(curve.signerAddress, curve.constantOptions);

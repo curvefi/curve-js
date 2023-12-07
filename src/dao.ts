@@ -12,14 +12,15 @@ const _extractNetworkFromPoolUrl = (poolUrl: string): string => {
 export const userVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } > => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     address = _getAddress(address);
-    const multicallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
+    const gcMulticallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
+    const veMulticallContract = curve.contracts[curve.constants.ALIASES.voting_escrow]. multicallContract;
 
     const gaugeData = Object.values(await _getAllGauges());
-    const calls: any[] = [];
+    const calls: any[] = [veMulticallContract.balanceOf(address)];
     for (const d of gaugeData) {
-        calls.push(multicallContract.vote_user_slopes(address, d.gauge));
+        calls.push(gcMulticallContract.vote_user_slopes(address, d.gauge));
     }
-    const votes: bigint[][] = await curve.multicallProvider.all(calls);
+    const [veCrvBalance, ...votes] = await curve.multicallProvider.all(calls) as [bigint, bigint[]];
 
     const res: { gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } = { gauges: [], powerUsed: "0.0", veCrvUsed: "0.0" };
     let powerUsed = BigInt(0);
@@ -31,6 +32,7 @@ export const userVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[
         res.gauges.push({
             userPower: curve.formatUnits(votes[i][1], 2),
             userVeCrv: curve.formatUnits(votes[i][0] * dt, 18),
+            userFutureVeCrv: curve.formatUnits(veCrvBalance * votes[i][1] / BigInt(10000), 18),
             expired: dt === BigInt(0),
             gaugeData: {
                 poolUrl: gaugeData[i].poolUrls.swap[0],

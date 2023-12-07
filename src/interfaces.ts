@@ -210,6 +210,7 @@ export interface IVotingGauge {
 export interface IGaugeUserVote {
     userPower: string,  // %
     userVeCrv: string,
+    userFutureVeCrv: string,
     expired: boolean,
     gaugeData: IVotingGauge
 }

@@ -1320,7 +1320,7 @@ import curve from "@curvefi/api";
     // [ '0.3324', '0.8309' ]
     await pool.userCrvApy();
     // 0.3324
-    await pool.boost();
+    await pool.userBoost();
     // 1.0
 
     await curve.boosting.createLock(10000, 365 * 4);

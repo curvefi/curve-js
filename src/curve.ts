@@ -780,7 +780,7 @@ class Curve implements ICurve {
     }
 
     fetchStableNgFactoryPools = async (useApi = true): Promise<void> => {
-        if (![1, 56, 8453, 42161].includes(this.chainId)) return;
+        if (this.chainId === 1313161554) return;
 
         if (useApi) {
             this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-stable-ng"));

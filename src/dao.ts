@@ -87,8 +87,8 @@ export const getVotingGauges = async (): Promise<IVotingGauge[]> => {
 }
 
 export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
-    const lastVote = await curve.contracts[curve.constants.ALIASES.gauge_controller].contract.last_user_vote(curve.signerAddress, gauge, curve.constantOptions);
-    return (lastVote + (10 * 86400)) * 1000;
+    const _lastVote: bigint = await curve.contracts[curve.constants.ALIASES.gauge_controller].contract.last_user_vote(curve.signerAddress, gauge, curve.constantOptions);
+    return (Number(_lastVote) + (10 * 86400)) * 1000;
 }
 
 const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {

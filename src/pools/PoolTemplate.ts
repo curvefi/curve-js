@@ -26,6 +26,7 @@ import {
     mulBy1_3,
     smartNumber,
     DIGas,
+    _getAddress,
 } from '../utils.js';
 import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
 import { curve } from "../curve.js";
@@ -467,16 +468,7 @@ export class PoolTemplate {
         }
     }
 
-    private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
-        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
-
-        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
-        if (useApi && !isDisabledChain) {
-            const crvAPYs = await _getCrvApyFromApi();
-            const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
-            return [poolCrvApy[0], poolCrvApy[1]];
-        }
-
+    private _calcTokenApy = async (futureWorkingSupplyBN: BigNumber | null = null): Promise<[baseApy: number, boostedApy: number]> => {
         const totalLiquidityUSD = await this.statsTotalLiquidity();
         if (Number(totalLiquidityUSD) === 0) return [0, 0];
 
@@ -513,13 +505,29 @@ export class PoolTemplate {
         }
 
         if (inflationRateBN.eq(0)) return [0, 0];
+        if (futureWorkingSupplyBN !== null) workingSupplyBN = futureWorkingSupplyBN;
 
-        const rateBN = inflationRateBN.times(31536000).times(0.4).div(workingSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD));
+        // If you added 1$ value of LP it would be 0.4$ of working LP. So your annual reward per 1$ in USD is:
+        // (annual reward per working liquidity in $) * (0.4$ of working LP)
+        const rateBN = inflationRateBN.times(31536000).div(workingSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD)).times(0.4);
         const crvPrice = await _getUsdRate(curve.constants.ALIASES.crv);
         const baseApyBN = rateBN.times(crvPrice);
         const boostedApyBN = baseApyBN.times(2.5);
 
         return [baseApyBN.times(100).toNumber(), boostedApyBN.times(100).toNumber()]
+    }
+
+    private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
+
+        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
+        if (useApi && !isDisabledChain) {
+            const crvAPYs = await _getCrvApyFromApi();
+            const poolCrvApy = crvAPYs[this.gauge] ?? [0, 0];  // new pools might be missing
+            return [poolCrvApy[0], poolCrvApy[1]];
+        }
+
+        return await this._calcTokenApy();
     }
 
     private statsRewardsApy = async (useApi = true): Promise<IReward[]> => {
@@ -1017,11 +1025,10 @@ export class PoolTemplate {
         return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
 
-    public boost = async (address = ""): Promise<string> => {
+    public userBoost = async (address = ""): Promise<string> => {
         if (this.gauge === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
-
-        address = address || curve.signerAddress;
-        if (!address) throw Error("Need to connect wallet or pass address into args");
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
+        address = _getAddress(address)
 
         const gaugeContract = curve.contracts[this.gauge].multicallContract;
         const [workingBalanceBN, balanceBN] = (await curve.multicallProvider.all([
@@ -1036,17 +1043,68 @@ export class PoolTemplate {
         return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
     }
 
+    private _userFutureBoostAndWorkingSupply = async (address: string): Promise<[BigNumber, BigNumber]> => {
+        // Calc future working balance
+        const veContractMulticall = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
+        const gaugeContractMulticall = curve.contracts[this.gauge].multicallContract;
+        const calls = [
+            veContractMulticall.balanceOf(address),
+            veContractMulticall.totalSupply(),
+            gaugeContractMulticall.balanceOf(address),
+            gaugeContractMulticall.totalSupply(),
+            gaugeContractMulticall.working_balances(address),
+            gaugeContractMulticall.working_supply(),
+        ];
+
+        const [_votingBalance, _votingTotal, _gaugeBalance, _gaugeTotal, _workingBalance, _workingSupply]: bigint[] = await curve.multicallProvider.all(calls);
+
+        let _futureWorkingBalance = _gaugeBalance * BigInt(40) / BigInt(100);
+        if (_votingTotal > BigInt(0)) {
+            _futureWorkingBalance += _gaugeTotal * _votingBalance / _votingTotal * BigInt(60) / BigInt(100);
+        }
+
+        if (_futureWorkingBalance > _gaugeBalance) _futureWorkingBalance = _gaugeBalance;
+        const _futureWorkingSupply = _workingSupply - _workingBalance + _futureWorkingBalance;
+        const futureWorkingBalanceBN = toBN(_futureWorkingBalance);
+        const balanceBN = toBN(_gaugeBalance);
+
+        const boostBN = futureWorkingBalanceBN.div(0.4).div(balanceBN);
+
+        return [boostBN, toBN(_futureWorkingSupply)]
+    }
+
+    public userFutureBoost = async (address = ""): Promise<string> => {
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
+        address = _getAddress(address)
+        const [boostBN] = await this._userFutureBoostAndWorkingSupply(address);
+        if (boostBN.lt(1)) return '1.0';
+        if (boostBN.gt(2.5)) return '2.5';
+
+        return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
+    }
+
     public userCrvApy = async (address = ""): Promise<number> => {
-        address = address || curve.signerAddress;
-        if (!address) throw Error("Need to connect wallet or pass address into args");
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
+        address = _getAddress(address)
 
-        const [baseApy, maxApy] = await this.statsTokenApy();
-
-        const boost = await this.boost(address);
+        const [minApy, maxApy] = await this.statsTokenApy();
+        const boost = await this.userBoost(address);
         if (boost == "2.5") return maxApy;
         if (boost === "NaN") return NaN;
 
-        return BN(baseApy).times(BN(boost)).toNumber();
+        return BN(minApy).times(BN(boost)).toNumber();
+    }
+
+    public userFutureCrvApy = async (address = ""): Promise<number> => {
+        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
+        address = _getAddress(address)
+        const [boostBN, futureWorkingSupplyBN] = await this._userFutureBoostAndWorkingSupply(address);
+
+        const [minApy, maxApy] = await this._calcTokenApy(futureWorkingSupplyBN);
+        if (boostBN.lt(1)) return minApy;
+        if (boostBN.gt(2.5)) return maxApy;
+
+        return BN(minApy).times(boostBN).toNumber();
     }
 
     public maxBoostedStake = async (...addresses: string[]): Promise<IDict<string> | string> => {

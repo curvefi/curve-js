@@ -1,6 +1,6 @@
-import { _getAllGauges } from './external-api.js';
+import { _getAllGauges, _getDaoProposalList, _getDaoProposal } from './external-api.js';
 import { _getAddress, DIGas, mulBy1_3, parseUnits, smartNumber } from './utils.js';
-import { IGaugeUserVote, IVotingGauge } from './interfaces';
+import { IGaugeUserVote, IVotingGauge, IDaoProposalListItem, IDaoProposal } from './interfaces';
 import { curve } from "./curve.js";
 
 
@@ -113,4 +113,12 @@ export const voteForGaugeEstimateGas = async (gauge: string, power: number | str
 
 export const voteForGauge = async (gauge: string, power: number | string): Promise<number | number[]> => {
     return await _voteForGauge(gauge, power, false) as number | number[];
+}
+
+export const getProposalList = async (): Promise<IDaoProposalListItem[]> => {
+    return await _getDaoProposalList();
+}
+
+export const getProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> => {
+    return await _getDaoProposal(type, id);
 }

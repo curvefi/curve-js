@@ -1,6 +1,15 @@
 import axios from "axios";
 import memoize from "memoizee";
-import { IExtendedPoolDataFromApi, ISubgraphPoolData, IDict, INetworkName, IPoolType, IGaugesDataFromApi } from "./interfaces";
+import {
+    IExtendedPoolDataFromApi,
+    ISubgraphPoolData,
+    IDict,
+    INetworkName,
+    IPoolType,
+    IGaugesDataFromApi,
+    IDaoProposal,
+    IDaoProposalListItem,
+} from "./interfaces";
 
 
 export const _getPoolsFromApi = memoize(
@@ -121,3 +130,28 @@ export const _generateBoostingProof = memoize(
         maxAge: 5 * 60 * 1000, // 5m
     }
 )
+
+
+// --- DAO ---
+
+export const _getDaoProposalList = memoize(async (): Promise<IDaoProposalListItem[]> => {
+    const url = "https://api-py.llama.airforce/curve/v1/dao/proposals";
+    const response = await axios.get(url, { validateStatus: () => true });
+
+    return response.data.proposals;
+},
+{
+    promise: true,
+    maxAge: 5 * 60 * 1000, // 5m
+})
+
+export const _getDaoProposal = memoize(async (type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> => {
+    const url = `https://api-py.llama.airforce/curve/v1/dao/proposals/${type.toLowerCase()}/${id}`;
+    const response = await axios.get(url, { validateStatus: () => true });
+
+    return response.data;
+},
+{
+    promise: true,
+    maxAge: 5 * 60 * 1000, // 5m
+})

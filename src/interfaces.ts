@@ -212,5 +212,37 @@ export interface IGaugeUserVote {
     userVeCrv: string,
     userFutureVeCrv: string,
     expired: boolean,
-    gaugeData: IVotingGauge
+    gaugeData: IVotingGauge,
+}
+
+export interface IDaoProposalListItem {
+    voteId: number,
+    voteType: "PARAMETER" | "OWNERSHIP",
+    creator: string,
+    startDate: number,
+    snapshotBlock: number,
+    ipfsMetadata: string,
+    metadata: string,
+    votesFor: string,
+    votesAgainst: string,
+    voteCount: number,
+    supportRequired: string,
+    minAcceptQuorum: string,
+    totalSupply: string,
+    executed: boolean,
+}
+
+export interface IDaoProposalVote {
+    tx: string,
+    voteId: number,
+    voter: string,
+    supports: boolean,
+    stake: number,
+}
+
+export interface IDaoProposal extends IDaoProposalListItem{
+    tx: string,
+    creatorVotingPower: number,
+    script: string,
+    votes: IDaoProposalVote[],
 }

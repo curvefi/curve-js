@@ -804,3 +804,82 @@ const deployTricryptoPoolTest = async () => {
     const underlyingBalances = await pool.stats.underlyingBalances();
     console.log(underlyingBalances);
 }
+
+const deployStableNgPlainPool = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const coins = [
+        "0xae7ab96520de3a18e5e111b5eaab095312d7fe84", // stETH
+        "0xac3e018457b222d93114458476f3e3416abbe38f", // sfrxETH
+    ];
+
+    //0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
+    const assetTypes = [2, 1] as Array<0 | 1 | 2 | 3>;
+
+    const oracleAddresses = [
+        '0x0000000000000000000000000000000000000000',
+        '0xac3e018457b222d93114458476f3e3416abbe38f',
+    ];
+
+    const methodNames = [
+        '',
+        'pricePerShare',
+    ];
+
+    // Deploy pool
+
+    const deployPoolTx = await curve.stableNgFactory.deployPlainPool('Test pool', 'test', coins, 5, 0.05, 5, assetTypes, 0, 600, oracleAddresses, methodNames);
+
+    const poolAddress = await curve.stableNgFactory.getDeployedPlainPoolAddress(deployPoolTx);
+    console.log(poolAddress)
+    // 0x0816bc9ced716008c88bb8940c297e9c9167755e
+
+    // Deploy gauge
+
+    if(curve.chainId === 1) {
+        const deployGaugeTx = await curve.stableNgFactory.deployGauge(poolAddress);
+
+        const gaugeAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeTx);
+        console.log(gaugeAddress)
+    } else {
+        const salt = '15'
+
+        const deployGaugeSidechain = await curve.stableNgFactory.deployGaugeSidechain(poolAddress, salt);
+
+        const gaugeSidechainAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeSidechain);
+        console.log(gaugeSidechainAddress)
+    }
+
+}
+
+const deployStableNgMetaPool = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const basePool = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7";  // 3pool address
+    const coin = "0xac3e018457b222d93114458476f3e3416abbe38f"; // sfrxETH
+    const oracleAddress = '0xac3e018457b222d93114458476f3e3416abbe38f';
+    const methodName = 'pricePerShare';
+
+    // Deploy pool
+
+    const deployPoolTx = await curve.stableNgFactory.deployMetaPool(basePool, 'Test pool', 'test', coin, 5, 0.05, 5, 600, 0, 0, methodName, oracleAddress);
+
+    const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
+    console.log(poolAddress);
+
+    // Deploy gauge
+
+    if(curve.chainId === 1) {
+        const deployGaugeTx = await curve.stableNgFactory.deployGauge(poolAddress);
+
+        const gaugeAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeTx);
+        console.log(gaugeAddress);
+    } else  {
+        const salt = '15'
+        //salt - unical random string
+        const deployGaugeSidechain = await curve.stableNgFactory.deployGaugeSidechain(poolAddress, salt);
+
+        const gaugeSidechainAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeSidechain);
+        console.log(gaugeSidechainAddress);
+    }
+}

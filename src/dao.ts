@@ -6,7 +6,7 @@ import {
     IDaoProposalListItem,
     IDaoProposalUserListItem,
     IDaoProposal,
-    IDict
+    IDict,
 } from './interfaces';
 import { curve } from "./curve.js";
 
@@ -119,11 +119,13 @@ const _voteForGauge = async (gauge: string, power: number | string, estimateGas:
 }
 
 export const voteForGaugeEstimateGas = async (gauge: string, power: number | string): Promise<number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
     return await _voteForGauge(gauge, power, true) as number | number[];
 }
 
-export const voteForGauge = async (gauge: string, power: number | string): Promise<number | number[]> => {
-    return await _voteForGauge(gauge, power, false) as number | number[];
+export const voteForGauge = async (gauge: string, power: number | string): Promise<string> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    return await _voteForGauge(gauge, power, false) as string;
 }
 
 // Proposals
@@ -161,4 +163,24 @@ export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserL
     }
 
     return userProposalList
+}
+
+const _voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean, estimateGas: boolean): Promise<string | number | number[]> => {
+    const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
+    const contract = curve.contracts[contractAddress].contract;
+    const yesPct = support ? BigInt(10**18) : BigInt(0);
+    const noPct = BigInt(10**18) - yesPct;
+    const gas = await contract.votePct.estimateGas(id, yesPct, noPct, true, curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await contract.votePct(id, yesPct, noPct, false, { ...curve.options, gasLimit })).hash;
+}
+
+export const voteForProposalEstimateGas = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean): Promise<number | number[]> => {
+    return await _voteForProposal(type, id, support, true) as number | number[];
+}
+
+export const voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean): Promise<string> => {
+    return await _voteForProposal(type, id, support, false) as string;
 }

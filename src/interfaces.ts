@@ -232,6 +232,10 @@ export interface IDaoProposalListItem {
     executed: boolean,
 }
 
+export interface IDaoProposalUserListItem extends IDaoProposalListItem{
+    userVote: "yes" | "no" | "even"
+}
+
 export interface IDaoProposalVote {
     tx: string,
     voteId: number,

@@ -1,15 +1,24 @@
 import { _getAllGauges, _getDaoProposalList, _getDaoProposal } from './external-api.js';
 import { _getAddress, DIGas, mulBy1_3, parseUnits, smartNumber } from './utils.js';
-import { IGaugeUserVote, IVotingGauge, IDaoProposalListItem, IDaoProposal } from './interfaces';
+import {
+    IGaugeUserVote,
+    IVotingGauge,
+    IDaoProposalListItem,
+    IDaoProposalUserListItem,
+    IDaoProposal,
+    IDict
+} from './interfaces';
 import { curve } from "./curve.js";
 
+
+// Gauge weights
 
 const _extractNetworkFromPoolUrl = (poolUrl: string): string => {
     if (!poolUrl) return "unknown";
     return poolUrl.split("/")[4]
 }
 
-export const userVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } > => {
+export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } > => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     address = _getAddress(address);
     const gcMulticallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
@@ -87,7 +96,9 @@ export const getVotingGauges = async (): Promise<IVotingGauge[]> => {
 }
 
 export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const _lastVote: bigint = await curve.contracts[curve.constants.ALIASES.gauge_controller].contract.last_user_vote(curve.signerAddress, gauge, curve.constantOptions);
+
     return (Number(_lastVote) + (10 * 86400)) * 1000;
 }
 
@@ -115,10 +126,39 @@ export const voteForGauge = async (gauge: string, power: number | string): Promi
     return await _voteForGauge(gauge, power, false) as number | number[];
 }
 
+// Proposals
+
 export const getProposalList = async (): Promise<IDaoProposalListItem[]> => {
     return await _getDaoProposalList();
 }
 
 export const getProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> => {
     return await _getDaoProposal(type, id);
+}
+
+export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserListItem[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    address = _getAddress(address);
+    const proposalList = await _getDaoProposalList();
+    const calls = [];
+    for (const proposal of proposalList) {
+        if (proposal.voteType == "PARAMETER") {
+            calls.push(curve.contracts[curve.constants.ALIASES.voting_parameter].multicallContract.getVoterState(proposal.voteId, address));
+        } else {
+            calls.push(curve.contracts[curve.constants.ALIASES.voting_ownership].multicallContract.getVoterState(proposal.voteId, address));
+        }
+    }
+    const userState: number[] = (await curve.multicallProvider.all(calls)).map(Number);
+
+    const userProposalList: IDaoProposalUserListItem[] = [];
+    const voteEnum: IDict<"yes" | "no" | "even"> = {
+        1: "yes",
+        2: "no",
+        3: "even",
+    }
+    for (let i = 0; i < proposalList.length; i++) {
+        if (userState[i] > 0) userProposalList.push({ ...proposalList[i], userVote: voteEnum[userState[i]]});
+    }
+
+    return userProposalList
 }

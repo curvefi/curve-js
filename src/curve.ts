@@ -31,6 +31,7 @@ import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { typ
 import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
 import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' assert { type: 'json' };
 import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
+import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
 
 import {
     POOLS_DATA_ETHEREUM,
@@ -627,6 +628,11 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.anycall, anycallABI);
 
         this.setContract(this.constants.ALIASES.voting_escrow_oracle, this.chainId === 1 ? votingEscrowOracleEthABI : votingEscrowOracleABI);
+
+        if (this.chainId === 1) {
+            this.setContract(this.constants.ALIASES.voting_parameter, votingProposalABI);
+            this.setContract(this.constants.ALIASES.voting_ownership, votingProposalABI);
+        }
 
         if(L2Networks.includes(this.chainId)) {
             // eslint-disable-next-line @typescript-eslint/no-this-alias

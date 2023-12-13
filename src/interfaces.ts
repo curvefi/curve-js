@@ -177,3 +177,76 @@ export interface IProfit {
     symbol: string,
     price: number,
 }
+
+export interface IGaugesDataFromApi {
+    gauge: string,
+    swap: string,
+    swap_token: string,
+    shortName: string,
+    gauge_controller: {
+        gauge_relative_weight: string,
+        get_gauge_weight: string,
+    },
+    poolUrls: {
+        swap: string[],
+    }
+    is_killed?: boolean,
+    hasNoCrv?: boolean,
+    gaugeStatus?: Record<string, boolean> | null,
+}
+
+export interface IVotingGauge {
+    poolUrl: string,
+    network: string,
+    gaugeAddress: string,
+    poolAddress: string,
+    lpTokenAddress: string,
+    poolName: string,
+    totalVeCrv: string,
+    relativeWeight: string,  // %
+    isKilled: boolean,
+}
+
+export interface IGaugeUserVote {
+    userPower: string,  // %
+    userVeCrv: string,
+    userFutureVeCrv: string,
+    expired: boolean,
+    gaugeData: IVotingGauge,
+}
+
+export interface IDaoProposalListItem {
+    voteId: number,
+    voteType: "PARAMETER" | "OWNERSHIP",
+    creator: string,
+    startDate: number,
+    snapshotBlock: number,
+    ipfsMetadata: string,
+    metadata: string,
+    votesFor: string,
+    votesAgainst: string,
+    voteCount: number,
+    supportRequired: string,
+    minAcceptQuorum: string,
+    totalSupply: string,
+    executed: boolean,
+}
+
+export interface IDaoProposalUserListItem extends IDaoProposalListItem{
+    userVote: "yes" | "no" | "even"
+}
+
+export interface IDaoProposalVote {
+    tx: string,
+    voteId: number,
+    voter: string,
+    supports: boolean,
+    stake: number,
+}
+
+export interface IDaoProposal extends IDaoProposalListItem{
+    tx: string,
+    creatorVotingPower: number,
+    script: string,
+    votes: IDaoProposalVote[],
+}

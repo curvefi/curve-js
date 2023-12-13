@@ -23,6 +23,24 @@ import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" a
 
 // ----------------- Refactored boosting stuff -----------------
 
+export const crvSupplyStats = async (): Promise<{ total: string, locked: string, veCrv: string, averageLockTime: string }> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    const crvContract = curve.contracts[curve.constants.ALIASES.crv].multicallContract;
+    const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
+    const [_total, _locked, _veCrv] = await curve.multicallProvider.all([
+        crvContract.totalSupply(),
+        crvContract.balanceOf(curve.constants.ALIASES.voting_escrow),
+        veContract.totalSupply(),
+    ]) as [bigint, bigint, bigint];
+
+    return {
+        total: curve.formatUnits(_total),
+        locked: curve.formatUnits(_locked),
+        veCrv: curve.formatUnits(_veCrv),
+        averageLockTime: toBN(_veCrv).div(toBN(_locked)).times(4).toFixed(4), // years
+    }
+}
+
 export const userCrv = async (address = ""): Promise<string> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     address = _getAddress(address);

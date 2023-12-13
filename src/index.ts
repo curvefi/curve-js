@@ -97,6 +97,7 @@ import {
     deployStableNgMetaPoolEstimateGas,
 } from './factory/deploy.js';
 import {
+    crvSupplyStats,
     userCrv,
     userVeCrv,
     crvLockIsApproved,
@@ -317,6 +318,7 @@ const curve = {
         // --- CRV lock ---
 
         // View methods
+        crvSupplyStats,
         userCrv,
         userVeCrv,
         crvLockIsApproved,

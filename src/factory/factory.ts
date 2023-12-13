@@ -311,6 +311,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
+                is_stable_ng: factoryAddress === curve.constants.ALIASES.stable_ng_factory,
             };
         } else {
             const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
@@ -347,6 +348,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 deposit_abi: basePoolZap.ABI,
+                is_stable_ng: factoryAddress === curve.constants.ALIASES.stable_ng_factory,
             };
         }
     }

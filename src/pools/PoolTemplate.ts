@@ -59,6 +59,7 @@ export class PoolTemplate {
     isFake: boolean;
     isFactory: boolean;
     isMetaFactory: boolean;
+    isStableNg: boolean;
     isLlamma: boolean;
     basePool: string;
     metaCoinIdx: number;
@@ -153,6 +154,7 @@ export class PoolTemplate {
         this.isFake = poolData.is_fake || false;
         this.isFactory = poolData.is_factory || false;
         this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xa79828df1850e8a3a3064576f380d90aecdd3359';
+        this.isStableNg = poolData.is_stable_ng || false;
         this.isLlamma = poolData.is_llamma || false;
         this.basePool = poolData.base_pool || '';
         this.metaCoinIdx = this.isMeta ? poolData.meta_coin_idx ?? poolData.wrapped_coins.length - 1 : -1;

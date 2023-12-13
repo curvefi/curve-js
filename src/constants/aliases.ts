@@ -22,6 +22,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "factory_admin": "",
     "voting_parameter": '0xBCfF8B0b9419b9A88c44546519b1e909cF330399',
     "voting_ownership": '0xE478de485ad2fe566d49342Cbd03E49ed7DB3356',
+    "circulating_supply": '0x14139EB676342b6bC8E41E0d419969f23A49881e',
 });
 
 export const ALIASES_POLYGON = lowerCaseValues({

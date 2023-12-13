@@ -784,8 +784,9 @@ export class PoolTemplate {
         const amountsBN = amounts.map(BN);
         let prices: number[] = [];
 
-        const isUseStoredRates = (curve.chainId === 1 && this.id.includes('factory-crvusd') && isMethodExist(curve.contracts[this.address].contract, 'stored_rates'))
-            || (this.id.includes('factory-stable-ng') && this.isPlain);
+
+        //for crvusd and stable-ng implementations
+        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
 
         if(this.isCrypto || this.id === 'wsteth') {
             prices = await this._underlyingPrices();

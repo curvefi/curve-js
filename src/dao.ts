@@ -295,20 +295,24 @@ export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
 
 const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].contract;
+    const gcContract = curve.contracts[curve.constants.ALIASES.gauge_controller].contract;
+    const gcMulticallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
     const _power = parseUnits(power, 2);
-    const _powerUsed = await gaugeControllerContract.vote_user_power(curve.signerAddress, curve.constantOptions);
+    const [_powerUsed, _vote_slopes] = await curve.multicallProvider.all([
+        gcMulticallContract.vote_user_power(curve.signerAddress),
+        gcMulticallContract.vote_user_slopes(curve.signerAddress, gauge),
+    ]) as [bigint, bigint[]];
     const _freePower = BigInt(10000) - _powerUsed;
-    if (_power > _freePower) throw Error(`User have only ${curve.formatUnits(_freePower, 2)} % free power. Trying to use ${curve.formatUnits(_power, 2)}`);
+    if (_power > _freePower + _vote_slopes[1]) throw Error(`User have only ${curve.formatUnits(_freePower, 2)} % free power. Trying to use ${curve.formatUnits(_power, 2)}`);
     const nextVoteTime = await voteForGaugeNextTime(gauge);
     if (Date.now() < nextVoteTime) throw Error(`User can't change vote for this gauge earlier than ${new Date(nextVoteTime)}`);
 
-    const gas = await gaugeControllerContract.vote_for_gauge_weights.estimateGas(gauge, _power, curve.constantOptions);
+    const gas = await gcContract.vote_for_gauge_weights.estimateGas(gauge, _power, curve.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
     await curve.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await gaugeControllerContract.vote_for_gauge_weights(gauge, _power, { ...curve.options, gasLimit })).hash;
+    return (await gcContract.vote_for_gauge_weights(gauge, _power, { ...curve.options, gasLimit })).hash;
 }
 
 export const voteForGaugeEstimateGas = async (gauge: string, power: number | string): Promise<number | number[]> => {

@@ -27,6 +27,7 @@ import {
     smartNumber,
     DIGas,
     _getAddress,
+    isMethodExist,
 } from '../utils.js';
 import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
 import { curve } from "../curve.js";
@@ -779,7 +780,22 @@ export class PoolTemplate {
 
     public async depositBonus(amounts: (number | string)[]): Promise<string> {
         const amountsBN = amounts.map(BN);
-        const prices = (this.isCrypto || this.id === 'wsteth' || this.id === 'factory-crvusd-24') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
+        let prices: number[] = [];
+
+        const isUseStoredRates = (curve.chainId === 1 && this.id.includes('factory-crvusd') && isMethodExist(curve.contracts[this.address].contract, 'stored_rates'))
+            || (this.id.includes('factory-stable-ng') && this.isPlain);
+
+        if(this.isCrypto || this.id === 'wsteth') {
+            prices = await this._underlyingPrices();
+        } else if (isUseStoredRates) {
+            const result = await this._stored_rates();
+            result.forEach((item, index) => {
+                prices.push(Number(item)/(10 ** (36 - this.underlyingDecimals[index])))
+            })
+        } else {
+            prices = this.underlyingCoins.map(() => 1);
+        }
+
         const pricesBN = prices.map(BN);
         const balancesBN = (await this.stats.underlyingBalances()).map(BN);
         const balancedAmounts = this._balancedAmountsWithSameValue(amountsBN, pricesBN, balancesBN);
@@ -2313,6 +2329,10 @@ export class PoolTemplate {
         }
 
         return addresses.length === 1 ? balances[addresses[0]] : balances
+    }
+
+    private _stored_rates = async (): Promise<number[]> => {
+        return await curve.contracts[this.address].contract.stored_rates();
     }
 
     private _underlyingPrices = async (): Promise<number[]> => {

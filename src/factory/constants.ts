@@ -12,6 +12,7 @@ import MetaSbtc2ABI from "../constants/abis/factory-v2/MetaSbtc2.json" assert { 
 import MetaSbtc2BalancesABI from "../constants/abis/factory-v2/MetaSbtc2Balance.json" assert { type: 'json' };
 import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json" assert { type: 'json' };
 import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json" assert { type: 'json' };
+import Plain2BasicWithRatesABI from "../constants/abis/factory-v2/Plain2BasicWithRates.json" assert { type: 'json' };
 import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json" assert { type: 'json' };
 import Plain2ETHABI from "../constants/abis/factory-v2/Plain2ETH.json" assert { type: 'json' };
 import Plain2ETHOracleABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
@@ -74,7 +75,7 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     // !!! crvUSD Factory !!!
     "0x67fe41A94e779CcFa22cff02cc2957DC9C0e4286": Plain2BasicABI,
     "0x7Ca46A636b02D4aBC66883D7FF164bDE506DC66a": Plain2BalancesABI,
-    "0x36Dc03C0e12a1C241306a6A8F327Fe28bA2Be5b0": Plain2BasicABI,
+    "0x36Dc03C0e12a1C241306a6A8F327Fe28bA2Be5b0": Plain2BasicWithRatesABI,
     // !!! crvUSD Factory !!!
 
     "0x9B52F13DF69D79Ec5aAB6D1aCe3157d29B409cC3": Plain3BasicABI,

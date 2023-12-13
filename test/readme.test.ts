@@ -998,5 +998,4 @@ const daoProposalVoting = async () => {
 
     // Need to use some real address
     console.log(await curve.dao.userProposalVotes("0x7a16fF8270133F063aAb6C9977183D9e72835428"));
->>>>>>> 33bb729 (docs: dao)
 }

@@ -96,6 +96,35 @@ import {
     deployStableNgMetaPool,
     deployStableNgMetaPoolEstimateGas,
 } from './factory/deploy.js';
+import {
+    userCrv,
+    userVeCrv,
+    crvLockIsApproved,
+    crvLockApproveEstimateGas,
+    crvLockApprove,
+    calcCrvUnlockTime,
+    createCrvLockEstimateGas,
+    createCrvLock,
+    increaseCrvLockedAmountEstimateGas,
+    increaseCrvLockedAmount,
+    increaseCrvUnlockTimeEstimateGas,
+    increaseCrvUnlockTime,
+    withdrawLockedCrvEstimateGas as daoWithdrawLockedCrvEstimateGas,
+    withdrawLockedCrv as daoWithdrawLockedCrv,
+    claimableFees as daoClaimableFees,
+    claimFeesEstimateGas as daoClaimFeesEstimateGas,
+    claimFees as daoClaimFees,
+    getVotingGaugeList,
+    userGaugeVotes,
+    voteForGaugeNextTime,
+    voteForGaugeEstimateGas,
+    voteForGauge,
+    getProposalList,
+    getProposal,
+    userProposalVotes,
+    voteForProposalEstimateGas,
+    voteForProposal,
+} from "./dao.js";
 
 async function init (
     providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
@@ -282,6 +311,56 @@ const curve = {
         estimateGas: {
             approve: swapApproveEstimateGas,
             swap: swapEstimateGas,
+        },
+    },
+    dao: {
+        // --- CRV lock ---
+
+        // View methods
+        userCrv,
+        userVeCrv,
+        crvLockIsApproved,
+        calcCrvUnlockTime,
+        claimableFees: daoClaimableFees,
+        // Transaction methods
+        crvLockApprove,
+        createCrvLock,
+        increaseCrvLockedAmount,
+        increaseCrvUnlockTime,
+        withdrawLockedCrv: daoWithdrawLockedCrv,
+        claimFees: daoClaimFees,
+
+
+        // --- Gauge voting ---
+
+        // View methods
+        getVotingGaugeList,
+        userGaugeVotes,
+        voteForGaugeNextTime,
+        // Transaction methods
+        voteForGauge,
+
+        // --- Proposal voting ---
+
+        // View methods
+        getProposalList,
+        getProposal,
+        userProposalVotes,
+        // Transaction methods
+        voteForProposal,
+
+        estimateGas: {
+            // --- CRV lock ---
+            crvLockApprove: crvLockApproveEstimateGas,
+            createCrvLock: createCrvLockEstimateGas,
+            increaseCrvLockedAmount: increaseCrvLockedAmountEstimateGas,
+            increaseCrvUnlockTime: increaseCrvUnlockTimeEstimateGas,
+            withdrawLockedCrv: daoWithdrawLockedCrvEstimateGas,
+            claimFees: daoClaimFeesEstimateGas,
+            // --- Gauge voting ---
+            voteForGauge: voteForGaugeEstimateGas,
+            // --- Proposal voting ---
+            voteForProposal: voteForProposalEstimateGas,
         },
     },
 }

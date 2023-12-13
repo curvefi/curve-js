@@ -74,7 +74,7 @@ export const calcCrvUnlockTime = (days: number | string, start: number | string 
     return Math.floor(unlockTime / week) * week * 1000;
 }
 
-export const _createCrvLock = async (amount: number | string, days: number, estimateGas: boolean): Promise<string | number | number[]> => {
+const _createCrvLock = async (amount: number | string, days: number, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const crvBalance = await userCrv();
     if (BN(crvBalance).lt(amount)) throw Error(`Not enough CRV. Wallet balance: ${crvBalance}, required: ${amount}`);
@@ -99,7 +99,7 @@ export const createCrvLock = async (amount: number | string, days: number | stri
     return await _createCrvLock(amount, Number(days), false) as string;
 }
 
-export const _increaseCrvLockedAmount = async (amount: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
+const _increaseCrvLockedAmount = async (amount: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const crvBalance = await userCrv();
     if (BN(crvBalance).lt(amount)) throw Error(`Not enough CRV. Wallet balance: ${crvBalance}, required: ${amount}`);
@@ -115,15 +115,15 @@ export const _increaseCrvLockedAmount = async (amount: number | string, estimate
     return (await contract.increase_amount(_amount, { ...curve.options, gasLimit })).hash;
 }
 
-export const increaseCrvLockAmountEstimateGas = async (amount: number | string): Promise<number | number[]> => {
+export const increaseCrvLockedAmountEstimateGas = async (amount: number | string): Promise<number | number[]> => {
     return await _increaseCrvLockedAmount(amount, true) as number | number[];
 }
 
-export const increaseCrvLockAmount = async (amount: number | string): Promise<string> => {
+export const increaseCrvLockedAmount = async (amount: number | string): Promise<string> => {
     return await _increaseCrvLockedAmount(amount, false) as string;
 }
 
-export const _increaseCrvUnlockTime = async (days: number, estimateGas: boolean): Promise<string | number | number[]> => {
+const _increaseCrvUnlockTime = async (days: number, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const { unlockTime } = await userVeCrv();
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
@@ -144,7 +144,7 @@ export const increaseCrvUnlockTime = async (days: number | string): Promise<stri
     return await _increaseCrvUnlockTime(Number(days), false) as string;
 }
 
-export const _withdrawLockedCrv = async (estimateGas: boolean): Promise<string | number | number[]> => {
+const _withdrawLockedCrv = async (estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method");
     const { unlockTime } = await userVeCrv();
     if (unlockTime > Date.now()) throw Error("The lock haven't expired yet")
@@ -171,7 +171,7 @@ export const claimableFees = async (address = ""): Promise<string> => {
     return curve.formatUnits(await contract.claim(address, curve.constantOptions));
 }
 
-export const _claimFees = async (address: string, estimateGas: boolean): Promise<string | number | number[]> => {
+const _claimFees = async (address: string, estimateGas: boolean): Promise<string | number | number[]> => {
     address = _getAddress(address);
     const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
     const gas = await contract.claim.estimateGas(address, curve.constantOptions);

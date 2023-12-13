@@ -853,7 +853,7 @@ const deployStableNgPlainPool = async () => {
 }
 
 const deployStableNgMetaPool = async () => {
-    await curve.init('JsonRpc', {}, {gasPrice: 0});
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
 
     const basePool = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7";  // 3pool address
     const coin = "0xac3e018457b222d93114458476f3e3416abbe38f"; // sfrxETH

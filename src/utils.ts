@@ -248,19 +248,26 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
     const decimals = _getCoinDecimals(coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     const address = curve.signerAddress;
-    const allowance: bigint[] = await _getAllowance(coinAddresses, address, spender);
+    const _allowance: bigint[] = await _getAllowance(coinAddresses, address, spender);
 
     let gas = [0,0];
-    for (let i = 0; i < allowance.length; i++) {
-        if (allowance[i] < _amounts[i]) {
+    for (let i = 0; i < _allowance.length; i++) {
+        if (_allowance[i] < _amounts[i]) {
             const contract = curve.contracts[coinAddresses[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
-            if (allowance[i] > curve.parseUnits("0")) {
-                const currentGas = smartNumber(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions));
+            if (_allowance[i] > curve.parseUnits("0")) {
+                let currentGas = smartNumber(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions));
+                // For some coins (crv for example ) we can't estimate the second tx gas (approve: 0 --> amount), so we assume it will cost the same amount of gas
+                if (typeof currentGas === "number") {
+                    currentGas = currentGas * 2;
+                } else {
+                    currentGas = currentGas.map((g) => g * 2)
+                }
+                gas = gasSum(gas, currentGas);
+            } else {
+                const currentGas = smartNumber(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
                 gas = gasSum(gas, currentGas);
             }
-            const currentGas = smartNumber(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions));
-            gas = gasSum(gas, currentGas);
         }
     }
 

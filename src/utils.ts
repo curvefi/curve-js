@@ -664,6 +664,15 @@ export const getCountArgsOfMethodByContract = (contract: Contract, methodName: s
     }
 }
 
+export const isMethodExist = (contract: Contract, methodName: string): boolean => {
+    const func = contract.interface.fragments.find((item: any) => item.name === methodName);
+    if(func) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 export const getPoolName = (name: string): string => {
     const separatedName = name.split(": ")
     if(separatedName.length > 1) {

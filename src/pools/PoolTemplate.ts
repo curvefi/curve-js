@@ -27,6 +27,7 @@ import {
     smartNumber,
     DIGas,
     _getAddress,
+    isMethodExist,
 } from '../utils.js';
 import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
 import { curve } from "../curve.js";
@@ -58,6 +59,7 @@ export class PoolTemplate {
     isFake: boolean;
     isFactory: boolean;
     isMetaFactory: boolean;
+    isStableNg: boolean;
     isLlamma: boolean;
     basePool: string;
     metaCoinIdx: number;
@@ -152,6 +154,7 @@ export class PoolTemplate {
         this.isFake = poolData.is_fake || false;
         this.isFactory = poolData.is_factory || false;
         this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xa79828df1850e8a3a3064576f380d90aecdd3359';
+        this.isStableNg = poolData.is_stable_ng || false;
         this.isLlamma = poolData.is_llamma || false;
         this.basePool = poolData.base_pool || '';
         this.metaCoinIdx = this.isMeta ? poolData.meta_coin_idx ?? poolData.wrapped_coins.length - 1 : -1;
@@ -779,7 +782,23 @@ export class PoolTemplate {
 
     public async depositBonus(amounts: (number | string)[]): Promise<string> {
         const amountsBN = amounts.map(BN);
-        const prices = (this.isCrypto || this.id === 'wsteth' || this.id === 'factory-crvusd-24') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
+        let prices: number[] = [];
+
+
+        //for crvusd and stable-ng implementations
+        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
+
+        if(this.isCrypto || this.id === 'wsteth') {
+            prices = await this._underlyingPrices();
+        } else if (isUseStoredRates) {
+            const result = await this._stored_rates();
+            result.forEach((item, index) => {
+                prices.push(Number(item)/(10 ** (36 - this.underlyingDecimals[index])))
+            })
+        } else {
+            prices = this.underlyingCoins.map(() => 1);
+        }
+
         const pricesBN = prices.map(BN);
         const balancesBN = (await this.stats.underlyingBalances()).map(BN);
         const balancedAmounts = this._balancedAmountsWithSameValue(amountsBN, pricesBN, balancesBN);
@@ -2313,6 +2332,10 @@ export class PoolTemplate {
         }
 
         return addresses.length === 1 ? balances[addresses[0]] : balances
+    }
+
+    private _stored_rates = async (): Promise<number[]> => {
+        return await curve.contracts[this.address].contract.stored_rates();
     }
 
     private _underlyingPrices = async (): Promise<number[]> => {

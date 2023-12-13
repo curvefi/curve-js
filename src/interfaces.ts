@@ -32,6 +32,7 @@ export interface IPoolData {
     is_fake?: boolean,
     is_factory?: boolean,
     is_llamma?: boolean,
+    is_stable_ng?: boolean,
     base_pool?: string,
     meta_coin_idx?: number,
     underlying_coins: string[],

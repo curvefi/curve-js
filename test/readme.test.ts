@@ -804,3 +804,119 @@ const deployTricryptoPoolTest = async () => {
     const underlyingBalances = await pool.stats.underlyingBalances();
     console.log(underlyingBalances);
 }
+
+// --- DAO ---
+
+const daoLockAndBoosting = async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    console.log(await curve.dao.crvSupplyStats());
+
+    console.log(await curve.dao.userCrv());
+    const lockAmount = 10000;
+    console.log(await curve.dao.estimateGas.crvLockApprove(lockAmount));
+    console.log(await curve.dao.crvLockApprove(lockAmount));
+    console.log(await curve.dao.crvLockIsApproved(lockAmount));
+    console.log(curve.dao.calcCrvUnlockTime(365));
+    console.log(await curve.dao.estimateGas.createCrvLock(lockAmount, 365));
+    console.log(await curve.dao.createCrvLock(lockAmount, 7));
+    console.log(await curve.dao.userVeCrv());
+
+    const pool = curve.getPool("3pool");
+    console.log(await pool.depositAndStake([1000, 1000, 1000]));
+    console.log(await pool.userBoost());
+    console.log(await pool.userCrvApy());
+    console.log(await pool.userFutureBoost());
+    console.log(await pool.userFutureCrvApy());
+
+    console.log(await curve.dao.crvLockApprove(lockAmount));
+    console.log(await curve.dao.estimateGas.increaseCrvLockedAmount(lockAmount));
+    console.log(await curve.dao.increaseCrvLockedAmount(lockAmount));
+    console.log(await curve.dao.userVeCrv());
+    console.log(await pool.userBoost());
+    console.log(await pool.userCrvApy());
+    console.log(await pool.userFutureBoost());
+    console.log(await pool.userFutureCrvApy());
+
+
+    const { unlockTime } = await curve.dao.userVeCrv();
+    console.log(curve.dao.calcCrvUnlockTime(365, unlockTime));
+    console.log(await curve.dao.estimateGas.increaseCrvUnlockTime(365));
+    console.log(await curve.dao.increaseCrvUnlockTime(365));
+    console.log(await curve.dao.userVeCrv());
+    console.log(await pool.userBoost());
+    console.log(await pool.userCrvApy());
+    console.log(await pool.userFutureBoost());
+    console.log(await pool.userFutureCrvApy());
+
+    // Checkpoint to adjust boost
+    console.log(await pool.claimCrv());
+    console.log(await pool.userBoost());
+    console.log(await pool.userCrvApy());
+    console.log(await pool.userFutureBoost());
+    console.log(await pool.userFutureCrvApy());
+
+    // Need to claim from some real address
+    const someAddress = "0x0dc81478167527c8784f4Eb4Fd751766821A5340";
+    console.log(await curve.dao.claimableFees(someAddress));
+    console.log(await curve.getBalances(['3crv'], someAddress));
+    console.log(await curve.dao.estimateGas.claimFees(someAddress));
+    console.log(await curve.dao.claimFees(someAddress));
+    console.log(await curve.dao.claimableFees(someAddress));
+    console.log(await curve.getBalances(['3crv'], someAddress));
+
+    // Time travel is needed before
+    console.log(await curve.dao.userCrv());
+    console.log(await curve.dao.userVeCrv());
+    console.log(await curve.dao.estimateGas.withdrawLockedCrv());
+    console.log(await curve.dao.withdrawLockedCrv());
+    console.log(await curve.dao.userCrv());
+    console.log(await curve.dao.userVeCrv());
+}
+
+const daoGaugeVoting = async () => {
+    await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+
+    const pool1 = curve.getPool("3pool");
+    const pool2 = curve.getPool("gusd");
+    console.log(await curve.dao.crvLockApprove(10000));
+    console.log(await curve.dao.createCrvLock(10000, 365 * 2));
+
+    console.log(await curve.dao.getVotingGaugeList());
+    console.log(await curve.dao.voteForGaugeNextTime(pool1.gauge));
+    console.log(await curve.dao.voteForGaugeNextTime(pool2.gauge));
+    console.log(await curve.dao.estimateGas.voteForGauge(pool1.gauge, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool1.gauge, 50));  // 50%
+    console.log(await curve.dao.estimateGas.voteForGauge(pool2.gauge, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool2.gauge, 50));  // 50%
+    console.log(await curve.dao.voteForGaugeNextTime(pool1.gauge));
+    console.log(await curve.dao.voteForGaugeNextTime(pool2.gauge));
+    console.log(await curve.dao.userGaugeVotes());
+
+    console.log(await curve.dao.increaseCrvUnlockTime(365 * 2));
+    console.log(await curve.dao.userGaugeVotes());
+    // Adjust voting power. 10 days time travel is needed
+    console.log(await curve.dao.estimateGas.voteForGauge(pool1.gauge, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool1.gauge, 50));  // 50%
+    console.log(await curve.dao.estimateGas.voteForGauge(pool2.gauge, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool2.gauge, 50));  // 50%
+    console.log(await curve.dao.userGaugeVotes());
+}
+
+const daoProposalVoting = async () => {
+    await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+
+    console.log(await curve.dao.crvLockApprove(10000));
+    console.log(await curve.dao.createCrvLock(10000, 365 * 2));
+
+    console.log(await curve.dao.getProposalList());
+    console.log(await curve.dao.getProposal("PARAMETER", 21));
+    console.log(await curve.dao.getProposal("OWNERSHIP", 244));
+    console.log(await curve.dao.estimateGas.voteForProposal("PARAMETER", 21, false));
+    console.log(await curve.dao.voteForProposal("PARAMETER", 21, false));
+    console.log(await curve.dao.estimateGas.voteForProposal("OWNERSHIP", 244, true));
+    console.log(await curve.dao.voteForProposal("OWNERSHIP", 244, true));
+
+    // Need to use some real address
+    console.log(await curve.dao.userProposalVotes("0x7a16fF8270133F063aAb6C9977183D9e72835428"));
+}

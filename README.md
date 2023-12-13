@@ -1235,6 +1235,7 @@ import curve from "@curvefi/api";
     // 0.000018613852077810 veCRV %
 })()
 ```
+
 ### Claim fees
 ```ts
 import curve from "@curvefi/api";
@@ -1899,5 +1900,426 @@ import curve from "@curvefi/api";
     await pool.depositAndStake(amounts);
     const underlyingBalances = await pool.stats.underlyingBalances();
     // [ '30', '0.017647058823529412', '0.00111111' ]
+})()
+```
+
+## DAO
+
+### CRV lock & boosting
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    await curve.dao.crvSupplyStats();
+    // {
+    //     circulating: '937026089.656962436599201901',
+    //     locked: '777800358.954796137125672741',
+    //     total: '1714826448.611758573724874642',
+    //     veCrv: '651092771.450194341958195502',
+    //     averageLockTime: '3.3484'
+    // }
+
+    await curve.dao.userCrv();
+    // 1000000.0
+    const lockAmount = 10000;
+    await curve.dao.crvLockApprove(lockAmount);
+    // [
+    //     '0x01a95eba620ce129262b3f11fc9e39d8473242c24579f4030a7d86aeeb5fbec6'
+    // ]
+    await curve.dao.crvLockIsApproved(lockAmount);
+    // true
+    curve.dao.calcCrvUnlockTime(365);
+    // 1733961600000
+    await curve.dao.createCrvLock(lockAmount, 365);
+    // 0xcce6abef337aaef4ce95d44f50270c537197b5754a8fb8f148ccb83af5d4fab2
+    await curve.dao.userVeCrv();
+    // {
+    //     veCrv: '2495.771816336870150904',
+    //     veCrvPct: '0.000383319071017321',
+    //     lockedCrv: '10000.0',
+    //     unlockTime: 1733961600000
+    // }
+    
+    const pool = curve.getPool("3pool");
+    await pool.depositAndStake([1000, 1000, 1000]);
+    // 0x19dc2d8483d09bb1f7fac5a8c4f4a8b425c5ed43b75f6f86bb500dc5532713b6
+    await pool.userBoost();
+    // 1.0355
+    await pool.userCrvApy();
+    // 1.3849750259023168
+    await pool.userFutureBoost();
+    // 1.0355
+    await pool.userFutureCrvApy();
+    // 1.3847834623550341
+
+    await curve.dao.crvLockApprove(lockAmount);
+    // [
+    //     '0xfa9130cc15b228f58e833527a5f51a2de16916ce091cca45cd21efb20b41836b'
+    // ]
+    await curve.dao.increaseCrvLockedAmount(lockAmount);
+    // 0x5113d94edab7551acc1bc31721135fb3a897b836f241fff1618aa9e2dd074a62
+    //
+    // {
+    //     veCrv: '4991.53824200910306186',
+    //     veCrvPct: '0.000766634619176443',
+    //     lockedCrv: '20000.0',
+    //     unlockTime: 1733961600000
+    // }
+    // 
+    // Boost: 1.0355
+    // APY: 1.3849750259023168
+    // Future boost: 1.0709
+    // Future APY: 1.4322087422285665
+
+
+    const { unlockTime } = await curve.dao.userVeCrv();
+    curve.dao.calcCrvUnlockTime(365, unlockTime);
+    // 1765411200000
+    await curve.dao.increaseCrvUnlockTime(365);
+    // 0xfd51b54c871a87bcef4299d0cf64a0e23ed941f103d9ca2c9f7dccdd109c5eb3
+    //
+    // {
+    //     veCrv: '9977.839453323127514238',
+    //     veCrvPct: '0.001532453177660863',
+    //     lockedCrv: '20000.0',
+    //     unlockTime: 1765411200000
+    // }
+    //
+    // Boost: 1.0355                   <------- PAY ATTENTION
+    // APY: 1.3849750259023168         <------- PAY ATTENTION
+    // Future boost: 1.1418            <------- PAY ATTENTION
+    // Future APY: 1.526957520361982   <------- PAY ATTENTION
+
+    // Checkpoint to adjust boost
+    await pool.claimCrv();
+    // 0x2dc4960bfdc9310dc773baf8a5a74942e1829591c65cc3b595b6e6fdf5e2b9bd
+    //
+    // Boost: 1.1418
+    // APY: 1.527150636963076
+    // Future boost: 1.1418
+    // Future APY: 1.526957517882314
+
+    // --- 2 years time travel ---
+    
+    await curve.dao.claimableFees();
+    // 119.110532749090134743
+    await curve.dao.claimFees();
+    // 0x90354b4f8c144c194439b18b8c4a87b00b0b62847757d09faa4f475c1c8a12bf
+    await curve.getBalances(['3crv']);
+    // ['119.110532749090134743']
+
+    // CRV in wallet: 980000.0
+    //
+    // {
+    //     veCrv: '0.0',
+    //     veCrvPct: '0',
+    //     lockedCrv: '20000.0',
+    //     unlockTime: unlockTime: 1765411200000
+    // }
+    await curve.dao.withdrawLockedCrv();
+    // CRV in wallet: 1000000.0
+    // { veCrv: '0.0', veCrvPct: '0', lockedCrv: '0.0', unlockTime: 0 }
+})()
+```
+
+### Gauge voting
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+
+    const pool1 = curve.getPool("3pool");
+    const pool2 = curve.getPool("gusd");
+    await curve.dao.crvLockApprove(10000);
+    await curve.dao.createCrvLock(10000, 365 * 2);
+
+    await curve.dao.getVotingGaugeList();
+    // [
+    //     {
+    //         poolUrl: 'https://curve.fi/#/ethereum/pools/compound/swap',
+    //         network: 'ethereum',
+    //         gaugeAddress: '0x7ca5b0a2910b33e9759dc7ddb0413949071d7575',
+    //         poolAddress: '0xa2b47e3d5c44877cca798226b7b8118f9bfb7a56',
+    //         lpTokenAddress: '0x845838df265dcd2c412a1dc9e959c7d08537f8a2',
+    //         poolName: 'cDAI+cUSDC (0xA2B4…)',
+    //         totalVeCrv: '330001.909569364585795212',
+    //         relativeWeight: '0.0518882916913238',
+    //         isKilled: false
+    //     },
+    //     {
+    //         poolUrl: 'https://curve.fi/#/ethereum/pools/usdt/swap',
+    //         network: 'ethereum',
+    //         gaugeAddress: '0xbc89cd85491d81c6ad2954e6d0362ee29fca8f53',
+    //         poolAddress: '0x52ea46506b9cc5ef470c5bf89f17dc28bb35d85c',
+    //         lpTokenAddress: '0x9fc689ccada600b6df723d9e47d84d76664a1f23',
+    //         poolName: 'cDAI+cUSDC+USDT (0x52EA…)',
+    //         totalVeCrv: '6223.0651613181174816',
+    //         relativeWeight: '0.0',
+    //         isKilled: false
+    //     },
+    //
+    //     ...
+    //
+    // ]
+    await curve.dao.voteForGaugeNextTime(pool1.gauge);
+    // 864000000
+    await curve.dao.voteForGaugeNextTime(pool2.gauge);
+    // 864000000
+    await curve.dao.voteForGauge(pool1.gauge, 50);  // 50%
+    // 0x2397cc3d620595169567a2a45d4edd48b40862a3565613e7ac90d84a2179c068
+    await curve.dao.voteForGauge(pool2.gauge, 50);  // 50%
+    // 0x4413cca88ea2e3d9d209fd1217117d3f167dc216113691b33f59c8cf880c99a3
+    await curve.dao.voteForGaugeNextTime(pool1.gauge);
+    // 1703346606000
+    await curve.dao.voteForGaugeNextTime(pool2.gauge);
+    // 1703346607000
+    await curve.dao.userGaugeVotes();
+    // {
+    //     gauges: [
+    //         {
+    //             userPower: '50.0',
+    //             userVeCrv: '2494.292356354596179115',
+    //             userFutureVeCrv: '2494.315742326215669361',
+    //             expired: false,
+    //             gaugeData: [Object]
+    //         },
+    //         {
+    //             userPower: '50.0',
+    //             userVeCrv: '2494.292356354596179115',
+    //             userFutureVeCrv: '2494.315742326215669361',
+    //             expired: false,
+    //             gaugeData: [Object]
+    //         }
+    //     ],
+    //     powerUsed: '100.0',
+    //     veCrvUsed: '4988.58471270919235823'
+    // }
+
+    await curve.dao.increaseCrvUnlockTime(365 * 2);
+    await curve.dao.userGaugeVotes();
+    // {
+    //     gauges: [
+    //         {
+    //             userPower: '50.0',
+    //             userVeCrv: '2494.286252219639304545',        <------- PAY ATTENTION
+    //             userFutureVeCrv: '4936.072662988301764545',  <------- PAY ATTENTION
+    //             expired: false,
+    //             gaugeData: [Object]
+    //         },
+    //         {
+    //             userPower: '50.0',
+    //             userVeCrv: '2494.286252219639304545',        <------- PAY ATTENTION
+    //             userFutureVeCrv: '4936.072662988301764545',  <------- PAY ATTENTION
+    //             expired: false,
+    //             gaugeData: [Object]
+    //         }
+    //     ],
+    //     powerUsed: '100.0',
+    //     veCrvUsed: '4988.57250443927860909'
+    // }
+    // Adjust voting power
+    await curve.dao.voteForGauge(pool1.gauge, 50);  // 50%
+    // 0x3390467cf45572ce591bc6291a18d909be2826b8e37e07e5a9bcc327a538e6cb
+    await curve.dao.voteForGauge(pool2.gauge, 50);  // 50%
+    // 0x900f7c1fcf4fd04d0ebd7e9813452e0c5d5ee96b51aaa4ff11aac555accc474c
+    await curve.dao.userGaugeVotes();
+    // {
+    //     gauges: [
+    //         {
+    //             userPower: '50.0',
+    //             userVeCrv: '4987.4342021815414409',          <------- PAY ATTENTION
+    //             userFutureVeCrv: '4936.071156773182535736',  <------- PAY ATTENTION
+    //             expired: false,
+    //             gaugeData: [Object]
+    //         },
+    //         {
+    //             userPower: '50.0',
+    //             userVeCrv: '4987.4342021815414409',          <------- PAY ATTENTION
+    //             userFutureVeCrv: '4936.071156773182535736',  <------- PAY ATTENTION
+    //             expired: false,
+    //             gaugeData: [Object]
+    //         }
+    //     ],
+    //     powerUsed: '100.0',
+    //     veCrvUsed: '9974.8684043630828818'
+    // }
+})()
+```
+
+### Proposal voting
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, {gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0});
+
+    await curve.dao.crvLockApprove(10000);
+    await curve.dao.createCrvLock(10000, 365 * 2);
+
+    await curve.dao.getProposalList();
+    // [
+    //     {
+    //         voteId: 0,
+    //         voteType: 'PARAMETER',
+    //         creator: '0xbe286d574b1ea46f54955bd856821f84dfd20b2e',
+    //         startDate: 1597793388,
+    //         snapshotBlock: 10687053,
+    //         ipfsMetadata: 'First Parameter App Test Vote',
+    //         metadata: '',
+    //         votesFor: '9979599901699586154315',
+    //         votesAgainst: '33980416204516651932',
+    //         voteCount: 2,
+    //         supportRequired: '600000000000000000',
+    //         minAcceptQuorum: '150000000000000000',
+    //         totalSupply: '41117044156628562074952',
+    //         executed: true
+    //     },
+    //     {
+    //         voteId: 1,
+    //         voteType: 'PARAMETER',
+    //         creator: '0x431e81e5dfb5a24541b5ff8762bdef3f32f96354',
+    //         startDate: 1599399124,
+    //         snapshotBlock: 10808256,
+    //         ipfsMetadata: 'ipfs:QmdWcs2TZAPsHsnty3tzK4s3HqQDWxY1tdb6SHT3ErZzPY',
+    //         metadata: 'Update y pool A from 2000 to 1000, this will allow for a greater % of DAI in the pool',
+    //         votesFor: '687697469212361901850006',
+    //         votesAgainst: '0',
+    //         voteCount: 7,
+    //         supportRequired: '600000000000000000',
+    //         minAcceptQuorum: '150000000000000000',
+    //         totalSupply: '3688475140972975065815236',
+    //         executed: true
+    //     },
+    //
+    //     ...
+    //
+    // ]
+    await curve.dao.getProposal("PARAMETER", 21);
+    // {
+    //     voteId: 21,
+    //     voteType: 'PARAMETER',
+    //     creator: '0xdedf3000d83bd3550d7d2080cc48a488c93a9442',
+    //     startDate: 1631370726,
+    //     snapshotBlock: 13205005,
+    //     ipfsMetadata: 'ipfs:QmUnYRTB1dUyz9QdX5GueQ6wfKG9J1b1m1RP7EXEYK2Yei',
+    //     metadata: '"Ramp A for the OUSD factory pool to 100. Ramping occurs over 1 week.',
+    //     votesFor: '138752972260900277168325110',
+    //     votesAgainst: '0',
+    //     voteCount: 8,
+    //     supportRequired: '600000000000000000',
+    //     minAcceptQuorum: '150000000000000000',
+    //     totalSupply: '273553555220479055026810944',
+    //     executed: true,
+    //     tx: '0x1daef794f61a1508956b35e037d57a40e60cd290b76b23f7ad251f8bf7fe1f68',
+    //     creatorVotingPower: 5.4902571991268546e+23,
+    //     script: 'Call via agent (0x4EEb3bA4f221cA16ed4A0cC7254E2E32DF948c5f):\n' +
+    // ' ├─ To: 0x8CF8Af108B3B46DDC6AD596aebb917E053F0D72b\n' +
+    // ' ├─ Function: ramp_A\n' +
+    // " └─ Inputs: [('address', '_pool', '0x87650D7bbfC3A9F10587d7778206671719d9910D'), ('uint256', '_future_A', 100), ('uint256', '_future_time', 1632580319)]\n",
+    //     votes: [
+    //         {
+    //             tx: '0x84443bcf0893c9bbd95581df194be2ce746469c20e4235ec13b9cce157d6d387',
+    //             voteId: 21,
+    //             voter: '0x989aeb4d175e16225e39e87d0d97a3360524ad80',
+    //             supports: true,
+    //             stake: 9.280328082090111e+25
+    //         },
+    //         {
+    //             tx: '0x8d1d83db418a5ef9dd6953276e53b518fa1352ec0c9c342317794c6045841014',
+    //             voteId: 21,
+    //             voter: '0xf89501b77b2fa6329f94f5a05fe84cebb5c8b1a0',
+    //             supports: true,
+    //             stake: 8.664535170896875e+24
+    //         },
+    //
+    //         ...
+    ///
+    //     ]
+    // }
+    await curve.dao.getProposal("OWNERSHIP", 244);
+    // {
+    //     voteId: 244,
+    //     voteType: 'OWNERSHIP',
+    //     creator: '0x336c82e4f54e1a6a3adb1fb115c9a6ef3a2b2b11',
+    //     startDate: 1671455975,
+    //     snapshotBlock: 16218995,
+    //     ipfsMetadata: 'ipfs:QmXqpz9bruFwZJ6yAWGF7EUCinc4JWdR6JeghksW2LAJ3X',
+    //     metadata: 'Add gauge for GEAR/ETH pool',
+    //     votesFor: '359521266860508503522139751',
+    //     votesAgainst: '0',
+    //     voteCount: 71,
+    //     supportRequired: '510000000000000000',
+    //     minAcceptQuorum: '300000000000000000',
+    //     totalSupply: '563263606319370823403134500',
+    //     executed: true,
+    //     tx: '0x9550d32f016bfd724f76bdb794925a7ce93c71dd74c7363ff6094f4809c04103',
+    //     creatorVotingPower: 2.522832425326041e+21,
+    //     script: 'Call via agent (0x40907540d8a6C65c637785e8f8B742ae6b0b9968):\n' +
+    // ' ├─ To: 0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB\n' +
+    // ' ├─ Function: add_gauge\n' +
+    // " └─ Inputs: [('address', 'addr', '0x37Efc3f05D659B30A83cf0B07522C9d08513Ca9d'), ('int128', 'gauge_type', 0), ('uint256', 'weight', 0)]\n",
+    //     votes: [
+    //         {
+    //             tx: '0x0204eb0242be7f44a34dead65ef348b41fc703b825f2904d6cb720236fe2eaa2',
+    //             voteId: 244,
+    //             voter: '0x7a16ff8270133f063aab6c9977183d9e72835428',
+    //             supports: true,
+    //             stake: 2.651051910871892e+25
+    //         },
+    //         {
+    //             tx: '0x057871f3c1b679e532b3823517a1204a8ea3f69e021da8c79e397061ff23c789',
+    //             voteId: 244,
+    //             voter: '0x9b44473e223f8a3c047ad86f387b80402536b029',
+    //             supports: true,
+    //             stake: 2.6993403110632674e+25
+    //         },
+    //
+    //         ...
+    //
+    //     ]
+    // }
+    await curve.dao.voteForProposal("PARAMETER", 21, false);
+    await curve.dao.voteForProposal("OWNERSHIP", 244, true);
+
+    await curve.dao.userProposalVotes();
+    // [
+    //     {
+    //         voteId: 21,
+    //         voteType: 'PARAMETER',
+    //         creator: '0xdedf3000d83bd3550d7d2080cc48a488c93a9442',
+    //         startDate: 1631370726,
+    //         snapshotBlock: 13205005,
+    //         ipfsMetadata: 'ipfs:QmUnYRTB1dUyz9QdX5GueQ6wfKG9J1b1m1RP7EXEYK2Yei',
+    //         metadata: '"Ramp A for the OUSD factory pool to 100. Ramping occurs over 1 week.',
+    //         votesFor: '138752972260900277168325110',
+    //         votesAgainst: '0',
+    //         voteCount: 8,
+    //         supportRequired: '600000000000000000',
+    //         minAcceptQuorum: '150000000000000000',
+    //         totalSupply: '273553555220479055026810944',
+    //         executed: true,
+    //         userVote: 'no'                                                          <------- PAY ATTENTION
+    //     },
+    //     {
+    //         voteId: 244,
+    //         voteType: 'OWNERSHIP',
+    //         creator: '0x336c82e4f54e1a6a3adb1fb115c9a6ef3a2b2b11',
+    //         startDate: 1671455975,
+    //         snapshotBlock: 16218995,
+    //         ipfsMetadata: 'ipfs:QmXqpz9bruFwZJ6yAWGF7EUCinc4JWdR6JeghksW2LAJ3X',
+    //         metadata: 'Add gauge for GEAR/ETH pool',
+    //         votesFor: '359521266860508503522139751',
+    //         votesAgainst: '0',
+    //         voteCount: 71,
+    //         supportRequired: '510000000000000000',
+    //         minAcceptQuorum: '300000000000000000',
+    //         totalSupply: '563263606319370823403134500',
+    //         executed: true,
+    //         userVote: 'yes'                                                         <------- PAY ATTENTION
+    //     },
+    // ]
 })()
 ```

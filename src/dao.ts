@@ -1,5 +1,15 @@
+import { curve } from "./curve.js";
+import { Contract } from "ethers";
 import { _getAllGauges, _getDaoProposalList, _getDaoProposal } from './external-api.js';
-import { _getAddress, DIGas, mulBy1_3, parseUnits, smartNumber } from './utils.js';
+import {
+    _getAddress,
+    DIGas, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance,
+    mulBy1_3,
+    parseUnits,
+    smartNumber,
+    toBN,
+    BN,
+} from './utils.js';
 import {
     IGaugeUserVote,
     IVotingGauge,
@@ -8,14 +18,206 @@ import {
     IDaoProposal,
     IDict,
 } from './interfaces';
-import { curve } from "./curve.js";
+import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" assert { type: 'json' };
 
 
-// Gauge weights
+// ----------------- Refactored boosting stuff -----------------
+
+export const userCrv = async (address = ""): Promise<string> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    address = _getAddress(address);
+    const _balance: bigint = await curve.contracts[curve.constants.ALIASES.crv].contract.balanceOf(address);
+
+    return curve.formatUnits(_balance)
+}
+
+export const userVeCrv = async (address = ""): Promise<{ veCrv: string, veCrvPct: string, lockedCrv: string, unlockTime: number }> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    address = _getAddress(address);
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
+    const [_veCrv, _veCrvTotal, _locked] = await curve.multicallProvider.all([
+        contract.balanceOf(address),
+        contract.totalSupply(),
+        contract.locked(address),
+    ]) as [bigint, bigint, bigint[]];
+    const _lockedCrv = (_locked as bigint[])[0];
+    const _unlockTime = (_locked as bigint[])[1];
+
+    return {
+        veCrv: curve.formatUnits(_veCrv),
+        veCrvPct: toBN(_veCrv).div(toBN(_veCrvTotal)).times(100).toString(),
+        lockedCrv: curve.formatUnits(_lockedCrv),
+        unlockTime: Number(curve.formatUnits(_unlockTime, 0)) * 1000,
+    }
+}
+
+export const crvLockIsApproved = async (amount: number | string): Promise<boolean> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    return await hasAllowance([curve.constants.ALIASES.crv], [amount], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
+}
+
+export const crvLockApproveEstimateGas = async (amount: number | string): Promise<number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    return await ensureAllowanceEstimateGas([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow, false);
+}
+
+export const crvLockApprove = async (amount: number | string): Promise<string[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    return await ensureAllowance([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow, false);
+}
+
+export const calcCrvUnlockTime = (days: number | string, start: number | string = Date.now()): number => {
+    const week = 86400 * 7;
+    const now = Number(start) / 1000;
+    const unlockTime = now + (86400 * Number(days));
+
+    return Math.floor(unlockTime / week) * week * 1000;
+}
+
+export const _createCrvLock = async (amount: number | string, days: number, estimateGas: boolean): Promise<string | number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    const crvBalance = await userCrv();
+    if (BN(crvBalance).lt(amount)) throw Error(`Not enough CRV. Wallet balance: ${crvBalance}, required: ${amount}`);
+    if (!(await crvLockIsApproved(amount))) throw Error("Token allowance is needed to estimate gas")
+
+    const _amount = parseUnits(amount);
+    const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.create_lock.estimateGas(_amount, unlockTime, curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await contract.create_lock(_amount, unlockTime, { ...curve.options, gasLimit })).hash;
+}
+
+export const createCrvLockEstimateGas = async (amount: number | string, days: number | string): Promise<number | number[]> => {
+    return await _createCrvLock(amount, Number(days), true) as number | number[];
+}
+
+export const createCrvLock = async (amount: number | string, days: number | string): Promise<string> => {
+    return await _createCrvLock(amount, Number(days), false) as string;
+}
+
+export const _increaseCrvLockedAmount = async (amount: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    const crvBalance = await userCrv();
+    if (BN(crvBalance).lt(amount)) throw Error(`Not enough CRV. Wallet balance: ${crvBalance}, required: ${amount}`);
+    if (!(await crvLockIsApproved(amount))) throw Error("Token allowance is needed to estimate gas")
+
+    const _amount = parseUnits(amount);
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.increase_amount.estimateGas(_amount, curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await contract.increase_amount(_amount, { ...curve.options, gasLimit })).hash;
+}
+
+export const increaseCrvLockAmountEstimateGas = async (amount: number | string): Promise<number | number[]> => {
+    return await _increaseCrvLockedAmount(amount, true) as number | number[];
+}
+
+export const increaseCrvLockAmount = async (amount: number | string): Promise<string> => {
+    return await _increaseCrvLockedAmount(amount, false) as string;
+}
+
+export const _increaseCrvUnlockTime = async (days: number, estimateGas: boolean): Promise<string | number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    const { unlockTime } = await userVeCrv();
+    const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.increase_unlock_time.estimateGas(newUnlockTime, curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await contract.increase_unlock_time(newUnlockTime, { ...curve.options, gasLimit })).hash;
+}
+
+export const increaseCrvUnlockTimeEstimateGas = async (days: number | string): Promise<number | number[]> => {
+    return await _increaseCrvUnlockTime(Number(days), true) as number | number[];
+}
+
+export const increaseCrvUnlockTime = async (days: number | string): Promise<string> => {
+    return await _increaseCrvUnlockTime(Number(days), false) as string;
+}
+
+export const _withdrawLockedCrv = async (estimateGas: boolean): Promise<string | number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method");
+    const { unlockTime } = await userVeCrv();
+    if (unlockTime > Date.now()) throw Error("The lock haven't expired yet")
+    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.withdraw.estimateGas(curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await contract.withdraw({ ...curve.options, gasLimit })).hash;
+}
+
+export const withdrawLockedCrvEstimateGas = async (): Promise<number | number[]> => {
+    return await _withdrawLockedCrv(true) as number | number[];
+}
+
+export const withdrawLockedCrv = async (): Promise<string> => {
+    return await _withdrawLockedCrv(false) as string;
+}
+
+export const claimableFees = async (address = ""): Promise<string> => {
+    address = _getAddress(address);
+    const contract = new Contract(curve.constants.ALIASES.fee_distributor, feeDistributorViewABI, curve.provider)
+    return curve.formatUnits(await contract.claim(address, curve.constantOptions));
+}
+
+export const _claimFees = async (address: string, estimateGas: boolean): Promise<string | number | number[]> => {
+    address = _getAddress(address);
+    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
+    const gas = await contract.claim.estimateGas(address, curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await contract.claim(address, { ...curve.options, gasLimit })).hash;
+}
+
+export const claimFeesEstimateGas = async (address = ""): Promise<number | number[]> => {
+    return await _claimFees(address,true) as number | number[];
+}
+
+export const claimFees = async (address = ""): Promise<string> => {
+    return await _claimFees(address,false) as string;
+}
+
+
+// ----------------- Gauge weights -----------------
 
 const _extractNetworkFromPoolUrl = (poolUrl: string): string => {
     if (!poolUrl) return "unknown";
     return poolUrl.split("/")[4]
+}
+
+export const getVotingGaugeList = async (): Promise<IVotingGauge[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    const gaugeData = Object.values(await _getAllGauges());
+    const res = [];
+    for (let i = 0; i < gaugeData.length; i++) {
+        if ((gaugeData[i].is_killed || gaugeData[i].hasNoCrv) && Number(gaugeData[i].gauge_controller.gauge_relative_weight) === 0) continue;
+        res.push({
+            poolUrl: gaugeData[i].poolUrls.swap[0],
+            network: _extractNetworkFromPoolUrl(gaugeData[i].poolUrls.swap[0]),
+            gaugeAddress: gaugeData[i].gauge,
+            poolAddress: gaugeData[i].swap,
+            lpTokenAddress: gaugeData[i].swap_token,
+            poolName: gaugeData[i].shortName,
+            totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
+            relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
+            isKilled: gaugeData[i].is_killed ?? false,
+        });
+    }
+
+    return res
 }
 
 export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } > => {
@@ -64,37 +266,6 @@ export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUser
     return res
 }
 
-export const userVeCrv = async (address = ""): Promise<string> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    address = _getAddress(address);
-    const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
-
-    return curve.formatUnits(await veContract.balanceOf(address))
-}
-
-export const getVotingGauges = async (): Promise<IVotingGauge[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-
-    const gaugeData = Object.values(await _getAllGauges());
-    const res = [];
-    for (let i = 0; i < gaugeData.length; i++) {
-        if ((gaugeData[i].is_killed || gaugeData[i].hasNoCrv) && Number(gaugeData[i].gauge_controller.gauge_relative_weight) === 0) continue;
-        res.push({
-            poolUrl: gaugeData[i].poolUrls.swap[0],
-            network: _extractNetworkFromPoolUrl(gaugeData[i].poolUrls.swap[0]),
-            gaugeAddress: gaugeData[i].gauge,
-            poolAddress: gaugeData[i].swap,
-            lpTokenAddress: gaugeData[i].swap_token,
-            poolName: gaugeData[i].shortName,
-            totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
-            relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
-            isKilled: gaugeData[i].is_killed ?? false,
-        });
-    }
-
-    return res
-}
-
 export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const _lastVote: bigint = await curve.contracts[curve.constants.ALIASES.gauge_controller].contract.last_user_vote(curve.signerAddress, gauge, curve.constantOptions);
@@ -103,6 +274,7 @@ export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
 }
 
 const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const gaugeControllerContract = curve.contracts[curve.constants.ALIASES.gauge_controller].contract;
     const _power = parseUnits(power, 2);
     const _powerUsed = await gaugeControllerContract.vote_user_power(curve.signerAddress, curve.constantOptions);
@@ -114,21 +286,21 @@ const _voteForGauge = async (gauge: string, power: number | string, estimateGas:
     const gas = await gaugeControllerContract.vote_for_gauge_weights.estimateGas(gauge, _power, curve.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
+    await curve.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
     return (await gaugeControllerContract.vote_for_gauge_weights(gauge, _power, { ...curve.options, gasLimit })).hash;
 }
 
 export const voteForGaugeEstimateGas = async (gauge: string, power: number | string): Promise<number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
     return await _voteForGauge(gauge, power, true) as number | number[];
 }
 
 export const voteForGauge = async (gauge: string, power: number | string): Promise<string> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
     return await _voteForGauge(gauge, power, false) as string;
 }
 
-// Proposals
+
+// ----------------- Proposals -----------------
 
 export const getProposalList = async (): Promise<IDaoProposalListItem[]> => {
     return await _getDaoProposalList();
@@ -166,6 +338,7 @@ export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserL
 }
 
 const _voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean, estimateGas: boolean): Promise<string | number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
     const contract = curve.contracts[contractAddress].contract;
     const yesPct = support ? BigInt(10**18) : BigInt(0);
@@ -173,6 +346,7 @@ const _voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, sup
     const gas = await contract.votePct.estimateGas(id, yesPct, noPct, true, curve.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
+    await curve.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
     return (await contract.votePct(id, yesPct, noPct, false, { ...curve.options, gasLimit })).hash;
 }

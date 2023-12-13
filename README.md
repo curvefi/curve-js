@@ -1647,6 +1647,36 @@ import curve from "@curvefi/api";
     
     const poolAddress = await curve.stableNgFactory.getDeployedPlainPoolAddress(deployPoolTx);
     // 0x0816bc9ced716008c88bb8940c297e9c9167755e
+    
+    // Deploy gauge
+
+    const deployGaugeTx = await curve.stableNgFactory.deployGauge(poolAddress);
+    // {
+    //     hash: '0x8bb0eb63430e6c522c30922a833fee263816ebc0f30367d53ecfe52e17b7c3a0',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+    const gaugeAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeTx);
+    // 0x1400e08f1d9f5bc90ae19acd4bf81beabc9e79de
+
+    //For sidechain
+    const salt = '15'
+    //salt - unical random string
+    const deployGaugeSidechain = await curve.stableNgFactory.deployGaugeSidechain(poolAddress, salt);
+    // ContractTransactionResponse {
+    //     provider: JsonRpcProvider {},
+    //     blockNumber: 17393463,
+    //     blockHash: '0x7f393493d7eb30b39aeef3118b51925426946eb83b72b18946f0da8c7bec40a0',
+    //     ...
+    // }
+    const gaugeSidechainAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeSidechain);
+    // 0x60d3d7ebbc44dc810a743703184f062d00e6db7e
+    //After that should be deployed mirror gauge on mainnet with same salt
+    //const gaugeMirrorTx = await curve.stableNgFactory.deployGaugeMirror(sidechainId, salt);
+    //const deployedGaugeMirrorAddress = await curve.stableNgFactory.getDeployedGaugeMirrorAddressByTx(gaugeMirrorTx);
+    //OR
+    //const deployedGaugeMirrorAddress = await curve.stableNgFactory.getDeployedGaugeMirrorAddress(sidechainId);
 })()
 ```
 
@@ -1747,6 +1777,37 @@ import curve from "@curvefi/api";
     // }
     const poolAddress = await curve.factory.getDeployedMetaPoolAddress(deployPoolTx);
     // 0xd3797c5da2cf2db453b995fb8f7a9199f4106ad9
+
+    // Deploy gauge
+
+    const deployGaugeTx = await curve.stableNgFactory.deployGauge(poolAddress);
+    // {
+    //     hash: '0x37a53a08d6c71095de8c25bcd4a01b39beec35990f77c7b98355bd064511541f',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+
+    const gaugeAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeTx);
+    // 0x326290a1b0004eee78fa6ed4f1d8f4b2523ab669
+
+    //For sidechain
+    const salt = '15'
+    //salt - unical random string
+    const deployGaugeSidechain = await curve.stableNgFactory.deployGaugeSidechain(poolAddress, salt);
+    // ContractTransactionResponse {
+    //     provider: JsonRpcProvider {},
+    //     blockNumber: 17393463,
+    //     blockHash: '0x7f393493d7eb30b39aeef3118b51925426946eb83b72b18946f0da8c7bec40a0',
+    //     ...
+    // }
+    const gaugeSidechainAddress = await curve.stableNgFactory.getDeployedGaugeAddress(deployGaugeSidechain);
+    // 0x60d3d7ebbc44dc810a743703184f062d00e6db7e
+    //After that should be deployed mirror gauge on mainnet with same salt
+    //const gaugeMirrorTx = await curve.stableNgFactory.deployGaugeMirror(sidechainId, salt);
+    //const deployedGaugeMirrorAddress = await curve.stableNgFactory.getDeployedGaugeMirrorAddressByTx(gaugeMirrorTx);
+    //OR
+    //const deployedGaugeMirrorAddress = await curve.stableNgFactory.getDeployedGaugeMirrorAddress(sidechainId);
 ```
 
 ### Deploy crypto pool

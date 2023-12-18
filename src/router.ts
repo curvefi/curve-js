@@ -230,7 +230,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
         }
     }
 
-    const ALL_POOLS = Object.entries(curve.getPoolsData()).filter(([id, _]) => id !== "crveth");
+    const ALL_POOLS = Object.entries(curve.getPoolsData()).filter(([id, _]) => !["crveth", "y", "busd", "pax"].includes(id));
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
     for (const [poolId, poolData] of ALL_POOLS) {
         const wrappedCoinAddresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());

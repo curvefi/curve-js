@@ -309,7 +309,7 @@ const _deployStableNgMetaPool = async (
 
     const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
-    return await contract.deploy_metapool(basePool, name, symbol, coin, _A, _fee, offpegFeeMultiplier, emaTime, implementationIdx, assetType, methodId, oracleAddress, { ...curve.options, gasLimit });
+    return await contract.deploy_metapool(basePool, name, symbol, coin, _A, _fee, _offpegFeeMultiplier, emaTime, implementationIdx, assetType, methodId, oracleAddress, { ...curve.options, gasLimit });
 }
 
 export const deployStableNgMetaPoolEstimateGas = async (

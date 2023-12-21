@@ -3,7 +3,10 @@ import { Contract } from "ethers";
 import { _getAllGauges, _getDaoProposalList, _getDaoProposal } from './external-api.js';
 import {
     _getAddress,
-    DIGas, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance,
+    DIGas,
+    ensureAllowance,
+    ensureAllowanceEstimateGas,
+    hasAllowance,
     mulBy1_3,
     parseUnits,
     smartNumber,
@@ -17,8 +20,14 @@ import {
     IDaoProposalUserListItem,
     IDaoProposal,
     IDict,
+    IDaoAction,
+    TDaoActionType,
+    TDaoAvailableMethodsOfPool,
 } from './interfaces';
 import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" assert { type: 'json' };
+import {poolActions} from "./constants/dao/actions";
+import gaugeControllerABI from "./constants/abis/gaugecontroller.json";
+import axios from "axios";
 
 
 // ----------------- Refactored boosting stuff -----------------
@@ -381,4 +390,76 @@ export const voteForProposalEstimateGas = async (type: "PARAMETER" | "OWNERSHIP"
 
 export const voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean): Promise<string> => {
     return await _voteForProposal(type, id, support, false) as string;
+}
+
+export const getAvailableMethodsOfPool = (address: string):TDaoAvailableMethodsOfPool => {
+    const result: TDaoAvailableMethodsOfPool = {};
+    poolActions.forEach((item) => {
+        if(curve.contracts[address].contract.interface.fragments.find((method: any) => method.name === item)) {
+            result[item] = true;
+        } else {
+            result[item] = false;
+        }
+    })
+
+    return result;
+}
+
+export const createActionForVote = (actionType: TDaoActionType, address: string, method: string, args: any[]): IDaoAction => {
+    if(actionType === 'pools') {
+        if(!getAvailableMethodsOfPool(address)[method]) {
+            throw Error(`Method ${{method}} is not available for this pool`);
+        } else {
+            return {
+                address,
+                contract: curve.contracts[address].contract,
+                method,
+                args,
+            }
+        }
+    }
+    if(actionType === 'gauges') {
+        return {
+            address,
+            contract: new Contract(address, gaugeControllerABI, curve.signer || curve.provider),
+            method,
+            args,
+        }
+    }
+
+    throw Error('Unavailable pool type')
+}
+
+export const createEvmScript = async (address: string, abi: any, action: IDaoAction) => {
+    const agent = new Contract(address, abi, curve.signer || curve.provider)
+    const zeroPad = (num: string, places: number) =>
+        String(num).padStart(places, "0");
+
+    let evm_script = "0x00000001"
+
+    const contract = action.contract;
+    const call_data = contract.interface.encodeFunctionData(action.method, [...action.args])
+
+    const agent_calldata = agent.interface
+        .encodeFunctionData("execute", [action.address, 0, call_data])
+        .substring(2);
+
+    const length = zeroPad((Math.floor(agent_calldata.length) / 2).toString(16), 8);
+
+    evm_script = `${evm_script}${address.substring(2)}${length}${agent_calldata}`;
+
+    return evm_script
+}
+
+export const createVoteDescription = async (description: string) => {
+    const vote_description = description.replace(/(\r\n|\n|\r)/gm, "");
+    const vote_data = {
+        text: vote_description,
+    };
+
+    const data = new FormData();
+    data.append("file", JSON.stringify(vote_data));
+    const url = `https://ipfs.infura.io:5001/api/v0/add`;
+    const response = await axios.post(url, data);
+    return response.data.Hash;
 }

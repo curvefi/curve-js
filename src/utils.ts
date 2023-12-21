@@ -440,7 +440,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     const nativeTokenName = {
         1: 'ethereum',
         10: 'ethereum',
-        56: 'bnb',
+        56: 'binancecoin',
         100: 'xdai',
         137: 'matic-network',
         250: 'fantom',

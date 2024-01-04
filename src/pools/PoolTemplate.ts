@@ -418,10 +418,12 @@ export class PoolTemplate {
 
     private statsVolume = async (): Promise<string> => {
         if ([56, 324, 1284, 2222, 8453, 42220, 1313161554].includes(curve.chainId)) {  // Bsc || ZkSync || Moonbeam || Kava || Base || Celo || Aurora || Bsc
-            const [mainPoolsData, factoryPoolsData] = await Promise.all([
+            const _response = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
-                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),
+                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'stable'),
+                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'crypto'),
             ]);
+            const [mainPoolsData, factoryPoolsData] = [_response[0], [..._response[1], ..._response[2]]];
             if (this.id in mainPoolsData) {
                 return (mainPoolsData[this.id].volume ?? 0).toString();
             }
@@ -441,10 +443,12 @@ export class PoolTemplate {
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
         if ([56, 324, 1284, 2222, 8453, 42220, 1313161554].includes(curve.chainId)) {  // Bsc || ZkSync || Moonbeam || Kava || Base || Celo || Aurora
-            const [mainPoolsData, factoryPoolsData] = await Promise.all([
+            const _response = await Promise.all([
                 _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
-                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME),
+                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'stable'),
+                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'crypto'),
             ]);
+            const [mainPoolsData, factoryPoolsData] = [_response[0], [..._response[1], ..._response[2]]];
             if (this.id in mainPoolsData) {
                 return {
                     day: mainPoolsData[this.id].apy.day.toString(),

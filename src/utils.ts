@@ -4,7 +4,13 @@ import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import {IChainId, IDict, INetworkName, IRewardFromApi, REFERENCE_ASSET} from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
-import { _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes, _getAllPoolsFromApi, _getSubgraphData } from "./external-api.js";
+import {
+    _getFactoryAPYsAndVolumes,
+    _getLegacyAPYsAndVolumes,
+    _getAllPoolsFromApi,
+    _getSubgraphData,
+    _getTotalVolumes,
+} from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import { L2Networks } from './constants/L2Networks.js';
 
@@ -557,21 +563,16 @@ export const getVolume = async (network: INetworkName | IChainId = curve.chainId
     if (["zksync", "moonbeam", "kava", "base", "celo", "aurora", "bsc"].includes(network)) {
         const chainId = _getChainId(network);
         if (curve.chainId !== chainId) throw Error("To get volume for ZkSync, Moonbeam, Kava, Base, Celo, Aurora or Bsc connect to the network first");
-        const [mainPoolsData, factoryPoolsData] = await Promise.all([
-            _getLegacyAPYsAndVolumes(network),
-            _getFactoryAPYsAndVolumes(network),
-        ]);
-        let volume = 0;
-        for (const id in mainPoolsData) {
-            volume += mainPoolsData[id].volume ?? 0;
-        }
-        for (const pool of factoryPoolsData) {
-            const lpToken = _getTokenAddressBySwapAddress(pool.poolAddress);
-            const lpPrice = lpToken ? await _getUsdRate(lpToken) : 0;
-            volume += pool.volume * lpPrice;
-        }
 
-        return { totalVolume: volume, cryptoVolume: 0, cryptoShare: 0 }
+
+        const [factoryPoolsData, cryptoPoolsData] = await Promise.all([
+            _getTotalVolumes(network, 'stable'),
+            _getTotalVolumes(network, 'crypto'),
+        ]);
+        const stableVolume = factoryPoolsData.totalVolumeUsd;
+        const cryptoVolume = cryptoPoolsData.totalVolumeUsd;
+
+        return { totalVolume: stableVolume + cryptoVolume, cryptoVolume: cryptoVolume, cryptoShare: cryptoVolume/(stableVolume + cryptoVolume) }
     }
 
     const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData(network);

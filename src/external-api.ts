@@ -78,13 +78,28 @@ export const _getLegacyAPYsAndVolumes = memoize(
 
 // Base, Bsc, ZkSync, Moonbeam, Kava and Celo only
 export const _getFactoryAPYsAndVolumes = memoize(
-    async (network: string): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
+    async (network: string, mode: 'stable' | 'crypto' = 'stable'): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
         if (network === "aurora") return [];  // Exclude Aurora
 
-        const url = `https://api.curve.fi/api/getFactoryAPYs-${network}`;
+        const url = `https://api.curve.fi/api/getFactoryAPYs/${network}/${mode}`;
         const response = await axios.get(url, { validateStatus: () => true });
 
         return response.data.data.poolDetails ?? [];
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
+
+export const _getTotalVolumes = memoize(
+    async (network: string, mode: 'stable' | 'crypto' = 'stable'): Promise<{ totalVolumeUsd: number}> => {
+        if (network === "aurora") return {totalVolumeUsd: 0};  // Exclude Aurora
+
+        const url = `https://api.curve.fi/api/getFactoryAPYs/${network}/${mode}`;
+        const response = await axios.get(url, { validateStatus: () => true });
+
+        return response.data.data;
     },
     {
         promise: true,

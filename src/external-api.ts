@@ -94,8 +94,8 @@ export const _getVolumes = memoize(
 
 export const _getFactoryAPYs = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
-        const urlStable = `getFactoryAPYs/${network}/stable}`;
-        const urlCrypto = `getFactoryAPYs/${network}/crypto}`;
+        const urlStable = `https://api.curve.fi/api/getFactoryAPYs/${network}/stable`;
+        const urlCrypto = `https://api.curve.fi/api/getFactoryAPYs/${network}/crypto`;
         const response = await Promise.all([
             axios.get(urlStable, { validateStatus: () => true }),
             axios.get(urlCrypto, { validateStatus: () => true }),
@@ -104,12 +104,12 @@ export const _getFactoryAPYs = memoize(
         const stableVolume = response[0].data.data.totalVolumeUsd || response[0].data.data.totalVolume;
         const cryptoVolume = response[1].data.data.totalVolumeUsd || response[1].data.data.totalVolume;
 
-        const poolsData = [...response[0].data.data.pools, ...response[1].data.data.pools].map((item) => {
+        const poolsData = [...response[0].data.data.poolDetails, ...response[1].data.data.poolDetails].map((item) => {
             return {
                 address: item.poolAddress,
-                volumeUSD: item.totalVolumeUsd,
-                day: item.apy,
-                week: item.apy*7, //Because api does not return week apy
+                volumeUSD: item.totalVolumeUsd ?? 0,
+                day: item.apy ?? 0,
+                week: item.apy*7 ?? 0, //Because api does not return week apy
             }
         })
 
@@ -117,7 +117,7 @@ export const _getFactoryAPYs = memoize(
             poolsData: poolsData ?? [],
             totalVolume: stableVolume + cryptoVolume ?? 0,
             cryptoVolume: cryptoVolume ?? 0,
-            cryptoShare: 100*cryptoVolume/(stableVolume + cryptoVolume) ?? 0,
+            cryptoShare: 100*cryptoVolume/(stableVolume + cryptoVolume) || 0,
         };
     },
     {

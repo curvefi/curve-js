@@ -251,3 +251,17 @@ export interface IDaoProposal extends IDaoProposalListItem{
     script: string,
     votes: IDaoProposalVote[],
 }
+
+export interface IVolumeAndAPYsPoolData {
+    address: string,
+    volumeUSD: number,
+    day: number,
+    week: number,
+}
+
+export interface IVolumeAndAPYs {
+    totalVolume: number,
+    cryptoVolume: number,
+    cryptoShare: number,
+    poolsData: IVolumeAndAPYsPoolData[],
+}

@@ -2,13 +2,13 @@ import axios from "axios";
 import memoize from "memoizee";
 import {
     IExtendedPoolDataFromApi,
-    ISubgraphPoolData,
     IDict,
     INetworkName,
     IPoolType,
     IGaugesDataFromApi,
     IDaoProposal,
     IDaoProposalListItem,
+    IVolumeAndAPYs,
 } from "./interfaces";
 
 
@@ -38,11 +38,21 @@ export const _getAllPoolsFromApi = async (network: INetworkName): Promise<IExten
 }
 
 export const _getSubgraphData = memoize(
-    async (network: INetworkName): Promise<{ poolsData: ISubgraphPoolData[], totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+    async (network: INetworkName): Promise<IVolumeAndAPYs> => {
         const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
         const response = await axios.get(url, { validateStatus: () => true });
+
+        const poolsData = response.data.data.poolList.map((item: any) => {
+            return {
+                address: item.address,
+                volumeUSD: item.volumeUSD,
+                day: item.latestDailyApy,
+                week: item.latestWeeklyApy,
+            }
+        })
+
         return {
-            poolsData: response.data.data.poolList ?? [],
+            poolsData: poolsData ?? [],
             totalVolume: response.data.data.totalVolume ?? 0,
             cryptoVolume: response.data.data.cryptoVolume ?? 0,
             cryptoShare: response.data.data.cryptoShare ?? 0,
@@ -54,37 +64,27 @@ export const _getSubgraphData = memoize(
     }
 )
 
-// Moonbeam and Aurora only
-export const _getLegacyAPYsAndVolumes = memoize(
-    async (network: string): Promise<IDict<{ apy: { day: number, week: number }, volume: number }>> => {
-        if (["kava", "celo", "zksync", "base", "bsc"].includes(network)) return {}; // Exclude Kava, Celo, ZkSync, Base and Bsc
-        const url = "https://api.curve.fi/api/getMainPoolsAPYs/" + network;
-        const data = (await axios.get(url, { validateStatus: () => true })).data;
-        const result: IDict<{ apy: { day: number, week: number }, volume: number }> = {};
-        Object.keys(data.apy.day).forEach((poolId) => {
-            result[poolId] = { apy: { day: 0, week: 0 }, volume: 0};
-            result[poolId].apy.day = data.apy.day[poolId] * 100;
-            result[poolId].apy.week = data.apy.week[poolId] * 100;
-            result[poolId].volume = data.volume[poolId];
-        })
+export const _getVolumes = memoize(
+    async (network: string): Promise<IVolumeAndAPYs> => {
 
-        return result;
-    },
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
-// Base, Bsc, ZkSync, Moonbeam, Kava and Celo only
-export const _getFactoryAPYsAndVolumes = memoize(
-    async (network: string, mode: 'stable' | 'crypto' = 'stable'): Promise<{ poolAddress: string, apy: number, volume: number }[]> => {
-        if (network === "aurora") return [];  // Exclude Aurora
-
-        const url = `https://api.curve.fi/api/getFactoryAPYs/${network}/${mode}`;
+        const url = `https://api.curve.fi/api/getVolumes/${network}`;
         const response = await axios.get(url, { validateStatus: () => true });
 
-        return response.data.data.poolDetails ?? [];
+        const poolsData = response.data.data.pools.map((item: any) => {
+            return {
+                address: item.address,
+                volumeUSD: item.volumeUSD,
+                day: item.latestDailyApyPcent,
+                week: item.latestWeeklyApyPcent,
+            }
+        })
+
+        return {
+            poolsData: poolsData ?? [],
+            totalVolume: response.data.data.totalVolumes.totalVolume ?? 0,
+            cryptoVolume: response.data.data.totalVolumes.totalCryptoVolume ?? 0,
+            cryptoShare: response.data.data.totalVolumes.cryptoVolumeSharePcent ?? 0,
+        };
     },
     {
         promise: true,
@@ -92,11 +92,54 @@ export const _getFactoryAPYsAndVolumes = memoize(
     }
 )
 
-export const _getTotalVolumes = memoize(
-    async (network: string, mode: 'stable' | 'crypto' = 'stable'): Promise<{ totalVolumeUsd: number}> => {
-        if (network === "aurora") return {totalVolumeUsd: 0};  // Exclude Aurora
+export const _getFactoryAPYs = memoize(
+    async (network: string): Promise<IVolumeAndAPYs> => {
+        const urlStable = `getFactoryAPYs/${network}/stable}`;
+        const urlCrypto = `getFactoryAPYs/${network}/crypto}`;
+        const response = await Promise.all([
+            axios.get(urlStable, { validateStatus: () => true }),
+            axios.get(urlCrypto, { validateStatus: () => true }),
+        ]);
 
-        const url = `https://api.curve.fi/api/getFactoryAPYs/${network}/${mode}`;
+        const stableVolume = response[0].data.data.totalVolumeUsd || response[0].data.data.totalVolume;
+        const cryptoVolume = response[1].data.data.totalVolumeUsd || response[1].data.data.totalVolume;
+
+        const poolsData = [...response[0].data.data.pools, ...response[1].data.data.pools].map((item) => {
+            return {
+                address: item.poolAddress,
+                volumeUSD: item.totalVolumeUsd,
+                day: item.apy,
+                week: item.apy*7, //Because api does not return week apy
+            }
+        })
+
+        return {
+            poolsData: poolsData ?? [],
+            totalVolume: stableVolume + cryptoVolume ?? 0,
+            cryptoVolume: cryptoVolume ?? 0,
+            cryptoShare: 100*cryptoVolume/(stableVolume + cryptoVolume) ?? 0,
+        };
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
+
+//4
+export const _getTotalVolumes = memoize(
+    async (network: string): Promise<{
+        totalVolume: number;
+        cryptoVolume: number;
+        cryptoShare: number;
+    }> => {
+        if (network === "aurora") return {
+            totalVolume: 0,
+            cryptoVolume: 0,
+            cryptoShare: 0,
+        };  // Exclude Aurora
+
+        const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
         const response = await axios.get(url, { validateStatus: () => true });
 
         return response.data.data;

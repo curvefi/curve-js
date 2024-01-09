@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getPoolsFromApi, _getSubgraphData, _getFactoryAPYsAndVolumes, _getLegacyAPYsAndVolumes } from '../external-api.js';
+import { _getPoolsFromApi } from '../external-api.js';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -28,6 +28,7 @@ import {
     DIGas,
     _getAddress,
     isMethodExist,
+    getVolumeApiController,
 } from '../utils.js';
 import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
 import { curve } from "../curve.js";
@@ -417,62 +418,29 @@ export class PoolTemplate {
     }
 
     private statsVolume = async (): Promise<string> => {
-        if ([56, 324, 1284, 2222, 8453, 42220, 1313161554].includes(curve.chainId)) {  // Bsc || ZkSync || Moonbeam || Kava || Base || Celo || Aurora || Bsc
-            const _response = await Promise.all([
-                _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
-                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'stable'),
-                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'crypto'),
-            ]);
-            const [mainPoolsData, factoryPoolsData] = [_response[0], [..._response[1], ..._response[2]]];
-            if (this.id in mainPoolsData) {
-                return (mainPoolsData[this.id].volume ?? 0).toString();
-            }
-            const poolData = factoryPoolsData.find((d) => d.poolAddress.toLowerCase() === this.address);
-            if (!poolData) throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
-            const lpPrice = await _getUsdRate(this.lpToken);
-
-            return (poolData.volume * lpPrice).toString()
-        }
         const network = curve.constants.NETWORK_NAME;
-        const poolsData = (await _getSubgraphData(network)).poolsData;
+        const {poolsData} = await getVolumeApiController(network);
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
-        if (!poolData) throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
 
-        return poolData.volumeUSD.toString()
+        if(poolData) {
+            return poolData.volumeUSD.toString()
+        }
+
+        throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
     }
 
     private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        if ([56, 324, 1284, 2222, 8453, 42220, 1313161554].includes(curve.chainId)) {  // Bsc || ZkSync || Moonbeam || Kava || Base || Celo || Aurora
-            const _response = await Promise.all([
-                _getLegacyAPYsAndVolumes(curve.constants.NETWORK_NAME),
-                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'stable'),
-                _getFactoryAPYsAndVolumes(curve.constants.NETWORK_NAME, 'crypto'),
-            ]);
-            const [mainPoolsData, factoryPoolsData] = [_response[0], [..._response[1], ..._response[2]]];
-            if (this.id in mainPoolsData) {
-                return {
-                    day: mainPoolsData[this.id].apy.day.toString(),
-                    week: mainPoolsData[this.id].apy.week.toString(),
-                }
-            }
-            const poolData = factoryPoolsData.find((d) => d.poolAddress.toLowerCase() === this.address);
-            if (!poolData) throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
-
-            return {
-                day: poolData.apy.toString(),
-                week: poolData.apy.toString(),
-            }
-        }
         const network = curve.constants.NETWORK_NAME;
-        const poolsData = (await _getSubgraphData(network)).poolsData;
+        const {poolsData} = await getVolumeApiController(network);
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
 
-        if (!poolData) throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
-
-        return {
-            day: poolData.latestDailyApy.toString(),
-            week: poolData.latestWeeklyApy.toString(),
+        if(poolData) {
+            return {
+                day: poolData.day.toString(),
+                week: poolData.week.toString(),
+            }
         }
+        throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
     }
 
     private _calcTokenApy = async (futureWorkingSupplyBN: BigNumber | null = null): Promise<[baseApy: number, boostedApy: number]> => {

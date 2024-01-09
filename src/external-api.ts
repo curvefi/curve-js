@@ -101,8 +101,8 @@ export const _getFactoryAPYs = memoize(
             axios.get(urlCrypto, { validateStatus: () => true }),
         ]);
 
-        const stableVolume = response[0].data.data.totalVolumeUsd || response[0].data.data.totalVolume;
-        const cryptoVolume = response[1].data.data.totalVolumeUsd || response[1].data.data.totalVolume;
+        const stableVolume = response[0].data.data.totalVolumeUsd || response[0].data.data.totalVolume || 0;
+        const cryptoVolume = response[1].data.data.totalVolumeUsd || response[1].data.data.totalVolume || 0;
 
         const poolsData = [...response[0].data.data.poolDetails, ...response[1].data.data.poolDetails].map((item) => {
             return {

@@ -2,17 +2,17 @@ import axios from 'axios';
 import { Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
-import {IChainId, IDict, INetworkName, IRewardFromApi, REFERENCE_ASSET} from './interfaces';
+import {IChainId, IDict, INetworkName, IRewardFromApi, IVolumeAndAPYs, REFERENCE_ASSET} from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
 import {
-    _getFactoryAPYsAndVolumes,
-    _getLegacyAPYsAndVolumes,
     _getAllPoolsFromApi,
+    _getFactoryAPYs,
     _getSubgraphData,
-    _getTotalVolumes,
+    _getVolumes,
 } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import { L2Networks } from './constants/L2Networks.js';
+import {volumeNetworks} from "./constants/volumeNetworks";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -558,24 +558,23 @@ export const getTVL = async (network: INetworkName | IChainId = curve.chainId): 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }
 
-export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
-    network = _getNetworkName(network);
-    if (["zksync", "moonbeam", "kava", "base", "celo", "aurora", "bsc"].includes(network)) {
-        const chainId = _getChainId(network);
-        if (curve.chainId !== chainId) throw Error("To get volume for ZkSync, Moonbeam, Kava, Base, Celo, Aurora or Bsc connect to the network first");
-
-
-        const [factoryPoolsData, cryptoPoolsData] = await Promise.all([
-            _getTotalVolumes(network, 'stable'),
-            _getTotalVolumes(network, 'crypto'),
-        ]);
-        const stableVolume = factoryPoolsData.totalVolumeUsd;
-        const cryptoVolume = cryptoPoolsData.totalVolumeUsd;
-
-        return { totalVolume: stableVolume + cryptoVolume, cryptoVolume: cryptoVolume, cryptoShare: cryptoVolume/(stableVolume + cryptoVolume) }
+export const getVolumeApiController = async (network: INetworkName): Promise<IVolumeAndAPYs> => {
+    if(volumeNetworks.getVolumes.includes(curve.chainId)) {
+        return  await _getVolumes(network);
+    }
+    if(volumeNetworks.getFactoryAPYs.includes(curve.chainId)) {
+        return await _getFactoryAPYs(network);
+    }
+    if(volumeNetworks.getSubgraphData.includes(curve.chainId)) {
+        return await _getSubgraphData(network);
     }
 
-    const { totalVolume, cryptoVolume, cryptoShare } = await _getSubgraphData(network);
+    throw Error(`Can't get volume for network: ${network}`);
+}
+
+export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+    network = _getNetworkName(network);
+    const { totalVolume, cryptoVolume, cryptoShare } = await getVolumeApiController(network);
     return { totalVolume, cryptoVolume, cryptoShare }
 }
 

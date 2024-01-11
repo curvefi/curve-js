@@ -505,6 +505,9 @@ export const getUsdRate = async (coin: string): Promise<number> => {
 }
 
 export const getGasPriceFromL1 = async (): Promise<number> => {
+    if(curve.chainId === 42161) {
+        return 0.1 * 1e9; // constant 0.1 gwei
+    }
     if(L2Networks.includes(curve.chainId)) {
         const gasPrice = await curve.contracts[curve.constants.ALIASES.gas_oracle].contract.l1BaseFee();
         return Number(gasPrice) + 1e9; // + 1 gwei

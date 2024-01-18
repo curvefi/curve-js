@@ -13,8 +13,8 @@ export const POOLS_DATA_AURORA: IDict<IPoolData> = lowerCasePoolDataAddresses({
         token_address: '0xbF7E49483881C76487b0989CD7d9A8239B20CA41',
         gauge_address: '0xC2b1DF84112619D190193E48148000e3990Bf627',
         is_plain: true,
-        underlying_coins: ['DAI', 'USDC', 'USDT'],
-        wrapped_coins: ['DAI', 'USDC', 'USDT'],
+        underlying_coins: ['DAI', 'USDC.e', 'USDT'],
+        wrapped_coins: ['DAI', 'USDC.e', 'USDT'],
         underlying_coin_addresses: [
             '0xe3520349F477A5F6EB06107066048508498A291b',
             '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802',

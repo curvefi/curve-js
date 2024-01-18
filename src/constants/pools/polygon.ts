@@ -23,7 +23,7 @@ export const POOLS_DATA_POLYGON: IDict<IPoolData> = lowerCasePoolDataAddresses({
         // sCurveRewards_address: '0xBdFF0C27dd073C119ebcb1299a68A6A92aE607F0',
         // reward_contract: "0xC48f4653dd6a9509De44c92beb0604BEA3AEe714",
         is_lending: true,
-        underlying_coins: ['DAI', 'USDC', 'USDT'],
+        underlying_coins: ['DAI', 'USDC.e', 'USDT'],
         wrapped_coins: ['amDAI', 'amUSDC', 'amUSDT'],
         underlying_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
@@ -87,11 +87,11 @@ export const POOLS_DATA_POLYGON: IDict<IPoolData> = lowerCasePoolDataAddresses({
         is_fake: true,
         base_pool: 'aave',
         meta_coin_idx: 0,
-        underlying_coins: ['DAI', 'USDC', 'USDT', 'WBTC', 'WETH'],
+        underlying_coins: ['DAI', 'USDC.e', 'USDT', 'WBTC', 'WETH'],
         wrapped_coins: ['am3CRV', 'amWBTC', 'amWETH'],
         underlying_coin_addresses: [
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
-            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
+            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC.e
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
             '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6', // WBTC
             '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
@@ -122,12 +122,12 @@ export const POOLS_DATA_POLYGON: IDict<IPoolData> = lowerCasePoolDataAddresses({
         is_meta: true,
         is_crypto: true,
         base_pool: 'aave',
-        underlying_coins: ['EURT', 'DAI', 'USDC', 'USDT'],
+        underlying_coins: ['EURT', 'DAI', 'USDC.e', 'USDT'],
         wrapped_coins: ['EURT', 'am3CRV'],
         underlying_coin_addresses: [
             '0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f', // EURT
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
-            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
+            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC.e
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
         wrapped_coin_addresses: [
@@ -153,12 +153,12 @@ export const POOLS_DATA_POLYGON: IDict<IPoolData> = lowerCasePoolDataAddresses({
         is_meta: true,
         is_crypto: true,
         base_pool: 'aave',
-        underlying_coins: ['EURS', 'DAI', 'USDC', 'USDT'],
+        underlying_coins: ['EURS', 'DAI', 'USDC.e', 'USDT'],
         wrapped_coins: ['EURS', 'am3CRV'],
         underlying_coin_addresses: [
             '0xe111178a87a3bff0c8d18decba5798827539ae99', // EURS
             '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
-            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
+            '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC.e
             '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
         ],
         wrapped_coin_addresses: [

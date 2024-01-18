@@ -7,7 +7,7 @@ export const COINS_POLYGON: { [index: string]: string } = lowerCaseValues({
     // -- USD ---
 
     dai: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",   // DAI
-    usdc: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",  // USDC
+    'usdc.e': "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",  // USDC.e
     usdt: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",  // USDT
 
     amdai: "0x27F8D03b3a2196956ED754baDc28D73be8830A6e",  // amDAI

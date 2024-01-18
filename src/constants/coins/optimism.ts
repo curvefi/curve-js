@@ -6,7 +6,7 @@ export const COINS_OPTIMISM: { [index: string]: string } = lowerCaseValues({
     // --- USD ---
 
     'dai': '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
-    'usdc': '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+    'usdc.e': '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
     'usdt': '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58',
     'susd': '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',
     'mim': '0xb153fb3d196a8eb25522705560ac152eeec57901',

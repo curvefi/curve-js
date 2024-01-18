@@ -580,7 +580,7 @@ const _deployTricryptoPool = async (
         name,
         symbol,
         coins,
-        curve.constants.NATIVE_TOKEN.wrappedAddress,
+        curve.constants.ZERO_ADDRESS,
         0,
         _A,
         _gamma,

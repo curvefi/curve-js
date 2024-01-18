@@ -20,8 +20,8 @@ export const POOLS_DATA_ARBITRUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         token_address: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
         gauge_address: '0xCE5F24B7A95e9cBa7df4B54E911B4A3Dc8CDAf6f',
         is_plain: true,
-        underlying_coins: ['USDC', 'USDT'],
-        wrapped_coins: ['USDC', 'USDT'],
+        underlying_coins: ['USDC.e', 'USDT'],
+        wrapped_coins: ['USDC.e', 'USDT'],
         underlying_coin_addresses: [
             '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
             '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',

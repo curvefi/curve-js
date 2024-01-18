@@ -5,7 +5,7 @@ export const COINS_ARBITRUM: { [index: string]: string } = lowerCaseValues({
 
     // --- USD ---
 
-    'usdc': '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+    'usdc.e': '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
     'usdt': '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
     '2crv': '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
 

@@ -14,8 +14,8 @@ export const POOLS_DATA_OPTIMISM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         swap_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
         token_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
         gauge_address: '0x15F52286C0FF1d7A7dDbC9E300dd66628D46D4e6',
-        underlying_coins: ['DAI', 'USDC', 'USDT'],
-        wrapped_coins: ['DAI', 'USDC', 'USDT'],
+        underlying_coins: ['DAI', 'USDC.e', 'USDT'],
+        wrapped_coins: ['DAI', 'USDC.e', 'USDT'],
         underlying_coin_addresses: [
             '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
             '0x7f5c764cbc14f9669b88837ca1490cca17c31607',

@@ -265,3 +265,14 @@ export interface IVolumeAndAPYs {
     cryptoShare: number,
     poolsData: IVolumeAndAPYsPoolData[],
 }
+
+export type TDaoActionType = 'pools' | 'gauges'
+
+export type TDaoAvailableMethodsOfPool = Record<string, boolean>
+
+export interface IDaoAction {
+    address: string,
+    contract: Contract,
+    method: string,
+    args: any[],
+}

@@ -102,7 +102,7 @@ export const POOLS_DATA_ARBITRUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         is_meta: true,
         is_crypto: true,
         base_pool: '2pool',
-        underlying_coins: ['EURS', 'USDC', 'USDT'],
+        underlying_coins: ['EURS', 'USDC.e', 'USDT'],
         wrapped_coins: ['EURS', '2CRV'],
         underlying_coin_addresses: [
             '0xd22a58f79e9481d1a88e00c343885a588b34b68b',

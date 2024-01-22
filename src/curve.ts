@@ -939,29 +939,23 @@ class Curve implements ICurve {
     }
 
     async updateFeeData(): Promise<void> {
-        try {
-            const feeData = await this.provider.getFeeData();
-            if (feeData.maxFeePerGas === null || feeData.maxPriorityFeePerGas === null) {
-                delete this.options.maxFeePerGas;
-                delete this.options.maxPriorityFeePerGas;
+        const feeData = await this.provider.getFeeData();
+        if (feeData.maxFeePerGas === null || feeData.maxPriorityFeePerGas === null) {
+            delete this.options.maxFeePerGas;
+            delete this.options.maxPriorityFeePerGas;
 
-                this.options.gasPrice = this.feeData.gasPrice !== undefined ?
-                    this.parseUnits(this.feeData.gasPrice.toString(), "gwei") :
-                    (feeData.gasPrice || this.parseUnits("20", "gwei"));
-            } else {
-                delete this.options.gasPrice;
+            this.options.gasPrice = this.feeData.gasPrice !== undefined ?
+                this.parseUnits(this.feeData.gasPrice.toString(), "gwei") :
+                (feeData.gasPrice || this.parseUnits("20", "gwei"));
+        } else {
+            delete this.options.gasPrice;
 
-                this.options.maxFeePerGas = this.feeData.maxFeePerGas !== undefined ?
-                    this.parseUnits(this.feeData.maxFeePerGas.toString(), "gwei") :
-                    feeData.maxFeePerGas;
-                this.options.maxPriorityFeePerGas = this.feeData.maxPriorityFeePerGas !== undefined ?
-                    this.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
-                    feeData.maxPriorityFeePerGas;
-            }
-        } catch (e) {
-            this.options.gasPrice = this.parseUnits('0', "gwei")
-            this.options.maxPriorityFeePerGas = this.parseUnits('0', "gwei")
-            this.options.maxFeePerGas = this.parseUnits('0', "gwei")
+            this.options.maxFeePerGas = this.feeData.maxFeePerGas !== undefined ?
+                this.parseUnits(this.feeData.maxFeePerGas.toString(), "gwei") :
+                feeData.maxFeePerGas;
+            this.options.maxPriorityFeePerGas = this.feeData.maxPriorityFeePerGas !== undefined ?
+                this.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
+                feeData.maxPriorityFeePerGas;
         }
     }
 }

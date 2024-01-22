@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
-import {IChainId, IDict, INetworkName, IRewardFromApi, IVolumeAndAPYs, REFERENCE_ASSET} from './interfaces';
+import { IChainId, IDict, INetworkName, IRewardFromApi, IVolumeAndAPYs, REFERENCE_ASSET } from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
 import {
     _getAllPoolsFromApi,

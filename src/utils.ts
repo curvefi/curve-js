@@ -12,7 +12,7 @@ import {
 } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import { L2Networks } from './constants/L2Networks.js';
-import {volumeNetworks} from "./constants/volumeNetworks";
+import { volumeNetworks } from "./constants/volumeNetworks.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

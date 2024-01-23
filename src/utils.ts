@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Contract } from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
-import {IChainId, IDict, INetworkName, IRewardFromApi, IVolumeAndAPYs, REFERENCE_ASSET} from './interfaces';
+import { IChainId, IDict, INetworkName, IRewardFromApi, IVolumeAndAPYs, REFERENCE_ASSET } from './interfaces';
 import { curve, NETWORK_CONSTANTS } from "./curve.js";
 import {
     _getAllPoolsFromApi,
@@ -12,7 +12,7 @@ import {
 } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import { L2Networks } from './constants/L2Networks.js';
-import {volumeNetworks} from "./constants/volumeNetworks";
+import { volumeNetworks } from "./constants/volumeNetworks.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

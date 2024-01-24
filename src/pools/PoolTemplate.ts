@@ -1663,7 +1663,21 @@ export class PoolTemplate {
     }
 
     public async withdrawImbalanceBonus(amounts: (number | string)[]): Promise<string> {
-        const prices = (this.isCrypto || this.id === 'wsteth') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
+        let prices: number[] = [];
+
+        //for crvusd and stable-ng implementations
+        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
+
+        if(this.isCrypto || this.id === 'wsteth') {
+            prices = await this._underlyingPrices();
+        } else if (isUseStoredRates) {
+            const result = await this._stored_rates();
+            result.forEach((item, index) => {
+                prices.push(Number(item)/(10 ** (36 - this.underlyingDecimals[index])))
+            })
+        } else {
+            prices = this.underlyingCoins.map(() => 1);
+        }
 
         const value = amounts.map(checkNumber).map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
         const lpTokenAmount = await this.withdrawImbalanceExpected(amounts);
@@ -1766,7 +1780,21 @@ export class PoolTemplate {
     }
 
     public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
-        const prices = (this.isCrypto || this.id === 'wsteth') ? await this._underlyingPrices() : this.underlyingCoins.map(() => 1);
+        let prices: number[] = [];
+
+        //for crvusd and stable-ng implementations
+        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
+
+        if(this.isCrypto || this.id === 'wsteth') {
+            prices = await this._underlyingPrices();
+        } else if (isUseStoredRates) {
+            const result = await this._stored_rates();
+            result.forEach((item, index) => {
+                prices.push(Number(item)/(10 ** (36 - this.underlyingDecimals[index])))
+            })
+        } else {
+            prices = this.underlyingCoins.map(() => 1);
+        }
         const coinPrice = prices[this._getCoinIdx(coin)];
 
         const amount = Number(await this.withdrawOneCoinExpected(lpTokenAmount, coin));

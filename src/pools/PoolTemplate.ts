@@ -1568,12 +1568,6 @@ export class PoolTemplate {
         const ethIndex = getEthIndex(coinAddresses);
         const value = _amounts[ethIndex] || curve.parseUnits("0");
 
-        const maxCoins = curve.chainId === 137 ? 6 : 5;
-        for (let i = 0; i < maxCoins; i++) {
-            coinAddresses[i] = coinAddresses[i] || curve.constants.ZERO_ADDRESS;
-            _amounts[i] = _amounts[i] || curve.parseUnits("0");
-        }
-
         const _gas = (await contract.deposit_and_stake.estimateGas(
             depositAddress,
             this.lpToken,
@@ -1583,6 +1577,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
+            this.isStableNg && this.isPlain,
             this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.constantOptions, value }
         ))
@@ -1600,6 +1595,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
+            this.isStableNg && this.isPlain,
             this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.options, gasLimit, value }
         )).hash

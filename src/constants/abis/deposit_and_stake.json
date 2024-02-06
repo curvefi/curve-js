@@ -22,11 +22,11 @@
       },
       {
         "name": "coins",
-        "type": "address[5]"
+        "type": "address[]"
       },
       {
         "name": "amounts",
-        "type": "uint256[5]"
+        "type": "uint256[]"
       },
       {
         "name": "min_mint_amount",
@@ -37,12 +37,15 @@
         "type": "bool"
       },
       {
+        "name": "is_plain_stable_ng",
+        "type": "bool"
+      },
+      {
         "name": "pool",
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "409532"
+    "outputs": []
   },
   {
     "stateMutability": "payable",

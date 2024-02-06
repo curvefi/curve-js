@@ -10,7 +10,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0x271fbE8aB7f1fB262f81C77Ea5303F03DA9d3d6A", // <--- CHANGE
+    "deposit_and_stake": "0xBFab8ebc836E1c4D81837798FC076D219C9a1855", // <--- CHANGE
     "stable_calc": "0x0DCDED3545D565bA3B19E683431381007245d983", // <-- CHANGE
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- CHANGE
     "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4', // <--- CHANGE
@@ -33,7 +33,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
@@ -53,7 +53,7 @@ export const ALIASES_FANTOM = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": "0x686d67265703d1f124c45e33d47d794c566889ba",
@@ -73,7 +73,7 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0xb17b674D9c5CB2e441F8e196a2f048A81355d031',
@@ -93,7 +93,7 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0xb17b674D9c5CB2e441F8e196a2f048A81355d031',
@@ -113,7 +113,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0x2db0E83599a91b508Ac268a6197b8B14F5e72840',
@@ -134,7 +134,7 @@ export const ALIASES_XDAI = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0xD19Baeadc667Cf2015e395f2B08668Ef120f41F5',
@@ -154,7 +154,7 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0x0000000000000000000000000000000000000000",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0x4244eB811D6e0Ef302326675207A95113dB4E1F8',
@@ -174,7 +174,7 @@ export const ALIASES_AURORA = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0x0000000000000000000000000000000000000000",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4', // <--- TODO CHANGE
@@ -194,7 +194,7 @@ export const ALIASES_KAVA = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0x40bc62805471eF53DdD5C5cF99ed3d9e5aa81b48',
@@ -214,7 +214,7 @@ export const ALIASES_CELO = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0x0000000000000000000000000000000000000000",
-    "deposit_and_stake": "0xB7De33440B7171159a9718CBE748086cecDd9685",
+    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0x5277A0226d10392295E8D383E9724D6E416d6e6C',
@@ -254,7 +254,7 @@ export const ALIASES_BASE = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB", // <--- TODO CHANGE
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383", // <--- TODO CHANGE
     "router": "0xd6681e74eEA20d196c15038C580f721EF2aB6320",
-    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
+    "deposit_and_stake": "0x69522fb5337663d3B4dFB0030b881c1A750Adb4f",
     "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
     "crypto_calc": '0xEfadDdE5B43917CcC738AdE6962295A0B343f7CE',
     "factory": '0x3093f9B57A428F3EB6285a589cb35bEA6e78c336',
@@ -275,7 +275,7 @@ export const ALIASES_BSC = lowerCaseValues({
     "gauge_controller": "0x0000000000000000000000000000000000000000", // <--- TODO CHANGE
     "address_provider": "0x0000000000000000000000000000000000000000", // <--- TODO CHANGE
     "router": "0x69522fb5337663d3B4dFB0030b881c1A750Adb4f",
-    "deposit_and_stake": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
+    "deposit_and_stake": "0x4f37A9d177470499A2dD084621020b023fcffc1F",
     "stable_calc": "0x0fE38dCC905eC14F6099a83Ac5C93BF2601300CF",
     "crypto_calc": '0xd6681e74eEA20d196c15038C580f721EF2aB6320',
     "factory": '0xEfDE221f306152971D8e9f181bFe998447975810',

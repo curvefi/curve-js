@@ -27,6 +27,7 @@ import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
 import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: 'json' };
 import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
+import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' assert { type: 'json' };
 import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
 import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' assert { type: 'json' };
 import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
@@ -84,6 +85,7 @@ import { COINS_BSC, cTokensBsc,  yTokensBsc, ycTokensBsc, aTokensBsc } from "./c
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
+import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -354,6 +356,7 @@ class Curve implements ICurve {
         CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
         EYWA_FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+        TWOCRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>
         TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
         STABLE_NG_FACTORY_POOLS_DATA: IDict<IPoolData>,
         LLAMMAS_DATA: IDict<IPoolData>,
@@ -386,6 +389,7 @@ class Curve implements ICurve {
             CRVUSD_FACTORY_POOLS_DATA: {},
             EYWA_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
+            TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
             STABLE_NG_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
@@ -423,6 +427,7 @@ class Curve implements ICurve {
             CRVUSD_FACTORY_POOLS_DATA: {},
             EYWA_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
+            TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
             STABLE_NG_FACTORY_POOLS_DATA: {},
             LLAMMAS_DATA: {},
@@ -618,6 +623,8 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI);
 
+        this.setContract(this.constants.ALIASES.twocrypto_factory, twocryptoFactoryABI);
+
         this.setContract(this.constants.ALIASES.tricrypto_factory, tricryptoFactoryABI);
 
         this.setContract(this.constants.ALIASES.stable_ng_factory, stableNgFactoryABI);
@@ -761,6 +768,22 @@ class Curve implements ICurve {
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
+    fetchTworyptoFactoryPools = async (useApi = true): Promise<void> => {
+        if ([324, 1284].includes(this.chainId)) return;
+
+        if (useApi) {
+            this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-twocrypto"));
+        } else {
+            this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this));
+        }
+        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+        this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+
+        await _killGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = await this.contracts[this.constants.ALIASES.twocrypto_factory].contract.gauge_implementation(this.constantOptions);
+    }
+
     fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
         if ([324, 1284].includes(this.chainId)) return;
 
@@ -832,6 +855,18 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
+    fetchNewTwocryptoFactoryPools = async (): Promise<string[]> => {
+        if ([324, 1284].includes(this.chainId)) return [];
+
+        const currentPoolIds = Object.keys(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+        const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
+        const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, lastPoolIdx + 1));
+        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)
+    }
+
     fetchNewTricryptoFactoryPools = async (): Promise<string[]> => {
         if ([324, 1284].includes(this.chainId)) return [];
 
@@ -873,6 +908,15 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
+    fetchRecentlyDeployedTwocryptoFactoryPool = async (poolAddress: string): Promise<string> => {
+        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return '';
+        const poolData = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this, 0, poolAddress));
+        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)[0]  // id
+    }
+
     fetchRecentlyDeployedTricryptoFactoryPool = async (poolAddress: string): Promise<string> => {
         if ([324, 1284].includes(this.chainId)) return '';
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
@@ -891,6 +935,8 @@ class Curve implements ICurve {
     getEywaFactoryPoolList = (): string[] => Object.keys(this.constants.EYWA_FACTORY_POOLS_DATA);
 
     getCryptoFactoryPoolList = (): string[] => Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+
+    getTworyptoFactoryPoolList = (): string[] => Object.keys(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
     getTricryptoFactoryPoolList = (): string[] => Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
@@ -914,6 +960,7 @@ class Curve implements ICurve {
         ...this.constants.CRVUSD_FACTORY_POOLS_DATA,
         ...this.constants.EYWA_FACTORY_POOLS_DATA,
         ...this.constants.CRYPTO_FACTORY_POOLS_DATA,
+        ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA,
         ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA,
         ...this.constants.STABLE_NG_FACTORY_POOLS_DATA,
         ...this.constants.LLAMMAS_DATA,

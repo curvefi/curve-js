@@ -6,7 +6,7 @@ import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { FACTORY_CONSTANTS } from "./constants.js";
-import { getPoolName } from "../utils.js";
+import {getPoolName, isStableNgPool} from "../utils.js";
 
 export const BLACK_LIST: { [index: number]: any } = {
     1: [
@@ -25,7 +25,7 @@ export const BLACK_LIST: { [index: number]: any } = {
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
-export async function getBasePoolIds(this: ICurve, factoryAddress: string, rawSwapAddresses: string[], tmpPools: IPoolDataShort[]): Promise<Array<string>> {
+export async function getBasePools(this: ICurve, factoryAddress: string, rawSwapAddresses: string[], tmpPools: IPoolDataShort[]): Promise<{ids: string[], addresses: string[]}> {
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
 
     const calls = [];
@@ -35,17 +35,23 @@ export async function getBasePoolIds(this: ICurve, factoryAddress: string, rawSw
 
     const result: string[] = await this.multicallProvider.all(calls);
 
-    const basePoolIds: Array<string> = [];
+    const basePoolIds: string[] = [];
+    const basePoolAddresses: string[] = [];
 
     result.forEach((item: string) => {
         if(item !== '0x0000000000000000000000000000000000000000') {
-            basePoolIds.push(getPoolIdByAddress(tmpPools, item));
+            basePoolIds.push(getPoolIdByAddress(tmpPools, item))
+            basePoolAddresses.push(item)
         } else {
             basePoolIds.push('')
+            basePoolAddresses.push(item)
         }
     })
 
-    return basePoolIds;
+    return {
+        ids: basePoolIds,
+        addresses: basePoolAddresses,
+    };
 }
 
 async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string, factoryAddress: string): Promise<string> {
@@ -287,7 +293,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
         })
     })
 
-    const basePoolIds = await getBasePoolIds.call(this, factoryAddress, swapAddresses, tmpPools);
+    const basePools = await getBasePools.call(this, factoryAddress, swapAddresses, tmpPools);
 
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
@@ -316,16 +322,22 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
         } else {
             const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
             // @ts-ignore
-            const basePoolIdCoinsDict = Object.fromEntries(basePoolIds.map(
+            const basePoolIdCoinsDict = Object.fromEntries(basePools.ids.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_coins]));
             // @ts-ignore
-            const basePoolIdCoinAddressesDict = Object.fromEntries(basePoolIds.map(
+            const basePoolIdCoinAddressesDict = Object.fromEntries(basePools.ids.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_coin_addresses]));
             // @ts-ignore
-            const basePoolIdDecimalsDict = Object.fromEntries(basePoolIds.map(
+            const basePoolIdDecimalsDict = Object.fromEntries(basePools.ids.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
-            const basePoolZap = basePoolIdZapDict[basePoolIds[i]];
+
+            const basePoolZap = isStableNgPool(basePools.ids[i]) ? FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap : basePoolIdZapDict[basePools.ids[i]];
+
+            if(isStableNgPool(basePools.ids[i])) {
+                this.setContract(basePools.addresses[i], FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap);
+            }
+
             FACTORY_POOLS_DATA[poolIds[i]] = {
                 name: getPoolName(poolNames[i]),
                 full_name: poolNames[i],
@@ -334,16 +346,16 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
-                deposit_address: basePoolIdZapDict[basePoolIds[i]].address,
+                deposit_address: basePools.addresses[i],
                 implementation_address: implementations[i], // Only for testing
                 is_meta: true,
                 is_factory: true,
-                base_pool: basePoolIds[i],
-                underlying_coins: [coinAddressNameDict[coinAddresses[i][0]], ...basePoolIdCoinsDict[basePoolIds[i]]],
+                base_pool: basePools.ids[i],
+                underlying_coins: [coinAddressNameDict[coinAddresses[i][0]], ...basePoolIdCoinsDict[basePools.ids[i]]],
                 wrapped_coins: [...coinAddresses[i].map((addr) => coinAddressNameDict[addr])],
-                underlying_coin_addresses: [coinAddresses[i][0], ...basePoolIdCoinAddressesDict[basePoolIds[i]]],
+                underlying_coin_addresses: [coinAddresses[i][0], ...basePoolIdCoinAddressesDict[basePools.ids[i]]],
                 wrapped_coin_addresses: coinAddresses[i],
-                underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolIdDecimalsDict[basePoolIds[i]]],
+                underlying_decimals: [coinAddressDecimalsDict[coinAddresses[i][0]], ...basePoolIdDecimalsDict[basePools.ids[i]]],
                 wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,

@@ -40,6 +40,7 @@ import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json
 import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json" assert { type: 'json' };
 import RenMetaZapABI from "../constants/abis/ren/meta_zap.json" assert { type: 'json' };
 import Sbtc2MetaZapABI from "../constants/abis/sbtc2/meta_zap.json" assert { type: 'json' };
+import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" assert { type: 'json' };
 import { lowerCaseKeys } from "../constants/utils.js";
 
 
@@ -528,57 +529,74 @@ export const basePoolIdZapDictBase: IDict<{ address: string, ABI: any }> = {}
 
 export const basePoolIdZapDictBsc: IDict<{ address: string, ABI: any }> = {}
 
-export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
+export const stableNgBasePoolZap: {ABI: any} = {
+    ABI: StableNgBasePoolZapABI,
+}
+
+export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, basePoolIdZapDict: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap: {ABI: any} } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     10: {  // OPTIMISM
         implementationABIDict: implementationABIDictOptimism,
         basePoolIdZapDict: basePoolIdZapDictOptimism,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     56: {  // BSC
         implementationABIDict: implementationABIDictBsc,
         basePoolIdZapDict: basePoolIdZapDictBsc,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     100: {  // XDAI
         implementationABIDict: implementationABIDictXDai,
         basePoolIdZapDict: basePoolIdZapDictXDai,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     137: {  // POLYGON
         implementationABIDict: implementationABIDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     250: {  // FANTOM
         implementationABIDict: implementationABIDictFantom,
         basePoolIdZapDict: basePoolIdZapDictFantom,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     324: {  // ZKSYNC
         implementationABIDict: implementationABIDictZkSync,
         basePoolIdZapDict: basePoolIdZapDictZkSync,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     1284: {  // MOONBEAM
         implementationABIDict: implementationABIDictMoonbeam,
         basePoolIdZapDict: basePoolIdZapDictMoonbeam,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     2222: {  // KAVA
         implementationABIDict: implementationABIDictKava,
         basePoolIdZapDict: basePoolIdZapDictKava,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     8453: {  // BASE
         implementationABIDict: implementationABIDictBase,
         basePoolIdZapDict: basePoolIdZapDictBase,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     42220: {  // CELO
         implementationABIDict: implementationABIDictCelo,
         basePoolIdZapDict: basePoolIdZapDictCelo,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     43114: {  // AVALANCHE
         implementationABIDict: implementationABIDictAvalanche,
         basePoolIdZapDict: basePoolIdZapDictAvalanche,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     42161: {  // ARBITRUM
         implementationABIDict: implementationABIDictArbitrum,
         basePoolIdZapDict: basePoolIdZapDictArbitrum,
+        stableNgBasePoolZap: stableNgBasePoolZap,
     },
 }

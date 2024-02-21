@@ -685,6 +685,10 @@ export const getPoolName = (name: string): string => {
     }
 }
 
+export const isStableNgPool = (name: string): boolean => {
+    return name.includes('factory-stable-ng')
+}
+
 export const assetTypeNameHandler = (assetTypeName: string): REFERENCE_ASSET => {
     if (assetTypeName.toUpperCase() === 'UNKNOWN') {
         return 'OTHER';

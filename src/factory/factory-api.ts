@@ -9,7 +9,7 @@ import { FACTORY_CONSTANTS } from "./constants.js";
 import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
-import { assetTypeNameHandler, getPoolName } from "../utils.js";
+import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -172,7 +172,11 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
 
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
 
-            const basePoolZap = basePoolIdZapDict[basePoolId];
+            const basePoolZap = isStableNgPool(basePoolId) ? FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap : basePoolIdZapDict[basePoolId];
+
+            if(isStableNgPool(basePoolId)) {
+                this.setContract(pool.basePoolAddress as string, FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap);
+            }
 
             FACTORY_POOLS_DATA[pool.id] = {
                 name: getPoolName(pool.name),
@@ -182,7 +186,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 swap_address: pool.address,
                 token_address: pool.address,
                 gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
-                deposit_address: basePoolZap.address,
+                deposit_address: pool.basePoolAddress,
                 implementation_address: pool.implementationAddress, // Only for testing
                 is_meta: true,
                 is_factory: true,

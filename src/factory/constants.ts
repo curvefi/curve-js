@@ -529,11 +529,12 @@ export const basePoolIdZapDictBase: IDict<{ address: string, ABI: any }> = {}
 
 export const basePoolIdZapDictBsc: IDict<{ address: string, ABI: any }> = {}
 
-export const stableNgBasePoolZap: {ABI: any} = {
+export const stableNgBasePoolZap: {ABI: any, address: string} = {
     ABI: StableNgBasePoolZapABI,
+    address: '0xe07a16358aa878cbda2d49a88e5106871e0db307'.toLowerCase(),
 }
 
-export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, basePoolIdZapDict: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap: {ABI: any} } } = {
+export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, basePoolIdZapDict: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap: {ABI: any, address: string} } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,

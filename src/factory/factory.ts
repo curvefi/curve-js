@@ -335,7 +335,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
             const basePoolZap = isStableNgPool(basePools.ids[i]) ? FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap : basePoolIdZapDict[basePools.ids[i]];
 
             if(isStableNgPool(basePools.ids[i])) {
-                this.setContract(basePools.addresses[i], FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap);
+                this.setContract(FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap.address, FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap.ABI);
             }
 
             FACTORY_POOLS_DATA[poolIds[i]] = {
@@ -346,7 +346,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
-                deposit_address: basePools.addresses[i],
+                deposit_address: basePoolZap.address,
                 implementation_address: implementations[i], // Only for testing
                 is_meta: true,
                 is_factory: true,

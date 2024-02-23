@@ -37,7 +37,7 @@
         "type": "bool"
       },
       {
-        "name": "is_plain_stable_ng",
+        "name": "use_dynarray",
         "type": "bool"
       },
       {

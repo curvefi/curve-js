@@ -1577,7 +1577,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isStableNg && this.isPlain,
+            (this.isStableNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isStableNg),
             this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.constantOptions, value }
         ))
@@ -1595,7 +1595,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            this.isStableNg && this.isPlain,
+            (this.isStableNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isStableNg),
             this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.options, gasLimit, value }
         )).hash

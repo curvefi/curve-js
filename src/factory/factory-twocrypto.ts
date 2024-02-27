@@ -1,7 +1,7 @@
 import { IDict, IPoolData, ICurve } from "../interfaces";
 import { curve } from "../curve.js";
 import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
-import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" assert { type: 'json' };
+import twocryptoFactorySwapABI from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" assert { type: 'json' };
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
 
@@ -14,13 +14,13 @@ async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string)
     const poolCount = Number(curve.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     for (let i = 1; i <= poolCount; i++) {
         const address: string = await factoryContract.pool_list(poolCount - i);
-        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-tricrypto-${poolCount - i}`
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-twocrypto-${poolCount - i}`
     }
 
     throw Error("Unknown pool")
 }
 
-async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
+async function getTwocryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
     const factoryContract = this.contracts[this.constants.ALIASES.twocrypto_factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.twocrypto_factory].multicallContract;
 
@@ -92,25 +92,25 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
     }
 }
 
-function setCryptoFactorySwapContracts(this: ICurve, factorySwapAddresses: string[]): void {
+function setTwocryptoFactorySwapContracts(this: ICurve, factorySwapAddresses: string[]): void {
     factorySwapAddresses.forEach((addr) => {
-        this.setContract(addr, tricryptoFactorySwapABI);
+        this.setContract(addr, twocryptoFactorySwapABI);
     });
 }
 
-function setCryptoFactoryTokenContracts(this: ICurve, factoryTokenAddresses: string[]): void {
+function setTwocryptoFactoryTokenContracts(this: ICurve, factoryTokenAddresses: string[]): void {
     factoryTokenAddresses.forEach((addr) => {
         this.setContract(addr, ERC20ABI);
     });
 }
 
-function setCryptoFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[]): void {
+function setTwocryptoFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[]): void {
     factoryGaugeAddresses.filter((addr) => addr !== curve.constants.ZERO_ADDRESS).forEach((addr, i) => {
         this.setContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI);
     });
 }
 
-function setCryptoFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void {
+function setTwocryptoFactoryCoinsContracts(this: ICurve, coinAddresses: string[][]): void {
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     for (const addr of flattenedCoinAddresses) {
         if (addr in this.contracts) continue;
@@ -118,7 +118,7 @@ function setCryptoFactoryCoinsContracts(this: ICurve, coinAddresses: string[][])
     }
 }
 
-function getCryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddresses: string[][]): string[][] {
+function getTwocryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddresses: string[][]): string[][] {
     return [...coinAddresses.map((coins: string[]) => coins.map((c) => c === this.constants.NATIVE_TOKEN.wrappedAddress ? this.constants.NATIVE_TOKEN.address : c))];
 }
 
@@ -201,14 +201,14 @@ async function getCoinsData(
 export async function getTwocryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = swapAddress ?
         [[await getRecentlyCreatedCryptoPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
-        : await getCryptoFactoryIdsAndSwapAddresses.call(this, fromIdx);
+        : await getTwocryptoFactoryIdsAndSwapAddresses.call(this, fromIdx);
     if (poolIds.length === 0) return {};
 
     const [gaugeAddresses, coinAddresses] = await getPoolsData.call(this, swapAddresses);
-    setCryptoFactorySwapContracts.call(this, swapAddresses);
-    setCryptoFactoryGaugeContracts.call(this, gaugeAddresses);
-    setCryptoFactoryCoinsContracts.call(this, coinAddresses);
-    const underlyingCoinAddresses = getCryptoFactoryUnderlyingCoinAddresses.call(this, coinAddresses);
+    setTwocryptoFactorySwapContracts.call(this, swapAddresses);
+    setTwocryptoFactoryGaugeContracts.call(this, gaugeAddresses);
+    setTwocryptoFactoryCoinsContracts.call(this, coinAddresses);
+    const underlyingCoinAddresses = getTwocryptoFactoryUnderlyingCoinAddresses.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
     const [poolSymbols, poolNames, coinAddressNameDict, coinAddressDecimalsDict] =
         await getCoinsData.call(this, swapAddresses, coinAddresses, existingCoinAddressNameDict, this.constants.DECIMALS);
@@ -232,7 +232,7 @@ export async function getTwocryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
             wrapped_coin_addresses: coinAddresses[i],
             underlying_decimals: [...underlyingCoinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
             wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
-            swap_abi: tricryptoFactorySwapABI,
+            swap_abi: twocryptoFactorySwapABI,
             gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
         };
     }

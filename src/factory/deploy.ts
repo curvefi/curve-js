@@ -573,16 +573,16 @@ const _deployTwocryptoPool = async (
     const contract = curve.contracts[curve.constants.ALIASES.twocrypto_factory].contract;
 
     const gas = await contract.deploy_pool.estimateGas(
-        name, //
-        symbol, //
-        coins, //
-        0, //
-        _A, //
-        _gamma, //
-        _midFee, //
-        _outFee, //
+        name,
+        symbol,
+        coins,
+        0,
+        _A,
+        _gamma,
+        _midFee,
+        _outFee,
         _feeGamma,
-        _allowedExtraProfit, //
+        _allowedExtraProfit,
         _adjustmentStep,
         _maHalfTime,
         _initialPrice,
@@ -593,16 +593,16 @@ const _deployTwocryptoPool = async (
     const gasLimit = mulBy1_3(DIGas(gas));
     await curve.updateFeeData();
     return await contract.deploy_pool(
-        name, //
-        symbol, //
-        coins, //
-        0, //
-        _A, //
-        _gamma, //
-        _midFee, //
-        _outFee, //
+        name,
+        symbol,
+        coins,
+        0,
+        _A,
+        _gamma,
+        _midFee,
+        _outFee,
         _feeGamma,
-        _allowedExtraProfit, //
+        _allowedExtraProfit,
         _adjustmentStep,
         _maHalfTime,
         _initialPrice,

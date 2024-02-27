@@ -27,7 +27,9 @@ import curve from "@curvefi/api";
     await curve.crvUSDFactory.fetchPools();
     await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.twocryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
+    await curve.stableNgFactory.fetchPools(); 
 })()
 ```
 **Note 1.** ```chainId``` parameter is optional, but you must specify it in the case you use Metamask on localhost network, because Metamask has that [bug](https://hardhat.org/metamask-issue.html)
@@ -191,7 +193,9 @@ import curve from "@curvefi/api";
     await curve.crvUSDFactory.fetchPools();
     await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.twocryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
+    await curve.stableNgFactory.fetchPools();
 
     curve.getMainPoolList();
     // [
@@ -272,9 +276,15 @@ import curve from "@curvefi/api";
     //     'factory-crypto-60', 'factory-crypto-61', 'factory-crypto-62'
     // ]
 
+    curve.twocryptoFactory.getPoolList();
+    // ['factory-twocrypto-0', 'factory-twocrypto-1']
+    
     curve.tricryptoFactory.getPoolList();
     // ['factory-tricrypto-0', 'factory-tricrypto-1']
 
+    curve.stableNgFactory.getPoolList();
+    // ['factory-stable-ng-0', 'factory-stable-ng-1']
+    
     curve.getPoolList();
     // [
     //     'compound',      'usdt',          'y',             'busd',
@@ -317,8 +327,10 @@ import curve from "@curvefi/api";
     await curve.crvUSDFactory.fetchPools();
     await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.twocryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
-
+    await curve.stableNgFactory.fetchPools();
+    
     const pool = curve.getPool('factory-v2-11');
 
     pool.id;
@@ -1047,7 +1059,9 @@ import curve from "@curvefi/api";
     await curve.crvUSDFactory.fetchPools();
     await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.twocryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
+    await curve.stableNgFactory.fetchPools();
 
     curve.hasRouter();
     // true
@@ -1509,16 +1523,24 @@ import curve from "@curvefi/api";
 
     // Fetch pools from api (if false arg is not passed)
     await curve.factory.fetchPools();
+    await curve.crvUSDFactory.fetchPools();
+    await curve.EYWAFactory.fetchPools();
     await curve.cryptoFactory.fetchPools();
+    await curve.twocryptoFactory.fetchPools();
     await curve.tricryptoFactory.fetchPools();
+    await curve.stableNgFactory.fetchPools();
 
     // Fetch very new pools (that haven't been added to api yet) from blockchain
     await curve.factory.fetchNewPools();
     // [ 'factory-v2-285' ]
     await curve.cryptoFactory.fetchNewPools();
     // [ 'factory-crypto-232' ]
+    await curve.twocryptoFactory.fetchNewPools();
+    // [ 'factory-twocrypto-2' ]
     await curve.tricryptoFactory.fetchNewPools();
     // [ 'factory-tricrypto-2' ]
+    await curve.stableNgFactory.fetchNewPools();
+    // [ 'factory-stable-ng-2' ]
 })()
 ```
 
@@ -1863,6 +1885,58 @@ import curve from "@curvefi/api";
     const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
     // 0x0b4f303a4434647dbf257e3ae4fb134259f3d4fa
 
+    // Deposit & Stake
+
+    const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
+    // factory-crypto-155
+    const pool = curve.getPool(poolId);
+
+    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    // [ '30', '0.02' ]
+    await pool.depositAndStake(amounts);
+    const underlyingBalances = await pool.stats.underlyingBalances();
+    // [ '30.0', '0.02' ]
+})()
+```
+
+### Deploy twocrypto pool
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const coins = [
+        "0xC581b735A1688071A1746c968e0798D642EDE491", // EURT
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+    ];
+
+    // Deploy pool
+    
+    const deployPoolTx = await curve.twocryptoFactory.deployPool(
+        "Test crypto pool",
+        "TCP",
+        coins,
+        400000,
+        0.0000725,
+        0.25,
+        0.45,
+        0.000002,
+        0.00023,
+        0.000146,
+        600,
+        1500
+    );
+    // {
+    //     hash: '0x406900448e537f2fd5c833a4f62a81305b9567e71f870772e10c72271bd78c37',
+    //     type: 0,
+    //     accessList: null,
+    //     ...
+    // }
+    const poolAddress = await curve.twocryptoFactory.getDeployedPoolAddress(deployPoolTx);
+    // 0xe01a9ecdb0aaabe2f12a25a0d289480debf09e89
+    
     // Deposit & Stake
 
     const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);

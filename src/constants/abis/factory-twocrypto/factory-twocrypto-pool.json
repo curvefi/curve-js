@@ -95,7 +95,7 @@
       },
       {
         "name": "token_amounts",
-        "type": "uint256[3]",
+        "type": "uint256[2]",
         "indexed": false
       },
       {
@@ -127,7 +127,7 @@
       },
       {
         "name": "token_amounts",
-        "type": "uint256[3]",
+        "type": "uint256[2]",
         "indexed": false
       },
       {
@@ -177,48 +177,6 @@
     "type": "event"
   },
   {
-    "name": "CommitNewParameters",
-    "inputs": [
-      {
-        "name": "deadline",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "mid_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "out_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "fee_gamma",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "allowed_extra_profit",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "adjustment_step",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "ma_time",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
     "name": "NewParameters",
     "inputs": [
       {
@@ -248,6 +206,11 @@
       },
       {
         "name": "ma_time",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "xcp_ma_time",
         "type": "uint256",
         "indexed": false
       }
@@ -324,7 +287,7 @@
       },
       {
         "name": "tokens",
-        "type": "uint256",
+        "type": "uint256[2]",
         "indexed": false
       }
     ],
@@ -345,14 +308,10 @@
       },
       {
         "name": "_coins",
-        "type": "address[3]"
+        "type": "address[2]"
       },
       {
         "name": "_math",
-        "type": "address"
-      },
-      {
-        "name": "_weth",
         "type": "address"
       },
       {
@@ -364,7 +323,7 @@
         "type": "uint256"
       },
       {
-        "name": "packed_A_gamma",
+        "name": "packed_gamma_A",
         "type": "uint256"
       },
       {
@@ -376,18 +335,14 @@
         "type": "uint256"
       },
       {
-        "name": "packed_prices",
+        "name": "initial_price",
         "type": "uint256"
       }
     ],
     "outputs": []
   },
   {
-    "stateMutability": "payable",
-    "type": "fallback"
-  },
-  {
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function",
     "name": "exchange",
     "inputs": [
@@ -416,9 +371,9 @@
     ]
   },
   {
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function",
-    "name": "exchange_underlying",
+    "name": "exchange_received",
     "inputs": [
       {
         "name": "i",
@@ -447,56 +402,11 @@
   {
     "stateMutability": "nonpayable",
     "type": "function",
-    "name": "exchange_extended",
-    "inputs": [
-      {
-        "name": "i",
-        "type": "uint256"
-      },
-      {
-        "name": "j",
-        "type": "uint256"
-      },
-      {
-        "name": "dx",
-        "type": "uint256"
-      },
-      {
-        "name": "min_dy",
-        "type": "uint256"
-      },
-      {
-        "name": "use_eth",
-        "type": "bool"
-      },
-      {
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "name": "cb",
-        "type": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ]
-  },
-  {
-    "stateMutability": "payable",
-    "type": "function",
     "name": "add_liquidity",
     "inputs": [
       {
         "name": "amounts",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       },
       {
         "name": "min_mint_amount",
@@ -521,13 +431,13 @@
       },
       {
         "name": "min_amounts",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       }
     ],
     "outputs": [
       {
         "name": "",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       }
     ]
   },
@@ -555,13 +465,6 @@
         "type": "uint256"
       }
     ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "claim_admin_fees",
-    "inputs": [],
-    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -633,48 +536,6 @@
   {
     "stateMutability": "nonpayable",
     "type": "function",
-    "name": "increaseAllowance",
-    "inputs": [
-      {
-        "name": "_spender",
-        "type": "address"
-      },
-      {
-        "name": "_add_value",
-        "type": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "decreaseAllowance",
-    "inputs": [
-      {
-        "name": "_spender",
-        "type": "address"
-      },
-      {
-        "name": "_sub_value",
-        "type": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
     "name": "permit",
     "inputs": [
       {
@@ -728,11 +589,23 @@
   {
     "stateMutability": "view",
     "type": "function",
+    "name": "admin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
     "name": "calc_token_amount",
     "inputs": [
       {
         "name": "amounts",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       },
       {
         "name": "deposit",
@@ -824,12 +697,7 @@
     "stateMutability": "view",
     "type": "function",
     "name": "price_oracle",
-    "inputs": [
-      {
-        "name": "k",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "outputs": [
       {
         "name": "",
@@ -840,13 +708,8 @@
   {
     "stateMutability": "view",
     "type": "function",
-    "name": "last_prices",
-    "inputs": [
-      {
-        "name": "k",
-        "type": "uint256"
-      }
-    ],
+    "name": "xcp_oracle",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
@@ -858,12 +721,7 @@
     "stateMutability": "view",
     "type": "function",
     "name": "price_scale",
-    "inputs": [
-      {
-        "name": "k",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "outputs": [
       {
         "name": "",
@@ -911,11 +769,11 @@
     "inputs": [
       {
         "name": "amounts",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       },
       {
         "name": "xp",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       }
     ],
     "outputs": [
@@ -1029,7 +887,7 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       }
     ]
   },
@@ -1040,7 +898,7 @@
     "inputs": [
       {
         "name": "xp",
-        "type": "uint256[3]"
+        "type": "uint256[2]"
       }
     ],
     "outputs": [
@@ -1092,7 +950,7 @@
   {
     "stateMutability": "nonpayable",
     "type": "function",
-    "name": "commit_new_parameters",
+    "name": "apply_new_parameters",
     "inputs": [
       {
         "name": "_new_mid_fee",
@@ -1117,35 +975,13 @@
       {
         "name": "_new_ma_time",
         "type": "uint256"
+      },
+      {
+        "name": "_new_xcp_ma_time",
+        "type": "uint256"
       }
     ],
     "outputs": []
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "apply_new_parameters",
-    "inputs": [],
-    "outputs": []
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "revert_new_parameters",
-    "inputs": [],
-    "outputs": []
-  },
-  {
-    "stateMutability": "view",
-    "type": "function",
-    "name": "WETH20",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ]
   },
   {
     "stateMutability": "view",
@@ -1191,7 +1027,43 @@
   {
     "stateMutability": "view",
     "type": "function",
-    "name": "last_prices_timestamp",
+    "name": "last_prices",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "last_timestamp",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "last_xcp",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "xcp_ma_time",
     "inputs": [],
     "outputs": [
       {
@@ -1341,18 +1213,6 @@
     "stateMutability": "view",
     "type": "function",
     "name": "ADMIN_FEE",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ]
-  },
-  {
-    "stateMutability": "view",
-    "type": "function",
-    "name": "admin_actions_deadline",
     "inputs": [],
     "outputs": [
       {

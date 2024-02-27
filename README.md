@@ -1939,8 +1939,8 @@ import curve from "@curvefi/api";
     
     // Deposit & Stake
 
-    const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
-    // factory-crypto-155
+    const poolId = await curve.twocryptoFactory.fetchRecentlyDeployedPool(poolAddress);
+    // factory-twocrypto-155
     const pool = curve.getPool(poolId);
 
     const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice

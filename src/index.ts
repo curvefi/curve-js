@@ -95,6 +95,9 @@ import {
     deployStableNgPlainPoolEstimateGas,
     deployStableNgMetaPool,
     deployStableNgMetaPoolEstimateGas,
+    deployTwocryptoPool,
+    deployTwocryptoPoolEstimateGas,
+    getDeployedTwocryptoPoolAddress,
 } from './factory/deploy.js';
 import {
     crvSupplyStats,
@@ -240,6 +243,27 @@ const curve = {
         estimateGas: {
             deployPool: deployCryptoPoolEstimateGas,
             deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.crypto_factory),
+            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
+            deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
+        },
+    },
+    twocryptoFactory: {
+        fetchPools: _curve.fetchTworyptoFactoryPools,
+        fetchNewPools: _curve.fetchNewTwocryptoFactoryPools,
+        getPoolList: _curve.getTworyptoFactoryPoolList,
+        deployPool: deployTwocryptoPool,
+        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.twocrypto_factory),
+        deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
+        deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
+        getDeployedPoolAddress: getDeployedTwocryptoPoolAddress,
+        getDeployedGaugeAddress: getDeployedGaugeAddress,
+        getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
+        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTwocryptoFactoryPool,
+        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-twocrypto"),
+        estimateGas: {
+            deployPool: deployTwocryptoPoolEstimateGas, //
+            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.twocrypto_factory),
             deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
             deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
         },

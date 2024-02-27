@@ -521,6 +521,169 @@ export const getDeployedCryptoPoolAddress = async (tx: ethers.ContractTransactio
     return (await contract.minter(curve.constantOptions) as string).toLowerCase();
 }
 
+// ------- TWOCRYPTO POOLS -------
+
+const _deployTwocryptoPool = async (
+    name: string,
+    symbol: string,
+    coins: string[],
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    maHalfTime: number, // Seconds
+    initialPrice: number | string,
+    estimateGas: boolean
+): Promise<ethers.ContractTransactionResponse | number | number[]> => {
+    if (name.length > 32) throw Error("Max name length = 32");
+    if (symbol.length > 10) throw Error("Max symbol length = 10");
+    if (coins.length !== 2) throw Error("Invalid number of coins. Must be 2");
+    if (coins[0] === coins[1]) throw Error("Coins must be different");
+    if (BN(A).lt(4000)) throw Error(`A must be >= 4000. Passed A = ${A}`);
+    if (BN(A).gt(4 * (10 ** 9))) throw Error(`A must be <= 4 * 10 ** 9. Passed A = ${A}`);
+    if (BN(gamma).lt(1e-8)) throw Error(`gamma must be >= 1e-8. Passed gamma = ${gamma}`);
+    if (BN(gamma).gt(0.02)) throw Error(`gamma must be <= 0.02. Passed gamma = ${gamma}`);
+    if (BN(midFee).lt(0.005)) throw Error(`midFee must be >= 0.005. Passed midFee = ${midFee}`);
+    if (BN(midFee).gt(100)) throw Error(`midFee must be <= 100. Passed midFee = ${midFee}`);
+    if (BN(outFee).lt(BN(midFee))) throw Error(`outFee must be >= midFee. Passed outFee = ${outFee} < midFee = ${midFee}`);
+    if (BN(outFee).gt(100)) throw Error(`outFee must be <= 100. Passed outFee = ${outFee}`);
+    if (BN(allowedExtraProfit).lt(0)) throw Error(`allowedExtraProfit must be >= 0. Passed allowedExtraProfit = ${allowedExtraProfit}`);
+    if (BN(allowedExtraProfit).gt(0.01)) throw Error(`allowedExtraProfit must be <= 0.01. Passed allowedExtraProfit = ${allowedExtraProfit}`);
+    if (BN(feeGamma).lt(0)) throw Error(`feeGamma must be >= 0. Passed feeGamma = ${feeGamma}`);
+    if (BN(feeGamma).gt(1)) throw Error(`feeGamma must be <= 1. Passed feeGamma = ${feeGamma}`);
+    if (BN(adjustmentStep).lt(0)) throw Error(`adjustmentStep must be >= 0. Passed adjustmentStep=${adjustmentStep}`);
+    if (BN(adjustmentStep).gt(1)) throw Error(`adjustmentStep must be <= 1. Passed adjustmentStep=${adjustmentStep}`);
+    if (BN(maHalfTime).lt(0)) throw Error(`maHalfTime must be >= 0. Passed maHalfTime=${maHalfTime}`);
+    if (BN(maHalfTime).gt(604800)) throw Error(`maHalfTime must be <= 604800. Passed maHalfTime=${maHalfTime}`);
+    if (BN(initialPrice).lt(1e-12)) throw Error(`initialPrice must be >= 1e-12. Passed initialPrice=${initialPrice}`);
+    if (BN(initialPrice).gt(1e12)) throw Error(`initialPrice must be <= 1e12. Passed initialPrice=${initialPrice}`);
+
+    const _A = parseUnits(A, 0);
+    const _gamma = parseUnits(gamma);
+    const _midFee = parseUnits(midFee, 8);
+    const _outFee = parseUnits(outFee, 8);
+    const _allowedExtraProfit = parseUnits(allowedExtraProfit);
+    const _feeGamma = parseUnits(feeGamma);
+    const _adjustmentStep = parseUnits(adjustmentStep);
+    const _maHalfTime = parseUnits(maHalfTime, 0);
+    const _initialPrice = parseUnits(initialPrice);
+    const contract = curve.contracts[curve.constants.ALIASES.twocrypto_factory].contract;
+
+    const gas = await contract.deploy_pool.estimateGas(
+        name,
+        symbol,
+        coins,
+        0,
+        _A,
+        _gamma,
+        _midFee,
+        _outFee,
+        _feeGamma,
+        _allowedExtraProfit,
+        _adjustmentStep,
+        _maHalfTime,
+        _initialPrice,
+        curve.constantOptions
+    );
+    if (estimateGas) return smartNumber(gas);
+
+    const gasLimit = mulBy1_3(DIGas(gas));
+    await curve.updateFeeData();
+    return await contract.deploy_pool(
+        name,
+        symbol,
+        coins,
+        0,
+        _A,
+        _gamma,
+        _midFee,
+        _outFee,
+        _feeGamma,
+        _allowedExtraProfit,
+        _adjustmentStep,
+        _maHalfTime,
+        _initialPrice,
+        { ...curve.options, gasLimit }
+    );
+}
+
+export const deployTwocryptoPoolEstimateGas = async (
+    name: string,
+    symbol: string,
+    coins: string[],
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    maHalfTime: number, // Seconds
+    initialPrice: number | string
+): Promise<number> => {
+    return await _deployTwocryptoPool(
+        name,
+        symbol,
+        coins,
+        A,
+        gamma,
+        midFee,
+        outFee,
+        allowedExtraProfit,
+        feeGamma,
+        adjustmentStep,
+        maHalfTime,
+        initialPrice,
+        true
+    ) as number
+}
+
+export const deployTwocryptoPool = async (
+    name: string,
+    symbol: string,
+    coins: string[],
+    A: number | string,
+    gamma: number | string,
+    midFee: number | string, // %
+    outFee: number | string, // %
+    allowedExtraProfit: number | string,
+    feeGamma: number | string,
+    adjustmentStep: number | string,
+    maHalfTime: number, // Seconds
+    initialPrice: number | string
+): Promise<ethers.ContractTransactionResponse> => {
+    return await _deployTwocryptoPool(
+        name,
+        symbol,
+        coins,
+        A,
+        gamma,
+        midFee,
+        outFee,
+        allowedExtraProfit,
+        feeGamma,
+        adjustmentStep,
+        maHalfTime,
+        initialPrice,
+        false
+    ) as ethers.ContractTransactionResponse
+}
+
+export const getDeployedTwocryptoPoolAddress = async (tx: ethers.ContractTransactionResponse): Promise<string> => {
+    const txInfo = await tx.wait();
+    if (!txInfo) throw Error("Can't get tx info");
+    for (let i = txInfo.logs.length - 1; i > -1; i--) {
+        if ("args" in txInfo.logs[i]) {
+            // @ts-ignore
+            return txInfo.logs[i].args[0];
+        }
+    }
+    throw Error("Can't get deployed tricrypto pool address");
+}
+
 
 // ------- TRICRYPTO POOLS -------
 

@@ -71,7 +71,7 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
 
 export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFactoryPoolType): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
-    const isCrypto = factoryType === "factory-crypto" || factoryType === "factory-tricrypto";
+    const isCrypto = factoryType === "factory-crypto" || factoryType === "factory-twocrypto" || factoryType === "factory-tricrypto";
     let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType)).poolData);
     if (!isCrypto) {
         rawPoolList = rawPoolList.filter((p) => p.implementationAddress in FACTORY_CONSTANTS[this.chainId].implementationABIDict);

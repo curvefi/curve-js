@@ -17,8 +17,9 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <--- CHANGE
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- CHANGE
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- CHANGE
-    "stable_ng_factory": '0x6A8cbed756804B16E05E741eDaBd5cB544AE21bf', // <--- NEW
+    "stable_ng_factory": '0x6A8cbed756804B16E05E741eDaBd5cB544AE21bf',
     "factory_admin": "",
     "voting_parameter": '0xBCfF8B0b9419b9A88c44546519b1e909cF330399',
     "voting_ownership": '0xE478de485ad2fe566d49342Cbd03E49ed7DB3356',
@@ -40,8 +41,9 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
-    "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585', // <--- NEW
+    "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585',
     "factory_admin": "",
 });
 
@@ -60,6 +62,7 @@ export const ALIASES_FANTOM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367',
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
     "stable_ng_factory": '0xe61Fb97Ef6eBFBa12B36Ffd7be785c1F5A2DE66b',
     "factory_admin": "",
@@ -80,8 +83,9 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
-    "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585', // <--- NEW
+    "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585',
     "factory_admin": "",
 });
 
@@ -100,8 +104,9 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8',
-    "stable_ng_factory": '0x9AF14D26075f142eb3F292D5065EB3faa646167b', // <--- NEW
+    "stable_ng_factory": '0x9AF14D26075f142eb3F292D5065EB3faa646167b',
     "factory_admin": "",
 });
 
@@ -115,15 +120,16 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
     "factory": '0x2db0E83599a91b508Ac268a6197b8B14F5e72840',
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
-    "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E', // <--- NEW
+    "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "factory_admin": "",
-    "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f', // <-- NEW
+    "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f',
 });
 
 export const ALIASES_XDAI = lowerCaseValues({
@@ -141,6 +147,7 @@ export const ALIASES_XDAI = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
     "stable_ng_factory": '0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8', // <--- TODO CHANGE
     "factory_admin": "",
@@ -161,8 +168,9 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x0000000000000000000000000000000000000000', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
-    "stable_ng_factory": '0x0000000000000000000000000000000000000000', // <--- NEW
+    "stable_ng_factory": '0x0000000000000000000000000000000000000000',
     "factory_admin": "",
 });
 
@@ -181,8 +189,9 @@ export const ALIASES_AURORA = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
-    "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E', // <--- NEW
+    "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "factory_admin": "",
 });
 
@@ -201,8 +210,9 @@ export const ALIASES_KAVA = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0xd3B17f862956464ae4403cCF829CE69199856e1e', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
-    "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585', // <--- NEW
+    "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585',
     "factory_admin": "",
 });
 
@@ -221,6 +231,7 @@ export const ALIASES_CELO = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
     "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585', // <--- NEW
     "factory_admin": "",
@@ -241,6 +252,7 @@ export const ALIASES_ZKSYNC = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
+    "twocrypto_factory": '0x0000000000000000000000000000000000000000', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
     "stable_ng_factory": '0x0000000000000000000000000000000000000000', // <--- DUMMY
     "factory_admin": "0x0000000000000000000000000000000000000000",
@@ -261,10 +273,11 @@ export const ALIASES_BASE = lowerCaseValues({
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0x5EF72230578b3e399E6C6F4F6360edF95e83BBfd',
+    "twocrypto_factory": '0xc9Fe0C63Af9A39402e8a5514f9c43Af0322b665F', // <--- NEW
     "tricrypto_factory": '0xA5961898870943c68037F6848d2D866Ed2016bcB',
     "factory_admin": "0x0000000000000000000000000000000000000000",
-    "stable_ng_factory": '0xd2002373543Ce3527023C75e7518C274A51ce712', // <--- NEW
-    "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f', // <-- NEW
+    "stable_ng_factory": '0xd2002373543Ce3527023C75e7518C274A51ce712',
+    "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f',
 });
 
 export const ALIASES_BSC = lowerCaseValues({
@@ -282,8 +295,30 @@ export const ALIASES_BSC = lowerCaseValues({
     "crvusd_factory": '0x0000000000000000000000000000000000000000',
     "eywa_factory": '0x0000000000000000000000000000000000000000',
     "crypto_factory": '0xBd5fBd2FA58cB15228a9Abdac9ec994f79E3483C',
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0xc55837710bc500F1E3c7bb9dd1d51F7c5647E657',
-    "stable_ng_factory": '0xd7E72f3615aa65b92A4DBdC211E296a35512988B', // <--- NEW
+    "stable_ng_factory": '0xd7E72f3615aa65b92A4DBdC211E296a35512988B',
+    "factory_admin": '0x0000000000000000000000000000000000000000',
+});
+
+export const ALIASES_FRAXTAL = lowerCaseValues({
+    "crv": "0x0000000000000000000000000000000000000000",
+    "gauge_factory": "0x0000000000000000000000000000000000000000",
+    "voting_escrow": "0x0000000000000000000000000000000000000000",
+    "fee_distributor": "0x0000000000000000000000000000000000000000",
+    "gauge_controller": "0x0000000000000000000000000000000000000000",
+    "address_provider": "0x0000000000000000000000000000000000000000",
+    "router": "0x0000000000000000000000000000000000000000",
+    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
+    "stable_calc": "0x0000000000000000000000000000000000000000",
+    "crypto_calc": '0x0000000000000000000000000000000000000000',
+    "factory": '0x0000000000000000000000000000000000000000',
+    "crvusd_factory": '0x0000000000000000000000000000000000000000',
+    "eywa_factory": '0x0000000000000000000000000000000000000000',
+    "crypto_factory": '0x0000000000000000000000000000000000000000',
+    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
+    "tricrypto_factory": '0x0000000000000000000000000000000000000000',
+    "stable_ng_factory": '0x0000000000000000000000000000000000000000',
     "factory_admin": '0x0000000000000000000000000000000000000000',
 });
 

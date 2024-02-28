@@ -949,6 +949,7 @@ class Curve implements ICurve {
             ...this.getCrvusdFactoryPoolList(),
             ...this.getEywaFactoryPoolList(),
             ...this.getCryptoFactoryPoolList(),
+            ...this.getTworyptoFactoryPoolList(),
             ...this.getTricryptoFactoryPoolList(),
             ...this.getStableNgFactoryPoolList(),
         ]

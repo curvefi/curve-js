@@ -785,7 +785,7 @@ class Curve implements ICurve {
     }
 
     fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
-        if ([324, 1284].includes(this.chainId)) return;
+        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-tricrypto"));
@@ -868,7 +868,7 @@ class Curve implements ICurve {
     }
 
     fetchNewTricryptoFactoryPools = async (): Promise<string[]> => {
-        if ([324, 1284].includes(this.chainId)) return [];
+        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return [];
 
         const currentPoolIds = Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -909,7 +909,7 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedTwocryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return '';
+        if ([324, 1284].includes(this.chainId)) return '';
         const poolData = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
@@ -918,7 +918,7 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedTricryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if ([324, 1284].includes(this.chainId)) return '';
+        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return '';
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);

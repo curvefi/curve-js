@@ -9,6 +9,7 @@ import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
 import gaugeFactoryABI from './constants/abis/gauge_factory_mainnet.json' assert { type: 'json' };
+import gaugeFactoryForFraxtalABI from './constants/abis/gauge_factory_mainnet_for_fraxtal.json' assert { type: 'json' };
 import gaugeFactorySidechainABI from './constants/abis/gauge_factory_sidechain.json' assert { type: 'json' };
 import minterMainnetABI from './constants/abis/minter_mainnet.json' assert { type: 'json' };
 import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
@@ -51,6 +52,7 @@ import {
     POOLS_DATA_ZKSYNC,
     POOLS_DATA_BASE,
     POOLS_DATA_BSC,
+    POOLS_DATA_FRAXTAL,
 } from './constants/pools/index.js';
 import {
     ALIASES_ETHEREUM,
@@ -67,6 +69,7 @@ import {
     ALIASES_ZKSYNC,
     ALIASES_BASE,
     ALIASES_BSC,
+    ALIASES_FRAXTAL,
 } from "./constants/aliases.js";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
@@ -82,6 +85,7 @@ import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from
 import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkSync } from "./constants/coins/zksync.js";
 import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from "./constants/coins/base.js";
 import { COINS_BSC, cTokensBsc,  yTokensBsc, ycTokensBsc, aTokensBsc } from "./constants/coins/bsc.js";
+import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aTokensFraxtal } from "./constants/coins/fraxtal.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
@@ -142,6 +146,12 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WFTM',
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
+    },
+    252: { // FRAXTAL
+        symbol: 'frxETH',
+        wrappedSymbol: 'wfrxETH',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xfc00000000000000000000000000000000000006'.toLowerCase(),
     },
     324: {  // ZKSYNC
         symbol: 'ETH',
@@ -254,6 +264,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensFantom,
         ycTokens: ycTokensFantom,
         aTokens: aTokensFantom,
+    },
+    252: {
+        NAME: 'fraxtal',
+        ALIASES: ALIASES_FRAXTAL,
+        POOLS_DATA: POOLS_DATA_FRAXTAL,
+        COINS: COINS_FRAXTAL,
+        cTokens: cTokensFraxtal,
+        yTokens: yTokensFraxtal,
+        ycTokens: ycTokensFraxtal,
+        aTokens: aTokensFraxtal,
     },
     324: {
         NAME: 'zksync',
@@ -587,7 +607,8 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.gauge_factory, _gaugeFactoryABI);
 
         if(this.chainId === 1) {
-            this.setContract(this.constants.ALIASES.minter, minterMainnetABI )
+            this.setContract(this.constants.ALIASES.minter, minterMainnetABI)
+            this.setContract(this.constants.ALIASES.gauge_factory_fraxtal, gaugeFactoryForFraxtalABI)
         }
 
         this.setContract(this.constants.ALIASES.voting_escrow, votingEscrowABI);

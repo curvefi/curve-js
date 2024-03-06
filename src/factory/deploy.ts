@@ -882,7 +882,7 @@ const _deployGaugeSidechain = async (pool: string, salt: string, estimateGas: bo
 
 const _deployGaugeMirror = async (chainId: number, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (curve.chainId !== 1) throw Error("There is no deployGaugeMirror method on sidechain network");
-    const contract = curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
+    const contract = chainId === 252 ? curve.contracts[curve.constants.ALIASES.gauge_factory_fraxtal].contract : curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
     const _salt = ethers.encodeBytes32String(salt)
     const gas = await contract.deploy_gauge.estimateGas(chainId, Typed.bytes32(_salt), curve.constantOptions);
     if (estimateGas) return smartNumber(gas);

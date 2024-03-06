@@ -29,6 +29,11 @@ export const tricryptoDeployImplementations = {
         amm_native_transfers_enabled: '0x76303e4fDcA0AbF28aB3ee42Ce086E6503431F1D', //0
         implementationIdx: 1,
     },
+    252: { // FRAXTAL
+        amm_native_transfers_disabled: '0x1A83348F9cCFD3Fe1A8C0adBa580Ac4e267Fe495', //1
+        amm_native_transfers_enabled: '0xd3b17f862956464ae4403ccf829ce69199856e1e', //0
+        implementationIdx: 1,
+    },
     324: {  // ZKSYNC
         implementationIdx: 0,
     },

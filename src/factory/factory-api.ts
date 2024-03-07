@@ -11,6 +11,7 @@ import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
 import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
+import {tricryptoDeployImplementations} from "../constants/tricryptoDeployImplementations";
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -114,20 +115,34 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
         if (isCrypto) {
             const wrappedCoinNames = pool.coins.map((c) => c.symbol === nativeToken.symbol ? nativeToken.wrappedSymbol : c.symbol);
             const underlyingCoinNames = pool.coins.map((c) => {
-                if(factoryType === 'factory-twocrypto' || factoryType === 'factory-tricrypto') {
+                if(factoryType === 'factory-twocrypto') {
                     return c.symbol;
+                } else if (factoryType === 'factory-tricrypto') {
+                    const isETHEnabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
+                    if(isETHEnabled) {
+                        return c.symbol;
+                    } else {
+                        return c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol;
+                    }
                 } else {
                     return c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol;
                 }
             });
             const underlyingCoinAddresses = coinAddresses.map((addr) => {
-                if(factoryType === 'factory-twocrypto' || factoryType === 'factory-tricrypto') {
+                if(factoryType === 'factory-twocrypto') {
                     return addr;
+                } else if (factoryType === 'factory-tricrypto') {
+                    const isETHEnabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
+                    if(isETHEnabled) {
+                        return addr;
+                    } else {
+                        return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;
+                    }
                 } else {
                     return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;
                 }
             });
-            const isPlain = !coinAddresses.includes(nativeToken.wrappedAddress);
+            const isPlain = underlyingCoinNames.toString() === wrappedCoinNames.toString();
             const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].lpTokenBasePoolIdDict;
             const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
             const basePoolId = lpTokenBasePoolIdDict[coinAddresses[1]];

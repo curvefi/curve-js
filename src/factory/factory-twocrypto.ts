@@ -119,7 +119,7 @@ function setTwocryptoFactoryCoinsContracts(this: ICurve, coinAddresses: string[]
 }
 
 function getTwocryptoFactoryUnderlyingCoinAddresses(this: ICurve, coinAddresses: string[][]): string[][] {
-    return [...coinAddresses.map((coins: string[]) => coins.map((c) => c === this.constants.NATIVE_TOKEN.wrappedAddress ? this.constants.NATIVE_TOKEN.address : c))];
+    return [...coinAddresses.map((coins: string[]) => coins.map((c) => c))];
 }
 
 function getExistingCoinAddressNameDict(this: ICurve): IDict<string> {

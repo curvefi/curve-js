@@ -120,9 +120,9 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 } else if (factoryType === 'factory-tricrypto') {
                     const isETHEnabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
                     if(isETHEnabled) {
-                        return c.symbol;
-                    } else {
                         return c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol;
+                    } else {
+                        return c.symbol;
                     }
                 } else {
                     return c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol;
@@ -134,9 +134,9 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 } else if (factoryType === 'factory-tricrypto') {
                     const isETHEnabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
                     if(isETHEnabled) {
-                        return addr;
-                    } else {
                         return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;
+                    } else {
+                        return addr;
                     }
                 } else {
                     return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;

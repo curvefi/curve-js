@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { curve } from "../../curve.js";
 import { PoolTemplate } from "../PoolTemplate.js";
 import { _ensureAllowance, fromBN, getEthIndex, hasAllowance, toBN, parseUnits, mulBy1_3, DIGas, smartNumber } from '../../utils.js';

@@ -160,6 +160,8 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 const basePoolDecimals = [...allPoolsData[basePoolId].underlying_decimals];
                 const basePoolZap = basePoolIdZapDict[basePoolId];
 
+                this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
+
                 FACTORY_POOLS_DATA[pool.id] = {
                     name: getPoolName(pool.name),
                     full_name: pool.name,
@@ -213,6 +215,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
             const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
             const basePoolId = getPoolIdByAddress(rawPoolList, pool.basePoolAddress as string);
+            this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
 
             const basePoolCoinNames = allPoolsData[basePoolId]?.underlying_coins;
             const basePoolCoinAddresses = allPoolsData[basePoolId]?.underlying_coin_addresses;

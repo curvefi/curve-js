@@ -70,6 +70,7 @@ export interface ICurve {
         CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
         TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+        BASE_POOLS: IDict<number>,
         LLAMMAS_DATA: IDict<IPoolData>,
         COINS: IDict<string>,
         DECIMALS: IDict<number>,
@@ -264,4 +265,11 @@ export interface IVolumeAndAPYs {
     cryptoVolume: number,
     cryptoShare: number,
     poolsData: IVolumeAndAPYsPoolData[],
+}
+
+export interface IBasePoolShortItem {
+    coins: string[],
+    name: string,
+    pool: string,
+    token: string,
 }

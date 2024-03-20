@@ -251,6 +251,8 @@ export async function getCryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAd
             const basePoolDecimals = [...allPoolsData[basePoolId].underlying_decimals];
             const basePoolZap = basePoolIdZapDict[basePoolId];
 
+            this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
+
             CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
                 name: poolNames[i].split(": ")[1].trim(),
                 full_name: poolNames[i],

@@ -66,6 +66,7 @@ import {
     getVolume,
     hasDepositAndStake,
     hasRouter,
+    getBasePools,
 } from "./utils.js";
 import {
     deployStablePlainPool,
@@ -159,6 +160,7 @@ const curve = {
     getUserLiquidityUSD,
     getUserClaimable,
     PoolTemplate,
+    getBasePools,
     getPool,
     getUsdRate,
     getGasPriceFromL1,

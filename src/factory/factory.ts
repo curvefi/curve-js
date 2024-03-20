@@ -332,6 +332,8 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
             const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
 
+            this.constants.BASE_POOLS[basePools.ids[i]] = this.constants.BASE_POOLS[basePools.ids[i]] ? this.constants.BASE_POOLS[basePools.ids[i]] + 1: 1;
+
             const basePoolZap = isStableNgPool(basePools.ids[i]) ? FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap : basePoolIdZapDict[basePools.ids[i]];
 
             if(isStableNgPool(basePools.ids[i])) {

@@ -379,6 +379,7 @@ class Curve implements ICurve {
         TWOCRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>
         TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
         STABLE_NG_FACTORY_POOLS_DATA: IDict<IPoolData>,
+        BASE_POOLS: IDict<number>
         LLAMMAS_DATA: IDict<IPoolData>,
         COINS: IDict<string>,
         DECIMALS: IDict<number>,
@@ -412,6 +413,7 @@ class Curve implements ICurve {
             TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
             STABLE_NG_FACTORY_POOLS_DATA: {},
+            BASE_POOLS: {},
             LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},
@@ -450,6 +452,7 @@ class Curve implements ICurve {
             TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
             STABLE_NG_FACTORY_POOLS_DATA: {},
+            BASE_POOLS: {},
             LLAMMAS_DATA: {},
             COINS: {},
             DECIMALS: {},

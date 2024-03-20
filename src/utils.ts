@@ -21,7 +21,7 @@ import {
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import { L2Networks } from './constants/L2Networks.js';
 import { volumeNetworks } from "./constants/volumeNetworks.js";
-import {getPool} from "./pools";
+import { getPool } from "./pools/index.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -712,7 +712,8 @@ export const getBasePools = (): IBasePoolShortItem[] => {
     return Object.keys(curve.constants.BASE_POOLS).map((poolId) => {
         const pool = getPool(poolId);
         return {
-            name: poolId,
+            id: poolId,
+            name: pool.name,
             pool: pool.address,
             token: pool.lpToken,
             coins: pool.underlyingCoinAddresses,

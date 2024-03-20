@@ -269,6 +269,7 @@ export interface IVolumeAndAPYs {
 
 export interface IBasePoolShortItem {
     coins: string[],
+    id: string,
     name: string,
     pool: string,
     token: string,

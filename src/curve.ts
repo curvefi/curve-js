@@ -32,6 +32,7 @@ import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' ass
 import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
 import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' assert { type: 'json' };
 import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
+import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' assert { type: 'json'};
 import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
 import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
 
@@ -667,6 +668,7 @@ class Curve implements ICurve {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const curveInstance = this;
             curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle, gasOracleABI);
+            curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle_blob, gasOracleBlobABI);
 
             // @ts-ignore
             if(AbstractProvider.prototype.originalEstimate) {

@@ -131,6 +131,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "factory_admin": "",
     "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f',
+    "gas_oracle_blob": '0x420000000000000000000000000000000000000f',
 });
 
 export const ALIASES_XDAI = lowerCaseValues({
@@ -279,6 +280,7 @@ export const ALIASES_BASE = lowerCaseValues({
     "factory_admin": "0x0000000000000000000000000000000000000000",
     "stable_ng_factory": '0xd2002373543Ce3527023C75e7518C274A51ce712',
     "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f',
+    "gas_oracle_blob": '0x420000000000000000000000000000000000000f',
 });
 
 export const ALIASES_BSC = lowerCaseValues({

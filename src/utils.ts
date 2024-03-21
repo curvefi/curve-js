@@ -529,7 +529,7 @@ export const getGasPriceFromL2 = async (): Promise<number> => {
         return 0.1 * 1e9; // constant 0.1 gwei
     }
     if(L2Networks.includes(curve.chainId)) {
-        const gasPrice = await curve.contracts[curve.constants.ALIASES.gas_oracle].contract.gasPrice();
+        const gasPrice = await curve.contracts[curve.constants.ALIASES.gas_oracle_blob].contract.gasPrice({"gasPrice":"0x2000000"});
         return Number(gasPrice);
     } else {
         throw Error("This method exists only for L2 networks");

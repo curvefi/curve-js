@@ -50,7 +50,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
 
 export const ALIASES_FANTOM = lowerCaseValues({
     "crv": "0x1E4F97b9f9F913c46F1632781732927B9019C68b",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "voting_escrow": "0xb75dca485e21a77e1b433ecacb74475fc67e259c",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -71,7 +71,7 @@ export const ALIASES_FANTOM = lowerCaseValues({
 
 export const ALIASES_AVALANCHE = lowerCaseValues({
     "crv": "0x47536F17F4fF30e64A96a7555826b8f9e66ec468",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "voting_escrow": "0xc55837710bc500f1e3c7bb9dd1d51f7c5647e657",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -285,7 +285,7 @@ export const ALIASES_BASE = lowerCaseValues({
 
 export const ALIASES_BSC = lowerCaseValues({
     "crv": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415", // <--- TODO CHANGE
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- TODO CHANGE
     "fee_distributor": "0x0000000000000000000000000000000000000000", // <-- TODO CHANGE
     "gauge_controller": "0x0000000000000000000000000000000000000000", // <--- TODO CHANGE

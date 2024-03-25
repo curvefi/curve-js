@@ -517,7 +517,6 @@ export const getUsdRate = async (coin: string): Promise<number> => {
 
 export const getGasPriceFromL1 = async (): Promise<number> => {
     if(L2Networks.includes(curve.chainId) && curve.L1WeightedGasPrice) {
-        console.log(curve.L1WeightedGasPrice)
         return curve.L1WeightedGasPrice + 1e9; // + 1 gwei
     } else {
         throw Error("This method exists only for L2 networks");

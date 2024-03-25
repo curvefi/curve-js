@@ -368,6 +368,7 @@ class Curve implements ICurve {
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
     constantOptions: { gasLimit: number };
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };
+    L1WeightedGasPrice?: number;
     constants: {
         NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
         NETWORK_NAME: INetworkName,
@@ -692,7 +693,10 @@ class Curve implements ICurve {
                 // @ts-ignore
                 const L2EstimateGas = originalEstimate.bind(this);
 
-                const L1GasUsed = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle].contract.getL1GasUsed(arg.data);
+                const L1GasUsed = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle_blob].contract.getL1GasUsed(arg.data);
+                const L1Fee = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle_blob].contract.getL1Fee(arg.data);
+
+                curveInstance.L1WeightedGasPrice = Number(L1Fee)/Number(L1GasUsed);
 
                 const L2GasUsed = await L2EstimateGas(arg);
 

@@ -127,7 +127,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
-    "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
+    "tricrypto_factory": '0xc6C09471Ee39C7E30a067952FcC89c8922f9Ab53',
     "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "factory_admin": "",
     "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f',

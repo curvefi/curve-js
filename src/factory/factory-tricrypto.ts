@@ -236,7 +236,7 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
             token_address: swapAddresses[i],
             gauge_address: gaugeAddresses[i],
             is_crypto: true,
-            is_plain: underlyingCoinAddresses[i].toString() === coinAddresses[i].toString(),  // WETH/ETH - NOT Plain
+            is_plain: underlyingCoinAddresses.toString() === coinAddresses[i].toString(),  // WETH/ETH - NOT Plain
             is_factory: true,
             underlying_coins: [...underlyingCoinAddresses.map((addr) => coinAddressNameDict[addr])],
             wrapped_coins: [...coinAddresses[i].map((addr) => coinAddressNameDict[addr])],

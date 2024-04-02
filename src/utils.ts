@@ -515,6 +515,21 @@ export const getUsdRate = async (coin: string): Promise<number> => {
     return await _getUsdRate(coinAddress);
 }
 
+export const getBaseFeeByLastBlock = async ()  => {
+    const provider = curve.provider;
+
+    try {
+        const block = await provider.getBlock('latest');
+        if(!block) {
+            return 0.01
+        }
+
+        return Number(block.baseFeePerGas) / (10**9);
+    } catch (error: any) {
+        throw new Error(error)
+    }
+}
+
 export const getGasPriceFromL1 = async (): Promise<number> => {
     if(L2Networks.includes(curve.chainId) && curve.L1WeightedGasPrice) {
         return curve.L1WeightedGasPrice + 1e9; // + 1 gwei
@@ -525,11 +540,24 @@ export const getGasPriceFromL1 = async (): Promise<number> => {
 
 export const getGasPriceFromL2 = async (): Promise<number> => {
     if(curve.chainId === 42161) {
-        return 0.1 * 1e9; // constant 0.1 gwei
+        return await getBaseFeeByLastBlock()
     }
     if(L2Networks.includes(curve.chainId)) {
         const gasPrice = await curve.contracts[curve.constants.ALIASES.gas_oracle_blob].contract.gasPrice({"gasPrice":"0x2000000"});
         return Number(gasPrice);
+    } else {
+        throw Error("This method exists only for L2 networks");
+    }
+}
+
+export const getGasInfoForL2 = async (): Promise<Record<string, number>> => {
+    if(curve.chainId === 42161) {
+        const baseFee = await getBaseFeeByLastBlock()
+
+        return  {
+            maxFeePerGas: (baseFee * 1.1) + 0.01,
+            maxPriorityFeePerGas: 0.01,
+        }
     } else {
         throw Error("This method exists only for L2 networks");
     }

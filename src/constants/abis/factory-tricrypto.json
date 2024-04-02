@@ -72,23 +72,6 @@
     "type": "event"
   },
   {
-    "name": "LiquidityGaugeDeployed",
-    "inputs": [
-      {
-        "name": "pool",
-        "type": "address",
-        "indexed": false
-      },
-      {
-        "name": "gauge",
-        "type": "address",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
     "name": "UpdateFeeReceiver",
     "inputs": [
       {
@@ -120,23 +103,6 @@
       },
       {
         "name": "_new_pool_implementation",
-        "type": "address",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "UpdateGaugeImplementation",
-    "inputs": [
-      {
-        "name": "_old_gauge_implementation",
-        "type": "address",
-        "indexed": false
-      },
-      {
-        "name": "_new_gauge_implementation",
         "type": "address",
         "indexed": false
       }
@@ -282,23 +248,6 @@
   {
     "stateMutability": "nonpayable",
     "type": "function",
-    "name": "deploy_gauge",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
     "name": "set_fee_receiver",
     "inputs": [
       {
@@ -320,18 +269,6 @@
       {
         "name": "_implementation_index",
         "type": "uint256"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "set_gauge_implementation",
-    "inputs": [
-      {
-        "name": "_gauge_implementation",
-        "type": "address"
       }
     ],
     "outputs": []
@@ -378,6 +315,23 @@
     "name": "accept_transfer_ownership",
     "inputs": [],
     "outputs": []
+  },
+  {
+    "stateMutability": "view",
+    "type": "function",
+    "name": "get_implementation_address",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ]
   },
   {
     "stateMutability": "view",
@@ -508,23 +462,6 @@
   {
     "stateMutability": "view",
     "type": "function",
-    "name": "get_gauge",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ]
-  },
-  {
-    "stateMutability": "view",
-    "type": "function",
     "name": "get_market_counts",
     "inputs": [
       {
@@ -589,18 +526,6 @@
         "type": "uint256"
       }
     ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ]
-  },
-  {
-    "stateMutability": "view",
-    "type": "function",
-    "name": "gauge_implementation",
-    "inputs": [],
     "outputs": [
       {
         "name": "",

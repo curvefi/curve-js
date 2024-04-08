@@ -43,7 +43,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
-    "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
+    "tricrypto_factory": '0xC1b393EfEF38140662b91441C6710Aa704973228',
     "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585',
     "factory_admin": "",
 });

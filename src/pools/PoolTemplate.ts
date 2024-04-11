@@ -73,7 +73,7 @@ export class PoolTemplate {
     useLending: boolean[];
     inApi: boolean;
     isGaugeKilled: () => Promise<boolean>;
-    gaugeStatus: () => Promise<any>
+    gaugeStatus: () => Promise<any>;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         deposit: (amounts: (number | string)[]) => Promise<number | number[]>,

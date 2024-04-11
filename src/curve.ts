@@ -536,8 +536,6 @@ class Curve implements ICurve {
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
 
-        await _killGauges(this.constants.POOLS_DATA);
-
         this.multicallProvider = new MulticallProvider(this.chainId, this.provider);
 
         if (this.signer) {
@@ -745,8 +743,6 @@ class Curve implements ICurve {
         this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
-        await _killGauges(this.constants.FACTORY_POOLS_DATA);
-
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
     }
 
@@ -762,8 +758,6 @@ class Curve implements ICurve {
         }
         this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
-
-        await _killGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
     }
 
     fetchEywaFactoryPools = async (useApi = true): Promise<void> => {
@@ -778,8 +772,6 @@ class Curve implements ICurve {
         }
         this.constants.EYWA_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.EYWA_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.EYWA_FACTORY_POOLS_DATA);
-
-        await _killGauges(this.constants.EYWA_FACTORY_POOLS_DATA);
     }
 
     fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
@@ -792,8 +784,6 @@ class Curve implements ICurve {
         }
         this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
-
-        await _killGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
     }
@@ -809,8 +799,6 @@ class Curve implements ICurve {
         this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
-        await _killGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
-
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = await this.contracts[this.constants.ALIASES.twocrypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
@@ -824,8 +812,6 @@ class Curve implements ICurve {
         }
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
-
-        await _killGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
             this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] =
@@ -847,8 +833,6 @@ class Curve implements ICurve {
 
         this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-
-        await _killGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
     }
 
     fetchNewFactoryPools = async (): Promise<string[]> => {

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import { _getPoolsFromApi } from '../external-api.js';
+import {_getAllGauges, _getAllGaugesFormatted, _getPoolsFromApi} from '../external-api.js';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -72,8 +72,8 @@ export class PoolTemplate {
     wrappedDecimals: number[];
     useLending: boolean[];
     inApi: boolean;
-    isGaugeKilled: boolean;
-    gaugeStatus: Record<string, boolean> | null;
+    isGaugeKilled: () => Promise<boolean>;
+    gaugeStatus: () => Promise<any>;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         deposit: (amounts: (number | string)[]) => Promise<number | number[]>,
@@ -167,8 +167,8 @@ export class PoolTemplate {
         this.wrappedDecimals = poolData.wrapped_decimals;
         this.useLending = poolData.use_lending || poolData.underlying_coin_addresses.map(() => false);
         this.inApi = poolData.in_api ?? false;
-        this.isGaugeKilled = poolData.is_gauge_killed ?? false;
-        this.gaugeStatus = poolData.gauge_status ?? null;
+        this.isGaugeKilled = this.getIsGaugeKilled.bind(this);
+        this.gaugeStatus = this.getGaugeStatus.bind(this);
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),
@@ -2351,5 +2351,17 @@ export class PoolTemplate {
         }
 
         return await Promise.all(promises)
+    }
+
+    private async getGaugeStatus(): Promise<any> {
+        const gaugeData = await _getAllGaugesFormatted();
+
+        return gaugeData[this.gauge] ? gaugeData[this.gauge].gaugeStatus : null;
+    }
+
+    private async getIsGaugeKilled(): Promise<boolean> {
+        const gaugeData = await _getAllGaugesFormatted();
+
+        return gaugeData[this.gauge] ? gaugeData[this.gauge].is_killed : false;
     }
 }

@@ -393,9 +393,9 @@ import curve from "@curvefi/api";
     // [ false, false, false, false ]
     pool.inApi;
     // true
-    pool.isGaugeKilled;
+    await pool.isGaugeKilled();
     // false
-    pool.gaugeStatus;
+    await pool.gaugeStatus();
     // null OR
     //{
     //      rewardsNeedNudging: false,

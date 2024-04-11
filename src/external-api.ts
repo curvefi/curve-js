@@ -164,6 +164,28 @@ export const _getAllGauges = memoize(
     }
 )
 
+export const _getAllGaugesFormatted = memoize(
+    async (): Promise<IDict<any>> => {
+        const url = `https://api.curve.fi/api/getAllGauges`;
+        const response = await axios.get(url, { validateStatus: () => true });
+
+        const gaugesDict: Record<string, any> = {}
+
+        Object.values(response.data.data).forEach((d: any) => {
+            gaugesDict[d.gauge.toLowerCase()] = {
+                is_killed: d.is_killed ?? false,
+                gaugeStatus: d.gaugeStatus ?? null,
+            }
+        });
+
+        return gaugesDict;
+    },
+    {
+        promise: true,
+        maxAge: 60 * 60 * 1000, // 60m
+    }
+)
+
 export const _getHiddenPools = memoize(
     async (): Promise<IDict<string[]>> => {
         const url = `https://api.curve.fi/api/getHiddenPools`;

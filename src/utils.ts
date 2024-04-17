@@ -555,7 +555,7 @@ export const getGasInfoForL2 = async (): Promise<Record<string, number>> => {
         const baseFee = await getBaseFeeByLastBlock()
 
         return  {
-            maxFeePerGas: (baseFee * 1.1) + 0.01,
+            maxFeePerGas: Number(((baseFee * 1.1) + 0.01).toFixed(2)),
             maxPriorityFeePerGas: 0.01,
         }
     } else {

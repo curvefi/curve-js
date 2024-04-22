@@ -735,8 +735,24 @@ export const assetTypeNameHandler = (assetTypeName: string): REFERENCE_ASSET => 
     }
 }
 
-export const getBasePools = (): IBasePoolShortItem[] => {
-    return Object.keys(curve.constants.BASE_POOLS).map((poolId) => {
+export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
+    const factoryContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].contract;
+    const factoryMulticallContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].multicallContract;
+
+    const basePoolCount = Number(curve.formatUnits(await factoryContract.base_pool_count(curve.constantOptions), 0));
+
+    const calls = [];
+    for (let i = 0; i < basePoolCount; i++) {
+        calls.push(factoryMulticallContract.base_pool_list(i));
+    }
+
+    const basePoolList = (await curve.multicallProvider.all(calls) as string[]).map((item: string) => item.toLowerCase());
+
+    const pools = {...curve.constants.STABLE_NG_FACTORY_POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA, ...curve.constants.POOLS_DATA};
+
+    const basePoolIds = Object.keys(pools).filter((item: string) => basePoolList.includes(pools[item].swap_address));
+
+    return basePoolIds.map((poolId) => {
         const pool = getPool(poolId);
         return {
             id: poolId,

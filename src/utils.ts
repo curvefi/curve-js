@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Contract } from 'ethers';
+import {BrowserProvider, Contract, JsonRpcProvider, Signer} from 'ethers';
 import { Contract as MulticallContract } from "ethcall";
 import BigNumber from 'bignumber.js';
 import {
@@ -763,3 +763,35 @@ export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
         }
     })
 }
+
+const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
+    const cache: Record<string, Contract> = {};
+    return (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer): Contract => {
+        if (address in cache) {
+            return cache[address];
+        }
+        else {
+            const result = new Contract(address, abi, provider)
+            cache[address] = result;
+            return result;
+        }
+    }
+}
+
+const memoizedulticallContract = (): (address: string, abi: any) => MulticallContract => {
+    const cache: Record<string, MulticallContract> = {};
+    return (address: string, abi: any): MulticallContract => {
+        if (address in cache) {
+            return cache[address];
+        }
+        else {
+            const result = new MulticallContract(address, abi)
+            cache[address] = result;
+            return result;
+        }
+    }
+}
+
+export const initContract = memoizedContract()
+
+export const initMulticallContract = memoizedulticallContract()

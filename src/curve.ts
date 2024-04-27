@@ -98,7 +98,7 @@ import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./co
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto";
-import {initContract, initMulticallContract} from "./utils";
+import { initContract, initMulticallContract } from "./utils.js";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();

@@ -1,4 +1,11 @@
-import { ethers, Contract, Networkish, BigNumberish, Numeric, AbstractProvider } from "ethers";
+import {
+    ethers,
+    Contract,
+    Networkish,
+    BigNumberish,
+    Numeric,
+    AbstractProvider,
+} from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
@@ -91,6 +98,7 @@ import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./co
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto";
+import { initContract, initMulticallContract } from "./utils.js";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -715,10 +723,27 @@ class Curve implements ICurve {
     }
 
     setContract(address: string, abi: any): void {
-        this.contracts[address] = {
-            contract: new Contract(address, abi, this.signer || this.provider),
-            multicallContract: new MulticallContract(address, abi),
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const curveInstance = this;
+
+        const proxyHandler: ProxyHandler<any> = {
+            get: function(target: any, name: string) {
+                if(name === 'contract') {
+                    return initContract(target['address'], target['abi'], curveInstance.signer || curveInstance.provider)
+                } else if(name === 'multicallContract') {
+                    return initMulticallContract(target['address'], target['abi'])
+                } else {
+                    return target[name];
+                }
+            },
         }
+
+        const coreContract = {
+            address,
+            abi,
+        }
+
+        this.contracts[address] = new Proxy(coreContract, proxyHandler)
     }
 
     async _filterHiddenPools(pools: IDict<IPoolData>): Promise<IDict<IPoolData>> {

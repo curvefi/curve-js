@@ -778,7 +778,7 @@ const memoizedContract = (): (address: string, abi: any, provider: BrowserProvid
     }
 }
 
-const memoizedulticallContract = (): (address: string, abi: any) => MulticallContract => {
+const memoizedMulticallContract = (): (address: string, abi: any) => MulticallContract => {
     const cache: Record<string, MulticallContract> = {};
     return (address: string, abi: any): MulticallContract => {
         if (address in cache) {
@@ -794,4 +794,4 @@ const memoizedulticallContract = (): (address: string, abi: any) => MulticallCon
 
 export const initContract = memoizedContract()
 
-export const initMulticallContract = memoizedulticallContract()
+export const initMulticallContract = memoizedMulticallContract()

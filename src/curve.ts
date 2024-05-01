@@ -1,95 +1,137 @@
-import { ethers, Contract, Networkish, BigNumberish, Numeric, AbstractProvider } from "ethers";
-import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
-import { getFactoryPoolData } from "./factory/factory.js";
-import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
-import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
-import { getTricryptoFactoryPoolData } from "./factory/factory-tricrypto.js";
-import { IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType } from "./interfaces";
-import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
-import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
-import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
-import gaugeFactoryABI from './constants/abis/gauge_factory_mainnet.json' assert { type: 'json' };
-import gaugeFactoryForFraxtalABI from './constants/abis/gauge_factory_mainnet_for_fraxtal.json' assert { type: 'json' };
-import gaugeFactorySidechainABI from './constants/abis/gauge_factory_sidechain.json' assert { type: 'json' };
-import minterMainnetABI from './constants/abis/minter_mainnet.json' assert { type: 'json' };
-import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
-import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };
-import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' assert { type: 'json' };
-import votingEscrowOracleEthABI from './constants/abis/voting_escrow_oracle_eth.json' assert { type: 'json' };
-import feeDistributorABI from './constants/abis/fee_distributor.json' assert { type: 'json' };
-import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert { type: 'json' };
-import depositAndStakeABI from './constants/abis/deposit_and_stake.json' assert { type: 'json' };
-import cryptoCalcZapABI from './constants/abis/crypto_calc.json' assert { type: 'json'};
-import StableCalcZapABI from './constants/abis/stable_calc.json' assert { type: 'json' };
-import routerABI from './constants/abis/router.json' assert { type: 'json' };
-import routerPolygonABI from './constants/abis/routerPolygon.json' assert { type: 'json' };
-import streamerABI from './constants/abis/streamer.json' assert { type: 'json' };
-import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
-import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: 'json' };
-import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
-import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
-import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' assert { type: 'json' };
-import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
-import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' assert { type: 'json' };
-import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
-import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' assert { type: 'json'};
-import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
-import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
+import {AbstractProvider, BigNumberish, Contract, ethers, JsonRpcProvider, Networkish, Numeric} from "ethers";
+import {Contract as MulticallContract, Provider as MulticallProvider} from 'ethcall';
+import {getFactoryPoolData} from "./factory/factory.js";
+import {getFactoryPoolsDataFromApi} from "./factory/factory-api.js";
+import {getCryptoFactoryPoolData} from "./factory/factory-crypto.js";
+import {getTricryptoFactoryPoolData} from "./factory/factory-tricrypto.js";
+import {IChainId, ICurve, IDict, IFactoryPoolType, INetworkName, IPoolData} from "./interfaces";
+import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
+import cERC20Abi from './constants/abis/cERC20.json' assert {type: 'json'};
+import yERC20Abi from './constants/abis/yERC20.json' assert {type: 'json'};
+import gaugeFactoryABI from './constants/abis/gauge_factory_mainnet.json' assert {type: 'json'};
+import gaugeFactoryForFraxtalABI from './constants/abis/gauge_factory_mainnet_for_fraxtal.json' assert {type: 'json'};
+import gaugeFactorySidechainABI from './constants/abis/gauge_factory_sidechain.json' assert {type: 'json'};
+import minterMainnetABI from './constants/abis/minter_mainnet.json' assert {type: 'json'};
+import votingEscrowABI from './constants/abis/votingescrow.json' assert {type: 'json'};
+import anycallABI from './constants/abis/anycall.json' assert {type: 'json'};
+import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' assert {type: 'json'};
+import votingEscrowOracleEthABI from './constants/abis/voting_escrow_oracle_eth.json' assert {type: 'json'};
+import feeDistributorABI from './constants/abis/fee_distributor.json' assert {type: 'json'};
+import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert {type: 'json'};
+import depositAndStakeABI from './constants/abis/deposit_and_stake.json' assert {type: 'json'};
+import cryptoCalcZapABI from './constants/abis/crypto_calc.json' assert {type: 'json'};
+import StableCalcZapABI from './constants/abis/stable_calc.json' assert {type: 'json'};
+import routerABI from './constants/abis/router.json' assert {type: 'json'};
+import routerPolygonABI from './constants/abis/routerPolygon.json' assert {type: 'json'};
+import streamerABI from './constants/abis/streamer.json' assert {type: 'json'};
+import factoryABI from './constants/abis/factory.json' assert {type: 'json'};
+import factoryEywaABI from './constants/abis/factory-eywa.json' assert {type: 'json'};
+import factoryAdminABI from './constants/abis/factory-admin.json' assert {type: 'json'};
+import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert {type: 'json'};
+import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' assert {type: 'json'};
+import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert {type: 'json'};
+import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' assert {type: 'json'};
+import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert {type: 'json'};
+import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' assert {type: 'json'};
+import votingProposalABI from './constants/abis/voting_proposal.json' assert {type: 'json'};
+import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert {type: 'json'};
 
 
 import {
-    POOLS_DATA_ETHEREUM,
     LLAMMAS_DATA_ETHEREUM,
-    POOLS_DATA_POLYGON,
-    POOLS_DATA_FANTOM,
-    POOLS_DATA_AVALANCHE,
     POOLS_DATA_ARBITRUM,
-    POOLS_DATA_OPTIMISM,
-    POOLS_DATA_XDAI,
-    POOLS_DATA_MOONBEAM,
     POOLS_DATA_AURORA,
-    POOLS_DATA_KAVA,
-    POOLS_DATA_CELO,
-    POOLS_DATA_ZKSYNC,
+    POOLS_DATA_AVALANCHE,
     POOLS_DATA_BASE,
     POOLS_DATA_BSC,
+    POOLS_DATA_CELO,
+    POOLS_DATA_ETHEREUM,
+    POOLS_DATA_FANTOM,
     POOLS_DATA_FRAXTAL,
+    POOLS_DATA_KAVA,
+    POOLS_DATA_MOONBEAM,
+    POOLS_DATA_OPTIMISM,
+    POOLS_DATA_POLYGON,
+    POOLS_DATA_XDAI,
+    POOLS_DATA_ZKSYNC,
 } from './constants/pools/index.js';
 import {
-    ALIASES_ETHEREUM,
-    ALIASES_OPTIMISM,
-    ALIASES_POLYGON,
-    ALIASES_FANTOM,
-    ALIASES_AVALANCHE,
     ALIASES_ARBITRUM,
-    ALIASES_XDAI,
-    ALIASES_MOONBEAM,
     ALIASES_AURORA,
-    ALIASES_KAVA,
-    ALIASES_CELO,
-    ALIASES_ZKSYNC,
+    ALIASES_AVALANCHE,
     ALIASES_BASE,
     ALIASES_BSC,
+    ALIASES_CELO,
+    ALIASES_ETHEREUM,
+    ALIASES_FANTOM,
     ALIASES_FRAXTAL,
+    ALIASES_KAVA,
+    ALIASES_MOONBEAM,
+    ALIASES_OPTIMISM,
+    ALIASES_POLYGON,
+    ALIASES_XDAI,
+    ALIASES_ZKSYNC,
 } from "./constants/aliases.js";
-import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
-import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
-import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon.js";
-import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom.js";
-import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche.js";
-import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum.js";
-import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai.js";
-import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam.js";
-import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora.js";
-import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava.js";
-import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo.js";
-import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkSync } from "./constants/coins/zksync.js";
-import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from "./constants/coins/base.js";
-import { COINS_BSC, cTokensBsc,  yTokensBsc, ycTokensBsc, aTokensBsc } from "./constants/coins/bsc.js";
-import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aTokensFraxtal } from "./constants/coins/fraxtal.js";
-import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
-import { _getAllGauges, _getHiddenPools } from "./external-api.js";
-import { L2Networks } from "./constants/L2Networks.js";
+import {
+    aTokensEthereum,
+    COINS_ETHEREUM,
+    cTokensEthereum,
+    ycTokensEthereum,
+    yTokensEthereum,
+} from "./constants/coins/ethereum.js";
+import {
+    aTokensOptimism,
+    COINS_OPTIMISM,
+    cTokensOptimism,
+    ycTokensOptimism,
+    yTokensOptimism,
+} from "./constants/coins/optimism.js";
+import {
+    aTokensPolygon,
+    COINS_POLYGON,
+    cTokensPolygon,
+    ycTokensPolygon,
+    yTokensPolygon,
+} from "./constants/coins/polygon.js";
+import {aTokensFantom, COINS_FANTOM, cTokensFantom, ycTokensFantom, yTokensFantom} from "./constants/coins/fantom.js";
+import {
+    aTokensAvalanche,
+    COINS_AVALANCHE,
+    cTokensAvalanche,
+    ycTokensAvalanche,
+    yTokensAvalanche,
+} from "./constants/coins/avalanche.js";
+import {
+    aTokensArbitrum,
+    COINS_ARBITRUM,
+    cTokensArbitrum,
+    ycTokensArbitrum,
+    yTokensArbitrum,
+} from "./constants/coins/arbitrum.js";
+import {aTokensXDai, COINS_XDAI, cTokensXDai, ycTokensXDai, yTokensXDai} from "./constants/coins/xdai.js";
+import {
+    aTokensMoonbeam,
+    COINS_MOONBEAM,
+    cTokensMoonbeam,
+    ycTokensMoonbeam,
+    yTokensMoonbeam,
+} from "./constants/coins/moonbeam.js";
+import {aTokensAurora, COINS_AURORA, cTokensAurora, ycTokensAurora, yTokensAurora} from "./constants/coins/aurora.js";
+import {aTokensKava, COINS_KAVA, cTokensKava, ycTokensKava, yTokensKava} from "./constants/coins/kava.js";
+import {aTokensCelo, COINS_CELO, cTokensCelo, ycTokensCelo, yTokensCelo} from "./constants/coins/celo.js";
+import {aTokensZkSync, COINS_ZKSYNC, cTokensZkSync, ycTokensZkSync, yTokensZkSync} from "./constants/coins/zksync.js";
+import {aTokensBase, COINS_BASE, cTokensBase, ycTokensBase, yTokensBase} from "./constants/coins/base.js";
+import {aTokensBsc, COINS_BSC, cTokensBsc, ycTokensBsc, yTokensBsc} from "./constants/coins/bsc.js";
+import {
+    aTokensFraxtal,
+    COINS_FRAXTAL,
+    cTokensFraxtal,
+    ycTokensFraxtal,
+    yTokensFraxtal,
+} from "./constants/coins/fraxtal.js";
+import {extractDecimals, extractGauges, lowerCasePoolDataAddresses} from "./constants/utils.js";
+import {_getAllGauges, _getHiddenPools} from "./external-api.js";
+import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
@@ -358,6 +400,65 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
     },
 }
 
+export type ProviderType = 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'External';
+
+export async function createProvider(
+    providerType: ProviderType,
+    providerSettings: { url?: string, privateKey?: string, batchMaxCount?: number } | {
+        externalProvider: ethers.Eip1193Provider
+    } | { network?: Networkish, apiKey?: string }
+): Promise<[
+        ethers.BrowserProvider | ethers.JsonRpcProvider,
+        ethers.Signer | null
+]> {
+
+    // JsonRpc provider
+    if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
+        const { url, privateKey, batchMaxCount } = providerSettings as {
+            url: string,
+            privateKey: string,
+            batchMaxCount?: number
+        }
+
+        const jsonRpcApiProviderOptions = batchMaxCount ? { batchMaxCount } : undefined
+        const provider = new ethers.JsonRpcProvider(url || 'http://localhost:8545/', undefined, jsonRpcApiProviderOptions)
+        if (privateKey) {
+            return [provider, new ethers.Wallet(privateKey, provider)]
+        }
+        if (!url?.startsWith('https://rpc.gnosischain.com')) {
+            try {
+                return [provider, await provider.getSigner()]
+            } catch (e) {
+            }
+        }
+        return [provider, null]
+    }
+
+    if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
+        const { externalProvider } = providerSettings as { externalProvider: ethers.Eip1193Provider }
+        const provider = new ethers.BrowserProvider(externalProvider)
+        return [provider, await provider.getSigner()]
+    }
+
+    if (providerType.toLowerCase() === 'External'.toLowerCase()) {
+        const { externalProvider } = providerSettings as { externalProvider: JsonRpcProvider }
+        return [externalProvider, await externalProvider.getSigner()]
+    }
+
+    if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
+        const { network, apiKey } = providerSettings as { network?: Networkish, apiKey?: string }
+        return [new ethers.InfuraProvider(network, apiKey), null]
+    }
+
+    if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
+        const { network, apiKey } = providerSettings as { network?: Networkish, apiKey?: string }
+        return [new ethers.AlchemyProvider(network, apiKey), null]
+    }
+
+    throw Error('Wrong providerType ' + providerType)
+}
+
+
 class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
@@ -425,7 +526,7 @@ class Curve implements ICurve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
+        providerType: ProviderType,
         providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
@@ -461,54 +562,7 @@ class Curve implements ICurve {
             FACTORY_GAUGE_IMPLEMENTATIONS: {},
             ZERO_ADDRESS: ethers.ZeroAddress,
         };
-
-
-        // JsonRpc provider
-        if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
-            providerSettings = providerSettings as { url: string, privateKey: string, batchMaxCount? : number };
-
-            let jsonRpcApiProviderOptions;
-            if ( providerSettings.batchMaxCount ) {
-                jsonRpcApiProviderOptions = {
-                    batchMaxCount: providerSettings.batchMaxCount,
-                };
-            }
-
-
-
-            if (providerSettings.url) {
-                this.provider = new ethers.JsonRpcProvider(providerSettings.url, undefined, jsonRpcApiProviderOptions);
-            } else {
-                this.provider = new ethers.JsonRpcProvider('http://localhost:8545/', undefined, jsonRpcApiProviderOptions);
-            }
-
-            if (providerSettings.privateKey) {
-                this.signer = new ethers.Wallet(providerSettings.privateKey, this.provider);
-            } else if (!providerSettings.url?.startsWith("https://rpc.gnosischain.com")) {
-                try {
-                    this.signer = await this.provider.getSigner();
-                } catch (e) {
-                    this.signer = null;
-                }
-            }
-            // Web3 provider
-        } else if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
-            providerSettings = providerSettings as { externalProvider: ethers.Eip1193Provider };
-            this.provider = new ethers.BrowserProvider(providerSettings.externalProvider);
-            this.signer = await this.provider.getSigner();
-            // Infura provider
-        } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
-            providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
-            this.provider = new ethers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
-            this.signer = null;
-            // Alchemy provider
-        } else if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
-            providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
-            this.provider = new ethers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
-            this.signer = null;
-        } else {
-            throw Error('Wrong providerType');
-        }
+        [this.provider, this.signer] = await createProvider(providerType, providerSettings);
 
         const network = await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });

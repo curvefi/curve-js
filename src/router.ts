@@ -62,15 +62,6 @@ const _handleSwapType = (swapType: ISwapType): string => {
 }
 
 const SNX = {
-    1: {
-        swap: "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F".toLowerCase(),
-        coins: [  // Ethereum
-            "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51", // sUSD
-            "0xD71eCFF9342A5Ced620049e616c5035F1dB98620", // sEUR
-            "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb", // sETH
-            "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6", // sBTC
-        ].map((a) => a.toLowerCase()),
-    },
     10: {
         swap: "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4".toLowerCase(),
         coins: [  // Optimism

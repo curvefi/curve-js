@@ -654,6 +654,14 @@ const _getOutputForRoute = memoize(
     }
 );
 
+const _routesCache: IDict<{ route: IRoute, output: string, timestamp: number }> = {};
+const _getBestRouteAndOutput = (inputCoin: string, outputCoin: string, amount: number | string): { route: IRoute, output: string, timestamp: number } => {
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
+    const key = `${inputCoinAddress}-${outputCoinAddress}-${amount}`
+    if (!(key in _routesCache)) throw Error("You must call getBestRouteAndOutput first");
+
+    return _routesCache[key]
+}
 export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<{ route: IRoute, output: string }> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
@@ -662,6 +670,11 @@ export const getBestRouteAndOutput = async (inputCoin: string, outputCoin: strin
     if (route.length === 0) return { route, output: '0.0' };
 
     const _output = await _getOutputForRoute(route, parseUnits(amount, inputCoinDecimals)); // 15 seconds cache, so we call it to get fresh output estimation
+    _routesCache[`${inputCoinAddress}-${outputCoinAddress}-${amount}`] = {
+        route,
+        output: curve.formatUnits(_output + BigInt(1), outputCoinDecimals),
+        timestamp: Date.now(),
+    }
 
     return { route, output: curve.formatUnits(_output + BigInt(1), outputCoinDecimals) }
 }
@@ -708,7 +721,7 @@ export const swapRequired = async (inputCoin: string, outputCoin: string, outAmo
 export const swapPriceImpact = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
-    const { route, output } = await getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const { route, output } = _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
     const _amount = parseUnits(amount, inputCoinDecimals);
     const _output = parseUnits(output, outputCoinDecimals);
 
@@ -746,7 +759,7 @@ export const swapApprove = async (inputCoin: string, amount: number | string): P
 export const swapEstimateGas = async (inputCoin: string, outputCoin: string, amount: number | string): Promise<number | number[]> => {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses(inputCoin, outputCoin);
     const [inputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
-    const { route } = await getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const { route } = _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
     if (route.length === 0) return 0
 
     const _amount = parseUnits(amount, inputCoinDecimals);
@@ -759,7 +772,7 @@ export const swap = async (inputCoin: string, outputCoin: string, amount: number
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals(inputCoinAddress, outputCoinAddress);
 
     await swapApprove(inputCoin, amount);
-    const { route, output } = await getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
+    const { route, output } = _getBestRouteAndOutput(inputCoinAddress, outputCoinAddress, amount);
 
     if (route.length === 0) {
         throw new Error("This pair can't be exchanged");

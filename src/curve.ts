@@ -97,7 +97,7 @@ import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aToken
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
-import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto";
+import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import { initContract, initMulticallContract } from "./utils.js";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {

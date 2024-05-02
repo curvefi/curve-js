@@ -24,6 +24,11 @@ export const tricryptoDeployImplementations = {
         amm_native_transfers_enabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //0
         implementationIdx: 1,
     },
+    196: {  // X-LAYER
+        amm_native_transfers_disabled: '0x64379C265Fc6595065D7d835AAaa731c0584dB80'.toLowerCase(), //1
+        amm_native_transfers_enabled: '0x0C9D8c7e486e822C29488Ff51BFf0167B4650953'.toLowerCase(), //0
+        implementationIdx: 1,
+    },
     250: {  // FANTOM
         amm_native_transfers_disabled: '0xd125E7a0cEddF89c6473412d85835450897be6Dc'.toLowerCase(), //1
         amm_native_transfers_enabled: '0x76303e4fDcA0AbF28aB3ee42Ce086E6503431F1D'.toLowerCase(), //0

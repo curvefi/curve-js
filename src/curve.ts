@@ -61,6 +61,7 @@ import {
     POOLS_DATA_BASE,
     POOLS_DATA_BSC,
     POOLS_DATA_FRAXTAL,
+    POOLS_DATA_XLAYER,
 } from './constants/pools/index.js';
 import {
     ALIASES_ETHEREUM,
@@ -78,6 +79,7 @@ import {
     ALIASES_BASE,
     ALIASES_BSC,
     ALIASES_FRAXTAL,
+    ALIASES_XLAYER,
 } from "./constants/aliases.js";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
@@ -94,6 +96,7 @@ import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkS
 import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from "./constants/coins/base.js";
 import { COINS_BSC, cTokensBsc,  yTokensBsc, ycTokensBsc, aTokensBsc } from "./constants/coins/bsc.js";
 import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aTokensFraxtal } from "./constants/coins/fraxtal.js";
+import { COINS_XLAYER, cTokensXLayer,  yTokensXLayer, ycTokensXLayer, aTokensXLayer } from "./constants/coins/xlayer.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
@@ -149,6 +152,12 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WMATIC',
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
+    },
+    196: {  // X-LAYER
+        symbol: 'OKB',
+        wrappedSymbol: 'WOKB',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0xe538905cf8410324e03a5a23c1c177a474d59b2b'.toLowerCase(),
     },
     250: {  // FANTOM
         symbol: 'FTM',
@@ -263,6 +272,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensPolygon,
         ycTokens: ycTokensPolygon,
         aTokens: aTokensPolygon,
+    },
+    196: {
+        NAME: 'x-layer',
+        ALIASES: ALIASES_XLAYER,
+        POOLS_DATA: POOLS_DATA_XLAYER,
+        COINS: COINS_XLAYER,
+        cTokens: cTokensXLayer,
+        yTokens: yTokensXLayer,
+        ycTokens: ycTokensXLayer,
+        aTokens: aTokensXLayer,
     },
     250: {
         NAME: 'fantom',
@@ -522,7 +541,6 @@ class Curve implements ICurve {
         const network = await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
-
         this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
         this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
@@ -543,6 +561,7 @@ class Curve implements ICurve {
             NETWORK_CONSTANTS[this.chainId].aTokens,
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
+
 
         this.multicallProvider = new MulticallProvider(this.chainId, this.provider);
 
@@ -642,7 +661,7 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.factory, factoryABI);
 
-        if (this.chainId !== 1313161554 && this.chainId !== 252) {
+        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 196) {
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
             this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
             this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);

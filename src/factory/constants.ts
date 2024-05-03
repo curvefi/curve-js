@@ -425,6 +425,11 @@ export const implementationABIDictFraxtal: IDict<any> = lowerCaseKeys({
     "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E": MetaStableSwapNGABI,
 })
 
+export const implementationABIDictXLayer: IDict<any> = lowerCaseKeys({
+    "0x87FE17697D0f14A222e8bEf386a0860eCffDD617": PlainStableSwapNGABI,
+    "0x1764ee18e8B3ccA4787249Ceb249356192594585": MetaStableSwapNGABI,
+})
+
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
         address: "0xA79828DF1850E8a3A3064576f380D90aECDD3359".toLowerCase(),
@@ -536,6 +541,8 @@ export const basePoolIdZapDictBsc: IDict<{ address: string, ABI: any }> = {}
 
 export const basePoolIdZapDictFraxtal: IDict<{ address: string, ABI: any }> = {}
 
+export const basePoolIdZapDictXLayer: IDict<{ address: string, ABI: any }> = {}
+
 export const stableNgBasePoolZap: {ABI: any, address: string} = {
     ABI: StableNgBasePoolZapABI,
     address: '0xe07a16358aa878cbda2d49a88e5106871e0db307'.toLowerCase(),
@@ -565,6 +572,11 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
     137: {  // POLYGON
         implementationABIDict: implementationABIDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
+        stableNgBasePoolZap: stableNgBasePoolZap,
+    },
+    196: { //XLAYER
+        implementationABIDict: implementationABIDictXLayer,
+        basePoolIdZapDict: basePoolIdZapDictXLayer,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     250: {  // FANTOM

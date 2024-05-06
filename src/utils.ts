@@ -766,7 +766,7 @@ export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
     })
 }
 
-const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
+export const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
     const cache: Record<string, Contract> = {};
     return (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer): Contract => {
         if (address in cache) {
@@ -780,7 +780,7 @@ const memoizedContract = (): (address: string, abi: any, provider: BrowserProvid
     }
 }
 
-const memoizedMulticallContract = (): (address: string, abi: any) => MulticallContract => {
+export const memoizedMulticallContract = (): (address: string, abi: any) => MulticallContract => {
     const cache: Record<string, MulticallContract> = {};
     return (address: string, abi: any): MulticallContract => {
         if (address in cache) {
@@ -793,7 +793,3 @@ const memoizedMulticallContract = (): (address: string, abi: any) => MulticallCo
         }
     }
 }
-
-export const initContract = memoizedContract()
-
-export const initMulticallContract = memoizedMulticallContract()

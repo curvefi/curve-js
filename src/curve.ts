@@ -490,6 +490,8 @@ class Curve implements ICurve {
             ZERO_ADDRESS: ethers.ZeroAddress,
         };
 
+        this.initContract = memoizedContract()
+        this.initMulticallContract = memoizedMulticallContract()
 
         // JsonRpc provider
         if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {

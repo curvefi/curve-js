@@ -100,8 +100,8 @@ import { COINS_XLAYER, cTokensXLayer,  yTokensXLayer, ycTokensXLayer, aTokensXLa
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
-import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
-import { initContract, initMulticallContract } from "./utils.js";
+import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
+import { memoizedContract, memoizedMulticallContract } from "./utils.js";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -741,6 +741,9 @@ class Curve implements ICurve {
         }
     }
 
+    initContract = memoizedContract()
+    initMulticallContract = memoizedMulticallContract()
+
     setContract(address: string, abi: any): void {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const curveInstance = this;
@@ -748,9 +751,9 @@ class Curve implements ICurve {
         const proxyHandler: ProxyHandler<any> = {
             get: function(target: any, name: string) {
                 if(name === 'contract') {
-                    return initContract(target['address'], target['abi'], curveInstance.signer || curveInstance.provider)
+                    return curveInstance.initContract(target['address'], target['abi'], curveInstance.signer || curveInstance.provider)
                 } else if(name === 'multicallContract') {
-                    return initMulticallContract(target['address'], target['abi'])
+                    return curveInstance.initMulticallContract(target['address'], target['abi'])
                 } else {
                     return target[name];
                 }

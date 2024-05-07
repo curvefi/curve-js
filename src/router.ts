@@ -251,7 +251,9 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
         if (curve.chainId === 1 && tvl < 1000) continue;
         if (curve.chainId !== 1 && tvl < 100) continue;
 
-        const excludedUnderlyingSwaps = (poolId === 'ib' && curve.chainId === 1) || (poolId === 'geist' && curve.chainId === 250);
+        const excludedUnderlyingSwaps = (poolId === 'ib' && curve.chainId === 1) ||
+                                        (poolId === 'geist' && curve.chainId === 250) ||
+                                        (poolId === 'saave' && curve.chainId === 1);
 
         // Wrapped coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)
         if (!poolData.is_fake && !poolData.is_llamma && wrappedCoinAddresses.length < 6) {

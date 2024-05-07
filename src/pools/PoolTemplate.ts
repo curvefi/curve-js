@@ -369,6 +369,8 @@ export class PoolTemplate {
     }
 
     private statsTotalLiquidity = async (useApi = true): Promise<string> => {
+        if (curve.chainId === 1 && this.id === "crveth") return "0"
+
         if (this.isLlamma) {
             const stablecoinContract = curve.contracts[this.underlyingCoinAddresses[0]].multicallContract;
             const collateralContract = curve.contracts[this.underlyingCoinAddresses[1]].multicallContract;

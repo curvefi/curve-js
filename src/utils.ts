@@ -460,7 +460,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         56: 'binancecoin',
         100: 'xdai',
         137: 'matic-network',
-        196: 'x-layer',
+        196: 'okb',
         250: 'fantom',
         252: 'frax-ether',
         324: 'ethereum',

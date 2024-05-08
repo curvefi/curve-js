@@ -1014,6 +1014,8 @@ export class PoolTemplate {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
         const contract = curve.chainId === 1 ? curve.contracts[curve.constants.ALIASES.minter].contract : curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
 
+        await curve.updateFeeData();
+
         const gasLimit = mulBy1_3(DIGas(await contract.mint.estimateGas(this.gauge, curve.constantOptions)));
         return (await contract.mint(this.gauge, { ...curve.options, gasLimit })).hash;
     }
@@ -1331,6 +1333,8 @@ export class PoolTemplate {
         }
         const gaugeContract = curve.contracts[this.gauge].contract;
         if (!("claim_rewards()" in gaugeContract)) throw Error (`${this.name} pool doesn't have such method`);
+
+        await curve.updateFeeData();
 
         const gasLimit = mulBy1_3(DIGas(await gaugeContract.claim_rewards.estimateGas(curve.constantOptions)));
         return (await gaugeContract.claim_rewards({ ...curve.options, gasLimit })).hash;

@@ -68,6 +68,7 @@ import {
     hasDepositAndStake,
     hasRouter,
     getBasePools,
+    getGasPriceByLastTransactions,
 } from "./utils.js";
 import {
     deployStablePlainPool,
@@ -167,6 +168,7 @@ const curve = {
     getGasPriceFromL1,
     getGasPriceFromL2,
     getGasInfoForL2,
+    getGasPriceByLastTransactions,
     getTVL,
     getBalances,
     getAllowance,

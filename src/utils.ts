@@ -548,7 +548,6 @@ export const getGasPriceByLastTransactions = async ()  => {
 
         for (const txHash of block.transactions) {
             const tx = await provider.getTransaction(txHash);
-            console.log(tx, tx?.gasPrice);
             if (!tx) continue;
 
             totalGasPrice = totalGasPrice + Number(tx.gasPrice);

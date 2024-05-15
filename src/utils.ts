@@ -596,8 +596,6 @@ export const getGasInfoForL2 = async (): Promise<Record<string, number | null>> 
 
         return  {
             gasPrice,
-            maxFeePerGas: null,
-            maxPriorityFeePerGas: null,
         }
     } else {
         throw Error("This method exists only for L2 networks");

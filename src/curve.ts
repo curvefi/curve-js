@@ -101,7 +101,7 @@ import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./co
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
-import { memoizedContract, memoizedMulticallContract } from "./utils.js";
+import {getGasInfoForL2, memoizedContract, memoizedMulticallContract} from "./utils.js";
 
 const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
     const gaugeData = await _getAllGauges();
@@ -578,6 +578,11 @@ class Curve implements ICurve {
         }
 
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };
+
+        if(this.chainId === 196) {
+            this.setCustomFeeData(await getGasInfoForL2())
+        }
+
         await this.updateFeeData();
 
         for (const pool of Object.values({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA})) {

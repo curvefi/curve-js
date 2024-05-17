@@ -532,32 +532,9 @@ export const getBaseFeeByLastBlock = async ()  => {
     }
 }
 
-export const getGasPriceByLastTransactions = async ()  => {
+export const getGasPrice = async ()  => {
     const provider = curve.provider;
-
-    const latestBlockNumber = await provider.getBlockNumber();
-
-    let totalGasPrice = 0;
-    let transactionsCount = 0;
-
-    const txAmount = 15;
-
-    for (let i = latestBlockNumber; i > latestBlockNumber - txAmount && i >= 0; i--) {
-        const block = await provider.getBlock(i);
-        if (!block) continue;
-
-        for (const txHash of block.transactions) {
-            const tx = await provider.getTransaction(txHash);
-            if (!tx) continue;
-
-            totalGasPrice = totalGasPrice + Number(tx.gasPrice);
-            transactionsCount++;
-
-            if (transactionsCount >= txAmount) break; // Limit to txAmount transactions
-        }
-    }
-
-    return Number((totalGasPrice / transactionsCount / 1e9).toFixed(2));
+    return Number((Number((await provider.getFeeData()).gasPrice) / 1e9).toFixed(2));
 }
 
 export const getGasPriceFromL1 = async (): Promise<number> => {
@@ -573,7 +550,7 @@ export const getGasPriceFromL2 = async (): Promise<number> => {
         return await getBaseFeeByLastBlock()
     }
     if(curve.chainId === 196) {
-        return await getGasPriceByLastTransactions() // gwei
+        return await getGasPrice() // gwei
     }
     if(L2Networks.includes(curve.chainId)) {
         const gasPrice = await curve.contracts[curve.constants.ALIASES.gas_oracle_blob].contract.gasPrice({"gasPrice":"0x2000000"});
@@ -592,7 +569,7 @@ export const getGasInfoForL2 = async (): Promise<Record<string, number | null>> 
             maxPriorityFeePerGas: 0.01,
         }
     } else if(curve.chainId === 196) {
-        const gasPrice = await getGasPriceByLastTransactions()
+        const gasPrice = await getGasPrice()
 
         return  {
             gasPrice,

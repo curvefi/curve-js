@@ -579,10 +579,6 @@ class Curve implements ICurve {
 
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };
 
-        if(this.chainId === 196) {
-            this.setCustomFeeData(await getGasInfoForL2())
-        }
-
         await this.updateFeeData();
 
         for (const pool of Object.values({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA})) {

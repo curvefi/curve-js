@@ -2004,11 +2004,24 @@ export class PoolTemplate {
 
     // ---------------- SWAP ----------------
 
-    private async _swapExpected(i: number, j: number, _amount: bigint): Promise<bigint> {
+    cachedExpected: Record<string, any> = {}
+
+    private async _swapExpected(i: number, j: number, _amount: bigint, getter = false): Promise<bigint> {
+        if(getter) {
+            return this.cachedExpected[`${i}-${j}-${_amount}`] || await this._swapExpectedCall(i, j, _amount);
+        } else {
+            const result = await this._swapExpectedCall(i, j, _amount);
+            this.cachedExpected[`${i}-${j}-${_amount}`] = result;
+            return result;
+        }
+    }
+
+    private async _swapExpectedCall(i: number, j: number, _amount: bigint): Promise<bigint> {
         const contractAddress = this.isCrypto && this.isMeta ? this.zap as string : this.address;
         const contract = curve.contracts[contractAddress].contract;
+
         if ('get_dy_underlying' in contract) {
-            return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions)
+            return await contract.get_dy_underlying(i, j, _amount, curve.constantOptions);
         } else {
             if ('get_dy(address,uint256,uint256,uint256)' in contract) {  // atricrypto3 based metapools
                 return await contract.get_dy(this.address, i, j, _amount, curve.constantOptions);
@@ -2093,14 +2106,14 @@ export class PoolTemplate {
         const j = this._getCoinIdx(outputCoin);
         const [inputCoinDecimals, outputCoinDecimals] = [this.underlyingDecimals[i], this.underlyingDecimals[j]];
         const _amount = parseUnits(amount, inputCoinDecimals);
-        const _output = await this._swapExpected(i, j, _amount);
+        const _output = await this._swapExpected(i, j, _amount, true);
 
         const smallAmountIntBN = _get_small_x(_amount, _output, inputCoinDecimals, outputCoinDecimals);
         const amountIntBN = toBN(_amount, 0);
         if (smallAmountIntBN.gte(amountIntBN)) return 0;
 
         const _smallAmount = fromBN(smallAmountIntBN.div(10 ** inputCoinDecimals), inputCoinDecimals);
-        const _smallOutput = await this._swapExpected(i, j, _smallAmount);
+        const _smallOutput = await this._swapExpected(i, j, _smallAmount, true);
         const priceImpactBN = _get_price_impact(_amount, _output, _smallAmount, _smallOutput, inputCoinDecimals, outputCoinDecimals)
 
         return Number(_cutZeros(priceImpactBN.toFixed(4)))

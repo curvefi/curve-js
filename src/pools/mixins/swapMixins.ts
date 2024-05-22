@@ -36,7 +36,7 @@ async function _swapCheck(
 
 async function _swapMinAmount(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage = 0.5): Promise<bigint> {
     // @ts-ignore
-    const _expected: bigint = await this._swapExpected(i, j, _amount);
+    const _expected: bigint = await this._swapExpected(i, j, _amount, true);
     const [outputCoinDecimals] = _getCoinDecimals(this.underlyingCoinAddresses[j]);
     const minAmountBN: BigNumber = toBN(_expected, outputCoinDecimals).times(100 - slippage).div(100);
 
@@ -161,7 +161,6 @@ export const swapMixin: PoolTemplate = {
         // @ts-ignore
         const contractAddress = this._swapContractAddress();
         if (!estimateGas) await _ensureAllowance([this.underlyingCoinAddresses[i]], [_amount], contractAddress);
-
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = curve.contracts[contractAddress].contract;
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';

@@ -783,7 +783,7 @@ class Curve implements ICurve {
     }
 
     fetchFactoryPools = async (useApi = true): Promise<void> => {
-        if ([252, 1313161554].includes(this.chainId)) return;
+        if ([196, 252, 1313161554].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory"));
@@ -886,7 +886,7 @@ class Curve implements ICurve {
     }
 
     fetchNewFactoryPools = async (): Promise<string[]> => {
-        if ([252,1313161554].includes(this.chainId)) return [];
+        if ([196,252,1313161554].includes(this.chainId)) return [];
 
         const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -944,7 +944,7 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedFactoryPool = async (poolAddress: string): Promise<string> => {
-        if ([252,1313161554].includes(this.chainId)) return '';
+        if ([196,252,1313161554].includes(this.chainId)) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, poolAddress));
         this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };

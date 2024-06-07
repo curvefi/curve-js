@@ -62,6 +62,7 @@ import {
     POOLS_DATA_BSC,
     POOLS_DATA_FRAXTAL,
     POOLS_DATA_XLAYER,
+    POOLS_DATA_MANTLE,
 } from './constants/pools/index.js';
 import {
     ALIASES_ETHEREUM,
@@ -80,6 +81,7 @@ import {
     ALIASES_BSC,
     ALIASES_FRAXTAL,
     ALIASES_XLAYER,
+    ALIASES_MANTLE,
 } from "./constants/aliases.js";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
 import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
@@ -97,6 +99,7 @@ import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from
 import { COINS_BSC, cTokensBsc,  yTokensBsc, ycTokensBsc, aTokensBsc } from "./constants/coins/bsc.js";
 import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aTokensFraxtal } from "./constants/coins/fraxtal.js";
 import { COINS_XLAYER, cTokensXLayer,  yTokensXLayer, ycTokensXLayer, aTokensXLayer } from "./constants/coins/xlayer.js";
+import { COINS_MANTLE, cTokensMantle,  yTokensMantle, ycTokensMantle, aTokensMantle } from "./constants/coins/mantle.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getAllGauges, _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
@@ -188,6 +191,12 @@ export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: 
         wrappedSymbol: 'WKAVA',
         address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         wrappedAddress: '0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b'.toLowerCase(),
+    },
+    5000: {  // MANTLE
+        symbol: 'MNT',
+        wrappedSymbol: 'WMNT',
+        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        wrappedAddress: '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8'.toLowerCase(),
     },
     8453: {  // BASE
         symbol: 'ETH',
@@ -332,6 +341,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         yTokens: yTokensKava,
         ycTokens: ycTokensKava,
         aTokens: aTokensKava,
+    },
+    5000: {
+        NAME: 'mantle',
+        ALIASES: ALIASES_MANTLE,
+        POOLS_DATA: POOLS_DATA_MANTLE,
+        COINS: COINS_MANTLE,
+        cTokens: cTokensMantle,
+        yTokens: yTokensMantle,
+        ycTokens: ycTokensMantle,
+        aTokens: aTokensMantle,
     },
     8453: {
         NAME: 'base',
@@ -664,7 +683,7 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.factory, factoryABI);
 
-        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 196) {
+        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 196 && this.chainId !== 5000) {
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
             this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
             this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
@@ -783,7 +802,7 @@ class Curve implements ICurve {
     }
 
     fetchFactoryPools = async (useApi = true): Promise<void> => {
-        if ([196, 252, 1313161554].includes(this.chainId)) return;
+        if ([196, 252, 5000, 1313161554].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory"));
@@ -825,7 +844,7 @@ class Curve implements ICurve {
     }
 
     fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
-        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return;
+        if (![1, 56, 137, 250, 5000, 8453].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-crypto"));

@@ -5,8 +5,8 @@ export interface IDict<T> {
     [index: string]: T,
 }
 
-export type INetworkName = "ethereum" | "bsc" | "optimism" | "xdai" | "polygon" | "x-layer" | "fantom" | "fraxtal" | "zksync" | "moonbeam" | "kava" | "base" | "arbitrum" | "celo" | "avalanche" | "aurora";
-export type IChainId = 1 | 10 | 56 | 100 | 137 | 196 | 250 | 252 | 324 | 1284 | 2222 | 8453 | 42161 | 42220 | 43114 | 1313161554;
+export type INetworkName = "ethereum" | "bsc" | "optimism" | "xdai" | "polygon" | "x-layer" | "fantom" | "fraxtal" | "zksync" | "moonbeam" | "kava" | "mantle" | "base" | "arbitrum" | "celo" | "avalanche" | "aurora";
+export type IChainId = 1 | 10 | 56 | 100 | 137 | 196 | 250 | 252 | 324 | 1284 | 2222 | 5000 | 8453 | 42161 | 42220 | 43114 | 1313161554;
 export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-eywa" | "factory-crypto" | "factory-twocrypto" | "factory-tricrypto" | "factory-stable-ng";
 export type IPoolType = "main" | "crypto" | IFactoryPoolType;
 export type ISwapType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;

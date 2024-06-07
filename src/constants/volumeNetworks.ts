@@ -7,7 +7,7 @@ export interface IVolumeNetworks {
 }
 
 export const volumeNetworks: IVolumeNetworks = {
-    getVolumes: [1,137,8453, 42161],
-    getSubgraphData: [10,100,250,1284,42220,43114,1313161554],
-    getFactoryAPYs: [56,196,252,324,2222,5000],
+    getVolumes: [1,137,252,8453,42161],
+    getSubgraphData: [10,100,250,43114],
+    getFactoryAPYs: [56,196,324,1284,2222,5000,42220,1313161554],
 }

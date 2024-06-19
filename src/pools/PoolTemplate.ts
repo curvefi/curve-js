@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import {_getAllGauges, _getAllGaugesFormatted, _getPoolsFromApi} from '../external-api.js';
+import {_getAllGaugesFormatted, _getPoolsFromApi} from '../external-api.js';
 import {
     _getCoinAddresses,
     _getBalances,
@@ -30,7 +30,7 @@ import {
     isMethodExist,
     getVolumeApiController,
 } from '../utils.js';
-import { IDict, IReward, IProfit, IPoolType } from '../interfaces';
+import {IDict, IReward, IProfit, IPoolType} from '../interfaces';
 import { curve } from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
 
@@ -74,16 +74,22 @@ export class PoolTemplate {
     inApi: boolean;
     isGaugeKilled: () => Promise<boolean>;
     gaugeStatus: () => Promise<any>;
+    gaugeManager: () => Promise<string>;
+    gaugeDistributors: () => Promise<IDict<string>>;
+    gaugeVersion: () => Promise<string | null>;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         deposit: (amounts: (number | string)[]) => Promise<number | number[]>,
+        depositRewardApprove: (rewardToken: string, amount: number | string) => Promise<number | number[]>,
         depositWrappedApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
+        depositReward: (rewardToken: string, amount: string | number, epoch: number) => Promise<number | number[]>,
         depositWrapped: (amounts: (number | string)[]) => Promise<number | number[]>,
         stakeApprove: (lpTokenAmount: number | string) => Promise<number | number[]>,
         stake: (lpTokenAmount: number | string) => Promise<number | number[]>,
         unstake: (lpTokenAmount: number | string) => Promise<number | number[]>,
         claimCrv: () => Promise<number | number[]>,
         claimRewards: () => Promise<number | number[]>,
+        addReward: (rewardToken: string, distributor: string) => Promise<number | number[]>,
         depositAndStakeApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         depositAndStake: (amounts: (number | string)[]) => Promise<number>,
         depositAndStakeWrappedApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
@@ -169,16 +175,23 @@ export class PoolTemplate {
         this.inApi = poolData.in_api ?? false;
         this.isGaugeKilled = this.getIsGaugeKilled.bind(this);
         this.gaugeStatus = this.getGaugeStatus.bind(this);
+        this.gaugeManager = this.getGaugeManager.bind(this);
+        this.gaugeDistributors = this.getGaugeDistributors.bind(this);
+        this.gaugeVersion = this.getGaugeVersion.bind(this);
+        this.addReward = this.addReward.bind(this);
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),
             depositWrappedApprove: this.depositWrappedApproveEstimateGas.bind(this),
+            depositReward: this.depositRewardEstimateGas.bind(this),
             depositWrapped: this.depositWrappedEstimateGas.bind(this),
+            depositRewardApprove: this.depositRewardApproveEstimateGas.bind(this),
             stakeApprove: this.stakeApproveEstimateGas.bind(this),
             stake: this.stakeEstimateGas.bind(this),
             unstake: this.unstakeEstimateGas.bind(this),
             claimCrv: this.claimCrvEstimateGas.bind(this),
             claimRewards: this.claimRewardsEstimateGas.bind(this),
+            addReward: this.addRewardEstimateGas.bind(this),
             depositAndStakeApprove: this.depositAndStakeApproveEstimateGas.bind(this),
             depositAndStake: this.depositAndStakeEstimateGas.bind(this),
             depositAndStakeWrappedApprove: this.depositAndStakeWrappedApproveEstimateGas.bind(this),
@@ -2364,6 +2377,124 @@ export class PoolTemplate {
 
         return gaugeData[this.gauge] ? gaugeData[this.gauge].gaugeStatus : null;
     }
+
+    private async _addReward(_reward_token: string, _distributor: string, estimateGas = false): Promise<string | number | number[]> {
+        if(this.gauge !== curve.constants.ZERO_ADDRESS && this.gauge) {
+            const gas = await curve.contracts[this.gauge].contract.add_reward.estimateGas(_reward_token, _distributor, { ...curve.constantOptions });
+            if (estimateGas) return smartNumber(gas);
+
+            const gasLimit = mulBy1_3(DIGas(gas));
+
+            return (await curve.contracts[this.gauge].contract.add_reward(_reward_token, _distributor, { ...curve.options, gasLimit })).hash;
+        }
+
+        throw Error(`Pool ${this.name} does not have gauge`)
+    }
+
+    public async addRewardEstimateGas(rewardToken: string, distributor: string): Promise<number | number[]> {
+        // @ts-ignore
+        return await this._addReward(rewardToken, distributor, true);
+    }
+
+    public async addReward(rewardToken: string, distributor: string): Promise<string> {
+        // @ts-ignore
+        return await this._addReward(rewardToken, distributor);
+    }
+
+    private async getGaugeManager(): Promise<string> {
+        if(!this.gauge || this.gauge === curve.constants.ZERO_ADDRESS) {
+            return curve.constants.ZERO_ADDRESS;
+        } else {
+            try {
+                return await curve.contracts[this.gauge].contract.manager();
+            } catch (e) {
+                return curve.constants.ZERO_ADDRESS;
+            }
+        }
+    }
+
+    private async getGaugeVersion(): Promise<string | null> {
+        if(!this.gauge || this.gauge === curve.constants.ZERO_ADDRESS) {
+            return null;
+        } else {
+            try {
+                return await curve.contracts[this.gauge].contract.version();
+            } catch (e) {
+                return null;
+            }
+        }
+    }
+
+    public async isDepositRewardAvailable(): Promise<boolean> {
+        const versionsWithDepositReward = ['v6.1.0']
+        const version = await this.getGaugeVersion()
+
+        return version ? versionsWithDepositReward.includes(version) : Boolean(version);
+    }
+
+    public async getGaugeDistributors(): Promise<IDict<string>> {
+        const gaugeContract = await curve.contracts[this.gauge].contract;
+        const gaugeMulticallContract = await curve.contracts[this.gauge].multicallContract;
+
+        const rewardCount = Number(curve.formatUnits(await gaugeContract.reward_count(curve.constantOptions), 0));
+
+        const calls = [];
+        for (let i = 0; i < rewardCount; i++) {
+            calls.push(gaugeMulticallContract.reward_tokens(i));
+        }
+
+        const rewardTokens = await curve.multicallProvider.all(calls) as string[]
+
+        for (let i = 0; i < rewardCount; i++) {
+            calls.push(gaugeMulticallContract.reward_data(rewardTokens[i]));
+        }
+
+        const rewardData = await curve.multicallProvider.all(calls)
+
+        const gaugeDistributors: IDict<string> = {};
+        for (let i = 0; i < rewardCount; i++) {
+            gaugeDistributors[rewardTokens[i]] = <string>rewardData[i];
+        }
+
+        return gaugeDistributors;
+    }
+
+    public async depositRewardIsApproved(rewardToken: string, amount: number | string): Promise<boolean> {
+        return await hasAllowance([rewardToken], [amount], curve.signerAddress, this.gauge);
+    }
+
+    private async depositRewardApproveEstimateGas(rewardToken: string, amount: number | string): Promise<number | number[]> {
+        return await ensureAllowanceEstimateGas([rewardToken], [amount], this.gauge);
+    }
+
+    public async depositRewardApprove(rewardToken: string, amount: number | string): Promise<string[]> {
+        return await ensureAllowance([rewardToken], [amount], this.gauge);
+    }
+
+    private async _depositReward(rewardToken: string, amount: string | number, epoch: number, estimateGas = false): Promise<string | number | number[]> {
+        if (!estimateGas) await ensureAllowance([rewardToken], [amount], this.gauge);
+
+        const contract = curve.contracts[this.gauge].contract;
+
+        const gas = await contract.deposit_reward_token.estimateGas(rewardToken,amount, { ...curve.constantOptions });
+        if (estimateGas) return smartNumber(gas);
+
+        const gasLimit = mulBy1_3(DIGas(gas));
+        return (await contract.deposit_reward_token(rewardToken, amount, { ...curve.options, gasLimit})).hash;
+    }
+
+    async depositRewardEstimateGas(rewardToken: string, amount: string | number, epoch: number): Promise<number | number[]> {
+
+        // @ts-ignore
+        return await this._depositReward(rewardToken, amount, epoch, true);
+    }
+
+    public async depositReward(rewardToken: string, amount: string | number, epoch: number): Promise<string> {
+
+        // @ts-ignore
+        return await this._depositReward(rewardToken, amount, epoch);
+    }
+
 
     private async getIsGaugeKilled(): Promise<boolean> {
         const gaugeData = await _getAllGaugesFormatted();

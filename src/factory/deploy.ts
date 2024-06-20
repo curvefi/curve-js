@@ -293,7 +293,6 @@ const _deployStableNgMetaPool = async (
 ): Promise<ethers.ContractTransactionResponse | number | number[]> => {
     if (name.length > 32) throw Error("Max name length = 32");
     if (symbol.length > 10) throw Error("Max symbol length = 10");
-    if (BN(fee).lt(0.04)) throw Error(`fee must be >= 0.04%. Passed fee = ${fee}`);
     if (BN(fee).gt(1)) throw Error(`fee must be <= 1%. Passed fee = ${fee}`);
     if (![0, 1].includes(implementationIdx)) throw Error("Invalid implementationIdx. Must be one 0 or 1");
 

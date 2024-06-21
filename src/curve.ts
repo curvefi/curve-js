@@ -6,7 +6,7 @@ import {
     Numeric,
     AbstractProvider,
 } from "ethers";
-import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
+import { Provider as MulticallProvider, Contract as MulticallContract } from "@curvefi/ethcall";
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
@@ -582,6 +582,10 @@ class Curve implements ICurve {
             NETWORK_CONSTANTS[this.chainId].aTokens,
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
+
+        if(this.chainId === 5000) {
+            this.constantOptions = { gasLimit: 9000000 }
+        }
 
 
         this.multicallProvider = new MulticallProvider(this.chainId, this.provider);

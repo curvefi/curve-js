@@ -1,6 +1,6 @@
 {
   "name": "@curvefi/api",
-  "version": "2.60.1",
+  "version": "2.60.2",
   "description": "JavaScript library for curve.fi",
   "main": "lib/index.js",
   "author": "Macket",
@@ -34,7 +34,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
-    "ethcall": "6.0.6",
+    "@curvefi/ethcall": "6.0.7",
     "ethers": "^6.11.0",
     "memoizee": "^0.4.15"
   }

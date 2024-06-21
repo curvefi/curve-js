@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {BrowserProvider, Contract, JsonRpcProvider, Signer} from 'ethers';
-import { Contract as MulticallContract } from "ethcall";
+import { Contract as MulticallContract } from "@curvefi/ethcall";
 import BigNumber from 'bignumber.js';
 import {
     IBasePoolShortItem,

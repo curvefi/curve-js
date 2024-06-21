@@ -6,7 +6,7 @@ import {
     Numeric,
     AbstractProvider,
 } from "ethers";
-import { Provider as MulticallProvider, Contract as MulticallContract } from 'ethcall';
+import { Provider as MulticallProvider, Contract as MulticallContract } from "@curvefi/ethcall";
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
@@ -563,6 +563,7 @@ class Curve implements ICurve {
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
         this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
+        console.log(NETWORK_CONSTANTS, this.chainId);
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
         this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
         this.constants.ALIASES.anycall = "0x37414a8662bc1d25be3ee51fb27c2686e2490a89";
@@ -582,6 +583,10 @@ class Curve implements ICurve {
             NETWORK_CONSTANTS[this.chainId].aTokens,
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
+
+        if(this.chainId === 5000) {
+            this.constantOptions = { gasLimit: 9000000 }
+        }
 
 
         this.multicallProvider = new MulticallProvider(this.chainId, this.provider);

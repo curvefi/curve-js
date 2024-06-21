@@ -1,5 +1,5 @@
 import { Contract, ethers } from "ethers";
-import { Contract as MulticallContract, Provider as MulticallProvider } from "ethcall";
+import { Contract as MulticallContract, Provider as MulticallProvider } from "@curvefi/ethcall";
 
 export interface IDict<T> {
     [index: string]: T,

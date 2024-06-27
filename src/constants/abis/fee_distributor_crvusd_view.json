@@ -142,19 +142,7 @@
     "outputs": []
   },
   {
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "name": "claim",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ]
-  },
-  {
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function",
     "name": "claim",
     "inputs": [

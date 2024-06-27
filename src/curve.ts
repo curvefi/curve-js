@@ -24,6 +24,7 @@ import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };
 import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' assert { type: 'json' };
 import votingEscrowOracleEthABI from './constants/abis/voting_escrow_oracle_eth.json' assert { type: 'json' };
 import feeDistributorABI from './constants/abis/fee_distributor.json' assert { type: 'json' };
+import feeDistributorCrvUSDABI from './constants/abis/fee_distributor_crvusd.json' assert { type: 'json' };
 import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert { type: 'json' };
 import depositAndStakeABI from './constants/abis/deposit_and_stake.json' assert { type: 'json' };
 import cryptoCalcZapABI from './constants/abis/crypto_calc.json' assert { type: 'json'};
@@ -670,6 +671,10 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.voting_escrow, votingEscrowABI);
 
         this.setContract(this.constants.ALIASES.fee_distributor, feeDistributorABI);
+
+        if(this.chainId === 1) {
+            this.setContract(this.constants.ALIASES.fee_distributor_crvusd, feeDistributorCrvUSDABI);
+        }
 
         this.setContract(this.constants.ALIASES.gauge_controller, gaugeControllerABI);
 

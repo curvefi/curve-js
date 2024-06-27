@@ -209,6 +209,10 @@ export const claimFeesEstimateGas = async (address = ""): Promise<number> => {
 }
 
 export const claimFees = async (address = ""): Promise<string> => {
+    if(curve.chainId !== 1) {
+        throw Error('This method is only available for the network with chainId 1');
+    }
+
     address = address || curve.signerAddress;
     const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
 
@@ -218,12 +222,20 @@ export const claimFees = async (address = ""): Promise<string> => {
 }
 
 export const claimableFeesCrvUSD = async (address = ""): Promise<string> => {
+    if(curve.chainId !== 1) {
+        throw Error('This method is only available for the network with chainId 1');
+    }
+
     address = address || curve.signerAddress;
     const contract = new Contract(curve.constants.ALIASES.fee_distributor_crvusd, feeDistributorCrvUSDViewABI, curve.provider)
     return curve.formatUnits(await contract.claim(address, curve.constantOptions));
 }
 
 export const claimFeesCrvUSDEstimateGas = async (address = ""): Promise<number> => {
+    if(curve.chainId !== 1) {
+        throw Error('This method is only available for the network with chainId 1');
+    }
+
     address = address || curve.signerAddress;
     const contract = curve.contracts[curve.constants.ALIASES.fee_distributor_crvusd].contract;
 

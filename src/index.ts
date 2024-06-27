@@ -51,6 +51,9 @@ import {
     sendBlockhashEstimateGas,
     submitProof,
     submitProofEstimateGas,
+    claimFeesCrvUSDEstimateGas,
+    claimableFeesCrvUSD,
+    claimFeesCrvUSD,
 } from "./boosting.js";
 import {
     getBalances,
@@ -312,6 +315,8 @@ const curve = {
         withdrawLockedCrv,
         claimableFees,
         claimFees,
+        claimableFeesCrvUSD,
+        claimFeesCrvUSD,
         estimateGas: {
             approve: approveEstimateGas,
             createLock: createLockEstimateGas,
@@ -319,6 +324,7 @@ const curve = {
             increaseUnlockTime: increaseUnlockTimeEstimateGas,
             withdrawLockedCrv: withdrawLockedCrvEstimateGas,
             claimFees: claimFeesEstimateGas,
+            claimFeesCrvUSD: claimFeesCrvUSDEstimateGas,
         },
         sidechain: {
             lastEthBlock,

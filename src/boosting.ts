@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 import { curve } from "./curve.js";
 import { IDict, IChainId } from "./interfaces";
 import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" assert { type: 'json' };
+import feeDistributorCrvUSDViewABI from "./constants/abis/fee_distributor_crvusd_view.json" assert { type: 'json' };
 import {
     _getBalances,
     _prepareAddresses, DIGas,
@@ -208,8 +209,42 @@ export const claimFeesEstimateGas = async (address = ""): Promise<number> => {
 }
 
 export const claimFees = async (address = ""): Promise<string> => {
+    if(curve.chainId !== 1) {
+        throw Error('This method is only available for the network with chainId 1');
+    }
+
     address = address || curve.signerAddress;
     const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(DIGas(await contract.claim.estimateGas(address, curve.constantOptions)));
+    return (await contract.claim(address, { ...curve.options, gasLimit })).hash
+}
+
+export const claimableFeesCrvUSD = async (address = ""): Promise<string> => {
+    if(curve.chainId !== 1) {
+        throw Error('This method is only available for the network with chainId 1');
+    }
+
+    address = address || curve.signerAddress;
+    const contract = new Contract(curve.constants.ALIASES.fee_distributor_crvusd, feeDistributorCrvUSDViewABI, curve.provider)
+    return curve.formatUnits(await contract.claim(address, curve.constantOptions));
+}
+
+export const claimFeesCrvUSDEstimateGas = async (address = ""): Promise<number> => {
+    if(curve.chainId !== 1) {
+        throw Error('This method is only available for the network with chainId 1');
+    }
+
+    address = address || curve.signerAddress;
+    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor_crvusd].contract;
+
+    return Number(DIGas(await contract.claim.estimateGas(address, curve.constantOptions)));
+}
+
+export const claimFeesCrvUSD = async (address = ""): Promise<string> => {
+    address = address || curve.signerAddress;
+    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor_crvusd].contract;
 
     await curve.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(await contract.claim.estimateGas(address, curve.constantOptions)));

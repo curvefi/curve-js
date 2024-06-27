@@ -8,6 +8,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "gauge_factory_fraxtal": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c", // <--- CHANGED
     "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
+    "fee_distributor_crvusd": "0xD16d5eC345Dd86Fb63C6a9C43c517210F1027914",
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
     "router": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",

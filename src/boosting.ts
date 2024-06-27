@@ -248,6 +248,7 @@ export const claimFeesCrvUSD = async (address = ""): Promise<string> => {
 
     await curve.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(await contract.claim.estimateGas(address, curve.constantOptions)));
+
     return (await contract.claim(address, { ...curve.options, gasLimit })).hash
 }
 

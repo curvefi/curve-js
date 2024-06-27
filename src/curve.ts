@@ -588,7 +588,6 @@ class Curve implements ICurve {
             this.constantOptions = { gasLimit: 9000000 }
         }
 
-
         this.multicallProvider = new MulticallProvider(this.chainId, this.provider);
 
         if (this.signer) {
@@ -602,7 +601,6 @@ class Curve implements ICurve {
         }
 
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };
-
         await this.updateFeeData();
 
         for (const pool of Object.values({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA})) {
@@ -666,15 +664,12 @@ class Curve implements ICurve {
         if(this.chainId === 1) {
             this.setContract(this.constants.ALIASES.minter, minterMainnetABI)
             this.setContract(this.constants.ALIASES.gauge_factory_fraxtal, gaugeFactoryForFraxtalABI)
+            this.setContract(this.constants.ALIASES.fee_distributor_crvusd, feeDistributorCrvUSDABI);
         }
 
         this.setContract(this.constants.ALIASES.voting_escrow, votingEscrowABI);
 
         this.setContract(this.constants.ALIASES.fee_distributor, feeDistributorABI);
-
-        if(this.chainId === 1) {
-            this.setContract(this.constants.ALIASES.fee_distributor_crvusd, feeDistributorCrvUSDABI);
-        }
 
         this.setContract(this.constants.ALIASES.gauge_controller, gaugeControllerABI);
 

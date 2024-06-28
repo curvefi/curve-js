@@ -2041,6 +2041,8 @@ export class PoolTemplate {
 
     private async _swapRequired(i: number, j: number, _amount: bigint, isUnderlying: boolean): Promise<any> {
         if(this.isCrypto) {
+            if (this.isNg) return await curve.contracts[this.address].contract.get_dx(i, j, _amount, curve.constantOptions);
+
             const contract = curve.contracts[curve.constants.ALIASES.crypto_calc].contract;
             if(this.isMeta && isUnderlying) {
                 const basePool = new PoolTemplate(this.basePool);
@@ -2056,7 +2058,7 @@ export class PoolTemplate {
                 return await contract.get_dx(this.address, i, j, _amount, this.wrappedCoins.length, curve.constantOptions)
             }
         } else {
-            if (this.id.startsWith("factory-stable-ng")) {
+            if (this.isNg) {
                 const contract = curve.contracts[this.address].contract;
                 if (this.isMeta) {
                     if (isUnderlying) {
@@ -2065,7 +2067,7 @@ export class PoolTemplate {
                         return await contract.get_dx(i, j, _amount, curve.constantOptions);
                     }
                 } else {
-                    return await contract.get_dx(i, j, _amount)
+                    return await contract.get_dx(i, j, _amount, curve.constantOptions)
                 }
             }
 

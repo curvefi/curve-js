@@ -208,7 +208,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                     swap_abi: getSwapAbiByFactoryType(factoryType, pool),
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                     in_api: true,
-                    is_ng: false,
+                    is_ng: factoryType === "factory-tricrypto" || factoryType === "factory-twocrypto",
                 };
             }
         } else if (pool.isMetaPool) {

@@ -230,8 +230,10 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
         const poolAddress = poolData.swap_address.toLowerCase();
         const tokenAddress = poolData.token_address.toLowerCase();
         const isAaveLikeLending = poolData.is_lending && wrappedCoinAddresses.length === 3 && !poolData.deposit_address;
+        // pool_type: 1 - stable, 2 - twocrypto, 3 - tricrypto, 4 - llamma
+        //            10 - stable-ng, 20 - twocrypto-ng, 30 - tricrypto-ng
         let poolType = poolData.is_llamma ? 4 : poolData.is_crypto ? Math.min(poolData.wrapped_coins.length, 3) : 1;
-        if (poolData.is_ng && ![250, 2222].includes(curve.chainId)) poolType *= 10;
+        if (poolData.is_ng) poolType *= 10;
         const tvlMultiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
         const basePool = poolData.is_meta ? { ...curve.constants.POOLS_DATA, ...curve.constants.FACTORY_POOLS_DATA }[poolData.base_pool as string] : null;
         const basePoolAddress = basePool ? basePool.swap_address.toLowerCase() : curve.constants.ZERO_ADDRESS;

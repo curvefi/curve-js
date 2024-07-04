@@ -543,8 +543,10 @@ const _deployTwocryptoPool = async (
     if (coins[0] === coins[1]) throw Error("Coins must be different");
     if (BN(A).lt(4000)) throw Error(`A must be >= 4000. Passed A = ${A}`);
     if (BN(A).gt(4 * (10 ** 9))) throw Error(`A must be <= 4 * 10 ** 9. Passed A = ${A}`);
-    if (BN(gamma).lt(1e-8)) throw Error(`gamma must be >= 1e-8. Passed gamma = ${gamma}`);
-    if (BN(gamma).gt(0.02)) throw Error(`gamma must be <= 0.02. Passed gamma = ${gamma}`);
+    const MIN_GAMMA = BN((10**10) / (10**18));
+    const MAX_GAMMA = BN(199 * (10**15) / (10**18));
+    if (BN(gamma).lt(MIN_GAMMA)) throw Error(`gamma must be >= ${MIN_GAMMA}. Passed gamma = ${gamma}`);
+    if (BN(gamma).gt(MAX_GAMMA)) throw Error(`gamma must be <= ${MAX_GAMMA}. Passed gamma = ${gamma}`);
     if (BN(midFee).lt(0.005)) throw Error(`midFee must be >= 0.005. Passed midFee = ${midFee}`);
     if (BN(midFee).gt(100)) throw Error(`midFee must be <= 100. Passed midFee = ${midFee}`);
     if (BN(outFee).lt(BN(midFee))) throw Error(`outFee must be >= midFee. Passed outFee = ${outFee} < midFee = ${midFee}`);

@@ -56,22 +56,24 @@ export class GaugePool implements IGaugePool {
 
         const rewardCount = Number(curve.formatUnits(await gaugeContract.reward_count(curve.constantOptions), 0));
 
-        const calls = [];
+        let calls = [];
         for (let i = 0; i < rewardCount; i++) {
             calls.push(gaugeMulticallContract.reward_tokens(i));
         }
 
         const rewardTokens = await curve.multicallProvider.all(calls) as string[]
 
+        calls = [];
+
         for (let i = 0; i < rewardCount; i++) {
             calls.push(gaugeMulticallContract.reward_data(rewardTokens[i]));
         }
 
-        const rewardData = await curve.multicallProvider.all(calls)
+        const rewardData: Array<{distributor: string}> = await curve.multicallProvider.all(calls)
 
         const gaugeDistributors: IDict<string> = {};
         for (let i = 0; i < rewardCount; i++) {
-            gaugeDistributors[rewardTokens[i]] = <string>rewardData[i];
+            gaugeDistributors[rewardTokens[i]] = <string>rewardData[i].distributor;
         }
 
         return gaugeDistributors;

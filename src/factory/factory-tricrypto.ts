@@ -246,6 +246,7 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
             wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
             swap_abi: tricryptoFactorySwapABI,
             gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
+            is_ng: true,
         };
     }
 

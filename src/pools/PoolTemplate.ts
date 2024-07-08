@@ -60,7 +60,7 @@ export class PoolTemplate {
     isFake: boolean;
     isFactory: boolean;
     isMetaFactory: boolean;
-    isStableNg: boolean;
+    isNg: boolean;
     isLlamma: boolean;
     basePool: string;
     metaCoinIdx: number;
@@ -161,7 +161,7 @@ export class PoolTemplate {
         this.isFake = poolData.is_fake || false;
         this.isFactory = poolData.is_factory || false;
         this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xa79828df1850e8a3a3064576f380d90aecdd3359';
-        this.isStableNg = poolData.is_stable_ng || false;
+        this.isNg = poolData.is_ng || false;
         this.isLlamma = poolData.is_llamma || false;
         this.basePool = poolData.base_pool || '';
         this.metaCoinIdx = this.isMeta ? poolData.meta_coin_idx ?? poolData.wrapped_coins.length - 1 : -1;
@@ -1596,7 +1596,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            (this.isStableNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isStableNg),
+            (!this.isCrypto && this.isNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isNg),
             this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.constantOptions, value }
         ))
@@ -1614,7 +1614,7 @@ export class PoolTemplate {
             _amounts,
             _minMintAmount,
             useUnderlying,
-            (this.isStableNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isStableNg),
+            (!this.isCrypto && this.isNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isNg),
             this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
             { ...curve.options, gasLimit, value }
         )).hash
@@ -2041,6 +2041,8 @@ export class PoolTemplate {
 
     private async _swapRequired(i: number, j: number, _amount: bigint, isUnderlying: boolean): Promise<any> {
         if(this.isCrypto) {
+            if (this.isNg) return await curve.contracts[this.address].contract.get_dx(i, j, _amount, curve.constantOptions);
+
             const contract = curve.contracts[curve.constants.ALIASES.crypto_calc].contract;
             if(this.isMeta && isUnderlying) {
                 const basePool = new PoolTemplate(this.basePool);
@@ -2056,7 +2058,7 @@ export class PoolTemplate {
                 return await contract.get_dx(this.address, i, j, _amount, this.wrappedCoins.length, curve.constantOptions)
             }
         } else {
-            if (this.id.startsWith("factory-stable-ng")) {
+            if (this.isNg) {
                 const contract = curve.contracts[this.address].contract;
                 if (this.isMeta) {
                     if (isUnderlying) {
@@ -2065,7 +2067,7 @@ export class PoolTemplate {
                         return await contract.get_dx(i, j, _amount, curve.constantOptions);
                     }
                 } else {
-                    return await contract.get_dx(i, j, _amount)
+                    return await contract.get_dx(i, j, _amount, curve.constantOptions)
                 }
             }
 
@@ -2075,7 +2077,7 @@ export class PoolTemplate {
                 if(isUnderlying) {
                     return await contract.get_dx_meta_underlying(this.address, i, j, _amount, this.underlyingCoins.length, basePool.address, basePool.lpToken, curve.constantOptions)
                 } else {
-                    return await contract. get_dx_meta(this.address, i, j, _amount, this.wrappedCoins.length, basePool.address, curve.constantOptions)
+                    return await contract.get_dx_meta(this.address, i, j, _amount, this.wrappedCoins.length, basePool.address, curve.constantOptions)
                 }
             } else {
                 if(isUnderlying && this.isLending) {

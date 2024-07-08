@@ -185,7 +185,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                     deposit_abi: basePoolZap.ABI,
                     in_api: true,
-                    is_stable_ng: false,
+                    is_ng: false,
                 };
             } else {
                 FACTORY_POOLS_DATA[pool.id] = {
@@ -208,7 +208,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                     swap_abi: getSwapAbiByFactoryType(factoryType, pool),
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                     in_api: true,
-                    is_stable_ng: false,
+                    is_ng: factoryType === "factory-tricrypto" || factoryType === "factory-twocrypto",
                 };
             }
         } else if (pool.isMetaPool) {
@@ -252,7 +252,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 deposit_abi: basePoolZap.ABI,
                 in_api: true,
-                is_stable_ng: factoryType === 'factory-stable-ng',
+                is_ng: factoryType === 'factory-stable-ng',
             };
         } else {
             const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
@@ -276,7 +276,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 swap_abi: implementationABIDict[pool.implementationAddress],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 in_api: true,
-                is_stable_ng: factoryType === 'factory-stable-ng',
+                is_ng: factoryType === 'factory-stable-ng',
             };
         }
     })

@@ -5,7 +5,7 @@ export interface IDict<T> {
     [index: string]: T,
 }
 
-export type INetworkName = "ethereum" | "bsc" | "optimism" | "xdai" | "polygon" | "x-layer" | "fantom" | "fraxtal" | "zksync" | "moonbeam" | "kava" | "mantle" | "base" | "arbitrum" | "celo" | "avalanche" | "aurora";
+export type INetworkName = "ethereum" | "optimism" | "bsc" | "xdai" | "polygon" | "x-layer" | "fantom" | "fraxtal" | "zksync" | "moonbeam" | "kava" | "mantle" | "base" | "arbitrum" | "celo" | "avalanche" | "aurora";
 export type IChainId = 1 | 10 | 56 | 100 | 137 | 196 | 250 | 252 | 324 | 1284 | 2222 | 5000 | 8453 | 42161 | 42220 | 43114 | 1313161554;
 export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-eywa" | "factory-crypto" | "factory-twocrypto" | "factory-tricrypto" | "factory-stable-ng";
 export type IPoolType = "main" | "crypto" | IFactoryPoolType;
@@ -32,7 +32,7 @@ export interface IPoolData {
     is_fake?: boolean,
     is_factory?: boolean,
     is_llamma?: boolean,
-    is_stable_ng?: boolean,
+    is_ng?: boolean,
     base_pool?: string,
     meta_coin_idx?: number,
     underlying_coins: string[],

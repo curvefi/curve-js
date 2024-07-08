@@ -31,6 +31,7 @@ import cryptoCalcZapABI from './constants/abis/crypto_calc.json' assert { type: 
 import StableCalcZapABI from './constants/abis/stable_calc.json' assert { type: 'json' };
 import routerABI from './constants/abis/router.json' assert { type: 'json' };
 import routerPolygonABI from './constants/abis/routerPolygon.json' assert { type: 'json' };
+import routerNgPoolsOnlyABI from './constants/abis/router-ng-pools-only.json' assert { type: 'json' };
 import streamerABI from './constants/abis/streamer.json' assert { type: 'json' };
 import factoryABI from './constants/abis/factory.json' assert { type: 'json' };
 import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: 'json' };
@@ -405,6 +406,8 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
     },
 }
 
+const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
+
 class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
@@ -675,8 +678,10 @@ class Curve implements ICurve {
 
         if (this.chainId == 137) {
             this.setContract(this.constants.ALIASES.router, routerPolygonABI);
-        } else {
+        } else if (OLD_CHAINS.includes(this.chainId)) {
             this.setContract(this.constants.ALIASES.router, routerABI);
+        } else {
+            this.setContract(this.constants.ALIASES.router, routerNgPoolsOnlyABI);
         }
 
         this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI);

@@ -355,6 +355,8 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
                     if (i === j) continue;
                     // Don't swap metacoins since they can be swapped directly in base pool
                     if (metaCoinAddresses.includes(underlyingCoinAddresses[i]) && metaCoinAddresses.includes(underlyingCoinAddresses[j])) continue;
+                    // avWBTC is frozen by Aave on Avalanche, deposits are not working
+                    if (curve.chainId === 43114 && poolId === "atricrypto" && i === 3) continue;
 
                     const hasEth = underlyingCoinAddresses.includes(curve.constants.NATIVE_TOKEN.address);
                     const swapType = (poolData.is_crypto && poolData.is_meta && poolData.is_factory) || (basePool?.is_lending && poolData.is_factory) ? 3

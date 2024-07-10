@@ -766,7 +766,7 @@ export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
     const factoryContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].contract;
     const factoryMulticallContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].multicallContract;
 
-    const basePoolCount = Number(curve.formatUnits(await factoryContract.base_pool_count(curve.constantOptions), 0));
+    const basePoolCount = Number(curve.formatUnits(await factoryContract.base_pool_count(), 0));
 
     const calls = [];
     for (let i = 0; i < basePoolCount; i++) {

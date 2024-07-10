@@ -554,6 +554,9 @@ export const getGasPriceFromL2 = async (): Promise<number> => {
     if(curve.chainId === 196) {
         return await getGasPrice() // gwei
     }
+    if(curve.chainId === 5000) {
+        return await getGasPrice() // gwei
+    }
     if(L2Networks.includes(curve.chainId)) {
         const gasPrice = await curve.contracts[curve.constants.ALIASES.gas_oracle_blob].contract.gasPrice({"gasPrice":"0x2000000"});
         return Number(gasPrice);
@@ -571,6 +574,12 @@ export const getGasInfoForL2 = async (): Promise<Record<string, number | null>> 
             maxPriorityFeePerGas: 0.01,
         }
     } else if(curve.chainId === 196) {
+        const gasPrice = await getGasPrice()
+
+        return  {
+            gasPrice,
+        }
+    } else if(curve.chainId === 5000) {
         const gasPrice = await getGasPrice()
 
         return  {
@@ -757,7 +766,7 @@ export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
     const factoryContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].contract;
     const factoryMulticallContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].multicallContract;
 
-    const basePoolCount = Number(curve.formatUnits(await factoryContract.base_pool_count(), 0));
+    const basePoolCount = Number(curve.formatUnits(await factoryContract.base_pool_count(curve.constantOptions), 0));
 
     const calls = [];
     for (let i = 0; i < basePoolCount; i++) {

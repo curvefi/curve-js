@@ -59,7 +59,7 @@ export interface ICurve {
     chainId: number,
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
-    constantOptions: { gasLimit: number },
+    constantOptions: { gasLimit?: number },
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint },
     constants: {
         NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },

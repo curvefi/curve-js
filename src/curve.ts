@@ -1085,10 +1085,10 @@ class Curve implements ICurve {
         } else {
             delete this.options.gasPrice;
 
-            this.options.maxFeePerGas = this.feeData.maxFeePerGas !== undefined ?
+            this.options.maxFeePerGas = (this.feeData.maxFeePerGas !== undefined && this.feeData.maxFeePerGas !== null) ?
                 this.parseUnits(this.feeData.maxFeePerGas.toString(), "gwei") :
                 feeData.maxFeePerGas;
-            this.options.maxPriorityFeePerGas = this.feeData.maxPriorityFeePerGas !== undefined ?
+            this.options.maxPriorityFeePerGas = (this.feeData.maxPriorityFeePerGas !== undefined && this.feeData.maxPriorityFeePerGas !== null) ?
                 this.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
                 feeData.maxPriorityFeePerGas;
         }

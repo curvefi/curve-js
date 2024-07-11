@@ -580,10 +580,11 @@ export const getGasInfoForL2 = async (): Promise<Record<string, number | null>> 
             gasPrice,
         }
     } else if(curve.chainId === 5000) {
-        const gasPrice = await getGasPrice()
+        const baseFee = await getBaseFeeByLastBlock()
 
         return  {
-            gasPrice,
+            maxFeePerGas: Number(((baseFee * 1.1) + 0.01).toFixed(2)),
+            maxPriorityFeePerGas: 0.01,
         }
     } else {
         throw Error("This method exists only for L2 networks");

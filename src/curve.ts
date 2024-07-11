@@ -416,7 +416,7 @@ class Curve implements ICurve {
     chainId: IChainId;
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
-    constantOptions: { gasLimit: number };
+    constantOptions: { gasLimit?: number };
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };
     L1WeightedGasPrice?: number;
     constants: {
@@ -588,7 +588,7 @@ class Curve implements ICurve {
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
 
         if(this.chainId === 5000) {
-            this.constantOptions = { gasLimit: 9000000 }
+            this.constantOptions = {}
         }
 
         this.multicallProvider = new MulticallProvider(this.chainId, this.provider);

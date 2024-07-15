@@ -16,13 +16,13 @@ const _getUserLpBalances = async (pools: string[], address: string, useCache: bo
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
             calls.push(curve.contracts[pool.lpToken].multicallContract.balanceOf(address));
-            if (pool.gauge !== curve.constants.ZERO_ADDRESS) calls.push(curve.contracts[pool.gauge].multicallContract.balanceOf(address));
+            if (pool.gauge.address !== curve.constants.ZERO_ADDRESS) calls.push(curve.contracts[pool.gauge.address].multicallContract.balanceOf(address));
         }
         const _rawBalances: bigint[] = await curve.multicallProvider.all(calls);
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
             let _balance = _rawBalances.shift() as bigint;
-            if (pool.gauge !== curve.constants.ZERO_ADDRESS) _balance = _balance + (_rawBalances.shift() as bigint);
+            if (pool.gauge.address !== curve.constants.ZERO_ADDRESS) _balance = _balance + (_rawBalances.shift() as bigint);
 
             if (!_userLpBalanceCache[address]) _userLpBalanceCache[address] = {};
             _userLpBalanceCache[address][poolId] = {'_lpBalance': _balance, 'time': Date.now()}
@@ -79,12 +79,12 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (curve.chainId === 324 || curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
+            if (curve.chainId === 324 || curve.chainId === 2222 || pool.gauge.address === curve.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
                 hasCrvReward.push(false);
                 continue;
 
             }
-            const gaugeContract = curve.contracts[pool.gauge].contract;
+            const gaugeContract = curve.contracts[pool.gauge.address].contract;
             hasCrvReward.push('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
         }
 
@@ -93,12 +93,12 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         const rewardCount: number[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (pool.gauge === curve.constants.ZERO_ADDRESS) {
+            if (pool.gauge.address === curve.constants.ZERO_ADDRESS) {
                 rewardCount.push(0);
                 continue;
             }
 
-            const gaugeContract = curve.contracts[pool.gauge].contract;
+            const gaugeContract = curve.contracts[pool.gauge.address].contract;
             if ("reward_tokens(uint256)" in gaugeContract) { // gauge_v2, gauge_v3, gauge_v4, gauge_v5, gauge_factory, gauge_rewards_only, gauge_child
                 rewardCount.push(8);
             } else if ('claimable_reward(address)' in gaugeContract) { // gauge_synthetix
@@ -115,7 +115,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             const pool = getPool(poolsToFetch[i]);
             if (rewardCount[i] !== -1) { // no_gauge, gauge, gauge_v2, gauge_v3, gauge_v4, gauge_v5, gauge_factory, gauge_rewards_only, gauge_child
                 for (let count = 0; count < rewardCount[i]; count++) {
-                    const gaugeContract = curve.contracts[pool.gauge].multicallContract;
+                    const gaugeContract = curve.contracts[pool.gauge.address].multicallContract;
                     rewardTokenCalls.push(gaugeContract.reward_tokens(count));
                 }
             } else { // gauge_synthetix
@@ -147,10 +147,10 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
         for (let i = 0; i < poolsToFetch.length; i++) {
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);
-            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
+            if (pool.gauge.address === curve.constants.ZERO_ADDRESS) continue;
 
-            const gaugeContract = curve.contracts[pool.gauge].contract;
-            const gaugeMulticallContract = curve.contracts[pool.gauge].multicallContract;
+            const gaugeContract = curve.contracts[pool.gauge.address].contract;
+            const gaugeMulticallContract = curve.contracts[pool.gauge.address].multicallContract;
 
             if (hasCrvReward[i]) {
                 rewardInfoCalls.push(gaugeMulticallContract.claimable_tokens(address));
@@ -176,9 +176,9 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
 
             if (!_userClaimableCache[address]) _userClaimableCache[address] = {};
             _userClaimableCache[address][poolId] = { rewards: [], time: Date.now() };
-            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
+            if (pool.gauge.address === curve.constants.ZERO_ADDRESS) continue;
 
-            const gaugeContract = curve.contracts[pool.gauge].contract;
+            const gaugeContract = curve.contracts[pool.gauge.address].contract;
 
             if (hasCrvReward[i]) {
                 const token = curve.constants.ALIASES.crv;
@@ -224,12 +224,12 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
-            if (curve.chainId === 324 || curve.chainId === 2222 || pool.gauge === curve.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
+            if (curve.chainId === 324 || curve.chainId === 2222 || pool.gauge.address === curve.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
                 hasCrvReward.push(false);
                 continue;
 
             }
-            const gaugeContract = curve.contracts[pool.gauge].contract;
+            const gaugeContract = curve.contracts[pool.gauge.address].contract;
             hasCrvReward.push('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
         }
 
@@ -239,7 +239,7 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
         for (let i = 0; i < poolsToFetch.length; i++) {
             const pool = getPool(poolsToFetch[i]);
             const rewards = await _getRewardsFromApi();
-            rewardTokens[poolsToFetch[i]] = (rewards[pool.gauge] ?? [])
+            rewardTokens[poolsToFetch[i]] = (rewards[pool.gauge.address] ?? [])
                 .map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: Number(r.decimals)}));
         }
 
@@ -249,10 +249,10 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
         for (let i = 0; i < poolsToFetch.length; i++) {
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);
-            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
+            if (pool.gauge.address === curve.constants.ZERO_ADDRESS) continue;
 
-            const gaugeContract = curve.contracts[pool.gauge].contract;
-            const gaugeMulticallContract = curve.contracts[pool.gauge].multicallContract;
+            const gaugeContract = curve.contracts[pool.gauge.address].contract;
+            const gaugeMulticallContract = curve.contracts[pool.gauge.address].multicallContract;
 
             if (hasCrvReward[i]) {
                 rewardInfoCalls.push(gaugeMulticallContract.claimable_tokens(address));
@@ -275,9 +275,9 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
 
             if (!_userClaimableCache[address]) _userClaimableCache[address] = {};
             _userClaimableCache[address][poolId] = { rewards: [], time: Date.now() };
-            if (pool.gauge === curve.constants.ZERO_ADDRESS) continue;
+            if (pool.gauge.address === curve.constants.ZERO_ADDRESS) continue;
 
-            const gaugeContract = curve.contracts[pool.gauge].contract;
+            const gaugeContract = curve.contracts[pool.gauge.address].contract;
 
             if (hasCrvReward[i]) {
                 const token = curve.constants.ALIASES.crv;

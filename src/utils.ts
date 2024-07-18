@@ -273,8 +273,6 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
     const address = curve.signerAddress;
     const _allowance: bigint[] = await _getAllowance(coinAddresses, address, spender);
 
-    console.log(_allowance)
-
     let gas = [0,0];
     for (let i = 0; i < _allowance.length; i++) {
         if (_allowance[i] < _amounts[i]) {

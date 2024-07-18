@@ -245,12 +245,20 @@ export const _ensureAllowance = async (coins: string[], amounts: bigint[], spend
             const contract = curve.contracts[coins[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : amounts[i];
             await curve.updateFeeData();
+
             if (allowance[i] > curve.parseUnits("0")) {
                 const gasLimit = mulBy1_3(DIGas(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions)));
-                txHashes.push((await contract.approve(spender, curve.parseUnits("0"), { ...curve.options, gasLimit })).hash);
+                const resetTx = await contract.approve(spender, curve.parseUnits("0"), { ...curve.options, gasLimit });
+                console.log(`Reset approval tx hash: ${resetTx.hash}`);
+                txHashes.push(resetTx.hash);
+                await resetTx.wait();
             }
+
             const gasLimit = mulBy1_3(DIGas(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions)));
-            txHashes.push((await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit })).hash);
+            const approveTx = await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit });
+            console.log(`Set approval tx hash: ${approveTx.hash}`);
+            txHashes.push(approveTx.hash);
+            await approveTx.wait();
         }
     }
 
@@ -264,6 +272,8 @@ export const ensureAllowanceEstimateGas = async (coins: string[], amounts: (numb
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     const address = curve.signerAddress;
     const _allowance: bigint[] = await _getAllowance(coinAddresses, address, spender);
+
+    console.log(_allowance)
 
     let gas = [0,0];
     for (let i = 0; i < _allowance.length; i++) {

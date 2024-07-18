@@ -792,8 +792,8 @@ export class PoolTemplate {
         return await ensureAllowanceEstimateGas(this.underlyingCoinAddresses, amounts, this.zap || this.address);
     }
 
-    public async depositApprove(amounts: (number | string)[]): Promise<string[]> {
-        return await ensureAllowance(this.underlyingCoinAddresses, amounts, this.zap || this.address);
+    public async depositApprove(amounts: (number | string)[], isMax = true): Promise<string[]> {
+        return await ensureAllowance(this.underlyingCoinAddresses, amounts, this.zap || this.address, isMax);
     }
 
     // OVERRIDE

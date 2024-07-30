@@ -692,7 +692,7 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.factory, factoryABI);
 
-        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 196 && this.chainId !== 5000) {
+        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 196 && this.chainId !== 5000 && this.chainId !== 324) {
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
             this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
             this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);

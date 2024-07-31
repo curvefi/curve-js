@@ -274,3 +274,5 @@ export interface IBasePoolShortItem {
     pool: string,
     token: string,
 }
+
+export type TVoteType = "PARAMETER" | "OWNERSHIP"

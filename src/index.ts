@@ -134,6 +134,9 @@ import {
     userProposalVotes,
     voteForProposalEstimateGas,
     voteForProposal,
+    executeVote,
+    executeVoteEstimateGas,
+    isCanVoteExecute,
 } from "./dao.js";
 
 async function init (
@@ -392,6 +395,8 @@ const curve = {
         userProposalVotes,
         // Transaction methods
         voteForProposal,
+        executeVote,
+        isCanVoteExecute,
 
         estimateGas: {
             // --- CRV lock ---
@@ -405,6 +410,7 @@ const curve = {
             voteForGauge: voteForGaugeEstimateGas,
             // --- Proposal voting ---
             voteForProposal: voteForProposalEstimateGas,
+            executeVote: executeVoteEstimateGas,
         },
     },
 }

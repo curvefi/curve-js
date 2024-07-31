@@ -249,14 +249,12 @@ export const _ensureAllowance = async (coins: string[], amounts: bigint[], spend
             if (allowance[i] > curve.parseUnits("0")) {
                 const gasLimit = mulBy1_3(DIGas(await contract.approve.estimateGas(spender, curve.parseUnits("0"), curve.constantOptions)));
                 const resetTx = await contract.approve(spender, curve.parseUnits("0"), { ...curve.options, gasLimit });
-                console.log(`Reset approval tx hash: ${resetTx.hash}`);
                 txHashes.push(resetTx.hash);
                 await resetTx.wait();
             }
 
             const gasLimit = mulBy1_3(DIGas(await contract.approve.estimateGas(spender, _approveAmount, curve.constantOptions)));
             const approveTx = await contract.approve(spender, _approveAmount, { ...curve.options, gasLimit });
-            console.log(`Set approval tx hash: ${approveTx.hash}`);
             txHashes.push(approveTx.hash);
             await approveTx.wait();
         }

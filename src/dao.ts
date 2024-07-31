@@ -17,6 +17,7 @@ import {
     IDaoProposalUserListItem,
     IDaoProposal,
     IDict,
+    TVoteType,
 } from './interfaces';
 import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" assert { type: 'json' };
 
@@ -361,7 +362,7 @@ export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserL
     return userProposalList
 }
 
-const _voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean, estimateGas: boolean): Promise<string | number | number[]> => {
+const _voteForProposal = async (type: TVoteType, id: number, support: boolean, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
     const contract = curve.contracts[contractAddress].contract;
@@ -375,10 +376,38 @@ const _voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, sup
     return (await contract.votePct(id, yesPct, noPct, false, { ...curve.options, gasLimit })).hash;
 }
 
-export const voteForProposalEstimateGas = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean): Promise<number | number[]> => {
+export const voteForProposalEstimateGas = async (type: TVoteType, id: number, support: boolean): Promise<number | number[]> => {
     return await _voteForProposal(type, id, support, true) as number | number[];
 }
 
-export const voteForProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number, support: boolean): Promise<string> => {
+export const voteForProposal = async (type: TVoteType, id: number, support: boolean): Promise<string> => {
     return await _voteForProposal(type, id, support, false) as string;
+}
+
+const _executeVote = async (type: TVoteType, id: number, estimateGas = false): Promise<string | number | number[]> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
+    const contract = curve.contracts[contractAddress].contract;
+    const gas = await contract.executeVote.estimateGas(id, curve.constantOptions);
+    if (estimateGas) return smartNumber(gas);
+
+    await curve.updateFeeData();
+    const gasLimit = mulBy1_3(DIGas(gas));
+    return (await contract.executeVote(id, { ...curve.options, gasLimit })).hash;
+}
+
+export const executeVoteEstimateGas = async (type: TVoteType, id: number): Promise<number | number[]> => {
+    return await _executeVote(type, id, true) as number | number[];
+}
+
+export const executeVote = async (type:TVoteType, id: number): Promise<string> => {
+    return await _executeVote(type, id, false) as string;
+}
+
+export const isCanVoteExecute = async (type: TVoteType, id: number): Promise<boolean> => {
+    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
+    const contract = curve.contracts[contractAddress].contract;
+
+    return await contract.canExecute(id, { ...curve.options });
 }

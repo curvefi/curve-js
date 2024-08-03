@@ -31,9 +31,9 @@ export class GaugePool implements IGaugePool {
         this.address = address;
         this.poolName = poolName;
         this.estimateGas = {
-            addReward: this.addRewardEstimateGas,
-            depositRewardApprove: this.depositRewardApproveEstimateGas,
-            depositReward: this.depositRewardEstimateGas,
+            addReward: this.addRewardEstimateGas.bind(this),
+            depositRewardApprove: this.depositRewardApproveEstimateGas.bind(this),
+            depositReward: this.depositRewardEstimateGas.bind(this),
         }
     }
 

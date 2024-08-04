@@ -138,11 +138,11 @@ export class GaugePool implements IGaugePool {
 
         const contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.deposit_reward_token.estimateGas(rewardToken,amount, { ...curve.constantOptions });
+        const gas = await contract.deposit_reward_token.estimateGas(rewardToken,amount, epoch, { ...curve.constantOptions });
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.deposit_reward_token(rewardToken, amount, { ...curve.options, gasLimit})).hash;
+        return (await contract.deposit_reward_token(rewardToken, amount, epoch, { ...curve.options, gasLimit})).hash;
     }
 
     async depositRewardEstimateGas(rewardToken: string, amount: string | number, epoch: number): Promise<number | number[]> {

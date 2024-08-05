@@ -471,10 +471,13 @@
       {
         "name": "_amount",
         "type": "uint256"
+      },
+      {
+        "name": "_epoch",
+        "type": "uint256"
       }
     ],
-    "outputs": [],
-    "gas": "1540007"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",

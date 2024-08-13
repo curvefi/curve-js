@@ -6,7 +6,8 @@ import {
     ensureAllowanceEstimateGas,
     getCoinsData,
     hasAllowance,
-    mulBy1_3, parseUnits,
+    mulBy1_3,
+    parseUnits,
     smartNumber,
 } from "../utils.js";
 

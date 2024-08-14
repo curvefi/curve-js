@@ -1,6 +1,15 @@
 import {IDict} from '../interfaces';
 import {curve} from "../curve.js";
-import {DIGas, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance, mulBy1_3, smartNumber} from "../utils.js";
+import {
+    DIGas,
+    ensureAllowance,
+    ensureAllowanceEstimateGas,
+    getCoinsData,
+    hasAllowance,
+    mulBy1_3,
+    parseUnits,
+    smartNumber,
+} from "../utils.js";
 
 export interface IGaugePool {
     address: string;
@@ -12,12 +21,12 @@ export interface IGaugePool {
     addReward(rewardToken: string, distributor: string): Promise<string>,
     isDepositRewardAvailable(): Promise<boolean>;
     depositRewardIsApproved(rewardToken: string, amount: number | string): Promise<boolean>
-    depositReward(rewardToken: string, amount: string | number, epoch: number): Promise<string>
+    depositReward(rewardToken: string, amount: string | number, epoch: string | number): Promise<string>
     depositRewardApprove(rewardToken: string, amount: number | string): Promise<string[]>
 
     estimateGas: {
         addReward(rewardToken: string, distributor: string): Promise<number | number[]>,
-        depositReward(rewardToken: string, amount: string | number, epoch: number): Promise<number | number[]>,
+        depositReward(rewardToken: string, amount: string | number, epoch: string | number): Promise<number | number[]>,
         depositRewardApprove(rewardToken: string, amount: number | string): Promise<number | number[]>,
     };
 }
@@ -133,25 +142,29 @@ export class GaugePool implements IGaugePool {
         return await ensureAllowance([rewardToken], [amount], this.address);
     }
 
-    private async _depositReward(rewardToken: string, amount: string | number, epoch: number, estimateGas = false): Promise<string | number | number[]> {
+    private async _depositReward(rewardToken: string, amount: string | number, epoch: string | number, estimateGas = false): Promise<string | number | number[]> {
         if (!estimateGas) await ensureAllowance([rewardToken], [amount], this.address);
 
         const contract = curve.contracts[this.address].contract;
 
-        const gas = await contract.deposit_reward_token.estimateGas(rewardToken,amount, epoch, { ...curve.constantOptions });
+        const decimals = (await getCoinsData(rewardToken))[0].decimals;
+
+        const _amount = parseUnits(amount, decimals);
+
+        const gas = await contract.deposit_reward_token.estimateGas(rewardToken, _amount, epoch, { ...curve.constantOptions });
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.deposit_reward_token(rewardToken, amount, epoch, { ...curve.options, gasLimit})).hash;
+        return (await contract.deposit_reward_token(rewardToken, _amount, epoch, { ...curve.options, gasLimit})).hash;
     }
 
-    async depositRewardEstimateGas(rewardToken: string, amount: string | number, epoch: number): Promise<number | number[]> {
+    async depositRewardEstimateGas(rewardToken: string, amount: string | number, epoch: string | number): Promise<number | number[]> {
 
         // @ts-ignore
         return await this._depositReward(rewardToken, amount, epoch, true);
     }
 
-    public async depositReward(rewardToken: string, amount: string | number, epoch: number): Promise<string> {
+    public async depositReward(rewardToken: string, amount: string | number, epoch: string | number): Promise<string> {
 
         // @ts-ignore
         return await this._depositReward(rewardToken, amount, epoch);

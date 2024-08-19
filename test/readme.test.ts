@@ -622,7 +622,9 @@ const deployPlainPoolTest = async () => {
     console.log(poolId);
     const pool = curve.getPool(poolId);
 
-    await pool.depositAndStake([10, 10, 10]); // Initial amounts for stable pool must be equal
+    const amounts = await pool.getSeedAmounts(10);
+    console.log(amounts);
+    await pool.depositAndStake(amounts); // Initial amounts for stable pool must be equal
     const balances = await pool.stats.underlyingBalances();
     console.log(balances);
 }
@@ -660,13 +662,15 @@ const deployMetaPoolTest = async () => {
 
     // Deposit & Stake Wrapped
 
-    await pool.depositAndStakeWrapped([10, 10]); // Initial wrapped amounts for stable metapool must be equal
+    const amounts = await pool.getSeedAmounts(10);
+    console.log(amounts)
+    await pool.depositAndStakeWrapped(amounts);
     const balances = await pool.stats.wrappedBalances();
     console.log(balances);
 
     // Or deposit & Stake Underlying
 
-    // const amounts = pool.metaUnderlyingSeedAmounts(30);
+    // const amounts = pool.getSeedAmounts(10, true);  // useUnderlying = true
     // console.log(amounts);
     // await pool.depositAndStake(amounts);
     // console.log(await pool.stats.underlyingBalances());
@@ -731,7 +735,7 @@ const deployCryptoPoolTest = async () => {
     console.log(poolId);
     const pool = curve.getPool(poolId);
 
-    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    const amounts = await pool.getSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
     console.log(amounts);
     await pool.depositAndStake(amounts);
     const underlyingBalances = await pool.stats.underlyingBalances();
@@ -798,7 +802,7 @@ const deployTricryptoPoolTest = async () => {
     console.log(poolId);
     const pool = curve.getPool(poolId);
 
-    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    const amounts = await pool.getSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
     console.log(amounts);
     await pool.depositAndStake(amounts);
     const underlyingBalances = await pool.stats.underlyingBalances();

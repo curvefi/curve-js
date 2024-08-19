@@ -1607,7 +1607,9 @@ import curve from "@curvefi/api";
     // factory-v2-221
     const pool = curve.getPool(poolId);
 
-    await pool.depositAndStake([10, 10, 10]); // Initial amounts for stable pool must be equal
+    const amounts = await pool.getSeedAmounts(10);
+    // [ '10.0', '10.0', '10.0' ]
+    await pool.depositAndStake(amounts);
     const balances = await pool.stats.underlyingBalances();
     // [ '10.0', '10.0', '10.0' ]
 })()
@@ -1748,17 +1750,19 @@ import curve from "@curvefi/api";
     const pool = curve.getPool(poolId);
 
     // Deposit & Stake Wrapped
-    
-    await pool.depositAndStakeWrapped([10, 10]); // Initial wrapped amounts for stable metapool must be equal
+
+    const amounts = await pool.getSeedAmounts(10);
+    // [ '10', '9.666800376685890985' ]
+    await pool.depositAndStakeWrapped(amounts);
     const balances = await pool.stats.wrappedBalances();
-    // [ '10.0', '10.0' ]
+    // [ '10', '9.666800376685890985' ]
 
     // Or deposit & Stake Underlying
 
-    // const amounts = pool.metaUnderlyingSeedAmounts(30);
-    // [ '30', '10.000000000000000000', '10.000000', '10.000000' ]
+    // const amounts = pool.getSeedAmounts(10, true);  // useUnderlying = true
+    // [ '10', '3.690404151768511181', '3.713621', '2.595975' ]
     // await pool.depositAndStake(amounts);
-    // [ '30.0', '9.272021785560442569', '8.927595', '11.800485' ]
+    // [ '10', '3.690404151768511181', '3.713621', '2.595975' ]
 })()
 ```
 
@@ -1891,7 +1895,7 @@ import curve from "@curvefi/api";
     // factory-crypto-155
     const pool = curve.getPool(poolId);
 
-    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    const amounts = await pool.getSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
     // [ '30', '0.02' ]
     await pool.depositAndStake(amounts);
     const underlyingBalances = await pool.stats.underlyingBalances();
@@ -1943,7 +1947,7 @@ import curve from "@curvefi/api";
     // factory-twocrypto-155
     const pool = curve.getPool(poolId);
 
-    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    const amounts = await pool.getSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
     // [ '30', '0.02' ]
     await pool.depositAndStake(amounts);
     const underlyingBalances = await pool.stats.underlyingBalances();
@@ -2030,7 +2034,7 @@ import curve from "@curvefi/api";
     // factory-tricrypto-2
     const pool = curve.getPool(poolId);
 
-    const amounts = await pool.cryptoSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
+    const amounts = await pool.getSeedAmounts(30); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
     // [ '30', '0.017647058823529412', '0.00111111' ]
     await pool.depositAndStake(amounts);
     const underlyingBalances = await pool.stats.underlyingBalances();

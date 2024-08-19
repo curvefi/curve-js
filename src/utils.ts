@@ -560,6 +560,9 @@ export const getGasPriceFromL2 = async (): Promise<number> => {
     if(curve.chainId === 196) {
         return await getGasPrice() // gwei
     }
+    if(curve.chainId === 324) {
+        return await getGasPrice() // gwei
+    }
     if(curve.chainId === 5000) {
         return await getGasPrice() // gwei
     }
@@ -582,7 +585,13 @@ export const getGasInfoForL2 = async (): Promise<Record<string, number | null>> 
     } else if(curve.chainId === 196) {
         const gasPrice = await getGasPrice()
 
-        return  {
+        return {
+            gasPrice,
+        }
+    } else if(curve.chainId === 324) {
+        const gasPrice = await getGasPrice()
+
+        return {
             gasPrice,
         }
     } else if(curve.chainId === 5000) {

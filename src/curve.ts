@@ -692,7 +692,7 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.factory, factoryABI);
 
-        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 196 && this.chainId !== 5000) {
+        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 324 && this.chainId !== 196 && this.chainId !== 5000) {
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
             this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
             this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
@@ -811,7 +811,7 @@ class Curve implements ICurve {
     }
 
     fetchFactoryPools = async (useApi = true): Promise<void> => {
-        if ([196, 252, 5000, 1313161554].includes(this.chainId)) return;
+        if ([196, 252, 324, 5000, 1313161554].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory"));
@@ -867,7 +867,7 @@ class Curve implements ICurve {
     }
 
     fetchTworyptoFactoryPools = async (useApi = true): Promise<void> => {
-        if ([324, 1284].includes(this.chainId)) return;
+        if ([1284].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-twocrypto"));
@@ -881,7 +881,7 @@ class Curve implements ICurve {
     }
 
     fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
-        if ([324, 1284].includes(this.chainId)) return;
+        if ([1284].includes(this.chainId)) return;
 
         if (useApi) {
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-tricrypto"));
@@ -948,7 +948,7 @@ class Curve implements ICurve {
     }
 
     fetchNewTwocryptoFactoryPools = async (): Promise<string[]> => {
-        if ([324, 1284].includes(this.chainId)) return [];
+        if ([1284].includes(this.chainId)) return [];
 
         const currentPoolIds = Object.keys(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -960,7 +960,7 @@ class Curve implements ICurve {
     }
 
     fetchNewTricryptoFactoryPools = async (): Promise<string[]> => {
-        if ([324, 1284].includes(this.chainId)) return [];
+        if ([1284].includes(this.chainId)) return [];
 
         const currentPoolIds = Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -1001,7 +1001,7 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedTwocryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if ([324, 1284].includes(this.chainId)) return '';
+        if ([1284].includes(this.chainId)) return '';
         const poolData = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
@@ -1010,7 +1010,7 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedTricryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if ([324, 1284].includes(this.chainId)) return '';
+        if ([1284].includes(this.chainId)) return '';
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);

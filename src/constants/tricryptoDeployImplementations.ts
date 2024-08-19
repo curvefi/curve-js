@@ -40,8 +40,8 @@ export const tricryptoDeployImplementations = {
         implementationIdx: 1,
     },
     324: {  // ZKSYNC
-        amm_native_transfers_disabled: '0x0000000000000000000000000000000000000000'.toLowerCase(),
-        amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(),
+        amm_native_transfers_disabled: '0x1BD7d40CF9bBb63537746C89992f421bC35C6716'.toLowerCase(),
+        amm_native_transfers_enabled: '0x18d01726FeDaBd91579A9368DFB2F8A24f905280'.toLowerCase(),
         implementationIdx: 0,
     },
     1284: {  // MOONBEAM

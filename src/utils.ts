@@ -32,7 +32,7 @@ export const MAX_ALLOWANCE = BigInt("1157920892373161954235709850086879078532699
 // Formatting numbers
 
 export const _cutZeros = (strn: string): string => {
-    return strn.replace(/0+$/gi, '').replace(/\.$/gi, '');
+    return strn.replace(/(\.\d*[1-9])0+$/gi, '$1').replace(/\.0+$/gi, '');
 }
 
 export const checkNumber = (n: number | string): number | string => {

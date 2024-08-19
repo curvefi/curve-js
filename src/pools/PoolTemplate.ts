@@ -584,7 +584,7 @@ export class PoolTemplate {
 
                 const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
                 const amounts = _amounts.map((_a, i) => curve.formatUnits(_a, decimals[i]));
-                const seedAmounts = await this.cryptoSeedAmounts(amounts[0]); // Checks N coins is 2 or 3 and amounts > 0
+                const seedAmounts = await this.getSeedAmounts(amounts[0]); // Checks N coins is 2 or 3 and amounts > 0
                 amounts.forEach((a, i) => {
                     if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
                 });
@@ -630,17 +630,10 @@ export class PoolTemplate {
             const decimals = useUnderlying ? this.underlyingDecimals : this.wrappedDecimals;
             const amounts = _amounts.map((_a, i) => curve.formatUnits(_a, decimals[i]));
 
-            if (this.isMeta && useUnderlying) {
-                const seedAmounts = this.metaUnderlyingSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
-                amounts.forEach((a, i) => {
-                    if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
-                });
-            } else {
-                if (_amounts[0] <= curve.parseUnits("0")) throw Error("Initial deposit amounts must be > 0");
-                amounts.forEach((a) => {
-                    if (a !== amounts[0]) throw Error("Initial deposit amounts must be equal");
-                });
-            }
+            const seedAmounts = await this.getSeedAmounts(amounts[0]); // Checks N coins == 2 and amounts > 0
+            amounts.forEach((a, i) => {
+                if (!BN(a).eq(BN(seedAmounts[i]))) throw Error(`Amounts must be = ${seedAmounts}`);
+            });
 
             const _amounts18Decimals: bigint[] = amounts.map((a) => parseUnits(a));
             return _amounts18Decimals.reduce((_a, _b) => _a + _b);
@@ -682,43 +675,50 @@ export class PoolTemplate {
 
     // ---------------- DEPOSIT ----------------
 
-    public metaUnderlyingSeedAmounts(amount1: number | string): string[] {
-        if (this.isCrypto) throw Error(`Use cryptoSeedAmounts method for ${this.name} pool`);
-        if (!this.isMeta) throw Error("metaUnderlyingSeedAmounts method exists only for meta stable pools");
-
+    public async getSeedAmounts(amount1: number | string, useUnderlying = false): Promise<string[]> {
         const amount1BN = BN(amount1);
         if (amount1BN.lte(0)) throw Error("Initial deposit amounts must be > 0");
 
-        const amounts = [_cutZeros(amount1BN.toFixed(this.underlyingDecimals[0]))];
-        for (let i = 1; i < this.underlyingDecimals.length; i++) {
-            amounts.push(amount1BN.div(this.underlyingDecimals.length - 1).toFixed(this.underlyingDecimals[i]));
+        if (this.isCrypto) {
+            const decimals = this.isMeta ? this.wrappedDecimals : this.underlyingDecimals;
+
+            if (decimals.length === 2) {
+                const priceScaleBN = toBN(await curve.contracts[this.address].contract.price_scale(curve.constantOptions));
+                return [_cutZeros(amount1BN.toFixed(decimals[0])), _cutZeros(amount1BN.div(priceScaleBN).toFixed(decimals[1]))];
+            } else if (decimals.length === 3) {
+                const priceScaleBN = (await curve.multicallProvider.all([
+                    curve.contracts[this.address].multicallContract.price_scale(0),
+                    curve.contracts[this.address].multicallContract.price_scale(1),
+                ]) as bigint[]).map((_p) => toBN(_p));
+                return [
+                    _cutZeros(amount1BN.toFixed(decimals[0])),
+                    _cutZeros(amount1BN.div(priceScaleBN[0]).toFixed(decimals[1])),
+                    _cutZeros(amount1BN.div(priceScaleBN[1]).toFixed(decimals[2])),
+                ];
+            }
+
+            throw Error("getSeedAmounts method doesn't exist for crypto pools with N coins > 3");
+        } else {
+            const amounts = [_cutZeros(amount1BN.toFixed(this.wrappedDecimals[0]))];
+
+            if (this.isMeta && useUnderlying) {
+                const basePool = new PoolTemplate(this.basePool);
+                const basePoolBalancesBN = (await basePool.stats.underlyingBalances()).map(BN);
+                const totalBN = basePoolBalancesBN.reduce((a, b) => a.plus(b));
+                for (let i = 1; i < this.underlyingDecimals.length; i++) {
+                    amounts.push(amount1BN.times(basePoolBalancesBN[i - 1]).div(totalBN).toFixed(this.underlyingDecimals[i]));
+                }
+
+                return amounts.map(_cutZeros)
+            }
+
+            const storedRatesBN = await this._storedRatesBN(false);
+            for (let i = 1; i < this.wrappedDecimals.length; i++) {
+                amounts.push(amount1BN.times(storedRatesBN[0]).div(storedRatesBN[i]).toFixed(this.wrappedDecimals[i]));
+            }
+
+            return amounts.map(_cutZeros)
         }
-
-        return amounts
-    }
-
-    public async cryptoSeedAmounts(amount1: number | string): Promise<string[]> {
-        if (!this.isCrypto) throw Error("cryptoSeedAmounts method doesn't exist for stable pools");
-        const decimals = this.isMeta ? this.wrappedDecimals : this.underlyingDecimals;
-        const amount1BN = BN(amount1);
-        if (amount1BN.lte(0)) throw Error("Initial deposit amounts must be > 0");
-
-        if (decimals.length === 2) {
-            const priceScaleBN = toBN(await curve.contracts[this.address].contract.price_scale(curve.constantOptions));
-            return [_cutZeros(amount1BN.toFixed(decimals[0])), _cutZeros(amount1BN.div(priceScaleBN).toFixed(decimals[1]))];
-        } else if (decimals.length === 3) {
-            const priceScaleBN = (await curve.multicallProvider.all([
-                curve.contracts[this.address].multicallContract.price_scale(0),
-                curve.contracts[this.address].multicallContract.price_scale(1),
-            ]) as bigint[]).map((_p) => toBN(_p));
-            return [
-                _cutZeros(amount1BN.toFixed(decimals[0])),
-                _cutZeros(amount1BN.div(priceScaleBN[0]).toFixed(decimals[1])),
-                _cutZeros(amount1BN.div(priceScaleBN[1]).toFixed(decimals[2])),
-            ];
-        }
-
-        throw Error("cryptoSeedAmounts method doesn't exist for pools with N coins > 3");
     }
 
     // OVERRIDE

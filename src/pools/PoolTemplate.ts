@@ -757,31 +757,21 @@ export class PoolTemplate {
 
     public async depositBonus(amounts: (number | string)[]): Promise<string> {
         const amountsBN = amounts.map(BN);
-        let prices: number[] = [];
-
-
-        //for crvusd and stable-ng implementations
-        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
+        let pricesBN: BigNumber[] = [];
 
         if(this.isCrypto || this.id === 'wsteth') {
-            prices = await this._underlyingPrices();
-        } else if (isUseStoredRates) {
-            const result = await this._stored_rates();
-            result.forEach((item, index) => {
-                prices.push(Number(item)/(10 ** (36 - this.underlyingDecimals[index])))
-            })
+            pricesBN = (await this._underlyingPrices()).map(BN);
         } else {
-            prices = this.underlyingCoins.map(() => 1);
+            pricesBN = await this._storedRatesBN(true);
         }
 
-        const pricesBN = prices.map(BN);
         const balancesBN = (await this.stats.underlyingBalances()).map(BN);
         const balancedAmounts = this._balancedAmountsWithSameValue(amountsBN, pricesBN, balancesBN);
 
         const expectedBN = BN(await this.depositExpected(amounts));
         const balancedExpectedBN = BN(await this.depositExpected(balancedAmounts));
 
-        return String(expectedBN.minus(balancedExpectedBN).div(balancedExpectedBN).times(100))
+        return expectedBN.minus(balancedExpectedBN).div(balancedExpectedBN).times(100).toString()
     }
 
     public async depositIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -1666,29 +1656,21 @@ export class PoolTemplate {
     }
 
     public async withdrawImbalanceBonus(amounts: (number | string)[]): Promise<string> {
-        let prices: number[] = [];
-
-        //for crvusd and stable-ng implementations
-        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
+        let pricesBN: BigNumber[] = [];
 
         if(this.isCrypto || this.id === 'wsteth') {
-            prices = await this._underlyingPrices();
-        } else if (isUseStoredRates) {
-            const result = await this._stored_rates();
-            result.forEach((item, index) => {
-                prices.push(Number(item)/(10 ** (36 - this.underlyingDecimals[index])))
-            })
+            pricesBN = (await this._underlyingPrices()).map(BN);
         } else {
-            prices = this.underlyingCoins.map(() => 1);
+            pricesBN = await this._storedRatesBN(true);
         }
 
-        const value = amounts.map(checkNumber).map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
+        const valueBN = amounts.map(BN).reduce((sBN, aBN, i) => pricesBN[i].times(aBN).plus(sBN), BN(0));
         const lpTokenAmount = await this.withdrawImbalanceExpected(amounts);
 
         const balancedAmounts = await this.withdrawExpected(lpTokenAmount);
-        const balancedValue = balancedAmounts.map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
+        const balancedValueBN = balancedAmounts.map(BN).reduce((sBN, aBN, i) => pricesBN[i].times(aBN).plus(sBN), BN(0));
 
-        return String((value - balancedValue) / balancedValue * 100);
+        return valueBN.minus(balancedValueBN).div(balancedValueBN).times(100).toString();
     }
 
     public async withdrawImbalanceIsApproved(amounts: (number | string)[]): Promise<boolean> {
@@ -1783,30 +1765,23 @@ export class PoolTemplate {
     }
 
     public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
-        let prices: number[] = [];
-
-        //for crvusd and stable-ng implementations
-        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
+        let pricesBN: BigNumber[] = [];
 
         if(this.isCrypto || this.id === 'wsteth') {
-            prices = await this._underlyingPrices();
-        } else if (isUseStoredRates) {
-            const result = await this._stored_rates();
-            result.forEach((item, index) => {
-                prices.push(Number(item)/(10 ** (36 - this.underlyingDecimals[index])))
-            })
+            pricesBN = (await this._underlyingPrices()).map(BN);
         } else {
-            prices = this.underlyingCoins.map(() => 1);
+            pricesBN = await this._storedRatesBN(true);
         }
-        const coinPrice = prices[this._getCoinIdx(coin)];
 
-        const amount = Number(await this.withdrawOneCoinExpected(lpTokenAmount, coin));
-        const value = amount * coinPrice;
+        const coinPriceBN = pricesBN[this._getCoinIdx(coin)];
+
+        const amountBN = BN(await this.withdrawOneCoinExpected(lpTokenAmount, coin));
+        const valueBN = amountBN.times(coinPriceBN);
 
         const balancedAmounts = await this.withdrawExpected(lpTokenAmount);
-        const balancedValue = balancedAmounts.map(Number).reduce((s, a, i) => s + (a * prices[i]), 0);
+        const balancedValueBN = balancedAmounts.map(BN).reduce((sBN, aBN, i) => pricesBN[i].times(aBN).plus(sBN), BN(0));
 
-        return String((value - balancedValue) / balancedValue * 100);
+        return valueBN.minus(balancedValueBN).div(balancedValueBN).times(100).toString();
     }
 
     public async withdrawOneCoinIsApproved(lpTokenAmount: number | string): Promise<boolean> {
@@ -2339,8 +2314,22 @@ export class PoolTemplate {
         return addresses.length === 1 ? balances[addresses[0]] : balances
     }
 
-    private _stored_rates = async (): Promise<number[]> => {
-        return await curve.contracts[this.address].contract.stored_rates();
+    private _storedRatesBN = async (useUnderlying: boolean): Promise<BigNumber[]> => {
+        if (this.isMeta) {
+            if (useUnderlying) return this.underlyingCoins.map(() => BN(1));
+
+            const _vp = await curve.contracts[curve.getPoolsData()[this.basePool].swap_address].contract.get_virtual_price();
+            return [BN(1), toBN(_vp)]
+        }
+
+        //for crvusd and stable-ng implementations
+        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
+        if (isUseStoredRates) {
+            const _stored_rates: bigint[] = await curve.contracts[this.address].contract.stored_rates();
+            return _stored_rates.map((_r, i) => toBN(_r, 36 - this.wrappedDecimals[i]));
+        }
+
+        return this.wrappedCoins.map(() => BN(1))
     }
 
     private _underlyingPrices = async (): Promise<number[]> => {

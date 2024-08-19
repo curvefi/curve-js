@@ -38,7 +38,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -67,7 +67,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -101,7 +101,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -135,7 +135,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -164,7 +164,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -220,7 +220,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -249,7 +249,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -278,7 +278,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -307,7 +307,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -338,7 +338,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -367,7 +367,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -396,7 +396,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -425,7 +425,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -457,7 +457,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
@@ -487,7 +487,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
@@ -532,7 +532,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -562,7 +562,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -594,7 +594,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
@@ -624,7 +624,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStakeWrapped([10, 10]);
         const balances = await pool.stats.wrappedBalances();
@@ -656,7 +656,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -686,7 +686,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.factory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         await pool.depositAndStake([10, 10, 10]);
         const balances = await pool.stats.underlyingBalances();
@@ -728,7 +728,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         const amounts = await pool.cryptoSeedAmounts(30);
         await pool.depositAndStake(amounts);
@@ -774,7 +774,7 @@ describe('Factory deploy', function() {
         const poolId = await curve.tricryptoFactory.fetchRecentlyDeployedPool(poolAddress);
         const pool = curve.getPool(poolId);
         assert.equal(poolAddress.toLowerCase(), pool.address);
-        assert.equal(gaugeAddress.toLowerCase(), pool.gauge);
+        assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
         const amounts = await pool.cryptoSeedAmounts(30);
         console.log(amounts);

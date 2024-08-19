@@ -92,7 +92,7 @@ const poolStatsTest = (name: string) => {
         });
 
         it('Token APY', async function () {
-            if (pool.gauge === _curve.constants.ZERO_ADDRESS || pool.rewardsOnly()) {
+            if (pool.gauge.address === _curve.constants.ZERO_ADDRESS || pool.rewardsOnly()) {
                 console.log("Skip");
                 return
             }

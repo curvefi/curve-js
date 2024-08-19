@@ -85,7 +85,7 @@ const wrappedLiquidityTest = (id: string) => {
         });
 
         it('Stake', async function () {
-            if (pool.gauge === _curve.constants.ZERO_ADDRESS) {
+            if (pool.gauge.address === _curve.constants.ZERO_ADDRESS) {
                 console.log('Skip');
                 return
             }
@@ -101,7 +101,7 @@ const wrappedLiquidityTest = (id: string) => {
         });
 
         it('Deposit&stake', async function () {
-            if (pool.isPlain || pool.isFake || pool.gauge === _curve.constants.ZERO_ADDRESS) {
+            if (pool.isPlain || pool.isFake || pool.gauge.address === _curve.constants.ZERO_ADDRESS) {
                 console.log('Skip');
                 return;
             }
@@ -128,7 +128,7 @@ const wrappedLiquidityTest = (id: string) => {
         });
 
         it('Unstake', async function () {
-            if (pool.gauge === _curve.constants.ZERO_ADDRESS) {
+            if (pool.gauge.address === _curve.constants.ZERO_ADDRESS) {
                 console.log('Skip');
                 return
             }

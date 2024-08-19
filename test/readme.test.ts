@@ -71,7 +71,7 @@ const poolFieldsTest = async () => {
     console.log(pool.referenceAsset);
     console.log(pool.address);
     console.log(pool.lpToken);
-    console.log(pool.gauge);
+    console.log(pool.gauge.address);
     console.log(pool.zap);
     console.log(pool.rewardContract);
     console.log(pool.isPlain);
@@ -962,23 +962,23 @@ const daoGaugeVoting = async () => {
     console.log(await curve.dao.createCrvLock(10000, 365 * 2));
 
     console.log(await curve.dao.getVotingGaugeList());
-    console.log(await curve.dao.voteForGaugeNextTime(pool1.gauge));
-    console.log(await curve.dao.voteForGaugeNextTime(pool2.gauge));
-    console.log(await curve.dao.estimateGas.voteForGauge(pool1.gauge, 50));  // 50%
-    console.log(await curve.dao.voteForGauge(pool1.gauge, 50));  // 50%
-    console.log(await curve.dao.estimateGas.voteForGauge(pool2.gauge, 50));  // 50%
-    console.log(await curve.dao.voteForGauge(pool2.gauge, 50));  // 50%
-    console.log(await curve.dao.voteForGaugeNextTime(pool1.gauge));
-    console.log(await curve.dao.voteForGaugeNextTime(pool2.gauge));
+    console.log(await curve.dao.voteForGaugeNextTime(pool1.gauge.address));
+    console.log(await curve.dao.voteForGaugeNextTime(pool2.gauge.address));
+    console.log(await curve.dao.estimateGas.voteForGauge(pool1.gauge.address, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool1.gauge.address, 50));  // 50%
+    console.log(await curve.dao.estimateGas.voteForGauge(pool2.gauge.address, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool2.gauge.address, 50));  // 50%
+    console.log(await curve.dao.voteForGaugeNextTime(pool1.gauge.address));
+    console.log(await curve.dao.voteForGaugeNextTime(pool2.gauge.address));
     console.log(await curve.dao.userGaugeVotes());
 
     console.log(await curve.dao.increaseCrvUnlockTime(365 * 2));
     console.log(await curve.dao.userGaugeVotes());
     // Adjust voting power. 10 days time travel is needed
-    console.log(await curve.dao.estimateGas.voteForGauge(pool1.gauge, 50));  // 50%
-    console.log(await curve.dao.voteForGauge(pool1.gauge, 50));  // 50%
-    console.log(await curve.dao.estimateGas.voteForGauge(pool2.gauge, 50));  // 50%
-    console.log(await curve.dao.voteForGauge(pool2.gauge, 50));  // 50%
+    console.log(await curve.dao.estimateGas.voteForGauge(pool1.gauge.address, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool1.gauge.address, 50));  // 50%
+    console.log(await curve.dao.estimateGas.voteForGauge(pool2.gauge.address, 50));  // 50%
+    console.log(await curve.dao.voteForGauge(pool2.gauge.address, 50));  // 50%
     console.log(await curve.dao.userGaugeVotes());
 }
 

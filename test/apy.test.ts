@@ -17,7 +17,7 @@ const poolStatsTest = (name: string) => {
 
 
         it('Token (CRV) APY', async function () {
-            if (pool.gauge === _curve.constants.ZERO_ADDRESS || pool.rewardsOnly()) return;
+            if (pool.gauge.address === _curve.constants.ZERO_ADDRESS || pool.rewardsOnly()) return;
 
             const apy = await pool.stats.tokenApy(false);
             const apyFromApi = await pool.stats.tokenApy();
@@ -36,7 +36,7 @@ const poolStatsTest = (name: string) => {
         });
 
         it('Rewards APY', async function () {
-            if (pool.gauge === _curve.constants.ZERO_ADDRESS) return;
+            if (pool.gauge.address === _curve.constants.ZERO_ADDRESS) return;
 
             const rewardsApy = (await pool.stats.rewardsApy(false)).filter((r) => r.apy > 0);
             const rewardsApyFromApi = (await pool.stats.rewardsApy()).filter((r) => r.apy > 0);

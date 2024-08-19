@@ -257,7 +257,7 @@ export const ALIASES_ZKSYNC = lowerCaseValues({
     "crypto_factory": '0x0000000000000000000000000000000000000000',
     "twocrypto_factory": '0x24992A09E2257AF325102Cefa1F09E80E9062d49',
     "tricrypto_factory": '0x5044112fDf6c8DCc788a669c17345cfDB06549fa',
-    "stable_ng_factory": '0x375444aeDEb6C3db897f293E1DBa85D7422A6859',
+    "stable_ng_factory": '0xFcAb5d04e8e031334D5e8D2C166B08daB0BE6CaE',
     "factory_admin": "0x0000000000000000000000000000000000000000",
 });
 

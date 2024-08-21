@@ -21,7 +21,7 @@ import {
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import { L2Networks } from './constants/L2Networks.js';
 import { volumeNetworks } from "./constants/volumeNetworks.js";
-import { getPool } from "./pools/index.js";
+import { getPool } from "./pools";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -311,13 +311,6 @@ export const getPoolIdBySwapAddress = (swapAddress: string): string => {
     return poolIds[0][0];
 }
 
-const _getTokenAddressBySwapAddress = (swapAddress: string): string => {
-    const poolsData = curve.getPoolsData()
-    const res = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
-    if (res.length === 0) return "";
-    return res[0][1].token_address;
-}
-
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     const network = curve.constants.NETWORK_NAME;
     const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
@@ -378,19 +371,12 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     }
 
     for(const address in priceDict) {
-        if(priceDict[address].length > 0) {
-            const maxTvlItem = priceDict[address].reduce((prev, current) => {
-                if (+current.tvl > +prev.tvl) {
-                    return current;
-                } else {
-                    return prev;
-                }
-            });
+        if (priceDict[address].length) {
+            const maxTvlItem = priceDict[address].reduce((prev, current) => +current.tvl > +prev.tvl ? current : prev);
             priceDictByMaxTvl[address] = maxTvlItem.price
         } else {
             priceDictByMaxTvl[address] = 0
         }
-
     }
 
     return priceDictByMaxTvl
@@ -823,5 +809,11 @@ export const memoizedMulticallContract = (): (address: string, abi: any) => Mult
             cache[address] = result;
             return result;
         }
+    }
+}
+
+export function log(fnName: string, ...args: unknown[]): void {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`curve-js@${new Date().toISOString()} -> ${fnName}:`, ...args)
     }
 }

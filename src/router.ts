@@ -29,7 +29,7 @@ import {getPool} from "./pools";
 import {_getAmplificationCoefficientsFromApi} from "./pools/utils.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import Worker from 'web-worker';
-import {routerWorkerCode} from "./router.worker";
+import {routerWorkerBlob, routerWorker, findRouteAlgos} from "./router.worker";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
@@ -56,9 +56,15 @@ const SNX = {
     },
 }
 
-async function mapDict<T, U>(entries: [string, T][], mapper: (val: string) => Promise<U>): Promise<Record<string, U>> {
-    const result: Record<string, U> = {};
-    await Promise.all(entries.map(async ([key]) => result[key] = await mapper(key)));
+async function entriesToDictAsync<T, U>(entries: [string, T][], mapper: (key: string, value: T) => Promise<U>): Promise<IDict<U>> {
+    const result: IDict<U> = {};
+    await Promise.all(entries.map(async ([key, value]) => result[key] = await mapper(key, value)));
+    return result;
+}
+
+function mapDict<T, U>(dict: IDict<T>, mapper: (key: string, value: T) => U): IDict<U> {
+    const result: IDict<U> = {};
+    Object.entries(dict).forEach(([key, value]) => result[key] = mapper(key, value));
     return result;
 }
 
@@ -213,7 +219,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
     let start = Date.now();
     const ALL_POOLS = Object.entries(curve.getPoolsData()).filter(([id]) => !["crveth", "y", "busd", "pax"].includes(id));
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
-    const poolTvlDict: Record<string, number> = await mapDict(ALL_POOLS, _getTVL);
+    const poolTvlDict: IDict<number> = await entriesToDictAsync(ALL_POOLS, _getTVL);
     log(`Preparing ${ALL_POOLS.length} pools done`, `${Date.now() - start}ms`); start = Date.now();
     for (const [poolId, poolData] of ALL_POOLS) {
         const wrappedCoinAddresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
@@ -380,11 +386,30 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
     maxAge: 5 * 1000, // 5m
 });
 
-const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string, timeout=30000): Promise<IRoute[]>  => {
-    const blob = new Blob([routerWorkerCode], { type: 'application/javascript' });
-    const worker = new Worker(URL.createObjectURL(blob), { type: 'module' });
+const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string, timeout=30000, inWorker=false): Promise<IRoute[]>  => {
     const routerGraph = await _buildRouteGraph();
+    const poolData = mapDict(
+        curve.getPoolsData(),
+        (_, { is_lending, wrapped_coin_addresses, underlying_coin_addresses, token_address }) => ({ is_lending, wrapped_coin_addresses, underlying_coin_addresses, token_address })
+    );
 
+    if (!inWorker) {
+        routerWorker();
+        const routerStr = JSON.stringify(routerGraph);
+        const poolsStr = JSON.stringify(poolData);
+        let firstResult = undefined;
+        for (const findRoute of findRouteAlgos) {
+            const found = findRoute(inputCoinAddress, outputCoinAddress, JSON.parse(routerStr), JSON.parse(poolsStr));
+            if (firstResult === undefined) {
+                firstResult = found;
+            } else {
+                const areEqual = JSON.stringify(found) === JSON.stringify(firstResult);
+                console.log({ found, firstResult, areEqual });
+            }
+        }
+        return firstResult!.map((r) => r.route);
+    }
+    const worker = new Worker(routerWorkerBlob, { type: 'module' });
     return new Promise<IRoute[]>((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
 
@@ -395,17 +420,12 @@ const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string, 
         };
         worker.onmessage = (e) => {
             const {type, routes} = e.data;
-            console.assert(type === 'findRoutes');
-            clearTimeout(timer);
-            resolve(routes);
+            if (type === 'findRoutes') {
+                clearTimeout(timer);
+                resolve(routes);
+            }
         };
-        worker.postMessage({
-            type: 'findRoutes',
-            inputCoinAddress,
-            outputCoinAddress,
-            routerGraph,
-            allPools: curve.getPoolsData(),
-        });
+        worker.postMessage({ type: 'findRoutes', inputCoinAddress, outputCoinAddress, routerGraph, poolData });
     }).finally(() => worker.terminate());
 };
 

@@ -421,7 +421,7 @@ const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string):
                     token_address,
                     underlying_coin_addresses = [],
                     wrapped_coin_addresses = [],
-                } = ALL_POOLS[step.poolId] || {};
+                } = ALL_POOLS[step.poolId] ?? {};
 
                 const currentPoolInRoute = route.route.find((r) => r.poolId === step.poolId);
                 if (currentPoolInRoute) {
@@ -433,9 +433,8 @@ const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string):
                     }
                 }
 
-                if (step.outputCoinAddress === outputCoinAddress) {
-                    const updatedRoute = _addStep(route, step);
-                    targetRoutes.push(updatedRoute);
+                if (outCoin === outputCoinAddress) {
+                    targetRoutes.push(_addStep(route, step));
                     continue;
                 }
 

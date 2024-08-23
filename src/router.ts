@@ -20,16 +20,17 @@ import {
     getGasPriceFromL1,
     getTxCostsUsd,
     hasAllowance,
-    isEth, log,
+    isEth,
+    log,
     parseUnits,
+    runWorker,
     smartNumber,
     toBN,
 } from "./utils.js";
 import {getPool} from "./pools";
 import {_getAmplificationCoefficientsFromApi} from "./pools/utils.js";
 import {L2Networks} from "./constants/L2Networks.js";
-import Worker from 'web-worker';
-import {routerWorkerBlob, routerWorker, findRouteAlgos} from "./router.worker";
+import {routerWorkerBlob} from "./router.worker";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
@@ -386,47 +387,14 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
     maxAge: 5 * 1000, // 5m
 });
 
-const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string, timeout=30000, inWorker=false): Promise<IRoute[]>  => {
+const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]>  => {
     const routerGraph = await _buildRouteGraph();
+    // extract only the fields we need for the worker
     const poolData = mapDict(
         curve.getPoolsData(),
         (_, { is_lending, wrapped_coin_addresses, underlying_coin_addresses, token_address }) => ({ is_lending, wrapped_coin_addresses, underlying_coin_addresses, token_address })
     );
-
-    if (!inWorker) {
-        routerWorker();
-        const routerStr = JSON.stringify(routerGraph);
-        const poolsStr = JSON.stringify(poolData);
-        let firstResult = undefined;
-        for (const findRoute of findRouteAlgos) {
-            const found = findRoute(inputCoinAddress, outputCoinAddress, JSON.parse(routerStr), JSON.parse(poolsStr));
-            if (firstResult === undefined) {
-                firstResult = found;
-            } else {
-                const areEqual = JSON.stringify(found) === JSON.stringify(firstResult);
-                console.log({ found, firstResult, areEqual });
-            }
-        }
-        return firstResult!.map((r) => r.route);
-    }
-    const worker = new Worker(routerWorkerBlob, { type: 'module' });
-    return new Promise<IRoute[]>((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
-
-        worker.onerror = (e) => {
-            console.error('worker error', e);
-            clearTimeout(timer);
-            reject(e);
-        };
-        worker.onmessage = (e) => {
-            const {type, routes} = e.data;
-            if (type === 'findRoutes') {
-                clearTimeout(timer);
-                resolve(routes);
-            }
-        };
-        worker.postMessage({ type: 'findRoutes', inputCoinAddress, outputCoinAddress, routerGraph, poolData });
-    }).finally(() => worker.terminate());
+    return runWorker(routerWorkerBlob, {type: 'findRoutes', inputCoinAddress, outputCoinAddress, routerGraph, poolData});
 };
 
 const _getRouteKey = (route: IRoute, inputCoinAddress: string, outputCoinAddress: string): string => {

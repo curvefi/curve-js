@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {BrowserProvider, Contract, JsonRpcProvider, Signer} from 'ethers';
-import { Contract as MulticallContract } from "@curvefi/ethcall";
+import {Contract as MulticallContract} from "@curvefi/ethcall";
 import BigNumber from 'bignumber.js';
 import {
     IBasePoolShortItem,
@@ -11,17 +11,13 @@ import {
     IVolumeAndAPYs,
     REFERENCE_ASSET,
 } from './interfaces';
-import { curve, NETWORK_CONSTANTS } from "./curve.js";
-import {
-    _getAllPoolsFromApi,
-    _getFactoryAPYs,
-    _getSubgraphData,
-    _getVolumes,
-} from "./external-api.js";
-import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
-import { L2Networks } from './constants/L2Networks.js';
-import { volumeNetworks } from "./constants/volumeNetworks.js";
-import { getPool } from "./pools";
+import {curve, NETWORK_CONSTANTS} from "./curve.js";
+import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes,} from "./external-api.js";
+import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
+import {L2Networks} from './constants/L2Networks.js';
+import {volumeNetworks} from "./constants/volumeNetworks.js";
+import {getPool} from "./pools";
+import Worker from "web-worker";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -825,4 +821,24 @@ export function log(fnName: string, ...args: unknown[]): void {
     if (process.env.NODE_ENV === 'development') {
         console.log(`curve-js@${new Date().toISOString()} -> ${fnName}:`, ...args)
     }
+}
+
+export function runWorker<In extends { type: string }, Out>(blob: string, inputData: In, timeout = 30000): Promise<Out> {
+    const worker = new Worker(blob, {type: 'module'});
+    return new Promise<Out>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
+        worker.onerror = (e) => {
+            console.error('worker error', e);
+            clearTimeout(timer);
+            reject(e);
+        };
+        worker.onmessage = (e) => {
+            const {type, routes} = e.data;
+            if (type === inputData.type) {
+                clearTimeout(timer);
+                resolve(routes);
+            }
+        };
+        worker.postMessage(inputData);
+    }).finally(() => worker.terminate());
 }

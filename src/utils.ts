@@ -12,7 +12,7 @@ import {
     REFERENCE_ASSET,
 } from './interfaces';
 import {curve, NETWORK_CONSTANTS} from "./curve.js";
-import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes,} from "./external-api.js";
+import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes} from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
 import {L2Networks} from './constants/L2Networks.js';
 import {volumeNetworks} from "./constants/volumeNetworks.js";
@@ -302,7 +302,7 @@ export const ensureAllowance = async (coins: string[], amounts: (number | string
 
 export const getPoolIdBySwapAddress = (swapAddress: string): string => {
     const poolsData = curve.getPoolsData();
-    const poolIds = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
+    const poolIds = Object.entries(poolsData).filter(([, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
     if (poolIds.length === 0) return "";
     return poolIds[0][0];
 }
@@ -507,7 +507,7 @@ export const getUsdRate = async (coin: string): Promise<number> => {
     return await _getUsdRate(coinAddress);
 }
 
-export const getBaseFeeByLastBlock = async ()  => {
+export const getBaseFeeByLastBlock = async (): Promise<number> => {
     const provider = curve.provider;
 
     try {
@@ -592,17 +592,6 @@ const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INet
         return NETWORK_CONSTANTS[network].NAME;
     } else if (typeof network === "string" && Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
         return network;
-    } else {
-        throw Error(`Wrong network name or id: ${network}`);
-    }
-}
-
-const _getChainId = (network: INetworkName | IChainId = curve.chainId): IChainId => {
-    if (typeof network === "number" && NETWORK_CONSTANTS[network]) {
-        return network;
-    } else if (typeof network === "string" && Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
-        const idx = Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).indexOf(network);
-        return Number(Object.keys(NETWORK_CONSTANTS)[idx]) as IChainId;
     } else {
         throw Error(`Wrong network name or id: ${network}`);
     }
@@ -697,7 +686,7 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
     }
 
     const res: {name: string, symbol: string, decimals: number}[]  = [];
-    coins.forEach((address: string, i: number) => {
+    coins.forEach(() => {
         res.push({
             name: _response.shift() as string,
             symbol: _response.shift() as string,
@@ -721,14 +710,8 @@ export const getCountArgsOfMethodByContract = (contract: Contract, methodName: s
     }
 }
 
-export const isMethodExist = (contract: Contract, methodName: string): boolean => {
-    const func = contract.interface.fragments.find((item: any) => item.name === methodName);
-    if(func) {
-        return true;
-    } else {
-        return false;
-    }
-}
+export const isMethodExist = (contract: Contract, methodName: string): boolean =>
+    contract.interface.fragments.find((item: any) => item.name === methodName) !== undefined
 
 export const getPoolName = (name: string): string => {
     const separatedName = name.split(": ")
@@ -814,22 +797,27 @@ export function log(fnName: string, ...args: unknown[]): void {
     }
 }
 
-export function runWorker<In extends { type: string }, Out>(blob: string, inputData: In, timeout = 30000): Promise<Out> {
-    const worker = new Worker(blob, {type: 'module'});
+export function runWorker<In extends { type: string }, Out>(code: string, inputData: In, timeout = 30000): Promise<Out> {
+    const blob = new Blob([code], { type: 'application/javascript' });
+    const blobUrl = URL.createObjectURL(blob);
+    const worker = new Worker(blobUrl, {type: 'module'});
     return new Promise<Out>((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
         worker.onerror = (e) => {
-            console.error('worker error', e);
             clearTimeout(timer);
+            console.error(code, inputData, e);
             reject(e);
         };
         worker.onmessage = (e) => {
-            const {type, routes} = e.data;
+            const {type, result} = e.data;
             if (type === inputData.type) {
                 clearTimeout(timer);
-                resolve(routes);
+                resolve(result);
+                console.log(code, inputData, result);
             }
         };
         worker.postMessage(inputData);
-    }).finally(() => worker.terminate());
+    }).finally(() => {
+        worker.terminate();
+    });
 }

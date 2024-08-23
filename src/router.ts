@@ -389,13 +389,12 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
     maxAge: 5 * 1000, // 5m
 });
 
-const _isVisitedCoin = (coinAddress: string, route: IRouteTvl): boolean => {
-    return route.route.map((r) => r.inputCoinAddress).includes(coinAddress);
-}
-
-const _isVisitedPool = (poolId: string, route: IRouteTvl): boolean => {
-    return route.route.map((r) => r.poolId).includes(poolId);
-}
+const _isVisitedCoin = (coinAddress: string, route: IRouteTvl): boolean => route.route.map((r) => r.inputCoinAddress).includes(coinAddress)
+const _addStep = (route: IRouteTvl, step: IRouteStep) => ({
+    route: [...route.route, step],
+    minTvl: Math.min(step.tvl, route.minTvl),
+    totalTvl: route.totalTvl + step.tvl,
+});
 
 // Breadth-first search
 const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]>  => {
@@ -408,40 +407,46 @@ const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string):
     const routerGraph = await _buildRouteGraph();
     const ALL_POOLS = curve.getPoolsData();
 
-    while (routes.length > 0) {
-        // @ts-ignore
-        const route: IRouteTvl = routes.pop();
+    while (routes.length) {
+        const route = routes.pop() as IRouteTvl;
         const inCoin = route.route.length > 0 ? route.route[route.route.length - 1].outputCoinAddress : inputCoinAddress;
+        const inCoinGraph = routerGraph[inCoin];
 
-        if (inCoin === outputCoinAddress) {
-            targetRoutes.push(route);
-        } else if (route.route.length < 5) {
-            for (const outCoin in routerGraph[inCoin]) {
-                if (_isVisitedCoin(outCoin, route)) continue;
+        for (const outCoin in inCoinGraph) {
+            if (_isVisitedCoin(outCoin, route)) continue;
 
-                for (const step of routerGraph[inCoin][outCoin]) {
-                    const poolData = ALL_POOLS[step.poolId];
+            for (const step of inCoinGraph[outCoin]) {
+                const {
+                    is_lending,
+                    token_address,
+                    underlying_coin_addresses = [],
+                    wrapped_coin_addresses = [],
+                } = ALL_POOLS[step.poolId] || {};
 
-                    if (!poolData?.is_lending && _isVisitedPool(step.poolId, route)) continue;
-
+                const currentPoolInRoute = route.route.find((r) => r.poolId === step.poolId);
+                if (currentPoolInRoute) {
+                    if (!is_lending) continue;
                     // 4 --> 6, 5 --> 7 not allowed
                     // 4 --> 7, 5 --> 6 allowed
-                    const routePoolIdsPlusSwapType = route.route.map((s) => s.poolId + "+" + _handleSwapType(s.swapParams[2]));
-                    if (routePoolIdsPlusSwapType.includes(step.poolId + "+" + _handleSwapType(step.swapParams[2]))) continue;
+                    if (_handleSwapType(step.swapParams[2]) === _handleSwapType(currentPoolInRoute.swapParams[2])) {
+                        continue;
+                    }
+                }
 
-                    const poolCoins = poolData ? poolData.wrapped_coin_addresses.concat(poolData.underlying_coin_addresses) : [];
-                    // Exclude such cases as:
-                    // cvxeth -> tricrypto2 -> tusd -> susd (cvxeth -> tricrypto2 -> tusd instead)
-                    if (!poolData?.is_lending && poolCoins.includes(outputCoinAddress) && outCoin !== outputCoinAddress) continue;
-                    // Exclude such cases as:
-                    // aave -> aave -> 3pool (aave -> aave instead)
-                    if (poolData?.is_lending && poolCoins.includes(outputCoinAddress) && outCoin !== outputCoinAddress && outCoin !== poolData.token_address) continue;
+                if (step.outputCoinAddress === outputCoinAddress) {
+                    const updatedRoute = _addStep(route, step);
+                    targetRoutes.push(updatedRoute);
+                    continue;
+                }
 
-                    routes.push({
-                        route: [...route.route, step],
-                        minTvl: Math.min(step.tvl, route.minTvl),
-                        totalTvl: route.totalTvl + step.tvl,
-                    });
+                if (wrapped_coin_addresses.includes(outputCoinAddress) || underlying_coin_addresses.includes(outputCoinAddress)) {
+                    // Exclude such cases as: cvxeth -> tricrypto2 -> tusd -> susd (cvxeth -> tricrypto2 -> tusd instead)
+                    if (!is_lending) continue;
+                    // Exclude such cases as: aave -> aave -> 3pool (aave -> aave instead)
+                    if (outCoin !== token_address) continue;
+                }
+                if (route.route.length + 1 < MAX_STEPS) {
+                    routes.push(_addStep(route, step));
                 }
             }
         }

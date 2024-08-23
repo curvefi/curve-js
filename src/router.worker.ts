@@ -42,18 +42,23 @@ export function routerWorker(): void {
         constructor(private readonly compareFn: (a: T, b: T) => number, private readonly maxSize: number) {}
 
         push(item: T) {
+            if (!this.fits(item)) {
+                return;
+            }
             if (this.items.length === this.maxSize) {
-                const last = this.items[this.items.length - 1];
-                if (this.compareFn(item, last) >= 0) return;
                 this.items.pop();
             }
-
             const position = this.items.findIndex((existingItem) => this.compareFn(item, existingItem) < 0);
             if (position === -1) {
                 this.items.push(item);
             } else {
                 this.items.splice(position, 0, item);
             }
+        }
+        fits(item: T): boolean {
+            if (this.items.length < this.maxSize) return true;
+            const last = this.items[this.items.length - 1];
+            return this.compareFn(item, last) < 0;
         }
     }
 
@@ -162,9 +167,9 @@ export function routerWorker(): void {
                     }
 
                     if (step.outputCoinAddress === outputCoinAddress) {
-                        const updatedRoute = addStep(route, step);
-                        targetRoutesByTvl.push(updatedRoute);
-                        targetRoutesByLength.push(updatedRoute);
+                        const newRoute = addStep(route, step);
+                        targetRoutesByTvl.push(newRoute);
+                        targetRoutesByLength.push(newRoute);
                         continue;
                     }
 
@@ -175,7 +180,10 @@ export function routerWorker(): void {
                         if (outCoin !== token_address) continue;
                     }
                     if (route.route.length < MAX_DEPTH) {
-                        routes.push(addStep(route, step)); // try another step
+                        const newRoute = addStep(route, step);
+                        if (targetRoutesByTvl.fits(newRoute) || targetRoutesByLength.fits(newRoute)) {
+                            routes.push(newRoute); // try another step
+                        }
                     }
                 }
             }

@@ -32,7 +32,7 @@ describe('Claiming CRV', function() {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
     });
 
-    for (const poolName of ARBITRUM_POOLS) {
+    for (const poolName of ETHEREUM_POOLS) {
         it(`Claims CRV from ${poolName.toUpperCase()}`, async function () {
             const pool = curve.getPool(poolName);
 

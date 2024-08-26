@@ -14,7 +14,8 @@
     "url": "https://github.com/curvefi/curve-js/issues"
   },
   "scripts": {
-    "build": "rm -rf lib && tsc -p tsconfig.build.json"
+    "build": "rm -rf lib && tsc -p tsconfig.build.json",
+    "test": "tsc && mocha dist/test"
   },
   "type": "module",
   "devDependencies": {
@@ -27,14 +28,15 @@
     "babel-eslint": "^10.1.0",
     "chai": "^4.3.7",
     "eslint": "^7.32.0",
+    "hardhat": "^2.22.9",
     "mocha": "^10.2.0",
     "typescript": "^4.5.2",
     "vue-eslint-parser": "^7.6.0"
   },
   "dependencies": {
+    "@curvefi/ethcall": "6.0.7",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
-    "@curvefi/ethcall": "6.0.7",
     "ethers": "^6.11.0",
     "memoizee": "^0.4.15"
   }

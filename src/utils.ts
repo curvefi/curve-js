@@ -16,7 +16,7 @@ import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes} fro
 import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
 import {L2Networks} from './constants/L2Networks.js';
 import {volumeNetworks} from "./constants/volumeNetworks.js";
-import {getPool} from "./pools";
+import {getPool} from "./pools/index.js";
 import Worker from "web-worker";
 
 
@@ -770,34 +770,6 @@ export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
             coins: pool.underlyingCoinAddresses,
         }
     })
-}
-
-export const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
-    const cache: Record<string, Contract> = {};
-    return (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer): Contract => {
-        if (address in cache) {
-            return cache[address];
-        }
-        else {
-            const result = new Contract(address, abi, provider)
-            cache[address] = result;
-            return result;
-        }
-    }
-}
-
-export const memoizedMulticallContract = (): (address: string, abi: any) => MulticallContract => {
-    const cache: Record<string, MulticallContract> = {};
-    return (address: string, abi: any): MulticallContract => {
-        if (address in cache) {
-            return cache[address];
-        }
-        else {
-            const result = new MulticallContract(address, abi)
-            cache[address] = result;
-            return result;
-        }
-    }
 }
 
 export function log(fnName: string, ...args: unknown[]): void {

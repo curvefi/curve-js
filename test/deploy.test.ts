@@ -730,7 +730,7 @@ describe('Factory deploy', function() {
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
-        const amounts = await pool.cryptoSeedAmounts(30);
+        const amounts = await pool.getSeedAmounts(30);
         await pool.depositAndStake(amounts);
         const underlyingBalances = await pool.stats.underlyingBalances();
         const wrappedBalances = await pool.stats.wrappedBalances();
@@ -776,7 +776,7 @@ describe('Factory deploy', function() {
         assert.equal(poolAddress.toLowerCase(), pool.address);
         assert.equal(gaugeAddress.toLowerCase(), pool.gauge.address);
 
-        const amounts = await pool.cryptoSeedAmounts(30);
+        const amounts = await pool.getSeedAmounts(30);
         console.log(amounts);
         await pool.depositAndStake(amounts);
         const underlyingBalances = await pool.stats.underlyingBalances();

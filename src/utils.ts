@@ -822,7 +822,7 @@ export function runWorker<In extends { type: string }, Out>(code: string, inputD
             if (type === inputData.type) {
                 clearTimeout(timer);
                 resolve(result);
-                console.log(code, inputData, result);
+                // console.log(code, inputData, result, start - Date.now());
             }
         };
         worker.postMessage(inputData);

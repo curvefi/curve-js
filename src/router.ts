@@ -26,11 +26,11 @@ import {
     smartNumber,
     toBN,
 } from "./utils.js";
-import {getPool} from "./pools";
+import {getPool} from "./pools/index.js";
 import {_getAmplificationCoefficientsFromApi} from "./pools/utils.js";
 import {L2Networks} from "./constants/L2Networks.js";
-import {IRouterWorkerInput, routeFinderWorkerCode} from "./route-finder.worker";
-import {IRouteGraphInput, routeGraphWorkerCode} from "./route-graph.worker";
+import {IRouterWorkerInput, routeFinderWorkerCode} from "./route-finder.worker.js";
+import {IRouteGraphInput, routeGraphWorkerCode} from "./route-graph.worker.js";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;

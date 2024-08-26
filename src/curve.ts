@@ -5,6 +5,9 @@ import {
     BigNumberish,
     Numeric,
     AbstractProvider,
+    BrowserProvider,
+    JsonRpcProvider,
+    Signer,
 } from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from "@curvefi/ethcall";
 import { getFactoryPoolData } from "./factory/factory.js";
@@ -103,26 +106,34 @@ import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aToken
 import { COINS_XLAYER, cTokensXLayer,  yTokensXLayer, ycTokensXLayer, aTokensXLayer } from "./constants/coins/xlayer.js";
 import { COINS_MANTLE, cTokensMantle,  yTokensMantle, ycTokensMantle, aTokensMantle } from "./constants/coins/mantle.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
-import { _getAllGauges, _getHiddenPools } from "./external-api.js";
+import { _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
-import {getGasInfoForL2, memoizedContract, memoizedMulticallContract} from "./utils.js";
 
-const _killGauges = async (poolsData: IDict<IPoolData>): Promise<void> => {
-    const gaugeData = await _getAllGauges();
-    const isKilled: IDict<boolean> = {};
-    const gaugeStatuses: IDict<Record<string, boolean> | null> = {};
-    Object.values(gaugeData).forEach((d) => {
-        isKilled[d.gauge.toLowerCase()] = d.is_killed ?? false;
-        gaugeStatuses[d.gauge.toLowerCase()] = d.gaugeStatus ?? null;
-    });
-
-    for (const poolId in poolsData) {
-        if (isKilled[poolsData[poolId].gauge_address]) {
-            poolsData[poolId].is_gauge_killed = true;
+export const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
+    const cache: Record<string, Contract> = {};
+    return (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer): Contract => {
+        if (address in cache) {
+            return cache[address];
         }
-        if (gaugeStatuses[poolsData[poolId].gauge_address]) {
-            poolsData[poolId].gauge_status = gaugeStatuses[poolsData[poolId].gauge_address];
+        else {
+            const result = new Contract(address, abi, provider)
+            cache[address] = result;
+            return result;
+        }
+    }
+}
+
+export const memoizedMulticallContract = (): (address: string, abi: any) => MulticallContract => {
+    const cache: Record<string, MulticallContract> = {};
+    return (address: string, abi: any): MulticallContract => {
+        if (address in cache) {
+            return cache[address];
+        }
+        else {
+            const result = new MulticallContract(address, abi)
+            cache[address] = result;
+            return result;
         }
     }
 }

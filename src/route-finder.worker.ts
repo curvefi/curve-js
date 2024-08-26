@@ -8,7 +8,7 @@ export type IRouterWorkerInput = {
     poolData: IDict<IRoutePoolData>
 }
 
-export function routeFinderWorker(): void {
+export function routeFinderWorker() {
     const MAX_ROUTES_FOR_ONE_COIN = 5;
     const MAX_DEPTH = 4;
 
@@ -115,6 +115,10 @@ export function routeFinderWorker(): void {
             })
         }
         return _removeDuplications(targetRoutesByTvl, targetRoutesByLength).map((r) => r.route);
+    }
+
+    if (typeof addEventListener === 'undefined') {
+        return findRoutes; // for nodejs
     }
 
     addEventListener('message', (e) => {

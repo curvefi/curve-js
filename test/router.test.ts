@@ -87,8 +87,9 @@ describe('Router swap', async function () {
                     try {
                         await routerSwapTest(coin1, coin2);
                     } catch (err: any) {
-                        console.log(err.message);
-                        assert.equal(err.message, "This pair can't be exchanged");
+                        if (err.message != "This pair can't be exchanged") {
+                            throw err;
+                        }
                     }
                 });
             }

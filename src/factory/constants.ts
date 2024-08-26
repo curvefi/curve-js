@@ -356,20 +356,8 @@ export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
 });
 
 export const implementationABIDictZkSync: IDict<any> = lowerCaseKeys({
-    "0x7c2a205C52361410233540008f7095dEF5915843": Plain2BasicABI,
-    "0xEF04fC6b95b1658AfdFd527aF9b947cd7BD46bde": Plain2BalancesABI,
-    "0x4887ef1a68f30364a25a8b0bAA13EeeA7eeBE574": Plain2ETHABI,
-    "0x044f8F31078c0CB898f25fff3286cE905C18434e": Plain2OptimizedABI,
-
-    "0x2e6De7148Afc6e4B1ee766D070DDeff0C84831a5": Plain3BasicABI,
-    "0x5D18b28C052Bb0C1573d90Ea055b13048026d83F": Plain3BalancesABI,
-    "0x9707Bbf96eBB136B67788aa7E46d771Ec18895f4": Plain3ETHABI,
-    "0xb274f2cdCff70A0bac146e9Ca5a8a28f59a3f812": Plain3OptimizedABI,
-
-    "0x30eb3F0EF60993584e8dD231dF7539db31800555": Plain4BasicABI,
-    "0x3D21E268d6A526948e978ad1595052c949927e54": Plain4BalancesABI,
-    "0xD46aed59fBd5eB6c134b1AFb364240bb62dA0451": Plain4ETHABI,
-    "0xE80AeF1a4782eA7b7f9Ad9F0c2ed9343861934e3": Plain4OptimizedABI,
+    "0x04D0095a1A4Ae881a078ae61F36945E85464e6d7": PlainStableSwapNGABI,
+    "0xC5d5402481aefec461Ab86b1051AC26dF05BeE3B": MetaStableSwapNGABI,
 })
 
 export const implementationABIDictBase: IDict<any> = lowerCaseKeys({

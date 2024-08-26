@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {BrowserProvider, Contract, JsonRpcProvider, Signer} from 'ethers';
+import {Contract} from 'ethers';
 import {Contract as MulticallContract} from "@curvefi/ethcall";
 import BigNumber from 'bignumber.js';
 import {
@@ -17,7 +17,6 @@ import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
 import {L2Networks} from './constants/L2Networks.js';
 import {volumeNetworks} from "./constants/volumeNetworks.js";
 import {getPool} from "./pools/index.js";
-import Worker from "web-worker";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -778,7 +777,12 @@ export function log(fnName: string, ...args: unknown[]): void {
     }
 }
 
-export function runWorker<In extends { type: string }, Out>(code: string, inputData: In, timeout = 30000): Promise<Out> {
+export function runWorker<In extends { type: string }, Out>(code: string, syncFn: () => ((val: In) => Out) | undefined, inputData: In, timeout = 30000): Promise<Out> {
+    if (typeof Worker === 'undefined') {
+        // in nodejs run worker in main thread
+        return Promise.resolve(syncFn()!(inputData));
+    }
+
     const blob = new Blob([code], { type: 'application/javascript' });
     const blobUrl = URL.createObjectURL(blob);
     const worker = new Worker(blobUrl, {type: 'module'});

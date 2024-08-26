@@ -10,7 +10,7 @@ export type IRouteGraphInput = {
     poolTvlDict: IDict<number>
 };
 
-function routeGraphWorker() {
+export function routeGraphWorker() {
     const GRAPH_MAX_EDGES = 3;
     const SNX = {
         10: {
@@ -171,9 +171,7 @@ function routeGraphWorker() {
             }
         }
 
-        let start = Date.now();
-        console.log(`Preparing ${allPools.length} pools done`, `${Date.now() - start}ms`);
-        start = Date.now();
+        const start = Date.now();
         for (const poolItem of allPools) {
             const poolId = poolItem[0], poolData = poolItem[1];
             const wrappedCoinAddresses = poolData.wrapped_coin_addresses.map((a: string) => a.toLowerCase());
@@ -332,8 +330,12 @@ function routeGraphWorker() {
                 }
             }
         }
-        console.log(`Reading ${allPools.length} pools done`, `${Date.now() - start}ms, routerGraph: #${Object.keys(routerGraph).length}`);
+        console.log(`Read ${allPools.length} pools`, `${Date.now() - start}ms, routerGraph: ${Object.keys(routerGraph).length} items`);
         return routerGraph;
+    }
+
+    if (typeof addEventListener === 'undefined') {
+        return createRouteGraph; // for nodejs
     }
 
     addEventListener('message', (e) => {

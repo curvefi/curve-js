@@ -1,0 +1,27 @@
+name: test.yml
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npx hardhat node &
+      - run: npm test
+        env:
+          ETH_RPC: ${{ secrets.ETH_RPC }}
+          OPTIMISM_RPC: ${{ secrets.OPTIMISM_RPC }}
+          XDAI_RPC: ${{ secrets.XDAI_RPC }}
+          POLYGON_RPC: ${{ secrets.POLYGON_RPC }}
+          FANTOM_RPC: ${{ secrets.FANTOM_RPC }}
+          MOONBEAM_RPC: ${{ secrets.MOONBEAM_RPC }}
+          KAVA_RPC: ${{ secrets.KAVA_RPC }}
+          ARBITRUM_RPC: ${{ secrets.ARBITRUM_RPC }}
+          CELO_RPC: ${{ secrets.CELO_RPC }}
+          AVALANCHE_RPC: ${{ secrets.AVALANCHE_RPC }}
+          AURORA_RPC: ${{ secrets.AURORA_RPC }}

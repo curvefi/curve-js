@@ -29,8 +29,8 @@ import {
 import {getPool} from "./pools/index.js";
 import {_getAmplificationCoefficientsFromApi} from "./pools/utils.js";
 import {L2Networks} from "./constants/L2Networks.js";
-import {IRouterWorkerInput, routeFinderWorkerCode} from "./route-finder.worker.js";
-import {IRouteGraphInput, routeGraphWorkerCode} from "./route-graph.worker.js";
+import {IRouterWorkerInput, routeFinderWorker, routeFinderWorkerCode} from "./route-finder.worker.js";
+import {IRouteGraphInput, routeGraphWorker, routeGraphWorkerCode} from "./route-graph.worker.js";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
@@ -63,7 +63,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
     const poolTvlDict: IDict<number> = await entriesToDictAsync(allPools, _getTVL);
     const input: IRouteGraphInput = {constants, chainId, allPools, amplificationCoefficientDict, poolTvlDict};
-    return runWorker(routeGraphWorkerCode, {type: 'createRouteGraph', ...input});
+    return runWorker(routeGraphWorkerCode, routeGraphWorker, {type: 'createRouteGraph', ...input});
 },
 {
     promise: true,
@@ -78,7 +78,7 @@ const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string):
         (_, { is_lending, wrapped_coin_addresses, underlying_coin_addresses, token_address }) => ({ is_lending, wrapped_coin_addresses, underlying_coin_addresses, token_address })
     );
     const input: IRouterWorkerInput = {inputCoinAddress, outputCoinAddress, routerGraph, poolData};
-    return runWorker(routeFinderWorkerCode, {type: 'findRoutes', ...input});
+    return runWorker(routeFinderWorkerCode, routeFinderWorker, {type: 'findRoutes', ...input});
 };
 
 const _getRouteKey = (route: IRoute, inputCoinAddress: string, outputCoinAddress: string): string => {

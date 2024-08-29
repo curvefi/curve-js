@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {BrowserProvider, Contract, JsonRpcProvider, Signer} from 'ethers';
-import { Contract as MulticallContract } from "@curvefi/ethcall";
+import {Contract} from 'ethers';
+import {Contract as MulticallContract} from "@curvefi/ethcall";
 import BigNumber from 'bignumber.js';
 import {
     IBasePoolShortItem,
@@ -11,17 +11,12 @@ import {
     IVolumeAndAPYs,
     REFERENCE_ASSET,
 } from './interfaces';
-import { curve, NETWORK_CONSTANTS } from "./curve.js";
-import {
-    _getAllPoolsFromApi,
-    _getFactoryAPYs,
-    _getSubgraphData,
-    _getVolumes,
-} from "./external-api.js";
-import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
-import { L2Networks } from './constants/L2Networks.js';
-import { volumeNetworks } from "./constants/volumeNetworks.js";
-import { getPool } from "./pools/index.js";
+import {curve, NETWORK_CONSTANTS} from "./curve.js";
+import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes} from "./external-api.js";
+import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
+import {L2Networks} from './constants/L2Networks.js';
+import {volumeNetworks} from "./constants/volumeNetworks.js";
+import {getPool} from "./pools/index.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -306,16 +301,9 @@ export const ensureAllowance = async (coins: string[], amounts: (number | string
 
 export const getPoolIdBySwapAddress = (swapAddress: string): string => {
     const poolsData = curve.getPoolsData();
-    const poolIds = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
+    const poolIds = Object.entries(poolsData).filter(([, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
     if (poolIds.length === 0) return "";
     return poolIds[0][0];
-}
-
-const _getTokenAddressBySwapAddress = (swapAddress: string): string => {
-    const poolsData = curve.getPoolsData()
-    const res = Object.entries(poolsData).filter(([_, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
-    if (res.length === 0) return "";
-    return res[0][1].token_address;
 }
 
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
@@ -378,19 +366,12 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     }
 
     for(const address in priceDict) {
-        if(priceDict[address].length > 0) {
-            const maxTvlItem = priceDict[address].reduce((prev, current) => {
-                if (+current.tvl > +prev.tvl) {
-                    return current;
-                } else {
-                    return prev;
-                }
-            });
+        if (priceDict[address].length) {
+            const maxTvlItem = priceDict[address].reduce((prev, current) => +current.tvl > +prev.tvl ? current : prev);
             priceDictByMaxTvl[address] = maxTvlItem.price
         } else {
             priceDictByMaxTvl[address] = 0
         }
-
     }
 
     return priceDictByMaxTvl
@@ -525,7 +506,7 @@ export const getUsdRate = async (coin: string): Promise<number> => {
     return await _getUsdRate(coinAddress);
 }
 
-export const getBaseFeeByLastBlock = async ()  => {
+export const getBaseFeeByLastBlock = async (): Promise<number> => {
     const provider = curve.provider;
 
     try {
@@ -624,17 +605,6 @@ const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INet
     }
 }
 
-const _getChainId = (network: INetworkName | IChainId = curve.chainId): IChainId => {
-    if (typeof network === "number" && NETWORK_CONSTANTS[network]) {
-        return network;
-    } else if (typeof network === "string" && Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
-        const idx = Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).indexOf(network);
-        return Number(Object.keys(NETWORK_CONSTANTS)[idx]) as IChainId;
-    } else {
-        throw Error(`Wrong network name or id: ${network}`);
-    }
-}
-
 export const getTVL = async (network: INetworkName | IChainId = curve.chainId): Promise<number> => {
     network = _getNetworkName(network);
     const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
@@ -724,7 +694,7 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
     }
 
     const res: {name: string, symbol: string, decimals: number}[]  = [];
-    coins.forEach((address: string, i: number) => {
+    coins.forEach(() => {
         res.push({
             name: _response.shift() as string,
             symbol: _response.shift() as string,
@@ -748,14 +718,8 @@ export const getCountArgsOfMethodByContract = (contract: Contract, methodName: s
     }
 }
 
-export const isMethodExist = (contract: Contract, methodName: string): boolean => {
-    const func = contract.interface.fragments.find((item: any) => item.name === methodName);
-    if(func) {
-        return true;
-    } else {
-        return false;
-    }
-}
+export const isMethodExist = (contract: Contract, methodName: string): boolean =>
+    contract.interface.fragments.find((item: any) => item.name === methodName) !== undefined
 
 export const getPoolName = (name: string): string => {
     const separatedName = name.split(": ")
@@ -807,30 +771,38 @@ export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
     })
 }
 
-export const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
-    const cache: Record<string, Contract> = {};
-    return (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer): Contract => {
-        if (address in cache) {
-            return cache[address];
-        }
-        else {
-            const result = new Contract(address, abi, provider)
-            cache[address] = result;
-            return result;
-        }
+export function log(fnName: string, ...args: unknown[]): void {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`curve-js@${new Date().toISOString()} -> ${fnName}:`, ...args)
     }
 }
 
-export const memoizedMulticallContract = (): (address: string, abi: any) => MulticallContract => {
-    const cache: Record<string, MulticallContract> = {};
-    return (address: string, abi: any): MulticallContract => {
-        if (address in cache) {
-            return cache[address];
-        }
-        else {
-            const result = new MulticallContract(address, abi)
-            cache[address] = result;
-            return result;
-        }
+export function runWorker<In extends { type: string }, Out>(code: string, syncFn: () => ((val: In) => Out) | undefined, inputData: In, timeout = 30000): Promise<Out> {
+    if (typeof Worker === 'undefined') {
+        // in nodejs run worker in main thread
+        return Promise.resolve(syncFn()!(inputData));
     }
+
+    const blob = new Blob([code], { type: 'application/javascript' });
+    const blobUrl = URL.createObjectURL(blob);
+    const worker = new Worker(blobUrl, {type: 'module'});
+    return new Promise<Out>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
+        worker.onerror = (e) => {
+            clearTimeout(timer);
+            console.error(code, inputData, e);
+            reject(e);
+        };
+        worker.onmessage = (e) => {
+            const {type, result} = e.data;
+            if (type === inputData.type) {
+                clearTimeout(timer);
+                resolve(result);
+                // console.log(code, inputData, result, start - Date.now());
+            }
+        };
+        worker.postMessage(inputData);
+    }).finally(() => {
+        worker.terminate();
+    });
 }

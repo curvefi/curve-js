@@ -128,12 +128,7 @@ export interface IPoolDataShort {
     address: string,
 }
 
-export interface ISubgraphPoolData {
-    address: string,
-    volumeUSD: number,
-    latestDailyApy: number,
-    latestWeeklyApy: number,
-}
+export type IRoutePoolData = Pick<IPoolData, 'is_lending' | 'wrapped_coin_addresses' | 'underlying_coin_addresses' | 'token_address'>;
 
 export interface IExtendedPoolDataFromApi {
     poolData: IPoolDataFromApi[],

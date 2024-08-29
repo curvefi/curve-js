@@ -9,6 +9,7 @@ import {
     JsonRpcProvider,
     Signer,
 } from "ethers";
+import type { Abi } from "abitype";
 import { Provider as MulticallProvider, Contract as MulticallContract } from "@curvefi/ethcall";
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
@@ -419,13 +420,16 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
 
 const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
 
+
+export type ContractItem = { contract: Contract, multicallContract: MulticallContract, abi: Abi };
+
 class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
     signerAddress: string;
     chainId: IChainId;
-    contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } };
+    contracts: { [index: string]: ContractItem };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
     constantOptions: { gasLimit?: number };
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };

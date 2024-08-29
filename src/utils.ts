@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {Contract} from 'ethers';
 import {Contract as MulticallContract} from "@curvefi/ethcall";
+import type { Abi, AbiFunction } from "abitype";
 import BigNumber from 'bignumber.js';
 import {
     IBasePoolShortItem,
@@ -634,6 +635,7 @@ export const getVolume = async (network: INetworkName | IChainId = curve.chainId
 
 export const _setContracts = (address: string, abi: any): void => {
     curve.contracts[address] = {
+        abi,
         contract: new Contract(address, abi, curve.signer || curve.provider),
         multicallContract: new MulticallContract(address, abi),
     }
@@ -709,17 +711,13 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
 export const hasDepositAndStake = (): boolean => curve.constants.ALIASES.deposit_and_stake !== curve.constants.ZERO_ADDRESS;
 export const hasRouter = (): boolean => curve.constants.ALIASES.router !== curve.constants.ZERO_ADDRESS;
 
-export const getCountArgsOfMethodByContract = (contract: Contract, methodName: string): number => {
-    const func = contract.interface.fragments.find((item: any) => item.name === methodName);
-    if(func) {
-        return func.inputs.length;
-    } else {
-        return -1;
-    }
-}
+export const findAbiFunction = (abi: Abi, methodName: string) =>
+    abi.filter((item) => item.type == 'function' && item.name === methodName) as AbiFunction[]
 
-export const isMethodExist = (contract: Contract, methodName: string): boolean =>
-    contract.interface.fragments.find((item: any) => item.name === methodName) !== undefined
+export const getCountArgsOfMethodByAbi = (abi: Abi, methodName: string): number => findAbiFunction(abi, methodName)[0]?.inputs.length ?? -1
+
+export const findAbiSignature = (abi: Abi, methodName: string, signature: string) =>
+    findAbiFunction(abi, methodName).find((func) => func.inputs.map(i => `${i.type}`).join(',') == signature)
 
 export const getPoolName = (name: string): string => {
     const separatedName = name.split(": ")
@@ -730,9 +728,7 @@ export const getPoolName = (name: string): string => {
     }
 }
 
-export const isStableNgPool = (name: string): boolean => {
-    return name.includes('factory-stable-ng')
-}
+export const isStableNgPool = (name: string): boolean => name.includes('factory-stable-ng')
 
 export const assetTypeNameHandler = (assetTypeName: string): REFERENCE_ASSET => {
     if (assetTypeName.toUpperCase() === 'UNKNOWN') {

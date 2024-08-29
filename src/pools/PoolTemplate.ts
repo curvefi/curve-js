@@ -27,7 +27,7 @@ import {
     smartNumber,
     DIGas,
     _getAddress,
-    isMethodExist,
+    findAbiFunction,
     getVolumeApiController,
 } from '../utils.js';
 import {IDict, IReward, IProfit, IPoolType} from '../interfaces';
@@ -2323,8 +2323,7 @@ export class PoolTemplate {
         }
 
         //for crvusd and stable-ng implementations
-        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
-        if (isUseStoredRates) {
+        if (findAbiFunction(curve.contracts[this.address].abi, 'stored_rates').length > 0 && this.isPlain) {
             const _stored_rates: bigint[] = await curve.contracts[this.address].contract.stored_rates();
             return _stored_rates.map((_r, i) => toBN(_r, 36 - this.wrappedDecimals[i]));
         }

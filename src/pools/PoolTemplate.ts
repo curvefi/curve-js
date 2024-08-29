@@ -256,9 +256,8 @@ export class PoolTemplate {
     public rewardsOnly(): boolean {
         if (curve.chainId === 2222 || curve.chainId === 324) return true;  // TODO remove this for Kava and ZkSync
         if (this.gauge.address === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
-        const gaugeContract = curve.contracts[this.gauge.address].contract;
-
-        return !('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
+        return !findAbiFunction(curve.contracts[this.gauge.address].abi, 'inflation_rate')
+            .find((func) => ['', 'uint256'].includes(func.inputs.map(a => `${a.type}`).join(',')))
     }
 
     private statsParameters = async (): Promise<{

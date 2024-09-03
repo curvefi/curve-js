@@ -271,3 +271,23 @@ export interface IBasePoolShortItem {
 }
 
 export type TVoteType = "PARAMETER" | "OWNERSHIP"
+
+export type AbiParameter = { type: string, name?:string, components?: readonly AbiParameter[] }
+type CtorMutability = 'payable' | 'nonpayable';
+export type AbiStateMutability = 'pure' | 'view' | CtorMutability
+export type AbiFunction = {
+    type: 'function'
+    constant?: boolean
+    gas?: number
+    inputs: readonly AbiParameter[]
+    name: string
+    outputs: readonly AbiParameter[]
+    payable?: boolean | undefined
+    stateMutability: AbiStateMutability
+}
+export type AbiConstructor = { type: 'constructor', inputs: readonly AbiParameter[], payable?: boolean, stateMutability: CtorMutability }
+export type AbiFallback = { type: 'fallback', payable?: boolean, stateMutability: CtorMutability }
+export type AbiReceive = {type: 'receive', stateMutability: Extract<AbiStateMutability, 'payable'>}
+export type AbiEvent = {type: 'event', anonymous?: boolean, inputs: readonly AbiParameter[], name: string}
+export type AbiError = {type: 'error', inputs: readonly AbiParameter[], name: string}
+export type Abi = (AbiConstructor | AbiError | AbiEvent | AbiFallback | AbiFunction | AbiReceive)[]

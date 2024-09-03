@@ -27,7 +27,7 @@ import {
     smartNumber,
     DIGas,
     _getAddress,
-    isMethodExist,
+    findAbiFunction,
     getVolumeApiController,
 } from '../utils.js';
 import {IDict, IReward, IProfit, IPoolType} from '../interfaces';
@@ -256,9 +256,8 @@ export class PoolTemplate {
     public rewardsOnly(): boolean {
         if (curve.chainId === 2222 || curve.chainId === 324) return true;  // TODO remove this for Kava and ZkSync
         if (this.gauge.address === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
-        const gaugeContract = curve.contracts[this.gauge.address].contract;
-
-        return !('inflation_rate()' in gaugeContract || 'inflation_rate(uint256)' in gaugeContract);
+        return !findAbiFunction(curve.contracts[this.gauge.address].abi, 'inflation_rate')
+            .find((func) => ['', 'uint256'].includes(func.inputs.map((a) => `${a.type}`).join(',')))
     }
 
     private statsParameters = async (): Promise<{
@@ -2323,8 +2322,7 @@ export class PoolTemplate {
         }
 
         //for crvusd and stable-ng implementations
-        const isUseStoredRates = isMethodExist(curve.contracts[this.address].contract, 'stored_rates') && this.isPlain;
-        if (isUseStoredRates) {
+        if (findAbiFunction(curve.contracts[this.address].abi, 'stored_rates').length > 0 && this.isPlain) {
             const _stored_rates: bigint[] = await curve.contracts[this.address].contract.stored_rates();
             return _stored_rates.map((_r, i) => toBN(_r, 36 - this.wrappedDecimals[i]));
         }

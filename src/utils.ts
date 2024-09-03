@@ -1,9 +1,9 @@
 import axios from 'axios';
 import {Contract} from 'ethers';
 import {Contract as MulticallContract} from "@curvefi/ethcall";
-import type { Abi, AbiFunction } from "abitype";
 import BigNumber from 'bignumber.js';
 import {
+    Abi, AbiFunction,
     IBasePoolShortItem,
     IChainId,
     IDict,
@@ -717,7 +717,7 @@ export const findAbiFunction = (abi: Abi, methodName: string) =>
 export const getCountArgsOfMethodByAbi = (abi: Abi, methodName: string): number => findAbiFunction(abi, methodName)[0]?.inputs.length ?? -1
 
 export const findAbiSignature = (abi: Abi, methodName: string, signature: string) =>
-    findAbiFunction(abi, methodName).find((func) => func.inputs.map(i => `${i.type}`).join(',') == signature)
+    findAbiFunction(abi, methodName).find((func) => func.inputs.map((i) => `${i.type}`).join(',') == signature)
 
 export const getPoolName = (name: string): string => {
     const separatedName = name.split(": ")

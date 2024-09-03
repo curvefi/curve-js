@@ -1,6 +1,8 @@
-import { assert } from "chai";
-import { BN } from "../src/utils.js";
+import {assert} from "chai";
+import {_getCoinAddresses, BN} from "../src/utils.js";
 import curve from "../src/index.js";
+import {curve as _curve} from "../src/curve.js";
+import {JsonRpcSigner} from "ethers";
 
 
 const AAVE_TOKENS = ['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc', 'amdai', 'amusdt', 'amusdc', 'amwbtc', 'avdai', 'avusdt', 'avusdc', 'avwbtc', 'gdai', 'gusdc', 'gfusdt'];
@@ -12,13 +14,9 @@ const routerSwapTest = async (coin1: string, coin2: string) => {
     const { route, output } = await curve.router.getBestRouteAndOutput(coin1, coin2, amount);
     assert.isTrue(route.length > 0);
     const required = await curve.router.required(coin1, coin2, output);
+    await stealTokens(coin1, `0x${Math.pow(10, 12)}`);
 
-    let routeStr = ''
-    for (const step of route) {
-        routeStr += `${step.poolId} (${step.swapParams}) --> `;
-    }
-    routeStr = routeStr.slice(0, routeStr.length - 5)
-    console.log(routeStr)
+    console.log(route.map((step) => `${step.poolId} (${step.swapParams})`).join(' --> '))
     console.log(route);
     console.log("Output:", output);
     console.log("Required:", required);
@@ -96,3 +94,53 @@ describe('Router swap', async function () {
         }
     }
 })
+
+
+/**
+ * Function that limits the number of calls to the function per time period, delaying the next call.
+ */
+function rateLimit<R, F extends (...args: Parameters<F>) => Promise<R>>(func: F, timeout: number): F {
+    let lastCall = Date.now() - timeout;
+    return (async (...args: Parameters<F>): Promise<R> => {
+        const now = Date.now();
+        const wait = now - lastCall + timeout;
+        if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+        lastCall = now;
+        return await func(...args);
+    }) as F;
+}
+
+const getRichestCoinHolder = rateLimit(async (target: string) => {
+    const response = await fetch(`https://api.ethplorer.io/getTopTokenHolders/${target}?apiKey=freekey&limit=1`);
+    const {holders, error} = await response.json();
+    if (error) throw new Error(error);
+    return holders[0] as { address: string, rawBalance: string, balance: number };
+}, 2000); // 2 requests per second, using free api key
+
+function mockProperty<T, K extends keyof T>(obj: T, prop: K, value: T[K]) {
+    const oldValue = obj[prop];
+    Object.defineProperty(obj, prop, { get: () => value });
+    return () => Object.defineProperty(obj, prop, { get: () => oldValue });
+}
+
+async function stealTokens(coinName: string, amount: string) {
+    const [coinAddress] = _getCoinAddresses(coinName);
+    const richAccount = await getRichestCoinHolder(coinAddress);
+    const richAddress = richAccount.address;
+    const contract = _curve.contracts[coinAddress].contract;
+    const cleanup = mockProperty(_curve.signer as JsonRpcSigner, 'address', richAddress);
+    try {
+        await _curve.provider.send("hardhat_setBalance", [richAddress, `0x${Math.pow(10, 12)}`]);
+        await _curve.provider.send("hardhat_impersonateAccount", [richAddress]);
+
+        console.log(`Stealing ${amount} ${coinName} from ${richAddress}. It has ${richAccount.rawBalance}.`);
+        const tx = await contract.transfer(curve.signerAddress, amount, {from: richAddress});
+        console.log(`Stole ${coinName} from ${richAddress}: ${JSON.stringify(tx)}`);
+    }
+    catch (e) {
+        console.error(`Cannot steal ${amount} ${coinName} from ${richAddress}: ${e}`);
+        throw e;
+    } finally {
+        cleanup();
+    }
+}

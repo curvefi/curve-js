@@ -21,6 +21,7 @@
   "type": "module",
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.1",
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
     "@types/chai": "^4.3.18",
     "@types/memoizee": "^0.4.11",
     "@types/mocha": "^10.0.7",
@@ -29,7 +30,7 @@
     "@typescript-eslint/parser": "^8.2.0",
     "chai": "^5.1.1",
     "eslint": "^9.9.1",
-    "hardhat": "^2.3.3",
+    "hardhat": "^2.22.10",
     "mocha": "^10.7.3",
     "typescript": "^5.5.4",
     "vue-eslint-parser": "^9.4.3"

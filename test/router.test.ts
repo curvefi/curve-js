@@ -14,7 +14,7 @@ const routerSwapTest = async (coin1: string, coin2: string) => {
     const { route, output } = await curve.router.getBestRouteAndOutput(coin1, coin2, amount);
     assert.isTrue(route.length > 0);
     const required = await curve.router.required(coin1, coin2, output);
-    await stealTokens(coin1, `0x1${'0'.repeat(22)}`);
+    await stealTokens(coin1);
 
     console.log(route.map((step) => `${step.poolId} (${step.swapParams})`).join(' --> '))
     console.log(route);
@@ -123,14 +123,14 @@ function mockProperty<T, K extends keyof T>(obj: T, prop: K, value: T[K]) {
     return () => Object.defineProperty(obj, prop, { get: () => oldValue });
 }
 
-async function stealTokens(coinName: string, amount: string) {
+async function stealTokens(coinName: string, amount: string = `0x1${'0'.repeat(22)}`) {
     const [coinAddress] = _getCoinAddresses(coinName);
     const richAccount = await getRichestCoinHolder(coinAddress);
     const richAddress = richAccount.address;
     const contract = _curve.contracts[coinAddress].contract;
     const cleanup = mockProperty(_curve.signer as JsonRpcSigner, 'address', richAddress);
     try {
-        await _curve.provider.send("hardhat_setBalance", [richAddress, `0x1$${'0'.repeat(12)}`]);
+        await _curve.provider.send("hardhat_setBalance", [richAddress, `0x1${'0'.repeat(12)}`]);
         await _curve.provider.send("hardhat_impersonateAccount", [richAddress]);
 
         console.log(`Stealing ${amount} ${coinName} from ${richAddress}. It has ${richAccount.rawBalance}.`);

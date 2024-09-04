@@ -176,6 +176,7 @@ export interface IProfit {
 }
 
 export interface IGaugesDataFromApi {
+    blockchainId: string;
     gauge: string,
     swap: string,
     swap_token: string,
@@ -184,7 +185,7 @@ export interface IGaugesDataFromApi {
         gauge_relative_weight: string,
         get_gauge_weight: string,
     },
-    poolUrls: {
+    poolUrls?: {
         swap: string[],
     }
     is_killed?: boolean,

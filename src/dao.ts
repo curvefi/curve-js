@@ -226,11 +226,11 @@ export const getVotingGaugeList = async (): Promise<IVotingGauge[]> => {
     for (let i = 0; i < gaugeData.length; i++) {
         if ((gaugeData[i].is_killed || gaugeData[i].hasNoCrv) && Number(gaugeData[i].gauge_controller.gauge_relative_weight) === 0) continue;
         res.push({
-            poolUrl: gaugeData[i].poolUrls.swap[0],
-            network: _extractNetworkFromPoolUrl(gaugeData[i].poolUrls.swap[0]),
+            poolUrl: gaugeData[i].poolUrls?.swap[0] || '',
+            network: gaugeData[i].blockchainId,
             gaugeAddress: gaugeData[i].gauge,
-            poolAddress: gaugeData[i].swap,
-            lpTokenAddress: gaugeData[i].swap_token,
+            poolAddress: gaugeData[i].swap || '',
+            lpTokenAddress: gaugeData[i].swap_token || '',
             poolName: gaugeData[i].shortName,
             totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
             relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
@@ -267,11 +267,11 @@ export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUser
             userFutureVeCrv: curve.formatUnits(veCrvBalance * votes[i][1] / BigInt(10000), 18),
             expired: dt === BigInt(0),
             gaugeData: {
-                poolUrl: gaugeData[i].poolUrls.swap[0],
-                network: _extractNetworkFromPoolUrl(gaugeData[i].poolUrls.swap[0]),
+                poolUrl: gaugeData[i].poolUrls?.swap[0] || '',
+                network: gaugeData[i].blockchainId,
                 gaugeAddress: gaugeData[i].gauge,
-                poolAddress: gaugeData[i].swap,
-                lpTokenAddress: gaugeData[i].swap_token,
+                poolAddress: gaugeData[i].swap || '',
+                lpTokenAddress: gaugeData[i].swap_token || '',
                 poolName: gaugeData[i].shortName,
                 totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
                 relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),

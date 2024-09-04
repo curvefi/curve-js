@@ -14,7 +14,7 @@ const routerSwapTest = async (coin1: string, coin2: string) => {
     const { route, output } = await curve.router.getBestRouteAndOutput(coin1, coin2, amount);
     assert.isTrue(route.length > 0);
     const required = await curve.router.required(coin1, coin2, output);
-    await stealTokens(coin1, `0x${Math.pow(10, 12)}`);
+    await stealTokens(coin1, `0x1${'0'.repeat(22)}`);
 
     console.log(route.map((step) => `${step.poolId} (${step.swapParams})`).join(' --> '))
     console.log(route);
@@ -130,7 +130,7 @@ async function stealTokens(coinName: string, amount: string) {
     const contract = _curve.contracts[coinAddress].contract;
     const cleanup = mockProperty(_curve.signer as JsonRpcSigner, 'address', richAddress);
     try {
-        await _curve.provider.send("hardhat_setBalance", [richAddress, `0x${Math.pow(10, 12)}`]);
+        await _curve.provider.send("hardhat_setBalance", [richAddress, `0x1$${'0'.repeat(12)}`]);
         await _curve.provider.send("hardhat_impersonateAccount", [richAddress]);
 
         console.log(`Stealing ${amount} ${coinName} from ${richAddress}. It has ${richAccount.rawBalance}.`);

@@ -12,17 +12,7 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm run lint
-      - run: npx hardhat node &
+      - run: npx hardhat node --fork ${{ secrets.ETH_RPC }} &
       - run: npm test
         env:
           ETH_RPC: ${{ secrets.ETH_RPC }}
-          OPTIMISM_RPC: ${{ secrets.OPTIMISM_RPC }}
-          XDAI_RPC: ${{ secrets.XDAI_RPC }}
-          POLYGON_RPC: ${{ secrets.POLYGON_RPC }}
-          FANTOM_RPC: ${{ secrets.FANTOM_RPC }}
-          MOONBEAM_RPC: ${{ secrets.MOONBEAM_RPC }}
-          KAVA_RPC: ${{ secrets.KAVA_RPC }}
-          ARBITRUM_RPC: ${{ secrets.ARBITRUM_RPC }}
-          CELO_RPC: ${{ secrets.CELO_RPC }}
-          AVALANCHE_RPC: ${{ secrets.AVALANCHE_RPC }}
-          AURORA_RPC: ${{ secrets.AURORA_RPC }}

@@ -4,4 +4,6 @@ dist/**/*
 lib/**/*
 pnpm-lock.yaml
 yarn.lock
-test/temp.test.ts
+
+# Hardhat files
+/cache

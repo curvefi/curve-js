@@ -95,7 +95,7 @@ export const _getFactoryAPYs = memoize(
         const [{data: data0}, {data: data1}] = await Promise.all([
             fetch(urlStable),
             fetch(urlCrypto),
-        ].map(r => r.then(r => r.json() as any)));
+        ].map((r) => r.then((r) => r.json() as any)));
 
         const stableVolume = data0.totalVolumeUsd || data0.totalVolume || 0;
         const cryptoVolume = data1.totalVolumeUsd || data1.totalVolume || 0;
@@ -104,12 +104,12 @@ export const _getFactoryAPYs = memoize(
             address: item.poolAddress,
             volumeUSD: item.totalVolumeUsd ?? 0,
             day: item.apy ?? 0,
-            week: item.apy * 7 ?? 0, //Because api does not return week apy
+            week: (item.apy ?? 0) * 7, //Because api does not return week apy
         }))
 
         return {
             poolsData: poolsData ?? [],
-            totalVolume: stableVolume + cryptoVolume ?? 0,
+            totalVolume: stableVolume + cryptoVolume,
             cryptoVolume: cryptoVolume ?? 0,
             cryptoShare: 100*cryptoVolume/(stableVolume + cryptoVolume) || 0,
         };

@@ -152,7 +152,7 @@ export const ALIASES_XDAI = lowerCaseValues({
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
-    "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
+    "tricrypto_factory": '0xb47988aD49DCE8D909c6f9Cf7B26caF04e1445c8',
     "stable_ng_factory": '0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8', // <--- TODO CHANGE
     "factory_admin": "",
 });

@@ -678,6 +678,10 @@ class Curve implements ICurve {
         const _gaugeFactoryABI = this.chainId === 1 ? gaugeFactoryABI : gaugeFactorySidechainABI
         this.setContract(this.constants.ALIASES.gauge_factory, _gaugeFactoryABI);
 
+        if ("gauge_factory_old" in this.constants.ALIASES) {
+            this.setContract(this.constants.ALIASES.gauge_factory_old, _gaugeFactoryABI);
+        }
+
         if(this.chainId === 1) {
             this.setContract(this.constants.ALIASES.minter, minterMainnetABI)
             this.setContract(this.constants.ALIASES.gauge_factory_fraxtal, gaugeFactoryForFraxtalABI)

@@ -137,7 +137,8 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
 
 export const ALIASES_XDAI = lowerCaseValues({
     "crv": "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "gauge_factory": "0x7BE6BD57A319A7180f71552E58c9d32Da32b6f96",
+    "gauge_factory_old": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0xefde221f306152971d8e9f181bfe998447975810",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -151,7 +152,7 @@ export const ALIASES_XDAI = lowerCaseValues({
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
-    "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE
+    "tricrypto_factory": '0xb47988aD49DCE8D909c6f9Cf7B26caF04e1445c8',
     "stable_ng_factory": '0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8', // <--- TODO CHANGE
     "factory_admin": "",
 });

@@ -137,7 +137,8 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
 
 export const ALIASES_XDAI = lowerCaseValues({
     "crv": "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "gauge_factory": "0x7BE6BD57A319A7180f71552E58c9d32Da32b6f96",
+    "gauge_factory_old": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0xefde221f306152971d8e9f181bfe998447975810",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",

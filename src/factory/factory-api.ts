@@ -81,11 +81,11 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
 }
 
 const getSwapAbiByFactoryType = (factoryType: IFactoryPoolType, pool: IPoolDataFromApi) => {
-    const isETHDisabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_disabled
+    const isETHDisabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_disabled;
     const map: Record<string, any> = {
         "factory-crypto": cryptoFactorySwapABI,
         "factory-twocrypto": twocryptoFactorySwapABI,
-        "facroty-tricrypto": isETHDisabled ? tricryptoFactoryEthDisabledSwapABI : tricryptoFactorySwapABI,
+        "factory-tricrypto": isETHDisabled ? tricryptoFactoryEthDisabledSwapABI : tricryptoFactorySwapABI,
     }
     
     return map[factoryType];

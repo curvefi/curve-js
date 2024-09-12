@@ -39,7 +39,8 @@ import factoryEywaABI from './constants/abis/factory-eywa.json' assert { type: '
 import factoryAdminABI from './constants/abis/factory-admin.json' assert { type: 'json' };
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' assert { type: 'json' };
 import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' assert { type: 'json' };
-import tricryptoFactoryABI from './constants/abis/factory-tricrypto.json' assert { type: 'json' };
+import tricryptoFactoryMainnetABI from './constants/abis/factory-tricrypto-mainnet.json' assert { type: 'json' };
+import tricryptoFactorySidechainABI from './constants/abis/factory-tricrypto-sidechain.json' assert { type: 'json' };
 import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' assert { type: 'json' };
 import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
 import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' assert { type: 'json'};
@@ -719,7 +720,11 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.twocrypto_factory, twocryptoFactoryABI);
 
-        this.setContract(this.constants.ALIASES.tricrypto_factory, tricryptoFactoryABI);
+        if (this.chainId == 1) {
+            this.setContract(this.constants.ALIASES.tricrypto_factory, tricryptoFactoryMainnetABI);
+        } else {
+            this.setContract(this.constants.ALIASES.tricrypto_factory, tricryptoFactorySidechainABI);
+        }
 
         this.setContract(this.constants.ALIASES.stable_ng_factory, stableNgFactoryABI);
 

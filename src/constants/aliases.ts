@@ -4,8 +4,6 @@ import { lowerCaseValues } from "./utils.js";
 export const ALIASES_ETHEREUM = lowerCaseValues({
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52", // <--- CHANGE
     "minter": '0xd061D61a4d941c39E5453435B6345Dc261C2fcE0', // <--- RECOVERED
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
-    "gauge_factory_fraxtal": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c", // <--- CHANGED
     "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
     "fee_distributor_crvusd": "0xD16d5eC345Dd86Fb63C6a9C43c517210F1027914",
@@ -30,7 +28,8 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
 
 export const ALIASES_POLYGON = lowerCaseValues({
     "crv": "0x172370d5cd63279efa6d502dab29171933a610af",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0xb5acc710aede048600e10eedcefdf98d4abf4b1e",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -51,7 +50,8 @@ export const ALIASES_POLYGON = lowerCaseValues({
 
 export const ALIASES_FANTOM = lowerCaseValues({
     "crv": "0x1E4F97b9f9F913c46F1632781732927B9019C68b",
-    "gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
+    "child_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
+    "root_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "voting_escrow": "0xb75dca485e21a77e1b433ecacb74475fc67e259c",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -72,7 +72,8 @@ export const ALIASES_FANTOM = lowerCaseValues({
 
 export const ALIASES_AVALANCHE = lowerCaseValues({
     "crv": "0x47536F17F4fF30e64A96a7555826b8f9e66ec468",
-    "gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
+    "child_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
+    "root_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "voting_escrow": "0xc55837710bc500f1e3c7bb9dd1d51f7c5647e657",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -93,7 +94,8 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
 
 export const ALIASES_ARBITRUM = lowerCaseValues({
     "crv": "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x98c80fa823759b642c3e02f40533c164f40727ae",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -114,7 +116,8 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
 
 export const ALIASES_OPTIMISM = lowerCaseValues({
     "crv": "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x65a0b01756e837e6670634816e4f5b3a3ff21107",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -137,8 +140,9 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
 
 export const ALIASES_XDAI = lowerCaseValues({
     "crv": "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd",
-    "gauge_factory": "0x7BE6BD57A319A7180f71552E58c9d32Da32b6f96",
-    "gauge_factory_old": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0x7BE6BD57A319A7180f71552E58c9d32Da32b6f96",
+    "root_gauge_factory": "0x06471ED238306a427241B3eA81352244E77B004F",
+    "child_gauge_factory_old": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0xefde221f306152971d8e9f181bfe998447975810",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -159,7 +163,8 @@ export const ALIASES_XDAI = lowerCaseValues({
 
 export const ALIASES_MOONBEAM = lowerCaseValues({
     "crv": "0x7C598c96D02398d89FbCb9d41Eab3DF0C16F227D",
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -180,7 +185,7 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
 
 export const ALIASES_AURORA = lowerCaseValues({
     "crv": "0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205",
-    "gauge_factory": "0x0000000000000000000000000000000000000000", // <-- CHANGED
+    "child_gauge_factory": "0x0000000000000000000000000000000000000000", // <-- CHANGED
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -201,7 +206,8 @@ export const ALIASES_AURORA = lowerCaseValues({
 
 export const ALIASES_KAVA = lowerCaseValues({
     "crv": "0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205", // <--- TODO CHANGE
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -222,7 +228,8 @@ export const ALIASES_KAVA = lowerCaseValues({
 
 export const ALIASES_CELO = lowerCaseValues({
     "crv": "0x0a7432cF27F1aE3825c313F3C81e7D3efD7639aB", // <--- TODO CHANGE
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
@@ -243,7 +250,7 @@ export const ALIASES_CELO = lowerCaseValues({
 
 export const ALIASES_ZKSYNC = lowerCaseValues({
     "crv": "0x5945932099f124194452a4c62d34bB37f16183B2",
-    "gauge_factory": "0x0000000000000000000000000000000000000000",
+    "child_gauge_factory": "0x0000000000000000000000000000000000000000",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
@@ -264,7 +271,8 @@ export const ALIASES_ZKSYNC = lowerCaseValues({
 
 export const ALIASES_BASE = lowerCaseValues({
     "crv": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415", // <--- TODO CHANGE
-    "gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- DUMMY
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB", // <--- TODO CHANGE
@@ -287,7 +295,8 @@ export const ALIASES_BASE = lowerCaseValues({
 
 export const ALIASES_BSC = lowerCaseValues({
     "crv": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415", // <--- TODO CHANGE
-    "gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
+    "child_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
+    "root_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- TODO CHANGE
     "fee_distributor": "0x0000000000000000000000000000000000000000", // <-- TODO CHANGE
     "gauge_controller": "0x0000000000000000000000000000000000000000", // <--- TODO CHANGE
@@ -308,7 +317,8 @@ export const ALIASES_BSC = lowerCaseValues({
 
 export const ALIASES_FRAXTAL = lowerCaseValues({
     "crv": "0x331B9182088e2A7d6D3Fe4742AbA1fB231aEcc56",
-    "gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
+    "child_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
+    "root_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
@@ -329,7 +339,8 @@ export const ALIASES_FRAXTAL = lowerCaseValues({
 
 export const ALIASES_XLAYER = lowerCaseValues({
     "crv": "0x0000000000000000000000000000000000000000",
-    "gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
+    "child_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
+    "root_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
@@ -350,7 +361,8 @@ export const ALIASES_XLAYER = lowerCaseValues({
 
 export const ALIASES_MANTLE = lowerCaseValues({
     "crv": "0x0000000000000000000000000000000000000000",
-    "gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
+    "child_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
+    "root_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",

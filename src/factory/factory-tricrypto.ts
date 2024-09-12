@@ -2,6 +2,7 @@ import { IDict, IPoolData, ICurve } from "../interfaces";
 import { curve } from "../curve.js";
 import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
 import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" assert { type: 'json' };
+import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" assert { type: 'json' };
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
 import { tricryptoDeployImplementations } from "../constants/tricryptoDeployImplementations.js";
@@ -51,23 +52,23 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[][], string[]]> {
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.tricrypto_factory].multicallContract;
-    const isGaugeFactoryNull = this.constants.ALIASES.gauge_factory === curve.constants.ZERO_ADDRESS;
-    const isGaugeFactoryOldNull = !("gauge_factory_old" in this.constants.ALIASES);
+    const isChildGaugeFactoryNull = curve.chainId !== 1 && this.constants.ALIASES.child_gauge_factory === curve.constants.ZERO_ADDRESS;
+    const isChildGaugeFactoryOldNull = !("child_gauge_factory_old" in this.constants.ALIASES);
     const calls = [];
 
     if(this.chainId === 1) {
         for (const addr of factorySwapAddresses) {
             calls.push(factoryMulticallContract.get_gauge(addr));
             calls.push(factoryMulticallContract.get_coins(addr));
-            calls.push(factoryMulticallContract.get_implementation_address(addr));
         }
     } else {
-        const gaugeFactoryMulticallContract = this.contracts[this.constants.ALIASES.gauge_factory].multicallContract;
-        const gaugeFactoryOldMulticallContract = this.contracts[this.constants.ALIASES.gauge_factory_old ?? curve.constants.ZERO_ADDRESS].multicallContract;
-
         for (const addr of factorySwapAddresses) {
-            if (!isGaugeFactoryNull) calls.push(gaugeFactoryMulticallContract.get_gauge_from_lp_token(addr));
-            if (!isGaugeFactoryOldNull) calls.push(gaugeFactoryOldMulticallContract.get_gauge_from_lp_token(addr));
+            if (!isChildGaugeFactoryNull) {
+                calls.push(this.contracts[this.constants.ALIASES.child_gauge_factory].multicallContract.get_gauge_from_lp_token(addr));
+            }
+            if (!isChildGaugeFactoryOldNull) {
+                calls.push(this.contracts[this.constants.ALIASES.child_gauge_factory_old].multicallContract.get_gauge_from_lp_token(addr));
+            }
             calls.push(factoryMulticallContract.get_coins(addr));
             calls.push(factoryMulticallContract.get_implementation_address(addr));
         }
@@ -75,10 +76,11 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
 
     const res = await this.multicallProvider.all(calls);
 
-    if(isGaugeFactoryNull || isGaugeFactoryOldNull) {
+    if(isChildGaugeFactoryNull || isChildGaugeFactoryOldNull || this.chainId === 1) {
         for(let index = 0; index < res.length; index++) {
-            if(isGaugeFactoryNull && index % 4 == 0) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
-            if(isGaugeFactoryOldNull && index % 4 == 1) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
+            if(isChildGaugeFactoryNull && index % 4 == 0) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
+            if(isChildGaugeFactoryOldNull && index % 4 == 1) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
+            if(this.chainId === 1 && index % 4 == 3) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
         }
     }
 
@@ -208,8 +210,8 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
     const nativeToken = this.constants.NATIVE_TOKEN;
 
     for (let i = 0; i < poolIds.length; i++) {
+        const isETHEnabled = this.chainId === 1 || implementationAddresses[i] === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
         const underlyingCoinAddresses = coinAddresses[i].map((addr) => {
-            const isETHEnabled = implementationAddresses[i] === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
             if(isETHEnabled) {
                 return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;
             } else {
@@ -234,7 +236,7 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
             wrapped_coin_addresses: coinAddresses[i],
             underlying_decimals: [...underlyingCoinAddresses.map((addr) => coinAddressDecimalsDict[addr])],
             wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
-            swap_abi: tricryptoFactorySwapABI,
+            swap_abi: isETHEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI,
             gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
             is_ng: true,
         };

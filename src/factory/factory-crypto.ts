@@ -72,8 +72,8 @@ async function _getLpTokenMap(this: ICurve,factorySwapAddresses: string[]): Prom
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[], string[][]]> {
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
-    const isGaugeFactoryNull = this.constants.ALIASES.gauge_factory === curve.constants.ZERO_ADDRESS;
-    const isGaugeFactoryOldNull = !("gauge_factory_old" in this.constants.ALIASES);
+    const isChildGaugeFactoryNull = curve.chainId !== 1 && this.constants.ALIASES.child_gauge_factory === curve.constants.ZERO_ADDRESS;
+    const isChildGaugeFactoryOldNull = !("child_gauge_factory_old" in this.constants.ALIASES);
     const calls = [];
 
     if(this.chainId === 1) {
@@ -83,25 +83,26 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
             calls.push(factoryMulticallContract.get_coins(addr));
         }
     } else {
-        const gaugeFactoryMulticallContract = this.contracts[this.constants.ALIASES.gauge_factory].multicallContract;
-        const gaugeFactoryOldMulticallContract = this.contracts[this.constants.ALIASES.gauge_factory_old ?? curve.constants.ZERO_ADDRESS].multicallContract;
-
         const LpTokenMap = await _getLpTokenMap.call(this, factorySwapAddresses)
 
         for (const addr of factorySwapAddresses) {
             calls.push(factoryMulticallContract.get_token(addr));
-            if(!isGaugeFactoryNull) calls.push(gaugeFactoryMulticallContract.get_gauge_from_lp_token(LpTokenMap[addr]));
-            if(!isGaugeFactoryOldNull) calls.push(gaugeFactoryOldMulticallContract.get_gauge_from_lp_token(LpTokenMap[addr]));
+            if(!isChildGaugeFactoryNull) {
+                calls.push(this.contracts[this.constants.ALIASES.child_gauge_factory].multicallContract.get_gauge_from_lp_token(LpTokenMap[addr]));
+            }
+            if(!isChildGaugeFactoryOldNull) {
+                calls.push(this.contracts[this.constants.ALIASES.child_gauge_factory_old].multicallContract.get_gauge_from_lp_token(LpTokenMap[addr]));
+            }
             calls.push(factoryMulticallContract.get_coins(addr));
         }
     }
 
     const res = await this.multicallProvider.all(calls);
 
-    if(isGaugeFactoryNull || isGaugeFactoryOldNull) {
+    if(isChildGaugeFactoryNull || isChildGaugeFactoryOldNull) {
         for(let index = 0; index < res.length; index++) {
-            if(isGaugeFactoryNull && index % 4 == 1) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
-            if(isGaugeFactoryOldNull && index % 4 == 2) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
+            if(isChildGaugeFactoryNull && index % 4 == 1) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
+            if(isChildGaugeFactoryOldNull && index % 4 == 2) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
         }
     }
 

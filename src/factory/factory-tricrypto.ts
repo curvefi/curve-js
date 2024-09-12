@@ -51,8 +51,8 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[][], string[]]> {
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.tricrypto_factory].multicallContract;
-    const isGaugeFactoryNull = this.constants.ALIASES.gauge_factory === curve.constants.ZERO_ADDRESS;
-    const isGaugeFactoryOldNull = !("gauge_factory_old" in this.constants.ALIASES);
+    const isChildGaugeFactoryNull = curve.chainId !== 1 && this.constants.ALIASES.child_gauge_factory === curve.constants.ZERO_ADDRESS;
+    const isChildGaugeFactoryOldNull = !("child_gauge_factory_old" in this.constants.ALIASES);
     const calls = [];
 
     if(this.chainId === 1) {
@@ -62,12 +62,13 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
             calls.push(factoryMulticallContract.get_implementation_address(addr));
         }
     } else {
-        const gaugeFactoryMulticallContract = this.contracts[this.constants.ALIASES.gauge_factory].multicallContract;
-        const gaugeFactoryOldMulticallContract = this.contracts[this.constants.ALIASES.gauge_factory_old ?? curve.constants.ZERO_ADDRESS].multicallContract;
-
         for (const addr of factorySwapAddresses) {
-            if (!isGaugeFactoryNull) calls.push(gaugeFactoryMulticallContract.get_gauge_from_lp_token(addr));
-            if (!isGaugeFactoryOldNull) calls.push(gaugeFactoryOldMulticallContract.get_gauge_from_lp_token(addr));
+            if (!isChildGaugeFactoryNull) {
+                calls.push(this.contracts[this.constants.ALIASES.child_gauge_factory].multicallContract.get_gauge_from_lp_token(addr));
+            }
+            if (!isChildGaugeFactoryOldNull) {
+                calls.push(this.contracts[this.constants.ALIASES.child_gauge_factory_old].multicallContract.get_gauge_from_lp_token(addr));
+            }
             calls.push(factoryMulticallContract.get_coins(addr));
             calls.push(factoryMulticallContract.get_implementation_address(addr));
         }
@@ -75,10 +76,10 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
 
     const res = await this.multicallProvider.all(calls);
 
-    if(isGaugeFactoryNull || isGaugeFactoryOldNull) {
+    if(isChildGaugeFactoryNull || isChildGaugeFactoryOldNull) {
         for(let index = 0; index < res.length; index++) {
-            if(isGaugeFactoryNull && index % 4 == 0) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
-            if(isGaugeFactoryOldNull && index % 4 == 1) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
+            if(isChildGaugeFactoryNull && index % 4 == 0) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
+            if(isChildGaugeFactoryOldNull && index % 4 == 1) res.splice(index, 0 , curve.constants.ZERO_ADDRESS);
         }
     }
 

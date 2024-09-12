@@ -18,9 +18,7 @@ import {IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType, Abi}
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
-import gaugeFactoryABI from './constants/abis/gauge_factory_mainnet.json' assert { type: 'json' };
-import gaugeFactoryForFraxtalABI from './constants/abis/gauge_factory_mainnet_for_fraxtal.json' assert { type: 'json' };
-import gaugeFactorySidechainABI from './constants/abis/gauge_factory_sidechain.json' assert { type: 'json' };
+import childGaugeFactoryABI from './constants/abis/gauge_factory/child_gauge_factory.json' assert { type: 'json' };
 import minterMainnetABI from './constants/abis/minter_mainnet.json' assert { type: 'json' };
 import votingEscrowABI from './constants/abis/votingescrow.json' assert { type: 'json' };
 import anycallABI from './constants/abis/anycall.json' assert { type: 'json' };
@@ -675,17 +673,14 @@ class Curve implements ICurve {
         this.setContract(this.constants.ALIASES.crv, ERC20Abi);
         this.constants.DECIMALS[this.constants.ALIASES.crv] = 18;
 
-        const _gaugeFactoryABI = this.chainId === 1 ? gaugeFactoryABI : gaugeFactorySidechainABI
-        this.setContract(this.constants.ALIASES.gauge_factory, _gaugeFactoryABI);
-
-        if ("gauge_factory_old" in this.constants.ALIASES) {
-            this.setContract(this.constants.ALIASES.gauge_factory_old, _gaugeFactoryABI);
-        }
-
         if(this.chainId === 1) {
-            this.setContract(this.constants.ALIASES.minter, minterMainnetABI)
-            this.setContract(this.constants.ALIASES.gauge_factory_fraxtal, gaugeFactoryForFraxtalABI)
+            this.setContract(this.constants.ALIASES.minter, minterMainnetABI);
             this.setContract(this.constants.ALIASES.fee_distributor_crvusd, feeDistributorCrvUSDABI);
+        } else {
+            this.setContract(this.constants.ALIASES.child_gauge_factory, childGaugeFactoryABI);
+            if ("child_gauge_factory_old" in this.constants.ALIASES) {
+                this.setContract(this.constants.ALIASES.child_gauge_factory_old, childGaugeFactoryABI);
+            }
         }
 
         this.setContract(this.constants.ALIASES.voting_escrow, votingEscrowABI);
@@ -714,7 +709,6 @@ class Curve implements ICurve {
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
             this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
             this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
-
         }
 
         this.setContract(this.constants.ALIASES.crvusd_factory, factoryABI);
@@ -914,7 +908,7 @@ class Curve implements ICurve {
                 await this.contracts[this.constants.ALIASES.tricrypto_factory].contract.gauge_implementation(this.constantOptions);
         } else {
             this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] =
-                await this.contracts[this.constants.ALIASES.gauge_factory].contract.get_implementation(this.constantOptions);
+                await this.contracts[this.constants.ALIASES.child_gauge_factory].contract.get_implementation(this.constantOptions);
         }
     }
 

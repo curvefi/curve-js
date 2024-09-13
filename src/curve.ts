@@ -88,22 +88,22 @@ import {
     ALIASES_MANTLE,
 } from "./constants/aliases.js";
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
-import { COINS_OPTIMISM, cTokensOptimism, yTokensOptimism, ycTokensOptimism, aTokensOptimism } from "./constants/coins/optimism.js";
-import { COINS_POLYGON, cTokensPolygon,  yTokensPolygon, ycTokensPolygon, aTokensPolygon } from "./constants/coins/polygon.js";
-import { COINS_FANTOM, cTokensFantom,  yTokensFantom, ycTokensFantom, aTokensFantom } from "./constants/coins/fantom.js";
-import { COINS_AVALANCHE, cTokensAvalanche,  yTokensAvalanche, ycTokensAvalanche, aTokensAvalanche } from "./constants/coins/avalanche.js";
-import { COINS_ARBITRUM, cTokensArbitrum,  yTokensArbitrum, ycTokensArbitrum, aTokensArbitrum } from "./constants/coins/arbitrum.js";
-import { COINS_XDAI, cTokensXDai,  yTokensXDai, ycTokensXDai, aTokensXDai } from "./constants/coins/xdai.js";
-import { COINS_MOONBEAM, cTokensMoonbeam,  yTokensMoonbeam, ycTokensMoonbeam, aTokensMoonbeam } from "./constants/coins/moonbeam.js";
-import { COINS_AURORA, cTokensAurora,  yTokensAurora, ycTokensAurora, aTokensAurora } from "./constants/coins/aurora.js";
-import { COINS_KAVA, cTokensKava,  yTokensKava, ycTokensKava, aTokensKava } from "./constants/coins/kava.js";
-import { COINS_CELO, cTokensCelo,  yTokensCelo, ycTokensCelo, aTokensCelo } from "./constants/coins/celo.js";
-import { COINS_ZKSYNC, cTokensZkSync,  yTokensZkSync, ycTokensZkSync, aTokensZkSync } from "./constants/coins/zksync.js";
-import { COINS_BASE, cTokensBase,  yTokensBase, ycTokensBase, aTokensBase } from "./constants/coins/base.js";
-import { COINS_BSC, cTokensBsc,  yTokensBsc, ycTokensBsc, aTokensBsc } from "./constants/coins/bsc.js";
-import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aTokensFraxtal } from "./constants/coins/fraxtal.js";
-import { COINS_XLAYER, cTokensXLayer,  yTokensXLayer, ycTokensXLayer, aTokensXLayer } from "./constants/coins/xlayer.js";
-import { COINS_MANTLE, cTokensMantle,  yTokensMantle, ycTokensMantle, aTokensMantle } from "./constants/coins/mantle.js";
+import { COINS_OPTIMISM } from "./constants/coins/optimism.js";
+import { COINS_POLYGON, aTokensPolygon } from "./constants/coins/polygon.js";
+import { COINS_FANTOM, cTokensFantom, aTokensFantom } from "./constants/coins/fantom.js";
+import { COINS_AVALANCHE, aTokensAvalanche } from "./constants/coins/avalanche.js";
+import { COINS_ARBITRUM } from "./constants/coins/arbitrum.js";
+import { COINS_XDAI } from "./constants/coins/xdai.js";
+import { COINS_MOONBEAM } from "./constants/coins/moonbeam.js";
+import { COINS_AURORA } from "./constants/coins/aurora.js";
+import { COINS_KAVA } from "./constants/coins/kava.js";
+import { COINS_CELO } from "./constants/coins/celo.js";
+import { COINS_ZKSYNC } from "./constants/coins/zksync.js";
+import { COINS_BASE } from "./constants/coins/base.js";
+import { COINS_BSC } from "./constants/coins/bsc.js";
+import { COINS_FRAXTAL } from "./constants/coins/fraxtal.js";
+import { COINS_XLAYER } from "./constants/coins/xlayer.js";
+import { COINS_MANTLE } from "./constants/coins/mantle.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
@@ -259,39 +259,24 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         ALIASES: ALIASES_OPTIMISM,
         POOLS_DATA: POOLS_DATA_OPTIMISM,
         COINS: COINS_OPTIMISM,
-        cTokens: cTokensOptimism,
-        yTokens: yTokensOptimism,
-        ycTokens: ycTokensOptimism,
-        aTokens: aTokensOptimism,
     },
     56: {
         NAME: 'bsc',
         ALIASES: ALIASES_BSC,
         POOLS_DATA: POOLS_DATA_BSC,
         COINS: COINS_BSC,
-        cTokens: cTokensBsc,
-        yTokens: yTokensBsc,
-        ycTokens: ycTokensBsc,
-        aTokens: aTokensBsc ,
     },
     100: {
         NAME: 'xdai',
         ALIASES: ALIASES_XDAI,
         POOLS_DATA: POOLS_DATA_XDAI,
         COINS: COINS_XDAI,
-        cTokens: cTokensXDai,
-        yTokens: yTokensXDai,
-        ycTokens: ycTokensXDai,
-        aTokens: aTokensXDai,
     },
     137: {
         NAME: 'polygon',
         ALIASES: ALIASES_POLYGON,
         POOLS_DATA: POOLS_DATA_POLYGON,
         COINS: COINS_POLYGON,
-        cTokens: cTokensPolygon,
-        yTokens: yTokensPolygon,
-        ycTokens: ycTokensPolygon,
         aTokens: aTokensPolygon,
     },
     196: {
@@ -299,10 +284,6 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         ALIASES: ALIASES_XLAYER,
         POOLS_DATA: POOLS_DATA_XLAYER,
         COINS: COINS_XLAYER,
-        cTokens: cTokensXLayer,
-        yTokens: yTokensXLayer,
-        ycTokens: ycTokensXLayer,
-        aTokens: aTokensXLayer,
     },
     250: {
         NAME: 'fantom',
@@ -310,8 +291,6 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         POOLS_DATA: POOLS_DATA_FANTOM,
         COINS: COINS_FANTOM,
         cTokens: cTokensFantom,
-        yTokens: yTokensFantom,
-        ycTokens: ycTokensFantom,
         aTokens: aTokensFantom,
     },
     252: {
@@ -319,89 +298,54 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         ALIASES: ALIASES_FRAXTAL,
         POOLS_DATA: POOLS_DATA_FRAXTAL,
         COINS: COINS_FRAXTAL,
-        cTokens: cTokensFraxtal,
-        yTokens: yTokensFraxtal,
-        ycTokens: ycTokensFraxtal,
-        aTokens: aTokensFraxtal,
     },
     324: {
         NAME: 'zksync',
         ALIASES: ALIASES_ZKSYNC,
         POOLS_DATA: POOLS_DATA_ZKSYNC,
         COINS: COINS_ZKSYNC,
-        cTokens: cTokensZkSync,
-        yTokens: yTokensZkSync,
-        ycTokens: ycTokensZkSync,
-        aTokens: aTokensZkSync,
     },
     1284: {
         NAME: 'moonbeam',
         ALIASES: ALIASES_MOONBEAM,
         POOLS_DATA: POOLS_DATA_MOONBEAM,
         COINS: COINS_MOONBEAM,
-        cTokens: cTokensMoonbeam,
-        yTokens: yTokensMoonbeam,
-        ycTokens: ycTokensMoonbeam,
-        aTokens: aTokensMoonbeam,
     },
     2222: {
         NAME: 'kava',
         ALIASES: ALIASES_KAVA,
         POOLS_DATA: POOLS_DATA_KAVA,
         COINS: COINS_KAVA,
-        cTokens: cTokensKava,
-        yTokens: yTokensKava,
-        ycTokens: ycTokensKava,
-        aTokens: aTokensKava,
     },
     5000: {
         NAME: 'mantle',
         ALIASES: ALIASES_MANTLE,
         POOLS_DATA: POOLS_DATA_MANTLE,
         COINS: COINS_MANTLE,
-        cTokens: cTokensMantle,
-        yTokens: yTokensMantle,
-        ycTokens: ycTokensMantle,
-        aTokens: aTokensMantle,
     },
     8453: {
         NAME: 'base',
         ALIASES: ALIASES_BASE,
         POOLS_DATA: POOLS_DATA_BASE,
         COINS: COINS_BASE,
-        cTokens: cTokensBase,
-        yTokens: yTokensBase,
-        ycTokens: ycTokensBase,
-        aTokens: aTokensBase,
     },
     42161: {
         NAME: 'arbitrum',
         ALIASES: ALIASES_ARBITRUM,
         POOLS_DATA: POOLS_DATA_ARBITRUM,
         COINS: COINS_ARBITRUM,
-        cTokens: cTokensArbitrum,
-        yTokens: yTokensArbitrum,
-        ycTokens: ycTokensArbitrum,
-        aTokens: aTokensArbitrum,
     },
     42220: {
         NAME: 'celo',
         ALIASES: ALIASES_CELO,
         POOLS_DATA: POOLS_DATA_CELO,
         COINS: COINS_CELO,
-        cTokens: cTokensCelo,
-        yTokens: yTokensCelo,
-        ycTokens: ycTokensCelo,
-        aTokens: aTokensCelo,
     },
     43114: {
         NAME: 'avalanche',
         ALIASES: ALIASES_AVALANCHE,
         POOLS_DATA: POOLS_DATA_AVALANCHE,
         COINS: COINS_AVALANCHE,
-        cTokens: cTokensAvalanche,
-        yTokens: yTokensAvalanche,
-        ycTokens: ycTokensAvalanche,
         aTokens: aTokensAvalanche,
     },
     1313161554: {
@@ -409,10 +353,6 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         ALIASES: ALIASES_AURORA,
         POOLS_DATA: POOLS_DATA_AURORA,
         COINS: COINS_AURORA,
-        cTokens: cTokensAurora,
-        yTokens: yTokensAurora,
-        ycTokens: ycTokensAurora,
-        aTokens: aTokensAurora,
     },
 }
 
@@ -593,10 +533,10 @@ class Curve implements ICurve {
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.wrappedAddress] = 18;
         this.constants.GAUGES = extractGauges(this.constants.POOLS_DATA);
         const [cTokens, yTokens, ycTokens, aTokens] = [
-            NETWORK_CONSTANTS[this.chainId].cTokens,
-            NETWORK_CONSTANTS[this.chainId].yTokens,
-            NETWORK_CONSTANTS[this.chainId].ycTokens,
-            NETWORK_CONSTANTS[this.chainId].aTokens,
+            NETWORK_CONSTANTS[this.chainId].cTokens ?? [],
+            NETWORK_CONSTANTS[this.chainId].yTokens ?? [],
+            NETWORK_CONSTANTS[this.chainId].ycTokens ?? [],
+            NETWORK_CONSTANTS[this.chainId].aTokens ?? [],
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
 

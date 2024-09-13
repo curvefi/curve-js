@@ -8,8 +8,3 @@ export const COINS_ZKSYNC: IDict<string> = lowerCaseValues({
     // --- USD ---
     'weth': '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
 });
-
-export const cTokensZkSync = []; //.map((a) => a.toLowerCase());
-export const yTokensZkSync = []; //.map((a) => a.toLowerCase());
-export const ycTokensZkSync = []; //.map((a) => a.toLowerCase());
-export const aTokensZkSync = []; //.map((a) => a.toLowerCase());

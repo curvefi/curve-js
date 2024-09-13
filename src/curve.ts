@@ -47,7 +47,6 @@ import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' as
 import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
 import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
 
-
 import {
     POOLS_DATA_ETHEREUM,
     LLAMMAS_DATA_ETHEREUM,
@@ -87,23 +86,26 @@ import {
     ALIASES_XLAYER,
     ALIASES_MANTLE,
 } from "./constants/aliases.js";
-import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./constants/coins/ethereum.js";
-import { COINS_OPTIMISM } from "./constants/coins/optimism.js";
-import { COINS_POLYGON, aTokensPolygon } from "./constants/coins/polygon.js";
-import { COINS_FANTOM, cTokensFantom, aTokensFantom } from "./constants/coins/fantom.js";
-import { COINS_AVALANCHE, aTokensAvalanche } from "./constants/coins/avalanche.js";
-import { COINS_ARBITRUM } from "./constants/coins/arbitrum.js";
-import { COINS_XDAI } from "./constants/coins/xdai.js";
-import { COINS_MOONBEAM } from "./constants/coins/moonbeam.js";
-import { COINS_AURORA } from "./constants/coins/aurora.js";
-import { COINS_KAVA } from "./constants/coins/kava.js";
-import { COINS_CELO } from "./constants/coins/celo.js";
-import { COINS_ZKSYNC } from "./constants/coins/zksync.js";
-import { COINS_BASE } from "./constants/coins/base.js";
-import { COINS_BSC } from "./constants/coins/bsc.js";
-import { COINS_FRAXTAL } from "./constants/coins/fraxtal.js";
-import { COINS_XLAYER } from "./constants/coins/xlayer.js";
-import { COINS_MANTLE } from "./constants/coins/mantle.js";
+import {
+    COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
+    COINS_OPTIMISM,
+    COINS_POLYGON, aTokensPolygon,
+    COINS_FANTOM, cTokensFantom, aTokensFantom,
+    COINS_AVALANCHE, aTokensAvalanche,
+    COINS_ARBITRUM,
+    COINS_XDAI,
+    COINS_MOONBEAM,
+    COINS_AURORA,
+    COINS_KAVA,
+    COINS_CELO,
+    COINS_ZKSYNC,
+    COINS_BASE,
+    COINS_BSC,
+    COINS_FRAXTAL,
+    COINS_XLAYER,
+    COINS_MANTLE,
+} from "./constants/coins/index.js";
+
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
@@ -479,8 +481,6 @@ class Curve implements ICurve {
                     batchMaxCount: providerSettings.batchMaxCount,
                 };
             }
-
-
 
             if (providerSettings.url) {
                 this.provider = new ethers.JsonRpcProvider(providerSettings.url, undefined, jsonRpcApiProviderOptions);

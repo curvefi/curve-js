@@ -358,9 +358,6 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
     },
 }
 
-const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
-
-
 export type ContractItem = { contract: Contract, multicallContract: MulticallContract, abi: Abi };
 
 class Curve implements ICurve {
@@ -632,7 +629,7 @@ class Curve implements ICurve {
 
         if (this.chainId == 137) {
             this.setContract(this.constants.ALIASES.router, routerPolygonABI);
-        } else if (OLD_CHAINS.includes(this.chainId)) {
+        } else if ("factory" in this.constants.ALIASES) {
             this.setContract(this.constants.ALIASES.router, routerABI);
         } else {
             this.setContract(this.constants.ALIASES.router, routerNgPoolsOnlyABI);

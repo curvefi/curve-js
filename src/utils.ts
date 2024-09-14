@@ -708,8 +708,8 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
 }
 
 
-export const hasDepositAndStake = (): boolean => curve.constants.ALIASES.deposit_and_stake !== curve.constants.ZERO_ADDRESS;
-export const hasRouter = (): boolean => curve.constants.ALIASES.router !== curve.constants.ZERO_ADDRESS;
+export const hasDepositAndStake = (): boolean => "deposit_and_stake" in curve.constants.ALIASES;
+export const hasRouter = (): boolean => "router" in curve.constants.ALIASES;
 
 export const findAbiFunction = (abi: Abi, methodName: string) =>
     abi.filter((item) => item.type == 'function' && item.name === methodName) as AbiFunction[]

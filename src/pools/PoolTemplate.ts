@@ -593,13 +593,11 @@ export class PoolTemplate {
         }
 
         try {
-            const contract = curve.contracts[curve.constants.ALIASES.stable_calc].contract;
+            if (this.isNg) return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
 
-            if (curve.constants.ALIASES.stable_calc === curve.constants.ZERO_ADDRESS || this.id.startsWith("factory-stable-ng")) {
-                return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
-            } else if (this.isMeta) {
+            if (this.isMeta) {
                 const basePool = new PoolTemplate(this.basePool);
-                return await contract.calc_token_amount_meta(
+                return await curve.contracts[curve.constants.ALIASES.stable_calc].contract.calc_token_amount_meta(
                     this.address,
                     this.lpToken,
                     _amounts.concat(Array(10 - _amounts.length).fill(curve.parseUnits("0"))),
@@ -610,7 +608,7 @@ export class PoolTemplate {
                     useUnderlying
                 );
             } else {
-                return await contract.calc_token_amount(
+                return await curve.contracts[curve.constants.ALIASES.stable_calc].contract.calc_token_amount(
                     this.address,
                     this.lpToken,
                     _amounts.concat(Array(10 - _amounts.length).fill(curve.parseUnits("0"))),

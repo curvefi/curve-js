@@ -9,10 +9,11 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "fee_distributor_crvusd": "0xD16d5eC345Dd86Fb63C6a9C43c517210F1027914",
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x16C6521Dff6baB339122a0FE25a9116693265353",
-    "deposit_and_stake": "0x56C526b0159a258887e0d79ec3a80dfb940d0cD7", // <--- CHANGE
-    "stable_calc": "0x0DCDED3545D565bA3B19E683431381007245d983", // <-- CHANGE
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- CHANGE
+    "deposit_and_stake": "0x56C526b0159a258887e0d79ec3a80dfb940d0cD7",
+    "stable_calc": "0x0DCDED3545D565bA3B19E683431381007245d983",
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4',
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d',
@@ -35,10 +36,11 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x0DCDED3545D565bA3B19E683431381007245d983",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
+    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
@@ -57,10 +59,11 @@ export const ALIASES_FANTOM = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x0DCDED3545D565bA3B19E683431381007245d983",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
+    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": "0x686d67265703d1f124c45e33d47d794c566889ba",
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367',
@@ -80,10 +83,11 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x0DCDED3545D565bA3B19E683431381007245d983",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
+    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": '0xb17b674D9c5CB2e441F8e196a2f048A81355d031',
     "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585',
@@ -101,10 +105,11 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x2191718CD32d02B8E60BAdFFeA33E4B5DD9A0A0D",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
+    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": '0xb17b674D9c5CB2e441F8e196a2f048A81355d031',
     "stable_ng_factory": '0x9AF14D26075f142eb3F292D5065EB3faa646167b',
@@ -122,9 +127,10 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x0DCDED3545D565bA3B19E683431381007245d983",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
+    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": '0x2db0E83599a91b508Ac268a6197b8B14F5e72840',
@@ -146,10 +152,11 @@ export const ALIASES_XDAI = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x0DCDED3545D565bA3B19E683431381007245d983",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
+    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": '0xD19Baeadc667Cf2015e395f2B08668Ef120f41F5',
     "stable_ng_factory": '0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8',
@@ -167,10 +174,9 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
-    "router": "0x0000000000000000000000000000000000000000",
-    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
+
+    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
+    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": '0x4244eB811D6e0Ef302326675207A95113dB4E1F8',
 
@@ -184,10 +190,6 @@ export const ALIASES_AURORA = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
-    "router": "0x0000000000000000000000000000000000000000",
-    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
@@ -204,6 +206,7 @@ export const ALIASES_KAVA = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
+
     "router": "0x0DCDED3545D565bA3B19E683431381007245d983",
     "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
@@ -225,8 +228,7 @@ export const ALIASES_CELO = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
-    "router": "0x0000000000000000000000000000000000000000",
-    "deposit_and_stake": "0x0000000000000000000000000000000000000000",
+
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
@@ -245,10 +247,9 @@ export const ALIASES_ZKSYNC = lowerCaseValues({
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
     "address_provider": "0x0000000000000000000000000000000000000000",
+
     "router": "0x7C915390e109CA66934f1eB285854375D1B127FA",
     "deposit_and_stake": "0x253548e98C769aD2850da8DB3E4c2b2cE46E3839",
-    "stable_calc": "0x0000000000000000000000000000000000000000",
-    "crypto_calc": '0x0000000000000000000000000000000000000000',
 
     "stable_ng_factory": '0xFcAb5d04e8e031334D5e8D2C166B08daB0BE6CaE',
     "twocrypto_factory": '0xf3a546AF64aFd6BB8292746BA66DB33aFAE72114',
@@ -265,6 +266,7 @@ export const ALIASES_BASE = lowerCaseValues({
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB", // <--- TODO CHANGE
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383", // <--- TODO CHANGE
+
     "router": "0x4f37A9d177470499A2dD084621020b023fcffc1F",
     "deposit_and_stake": "0x69522fb5337663d3B4dFB0030b881c1A750Adb4f",
     "stable_calc": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
@@ -289,6 +291,7 @@ export const ALIASES_BSC = lowerCaseValues({
     "fee_distributor": "0x0000000000000000000000000000000000000000", // <-- TODO CHANGE
     "gauge_controller": "0x0000000000000000000000000000000000000000", // <--- TODO CHANGE
     "address_provider": "0x0000000000000000000000000000000000000000", // <--- TODO CHANGE
+
     "router": "0xA72C85C258A81761433B4e8da60505Fe3Dd551CC",
     "deposit_and_stake": "0x4f37A9d177470499A2dD084621020b023fcffc1F",
     "stable_calc": "0x0fE38dCC905eC14F6099a83Ac5C93BF2601300CF",
@@ -311,10 +314,9 @@ export const ALIASES_FRAXTAL = lowerCaseValues({
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
     "address_provider": "0x0000000000000000000000000000000000000000",
+
     "router": "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db",
     "deposit_and_stake": "0x0fE38dCC905eC14F6099a83Ac5C93BF2601300CF",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
-    "crypto_calc": '0x69522fb5337663d3B4dFB0030b881c1A750Adb4f',
 
     "stable_ng_factory": '0xd2002373543Ce3527023C75e7518C274A51ce712',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
@@ -331,10 +333,9 @@ export const ALIASES_XLAYER = lowerCaseValues({
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
     "address_provider": "0x0000000000000000000000000000000000000000",
+
     "router": "0xBFab8ebc836E1c4D81837798FC076D219C9a1855",
     "deposit_and_stake": "0x5552b631e2aD801fAa129Aacf4B701071cC9D1f7",
-    "stable_calc": "0x0fE38dCC905eC14F6099a83Ac5C93BF2601300CF",
-    "crypto_calc": '0x69522fb5337663d3B4dFB0030b881c1A750Adb4f',
 
     "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "twocrypto_factory": '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf',
@@ -351,10 +352,9 @@ export const ALIASES_MANTLE = lowerCaseValues({
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
     "address_provider": "0x0000000000000000000000000000000000000000",
+
     "router": "0x4f37A9d177470499A2dD084621020b023fcffc1F",
     "deposit_and_stake": "0x5552b631e2ad801faa129aacf4b701071cc9d1f7",
-    "stable_calc": "0x0fE38dCC905eC14F6099a83Ac5C93BF2601300CF",
-    "crypto_calc": '0xd6681e74eEA20d196c15038C580f721EF2aB6320',
 
     "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',

@@ -644,9 +644,11 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.stable_calc, StableCalcZapABI);
 
-        this.setContract(this.constants.ALIASES.factory, factoryABI);
+        // --------- POOL FACTORY ---------
 
-        if (this.chainId !== 1313161554 && this.chainId !== 252 && this.chainId !== 324 && this.chainId !== 196 && this.chainId !== 5000) {
+        if ("factory" in this.constants.ALIASES) {
+            this.setContract(this.constants.ALIASES.factory, factoryABI);
+
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
             this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
             this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
@@ -658,6 +660,8 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI);
 
+        this.setContract(this.constants.ALIASES.stable_ng_factory, stableNgFactoryABI);
+
         this.setContract(this.constants.ALIASES.twocrypto_factory, twocryptoFactoryABI);
 
         if (this.chainId == 1) {
@@ -666,7 +670,7 @@ class Curve implements ICurve {
             this.setContract(this.constants.ALIASES.tricrypto_factory, tricryptoFactorySidechainABI);
         }
 
-        this.setContract(this.constants.ALIASES.stable_ng_factory, stableNgFactoryABI);
+        // --------------------------------
 
         this.setContract(this.constants.ALIASES.anycall, anycallABI);
 
@@ -732,7 +736,9 @@ class Curve implements ICurve {
     initContract = memoizedContract()
     initMulticallContract = memoizedMulticallContract()
 
-    setContract(address: string, abi: any): void {
+    setContract(address: string | undefined, abi: any): void {
+        if (address === this.constants.ZERO_ADDRESS || address === undefined) return;
+
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const curveInstance = this;
 
@@ -768,7 +774,7 @@ class Curve implements ICurve {
     }
 
     fetchFactoryPools = async (useApi = true): Promise<void> => {
-        if ([196, 252, 324, 5000, 1313161554].includes(this.chainId)) return;
+        if (!("factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory"));
@@ -782,7 +788,7 @@ class Curve implements ICurve {
     }
 
     fetchCrvusdFactoryPools = async (useApi = true): Promise<void> => {
-        if (this.chainId != 1) return;
+        if (!("crvusd_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
             this.constants.CRVUSD_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-crvusd"));
@@ -796,7 +802,7 @@ class Curve implements ICurve {
     }
 
     fetchEywaFactoryPools = async (useApi = true): Promise<void> => {
-        if (this.chainId != 250) return;
+        if (!("eywa_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
             this.constants.EYWA_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-eywa"));
@@ -810,7 +816,7 @@ class Curve implements ICurve {
     }
 
     fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
-        if (![1, 56, 137, 250, 5000, 8453].includes(this.chainId)) return;
+        if (!("crypto_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-crypto"));
@@ -823,8 +829,21 @@ class Curve implements ICurve {
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
+    fetchStableNgFactoryPools = async (useApi = true): Promise<void> => {
+        if (!("stable_ng_factory" in this.constants.ALIASES)) return;
+
+        if (useApi) {
+            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-stable-ng"));
+        } else {
+            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
+        }
+
+        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+    }
+
     fetchTworyptoFactoryPools = async (useApi = true): Promise<void> => {
-        if ([1284].includes(this.chainId)) return;
+        if (!("twocrypto_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
             this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-twocrypto"));
@@ -838,7 +857,7 @@ class Curve implements ICurve {
     }
 
     fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
-        if ([1284].includes(this.chainId)) return;
+        if (!("tricrypto_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-tricrypto"));
@@ -857,21 +876,8 @@ class Curve implements ICurve {
         }
     }
 
-    fetchStableNgFactoryPools = async (useApi = true): Promise<void> => {
-        if (this.chainId === 1313161554) return;
-
-        if (useApi) {
-            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-stable-ng"));
-        } else {
-            this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
-        }
-
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-    }
-
     fetchNewFactoryPools = async (): Promise<string[]> => {
-        if ([196,252,1313161554].includes(this.chainId)) return [];
+        if (!("factory" in this.constants.ALIASES)) return [];
 
         const currentPoolIds = Object.keys(this.constants.FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -882,18 +888,8 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
-    fetchNewStableNgFactoryPools = async (): Promise<string[]> => {
-        const currentPoolIds = Object.keys(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-        const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[3]);
-        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, lastPoolIdx + 1, undefined, this.constants.ALIASES.stable_ng_factory));
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
-        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
-
-        return Object.keys(poolData)
-    }
-
     fetchNewCryptoFactoryPools = async (): Promise<string[]> => {
-        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return [];
+        if (!("crypto_factory" in this.constants.ALIASES)) return [];
 
         const currentPoolIds = Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -904,8 +900,20 @@ class Curve implements ICurve {
         return Object.keys(poolData)
     }
 
+    fetchNewStableNgFactoryPools = async (): Promise<string[]> => {
+        if (!("stable_ng_factory" in this.constants.ALIASES)) return [];
+
+        const currentPoolIds = Object.keys(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+        const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[3]);
+        const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, lastPoolIdx + 1, undefined, this.constants.ALIASES.stable_ng_factory));
+        this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)
+    }
+
     fetchNewTwocryptoFactoryPools = async (): Promise<string[]> => {
-        if ([1284].includes(this.chainId)) return [];
+        if (!("twocrypto_factory" in this.constants.ALIASES)) return [];
 
         const currentPoolIds = Object.keys(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -917,7 +925,7 @@ class Curve implements ICurve {
     }
 
     fetchNewTricryptoFactoryPools = async (): Promise<string[]> => {
-        if ([1284].includes(this.chainId)) return [];
+        if (!("tricrypto_factory" in this.constants.ALIASES)) return [];
 
         const currentPoolIds = Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
         const lastPoolIdx = currentPoolIds.length === 0 ? -1 : Number(currentPoolIds[currentPoolIds.length - 1].split("-")[2]);
@@ -929,7 +937,7 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedFactoryPool = async (poolAddress: string): Promise<string> => {
-        if ([196,252,1313161554].includes(this.chainId)) return '';
+        if (!("factory" in this.constants.ALIASES)) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, poolAddress));
         this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
@@ -938,8 +946,18 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
+    fetchRecentlyDeployedCryptoFactoryPool = async (poolAddress: string): Promise<string> => {
+        if (!("crypto_factory" in this.constants.ALIASES)) return '';
+
+        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, 0, poolAddress));
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
+        this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+
+        return Object.keys(poolData)[0]  // id
+    }
+
     fetchRecentlyDeployedStableNgFactoryPool = async (poolAddress: string): Promise<string> => {
-        if (this.chainId === 1313161554) return '';
+        if (!("stable_ng_factory" in this.constants.ALIASES)) return '';
 
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, poolAddress, this.constants.ALIASES.stable_ng_factory));
         this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
@@ -948,17 +966,9 @@ class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
-    fetchRecentlyDeployedCryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if (![1, 56, 137, 250, 8453].includes(this.chainId)) return '';
-        const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, 0, poolAddress));
-        this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
-        this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
-
-        return Object.keys(poolData)[0]  // id
-    }
-
     fetchRecentlyDeployedTwocryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if ([1284].includes(this.chainId)) return '';
+        if (!("twocrypto_factory" in this.constants.ALIASES)) return '';
+
         const poolData = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
@@ -967,7 +977,8 @@ class Curve implements ICurve {
     }
 
     fetchRecentlyDeployedTricryptoFactoryPool = async (poolAddress: string): Promise<string> => {
-        if ([1284].includes(this.chainId)) return '';
+        if (!("tricrypto_factory" in this.constants.ALIASES)) return '';
+
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, poolAddress));
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
@@ -985,11 +996,11 @@ class Curve implements ICurve {
 
     getCryptoFactoryPoolList = (): string[] => Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
+    getStableNgFactoryPoolList = (): string[] => Object.keys(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+
     getTworyptoFactoryPoolList = (): string[] => Object.keys(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
     getTricryptoFactoryPoolList = (): string[] => Object.keys(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
-
-    getStableNgFactoryPoolList = (): string[] => Object.keys(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
 
     getPoolList = (): string[] => {
         return [
@@ -998,9 +1009,9 @@ class Curve implements ICurve {
             ...this.getCrvusdFactoryPoolList(),
             ...this.getEywaFactoryPoolList(),
             ...this.getCryptoFactoryPoolList(),
+            ...this.getStableNgFactoryPoolList(),
             ...this.getTworyptoFactoryPoolList(),
             ...this.getTricryptoFactoryPoolList(),
-            ...this.getStableNgFactoryPoolList(),
         ]
     };
 
@@ -1010,9 +1021,9 @@ class Curve implements ICurve {
         ...this.constants.CRVUSD_FACTORY_POOLS_DATA,
         ...this.constants.EYWA_FACTORY_POOLS_DATA,
         ...this.constants.CRYPTO_FACTORY_POOLS_DATA,
+        ...this.constants.STABLE_NG_FACTORY_POOLS_DATA,
         ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA,
         ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA,
-        ...this.constants.STABLE_NG_FACTORY_POOLS_DATA,
         ...this.constants.LLAMMAS_DATA,
     });
 

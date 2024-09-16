@@ -12,7 +12,8 @@ import {
     IVolumeAndAPYs,
     REFERENCE_ASSET,
 } from './interfaces';
-import {curve, NETWORK_CONSTANTS} from "./curve.js";
+import { curve } from "./curve.js";
+import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
 import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes} from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
 import {L2Networks} from './constants/L2Networks.js';

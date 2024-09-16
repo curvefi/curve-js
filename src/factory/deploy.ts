@@ -1,5 +1,6 @@
 import { ethers, Contract, Typed } from "ethers";
-import { curve, NETWORK_CONSTANTS } from "../curve.js";
+import { curve } from "../curve.js";
+import { NETWORK_CONSTANTS } from "../constants/network_constants.js";
 import { getPool } from "../pools/index.js";
 import { parseUnits, BN, mulBy1_3, getPoolIdBySwapAddress, DIGas, smartNumber } from '../utils.js';
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" assert { type: 'json' };

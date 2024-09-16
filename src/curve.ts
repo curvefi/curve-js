@@ -10,6 +10,7 @@ import {
     Signer,
 } from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from "@curvefi/ethcall";
+import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
@@ -47,65 +48,6 @@ import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' as
 import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
 import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
 
-import {
-    POOLS_DATA_ETHEREUM,
-    LLAMMAS_DATA_ETHEREUM,
-    POOLS_DATA_POLYGON,
-    POOLS_DATA_FANTOM,
-    POOLS_DATA_AVALANCHE,
-    POOLS_DATA_ARBITRUM,
-    POOLS_DATA_OPTIMISM,
-    POOLS_DATA_XDAI,
-    POOLS_DATA_MOONBEAM,
-    POOLS_DATA_AURORA,
-    POOLS_DATA_KAVA,
-    POOLS_DATA_CELO,
-    POOLS_DATA_ZKSYNC,
-    POOLS_DATA_BASE,
-    POOLS_DATA_BSC,
-    POOLS_DATA_FRAXTAL,
-    POOLS_DATA_XLAYER,
-    POOLS_DATA_MANTLE,
-} from './constants/pools/index.js';
-import {
-    ALIASES_ETHEREUM,
-    ALIASES_OPTIMISM,
-    ALIASES_POLYGON,
-    ALIASES_FANTOM,
-    ALIASES_AVALANCHE,
-    ALIASES_ARBITRUM,
-    ALIASES_XDAI,
-    ALIASES_MOONBEAM,
-    ALIASES_AURORA,
-    ALIASES_KAVA,
-    ALIASES_CELO,
-    ALIASES_ZKSYNC,
-    ALIASES_BASE,
-    ALIASES_BSC,
-    ALIASES_FRAXTAL,
-    ALIASES_XLAYER,
-    ALIASES_MANTLE,
-} from "./constants/aliases.js";
-import {
-    COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
-    COINS_OPTIMISM,
-    COINS_POLYGON, aTokensPolygon,
-    COINS_FANTOM, cTokensFantom, aTokensFantom,
-    COINS_AVALANCHE, aTokensAvalanche,
-    COINS_ARBITRUM,
-    COINS_XDAI,
-    COINS_MOONBEAM,
-    COINS_AURORA,
-    COINS_KAVA,
-    COINS_CELO,
-    COINS_ZKSYNC,
-    COINS_BASE,
-    COINS_BSC,
-    COINS_FRAXTAL,
-    COINS_XLAYER,
-    COINS_MANTLE,
-} from "./constants/coins/index.js";
-
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import { _getHiddenPools } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
@@ -137,225 +79,6 @@ export const memoizedMulticallContract = (): (address: string, abi: any) => Mult
             return result;
         }
     }
-}
-
-export const NATIVE_TOKENS: { [index: number]: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string }} = {
-    1: {  // ETH
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
-    },
-    10: { // OPTIMISM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
-    },
-    56: { // BSC
-        symbol: 'BNB',
-        wrappedSymbol: 'WBNB',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'.toLowerCase(),
-    },
-    100: { // XDAI
-        symbol: 'XDAi',
-        wrappedSymbol: 'WXDAI',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'.toLowerCase(),
-    },
-    137: {  // POLYGON
-        symbol: 'MATIC',
-        wrappedSymbol: 'WMATIC',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
-    },
-    196: {  // X-LAYER
-        symbol: 'OKB',
-        wrappedSymbol: 'WOKB',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xe538905cf8410324e03a5a23c1c177a474d59b2b'.toLowerCase(),
-    },
-    250: {  // FANTOM
-        symbol: 'FTM',
-        wrappedSymbol: 'WFTM',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
-    },
-    252: { // FRAXTAL
-        symbol: 'frxETH',
-        wrappedSymbol: 'wfrxETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xfc00000000000000000000000000000000000006'.toLowerCase(),
-    },
-    324: {  // ZKSYNC
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91'.toLowerCase(),
-    },
-    1284: {  // MOONBEAM
-        symbol: 'GLMR',
-        wrappedSymbol: 'WGLMR',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
-    },
-    2222: {  // KAVA
-        symbol: 'KAVA',
-        wrappedSymbol: 'WKAVA',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b'.toLowerCase(),
-    },
-    5000: {  // MANTLE
-        symbol: 'MNT',
-        wrappedSymbol: 'WMNT',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8'.toLowerCase(),
-    },
-    8453: {  // BASE
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
-    },
-    42161: {  // ARBITRUM
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
-    },
-    42220: {  // CELO
-        symbol: 'CELO',
-        wrappedSymbol: 'WCELO',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0x3Ad443d769A07f287806874F8E5405cE3Ac902b9'.toLowerCase(),
-    },
-    43114: {  // AVALANCHE
-        symbol: 'AVAX',
-        wrappedSymbol: 'WAVAX',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
-    },
-    1313161554: {  // AURORA
-        symbol: 'ETH',
-        wrappedSymbol: 'WETH',
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        wrappedAddress: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'.toLowerCase(),
-    },
-}
-
-export const NETWORK_CONSTANTS: { [index: number]: any } = {
-    1: {
-        NAME: 'ethereum',
-        ALIASES: ALIASES_ETHEREUM,
-        POOLS_DATA: POOLS_DATA_ETHEREUM,
-        LLAMMAS_DATA: LLAMMAS_DATA_ETHEREUM,
-        COINS: COINS_ETHEREUM,
-        cTokens: cTokensEthereum,
-        yTokens: yTokensEthereum,
-        ycTokens: ycTokensEthereum,
-        aTokens: aTokensEthereum,
-    },
-    10: {
-        NAME: 'optimism',
-        ALIASES: ALIASES_OPTIMISM,
-        POOLS_DATA: POOLS_DATA_OPTIMISM,
-        COINS: COINS_OPTIMISM,
-    },
-    56: {
-        NAME: 'bsc',
-        ALIASES: ALIASES_BSC,
-        POOLS_DATA: POOLS_DATA_BSC,
-        COINS: COINS_BSC,
-    },
-    100: {
-        NAME: 'xdai',
-        ALIASES: ALIASES_XDAI,
-        POOLS_DATA: POOLS_DATA_XDAI,
-        COINS: COINS_XDAI,
-    },
-    137: {
-        NAME: 'polygon',
-        ALIASES: ALIASES_POLYGON,
-        POOLS_DATA: POOLS_DATA_POLYGON,
-        COINS: COINS_POLYGON,
-        aTokens: aTokensPolygon,
-    },
-    196: {
-        NAME: 'x-layer',
-        ALIASES: ALIASES_XLAYER,
-        POOLS_DATA: POOLS_DATA_XLAYER,
-        COINS: COINS_XLAYER,
-    },
-    250: {
-        NAME: 'fantom',
-        ALIASES: ALIASES_FANTOM,
-        POOLS_DATA: POOLS_DATA_FANTOM,
-        COINS: COINS_FANTOM,
-        cTokens: cTokensFantom,
-        aTokens: aTokensFantom,
-    },
-    252: {
-        NAME: 'fraxtal',
-        ALIASES: ALIASES_FRAXTAL,
-        POOLS_DATA: POOLS_DATA_FRAXTAL,
-        COINS: COINS_FRAXTAL,
-    },
-    324: {
-        NAME: 'zksync',
-        ALIASES: ALIASES_ZKSYNC,
-        POOLS_DATA: POOLS_DATA_ZKSYNC,
-        COINS: COINS_ZKSYNC,
-    },
-    1284: {
-        NAME: 'moonbeam',
-        ALIASES: ALIASES_MOONBEAM,
-        POOLS_DATA: POOLS_DATA_MOONBEAM,
-        COINS: COINS_MOONBEAM,
-    },
-    2222: {
-        NAME: 'kava',
-        ALIASES: ALIASES_KAVA,
-        POOLS_DATA: POOLS_DATA_KAVA,
-        COINS: COINS_KAVA,
-    },
-    5000: {
-        NAME: 'mantle',
-        ALIASES: ALIASES_MANTLE,
-        POOLS_DATA: POOLS_DATA_MANTLE,
-        COINS: COINS_MANTLE,
-    },
-    8453: {
-        NAME: 'base',
-        ALIASES: ALIASES_BASE,
-        POOLS_DATA: POOLS_DATA_BASE,
-        COINS: COINS_BASE,
-    },
-    42161: {
-        NAME: 'arbitrum',
-        ALIASES: ALIASES_ARBITRUM,
-        POOLS_DATA: POOLS_DATA_ARBITRUM,
-        COINS: COINS_ARBITRUM,
-    },
-    42220: {
-        NAME: 'celo',
-        ALIASES: ALIASES_CELO,
-        POOLS_DATA: POOLS_DATA_CELO,
-        COINS: COINS_CELO,
-    },
-    43114: {
-        NAME: 'avalanche',
-        ALIASES: ALIASES_AVALANCHE,
-        POOLS_DATA: POOLS_DATA_AVALANCHE,
-        COINS: COINS_AVALANCHE,
-        aTokens: aTokensAvalanche,
-    },
-    1313161554: {
-        NAME: 'aurora',
-        ALIASES: ALIASES_AURORA,
-        POOLS_DATA: POOLS_DATA_AURORA,
-        COINS: COINS_AURORA,
-    },
 }
 
 export type ContractItem = { contract: Contract, multicallContract: MulticallContract, abi: Abi };
@@ -406,7 +129,7 @@ class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.constants ={
-            NATIVE_TOKEN: NATIVE_TOKENS[1],
+            NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
@@ -445,7 +168,7 @@ class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.constants = {
-            NATIVE_TOKEN: NATIVE_TOKENS[1],
+            NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
@@ -516,7 +239,7 @@ class Curve implements ICurve {
         const network = await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
-        this.constants.NATIVE_TOKEN = NATIVE_TOKENS[this.chainId];
+        this.constants.NATIVE_TOKEN = NETWORK_CONSTANTS[this.chainId].NATIVE_COIN;
         this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
         this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
         this.constants.ALIASES.anycall = "0x37414a8662bc1d25be3ee51fb27c2686e2490a89";

@@ -1,7 +1,45 @@
 import { lowerCaseValues } from "./utils.js";
+import {
+    POOLS_DATA_ETHEREUM,
+    LLAMMAS_DATA_ETHEREUM,
+    POOLS_DATA_POLYGON,
+    POOLS_DATA_FANTOM,
+    POOLS_DATA_AVALANCHE,
+    POOLS_DATA_ARBITRUM,
+    POOLS_DATA_OPTIMISM,
+    POOLS_DATA_XDAI,
+    POOLS_DATA_MOONBEAM,
+    POOLS_DATA_AURORA,
+    POOLS_DATA_KAVA,
+    POOLS_DATA_CELO,
+    POOLS_DATA_ZKSYNC,
+    POOLS_DATA_BASE,
+    POOLS_DATA_BSC,
+    POOLS_DATA_FRAXTAL,
+    POOLS_DATA_XLAYER,
+    POOLS_DATA_MANTLE,
+} from './pools/index.js';
+import {
+    COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
+    COINS_OPTIMISM,
+    COINS_POLYGON, aTokensPolygon,
+    COINS_FANTOM, cTokensFantom, aTokensFantom,
+    COINS_AVALANCHE, aTokensAvalanche,
+    COINS_ARBITRUM,
+    COINS_XDAI,
+    COINS_MOONBEAM,
+    COINS_AURORA,
+    COINS_KAVA,
+    COINS_CELO,
+    COINS_ZKSYNC,
+    COINS_BASE,
+    COINS_BSC,
+    COINS_FRAXTAL,
+    COINS_XLAYER,
+    COINS_MANTLE,
+} from "./coins/index.js";
 
-
-export const ALIASES_ETHEREUM = lowerCaseValues({
+const ALIASES_ETHEREUM = lowerCaseValues({
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52", // <--- CHANGE
     "minter": '0xd061D61a4d941c39E5453435B6345Dc261C2fcE0', // <--- RECOVERED
     "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
@@ -28,7 +66,7 @@ export const ALIASES_ETHEREUM = lowerCaseValues({
     "circulating_supply": '0x14139EB676342b6bC8E41E0d419969f23A49881e',
 });
 
-export const ALIASES_POLYGON = lowerCaseValues({
+const ALIASES_POLYGON = lowerCaseValues({
     "crv": "0x172370d5cd63279efa6d502dab29171933a610af",
     "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
@@ -51,7 +89,7 @@ export const ALIASES_POLYGON = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_FANTOM = lowerCaseValues({
+const ALIASES_FANTOM = lowerCaseValues({
     "crv": "0x1E4F97b9f9F913c46F1632781732927B9019C68b",
     "child_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "root_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
@@ -75,7 +113,7 @@ export const ALIASES_FANTOM = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_AVALANCHE = lowerCaseValues({
+const ALIASES_AVALANCHE = lowerCaseValues({
     "crv": "0x47536F17F4fF30e64A96a7555826b8f9e66ec468",
     "child_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "root_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
@@ -97,7 +135,7 @@ export const ALIASES_AVALANCHE = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_ARBITRUM = lowerCaseValues({
+const ALIASES_ARBITRUM = lowerCaseValues({
     "crv": "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978",
     "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
@@ -119,7 +157,7 @@ export const ALIASES_ARBITRUM = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_OPTIMISM = lowerCaseValues({
+const ALIASES_OPTIMISM = lowerCaseValues({
     "crv": "0x0994206dfE8De6Ec6920FF4D779B0d950605Fb53",
     "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
@@ -143,7 +181,7 @@ export const ALIASES_OPTIMISM = lowerCaseValues({
     "gas_oracle_blob": '0x420000000000000000000000000000000000000f',
 });
 
-export const ALIASES_XDAI = lowerCaseValues({
+const ALIASES_XDAI = lowerCaseValues({
     "crv": "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd",
     "child_gauge_factory": "0x7BE6BD57A319A7180f71552E58c9d32Da32b6f96",
     "root_gauge_factory": "0x06471ED238306a427241B3eA81352244E77B004F",
@@ -166,7 +204,7 @@ export const ALIASES_XDAI = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_MOONBEAM = lowerCaseValues({
+const ALIASES_MOONBEAM = lowerCaseValues({
     "crv": "0x7C598c96D02398d89FbCb9d41Eab3DF0C16F227D",
     "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
@@ -183,7 +221,7 @@ export const ALIASES_MOONBEAM = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_AURORA = lowerCaseValues({
+const ALIASES_AURORA = lowerCaseValues({
     "crv": "0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205",
     "child_gauge_factory": "0x0000000000000000000000000000000000000000",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
@@ -198,7 +236,7 @@ export const ALIASES_AURORA = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_KAVA = lowerCaseValues({
+const ALIASES_KAVA = lowerCaseValues({
     "crv": "0x64D5BaF5ac030e2b7c435aDD967f787ae94D0205", // <--- TODO CHANGE
     "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
@@ -220,7 +258,7 @@ export const ALIASES_KAVA = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_CELO = lowerCaseValues({
+const ALIASES_CELO = lowerCaseValues({
     "crv": "0x0a7432cF27F1aE3825c313F3C81e7D3efD7639aB", // <--- TODO CHANGE
     "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
@@ -240,7 +278,7 @@ export const ALIASES_CELO = lowerCaseValues({
     "factory_admin": "",
 });
 
-export const ALIASES_ZKSYNC = lowerCaseValues({
+const ALIASES_ZKSYNC = lowerCaseValues({
     "crv": "0x5945932099f124194452a4c62d34bB37f16183B2",
     "child_gauge_factory": "0x0000000000000000000000000000000000000000",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
@@ -258,7 +296,7 @@ export const ALIASES_ZKSYNC = lowerCaseValues({
     "factory_admin": "0x0000000000000000000000000000000000000000",
 });
 
-export const ALIASES_BASE = lowerCaseValues({
+const ALIASES_BASE = lowerCaseValues({
     "crv": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415", // <--- TODO CHANGE
     "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "root_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
@@ -283,7 +321,7 @@ export const ALIASES_BASE = lowerCaseValues({
     "gas_oracle_blob": '0x420000000000000000000000000000000000000f',
 });
 
-export const ALIASES_BSC = lowerCaseValues({
+const ALIASES_BSC = lowerCaseValues({
     "crv": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415", // <--- TODO CHANGE
     "child_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "root_gauge_factory": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
@@ -306,7 +344,7 @@ export const ALIASES_BSC = lowerCaseValues({
     "factory_admin": '0x0000000000000000000000000000000000000000',
 });
 
-export const ALIASES_FRAXTAL = lowerCaseValues({
+const ALIASES_FRAXTAL = lowerCaseValues({
     "crv": "0x331B9182088e2A7d6D3Fe4742AbA1fB231aEcc56",
     "child_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
     "root_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
@@ -325,7 +363,7 @@ export const ALIASES_FRAXTAL = lowerCaseValues({
     "factory_admin": '0x0000000000000000000000000000000000000000',
 });
 
-export const ALIASES_XLAYER = lowerCaseValues({
+const ALIASES_XLAYER = lowerCaseValues({
     "crv": "0x0000000000000000000000000000000000000000",
     "child_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
     "root_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
@@ -344,7 +382,7 @@ export const ALIASES_XLAYER = lowerCaseValues({
     "factory_admin": '0x0000000000000000000000000000000000000000',
 });
 
-export const ALIASES_MANTLE = lowerCaseValues({
+const ALIASES_MANTLE = lowerCaseValues({
     "crv": "0x0000000000000000000000000000000000000000",
     "child_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
     "root_gauge_factory": "0xeF672bD94913CB6f1d2812a6e18c1fFdEd8eFf5c",
@@ -363,6 +401,222 @@ export const ALIASES_MANTLE = lowerCaseValues({
     "factory_admin": '0x0000000000000000000000000000000000000000',
 });
 
+
+export const NETWORK_CONSTANTS: { [index: number]: any } = {
+    1: {
+        NAME: 'ethereum',
+        ALIASES: ALIASES_ETHEREUM,
+        POOLS_DATA: POOLS_DATA_ETHEREUM,
+        LLAMMAS_DATA: LLAMMAS_DATA_ETHEREUM,
+        COINS: COINS_ETHEREUM,
+        NATIVE_COIN: {
+            symbol: 'ETH',
+            wrappedSymbol: 'WETH',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'.toLowerCase(),
+        },
+        cTokens: cTokensEthereum,
+        yTokens: yTokensEthereum,
+        ycTokens: ycTokensEthereum,
+        aTokens: aTokensEthereum,
+    },
+    10: {
+        NAME: 'optimism',
+        ALIASES: ALIASES_OPTIMISM,
+        POOLS_DATA: POOLS_DATA_OPTIMISM,
+        COINS: COINS_OPTIMISM,
+        NATIVE_COIN: {
+            symbol: 'ETH',
+            wrappedSymbol: 'WETH',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
+        },
+    },
+    56: {
+        NAME: 'bsc',
+        ALIASES: ALIASES_BSC,
+        POOLS_DATA: POOLS_DATA_BSC,
+        COINS: COINS_BSC,
+        NATIVE_COIN: {
+            symbol: 'BNB',
+            wrappedSymbol: 'WBNB',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'.toLowerCase(),
+        },
+    },
+    100: {
+        NAME: 'xdai',
+        ALIASES: ALIASES_XDAI,
+        POOLS_DATA: POOLS_DATA_XDAI,
+        COINS: COINS_XDAI,
+        NATIVE_COIN: {
+            symbol: 'XDAi',
+            wrappedSymbol: 'WXDAI',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'.toLowerCase(),
+        },
+    },
+    137: {
+        NAME: 'polygon',
+        ALIASES: ALIASES_POLYGON,
+        POOLS_DATA: POOLS_DATA_POLYGON,
+        COINS: COINS_POLYGON,
+        NATIVE_COIN: {
+            symbol: 'MATIC',
+            wrappedSymbol: 'WMATIC',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
+        },
+        aTokens: aTokensPolygon,
+    },
+    196: {
+        NAME: 'x-layer',
+        ALIASES: ALIASES_XLAYER,
+        POOLS_DATA: POOLS_DATA_XLAYER,
+        COINS: COINS_XLAYER,
+        NATIVE_COIN: {
+            symbol: 'OKB',
+            wrappedSymbol: 'WOKB',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xe538905cf8410324e03a5a23c1c177a474d59b2b'.toLowerCase(),
+        },
+    },
+    250: {
+        NAME: 'fantom',
+        ALIASES: ALIASES_FANTOM,
+        POOLS_DATA: POOLS_DATA_FANTOM,
+        COINS: COINS_FANTOM,
+        NATIVE_COIN: {
+            symbol: 'FTM',
+            wrappedSymbol: 'WFTM',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
+        },
+        cTokens: cTokensFantom,
+        aTokens: aTokensFantom,
+    },
+    252: {
+        NAME: 'fraxtal',
+        ALIASES: ALIASES_FRAXTAL,
+        POOLS_DATA: POOLS_DATA_FRAXTAL,
+        COINS: COINS_FRAXTAL,
+        NATIVE_COIN: {
+            symbol: 'frxETH',
+            wrappedSymbol: 'wfrxETH',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xfc00000000000000000000000000000000000006'.toLowerCase(),
+        },
+    },
+    324: {
+        NAME: 'zksync',
+        ALIASES: ALIASES_ZKSYNC,
+        POOLS_DATA: POOLS_DATA_ZKSYNC,
+        COINS: COINS_ZKSYNC,
+        NATIVE_COIN: {
+            symbol: 'ETH',
+            wrappedSymbol: 'WETH',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91'.toLowerCase(),
+        },
+    },
+    1284: {
+        NAME: 'moonbeam',
+        ALIASES: ALIASES_MOONBEAM,
+        POOLS_DATA: POOLS_DATA_MOONBEAM,
+        COINS: COINS_MOONBEAM,
+        NATIVE_COIN: {
+            symbol: 'GLMR',
+            wrappedSymbol: 'WGLMR',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xAcc15dC74880C9944775448304B263D191c6077F'.toLowerCase(),
+        },
+    },
+    2222: {
+        NAME: 'kava',
+        ALIASES: ALIASES_KAVA,
+        POOLS_DATA: POOLS_DATA_KAVA,
+        COINS: COINS_KAVA,
+        NATIVE_COIN: {
+            symbol: 'KAVA',
+            wrappedSymbol: 'WKAVA',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b'.toLowerCase(),
+        },
+    },
+    5000: {
+        NAME: 'mantle',
+        ALIASES: ALIASES_MANTLE,
+        POOLS_DATA: POOLS_DATA_MANTLE,
+        COINS: COINS_MANTLE,
+        NATIVE_COIN: {
+            symbol: 'MNT',
+            wrappedSymbol: 'WMNT',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8'.toLowerCase(),
+        },
+    },
+    8453: {
+        NAME: 'base',
+        ALIASES: ALIASES_BASE,
+        POOLS_DATA: POOLS_DATA_BASE,
+        COINS: COINS_BASE,
+        NATIVE_COIN: {
+            symbol: 'ETH',
+            wrappedSymbol: 'WETH',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x4200000000000000000000000000000000000006'.toLowerCase(),
+        },
+    },
+    42161: {
+        NAME: 'arbitrum',
+        ALIASES: ALIASES_ARBITRUM,
+        POOLS_DATA: POOLS_DATA_ARBITRUM,
+        COINS: COINS_ARBITRUM,
+        NATIVE_COIN: {
+            symbol: 'ETH',
+            wrappedSymbol: 'WETH',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'.toLowerCase(),
+        },
+    },
+    42220: {
+        NAME: 'celo',
+        ALIASES: ALIASES_CELO,
+        POOLS_DATA: POOLS_DATA_CELO,
+        COINS: COINS_CELO,
+        NATIVE_COIN: {
+            symbol: 'CELO',
+            wrappedSymbol: 'WCELO',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x3Ad443d769A07f287806874F8E5405cE3Ac902b9'.toLowerCase(),
+        },
+    },
+    43114: {
+        NAME: 'avalanche',
+        ALIASES: ALIASES_AVALANCHE,
+        POOLS_DATA: POOLS_DATA_AVALANCHE,
+        COINS: COINS_AVALANCHE,
+        NATIVE_COIN: {
+            symbol: 'AVAX',
+            wrappedSymbol: 'WAVAX',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'.toLowerCase(),
+        },
+        aTokens: aTokensAvalanche,
+    },
+    1313161554: {
+        NAME: 'aurora',
+        ALIASES: ALIASES_AURORA,
+        POOLS_DATA: POOLS_DATA_AURORA,
+        COINS: COINS_AURORA,
+        NATIVE_COIN: {
+            symbol: 'ETH',
+            wrappedSymbol: 'WETH',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'.toLowerCase(),
+        },
+    },
+}
 
 const registry_exchange_deprecated = {
     '1': '0x99a58482bd75cbab83b27ec03ca68ff489b5788f',

@@ -52,7 +52,7 @@ export interface IPoolData {
 }
 
 export interface ICurve {
-    provider: ethers.BrowserProvider | ethers.JsonRpcProvider,
+    provider: ethers.BrowserProvider | ethers.JsonRpcProvider | null,
     multicallProvider: MulticallProvider,
     signer: ethers.Signer | null,
     signerAddress: string,
@@ -107,20 +107,34 @@ export interface IPoolDataFromApi {
     id: string,
     name: string,
     symbol: string,
+    assetType: string,
     assetTypeName: string,
     address: string,
     isMetaPool: boolean,
     basePoolAddress?: string,
     lpTokenAddress?: string,
     gaugeAddress?: string,
+    gaugeRewards: IRewardFromApi[],
     implementation: string,
     implementationAddress: string,
     coins: ICoinFromPoolDataApi[],
-    gaugeRewards: IRewardFromApi[],
+    coinsAddresses: string[],
     usdTotal: number,
+    usdTotalExcludingBasePool: number,
     totalSupply: number,
     amplificationCoefficient: string,
     gaugeCrvApy: [number | null, number | null],
+    decimals: string[],
+    virtualPrice: string,
+    priceOracle: string | null,
+    priceOracles: string[] | null,
+    poolUrls: { swap: [string, string], deposit: [string, string], withdraw: [string, string] }, // urls are for curve.fi and classic.curve.fi
+    gaugeFutureCrvApy: [number | null, number | null],
+    usesRateOracle: boolean,
+    isBroken: boolean,
+    hasMethods: { exchange_received: boolean, exchange_extended: boolean },
+    creationTs: number,
+    creationBlockNumber: number,
 }
 
 export interface IPoolDataShort {

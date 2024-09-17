@@ -10,7 +10,9 @@ export type IRouteGraphInput = {
     poolTvlDict: IDict<number>
 };
 
-export function routeGraphWorker() {
+type RouteGraphWorker = (graphInput: IRouteGraphInput) => IDict<IDict<IRouteStep[]>>;
+
+export function routeGraphWorker(): RouteGraphWorker | undefined {
     const GRAPH_MAX_EDGES = 3;
     const SNX = {
         10: {
@@ -146,17 +148,15 @@ export function routeGraphWorker() {
 
         // SNX swaps
         if (chainId in SNX) {
-        // @ts-ignore
-            for (const inCoin of SNX[chainId].coins) {
-            // @ts-ignore
-                for (const outCoin of SNX[chainId].coins) {
+            const snx = SNX[chainId as keyof typeof SNX];
+            for (const inCoin of snx.coins) {
+                for (const outCoin of snx.coins) {
                     if (inCoin === outCoin) continue;
 
                     if (!routerGraph[inCoin]) routerGraph[inCoin] = {};
                     routerGraph[inCoin][outCoin] = [{
                         poolId: "SNX exchanger",
-                        // @ts-ignore
-                        swapAddress: SNX[chainId].swap,
+                        swapAddress: snx.swap,
                         inputCoinAddress: inCoin,
                         outputCoinAddress: outCoin,
                         swapParams: [0, 0, 9, 0, 0],

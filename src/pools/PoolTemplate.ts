@@ -2,37 +2,37 @@ import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
 import {_getAllGaugesFormatted, _getPoolsFromApi} from '../external-api.js';
 import {
-    _getCoinAddresses,
-    _getBalances,
-    _prepareAddresses,
-    _ensureAllowance,
-    _getUsdRate,
-    hasAllowance,
-    ensureAllowance,
-    ensureAllowanceEstimateGas,
-    BN,
-    toBN,
-    toStringFromBN,
-    parseUnits,
-    getEthIndex,
-    fromBN,
     _cutZeros,
-    _setContracts,
-    _get_small_x,
+    _ensureAllowance,
     _get_price_impact,
-    checkNumber,
+    _get_small_x,
+    _getAddress,
+    _getBalances,
+    _getCoinAddresses,
     _getCrvApyFromApi,
     _getRewardsFromApi,
-    mulBy1_3,
-    smartNumber,
+    _getUsdRate,
+    _prepareAddresses,
+    _setContracts,
+    BN,
+    checkNumber,
     DIGas,
-    _getAddress,
+    ensureAllowance,
+    ensureAllowanceEstimateGas,
     findAbiFunction,
+    fromBN,
+    getEthIndex,
     getVolumeApiController,
+    hasAllowance,
+    mulBy1_3,
+    parseUnits,
+    smartNumber,
+    toBN,
+    toStringFromBN,
 } from '../utils.js';
-import {IDict, IReward, IProfit, IPoolType} from '../interfaces';
-import { curve } from "../curve.js";
-import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
+import {IDict, IPoolType, IProfit, IReward} from '../interfaces';
+import {curve} from "../curve.js";
+import ERC20Abi from '../constants/abis/ERC20.json' assert {type: 'json'};
 import {GaugePool, IGaugePool} from "./gaugePool.js";
 
 
@@ -387,6 +387,7 @@ export class PoolTemplate {
             const stablecoinTvlBN = toBN(_balance_x).minus(toBN(_fee_x));
             const collateralTvlBN = toBN(_balance_y).minus(toBN(_fee_y)).times(collateralRate);
 
+            // return stablecoinTvlBN.plus(collateralTvlBN).toFixed(8)
             return stablecoinTvlBN.plus(collateralTvlBN).toString()
         }
 
@@ -399,11 +400,10 @@ export class PoolTemplate {
             }
             const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType)).poolData;
 
-            try {
-                const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.address.toLowerCase())[0].usdTotal;
-                return String(totalLiquidity);
-            } catch (err) {
-                console.log(this.id, (err as Error).message);
+            const myAddr = this.address.toLowerCase();
+            const totalLiquidity = poolsData.find((data) => data.address.toLowerCase() === myAddr)?.usdTotal;
+            if (totalLiquidity !== undefined) {
+                return totalLiquidity.toFixed(8)
             }
         }
 

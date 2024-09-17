@@ -106,7 +106,7 @@ import { COINS_FRAXTAL, cTokensFraxtal,  yTokensFraxtal, ycTokensFraxtal, aToken
 import { COINS_XLAYER, cTokensXLayer,  yTokensXLayer, ycTokensXLayer, aTokensXLayer } from "./constants/coins/xlayer.js";
 import { COINS_MANTLE, cTokensMantle,  yTokensMantle, ycTokensMantle, aTokensMantle } from "./constants/coins/mantle.js";
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
-import { _getHiddenPools } from "./external-api.js";
+import {_getAllPoolsFromApi, _getHiddenPools, _getPoolsDataFromApi} from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
 
@@ -490,13 +490,11 @@ class Curve implements ICurve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
-        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
+        providerType?: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
+        providerSettings?: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
-        // @ts-ignore
-        this.provider = null;
-        // @ts-ignore
+        this.provider = null as any;
         this.signer = null;
         this.signerAddress = '';
         this.chainId = 1;
@@ -531,7 +529,7 @@ class Curve implements ICurve {
         this.initMulticallContract = memoizedMulticallContract()
 
         // JsonRpc provider
-        if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
+        if (providerType?.toLowerCase() === 'JsonRpc'.toLowerCase()) {
             providerSettings = providerSettings as { url: string, privateKey: string, batchMaxCount? : number };
 
             let jsonRpcApiProviderOptions;
@@ -559,22 +557,24 @@ class Curve implements ICurve {
                 }
             }
             // Web3 provider
-        } else if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
+        } else if (providerType?.toLowerCase() === 'Web3'.toLowerCase()) {
             providerSettings = providerSettings as { externalProvider: ethers.Eip1193Provider };
             this.provider = new ethers.BrowserProvider(providerSettings.externalProvider);
             this.signer = await this.provider.getSigner();
             // Infura provider
-        } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
+        } else if (providerType?.toLowerCase() === 'Infura'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.InfuraProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
             // Alchemy provider
-        } else if (providerType.toLowerCase() === 'Alchemy'.toLowerCase()) {
+        } else if (providerType?.toLowerCase() === 'Alchemy'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
+        } else if (providerType === undefined) {
+            return;
         } else {
-            throw Error('Wrong providerType');
+            throw Error(`Wrong providerType ${providerType}`);
         }
 
         const network = await this.provider.getNetwork();
@@ -1076,6 +1076,8 @@ class Curve implements ICurve {
         ...this.constants.STABLE_NG_FACTORY_POOLS_DATA,
         ...this.constants.LLAMMAS_DATA,
     });
+
+    getPoolsDataFromApi = () => _getPoolsDataFromApi(this.constants.NETWORK_NAME);
 
     getGaugeImplementation = (factoryType: IFactoryPoolType): string => this.constants.FACTORY_GAUGE_IMPLEMENTATIONS[factoryType] || this.constants.ZERO_ADDRESS;
 

@@ -996,13 +996,15 @@ export class PoolTemplate {
         if(curve.chainId === 1) {
             return Number(await curve.contracts[curve.constants.ALIASES.minter].contract.mint.estimateGas(this.gauge.address, curve.constantOptions));
         } else {
-            return smartNumber(await curve.contracts[curve.constants.ALIASES.gauge_factory].contract.mint.estimateGas(this.gauge.address, curve.constantOptions));
+            return smartNumber(await curve.contracts[curve.constants.ALIASES.child_gauge_factory].contract.mint.estimateGas(this.gauge.address, curve.constantOptions));
         }
     }
 
     public async claimCrv(): Promise<string> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
-        const contract = curve.chainId === 1 ? curve.contracts[curve.constants.ALIASES.minter].contract : curve.contracts[curve.constants.ALIASES.gauge_factory].contract;
+        const contract = curve.chainId === 1 ?
+            curve.contracts[curve.constants.ALIASES.minter].contract :
+            curve.contracts[curve.constants.ALIASES.child_gauge_factory].contract;
 
         await curve.updateFeeData();
 

@@ -60,6 +60,8 @@ export class GaugePool implements IGaugePool {
     }
 
     public async gaugeDistributors(): Promise<IDict<string>> {
+        if (!curve.multicallProvider) throw Error("Cannot get gauge distributors without a provider");
+
         const gaugeContract = await curve.contracts[this.address].contract;
         const gaugeMulticallContract = await curve.contracts[this.address].multicallContract;
 

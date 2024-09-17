@@ -274,6 +274,8 @@ export class PoolTemplate {
         priceOracle?: string[],
         priceScale?: string[],
     }> => {
+        if(!curve.multicallProvider) throw Error("Cannot get parameters without a provider");
+
         const multicallContract = curve.contracts[this.address].multicallContract;
         const lpMulticallContract = curve.contracts[this.lpToken].multicallContract;
 
@@ -355,6 +357,8 @@ export class PoolTemplate {
     }
 
     private async statsWrappedBalances(): Promise<string[]> {
+        if(!curve.multicallProvider) throw Error("Cannot get wrapped balances without a provider");
+
         const contract = curve.contracts[this.address].multicallContract;
         const calls = [];
         for (let i = 0; i < this.wrappedCoins.length; i++) calls.push(contract.balances(i));
@@ -372,6 +376,8 @@ export class PoolTemplate {
         if (curve.chainId === 1 && this.id === "crveth") return "0"
 
         if (this.isLlamma) {
+            if(!curve.multicallProvider) throw Error("Cannot get total liquidity without a provider");
+
             const stablecoinContract = curve.contracts[this.underlyingCoinAddresses[0]].multicallContract;
             const collateralContract = curve.contracts[this.underlyingCoinAddresses[1]].multicallContract;
             const ammContract = curve.contracts[this.address].multicallContract;
@@ -446,6 +452,8 @@ export class PoolTemplate {
     }
 
     private _calcTokenApy = async (futureWorkingSupplyBN: BigNumber | null = null): Promise<[baseApy: number, boostedApy: number]> => {
+        if(!curve.multicallProvider) throw Error("Cannot get token apy without a provider");
+
         const totalLiquidityUSD = await this.statsTotalLiquidity();
         if (Number(totalLiquidityUSD) === 0) return [0, 0];
 
@@ -517,6 +525,7 @@ export class PoolTemplate {
             return rewards[this.gauge.address].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));
         }
 
+        if (!curve.multicallProvider) throw Error("Cannot get rewards apy without a provider");
         const apy: IReward[] = [];
         const rewardTokens = await this.rewardTokens(false);
         for (const rewardToken of rewardTokens) {
@@ -675,6 +684,8 @@ export class PoolTemplate {
     // ---------------- DEPOSIT ----------------
 
     public async getSeedAmounts(amount1: number | string, useUnderlying = false): Promise<string[]> {
+        if(!curve.multicallProvider) throw Error("Cannot get seed amounts without a provider");
+
         const amount1BN = BN(amount1);
         if (amount1BN.lte(0)) throw Error("Initial deposit amounts must be > 0");
 
@@ -921,6 +932,7 @@ export class PoolTemplate {
 
     public crvProfit = async (address = ""): Promise<IProfit> => {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use rewardsProfit instead`);
+        if (!curve.multicallProvider) throw Error("Cannot get crv profit without a provider");
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -1015,6 +1027,9 @@ export class PoolTemplate {
     public userBoost = async (address = ""): Promise<string> => {
         if (this.gauge.address === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
+        if(!this.gauge.address) throw Error(`${this.name} doesn't have gauge`);
+        if(!curve.multicallProvider) throw Error("Cannot get user boost without a provider");
+
         address = _getAddress(address)
 
         const gaugeContract = curve.contracts[this.gauge.address].multicallContract;
@@ -1031,6 +1046,8 @@ export class PoolTemplate {
     }
 
     private _userFutureBoostAndWorkingSupply = async (address: string): Promise<[BigNumber, BigNumber]> => {
+        if(!curve.multicallProvider) throw Error("Cannot get user future boost and working supply without a provider");
+
         // Calc future working balance
         const veContractMulticall = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
         const gaugeContractMulticall = curve.contracts[this.gauge.address].multicallContract;
@@ -1100,6 +1117,7 @@ export class PoolTemplate {
         if (addresses.length === 0 && curve.signerAddress !== '') addresses = [curve.signerAddress];
 
         if (addresses.length === 0) throw Error("Need to connect wallet or pass addresses into args");
+        if (!curve.multicallProvider) throw Error("Cannot get max boosted stake without a provider");
 
         const votingEscrowContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
         const gaugeContract = curve.contracts[this.gauge.address].multicallContract;
@@ -1131,6 +1149,7 @@ export class PoolTemplate {
 
     public rewardTokens = memoize(async (useApi = true): Promise<{token: string, symbol: string, decimals: number}[]> => {
         if (this.gauge.address === curve.constants.ZERO_ADDRESS) return []
+        if (!curve.multicallProvider) throw Error("Cannot get reward tokens without a provider");
 
         if (useApi) {
             const rewards = await _getRewardsFromApi();
@@ -1193,6 +1212,7 @@ export class PoolTemplate {
 
     public rewardsProfit = async (address = ""): Promise<IProfit[]> => {
         if (this.gauge.address === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
+        if (!curve.multicallProvider) throw Error("Cannot get rewards profit without a provider");
 
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
@@ -1954,6 +1974,7 @@ export class PoolTemplate {
         const withGauge = this.gauge.address !== curve.constants.ZERO_ADDRESS;
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
+        if (!curve.multicallProvider) throw Error("Cannot get user share without a provider");
 
         const userLpBalance = await this.walletLpTokenBalances(address) as IDict<string>;
         let userLpTotalBalanceBN = BN(userLpBalance.lpToken);
@@ -2180,6 +2201,7 @@ export class PoolTemplate {
     public gaugeOptimalDeposits = async (...accounts: string[]): Promise<IDict<string>> => {
         if (this.gauge.address === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         if (accounts.length == 1 && Array.isArray(accounts[0])) accounts = accounts[0];
+        if (!curve.multicallProvider) throw Error("Cannot get gauge optimal deposits without a provider");
 
         const votingEscrowContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
         const lpTokenContract = curve.contracts[this.lpToken].multicallContract;

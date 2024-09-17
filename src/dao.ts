@@ -26,6 +26,8 @@ import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" a
 
 export const crvSupplyStats = async (): Promise<{ circulating: string, locked: string, total: string, veCrv: string, averageLockTime: string }> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    if (!curve.multicallProvider) throw Error("Cannot get crvSupplyStats without a provider");
+
     const crvContract = curve.contracts[curve.constants.ALIASES.crv].multicallContract;
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
     const csContract = curve.contracts[curve.constants.ALIASES.circulating_supply].multicallContract;
@@ -54,6 +56,8 @@ export const userCrv = async (address = ""): Promise<string> => {
 
 export const userVeCrv = async (address = ""): Promise<{ veCrv: string, veCrvPct: string, lockedCrv: string, unlockTime: number }> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    if (!curve.multicallProvider) throw Error("Cannot get userVeCrv without a provider");
+
     address = _getAddress(address);
     const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
     const [_veCrv, _veCrvTotal, _locked] = await curve.multicallProvider.all([
@@ -214,11 +218,6 @@ export const claimFees = async (address = ""): Promise<string> => {
 
 // ----------------- Gauge weights -----------------
 
-const _extractNetworkFromPoolUrl = (poolUrl: string): string => {
-    if (!poolUrl) return "unknown";
-    return poolUrl.split("/")[4]
-}
-
 export const getVotingGaugeList = async (): Promise<IVotingGauge[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
     const gaugeData = Object.values(await _getAllGauges());
@@ -243,6 +242,8 @@ export const getVotingGaugeList = async (): Promise<IVotingGauge[]> => {
 
 export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } > => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    if (!curve.multicallProvider) throw Error("Cannot get userGaugeVotes without a provider");
+
     address = _getAddress(address);
     const gcMulticallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
     const veMulticallContract = curve.contracts[curve.constants.ALIASES.voting_escrow]. multicallContract;
@@ -296,6 +297,8 @@ export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
 
 const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    if (!curve.multicallProvider) throw Error("Cannot voteForGauge without a provider");
+
     const gcContract = curve.contracts[curve.constants.ALIASES.gauge_controller].contract;
     const gcMulticallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
     const _power = parseUnits(power, 2);
@@ -337,6 +340,8 @@ export const getProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number): 
 
 export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserListItem[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
+    if (!curve.multicallProvider) throw Error("Cannot get userProposalVotes without a provider");
+
     address = _getAddress(address);
     const proposalList = await _getDaoProposalList();
     const calls = [];

@@ -26,6 +26,8 @@ export const BLACK_LIST: { [index: number]: any } = {
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
 
 export async function getBasePools(this: ICurve, factoryAddress: string, rawSwapAddresses: string[], tmpPools: IPoolDataShort[]): Promise<{ids: string[], addresses: string[]}> {
+    if(!this.multicallProvider) throw Error("Cannot get base pools without a provider");
+
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
 
     const calls = [];
@@ -69,6 +71,8 @@ async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string, facto
 }
 
 async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0, factoryAddress: string): Promise<[string[], string[]]> {
+    if(!this.multicallProvider) throw Error("Cannot get factory ids and swap addresses without a provider");
+
     const factoryContract = this.contracts[factoryAddress].contract;
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
 
@@ -112,6 +116,8 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 }
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[], factoryAddress: string): Promise<[string[], string[], string[], REFERENCE_ASSET[], string[], string[], boolean[], string[][]]> {
+    if (!this.multicallProvider) throw Error("Cannot get pools data without a provider");
+
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
     const isChildGaugeFactoryNull = curve.chainId !== 1 && this.constants.ALIASES.child_gauge_factory === curve.constants.ZERO_ADDRESS;
     const isChildGaugeFactoryOldNull = !("child_gauge_factory_old" in this.constants.ALIASES);
@@ -211,6 +217,8 @@ async function getCoinsData(
     existingCoinAddrNameDict: IDict<string>,
     existingCoinAddrDecimalsDict: IDict<number>
 ): Promise<[IDict<string>, IDict<number>]> {
+    if(!this.multicallProvider) throw Error("Cannot get coins data without a provider");
+
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
     const coinAddrNamesDict: IDict<string> = {};

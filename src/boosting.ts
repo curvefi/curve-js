@@ -31,6 +31,8 @@ export const getCrv = async (...addresses: string[] | string[][]): Promise<IDict
 
 export const getLockedAmountAndUnlockTime = async (...addresses: string[] | string[][]):
     Promise<IDict<{ lockedAmount: string, unlockTime: number }> | { lockedAmount: string, unlockTime: number }> => {
+    if(!curve.multicallProvider) throw Error("Cannot get lockedAmountAndUnlockTime without a provider");
+
     addresses = _prepareAddresses(addresses);
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
     const contractCalls = addresses.map((address: string) => veContract.locked(address));
@@ -47,6 +49,8 @@ export const getLockedAmountAndUnlockTime = async (...addresses: string[] | stri
 }
 
 export const getVeCrv = async (...addresses: string[] | string[][]): Promise<IDict<string> | string> => {
+    if (!curve.multicallProvider) throw Error("Cannot get veCrv without a provider");
+
     addresses = _prepareAddresses(addresses);
 
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
@@ -63,6 +67,8 @@ export const getVeCrv = async (...addresses: string[] | string[][]): Promise<IDi
 }
 
 export const getVeCrvPct = async (...addresses: string[] | string[][]): Promise<IDict<string> | string> => {
+    if (!curve.multicallProvider) throw Error("Cannot get veCrvPct without a provider");
+
     addresses = _prepareAddresses(addresses);
 
     const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
@@ -300,6 +306,7 @@ export const lastBlockSent = async (chainId: IChainId): Promise<number> => {
 }
 
 export const blockToSend = async (): Promise<number> => {
+    if (!curve.provider) throw Error("Cannot get blockToSend without a provider");
     if (curve.chainId !== 1) throw Error("blockToSend method is on ethereum network only");
     return (await curve.provider.getBlockNumber()) - 128;
 }

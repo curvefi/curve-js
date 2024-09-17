@@ -194,6 +194,8 @@ const _getBestRoute = memoize(
         const routes: IRouteOutputAndCost[] = [];
 
         try {
+            if (!curve.multicallProvider) throw Error("Can't get routes. Multicall provider is not initialized");
+
             const calls = [];
             const multicallContract = curve.contracts[curve.constants.ALIASES.router].multicallContract;
             for (const r of routesRaw) {

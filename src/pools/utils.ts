@@ -10,6 +10,8 @@ const _userLpBalanceCache: IDict<IDict<{ _lpBalance: bigint, time: number }>> = 
 const _isUserLpBalanceCacheExpired = (address: string, poolId: string) => (_userLpBalanceCache[address]?.[poolId]?.time || 0) + 600000 < Date.now();
 
 const _getUserLpBalances = async (pools: string[], address: string, useCache: boolean): Promise<bigint[]> => {
+    if (!curve.multicallProvider) throw Error("Can't get user balances withou a provider");
+
     const poolsToFetch: string[] = useCache ? pools.filter((poolId) => _isUserLpBalanceCacheExpired(address as string, poolId)) : pools;
     if (poolsToFetch.length > 0) {
         const calls = [];
@@ -70,6 +72,8 @@ const _isUserClaimableCacheExpired = (address: string, poolId: string) => (_user
 
 const _getUserClaimable = async (pools: string[], address: string, useCache: boolean):
     Promise<{ token: string, symbol: string, amount: string }[][]> => {
+    if (!curve.multicallProvider) throw Error("Can't get user claimable without a provider");
+
     const poolsToFetch: string[] = useCache ? pools.filter((poolId) => _isUserClaimableCacheExpired(address as string, poolId)) : pools;
 
     if (poolsToFetch.length > 0) {
@@ -215,6 +219,8 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
 
 const _getUserClaimableUseApi = async (pools: string[], address: string, useCache: boolean):
     Promise<{ token: string, symbol: string, amount: string }[][]> => {
+    if (!curve.multicallProvider) throw Error("Can't get user claimable without a provider");
+
     const poolsToFetch: string[] = useCache ? pools.filter((poolId) => _isUserClaimableCacheExpired(address as string, poolId)) : pools;
 
     if (poolsToFetch.length > 0) {

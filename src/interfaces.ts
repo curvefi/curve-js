@@ -52,7 +52,7 @@ export interface IPoolData {
 }
 
 export interface ICurve {
-    provider: ethers.BrowserProvider | ethers.JsonRpcProvider | null,
+    provider: ethers.BrowserProvider | ethers.JsonRpcProvider,
     multicallProvider: MulticallProvider,
     signer: ethers.Signer | null,
     signerAddress: string,

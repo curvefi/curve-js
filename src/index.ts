@@ -162,7 +162,6 @@ const curve = {
     setCustomFeeData,
     getPoolList: _curve.getPoolList,
     getMainPoolList: _curve.getMainPoolList,
-    getPoolsDataFromApi: _curve.getPoolsDataFromApi,
     hasProvider: (): boolean => Boolean(_curve.provider),
     getUserPoolListByLiquidity,
     getUserPoolListByClaimable,

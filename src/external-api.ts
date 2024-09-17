@@ -24,13 +24,19 @@ export const _getPoolsFromApi = memoize(
     }
 )
 
-const poolTypes = ['main', 'crypto', 'factory', 'factory-crvusd', 'factory-eywa', 'factory-crypto', 'factory-twocrypto', 'factory-tricrypto', 'factory-stable-ng'] as const;
-
-export const _getAllPoolsFromApi = async (network: INetworkName): Promise<IExtendedPoolDataFromApi[]> =>
-    await Promise.all(poolTypes.map((poolType) => _getPoolsFromApi(network, poolType)))
-
-export const _getPoolsDataFromApi = async (network: INetworkName): Promise<Record<IPoolType, IExtendedPoolDataFromApi>> =>
-    Object.fromEntries(await Promise.all(poolTypes.map(async (poolType) => [poolType, await _getPoolsFromApi(network, poolType)])))
+export const _getAllPoolsFromApi = async (network: INetworkName): Promise<IExtendedPoolDataFromApi[]> => {
+    return await Promise.all([
+        _getPoolsFromApi(network, "main"),
+        _getPoolsFromApi(network, "crypto"),
+        _getPoolsFromApi(network, "factory"),
+        _getPoolsFromApi(network, "factory-crvusd"),
+        _getPoolsFromApi(network, "factory-eywa"),
+        _getPoolsFromApi(network, "factory-crypto"),
+        _getPoolsFromApi(network, "factory-twocrypto"),
+        _getPoolsFromApi(network, "factory-tricrypto"),
+        _getPoolsFromApi(network, "factory-stable-ng"),
+    ]);
+}
 
 export const _getSubgraphData = memoize(
     async (network: INetworkName): Promise<IVolumeAndAPYs> => {

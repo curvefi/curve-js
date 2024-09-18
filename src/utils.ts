@@ -130,6 +130,8 @@ export const _getCoinDecimals = (...coinAddresses: string[] | string[][]): numbe
 }
 
 export const _getBalances = async (coins: string[], addresses: string[]): Promise<IDict<string[]>> => {
+    if (!curve.provider || !curve.multicallProvider) throw Error("Can't get balances without provider");
+
     const coinAddresses = _getCoinAddresses(coins);
     const decimals = _getCoinDecimals(coinAddresses);
 
@@ -189,6 +191,8 @@ export const getBalances = async (coins: string[], ...addresses: string[] | stri
 
 
 export const _getAllowance = async (coins: string[], address: string, spender: string): Promise<bigint[]> => {
+    if (!curve.multicallProvider) throw Error("Can't get allowance without provider");
+
     const _coins = [...coins]
     const ethIndex = getEthIndex(_coins);
     if (ethIndex !== -1) {
@@ -509,6 +513,7 @@ export const getUsdRate = async (coin: string): Promise<number> => {
 
 export const getBaseFeeByLastBlock = async (): Promise<number> => {
     const provider = curve.provider;
+    if (!provider) throw Error("Can't get base fee without provider");
 
     try {
         const block = await provider.getBlock('latest');
@@ -524,6 +529,7 @@ export const getBaseFeeByLastBlock = async (): Promise<number> => {
 
 export const getGasPrice = async ()  => {
     const provider = curve.provider;
+    if (!provider) throw Error("Can't get gas price without provider");
     return Number((Number((await provider.getFeeData()).gasPrice) / 1e9).toFixed(2));
 }
 
@@ -674,6 +680,8 @@ export const _get_price_impact = (
 }
 
 export const getCoinsData = async (...coins: string[] | string[][]): Promise<{name: string, symbol: string, decimals: number}[]> => {
+    if (!curve.multicallProvider) throw Error("Can't get coins data without provider");
+
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
     coins = coins as string[];
     const coinAddresses = _getCoinAddressesNoCheck(coins);
@@ -739,6 +747,8 @@ export const assetTypeNameHandler = (assetTypeName: string): REFERENCE_ASSET => 
 }
 
 export const getBasePools = async (): Promise<IBasePoolShortItem[]> => {
+    if (!curve.multicallProvider) throw Error("Can't get base pools without provider");
+
     const factoryContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].contract;
     const factoryMulticallContract = curve.contracts[curve.constants.ALIASES['stable_ng_factory']].multicallContract;
 

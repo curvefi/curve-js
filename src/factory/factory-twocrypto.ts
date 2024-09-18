@@ -21,6 +21,8 @@ async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string)
 }
 
 async function getTwocryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
+    if (!this.multicallProvider) throw Error("Cannot get twocrypto factory ids and swap addresses without a provider");
+
     const factoryContract = this.contracts[this.constants.ALIASES.twocrypto_factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.twocrypto_factory].multicallContract;
 
@@ -49,6 +51,8 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 }
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[][]]> {
+    if(!this.multicallProvider) throw Error("Cannot get pools data without a provider");
+
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.twocrypto_factory].multicallContract;
     const isChildGaugeFactoryNull = curve.chainId !== 1 && this.constants.ALIASES.child_gauge_factory === curve.constants.ZERO_ADDRESS;
     const isChildGaugeFactoryOldNull = !("child_gauge_factory_old" in this.constants.ALIASES);
@@ -140,6 +144,8 @@ async function getCoinsData(
     existingCoinAddrNameDict: IDict<string>,
     existingCoinAddrDecimalsDict: IDict<number>
 ): Promise<[string[], string[], IDict<string>, IDict<number>]> {
+    if (!this.multicallProvider) throw Error("Cannot get coins data without a provider");
+
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
     const coinAddrNamesDict: IDict<string> = {};

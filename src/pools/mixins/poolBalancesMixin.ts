@@ -6,6 +6,8 @@ import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./comm
 // @ts-ignore
 export const poolBalancesMetaMixin: PoolTemplate = {
     async statsUnderlyingBalances(): Promise<string[]> {
+        if (!curve.multicallProvider) throw Error("Cannot get stats underlying balances without a provider");
+
         const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: bigint[] = await curve.multicallProvider.all(contractCalls);
@@ -24,6 +26,8 @@ export const poolBalancesMetaMixin: PoolTemplate = {
 // @ts-ignore
 export const poolBalancesLendingMixin: PoolTemplate = {
     async statsUnderlyingBalances(): Promise<string[]> {
+        if (!curve.multicallProvider) throw Error("Cannot get stats underlying balances without a provider");
+
         const swapContract = curve.contracts[this.address].multicallContract;
         const contractCalls = this.wrappedCoins.map((_, i) => swapContract.balances(i));
         const _poolWrappedBalances: bigint[] = await curve.multicallProvider.all(contractCalls);

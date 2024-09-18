@@ -422,8 +422,8 @@ const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43
 export type ContractItem = { contract: Contract, multicallContract: MulticallContract, abi: Abi };
 
 class Curve implements ICurve {
-    provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
-    multicallProvider: MulticallProvider;
+    provider: ethers.BrowserProvider | ethers.JsonRpcProvider | null;
+    multicallProvider: MulticallProvider | null;
     signer: ethers.Signer | null;
     signerAddress: string;
     chainId: IChainId;
@@ -432,6 +432,7 @@ class Curve implements ICurve {
     constantOptions: { gasLimit?: number };
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };
     L1WeightedGasPrice?: number;
+    // note: these "constants" are actually modified during runtime
     constants: {
         NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
         NETWORK_NAME: INetworkName,
@@ -489,13 +490,11 @@ class Curve implements ICurve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
-        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
+        providerType?: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
+        providerSettings?: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
-        // @ts-ignore
-        this.provider = null;
-        // @ts-ignore
+        this.provider = null as any;
         this.signer = null;
         this.signerAddress = '';
         this.chainId = 1;
@@ -530,6 +529,9 @@ class Curve implements ICurve {
         this.initMulticallContract = memoizedMulticallContract()
 
         // JsonRpc provider
+        if (!providerType) {
+            return;
+        }
         if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
             providerSettings = providerSettings as { url: string, privateKey: string, batchMaxCount? : number };
 
@@ -573,7 +575,7 @@ class Curve implements ICurve {
             this.provider = new ethers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
         } else {
-            throw Error('Wrong providerType');
+            throw Error(`Wrong providerType ${providerType}`);
         }
 
         const network = await this.provider.getNetwork();
@@ -799,6 +801,9 @@ class Curve implements ICurve {
         const proxyHandler: ProxyHandler<any> = {
             get: function(target: any, name: string) {
                 if(name === 'contract') {
+                    if (!curveInstance.provider) {
+                        throw Error("Can't init contract without provider");
+                    }
                     return curveInstance.initContract(target['address'], target['abi'], curveInstance.signer || curveInstance.provider)
                 } else if(name === 'multicallContract') {
                     return curveInstance.initMulticallContract(target['address'], target['abi'])
@@ -1064,6 +1069,7 @@ class Curve implements ICurve {
         ]
     };
 
+    // note: these "constants" are actually modified during runtime
     getPoolsData = (): IDict<IPoolData> => ({
         ...this.constants.POOLS_DATA,
         ...this.constants.FACTORY_POOLS_DATA,
@@ -1091,6 +1097,7 @@ class Curve implements ICurve {
     }
 
     async updateFeeData(): Promise<void> {
+        if (!this.provider) throw Error("Can't update fee data without provider");
         const feeData = await this.provider.getFeeData();
         if (feeData.maxFeePerGas === null || feeData.maxPriorityFeePerGas === null) {
             delete this.options.maxFeePerGas;

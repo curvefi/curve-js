@@ -23,6 +23,8 @@ async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string)
 }
 
 async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): Promise<[string[], string[]]> {
+    if (!this.multicallProvider) throw Error("Cannot get crypto factory ids and swap addresses without a provider");
+
     const factoryContract = this.contracts[this.constants.ALIASES.crypto_factory].contract;
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
 
@@ -51,6 +53,8 @@ function _handleCoinAddresses(this: ICurve, coinAddresses: string[][]): string[]
 }
 
 async function _getLpTokenMap(this: ICurve,factorySwapAddresses: string[]): Promise<Record<string, string>> {
+    if (!this.multicallProvider) throw Error("Cannot get lp token map without a provider");
+
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
 
     const LpTokenMap: Record<string, string> = {}
@@ -71,6 +75,8 @@ async function _getLpTokenMap(this: ICurve,factorySwapAddresses: string[]): Prom
 }
 
 async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promise<[string[], string[], string[], string[][]]> {
+    if (!this.multicallProvider) throw Error("Cannot get pools data without a provider");
+
     const factoryMulticallContract = this.contracts[this.constants.ALIASES.crypto_factory].multicallContract;
     const isChildGaugeFactoryNull = curve.chainId !== 1 && this.constants.ALIASES.child_gauge_factory === curve.constants.ZERO_ADDRESS;
     const isChildGaugeFactoryOldNull = !("child_gauge_factory_old" in this.constants.ALIASES);
@@ -172,6 +178,8 @@ async function getCoinsData(
     existingCoinAddrNameDict: IDict<string>,
     existingCoinAddrDecimalsDict: IDict<number>
 ): Promise<[string[], string[], IDict<string>, IDict<number>]> {
+    if (!this.multicallProvider) throw Error("Cannot get coins data without a provider");
+
     const flattenedCoinAddresses = Array.from(new Set(deepFlatten(coinAddresses)));
     const newCoinAddresses = [];
     const coinAddrNamesDict: IDict<string> = {};

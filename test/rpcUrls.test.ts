@@ -1,0 +1,11 @@
+export const ETH_RPC = process.env.ETH_RPC;
+export const OPTIMISM_RPC = process.env.OPTIMISM_RPC;
+export const XDAI_RPC = process.env.XDAI_RPC;
+export const POLYGON_RPC = process.env.POLYGON_RPC;
+export const FANTOM_RPC = process.env.FANTOM_RPC;
+export const MOONBEAM_RPC = process.env.MOONBEAM_RPC;
+export const KAVA_RPC = process.env.KAVA_RPC;
+export const ARBITRUM_RPC = process.env.ARBITRUM_RPC;
+export const CELO_RPC = process.env.CELO_RPC;
+export const AVALANCHE_RPC = process.env.AVALANCHE_RPC;
+export const AURORA_RPC = process.env.AURORA_RPC;

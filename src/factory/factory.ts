@@ -2,8 +2,11 @@ import { Contract as MulticallContract } from "@curvefi/ethcall";
 import { curve } from "../curve.js";
 import {IDict, IPoolData, ICurve, REFERENCE_ASSET, IPoolDataShort} from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
+import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" assert { type: 'json' };
+import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" assert {type: 'json'};
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
+import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" assert { type: 'json' };
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { FACTORY_CONSTANTS } from "./constants.js";
 import {getPoolName, isStableNgPool} from "../utils.js";
@@ -250,6 +253,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
         : await getFactoryIdsAndSwapAddresses.call(this, fromIdx, factoryAddress);
     if (rawPoolIds.length === 0) return {};
 
+    const is_ng = factoryAddress === curve.constants.ALIASES.stable_ng_factory;
     const [rawImplementations, rawGauges, rawOldGauges, rawReferenceAssets, rawPoolSymbols, rawPoolNames, rawIsMeta, rawCoinAddresses] =
         await getPoolsData.call(this, rawSwapAddresses, factoryAddress);
     const poolIds: string[] = [];
@@ -261,9 +265,9 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
     const poolNames: string[] = [];
     const isMeta: boolean[] = [];
     const coinAddresses: string[][] = [];
-    const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict;
+    const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict ?? {};
     for (let i = 0; i < rawPoolIds.length; i++) {
-        if (rawImplementations[i] in implementationABIDict) {
+        if (is_ng || (rawImplementations[i] in implementationABIDict)) {
             poolIds.push(rawPoolIds[i]);
             swapAddresses.push(rawSwapAddresses[i]);
             implementations.push(rawImplementations[i]);
@@ -275,7 +279,9 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
             coinAddresses.push(rawCoinAddresses[i]);
         }
     }
-    const swapABIs = implementations.map((addr: string) => implementationABIDict[addr]);
+    const swapABIs = implementations.map((addr: string, i: number) => is_ng ?
+        (isMeta[i] ? MetaStableSwapNGABI : PlainStableSwapNGABI) :
+        implementationABIDict[addr]);
     setFactorySwapContracts.call(this, swapAddresses, swapABIs);
     setFactoryGaugeContracts.call(this, gaugeAddresses);
     setFactoryCoinsContracts.call(this, coinAddresses);
@@ -315,8 +321,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
-
-                is_ng: factoryAddress === curve.constants.ALIASES.stable_ng_factory,
+                is_ng,
             };
         } else {
             const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
@@ -329,14 +334,17 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
             // @ts-ignore
             const basePoolIdDecimalsDict = Object.fromEntries(basePools.ids.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
-            const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+            const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict ?? {};
 
             this.constants.BASE_POOLS[basePools.ids[i]] = this.constants.BASE_POOLS[basePools.ids[i]] ? this.constants.BASE_POOLS[basePools.ids[i]] + 1: 1;
 
-            const basePoolZap = isStableNgPool(basePools.ids[i]) ? FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap : basePoolIdZapDict[basePools.ids[i]];
-
-            if(isStableNgPool(basePools.ids[i])) {
-                this.setContract(FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap.address, FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap.ABI);
+            let deposit_address = FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap ?? curve.constants.ZERO_ADDRESS;
+            let deposit_abi = StableNgBasePoolZapABI;
+            if (isStableNgPool(basePools.ids[i])) {
+                this.setContract(deposit_address, StableNgBasePoolZapABI);
+            } else {
+                deposit_address = basePoolIdZapDict[basePools.ids[i]].address;
+                deposit_abi = basePoolIdZapDict[basePools.ids[i]].ABI;
             }
 
             FACTORY_POOLS_DATA[poolIds[i]] = {
@@ -347,7 +355,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 swap_address: swapAddresses[i],
                 token_address: swapAddresses[i],
                 gauge_address: gaugeAddresses[i],
-                deposit_address: basePoolZap.address,
+                deposit_address,
                 implementation_address: implementations[i], // Only for testing
                 is_meta: true,
                 is_factory: true,
@@ -360,8 +368,8 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
-                deposit_abi: basePoolZap.ABI,
-                is_ng: factoryAddress === curve.constants.ALIASES.stable_ng_factory,
+                deposit_abi,
+                is_ng,
             };
         }
     }

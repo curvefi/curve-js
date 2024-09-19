@@ -77,7 +77,7 @@ export interface ICurve {
         DECIMALS: IDict<number>,
         GAUGES: string[],
     };
-    setContract: (address: string, abi: any) => void,
+    setContract: (address: string | undefined, abi: any) => void,
 }
 
 export interface ICoinFromPoolDataApi {

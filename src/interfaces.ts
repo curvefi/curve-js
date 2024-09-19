@@ -57,6 +57,7 @@ export interface ICurve {
     signer: ethers.Signer | null,
     signerAddress: string,
     chainId: number,
+    isLiteChain: boolean,
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
     constantOptions: { gasLimit?: number },

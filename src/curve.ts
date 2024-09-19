@@ -49,7 +49,7 @@ import votingProposalABI from './constants/abis/voting_proposal.json' assert { t
 import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
 
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
-import { _getHiddenPools } from "./external-api.js";
+import { _getHiddenPools, _getLiteNetworksData } from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
 
@@ -89,6 +89,7 @@ class Curve implements ICurve {
     signer: ethers.Signer | null;
     signerAddress: string;
     chainId: IChainId;
+    isLiteChain: boolean;
     contracts: { [index: string]: ContractItem };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
     constantOptions: { gasLimit?: number };
@@ -122,6 +123,7 @@ class Curve implements ICurve {
         this.signer = null;
         this.signerAddress = '';
         this.chainId = 1;
+        this.isLiteChain = false;
         // @ts-ignore
         this.multicallProvider = null;
         this.contracts = {};
@@ -239,24 +241,27 @@ class Curve implements ICurve {
         const network = await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
-        this.constants.NATIVE_TOKEN = NETWORK_CONSTANTS[this.chainId].NATIVE_COIN;
-        this.constants.NETWORK_NAME = NETWORK_CONSTANTS[this.chainId].NAME;
-        this.constants.ALIASES = NETWORK_CONSTANTS[this.chainId].ALIASES;
+
+        this.isLiteChain = !(this.chainId in NETWORK_CONSTANTS);
+        const network_constants = this.isLiteChain ? await _getLiteNetworksData(this.chainId) : NETWORK_CONSTANTS[this.chainId];
+        this.constants.NATIVE_TOKEN = network_constants.NATIVE_COIN;
+        this.constants.NETWORK_NAME = network_constants.NAME;
+        this.constants.ALIASES = network_constants.ALIASES;
         this.constants.ALIASES.anycall = "0x37414a8662bc1d25be3ee51fb27c2686e2490a89";
         this.constants.ALIASES.voting_escrow_oracle = "0x12F407340697Ae0b177546E535b91A5be021fBF9";
-        this.constants.POOLS_DATA = NETWORK_CONSTANTS[this.chainId].POOLS_DATA;
-        if (this.chainId === 1) this.constants.LLAMMAS_DATA = NETWORK_CONSTANTS[this.chainId].LLAMMAS_DATA;
+        this.constants.POOLS_DATA = network_constants.POOLS_DATA ?? {};
+        this.constants.LLAMMAS_DATA = network_constants.LLAMMAS_DATA ?? {};
         for (const poolId in this.constants.POOLS_DATA) this.constants.POOLS_DATA[poolId].in_api = true;
-        this.constants.COINS = NETWORK_CONSTANTS[this.chainId].COINS;
+        this.constants.COINS = network_constants.COINS ?? {};
         this.constants.DECIMALS = extractDecimals({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA});
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.address] = 18;
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.wrappedAddress] = 18;
         this.constants.GAUGES = extractGauges(this.constants.POOLS_DATA);
         const [cTokens, yTokens, ycTokens, aTokens] = [
-            NETWORK_CONSTANTS[this.chainId].cTokens ?? [],
-            NETWORK_CONSTANTS[this.chainId].yTokens ?? [],
-            NETWORK_CONSTANTS[this.chainId].ycTokens ?? [],
-            NETWORK_CONSTANTS[this.chainId].aTokens ?? [],
+            network_constants.cTokens ?? [],
+            network_constants.yTokens ?? [],
+            network_constants.ycTokens ?? [],
+            network_constants.aTokens ?? [],
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
 

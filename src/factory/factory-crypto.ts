@@ -244,8 +244,8 @@ export async function getCryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAd
 
     const CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
-        const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].lpTokenBasePoolIdDict;
-        const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+        const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId]?.lpTokenBasePoolIdDict ?? {};
+        const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId]?.basePoolIdZapDict ?? {};
         const basePoolId = lpTokenBasePoolIdDict[coinAddresses[i][1].toLowerCase()];
 
         if (basePoolId) {  // isMeta

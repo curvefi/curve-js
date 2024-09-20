@@ -143,8 +143,8 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 }
             });
             const isPlain = underlyingCoinNames.toString() === wrappedCoinNames.toString();
-            const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].lpTokenBasePoolIdDict;
-            const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+            const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId]?.lpTokenBasePoolIdDict ?? {};
+            const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId]?.basePoolIdZapDict ?? {};
             const basePoolId = lpTokenBasePoolIdDict[coinAddresses[1]];
 
             if (factoryType !== "factory-tricrypto" && factoryType !== "factory-twocrypto" && basePoolId) {  // isMeta

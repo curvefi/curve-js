@@ -14,34 +14,6 @@ export const lpTokenBasePoolIdDictPolygon: IDict<string> = lowerCaseKeys({
     '0xdAD97F7713Ae9437fa9249920eC8507e5FbB23d3': 'atricrypto3',
 });
 
-export const lpTokenBasePoolIdDictFantom: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictAvalanche: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictArbitrum: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictOptimism: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictXDai: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictMoonbeam: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictKava: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictCelo: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictZkSync: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictBase: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictBsc: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictFraxtal: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictXLayer: IDict<string> = lowerCaseKeys({});
-
-export const lpTokenBasePoolIdDictMantle: IDict<string> = lowerCaseKeys({});
-
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
     '3pool': {
         address: "0x97aDC08FA1D849D2C48C5dcC1DaB568B169b0267".toLowerCase(),
@@ -60,97 +32,14 @@ export const basePoolIdZapDictPolygon: IDict<{ address: string, ABI: any }> = {
     },
 };
 
-export const basePoolIdZapDictFantom: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictAvalanche: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictArbitrum: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictOptimism: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictKava: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictCelo: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictZkSync: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictBase: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictBsc: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictFraxtal: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictXLayer: IDict<{ address: string, ABI: any }> = {};
-
-export const basePoolIdZapDictMantle: IDict<{ address: string, ABI: any }> = {};
 
 export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: { lpTokenBasePoolIdDict: IDict<string>, basePoolIdZapDict: IDict<{ address: string, ABI: any }> } } = {
     1: {  // ETH
         lpTokenBasePoolIdDict: lpTokenBasePoolIdDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,
     },
-    10: {  // OPTIMISM
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictOptimism,
-        basePoolIdZapDict: basePoolIdZapDictOptimism,
-    },
-    56: {  // BSC
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictBsc,
-        basePoolIdZapDict: basePoolIdZapDictBsc,
-    },
-    100: {  // XDAI
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictXDai,
-        basePoolIdZapDict: basePoolIdZapDictXDai,
-    },
     137: {  // POLYGON
         lpTokenBasePoolIdDict: lpTokenBasePoolIdDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
-    },
-    196: { // X-LAYER
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictXLayer,
-        basePoolIdZapDict: basePoolIdZapDictXLayer,
-    },
-    250: {  // FANTOM
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictFantom,
-        basePoolIdZapDict: basePoolIdZapDictFantom,
-    },
-    252: {  // FRAXTAL
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictFraxtal,
-        basePoolIdZapDict: basePoolIdZapDictFraxtal,
-    },
-    324: {  // ZKSYNC
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictZkSync,
-        basePoolIdZapDict: basePoolIdZapDictZkSync,
-    },
-    1284: {  // MOONBEAM
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictMoonbeam,
-        basePoolIdZapDict: basePoolIdZapDictMoonbeam,
-    },
-    2222: {  // KAVA
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictKava,
-        basePoolIdZapDict: basePoolIdZapDictKava,
-    },
-    5000: { // MANTLE
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictMantle,
-        basePoolIdZapDict: basePoolIdZapDictMantle,
-    },
-    8453: {  // BASE
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictBase,
-        basePoolIdZapDict: basePoolIdZapDictBase,
-    },
-    42220: {  // CELO
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictCelo,
-        basePoolIdZapDict: basePoolIdZapDictCelo,
-    },
-    43114: {  // AVALANCHE
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictAvalanche,
-        basePoolIdZapDict: basePoolIdZapDictAvalanche,
-    },
-    42161: {  // ARBITRUM
-        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictArbitrum,
-        basePoolIdZapDict: basePoolIdZapDictArbitrum,
     },
 }

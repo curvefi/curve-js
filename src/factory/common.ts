@@ -1,10 +1,10 @@
-import {ICurve, IPoolDataFromApi, IPoolDataShort} from "../interfaces";
+import { ICurve, IPoolDataShort } from "../interfaces";
 import { FACTORY_CONSTANTS } from "./constants.js";
 import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 import { getPoolIdBySwapAddress } from "../utils.js";
 
 export function setFactoryZapContracts(this: ICurve, isCrypto: boolean): void {
-    const basePoolIdZapDict = (isCrypto ? CRYPTO_FACTORY_CONSTANTS : FACTORY_CONSTANTS)[this.chainId].basePoolIdZapDict;
+    const basePoolIdZapDict = (isCrypto ? CRYPTO_FACTORY_CONSTANTS : FACTORY_CONSTANTS)[this.chainId]?.basePoolIdZapDict ?? {};
     for (const basePoolId in basePoolIdZapDict) {
         if (!Object.prototype.hasOwnProperty.call(basePoolIdZapDict, basePoolId)) continue;
         const basePool = basePoolIdZapDict[basePoolId];

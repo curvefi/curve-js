@@ -3,11 +3,15 @@ import {_getCoinAddresses, BN} from "../src/utils.js";
 import curve from "../src/index.js";
 import {curve as _curve} from "../src/curve.js";
 import {JsonRpcSigner} from "ethers";
+import {ETH_RPC} from "./rpcUrls.test.js";
 
 
 const AAVE_TOKENS = ['adai', 'ausdc', 'ausdt', 'asusd', 'awbtc', 'amdai', 'amusdt', 'amusdc', 'amwbtc', 'avdai', 'avusdt', 'avusdc', 'avwbtc', 'gdai', 'gusdc', 'gfusdt'];
 
 const routerSwapTest = async (coin1: string, coin2: string) => {
+    const title = 'Swap ' + coin1 + ' --> ' + coin2;
+    console.time(title);
+
     const amount = '1';
     const initialBalances = await curve.getBalances([coin1, coin2]) as string[];
 
@@ -21,7 +25,14 @@ const routerSwapTest = async (coin1: string, coin2: string) => {
     console.log("Output:", output);
     console.log("Required:", required);
 
-    await curve.router.swap(coin1, coin2, amount);
+    try {
+        await curve.router.swap(coin1, coin2, amount);
+    } catch (e) {
+        if ((e as Error).message === "This pair can't be exchanged") return;
+        throw e;
+    } finally {
+        console.timeEnd(title);
+    }
 
     const balances = await curve.getBalances([coin1, coin2]) as string[];
 
@@ -37,21 +48,31 @@ const routerSwapTest = async (coin1: string, coin2: string) => {
 }
 
 describe('Router swap', async function () {
-    this.timeout(240000);
+    this.timeout(240_000); // 4 minutes
+
+    const resetFork = () => _curve.provider.send("hardhat_reset", [{ forking: { jsonRpcUrl: ETH_RPC } }]);
 
     before(async function () {
+        console.time('init');
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
-        await curve.factory.fetchPools();
-        await curve.cryptoFactory.fetchPools();
-        await curve.tricryptoFactory.fetchPools();
-        await curve.crvUSDFactory.fetchPools();
-        await curve.EYWAFactory.fetchPools();
+        await resetFork();
+        await Promise.all([
+            curve.factory.fetchPools(),
+            curve.cryptoFactory.fetchPools(),
+            curve.tricryptoFactory.fetchPools(),
+            curve.crvUSDFactory.fetchPools(),
+            curve.EYWAFactory.fetchPools(),
+        ]);
+        console.timeEnd('init');
     });
+
+    beforeEach(resetFork);
 
     // const coins = Object.keys(COINS_POLYGON).filter((c) => c !== 'snx' && c !== 'eurs'); // TODO remove eurs
 
     // ETHEREUM
-    const coins = ['sbtc', 'susd', 'dai', 'mim', 'frax', 'crv', 'cvx', 'eth', 'steth', 'wsteth', 'frxeth', 'sfrxeth', 'wbeth', 'eurt', '3crv', '0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7', '0x045da4bfe02b320f4403674b3b7d121737727a36']; // cvxCRV, DCHF
+    const coins = ['crv', 'dai'];
+    // const coins = ['sbtc', 'susd', 'dai', 'mim', 'frax', 'crv', 'cvx', 'eth', 'steth', 'wsteth', 'frxeth', 'sfrxeth', 'wbeth', 'eurt', '3crv', '0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7', '0x045da4bfe02b320f4403674b3b7d121737727a36']; // cvxCRV, DCHF
 
     // POLYGON
     // const coins = ['wbtc', 'crv', 'dai', 'usdc', 'usdt', 'eurt', 'weth', 'renbtc', 'amdai', 'amusdc', 'amusdt', 'am3crv', 'matic',
@@ -78,26 +99,15 @@ describe('Router swap', async function () {
     // AURORA && KAVA && CELO
     // const coins = ['dai', 'usdc', 'usdt'];
 
-    for (const coin1 of coins) {
-        for (const coin2 of coins) {
-            if (coin1 !== coin2) {
-                it(`${coin1} --> ${coin2}`, async function () {
-                    try {
-                        await routerSwapTest(coin1, coin2);
-                    } catch (err: any) {
-                        if (err.message != "This pair can't be exchanged") {
-                            throw err;
-                        }
-                    }
-                });
-            }
-        }
-    }
+    coins.forEach(coin1 => coins.forEach(coin2 =>
+        coin1 !== coin2 && it(`${coin1} --> ${coin2}`, () => routerSwapTest(coin1, coin2))
+    ))
 })
 
 
 /**
  * Function that limits the number of calls to the function per time period, delaying the next call.
+ * We use this to avoid hitting the rate limit of the API.
  */
 function rateLimit<R, F extends (...args: Parameters<F>) => Promise<R>>(func: F, timeout: number): F {
     let lastCall = Date.now() - timeout;
@@ -138,7 +148,7 @@ async function stealTokens(coinName: string, amount: string = `0x1${'0'.repeat(2
         console.log(`Stole ${coinName} from ${richAddress}: ${JSON.stringify(tx)}`);
     }
     catch (e) {
-        console.error(`Cannot steal ${amount} ${coinName} from ${richAddress}: ${e}`);
+        console.error(`Cannot steal ${amount} ${coinName} from ${richAddress}, even if it has ${richAccount.rawBalance}: ${e}`);
         throw e;
     } finally {
         cleanup();

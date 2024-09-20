@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { curve } from "../src/curve.js";
-import { ETH_RPC, ARBITRUM_RPC, AURORA_RPC } from "./rpcUrls.test.js";
+import { ETH_RPC } from "./rpcUrls.test.js";
 import { IDict, IPoolData } from "../src/interfaces.js";
 import { BLACK_LIST } from "../src/factory/factory.js";
 
@@ -69,10 +69,7 @@ const factoryPoolsDataTest = (factoryPoolsDataFromApi: IDict<IPoolData>, factory
 describe('Factory pools data', async function () {
     this.timeout(120000);
 
-    before(async function() {
-        await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
-        // await curve.init('JsonRpc', {},{ gasPrice: 0 });
-    });
+    before(() => curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 }))
 
     it('Factory', async function () {
         await curve.fetchFactoryPools();

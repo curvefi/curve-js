@@ -11,6 +11,7 @@ import {
 } from "ethers";
 import { Provider as MulticallProvider, Contract as MulticallContract } from "@curvefi/ethcall";
 import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
+import { STABLE_FACTORY_CONSTANTS, CRYPTO_FACTORY_CONSTANTS } from "./constants/factory/index.js";
 import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
@@ -100,6 +101,8 @@ class Curve implements ICurve {
         NETWORK_NAME: INetworkName,
         ALIASES: IDict<string>,
         POOLS_DATA: IDict<IPoolData>,
+        STABLE_FACTORY_CONSTANTS: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string }
+        CRYPTO_FACTORY_CONSTANTS: { lpTokenBasePoolIdDict?: IDict<string>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, tricryptoDeployImplementations?: IDict<string | number> }
         FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
         EYWA_FACTORY_POOLS_DATA: IDict<IPoolData>,
@@ -135,6 +138,8 @@ class Curve implements ICurve {
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
+            STABLE_FACTORY_CONSTANTS: {},
+            CRYPTO_FACTORY_CONSTANTS: {},
             FACTORY_POOLS_DATA: {},
             CRVUSD_FACTORY_POOLS_DATA: {},
             EYWA_FACTORY_POOLS_DATA: {},
@@ -174,6 +179,8 @@ class Curve implements ICurve {
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
             POOLS_DATA: {},
+            STABLE_FACTORY_CONSTANTS: {},
+            CRYPTO_FACTORY_CONSTANTS: {},
             FACTORY_POOLS_DATA: {},
             CRVUSD_FACTORY_POOLS_DATA: {},
             EYWA_FACTORY_POOLS_DATA: {},
@@ -264,6 +271,12 @@ class Curve implements ICurve {
             network_constants.aTokens ?? [],
         ];
         const customAbiTokens = [...cTokens, ...yTokens, ...ycTokens, ...aTokens];
+        if (this.isLiteChain) {
+            this.constants.STABLE_FACTORY_CONSTANTS.stableNgBasePoolZap = network_constants.stableNgBasePoolZap;
+        } else {
+            this.constants.STABLE_FACTORY_CONSTANTS = STABLE_FACTORY_CONSTANTS[this.chainId] ?? {};
+            this.constants.CRYPTO_FACTORY_CONSTANTS = CRYPTO_FACTORY_CONSTANTS[this.chainId] ?? {};
+        }
 
         if(this.chainId === 5000) {
             this.constantOptions = {}

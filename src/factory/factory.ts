@@ -8,7 +8,6 @@ import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
 import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" assert { type: 'json' };
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
-import { FACTORY_CONSTANTS } from "./constants.js";
 import {getPoolName, isStableNgPool} from "../utils.js";
 
 export const BLACK_LIST: { [index: number]: any } = {
@@ -265,7 +264,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
     const poolNames: string[] = [];
     const isMeta: boolean[] = [];
     const coinAddresses: string[][] = [];
-    const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict ?? {};
+    const implementationABIDict = this.constants.STABLE_FACTORY_CONSTANTS.implementationABIDict ?? {};
     for (let i = 0; i < rawPoolIds.length; i++) {
         if (is_ng || (rawImplementations[i] in implementationABIDict)) {
             poolIds.push(rawPoolIds[i]);
@@ -334,11 +333,11 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
             // @ts-ignore
             const basePoolIdDecimalsDict = Object.fromEntries(basePools.ids.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_decimals]));
-            const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict ?? {};
+            const basePoolIdZapDict = this.constants.STABLE_FACTORY_CONSTANTS.basePoolIdZapDict ?? {};
 
             this.constants.BASE_POOLS[basePools.ids[i]] = this.constants.BASE_POOLS[basePools.ids[i]] ? this.constants.BASE_POOLS[basePools.ids[i]] + 1: 1;
 
-            let deposit_address = FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap ?? curve.constants.ZERO_ADDRESS;
+            let deposit_address = this.constants.STABLE_FACTORY_CONSTANTS.stableNgBasePoolZap ?? curve.constants.ZERO_ADDRESS;
             let deposit_abi = StableNgBasePoolZapABI;
             if (isStableNgPool(basePools.ids[i])) {
                 this.setContract(deposit_address, StableNgBasePoolZapABI);

@@ -1,44 +1,44 @@
-import { IDict } from "../interfaces";
-import factorySwapABI from "../constants/abis/factoryPools/swap.json" assert { type: 'json' };
-import MetaUSDABI from "../constants/abis/factory-v2/MetaUSD.json" assert { type: 'json' };
-import MetaUSDBalancesABI from "../constants/abis/factory-v2/MetaUSDBalances.json" assert { type: 'json' };
-import MetaFraxUSDABI from "../constants/abis/factory-v2/MetaFraxUSD.json" assert { type: 'json' };
-import MetaFraxUSDBalancesABI from "../constants/abis/factory-v2/MetaFraxUSDBalances.json" assert { type: 'json' };
-import MetaBTCABI from "../constants/abis/factory-v2/MetaBTC.json" assert { type: 'json' };
-import MetaBTCBalancesABI from "../constants/abis/factory-v2/MetaBTCBalances.json" assert { type: 'json' };
-import MetaBTCRenABI from "../constants/abis/factory-v2/MetaBTCRen.json" assert { type: 'json' };
-import MetaBTCRenBalancesABI from "../constants/abis/factory-v2/MetaBTCBalancesRen.json" assert { type: 'json' };
-import MetaSbtc2ABI from "../constants/abis/factory-v2/MetaSbtc2.json" assert { type: 'json' };
-import MetaSbtc2BalancesABI from "../constants/abis/factory-v2/MetaSbtc2Balance.json" assert { type: 'json' };
-import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json" assert { type: 'json' };
-import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json" assert { type: 'json' };
-import Plain2BasicWithRatesABI from "../constants/abis/factory-v2/Plain2BasicWithRates.json" assert { type: 'json' };
-import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json" assert { type: 'json' };
-import Plain2ETHABI from "../constants/abis/factory-v2/Plain2ETH.json" assert { type: 'json' };
-import Plain2ETHOracleABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
-import Plain2OptimizedABI from "../constants/abis/factory-v2/Plain2Optimized.json" assert { type: 'json' };
-import Plain3BasicABI from "../constants/abis/factory-v2/Plain3Basic.json" assert { type: 'json' };
-import Plain3BalancesABI from "../constants/abis/factory-v2/Plain3Balances.json" assert { type: 'json' };
-import Plain3ETHABI from "../constants/abis/factory-v2/Plain3ETH.json" assert { type: 'json' };
-import Plain3OptimizedABI from "../constants/abis/factory-v2/Plain3Optimized.json" assert { type: 'json' };
-import Plain4BasicABI from "../constants/abis/factory-v2/Plain4Basic.json" assert { type: 'json' };
-import Plain4BalancesABI from "../constants/abis/factory-v2/Plain4Balances.json" assert { type: 'json' };
-import Plain4ETHABI from "../constants/abis/factory-v2/Plain4ETH.json" assert { type: 'json' };
-import Plain4OptimizedABI from "../constants/abis/factory-v2/Plain4Optimized.json" assert { type: 'json' };
-import Plain6BasicABI from "../constants/abis/factory-v2/Plain6Basic.json" assert { type: 'json' };
-import Plain6BalancesABI from "../constants/abis/factory-v2/Plain6Balances.json" assert { type: 'json' };
-import Plain6ETHABI from "../constants/abis/factory-v2/Plain6ETH.json" assert { type: 'json' };
-import Plain6OptimizedABI from "../constants/abis/factory-v2/Plain6Optimized.json" assert { type: 'json' };
+import { IDict } from "../../interfaces";
+import factorySwapABI from "../abis/factoryPools/swap.json" assert { type: 'json' };
+import MetaUSDABI from "../abis/factory-v2/MetaUSD.json" assert { type: 'json' };
+import MetaUSDBalancesABI from "../abis/factory-v2/MetaUSDBalances.json" assert { type: 'json' };
+import MetaFraxUSDABI from "../abis/factory-v2/MetaFraxUSD.json" assert { type: 'json' };
+import MetaFraxUSDBalancesABI from "../abis/factory-v2/MetaFraxUSDBalances.json" assert { type: 'json' };
+import MetaBTCABI from "../abis/factory-v2/MetaBTC.json" assert { type: 'json' };
+import MetaBTCBalancesABI from "../abis/factory-v2/MetaBTCBalances.json" assert { type: 'json' };
+import MetaBTCRenABI from "../abis/factory-v2/MetaBTCRen.json" assert { type: 'json' };
+import MetaBTCRenBalancesABI from "../abis/factory-v2/MetaBTCBalancesRen.json" assert { type: 'json' };
+import MetaSbtc2ABI from "../abis/factory-v2/MetaSbtc2.json" assert { type: 'json' };
+import MetaSbtc2BalancesABI from "../abis/factory-v2/MetaSbtc2Balance.json" assert { type: 'json' };
+import MetaUSDGeistABI from "../abis/factory-v2/MetaUSDGeist.json" assert { type: 'json' };
+import Plain2BasicABI from "../abis/factory-v2/Plain2Basic.json" assert { type: 'json' };
+import Plain2BasicWithRatesABI from "../abis/factory-v2/Plain2BasicWithRates.json" assert { type: 'json' };
+import Plain2BalancesABI from "../abis/factory-v2/Plain2Balances.json" assert { type: 'json' };
+import Plain2ETHABI from "../abis/factory-v2/Plain2ETH.json" assert { type: 'json' };
+import Plain2ETHOracleABI from "../abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
+import Plain2OptimizedABI from "../abis/factory-v2/Plain2Optimized.json" assert { type: 'json' };
+import Plain3BasicABI from "../abis/factory-v2/Plain3Basic.json" assert { type: 'json' };
+import Plain3BalancesABI from "../abis/factory-v2/Plain3Balances.json" assert { type: 'json' };
+import Plain3ETHABI from "../abis/factory-v2/Plain3ETH.json" assert { type: 'json' };
+import Plain3OptimizedABI from "../abis/factory-v2/Plain3Optimized.json" assert { type: 'json' };
+import Plain4BasicABI from "../abis/factory-v2/Plain4Basic.json" assert { type: 'json' };
+import Plain4BalancesABI from "../abis/factory-v2/Plain4Balances.json" assert { type: 'json' };
+import Plain4ETHABI from "../abis/factory-v2/Plain4ETH.json" assert { type: 'json' };
+import Plain4OptimizedABI from "../abis/factory-v2/Plain4Optimized.json" assert { type: 'json' };
+import Plain6BasicABI from "../abis/factory-v2/Plain6Basic.json" assert { type: 'json' };
+import Plain6BalancesABI from "../abis/factory-v2/Plain6Balances.json" assert { type: 'json' };
+import Plain6ETHABI from "../abis/factory-v2/Plain6ETH.json" assert { type: 'json' };
+import Plain6OptimizedABI from "../abis/factory-v2/Plain6Optimized.json" assert { type: 'json' };
 // --- ZAPS --
-import factoryDepositABI from "../constants/abis/factoryPools/deposit.json" assert { type: 'json' };
-import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/meta_zap.json" assert { type: 'json' };
-import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json" assert { type: 'json' };
-import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json" assert { type: 'json' };
-import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json" assert { type: 'json' };
-import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json" assert { type: 'json' };
-import RenMetaZapABI from "../constants/abis/ren/meta_zap.json" assert { type: 'json' };
-import Sbtc2MetaZapABI from "../constants/abis/sbtc2/meta_zap.json" assert { type: 'json' };
-import { lowerCaseKeys } from "../constants/utils.js";
+import factoryDepositABI from "../abis/factoryPools/deposit.json" assert { type: 'json' };
+import fraxusdcMetaZapABI from "../abis/fraxusdc/meta_zap.json" assert { type: 'json' };
+import MetaUsdZapPolygonABI from "../abis/factory-v2/DepositZapMetaUsdPolygon.json" assert { type: 'json' };
+import MetaBtcZapPolygonABI from "../abis/factory-v2/DepositZapMetaBtcPolygon.json" assert { type: 'json' };
+import MetaZapFantomABI from "../abis/factory-v2/DepositZapFantom.json" assert { type: 'json' };
+import MetaGeistUsdZapFantomABI from "../abis/factory-v2/DepositZapMetaUsd2Fantom.json" assert { type: 'json' };
+import RenMetaZapABI from "../abis/ren/meta_zap.json" assert { type: 'json' };
+import Sbtc2MetaZapABI from "../abis/sbtc2/meta_zap.json" assert { type: 'json' };
+import { lowerCaseKeys } from "../utils.js";
 
 
 export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
@@ -423,7 +423,7 @@ export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {
 
 export const stableNgBasePoolZap = '0xe07a16358aa878cbda2d49a88e5106871e0db307'.toLowerCase();
 
-export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string } } = {
+export const STABLE_FACTORY_CONSTANTS: { [index: number]: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,

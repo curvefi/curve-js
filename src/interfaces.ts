@@ -67,6 +67,8 @@ export interface ICurve {
         NETWORK_NAME: INetworkName,
         ALIASES: IDict<string>,
         POOLS_DATA: IDict<IPoolData>,
+        STABLE_FACTORY_CONSTANTS: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string }
+        CRYPTO_FACTORY_CONSTANTS: { lpTokenBasePoolIdDict?: IDict<string>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, tricryptoDeployImplementations?: IDict<string | number> }
         FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
         CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,

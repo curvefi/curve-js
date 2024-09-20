@@ -7,8 +7,6 @@ import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypt
 import twocryptoFactorySwapABI from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" assert { type: 'json' };
 import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" assert { type: 'json' };
 import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" assert { type: 'json' };
-import { FACTORY_CONSTANTS } from "./constants.js";
-import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
 import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
@@ -86,7 +84,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
     const is_ng = ["factory-stable-ng", "factory-twocrypto", "factory-tricrypto"].includes(factoryType);
     const isCrypto = ["factory-crypto", "factory-twocrypto", "factory-tricrypto"].includes(factoryType);
 
-    const implementationABIDict = FACTORY_CONSTANTS[this.chainId].implementationABIDict ?? {};
+    const implementationABIDict = this.constants.STABLE_FACTORY_CONSTANTS.implementationABIDict ?? {};
     let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType, this.isLiteChain)).poolData);
     if (!isCrypto) rawPoolList = rawPoolList.filter((p) => is_ng || p.implementationAddress in implementationABIDict);
     // Filter duplications
@@ -143,8 +141,8 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 }
             });
             const isPlain = underlyingCoinNames.toString() === wrappedCoinNames.toString();
-            const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId]?.lpTokenBasePoolIdDict ?? {};
-            const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId]?.basePoolIdZapDict ?? {};
+            const lpTokenBasePoolIdDict = this.constants.CRYPTO_FACTORY_CONSTANTS.lpTokenBasePoolIdDict ?? {};
+            const basePoolIdZapDict = this.constants.CRYPTO_FACTORY_CONSTANTS.basePoolIdZapDict ?? {};
             const basePoolId = lpTokenBasePoolIdDict[coinAddresses[1]];
 
             if (factoryType !== "factory-tricrypto" && factoryType !== "factory-twocrypto" && basePoolId) {  // isMeta
@@ -214,9 +212,9 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
             const basePoolCoinAddresses = allPoolsData[basePoolId]?.underlying_coin_addresses;
             const basePoolDecimals = allPoolsData[basePoolId]?.underlying_decimals;
 
-            const basePoolIdZapDict = FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict ?? {};
+            const basePoolIdZapDict = this.constants.STABLE_FACTORY_CONSTANTS.basePoolIdZapDict ?? {};
 
-            let deposit_address = FACTORY_CONSTANTS[this.chainId].stableNgBasePoolZap ?? curve.constants.ZERO_ADDRESS;
+            let deposit_address = this.constants.STABLE_FACTORY_CONSTANTS.stableNgBasePoolZap ?? curve.constants.ZERO_ADDRESS;
             let deposit_abi = StableNgBasePoolZapABI;
             if (isStableNgPool(basePoolId)) {
                 this.setContract(deposit_address, StableNgBasePoolZapABI);

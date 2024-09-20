@@ -591,7 +591,13 @@ class Curve implements ICurve {
         this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
-        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = await this.contracts[this.constants.ALIASES.twocrypto_factory].contract.gauge_implementation(this.constantOptions);
+        if (this.chainId === 1) {
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] =
+                await this.contracts[this.constants.ALIASES.twocrypto_factory].contract.gauge_implementation(this.constantOptions);
+        } else {
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] =
+                await this.contracts[this.constants.ALIASES.child_gauge_factory].contract.get_implementation(this.constantOptions);
+        }
     }
 
     fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {

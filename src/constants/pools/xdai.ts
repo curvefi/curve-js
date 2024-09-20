@@ -19,7 +19,7 @@ export const POOLS_DATA_XDAI: IDict<IPoolData> = lowerCasePoolDataAddresses({
         reference_asset: 'USD',
         swap_address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
         token_address: '0x1337BedC9D22ecbe766dF105c9623922A27963EC',
-        gauge_address: '0xb721cc32160ab0da2614cc6ab16ed822aeebc101',
+        gauge_address: '0xabC000d88f23Bb45525E447528DBF656A9D55bf5',
         sCurveRewards_address: '0x6C09F6727113543Fd061a721da512B7eFCDD0267',
         is_plain: true,
         underlying_coins: ['WXDAI', 'USDC', 'USDT'],

@@ -10,10 +10,9 @@ import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricry
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
 import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
-import {tricryptoDeployImplementations} from "../constants/tricryptoDeployImplementations.js";
-import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json";
-import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json";
-import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json";
+import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" assert { type: 'json' };
+import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" assert { type: 'json' };
+import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" assert { type: 'json' };
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -34,11 +33,11 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
 }
 
 const getSwapAbiByFactoryType = (factoryType: IFactoryPoolType, pool: IPoolDataFromApi) => {
-    const isETHDisabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_disabled;
+    const isETHEnabled = pool.implementationAddress === curve.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
     const map: Record<string, any> = {
         "factory-crypto": cryptoFactorySwapABI,
         "factory-twocrypto": twocryptoFactorySwapABI,
-        "factory-tricrypto": isETHDisabled ? tricryptoFactoryEthDisabledSwapABI : tricryptoFactorySwapABI,
+        "factory-tricrypto": isETHEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI,
     }
 
     return map[factoryType];
@@ -103,6 +102,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     rawPoolList.forEach((pool, i) => {
         const nativeToken = this.constants.NATIVE_TOKEN;
+        const isETHEnabled = pool.implementationAddress === curve.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
         let coinAddresses = pool.coins.map((c) => c.address);
         if (this.chainId === 137) {
             coinAddresses = coinAddresses.map((a) => a === "0x0000000000000000000000000000000000001010" ? nativeToken.wrappedAddress : a);
@@ -116,7 +116,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 if(factoryType === 'factory-twocrypto') {
                     return c.symbol;
                 } else if (factoryType === 'factory-tricrypto') {
-                    const isETHEnabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
                     if(isETHEnabled) {
                         return c.symbol === nativeToken.wrappedSymbol ? nativeToken.symbol : c.symbol;
                     } else {
@@ -130,7 +129,6 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 if(factoryType === 'factory-twocrypto') {
                     return addr;
                 } else if (factoryType === 'factory-tricrypto') {
-                    const isETHEnabled = pool.implementationAddress === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
                     if(isETHEnabled) {
                         return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;
                     } else {

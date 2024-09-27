@@ -993,24 +993,76 @@ export class PoolTemplate {
 
     public async claimCrvEstimateGas(): Promise<number | number[]> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
-        if(curve.chainId === 1) {
-            return Number(await curve.contracts[curve.constants.ALIASES.minter].contract.mint.estimateGas(this.gauge.address, curve.constantOptions));
+
+        let isOldFactory = false;
+        let contract;
+
+        if (curve.chainId !== 1) {
+            if (curve.constants.ALIASES.child_gauge_factory_old && curve.constants.ALIASES.child_gauge_factory_old !== curve.constants.ZERO_ADDRESS) {
+                const oldFactoryContract = curve.contracts[curve.constants.ALIASES.child_gauge_factory_old].contract;
+                const gaugeAddress = await oldFactoryContract.get_gauge_from_lp_token(this.lpToken);
+
+                isOldFactory = gaugeAddress === this.gauge.address;
+
+                if (isOldFactory) {
+                    contract = oldFactoryContract;
+                }
+            }
+        }
+
+        if (!isOldFactory) {
+            contract = curve.chainId === 1 ?
+                curve.contracts[curve.constants.ALIASES.minter].contract :
+                curve.contracts[curve.constants.ALIASES.child_gauge_factory].contract;
+        }
+
+        if (!contract) {
+            throw new Error("Failed to find the correct contract for estimating gas");
+        }
+
+        if (curve.chainId === 1) {
+            return Number(await contract.mint.estimateGas(this.gauge.address, curve.constantOptions));
         } else {
-            return smartNumber(await curve.contracts[curve.constants.ALIASES.child_gauge_factory].contract.mint.estimateGas(this.gauge.address, curve.constantOptions));
+            return smartNumber(await contract.mint.estimateGas(this.gauge.address, curve.constantOptions));
         }
     }
 
+
     public async claimCrv(): Promise<string> {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use claimRewards instead`);
-        const contract = curve.chainId === 1 ?
-            curve.contracts[curve.constants.ALIASES.minter].contract :
-            curve.contracts[curve.constants.ALIASES.child_gauge_factory].contract;
+
+        let isOldFactory = false;
+        let contract;
+
+        if (curve.chainId !== 1) {
+            if (curve.constants.ALIASES.child_gauge_factory_old && curve.constants.ALIASES.child_gauge_factory_old !== curve.constants.ZERO_ADDRESS) {
+                const oldFactoryContract = curve.contracts[curve.constants.ALIASES.child_gauge_factory_old].contract;
+                const gaugeAddress = await oldFactoryContract.get_gauge_from_lp_token(this.lpToken);
+
+                isOldFactory = gaugeAddress === this.gauge.address;
+
+                if (isOldFactory) {
+                    contract = oldFactoryContract;
+                }
+            }
+        }
+
+        if (!isOldFactory) {
+            contract = curve.chainId === 1 ?
+                curve.contracts[curve.constants.ALIASES.minter].contract :
+                curve.contracts[curve.constants.ALIASES.child_gauge_factory].contract;
+        }
+
+        if (!contract) {
+            throw new Error("Failed to find the correct contract for minting");
+        }
 
         await curve.updateFeeData();
 
         const gasLimit = mulBy1_3(DIGas(await contract.mint.estimateGas(this.gauge.address, curve.constantOptions)));
         return (await contract.mint(this.gauge.address, { ...curve.options, gasLimit })).hash;
     }
+
 
     public userBoost = async (address = ""): Promise<string> => {
         if (this.gauge.address === curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);

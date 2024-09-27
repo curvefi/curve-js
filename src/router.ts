@@ -67,7 +67,7 @@ const _buildRouteGraph = memoize(async (): Promise<IDict<IDict<IRouteStep[]>>> =
 },
 {
     promise: true,
-    maxAge: 5 * 1000, // 5m
+    maxAge: 5 * 60 * 1000, // 5m
 });
 
 const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]>  => {

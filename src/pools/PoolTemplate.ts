@@ -1002,7 +1002,7 @@ export class PoolTemplate {
                 const oldFactoryContract = curve.contracts[curve.constants.ALIASES.child_gauge_factory_old].contract;
                 const gaugeAddress = await oldFactoryContract.get_gauge_from_lp_token(this.lpToken);
 
-                isOldFactory = gaugeAddress === this.gauge.address;
+                isOldFactory = gaugeAddress.toLowerCase() === this.gauge.address.toLowerCase();
 
                 if (isOldFactory) {
                     contract = oldFactoryContract;
@@ -1039,7 +1039,7 @@ export class PoolTemplate {
                 const oldFactoryContract = curve.contracts[curve.constants.ALIASES.child_gauge_factory_old].contract;
                 const gaugeAddress = await oldFactoryContract.get_gauge_from_lp_token(this.lpToken);
 
-                isOldFactory = gaugeAddress === this.gauge.address;
+                isOldFactory = gaugeAddress.toLowerCase() === this.gauge.address.toLowerCase();
 
                 if (isOldFactory) {
                     contract = oldFactoryContract;

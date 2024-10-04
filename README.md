@@ -2462,3 +2462,9 @@ import curve from "@curvefi/api";
     // ]
 })()
 ```
+
+## Tests
+
+```sh
+npm run test
+```

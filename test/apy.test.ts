@@ -3,7 +3,7 @@ import curve from "../src/index.js";
 import { curve as _curve } from "../src/curve.js";
 import { getPool, PoolTemplate } from "../src/pools/index.js";
 import { IReward } from "../src/interfaces.js";
-import { ETH_RPC, OPTIMISM_RPC, XDAI_RPC, POLYGON_RPC, FANTOM_RPC, MOONBEAM_RPC, KAVA_RPC, ARBITRUM_RPC, CELO_RPC, AVALANCHE_RPC, AURORA_RPC } from "./rpcUrls.test.js";
+import { ETH_RPC } from "./rpcUrls.test.js";
 
 
 const poolStatsTest = (name: string) => {

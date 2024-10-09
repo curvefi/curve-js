@@ -15,6 +15,7 @@
   },
   "scripts": {
     "build": "rm -rf lib && tsc -p tsconfig.build.json",
+    "test": "npx tsc && mocha dist/test/*.test.js",
     "lint": "eslint src --ext .ts"
   },
   "type": "module",

@@ -9,8 +9,3 @@ export const COINS_BSC: IDict<string> = lowerCaseValues({
     bnb: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     wbnb: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
 });
-
-export const cTokensBsc = []; //.map((a) => a.toLowerCase());
-export const yTokensBsc = []; //.map((a) => a.toLowerCase());
-export const ycTokensBsc = []; //.map((a) => a.toLowerCase());
-export const aTokensBsc = []; //.map((a) => a.toLowerCase());

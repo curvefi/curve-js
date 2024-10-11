@@ -37,10 +37,6 @@ export const COINS_POLYGON: { [index: string]: string } = lowerCaseValues({
     eurt: "0x7BDF330f423Ea880FF95fC41A280fD5eCFD3D09f",  // EURT
 })
 
-export const cTokensPolygon = []; //.map((a) => a.toLowerCase());
-export const yTokensPolygon = []; //.map((a) => a.toLowerCase());
-export const ycTokensPolygon = []; //.map((a) => a.toLowerCase());
-
 export const aTokensPolygon = [
     "0x27F8D03b3a2196956ED754baDc28D73be8830A6e",  // amDAI
     "0x1a13F4Ca1d028320A707D99520AbFefca3998b7F",  // amUSDC

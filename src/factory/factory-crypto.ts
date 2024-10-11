@@ -5,7 +5,6 @@ import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypt
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
 import { setFactoryZapContracts } from "./common.js";
-import { CRYPTO_FACTORY_CONSTANTS } from "./constants-crypto.js";
 
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -244,8 +243,8 @@ export async function getCryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAd
 
     const CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     for (let i = 0; i < poolIds.length; i++) {
-        const lpTokenBasePoolIdDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].lpTokenBasePoolIdDict;
-        const basePoolIdZapDict = CRYPTO_FACTORY_CONSTANTS[this.chainId].basePoolIdZapDict;
+        const lpTokenBasePoolIdDict = this.constants.CRYPTO_FACTORY_CONSTANTS.lpTokenBasePoolIdDict ?? {};
+        const basePoolIdZapDict = this.constants.CRYPTO_FACTORY_CONSTANTS.basePoolIdZapDict ?? {};
         const basePoolId = lpTokenBasePoolIdDict[coinAddresses[i][1].toLowerCase()];
 
         if (basePoolId) {  // isMeta

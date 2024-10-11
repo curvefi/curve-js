@@ -32,11 +32,7 @@ export const COINS_AVALANCHE: { [index: string]: string } = lowerCaseValues({
     // --- AVAX ---
     'avax': '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     'wavax': '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
-})
-
-export const cTokensAvalanche = []; //.map((a) => a.toLowerCase());
-export const yTokensAvalanche = []; //.map((a) => a.toLowerCase());
-export const ycTokensAvalanche = []; //.map((a) => a.toLowerCase());
+});
 
 export const aTokensAvalanche = [
     '0x47AFa96Cdc9fAb46904A55a6ad4bf6660B53c38a',  // avDAI

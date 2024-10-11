@@ -5,7 +5,6 @@ import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory
 import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" assert { type: 'json' };
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
-import { tricryptoDeployImplementations } from "../constants/tricryptoDeployImplementations.js";
 
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -210,7 +209,7 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
     const nativeToken = this.constants.NATIVE_TOKEN;
 
     for (let i = 0; i < poolIds.length; i++) {
-        const isETHEnabled = this.chainId === 1 || implementationAddresses[i] === tricryptoDeployImplementations[curve.chainId].amm_native_transfers_enabled;
+        const isETHEnabled = implementationAddresses[i] === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
         const underlyingCoinAddresses = coinAddresses[i].map((addr) => {
             if(isETHEnabled) {
                 return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;

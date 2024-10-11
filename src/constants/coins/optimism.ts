@@ -19,8 +19,3 @@ export const COINS_OPTIMISM: { [index: string]: string } = lowerCaseValues({
     'seth': '0xe405de8f52ba7559f9df3c368500b6e6ae6cee49',
     'wsteth': '0x1f32b1c2345538c0c6f582fcb022739c4a194ebb',
 })
-
-export const cTokensOptimism = []; //.map((a) => a.toLowerCase());
-export const yTokensOptimism = []; //.map((a) => a.toLowerCase());
-export const ycTokensOptimism = []; //.map((a) => a.toLowerCase());
-export const aTokensOptimism = []; //.map((a) => a.toLowerCase());

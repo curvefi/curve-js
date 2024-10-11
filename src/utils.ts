@@ -12,7 +12,8 @@ import {
     IVolumeAndAPYs,
     REFERENCE_ASSET,
 } from './interfaces';
-import {curve, NETWORK_CONSTANTS} from "./curve.js";
+import { curve } from "./curve.js";
+import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
 import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes} from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
 import {L2Networks} from './constants/L2Networks.js';
@@ -417,6 +418,10 @@ export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => 
 
 const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export const _getUsdRate = async (assetId: string): Promise<number> => {
+    if(curve.isLiteChain) {
+        throw Error('This method is not supported for the lite version')
+    }
+
     if (curve.chainId === 1 && assetId.toLowerCase() === '0x8762db106b2c2a0bccb3a80d1ed41273552616e8') return 0; // RSR
     const pricesFromApi = await _getUsdPricesFromApi();
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
@@ -503,6 +508,10 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 }
 
 export const getUsdRate = async (coin: string): Promise<number> => {
+    if(curve.isLiteChain) {
+        throw Error('This method is not supported for the lite version')
+    }
+
     const [coinAddress] = _getCoinAddressesNoCheck(coin);
     return await _getUsdRate(coinAddress);
 }
@@ -607,6 +616,10 @@ const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INet
 }
 
 export const getTVL = async (network: INetworkName | IChainId = curve.chainId): Promise<number> => {
+    if(curve.isLiteChain) {
+        throw Error('This method is not supported for the lite version')
+    }
+
     network = _getNetworkName(network);
     const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
 
@@ -614,6 +627,10 @@ export const getTVL = async (network: INetworkName | IChainId = curve.chainId): 
 }
 
 export const getVolumeApiController = async (network: INetworkName): Promise<IVolumeAndAPYs> => {
+    if(curve.isLiteChain) {
+        throw Error('This method is not supported for the lite version')
+    }
+
     if(volumeNetworks.getVolumes.includes(curve.chainId)) {
         return  await _getVolumes(network);
     }
@@ -628,6 +645,10 @@ export const getVolumeApiController = async (network: INetworkName): Promise<IVo
 }
 
 export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+    if(curve.isLiteChain) {
+        throw Error('This method is not supported for the lite version')
+    }
+
     network = _getNetworkName(network);
     const { totalVolume, cryptoVolume, cryptoShare } = await getVolumeApiController(network);
     return { totalVolume, cryptoVolume, cryptoShare }
@@ -708,8 +729,8 @@ export const getCoinsData = async (...coins: string[] | string[][]): Promise<{na
 }
 
 
-export const hasDepositAndStake = (): boolean => curve.constants.ALIASES.deposit_and_stake !== curve.constants.ZERO_ADDRESS;
-export const hasRouter = (): boolean => curve.constants.ALIASES.router !== curve.constants.ZERO_ADDRESS;
+export const hasDepositAndStake = (): boolean => "deposit_and_stake" in curve.constants.ALIASES;
+export const hasRouter = (): boolean => "router" in curve.constants.ALIASES;
 
 export const findAbiFunction = (abi: Abi, methodName: string) =>
     abi.filter((item) => item.type == 'function' && item.name === methodName) as AbiFunction[]
@@ -802,3 +823,10 @@ export function runWorker<In extends { type: string }, Out>(code: string, syncFn
         worker.terminate();
     });
 }
+
+export const PERIODS = {
+    DAY: 86400,
+    WEEK: 604800,      // 7 * 86400
+    MONTH: 2592000,    // 30 * 86400
+    YEAR: 31536000,    // 365 * 86400
+};

@@ -13,8 +13,9 @@ import {
 
 
 export const _getPoolsFromApi = memoize(
-    async (network: INetworkName, poolType: IPoolType): Promise<IExtendedPoolDataFromApi> => {
-        const url = `https://api.curve.fi/api/getPools/${network}/${poolType}`;
+    async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
+        const api = isLiteChain ? "https://api-core.curve.fi/v1/" : "https://api.curve.fi/api";
+        const url = `${api}/getPools/${network}/${poolType}`;
         const response = await axios.get(url, { validateStatus: () => true });
         return response.data.data ?? { poolData: [], tvl: 0, tvlAll: 0 };
     },
@@ -231,6 +232,54 @@ export const _getDaoProposal = memoize(async (type: "PARAMETER" | "OWNERSHIP", i
     const response = await axios.get(url, { validateStatus: () => true });
 
     return response.data;
+},
+{
+    promise: true,
+    maxAge: 5 * 60 * 1000, // 5m
+})
+
+// --- CURVE LITE ---
+
+export const _getLiteNetworksData = memoize(async (chainId: number): Promise<any> => {
+    const network_name = "arbitrum-sepolia";
+    const native_currency_symbol = "ETH";
+    const wrapped_letter = native_currency_symbol[0].toLowerCase() === native_currency_symbol[0] ? "w" : "W";
+    const wrapped_native_token = '0x980B62Da83eFf3D4576C647993b0c1D7faf17c73'.toLowerCase();
+
+    const stable_ng_factory = "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E".toLowerCase();
+    const twocrypto_factory =  "0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F".toLowerCase();
+    const tricrypto_factory = "0x0C9D8c7e486e822C29488Ff51BFf0167B4650953".toLowerCase();
+    const gauge_factory = "0xB4c6A1e8A14e9Fe74c88b06275b747145DD41206".toLowerCase();
+
+    const router = "0x148ac020221D4690457812b2AE23f6Ba5001DDCf".toLowerCase();
+    const deposit_and_stake = "0xFfd9A3490B5E0F4f19D917048C5362Ef80919C7B".toLowerCase();
+    const stable_ng_meta_zap = "0xcb38785B2CceD9B40F6C5120BC8e803d3a884977".toLowerCase();
+
+    const crv = "0x50FB01Ee521b9D22cdcb713a505019f41b8BBFf4".toLowerCase();
+
+
+    return {
+        NAME: network_name,
+        ALIASES: {
+            stable_ng_factory,
+            twocrypto_factory,
+            tricrypto_factory,
+            "child_gauge_factory": gauge_factory,
+            "root_gauge_factory": gauge_factory,
+
+            router,
+            deposit_and_stake,
+            stable_ng_meta_zap,
+
+            crv,
+        },
+        NATIVE_COIN: {
+            symbol: native_currency_symbol,
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedSymbol: wrapped_letter + native_currency_symbol,
+            wrappedAddress: wrapped_native_token.toLowerCase(),
+        },
+    }
 },
 {
     promise: true,

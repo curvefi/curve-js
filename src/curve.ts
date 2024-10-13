@@ -46,7 +46,7 @@ import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { ty
 import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' assert { type: 'json'};
 import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
 import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
-import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json";
+import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json" assert { type: 'json'};
 
 
 import {

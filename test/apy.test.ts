@@ -3,7 +3,7 @@ import curve from "../src/index.js";
 import { curve as _curve } from "../src/curve.js";
 import { getPool, PoolTemplate } from "../src/pools/index.js";
 import { IReward } from "../src/interfaces.js";
-import { ETH_RPC, OPTIMISM_RPC, XDAI_RPC, POLYGON_RPC, FANTOM_RPC, MOONBEAM_RPC, KAVA_RPC, ARBITRUM_RPC, CELO_RPC, AVALANCHE_RPC, AURORA_RPC } from "./rpcUrls.test.js";
+import { ETH_RPC } from "./rpcUrls.test.js";
 
 
 const poolStatsTest = (name: string) => {
@@ -58,18 +58,12 @@ const poolStatsTest = (name: string) => {
 
 describe('Compare calculated APY with APY from API', async function () {
     this.timeout(120000);
-    let POOLS: string[] = [];
 
     before(async function () {
         await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
         await curve.factory.fetchPools();
         await curve.cryptoFactory.fetchPools();
-        POOLS = curve.getPoolList();
     });
 
-    it('', async function () {
-        for (const poolName of POOLS) {
-            poolStatsTest(poolName);
-        }
-    });
+    curve.getPoolList().map(poolStatsTest);
 })

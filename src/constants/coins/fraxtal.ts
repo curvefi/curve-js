@@ -8,8 +8,3 @@ export const COINS_FRAXTAL: IDict<string> = lowerCaseValues({
     // --- FRAXTAL ---
     frxeth: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
 });
-
-export const cTokensFraxtal = []; //.map((a) => a.toLowerCase());
-export const yTokensFraxtal = []; //.map((a) => a.toLowerCase());
-export const ycTokensFraxtal = []; //.map((a) => a.toLowerCase());
-export const aTokensFraxtal = []; //.map((a) => a.toLowerCase());

@@ -8,9 +8,4 @@ export const COINS_AURORA: { [index: string]: string } = lowerCaseValues({
     'usdc.e': '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802',
     'usdt': '0x4988a896b1227218e4A686fdE5EabdcAbd91571f',
     '3crv': '0xbF7E49483881C76487b0989CD7d9A8239B20CA41',
-})
-
-export const cTokensAurora = []; //.map((a) => a.toLowerCase());
-export const yTokensAurora = []; //.map((a) => a.toLowerCase());
-export const ycTokensAurora = []; //.map((a) => a.toLowerCase());
-export const aTokensAurora = []; //.map((a) => a.toLowerCase());
+});

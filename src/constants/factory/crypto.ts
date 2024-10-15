@@ -1,3 +1,38 @@
+import { IDict } from "../../interfaces";
+import { lowerCaseKeys } from "../utils.js";
+// --- ZAPS --
+import atricrypto3ZapABI from "../abis/atricrypto3/base_pool_zap.json" assert { type: 'json' };
+import tripoolZapABI from "../abis/3pool/meta_zap_crypto.json" assert { type: 'json' };
+import fraxusdcZapABI from "../abis/fraxusdc/meta_zap_crypto.json" assert { type: 'json' };
+
+
+export const lpTokenBasePoolIdDictEthereum: IDict<string> = lowerCaseKeys({
+    '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490': '3pool',
+    '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC': 'fraxusdc',
+});
+
+export const lpTokenBasePoolIdDictPolygon: IDict<string> = lowerCaseKeys({
+    '0xdAD97F7713Ae9437fa9249920eC8507e5FbB23d3': 'atricrypto3',
+});
+
+export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
+    '3pool': {
+        address: "0x97aDC08FA1D849D2C48C5dcC1DaB568B169b0267".toLowerCase(),
+        ABI: tripoolZapABI,
+    },
+    fraxusdc: {
+        address: "0x5de4ef4879f4fe3bbadf2227d2ac5d0e2d76c895".toLowerCase(),
+        ABI: fraxusdcZapABI,
+    },
+};
+
+export const basePoolIdZapDictPolygon: IDict<{ address: string, ABI: any }> = {
+    atricrypto3: {
+        address: "0x3d8EADb739D1Ef95dd53D718e4810721837c69c1".toLowerCase(),
+        ABI: atricrypto3ZapABI,
+    },
+};
+
 export const tricryptoDeployImplementations = {
     1: { // ETH
         amm_native_transfers_disabled: '0x0000000000000000000000000000000000000000'.toLowerCase(),
@@ -83,5 +118,68 @@ export const tricryptoDeployImplementations = {
         amm_native_transfers_disabled: '0x3d6cB2F6DcF47CDd9C13E4e3beAe9af041d8796a'.toLowerCase(), //1
         amm_native_transfers_enabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //0
         implementationIdx: 1,
+    },
+}
+
+
+export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: {
+    lpTokenBasePoolIdDict?: IDict<string>,
+    basePoolIdZapDict?: IDict<{ address: string, ABI: any }>,
+    tricryptoDeployImplementations?: IDict<string | number>,
+} } = {
+    1: {  // ETH
+        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictEthereum,
+        basePoolIdZapDict: basePoolIdZapDictEthereum,
+        tricryptoDeployImplementations: tricryptoDeployImplementations[1],
+    },
+    10: { // OPTIMISM
+        tricryptoDeployImplementations: tricryptoDeployImplementations[10],
+    },
+    56: { // BSC
+        tricryptoDeployImplementations: tricryptoDeployImplementations[56],
+    },
+    100: { // XDAI
+        tricryptoDeployImplementations: tricryptoDeployImplementations[100],
+    },
+    137: {  // POLYGON
+        lpTokenBasePoolIdDict: lpTokenBasePoolIdDictPolygon,
+        basePoolIdZapDict: basePoolIdZapDictPolygon,
+        tricryptoDeployImplementations: tricryptoDeployImplementations[137],
+    },
+    196: {  // X-LAYER
+        tricryptoDeployImplementations: tricryptoDeployImplementations[196],
+    },
+    250: {  // FANTOM
+        tricryptoDeployImplementations: tricryptoDeployImplementations[250],
+    },
+    252: { // FRAXTAL
+        tricryptoDeployImplementations: tricryptoDeployImplementations[252],
+    },
+    324: {  // ZKSYNC
+        tricryptoDeployImplementations: tricryptoDeployImplementations[324],
+    },
+    1284: {  // MOONBEAM
+        tricryptoDeployImplementations: tricryptoDeployImplementations[1284],
+    },
+    2222: {  // KAVA
+        tricryptoDeployImplementations: tricryptoDeployImplementations[2222],
+    },
+    5000: {  // MANTLE
+        tricryptoDeployImplementations: tricryptoDeployImplementations[5000],
+    },
+    8453: {  // BASE
+        tricryptoDeployImplementations: tricryptoDeployImplementations[8453],
+    },
+    42161: {  // ARBITRUM
+        tricryptoDeployImplementations: tricryptoDeployImplementations[42161],
+    },
+    42220: {  // CELO
+        tricryptoDeployImplementations: tricryptoDeployImplementations[42220],
+    },
+    43114: {  // AVALANCHE
+        tricryptoDeployImplementations: tricryptoDeployImplementations[43114],
+    },
+    1313161554: {  // AURORA
+        tricryptoDeployImplementations: tricryptoDeployImplementations[1313161554],
     },
 }

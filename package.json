@@ -16,7 +16,8 @@
   "scripts": {
     "build": "rm -rf lib && tsc -p tsconfig.build.json",
     "test": "tsc && mocha dist/test",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "hardhat": "hardhat"
   },
   "type": "module",
   "devDependencies": {
@@ -32,7 +33,7 @@
     "chai": "^5.1.1",
     "eslint": "^9.9.1",
     "globals": "^15.9.0",
-    "hardhat": "^2.22.10",
+    "hardhat": "^2.22.14",
     "mocha": "^10.7.3",
     "typescript": "^5.5.4",
     "vue-eslint-parser": "^9.4.3"

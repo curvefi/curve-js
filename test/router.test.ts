@@ -120,11 +120,12 @@ function rateLimit<R, F extends (...args: Parameters<F>) => Promise<R>>(func: F,
     }) as F;
 }
 
-const getRichestCoinHolder = rateLimit(async (target: string) => {
-    const response = await fetch(`https://api.ethplorer.io/getTopTokenHolders/${target}?apiKey=freekey&limit=1`);
+type TokenHolder = { address: string, rawBalance: string, balance: number };
+const getRichestCoinHolders = rateLimit(async (target: string) => {
+    const response = await fetch(`https://api.ethplorer.io/getTopTokenHolders/${target}?apiKey=freekey&limit=10`);
     const {holders, error} = await response.json();
     if (error) throw new Error(error);
-    return holders[0] as { address: string, rawBalance: string, balance: number };
+    return holders as TokenHolder[];
 }, 2000); // 2 requests per second, using free api key
 
 function mockProperty<T, K extends keyof T>(obj: T, prop: K, value: T[K]) {
@@ -133,9 +134,18 @@ function mockProperty<T, K extends keyof T>(obj: T, prop: K, value: T[K]) {
     return () => Object.defineProperty(obj, prop, { get: () => oldValue });
 }
 
+async function getRichestCoinHolder(coinAddress: string, coinName: string) {
+    for (const account of await getRichestCoinHolders(coinAddress)) {
+        const code = await _curve.provider.getCode(account.address);
+        if (!code) return account; // if account has code, it's not an EOA
+    }
+    throw new Error(`No rich account found for ${coinName}`);
+}
+
 async function stealTokens(coinName: string, amount: string = `0x1${'0'.repeat(22)}`) {
     const [coinAddress] = _getCoinAddresses(coinName);
-    const richAccount = await getRichestCoinHolder(coinAddress);
+    const richAccount = await getRichestCoinHolder(coinAddress, coinName);
+
     const richAddress = richAccount.address;
     const contract = _curve.contracts[coinAddress].contract;
     const cleanup = mockProperty(_curve.signer as JsonRpcSigner, 'address', richAddress);

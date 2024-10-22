@@ -13,7 +13,7 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm run lint
-      - run: npx hardhat node --fork ${{ secrets.ETH_RPC }} &
+      - run: npm run hardhat -- node --fork ${{ secrets.ETH_RPC }} &
       - run: npm test
         env:
           ETH_RPC: ${{ secrets.ETH_RPC }}

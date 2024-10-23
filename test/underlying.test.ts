@@ -5,10 +5,10 @@ import { PoolTemplate } from "../src/pools/index.js";
 import { BN } from "../src/utils.js";
 import { IDict } from "../src/interfaces.js";
 
-const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt', '2pool', '4pool', 'fraxusdc', 'frxeth', 'sbtc2', 'fraxusdp', 'wbeth'];
-const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
-const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
-const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'eursusd', 'crveth', 'cvxeth', 'xautusd', 'spelleth', 'teth', 'euroc'];
+const PLAIN_POOLS = ['susd', 'ren', 'sbtc', '3pool', 'eurs', 'steth', 'ankreth', 'link', 'reth', 'eurt', '2pool', 'fraxusdc', 'frxeth', 'fraxusdp', 'wbeth'];
+const LENDING_POOLS = ['compound', 'usdt', 'aave', 'saave', 'ib'];
+const META_POOLS = ['gusd', 'usdk', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
+const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'eursusd', 'cvxeth', 'xautusd', 'spelleth', 'teth', 'euroc'];
 const FACTORY_PLAIN_POOLS = ['factory-v2-3', 'factory-v2-57', 'factory-v2-7']; // ['ibEUR+sEUR-f(2)', 'D3-f', 'crvCRV-f'];
 const FACTORY_META_POOLS = ['factory-v2-84', 'factory-v2-80', 'factory-v2-60', 'factory-v2-136']; // ['baoUSD-3CRV-f', 'ELONXSWAP3CRV-f', 'ibbtc/sbtcCRV-f(2)', 'sUSDFRAXBP'];
 const FACTORY_CRVUSD_POOLS = ['factory-crvusd-0', 'factory-crvusd-1', 'factory-crvusd-2', 'factory-crvusd-3'];

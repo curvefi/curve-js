@@ -14,10 +14,10 @@ import curve from "../../src/index.js";
 // ----------------
 
 
-const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
-const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
-const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
-const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'crveth', 'cvxeth'];
+const PLAIN_POOLS =  ['susd', 'ren', 'sbtc', '3pool', 'steth', 'ankreth', 'link', 'reth', 'eurt']; // Without eurs
+const LENDING_POOLS = ['compound', 'usdt', 'aave', 'saave', 'ib'];
+const META_POOLS = ['gusd', 'usdk', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
+const CRYPTO_POOLS = ['tricrypto2', 'eurtusd', 'cvxeth'];
 const ETHEREUM_POOLS = [...PLAIN_POOLS, ...LENDING_POOLS, ...META_POOLS, ...CRYPTO_POOLS];
 
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];

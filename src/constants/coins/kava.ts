@@ -9,8 +9,3 @@ export const COINS_KAVA: { [index: string]: string } = lowerCaseValues({
     'usdt': '0xB44a9B6905aF7c801311e8F4E76932ee959c663C',
     '3crv': '0x7A0e3b70b1dB0D6CA63Cac240895b2D21444A7b9',
 })
-
-export const cTokensKava = []; //.map((a) => a.toLowerCase());
-export const yTokensKava = []; //.map((a) => a.toLowerCase());
-export const ycTokensKava = []; //.map((a) => a.toLowerCase());
-export const aTokensKava = []; //.map((a) => a.toLowerCase());

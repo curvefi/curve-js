@@ -36,9 +36,6 @@ export const cTokensFantom = [
     '0x70faC71debfD67394D1278D98A29dea79DC6E57A', // iFUSDT
 ].map((a) => a.toLowerCase());
 
-export const yTokensFantom = []; //.map((a) => a.toLowerCase());
-export const ycTokensFantom = []; //.map((a) => a.toLowerCase());
-
 export const aTokensFantom = [
     '0x07e6332dd090d287d3489245038daf987955dcfb', // gDAI
     '0xe578c856933d8e1082740bf7661e379aa2a30b26', // gUSDC

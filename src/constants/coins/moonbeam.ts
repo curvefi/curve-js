@@ -10,8 +10,3 @@ export const COINS_MOONBEAM: { [index: string]: string } = lowerCaseValues({
     'usdt': '0x8e70cD5B4Ff3f62659049e74b6649c6603A0E594',
     '3crv': '0xace58a26b8db90498ef0330fdc9c2655db0c45e2',
 })
-
-export const cTokensMoonbeam = []; //.map((a) => a.toLowerCase());
-export const yTokensMoonbeam = []; //.map((a) => a.toLowerCase());
-export const ycTokensMoonbeam = []; //.map((a) => a.toLowerCase());
-export const aTokensMoonbeam = []; //.map((a) => a.toLowerCase());

@@ -21,9 +21,4 @@ export const COINS_XDAI: { [index: string]: string } = lowerCaseValues({
 
     // --- EUR ---
     'eure': '0xcB444e90D8198415266c6a2724b7900fb12FC56E',
-})
-
-export const cTokensXDai = []; //.map((a) => a.toLowerCase());
-export const yTokensXDai = []; //.map((a) => a.toLowerCase());
-export const ycTokensXDai = []; //.map((a) => a.toLowerCase());
-export const aTokensXDai = []; //.map((a) => a.toLowerCase());
+});

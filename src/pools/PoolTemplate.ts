@@ -66,8 +66,8 @@ export class PoolTemplate extends CorePool {
         swapWrappedApprove: (inputCoin: string | number, amount: number | string) => Promise<number | number[]>,
         swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number | number[]>,
     };
-    stats: IStatsPool;
-    wallet: IWalletPool;
+    stats: StatsPool;
+    wallet: WalletPool;
 
     constructor(id: string) {
         super(id);

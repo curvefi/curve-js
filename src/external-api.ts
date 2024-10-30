@@ -9,6 +9,7 @@ import {
     IDaoProposal,
     IDaoProposalListItem,
     IVolumeAndAPYs,
+    ICurveLiteNetwork,
 } from "./interfaces";
 
 
@@ -240,48 +241,89 @@ export const _getDaoProposal = memoize(async (type: "PARAMETER" | "OWNERSHIP", i
 
 // --- CURVE LITE ---
 
-export const _getLiteNetworksData = memoize(async (chainId: number): Promise<any> => {
-    const network_name = "arbitrum-sepolia";
-    const native_currency_symbol = "ETH";
-    const wrapped_letter = native_currency_symbol[0].toLowerCase() === native_currency_symbol[0] ? "w" : "W";
-    const wrapped_native_token = '0x980B62Da83eFf3D4576C647993b0c1D7faf17c73'.toLowerCase();
+export const _getLiteNetworksData = memoize(
+    async (chainId: number): Promise<any> => {
+        try {
+            const url = `https://api-core.curve.fi/v1/getNetworkData/${chainId}`;
+            const response = await axios.get(url, { validateStatus: () => true });
 
-    const stable_ng_factory = "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E".toLowerCase();
-    const twocrypto_factory =  "0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F".toLowerCase();
-    const tricrypto_factory = "0x0C9D8c7e486e822C29488Ff51BFf0167B4650953".toLowerCase();
-    const gauge_factory = "0xB4c6A1e8A14e9Fe74c88b06275b747145DD41206".toLowerCase();
+            if (response.status !== 200 || !response.data?.data) {
+                console.error('Failed to fetch network data:', response);
+                return null;
+            }
 
-    const router = "0x148ac020221D4690457812b2AE23f6Ba5001DDCf".toLowerCase();
-    const deposit_and_stake = "0xFfd9A3490B5E0F4f19D917048C5362Ef80919C7B".toLowerCase();
-    const stable_ng_meta_zap = "0xcb38785B2CceD9B40F6C5120BC8e803d3a884977".toLowerCase();
+            const { config, contracts } = response.data.data;
 
-    const crv = "0x50FB01Ee521b9D22cdcb713a505019f41b8BBFf4".toLowerCase();
+            const network_name = config.network_name || 'Unknown Network';
+            const native_currency_symbol = config.native_currency_symbol || 'N/A';
+            const wrapped_native_token = config.wrapped_native_token?.toLowerCase() || '';
 
+            return {
+                NAME: network_name,
+                ALIASES: {
+                    stable_ng_factory: contracts.amm.stableswap.factory.address.toLowerCase(),
+                    twocrypto_factory: contracts.amm.twocryptoswap.factory.address.toLowerCase(),
+                    tricrypto_factory: contracts.amm.tricryptoswap.factory.address.toLowerCase(),
+                    child_gauge_factory: contracts.gauge.child_gauge.factory.address.toLowerCase(),
+                    root_gauge_factory: contracts.gauge.child_gauge.factory.address.toLowerCase(),
 
-    return {
-        NAME: network_name,
-        ALIASES: {
-            stable_ng_factory,
-            twocrypto_factory,
-            tricrypto_factory,
-            "child_gauge_factory": gauge_factory,
-            "root_gauge_factory": gauge_factory,
+                    router: contracts.helpers.router.address.toLowerCase(),
+                    deposit_and_stake: contracts.helpers.deposit_and_stake_zap.address.toLowerCase(),
+                    stable_ng_meta_zap: contracts.helpers.stable_swap_meta_zap.address.toLowerCase(),
 
-            router,
-            deposit_and_stake,
-            stable_ng_meta_zap,
-
-            crv,
-        },
-        NATIVE_COIN: {
-            symbol: native_currency_symbol,
-            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            wrappedSymbol: wrapped_letter + native_currency_symbol,
-            wrappedAddress: wrapped_native_token.toLowerCase(),
-        },
+                    crv: config.dao.crv.toLowerCase(),
+                },
+                NATIVE_COIN: {
+                    symbol: native_currency_symbol,
+                    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+                    wrappedSymbol:
+                        native_currency_symbol[0].toLowerCase() === native_currency_symbol[0]
+                            ? `w${native_currency_symbol}`
+                            : `W${native_currency_symbol}`,
+                    wrappedAddress: wrapped_native_token,
+                },
+            };
+        } catch (error) {
+            console.error('Error fetching network data:', error);
+            return null;
+        }
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5 minutes
     }
-},
-{
-    promise: true,
-    maxAge: 5 * 60 * 1000, // 5m
-})
+);
+
+export const _getCurveLiteNetworks = memoize(
+    async (): Promise<ICurveLiteNetwork[]> => {
+        const url = `https://api-core.curve.fi/v1/getPlatforms`;
+        const response = await axios.get(url, { validateStatus: () => true });
+
+        if (response.status !== 200 || !response.data?.data?.platforms) {
+            console.error('Failed to fetch Curve platforms:', response);
+            return [];
+        }
+
+        const { platforms, platformsMetadata } = response.data.data;
+
+        const networks: ICurveLiteNetwork[] = Object.entries(platforms)
+            .map(([platformId, _factories]) => {
+                const metadata = platformsMetadata[platformId];
+                if (!metadata) return null;
+
+                return {
+                    id: platformId,
+                    name: metadata.name,
+                    rpcUrl: metadata.rpcUrl,
+                    explorerUrl: metadata.explorerBaseUrl,
+                };
+            })
+            .filter((network): network is ICurveLiteNetwork => network !== null);
+
+        return networks;
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5 minutes
+    }
+);

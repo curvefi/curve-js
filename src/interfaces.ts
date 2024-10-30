@@ -274,6 +274,13 @@ export interface IBasePoolShortItem {
     token: string,
 }
 
+export interface ICurveLiteNetwork {
+    id: string
+    name: string
+    rpcUrl: string
+    explorerUrl: string
+}
+
 export type TVoteType = "PARAMETER" | "OWNERSHIP"
 
 export type AbiParameter = { type: string, name?:string, components?: readonly AbiParameter[] }

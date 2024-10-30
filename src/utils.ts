@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import {
     Abi, AbiFunction,
     IBasePoolShortItem,
-    IChainId,
+    IChainId, ICurveLiteNetwork,
     IDict,
     INetworkName,
     IRewardFromApi,
@@ -14,7 +14,13 @@ import {
 } from './interfaces';
 import { curve } from "./curve.js";
 import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
-import {_getAllPoolsFromApi, _getFactoryAPYs, _getSubgraphData, _getVolumes} from "./external-api.js";
+import {
+    _getAllPoolsFromApi,
+    _getCurveLiteNetworks,
+    _getFactoryAPYs,
+    _getSubgraphData,
+    _getVolumes
+} from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
 import {L2Networks} from './constants/L2Networks.js';
 import {volumeNetworks} from "./constants/volumeNetworks.js";
@@ -822,6 +828,10 @@ export function runWorker<In extends { type: string }, Out>(code: string, syncFn
     }).finally(() => {
         worker.terminate();
     });
+}
+
+export const getCurveLiteNetworks = async (): Promise<ICurveLiteNetwork[]> => {
+    return await _getCurveLiteNetworks()
 }
 
 export const PERIODS = {

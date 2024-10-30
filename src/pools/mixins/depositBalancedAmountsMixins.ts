@@ -27,7 +27,7 @@ export const depositBalancedAmountsMixin: PoolTemplate = {
         // @ts-ignore
         const poolBalances = await this.stats.underlyingBalances();
         // @ts-ignore
-        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances());
+        const walletBalances = Object.values(await this.wallet.underlyingCoinBalances());
         const balancedAmountsBN = (_depositBalancedAmounts(poolBalances, walletBalances, this.underlyingDecimals));
 
         return balancedAmountsBN.map((b, i) => BigNumber.min(BN(b), BN(walletBalances[i])).toString());
@@ -40,7 +40,7 @@ export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
         // @ts-ignore
         const poolBalances = await this.stats.underlyingBalances();
         // @ts-ignore
-        const walletBalances = Object.values(await this.walletUnderlyingCoinBalances());
+        const walletBalances = Object.values(await this.wallet.underlyingCoinBalances());
         // @ts-ignore
         const prices = await this._underlyingPrices();
         const poolBalancesUSD = poolBalances.map((b, i) => BN(b).times(prices[i]).toString());
@@ -57,7 +57,7 @@ export const depositWrappedBalancedAmountsMixin: PoolTemplate = {
         // @ts-ignore
         const poolBalances = await this.stats.wrappedBalances();
         // @ts-ignore
-        const walletBalances = Object.values(await this.walletWrappedCoinBalances());
+        const walletBalances = Object.values(await this.wallet.wrappedCoinBalances());
         const balancedAmountsBN = (_depositBalancedAmounts(poolBalances, walletBalances, this.underlyingDecimals));
 
         return balancedAmountsBN.map((b, i) => BigNumber.min(BN(b), BN(walletBalances[i])).toString());

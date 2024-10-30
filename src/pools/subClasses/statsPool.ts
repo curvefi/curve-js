@@ -27,6 +27,7 @@ export interface IStatsParameters {
 }
 
 export interface IStatsPool {
+    pool: PoolTemplate;
     parameters(): Promise<IStatsParameters>;
     underlyingBalances(): Promise<string[]>;
     wrappedBalances(): Promise<string[]>;
@@ -38,7 +39,7 @@ export interface IStatsPool {
 }
 
 export class StatsPool implements IStatsPool {
-    private pool: PoolTemplate;
+    pool: PoolTemplate;
 
     constructor(pool: PoolTemplate) {
         this.pool = pool;

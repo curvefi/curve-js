@@ -7,6 +7,7 @@ export interface IDict<T> {
 
 export type INetworkName = "ethereum" | "optimism" | "bsc" | "xdai" | "polygon" | "x-layer" | "fantom" | "fraxtal" | "zksync" | "moonbeam" | "kava" | "mantle" | "base" | "arbitrum" | "celo" | "avalanche" | "aurora";
 export type IChainId = 1 | 10 | 56 | 100 | 137 | 196 | 250 | 252 | 324 | 1284 | 2222 | 5000 | 8453 | 42161 | 42220 | 43114 | 1313161554;
+export type IChainIdLite = number
 export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-eywa" | "factory-crypto" | "factory-twocrypto" | "factory-tricrypto" | "factory-stable-ng";
 export type IPoolType = "main" | "crypto" | IFactoryPoolType;
 export type ISwapType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -276,6 +277,7 @@ export interface IBasePoolShortItem {
 
 export interface ICurveLiteNetwork {
     id: string
+    chainId: number
     name: string
     rpcUrl: string
     explorerUrl: string

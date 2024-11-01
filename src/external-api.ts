@@ -26,17 +26,17 @@ export const _getPoolsFromApi = memoize(
     }
 )
 
-export const _getAllPoolsFromApi = async (network: INetworkName): Promise<IExtendedPoolDataFromApi[]> => {
+export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<IExtendedPoolDataFromApi[]> => {
     return await Promise.all([
-        _getPoolsFromApi(network, "main"),
-        _getPoolsFromApi(network, "crypto"),
-        _getPoolsFromApi(network, "factory"),
-        _getPoolsFromApi(network, "factory-crvusd"),
-        _getPoolsFromApi(network, "factory-eywa"),
-        _getPoolsFromApi(network, "factory-crypto"),
-        _getPoolsFromApi(network, "factory-twocrypto"),
-        _getPoolsFromApi(network, "factory-tricrypto"),
-        _getPoolsFromApi(network, "factory-stable-ng"),
+        _getPoolsFromApi(network, "main", isLiteChain),
+        _getPoolsFromApi(network, "crypto", isLiteChain),
+        _getPoolsFromApi(network, "factory", isLiteChain),
+        _getPoolsFromApi(network, "factory-crvusd", isLiteChain),
+        _getPoolsFromApi(network, "factory-eywa", isLiteChain),
+        _getPoolsFromApi(network, "factory-crypto", isLiteChain),
+        _getPoolsFromApi(network, "factory-twocrypto", isLiteChain),
+        _getPoolsFromApi(network, "factory-tricrypto", isLiteChain),
+        _getPoolsFromApi(network, "factory-stable-ng", isLiteChain),
     ]);
 }
 
@@ -242,9 +242,9 @@ export const _getDaoProposal = memoize(async (type: "PARAMETER" | "OWNERSHIP", i
 // --- CURVE LITE ---
 
 export const _getLiteNetworksData = memoize(
-    async (chainId: number): Promise<any> => {
+    async (networkName: string): Promise<any> => {
         try {
-            const url = `https://api-core.curve.fi/v1/getNetworkData/${chainId}`;
+            const url = `https://api-core.curve.fi/v1/getDeployment/${networkName}`;
             const response = await axios.get(url, { validateStatus: () => true });
 
             if (response.status !== 200 || !response.data?.data) {
@@ -315,6 +315,7 @@ export const _getCurveLiteNetworks = memoize(
                     id: platformId,
                     name: metadata.name,
                     rpcUrl: metadata.rpcUrl,
+                    chainId: metadata.chainId,
                     explorerUrl: metadata.explorerBaseUrl,
                 };
             })

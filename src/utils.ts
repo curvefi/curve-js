@@ -17,7 +17,7 @@ import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
 import {
     _getAllPoolsFromApi,
     _getCurveLiteNetworks,
-    _getFactoryAPYs,
+    _getFactoryAPYs, _getLiteNetworksData,
     _getSubgraphData,
     _getVolumes
 } from "./external-api.js";
@@ -316,7 +316,7 @@ export const getPoolIdBySwapAddress = (swapAddress: string): string => {
 
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     const network = curve.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);
     const priceDict: IDict<Record<string, number>[]> = {};
     const priceDictByMaxTvl: IDict<number> = {};
 
@@ -387,7 +387,7 @@ export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
 
 export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
     const network = curve.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);
     const apyDict: IDict<[number, number]> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
@@ -407,7 +407,7 @@ export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
 
 export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => {
     const network = curve.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);
     const rewardsDict: IDict<IRewardFromApi[]> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
@@ -832,6 +832,20 @@ export function runWorker<In extends { type: string }, Out>(code: string, syncFn
 
 export const getCurveLiteNetworks = async (): Promise<ICurveLiteNetwork[]> => {
     return await _getCurveLiteNetworks()
+}
+
+export const getNetworkNameByChainId = (chainId: number, networks: ICurveLiteNetwork[]): string => {
+    const network = networks.find((network: ICurveLiteNetwork) => network.chainId === chainId);
+    return network ? network.id : "Unknown Network";
+}
+
+export const getNetworkConstants = async (chainId: IChainId | number, isLiteChain: boolean) => {
+    if(isLiteChain) {
+        const NAME = getNetworkNameByChainId(chainId, await _getCurveLiteNetworks())
+        return  {... await _getLiteNetworksData(NAME), NAME };
+    } else {
+        return NETWORK_CONSTANTS[chainId];
+    }
 }
 
 export const PERIODS = {

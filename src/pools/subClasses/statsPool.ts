@@ -140,10 +140,6 @@ export class StatsPool implements IStatsPool {
     }
 
     public totalLiquidity = async (useApi = true): Promise<string> => {
-        if(curve.isLiteChain) {
-            throw Error('totalLiquidity is not supported for the lite version')
-        }
-
         if (curve.chainId === 1 && this.pool.id === "crveth") return "0"
 
         if (this.pool.isLlamma) {
@@ -213,7 +209,7 @@ export class StatsPool implements IStatsPool {
 
     public baseApy = async (): Promise<{ day: string, week: string }> => {
         if(curve.isLiteChain) {
-            throw Error('This method is not supported for the lite version')
+            throw Error('baseApy is not supported for the lite version')
         }
 
         const network = curve.constants.NETWORK_NAME;
@@ -230,6 +226,10 @@ export class StatsPool implements IStatsPool {
     }
 
     public tokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
+        if(curve.isLiteChain) {
+            throw Error('tokenApy is not supported for the lite version')
+        }
+
         if (this.pool.rewardsOnly()) throw Error(`${this.pool.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
 
         const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora

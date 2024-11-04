@@ -30,10 +30,10 @@ import {
 import {IDict, IProfit} from '../interfaces';
 import { curve } from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
-import {CorePool} from "./subClasses/corePool";
-import {IStatsPool, StatsPool} from "./subClasses/statsPool";
-import {IWalletPool, WalletPool} from "./subClasses/walletPool";
-import {checkVyperVulnerability} from "./utils";
+import {CorePool} from "./subClasses/corePool.js";
+import {StatsPool} from "./subClasses/statsPool.js";
+import {WalletPool} from "./subClasses/walletPool.js";
+import {checkVyperVulnerability} from "./utils.js";
 
 export class PoolTemplate extends CorePool {
     isGaugeKilled: () => Promise<boolean>;

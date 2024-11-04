@@ -48,13 +48,13 @@ import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { ty
 import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' assert { type: 'json'};
 import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
 import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
-import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json";
+import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json" assert { type: 'json'};
 
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
-import {_getCurveLiteNetworks, _getHiddenPools, _getLiteNetworksData} from "./external-api.js";
+import {_getHiddenPools} from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
-import {getNetworkConstants, getNetworkNameByChainId} from "./utils";
+import {getNetworkConstants} from "./utils.js";
 
 export const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
     const cache: Record<string, Contract> = {};
@@ -254,8 +254,6 @@ class Curve implements ICurve {
         this.isLiteChain = !(this.chainId in NETWORK_CONSTANTS);
 
         const network_constants = await getNetworkConstants(this.chainId, this.isLiteChain);
-
-        console.log('NETWORK DATA',network_constants)
         this.constants.NATIVE_TOKEN = network_constants.NATIVE_COIN;
         this.constants.NETWORK_NAME = network_constants.NAME;
         this.constants.ALIASES = network_constants.ALIASES;

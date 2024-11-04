@@ -1,4 +1,4 @@
-import {IDict} from '../../interfaces';
+import {IDict} from '../../interfaces.js';
 import {curve} from "../../curve.js";
 import {
     DIGas,

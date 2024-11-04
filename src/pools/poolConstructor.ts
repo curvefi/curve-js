@@ -21,7 +21,7 @@ import {
     swapWrappedRequiredMixin,
 } from "./mixins/swapWrappedMixins.js";
 import { getCountArgsOfMethodByAbi, findAbiSignature } from "../utils.js";
-import {StatsPool} from "./subClasses/statsPool";
+import {StatsPool} from "./subClasses/statsPool.js";
 
 
 export const getPool = (poolId: string): PoolTemplate => {

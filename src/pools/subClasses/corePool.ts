@@ -1,5 +1,5 @@
 import {curve} from "../../curve.js";
-import {GaugePool, IGaugePool} from "./gaugePool";
+import {GaugePool, IGaugePool} from "./gaugePool.js";
 
 export interface ICorePool {
     id: string;

@@ -1,5 +1,5 @@
 import { curve } from "../../curve.js";
-import {IPoolType, IReward} from '../../interfaces';
+import {IPoolType, IReward} from '../../interfaces.js';
 import {_getPoolsFromApi} from '../../external-api.js';
 import {
     _getUsdRate,
@@ -9,7 +9,7 @@ import {
     _getRewardsFromApi,
     getVolumeApiController,
 } from '../../utils.js';
-import {PoolTemplate} from "../PoolTemplate";
+import {PoolTemplate} from "../PoolTemplate.js";
 
 export interface IStatsParameters {
     lpTokenSupply: string,

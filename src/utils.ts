@@ -5,7 +5,8 @@ import BigNumber from 'bignumber.js';
 import {
     Abi, AbiFunction,
     IBasePoolShortItem,
-    IChainId, ICurveLiteNetwork,
+    IChainId,
+    ICurveLiteNetwork,
     IDict,
     INetworkName,
     IRewardFromApi,
@@ -13,18 +14,18 @@ import {
     REFERENCE_ASSET,
 } from './interfaces';
 import { curve } from "./curve.js";
-import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
 import {
     _getAllPoolsFromApi,
     _getCurveLiteNetworks,
     _getFactoryAPYs, _getLiteNetworksData,
     _getSubgraphData,
-    _getVolumes
+    _getVolumes,
 } from "./external-api.js";
 import ERC20Abi from './constants/abis/ERC20.json' assert {type: 'json'};
 import {L2Networks} from './constants/L2Networks.js';
 import {volumeNetworks} from "./constants/volumeNetworks.js";
 import {getPool} from "./pools/index.js";
+import {NETWORK_CONSTANTS} from "./constants/network_constants.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

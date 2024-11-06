@@ -1,47 +1,44 @@
-import { IDict } from "../interfaces";
-import factorySwapABI from "../constants/abis/factoryPools/swap.json" assert { type: 'json' };
-import MetaUSDABI from "../constants/abis/factory-v2/MetaUSD.json" assert { type: 'json' };
-import MetaUSDBalancesABI from "../constants/abis/factory-v2/MetaUSDBalances.json" assert { type: 'json' };
-import MetaFraxUSDABI from "../constants/abis/factory-v2/MetaFraxUSD.json" assert { type: 'json' };
-import MetaFraxUSDBalancesABI from "../constants/abis/factory-v2/MetaFraxUSDBalances.json" assert { type: 'json' };
-import MetaBTCABI from "../constants/abis/factory-v2/MetaBTC.json" assert { type: 'json' };
-import MetaBTCBalancesABI from "../constants/abis/factory-v2/MetaBTCBalances.json" assert { type: 'json' };
-import MetaBTCRenABI from "../constants/abis/factory-v2/MetaBTCRen.json" assert { type: 'json' };
-import MetaBTCRenBalancesABI from "../constants/abis/factory-v2/MetaBTCBalancesRen.json" assert { type: 'json' };
-import MetaSbtc2ABI from "../constants/abis/factory-v2/MetaSbtc2.json" assert { type: 'json' };
-import MetaSbtc2BalancesABI from "../constants/abis/factory-v2/MetaSbtc2Balance.json" assert { type: 'json' };
-import MetaUSDGeistABI from "../constants/abis/factory-v2/MetaUSDGeist.json" assert { type: 'json' };
-import Plain2BasicABI from "../constants/abis/factory-v2/Plain2Basic.json" assert { type: 'json' };
-import Plain2BasicWithRatesABI from "../constants/abis/factory-v2/Plain2BasicWithRates.json" assert { type: 'json' };
-import Plain2BalancesABI from "../constants/abis/factory-v2/Plain2Balances.json" assert { type: 'json' };
-import Plain2ETHABI from "../constants/abis/factory-v2/Plain2ETH.json" assert { type: 'json' };
-import Plain2ETHOracleABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
-import Plain2OptimizedABI from "../constants/abis/factory-v2/Plain2Optimized.json" assert { type: 'json' };
-import Plain3BasicABI from "../constants/abis/factory-v2/Plain3Basic.json" assert { type: 'json' };
-import Plain3BalancesABI from "../constants/abis/factory-v2/Plain3Balances.json" assert { type: 'json' };
-import Plain3ETHABI from "../constants/abis/factory-v2/Plain3ETH.json" assert { type: 'json' };
-import Plain3OptimizedABI from "../constants/abis/factory-v2/Plain3Optimized.json" assert { type: 'json' };
-import Plain4BasicABI from "../constants/abis/factory-v2/Plain4Basic.json" assert { type: 'json' };
-import Plain4BalancesABI from "../constants/abis/factory-v2/Plain4Balances.json" assert { type: 'json' };
-import Plain4ETHABI from "../constants/abis/factory-v2/Plain4ETH.json" assert { type: 'json' };
-import Plain4OptimizedABI from "../constants/abis/factory-v2/Plain4Optimized.json" assert { type: 'json' };
-import Plain6BasicABI from "../constants/abis/factory-v2/Plain6Basic.json" assert { type: 'json' };
-import Plain6BalancesABI from "../constants/abis/factory-v2/Plain6Balances.json" assert { type: 'json' };
-import Plain6ETHABI from "../constants/abis/factory-v2/Plain6ETH.json" assert { type: 'json' };
-import Plain6OptimizedABI from "../constants/abis/factory-v2/Plain6Optimized.json" assert { type: 'json' };
-import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" assert { type: 'json' };
-import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" assert {type: 'json'};
+import { IDict } from "../../interfaces";
+import factorySwapABI from "../abis/factoryPools/swap.json" assert { type: 'json' };
+import MetaUSDABI from "../abis/factory-v2/MetaUSD.json" assert { type: 'json' };
+import MetaUSDBalancesABI from "../abis/factory-v2/MetaUSDBalances.json" assert { type: 'json' };
+import MetaFraxUSDABI from "../abis/factory-v2/MetaFraxUSD.json" assert { type: 'json' };
+import MetaFraxUSDBalancesABI from "../abis/factory-v2/MetaFraxUSDBalances.json" assert { type: 'json' };
+import MetaBTCABI from "../abis/factory-v2/MetaBTC.json" assert { type: 'json' };
+import MetaBTCBalancesABI from "../abis/factory-v2/MetaBTCBalances.json" assert { type: 'json' };
+import MetaBTCRenABI from "../abis/factory-v2/MetaBTCRen.json" assert { type: 'json' };
+import MetaBTCRenBalancesABI from "../abis/factory-v2/MetaBTCBalancesRen.json" assert { type: 'json' };
+import MetaSbtc2ABI from "../abis/factory-v2/MetaSbtc2.json" assert { type: 'json' };
+import MetaSbtc2BalancesABI from "../abis/factory-v2/MetaSbtc2Balance.json" assert { type: 'json' };
+import MetaUSDGeistABI from "../abis/factory-v2/MetaUSDGeist.json" assert { type: 'json' };
+import Plain2BasicABI from "../abis/factory-v2/Plain2Basic.json" assert { type: 'json' };
+import Plain2BasicWithRatesABI from "../abis/factory-v2/Plain2BasicWithRates.json" assert { type: 'json' };
+import Plain2BalancesABI from "../abis/factory-v2/Plain2Balances.json" assert { type: 'json' };
+import Plain2ETHABI from "../abis/factory-v2/Plain2ETH.json" assert { type: 'json' };
+import Plain2ETHOracleABI from "../abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
+import Plain2OptimizedABI from "../abis/factory-v2/Plain2Optimized.json" assert { type: 'json' };
+import Plain3BasicABI from "../abis/factory-v2/Plain3Basic.json" assert { type: 'json' };
+import Plain3BalancesABI from "../abis/factory-v2/Plain3Balances.json" assert { type: 'json' };
+import Plain3ETHABI from "../abis/factory-v2/Plain3ETH.json" assert { type: 'json' };
+import Plain3OptimizedABI from "../abis/factory-v2/Plain3Optimized.json" assert { type: 'json' };
+import Plain4BasicABI from "../abis/factory-v2/Plain4Basic.json" assert { type: 'json' };
+import Plain4BalancesABI from "../abis/factory-v2/Plain4Balances.json" assert { type: 'json' };
+import Plain4ETHABI from "../abis/factory-v2/Plain4ETH.json" assert { type: 'json' };
+import Plain4OptimizedABI from "../abis/factory-v2/Plain4Optimized.json" assert { type: 'json' };
+import Plain6BasicABI from "../abis/factory-v2/Plain6Basic.json" assert { type: 'json' };
+import Plain6BalancesABI from "../abis/factory-v2/Plain6Balances.json" assert { type: 'json' };
+import Plain6ETHABI from "../abis/factory-v2/Plain6ETH.json" assert { type: 'json' };
+import Plain6OptimizedABI from "../abis/factory-v2/Plain6Optimized.json" assert { type: 'json' };
 // --- ZAPS --
-import factoryDepositABI from "../constants/abis/factoryPools/deposit.json" assert { type: 'json' };
-import fraxusdcMetaZapABI from "../constants/abis/fraxusdc/meta_zap.json" assert { type: 'json' };
-import MetaUsdZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaUsdPolygon.json" assert { type: 'json' };
-import MetaBtcZapPolygonABI from "../constants/abis/factory-v2/DepositZapMetaBtcPolygon.json" assert { type: 'json' };
-import MetaZapFantomABI from "../constants/abis/factory-v2/DepositZapFantom.json" assert { type: 'json' };
-import MetaGeistUsdZapFantomABI from "../constants/abis/factory-v2/DepositZapMetaUsd2Fantom.json" assert { type: 'json' };
-import RenMetaZapABI from "../constants/abis/ren/meta_zap.json" assert { type: 'json' };
-import Sbtc2MetaZapABI from "../constants/abis/sbtc2/meta_zap.json" assert { type: 'json' };
-import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" assert { type: 'json' };
-import { lowerCaseKeys } from "../constants/utils.js";
+import factoryDepositABI from "../abis/factoryPools/deposit.json" assert { type: 'json' };
+import fraxusdcMetaZapABI from "../abis/fraxusdc/meta_zap.json" assert { type: 'json' };
+import MetaUsdZapPolygonABI from "../abis/factory-v2/DepositZapMetaUsdPolygon.json" assert { type: 'json' };
+import MetaBtcZapPolygonABI from "../abis/factory-v2/DepositZapMetaBtcPolygon.json" assert { type: 'json' };
+import MetaZapFantomABI from "../abis/factory-v2/DepositZapFantom.json" assert { type: 'json' };
+import MetaGeistUsdZapFantomABI from "../abis/factory-v2/DepositZapMetaUsd2Fantom.json" assert { type: 'json' };
+import RenMetaZapABI from "../abis/ren/meta_zap.json" assert { type: 'json' };
+import Sbtc2MetaZapABI from "../abis/sbtc2/meta_zap.json" assert { type: 'json' };
+import { lowerCaseKeys } from "../utils.js";
 
 
 export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
@@ -88,14 +85,6 @@ export const implementationABIDictEthereum: IDict<any> = lowerCaseKeys({
     "0xd35B58386705CE75CE6d09842E38E9BE9CDe5bF6": Plain4BalancesABI,
     "0x88855cdF2b0A8413D470B86952E726684de915be": Plain4ETHABI,
     "0xaD4753D045D3Aed5C1a6606dFb6a7D7AD67C1Ad7": Plain4OptimizedABI,
-
-    //"0x3E3B5F27bbf5CC967E074b70E9f4046e31663181": PlainStableSwapNGABI,
-    //"0x64afa95e0c3d8410240a4262df9fd82b12b64edd": MetaStableSwapNGABI,
-    //"0x1f7C86AffE5bCF7a1D74a8c8E2ef9E03BF31c1BD": MetaStableSwapNGABI,
-    "0x933f4769DCC27fC7345D9d5975AE48EC4D0F829C": PlainStableSwapNGABI,
-    "0xDD7EBB1C49780519dD9755B8B1A23a6f42CE099E": MetaStableSwapNGABI,
-    "0xDCc91f930b42619377C200BA05b7513f2958b202": PlainStableSwapNGABI,
-    "0xede71F77d7c900dCA5892720E76316C6E575F0F7": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictPolygon: IDict<any> = lowerCaseKeys({
@@ -119,13 +108,6 @@ export const implementationABIDictPolygon: IDict<any> = lowerCaseKeys({
     "0xC7c46488566b9ef9B981b87E328939CaA5ca152f": Plain4BalancesABI,
     "0xf31bcdf0B9a5eCD7AB463eB905551fBc32e51856": Plain4ETHABI,
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
-
-    //"0x506F594ceb4E33F5161139bAe3Ee911014df9f7f": PlainStableSwapNGABI,
-    //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": MetaStableSwapNGABI,
-    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
-    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
-    "0xe265FC390E9129b7E337Da23cD42E00C34Da2CE3": PlainStableSwapNGABI,
-    "0xa7b9d886A9a374A1C86DC52d2BA585c5CDFdac26": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
@@ -159,13 +141,6 @@ export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
     "0x2C996b11a73276787Eb637D4459d1A7fea16B310": Plain6BalancesABI,
     "0xa4Fc50E45aF5bF22b519468c7c342C704e1F3d44": Plain6ETHABI,
     "0x65e38C41CcE6D9Bc202209Cc546B2f63985D4139": Plain6OptimizedABI,
-
-    //"0xd2002373543Ce3527023C75e7518C274A51ce712": PlainStableSwapNGABI,
-    //"0x686bdb3D24Bc6F3ED89ed3d3B659765c54aC78B4": MetaStableSwapNGABI,
-    "0xd7E72f3615aa65b92A4DBdC211E296a35512988B": PlainStableSwapNGABI,
-    "0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8": MetaStableSwapNGABI,
-    "0x5702BDB1Ec244704E3cBBaAE11a0275aE5b07499": PlainStableSwapNGABI,
-    "0x046207cB759F527b6c10C2D61DBaca45513685CC": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({
@@ -189,11 +164,6 @@ export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({
     "0x7D86446dDb609eD0F5f8684AcF30380a356b2B4c": Plain4BalancesABI,
     "0x0eb0F1FaF5F509Ac53fA224477509EAD167cf410": Plain4ETHABI,
     "0xCE94D3E5b0D80565D7B713A687b39a3Dc81780BA": Plain4OptimizedABI,
-
-    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
-    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
-    "0xe265FC390E9129b7E337Da23cD42E00C34Da2CE3": PlainStableSwapNGABI,
-    "0xa7b9d886A9a374A1C86DC52d2BA585c5CDFdac26": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({
@@ -222,13 +192,6 @@ export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({
     "0x2ac56cEBc2D27c9bB51a11773355E44371Eb88D3": Plain4BalancesABI,
     "0x89287c32c2CAC1C76227F6d300B2DBbab6b75C08": Plain4ETHABI,
     "0x06e3C4da96fd076b97b7ca3Ae23527314b6140dF": Plain4OptimizedABI,
-
-    //"0x76303e4fDcA0AbF28aB3ee42Ce086E6503431F1D": PlainStableSwapNGABI,
-    //"0xd125E7a0cEddF89c6473412d85835450897be6Dc": MetaStableSwapNGABI,
-    "0x0458ea5f4cd00e873264be2031ceb8f9d9b3116c": PlainStableSwapNGABI,
-    "0xc6c09471ee39c7e30a067952fcc89c8922f9ab53": MetaStableSwapNGABI,
-    "0xf6841C27fe35ED7069189aFD5b81513578AFD7FF": PlainStableSwapNGABI,
-    "0xFf02cBD91F57A778Bab7218DA562594a680B8B61": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
@@ -254,13 +217,6 @@ export const implementationABIDictOptimism: IDict<any> = lowerCaseKeys({
     "0xF6bDc2619FFDA72c537Cd9605e0A274Dc48cB1C9": Plain4BalancesABI,
     "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6": Plain4ETHABI,
     "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6": Plain4OptimizedABI,
-
-    //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": PlainStableSwapNGABI,
-    //"0x1764ee18e8B3ccA4787249Ceb249356192594585": MetaStableSwapNGABI,
-    "0x06452f9c013fc37169B57Eab8F50A7A48c9198A3": PlainStableSwapNGABI,
-    "0xd7E72f3615aa65b92A4DBdC211E296a35512988B": MetaStableSwapNGABI,
-    "0x635742dCC8313DCf8c904206037d962c042EAfBd": PlainStableSwapNGABI,
-    "0x5702BDB1Ec244704E3cBBaAE11a0275aE5b07499": MetaStableSwapNGABI,
 })
 
 export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
@@ -281,13 +237,6 @@ export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
     "0xcB4eB43E31C830e22baF764c64F11F32C280496c": Plain4BalancesABI,
     "0xc1C49622b63B961ce1D352ecb7D8261Ab5556695": Plain4ETHABI,
     "0x0E2615ce69Cd3Dc3Ff6f66a975bEa0655F3bA7b9": Plain4OptimizedABI,
-
-    //"0xd2002373543Ce3527023C75e7518C274A51ce712": PlainStableSwapNGABI,
-    //"0xd3B17f862956464ae4403cCF829CE69199856e1e": MetaStableSwapNGABI,
-    "0xc9Fe0C63Af9A39402e8a5514f9c43Af0322b665F": PlainStableSwapNGABI,
-    "0x166c4084Ad2434E8F2425C64dabFE6875A0D45c5": MetaStableSwapNGABI,
-    "0x3d6cb2f6dcf47cdd9c13e4e3beae9af041d8796a": PlainStableSwapNGABI,
-    "0xC1b393EfEF38140662b91441C6710Aa704973228": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictMoonbeam: IDict<any> = lowerCaseKeys({
@@ -322,13 +271,6 @@ export const implementationABIDictKava: IDict<any> = lowerCaseKeys({
     "0xd59c875dccb6cdcb3a75b91b58a363b5e4b0ca9a": Plain4BalancesABI,
     "0x6378dd741b24bd884f3590d7bc7555fdb2f5b003": Plain4ETHABI,
     "0x509495dfeec3a53acb2f60669985d868131ad9a5": Plain4OptimizedABI,
-
-    //"0x1764ee18e8B3ccA4787249Ceb249356192594585": PlainStableSwapNGABI,
-    //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": MetaStableSwapNGABI,
-    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
-    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
-    "0xe265FC390E9129b7E337Da23cD42E00C34Da2CE3": PlainStableSwapNGABI,
-    "0xa7b9d886A9a374A1C86DC52d2BA585c5CDFdac26": MetaStableSwapNGABI,
 });
 
 export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
@@ -346,19 +288,7 @@ export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
     "0x3730D8B82BF3fF6Cc6dFDBe2Fd7B2A655e74eAae": Plain4BalancesABI,
     "0x0F5390AB4C5456a769056C96E4D7C71770b52319": Plain4ETHABI,
     "0xA73b02a97B45604cd9f0BBAA153eCfe01f409350": Plain4OptimizedABI,
-
-    //"0x506F594ceb4E33F5161139bAe3Ee911014df9f7f": PlainStableSwapNGABI,
-    //"0x87FE17697D0f14A222e8bEf386a0860eCffDD617": MetaStableSwapNGABI,
-    "0xa7Ba18EeFcD9513230987eC2faB6711AF5AbD9c2": PlainStableSwapNGABI,
-    "0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8": MetaStableSwapNGABI,
-    "0xe265FC390E9129b7E337Da23cD42E00C34Da2CE3": PlainStableSwapNGABI,
-    "0xa7b9d886A9a374A1C86DC52d2BA585c5CDFdac26": MetaStableSwapNGABI,
 });
-
-export const implementationABIDictZkSync: IDict<any> = lowerCaseKeys({
-    "0x04D0095a1A4Ae881a078ae61F36945E85464e6d7": PlainStableSwapNGABI,
-    "0xC5d5402481aefec461Ab86b1051AC26dF05BeE3B": MetaStableSwapNGABI,
-})
 
 export const implementationABIDictBase: IDict<any> = lowerCaseKeys({
     "0xD166EEdf272B860E991d331B71041799379185D5": Plain2BasicABI,
@@ -375,13 +305,6 @@ export const implementationABIDictBase: IDict<any> = lowerCaseKeys({
     "0x2FdDeDF2D842f23da2B81b9144e75cEcb691Bf19": Plain4BalancesABI,
     "0x50E09Ee7080b32aef3e92346891dD2DD389B5fAf": Plain4ETHABI,
     "0x44d9B3f4EE15AC81FEb918501fca0ddc9d83C976": Plain4OptimizedABI,
-
-    //"0x1764ee18e8B3ccA4787249Ceb249356192594585": PlainStableSwapNGABI,
-    //"0x5eee3091f747e60a045a2e715a4c71e600e31f6e": MetaStableSwapNGABI,
-    "0x604388Bb1159AFd21eB5191cE22b4DeCdEE2Ae22": PlainStableSwapNGABI,
-    "0x06452f9c013fc37169B57Eab8F50A7A48c9198A3": MetaStableSwapNGABI,
-    "0xf3A6aa40cf048a3960E9664847E9a7be025a390a": PlainStableSwapNGABI,
-    "0x635742dCC8313DCf8c904206037d962c042EAfBd": MetaStableSwapNGABI,
 })
 
 export const implementationABIDictBsc: IDict<any> = lowerCaseKeys({
@@ -399,28 +322,6 @@ export const implementationABIDictBsc: IDict<any> = lowerCaseKeys({
     "0x0Cc51c9786f3777a6d50961CEBb2BB6E69ec5e07": Plain4BalancesABI,
     "0x0a31527a8dE2Ee97BBD8cCE14Db8E8826a0b6C4f": Plain4ETHABI,
     "0x1086F023146f9026A9Bb22983CE866813C59518A": Plain4OptimizedABI,
-
-    //"0x604388Bb1159AFd21eB5191cE22b4DeCdEE2Ae22": PlainStableSwapNGABI,
-    //"0x06452f9c013fc37169B57Eab8F50A7A48c9198A3": MetaStableSwapNGABI,
-    "0x64379C265Fc6595065D7d835AAaa731c0584dB80": PlainStableSwapNGABI,
-    "0xd3B17f862956464ae4403cCF829CE69199856e1e": MetaStableSwapNGABI,
-    "0x505d666E4DD174DcDD7FA090ed95554486d2Be44": PlainStableSwapNGABI,
-    "0x5a8C93EE12a8Df4455BA111647AdA41f29D5CfcC": MetaStableSwapNGABI,
-})
-
-export const implementationABIDictFraxtal: IDict<any> = lowerCaseKeys({
-    "0x1764ee18e8B3ccA4787249Ceb249356192594585": PlainStableSwapNGABI,
-    "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E": MetaStableSwapNGABI,
-})
-
-export const implementationABIDictXLayer: IDict<any> = lowerCaseKeys({
-    "0x87FE17697D0f14A222e8bEf386a0860eCffDD617": PlainStableSwapNGABI,
-    "0x1764ee18e8B3ccA4787249Ceb249356192594585": MetaStableSwapNGABI,
-})
-
-export const implementationABIDictMantle: IDict<any> = lowerCaseKeys({
-    "0x87FE17697D0f14A222e8bEf386a0860eCffDD617": PlainStableSwapNGABI,
-    "0x1764ee18e8B3ccA4787249Ceb249356192594585": MetaStableSwapNGABI,
 })
 
 export const basePoolIdZapDictEthereum: IDict<{ address: string, ABI: any }> = {
@@ -520,30 +421,9 @@ export const basePoolIdZapDictXDai: IDict<{ address: string, ABI: any }> = {
     },
 }
 
-export const basePoolIdZapDictMoonbeam: IDict<{ address: string, ABI: any }> = {}
+export const stableNgBasePoolZap = '0xe07a16358aa878cbda2d49a88e5106871e0db307'.toLowerCase();
 
-export const basePoolIdZapDictKava: IDict<{ address: string, ABI: any }> = {}
-
-export const basePoolIdZapDictCelo: IDict<{ address: string, ABI: any }> = {}
-
-export const basePoolIdZapDictZkSync: IDict<{ address: string, ABI: any }> = {}
-
-export const basePoolIdZapDictBase: IDict<{ address: string, ABI: any }> = {}
-
-export const basePoolIdZapDictBsc: IDict<{ address: string, ABI: any }> = {}
-
-export const basePoolIdZapDictFraxtal: IDict<{ address: string, ABI: any }> = {}
-
-export const basePoolIdZapDictXLayer: IDict<{ address: string, ABI: any }> = {}
-
-export const basePoolIdZapDictMantle: IDict<{ address: string, ABI: any }> = {}
-
-export const stableNgBasePoolZap: {ABI: any, address: string} = {
-    ABI: StableNgBasePoolZapABI,
-    address: '0xe07a16358aa878cbda2d49a88e5106871e0db307'.toLowerCase(),
-}
-
-export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDict<any>, basePoolIdZapDict: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap: {ABI: any, address: string} } } = {
+export const STABLE_FACTORY_CONSTANTS: { [index: number]: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string } } = {
     1: {  // ETH
         implementationABIDict: implementationABIDictEthereum,
         basePoolIdZapDict: basePoolIdZapDictEthereum,
@@ -556,7 +436,6 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
     },
     56: {  // BSC
         implementationABIDict: implementationABIDictBsc,
-        basePoolIdZapDict: basePoolIdZapDictBsc,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     100: {  // XDAI
@@ -570,8 +449,6 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     196: { //XLAYER
-        implementationABIDict: implementationABIDictXLayer,
-        basePoolIdZapDict: basePoolIdZapDictXLayer,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     250: {  // FANTOM
@@ -580,38 +457,27 @@ export const FACTORY_CONSTANTS: { [index: number]: { implementationABIDict: IDic
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     252: { // FRAXTAL
-        implementationABIDict: implementationABIDictFraxtal,
-        basePoolIdZapDict: basePoolIdZapDictFraxtal,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     324: {  // ZKSYNC
-        implementationABIDict: implementationABIDictZkSync,
-        basePoolIdZapDict: basePoolIdZapDictZkSync,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     1284: {  // MOONBEAM
         implementationABIDict: implementationABIDictMoonbeam,
-        basePoolIdZapDict: basePoolIdZapDictMoonbeam,
-        stableNgBasePoolZap: stableNgBasePoolZap,
     },
     2222: {  // KAVA
         implementationABIDict: implementationABIDictKava,
-        basePoolIdZapDict: basePoolIdZapDictKava,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     5000: { //MANTLE
-        implementationABIDict: implementationABIDictMantle,
-        basePoolIdZapDict: basePoolIdZapDictMantle,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     8453: {  // BASE
         implementationABIDict: implementationABIDictBase,
-        basePoolIdZapDict: basePoolIdZapDictBase,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     42220: {  // CELO
         implementationABIDict: implementationABIDictCelo,
-        basePoolIdZapDict: basePoolIdZapDictCelo,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     43114: {  // AVALANCHE

@@ -1,11 +1,11 @@
 import { ethers, Contract, Typed } from "ethers";
-import { curve, NETWORK_CONSTANTS } from "../curve.js";
+import { curve } from "../curve.js";
+import { NETWORK_CONSTANTS } from "../constants/network_constants.js";
 import { getPool } from "../pools/index.js";
 import { parseUnits, BN, mulBy1_3, getPoolIdBySwapAddress, DIGas, smartNumber } from '../utils.js';
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" assert { type: 'json' };
 import Plain2ETHOracleABIABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
 import rootGaugeFactoryABI from '../constants/abis/gauge_factory/root_gauge_factory.json' assert { type: 'json' };
-import { tricryptoDeployImplementations } from "../constants/tricryptoDeployImplementations.js";
 
 
 // ------- STABLE PLAIN POOLS -------
@@ -747,7 +747,7 @@ const _deployTricryptoPool = async (
         symbol,
         coins,
         curve.constants.ZERO_ADDRESS,
-        tricryptoDeployImplementations[curve.chainId].implementationIdx,
+        curve.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.implementationIdx ?? 0,
         _A,
         _gamma,
         _midFee,
@@ -768,7 +768,7 @@ const _deployTricryptoPool = async (
         symbol,
         coins,
         curve.constants.NATIVE_TOKEN.wrappedAddress,
-        tricryptoDeployImplementations[curve.chainId].implementationIdx,
+        curve.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.implementationIdx ?? 0,
         _A,
         _gamma,
         _midFee,

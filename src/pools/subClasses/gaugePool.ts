@@ -1,5 +1,5 @@
-import {IDict} from '../interfaces';
-import {curve} from "../curve.js";
+import {IDict} from '../../interfaces.js';
+import {curve} from "../../curve.js";
 import {
     DIGas,
     ensureAllowance,
@@ -9,7 +9,7 @@ import {
     mulBy1_3,
     parseUnits,
     smartNumber,
-} from "../utils.js";
+} from "../../utils.js";
 
 export interface IGaugePool {
     address: string;

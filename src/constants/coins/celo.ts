@@ -9,8 +9,3 @@ export const COINS_CELO: { [index: string]: string } = lowerCaseValues({
     'usdt': '0x88eeC49252c8cbc039DCdB394c0c2BA2f1637EA0',
     '3crv': '0x998395fEd908d33CF27115A1D9Ab6555def6cd45',
 });
-
-export const cTokensCelo = []; //.map((a) => a.toLowerCase());
-export const yTokensCelo = []; //.map((a) => a.toLowerCase());
-export const ycTokensCelo = []; //.map((a) => a.toLowerCase());
-export const aTokensCelo = []; //.map((a) => a.toLowerCase());

@@ -24,9 +24,4 @@ export const COINS_ARBITRUM: { [index: string]: string } = lowerCaseValues({
     "weth": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
     "wsteth": "0x5979D7b546E38E414F7E9822514be443A4800529",
 
-})
-
-export const cTokensArbitrum = []; //.map((a) => a.toLowerCase());
-export const yTokensArbitrum = []; //.map((a) => a.toLowerCase());
-export const ycTokensArbitrum = []; //.map((a) => a.toLowerCase());
-export const aTokensArbitrum = []; //.map((a) => a.toLowerCase());
+});

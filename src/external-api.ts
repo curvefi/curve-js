@@ -9,12 +9,14 @@ import {
     IDaoProposal,
     IDaoProposalListItem,
     IVolumeAndAPYs,
+    ICurveLiteNetwork,
 } from "./interfaces";
 
 
 export const _getPoolsFromApi = memoize(
-    async (network: INetworkName, poolType: IPoolType): Promise<IExtendedPoolDataFromApi> => {
-        const url = `https://api.curve.fi/api/getPools/${network}/${poolType}`;
+    async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
+        const api = isLiteChain ? "https://api-core.curve.fi/v1/" : "https://api.curve.fi/api";
+        const url = `${api}/getPools/${network}/${poolType}`;
         const response = await axios.get(url, { validateStatus: () => true });
         return response.data.data ?? { poolData: [], tvl: 0, tvlAll: 0 };
     },
@@ -24,17 +26,17 @@ export const _getPoolsFromApi = memoize(
     }
 )
 
-export const _getAllPoolsFromApi = async (network: INetworkName): Promise<IExtendedPoolDataFromApi[]> => {
+export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<IExtendedPoolDataFromApi[]> => {
     return await Promise.all([
-        _getPoolsFromApi(network, "main"),
-        _getPoolsFromApi(network, "crypto"),
-        _getPoolsFromApi(network, "factory"),
-        _getPoolsFromApi(network, "factory-crvusd"),
-        _getPoolsFromApi(network, "factory-eywa"),
-        _getPoolsFromApi(network, "factory-crypto"),
-        _getPoolsFromApi(network, "factory-twocrypto"),
-        _getPoolsFromApi(network, "factory-tricrypto"),
-        _getPoolsFromApi(network, "factory-stable-ng"),
+        _getPoolsFromApi(network, "main", isLiteChain),
+        _getPoolsFromApi(network, "crypto", isLiteChain),
+        _getPoolsFromApi(network, "factory", isLiteChain),
+        _getPoolsFromApi(network, "factory-crvusd", isLiteChain),
+        _getPoolsFromApi(network, "factory-eywa", isLiteChain),
+        _getPoolsFromApi(network, "factory-crypto", isLiteChain),
+        _getPoolsFromApi(network, "factory-twocrypto", isLiteChain),
+        _getPoolsFromApi(network, "factory-tricrypto", isLiteChain),
+        _getPoolsFromApi(network, "factory-stable-ng", isLiteChain),
     ]);
 }
 
@@ -236,3 +238,93 @@ export const _getDaoProposal = memoize(async (type: "PARAMETER" | "OWNERSHIP", i
     promise: true,
     maxAge: 5 * 60 * 1000, // 5m
 })
+
+// --- CURVE LITE ---
+
+export const _getLiteNetworksData = memoize(
+    async (networkName: string): Promise<any> => {
+        try {
+            const url = `https://api-core.curve.fi/v1/getDeployment/${networkName}`;
+            const response = await axios.get(url, { validateStatus: () => true });
+
+            if (response.status !== 200 || !response.data?.data) {
+                console.error('Failed to fetch network data:', response);
+                return null;
+            }
+
+            const { config, contracts } = response.data.data;
+
+            const network_name = config.network_name || 'Unknown Network';
+            const native_currency_symbol = config.native_currency_symbol || 'N/A';
+            const wrapped_native_token = config.wrapped_native_token?.toLowerCase() || '';
+
+            return {
+                NAME: network_name,
+                ALIASES: {
+                    stable_ng_factory: contracts.amm.stableswap.factory.address.toLowerCase(),
+                    twocrypto_factory: contracts.amm.twocryptoswap.factory.address.toLowerCase(),
+                    tricrypto_factory: contracts.amm.tricryptoswap.factory.address.toLowerCase(),
+                    child_gauge_factory: contracts.gauge.child_gauge.factory.address.toLowerCase(),
+                    root_gauge_factory: contracts.gauge.child_gauge.factory.address.toLowerCase(),
+
+                    router: contracts.helpers.router.address.toLowerCase(),
+                    deposit_and_stake: contracts.helpers.deposit_and_stake_zap.address.toLowerCase(),
+                    stable_ng_meta_zap: contracts.helpers.stable_swap_meta_zap.address.toLowerCase(),
+
+                    crv: config.dao.crv.toLowerCase(),
+                },
+                NATIVE_COIN: {
+                    symbol: native_currency_symbol,
+                    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+                    wrappedSymbol:
+                        native_currency_symbol[0].toLowerCase() === native_currency_symbol[0]
+                            ? `w${native_currency_symbol}`
+                            : `W${native_currency_symbol}`,
+                    wrappedAddress: wrapped_native_token,
+                },
+            };
+        } catch (error) {
+            console.error('Error fetching network data:', error);
+            return null;
+        }
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5 minutes
+    }
+);
+
+export const _getCurveLiteNetworks = memoize(
+    async (): Promise<ICurveLiteNetwork[]> => {
+        const url = `https://api-core.curve.fi/v1/getPlatforms`;
+        const response = await axios.get(url, { validateStatus: () => true });
+
+        if (response.status !== 200 || !response.data?.data?.platforms) {
+            console.error('Failed to fetch Curve platforms:', response);
+            return [];
+        }
+
+        const { platforms, platformsMetadata } = response.data.data;
+
+        const networks: ICurveLiteNetwork[] = Object.entries(platforms)
+            .map(([platformId, _factories]) => {
+                const metadata = platformsMetadata[platformId];
+                if (!metadata) return null;
+
+                return {
+                    id: platformId,
+                    name: metadata.name,
+                    rpcUrl: metadata.rpcUrl,
+                    chainId: metadata.chainId,
+                    explorerUrl: metadata.explorerBaseUrl,
+                };
+            })
+            .filter((network): network is ICurveLiteNetwork => network !== null);
+
+        return networks;
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5 minutes
+    }
+);

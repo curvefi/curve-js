@@ -21,17 +21,28 @@ import {
     swapWrappedRequiredMixin,
 } from "./mixins/swapWrappedMixins.js";
 import { getCountArgsOfMethodByAbi, findAbiSignature } from "../utils.js";
+import {StatsPool} from "./subClasses/statsPool.js";
 
 
 export const getPool = (poolId: string): PoolTemplate => {
     const poolDummy = new PoolTemplate(poolId);
-    class Pool extends PoolTemplate {}
+    class Pool extends PoolTemplate {
+        stats: StatsPool;
 
-    // statsBalances
-    if (poolDummy.isMeta) {
-        Object.assign(Pool.prototype, poolBalancesMetaMixin);
-    } else if (poolDummy.useLending.reduce((x, y) => x || y)) {
-        Object.assign(Pool.prototype, poolBalancesLendingMixin);
+        constructor(poolId: string) {
+            super(poolId);
+            this.stats = new StatsPool(this);
+
+            this.configureStats(poolDummy);
+        }
+
+        private configureStats(poolDummy: PoolTemplate) {
+            if (poolDummy.isMeta) {
+                Object.assign(this.stats, poolBalancesMetaMixin);
+            } else if (poolDummy.useLending.reduce((x, y) => x || y)) {
+                Object.assign(this.stats, poolBalancesLendingMixin);
+            }
+        }
     }
 
     // depositBalancedAmounts

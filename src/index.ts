@@ -71,7 +71,7 @@ import {
     hasDepositAndStake,
     hasRouter,
     getBasePools,
-    getGasPrice,
+    getGasPrice, getCurveLiteNetworks,
 } from "./utils.js";
 import {
     deployStablePlainPool,
@@ -184,6 +184,7 @@ const curve = {
     getVolume,
     hasDepositAndStake,
     hasRouter,
+    getCurveLiteNetworks,
     factory: {
         fetchPools: _curve.fetchFactoryPools,
         fetchNewPools: _curve.fetchNewFactoryPools,

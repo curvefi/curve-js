@@ -1,10 +1,8 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import {_getAllGaugesFormatted, _getPoolsFromApi} from '../external-api.js';
+import {_getAllGaugesFormatted} from '../external-api.js';
 import {
     _getCoinAddresses,
-    _getBalances,
-    _prepareAddresses,
     _ensureAllowance,
     _getUsdRate,
     hasAllowance,
@@ -21,58 +19,23 @@ import {
     _get_small_x,
     _get_price_impact,
     checkNumber,
-    _getCrvApyFromApi,
     _getRewardsFromApi,
     mulBy1_3,
     smartNumber,
     DIGas,
     _getAddress,
     findAbiFunction,
-    getVolumeApiController,
+    PERIODS,
 } from '../utils.js';
-import {IDict, IReward, IProfit, IPoolType} from '../interfaces';
+import {IDict, IProfit} from '../interfaces';
 import { curve } from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
-import {GaugePool, IGaugePool} from "./gaugePool.js";
+import {CorePool} from "./subClasses/corePool.js";
+import {StatsPool} from "./subClasses/statsPool.js";
+import {WalletPool} from "./subClasses/walletPool.js";
+import {checkVyperVulnerability} from "./utils.js";
 
-
-const DAY = 86400;
-const WEEK = 7 * DAY;
-const MONTH = 30 * DAY;
-const YEAR = 365 * DAY;
-
-export class PoolTemplate {
-    id: string;
-    name: string;
-    fullName: string;
-    symbol: string;
-    referenceAsset: string;
-    address: string;
-    lpToken: string;
-    gauge: IGaugePool;
-    zap: string | null;
-    sRewardContract: string | null;
-    rewardContract: string | null;
-    implementation: string | null;
-    isPlain: boolean;
-    isLending: boolean;
-    isMeta: boolean;
-    isCrypto: boolean;
-    isFake: boolean;
-    isFactory: boolean;
-    isMetaFactory: boolean;
-    isNg: boolean;
-    isLlamma: boolean;
-    basePool: string;
-    metaCoinIdx: number;
-    underlyingCoins: string[];
-    wrappedCoins: string[];
-    underlyingCoinAddresses: string[];
-    wrappedCoinAddresses: string[];
-    underlyingDecimals: number[];
-    wrappedDecimals: number[];
-    useLending: boolean[];
-    inApi: boolean;
+export class PoolTemplate extends CorePool {
     isGaugeKilled: () => Promise<boolean>;
     gaugeStatus: () => Promise<any>;
     estimateGas: {
@@ -103,71 +66,14 @@ export class PoolTemplate {
         swapWrappedApprove: (inputCoin: string | number, amount: number | string) => Promise<number | number[]>,
         swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number | number[]>,
     };
-    stats: {
-        parameters: () => Promise<{
-            lpTokenSupply: string,
-            virtualPrice: string,
-            fee: string,
-            adminFee: string,
-            A: string,
-            future_A?: string,
-            initial_A?: string,
-            future_A_time?: number,
-            initial_A_time?: number,
-            gamma?: string,
-            price_oracle?: string[],
-            price_scale?: string[],
-        }>,
-        underlyingBalances: () => Promise<string[]>,
-        wrappedBalances: () => Promise<string[]>,
-        totalLiquidity: (useApi?: boolean) => Promise<string>,
-        volume: () => Promise<string>,
-        baseApy: () => Promise<{ day: string, week: string }>,
-        tokenApy: (useApi?: boolean) => Promise<[baseApy: number, boostedApy: number]>,
-        rewardsApy: (useApi?: boolean) => Promise<IReward[]>,
-    };
-    wallet: {
-        balances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
-        lpTokenBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
-        underlyingCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
-        wrappedCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
-        allCoinBalances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,
-    };
+    stats: StatsPool;
+    wallet: WalletPool;
 
     constructor(id: string) {
-        const poolData = curve.getPoolsData()[id];
+        super(id);
 
-        this.id = id;
-        this.name = poolData.name;
-        this.fullName = poolData.full_name;
-        this.symbol = poolData.symbol;
-        this.referenceAsset = poolData.reference_asset;
-        this.address = poolData.swap_address;
-        this.lpToken = poolData.token_address;
-        this.gauge = new GaugePool(poolData.gauge_address, poolData.name);
-        this.zap = poolData.deposit_address || null;
-        this.sRewardContract = poolData.sCurveRewards_address || null;
-        this.rewardContract = poolData.reward_contract || null;
-        this.implementation = poolData.implementation_address || null;
-        this.isPlain = poolData.is_plain || false;
-        this.isLending = poolData.is_lending || false;
-        this.isMeta = poolData.is_meta || false;
-        this.isCrypto = poolData.is_crypto || false;
-        this.isFake = poolData.is_fake || false;
-        this.isFactory = poolData.is_factory || false;
-        this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xa79828df1850e8a3a3064576f380d90aecdd3359';
-        this.isNg = poolData.is_ng || false;
-        this.isLlamma = poolData.is_llamma || false;
-        this.basePool = poolData.base_pool || '';
-        this.metaCoinIdx = this.isMeta ? poolData.meta_coin_idx ?? poolData.wrapped_coins.length - 1 : -1;
-        this.underlyingCoins = poolData.underlying_coins;
-        this.wrappedCoins = poolData.wrapped_coins;
-        this.underlyingCoinAddresses = poolData.underlying_coin_addresses;
-        this.wrappedCoinAddresses = poolData.wrapped_coin_addresses;
-        this.underlyingDecimals = poolData.underlying_decimals;
-        this.wrappedDecimals = poolData.wrapped_decimals;
-        this.useLending = poolData.use_lending || poolData.underlying_coin_addresses.map(() => false);
-        this.inApi = poolData.in_api ?? false;
+        this.stats = new StatsPool(this);
+        this.wallet = new WalletPool(this);
         this.isGaugeKilled = this.getIsGaugeKilled.bind(this);
         this.gaugeStatus = this.getGaugeStatus.bind(this);
         this.estimateGas = {
@@ -198,59 +104,14 @@ export class PoolTemplate {
             swapWrappedApprove: this.swapWrappedApproveEstimateGas.bind(this),
             swapWrapped: this.swapWrappedEstimateGas.bind(this),
         }
-        this.stats = {
-            parameters: this.statsParameters.bind(this),
-            underlyingBalances: this.statsUnderlyingBalances.bind(this),
-            wrappedBalances: this.statsWrappedBalances.bind(this),
-            totalLiquidity: this.statsTotalLiquidity.bind(this),
-            volume: this.statsVolume.bind(this),
-            baseApy: this.statsBaseApy.bind(this),
-            tokenApy: this.statsTokenApy.bind(this),
-            rewardsApy: this.statsRewardsApy.bind(this),
-        }
-        this.wallet = {
-            balances: this.walletBalances.bind(this),
-            lpTokenBalances: this.walletLpTokenBalances.bind(this),
-            underlyingCoinBalances: this.walletUnderlyingCoinBalances.bind(this),
-            wrappedCoinBalances: this.walletWrappedCoinBalances.bind(this),
-            allCoinBalances: this.walletAllCoinBalances.bind(this),
-        }
     }
 
     public hasVyperVulnerability(): boolean {
-        if (curve.chainId === 1 && this.id === "crveth") return true;
-        if (curve.chainId === 42161 && this.id === "tricrypto") return true;
-
-        // @ts-ignore
-        const vulnerable_implementations: string[] = {
-            1: [  // ethereum
-                "0x6326DEbBAa15bCFE603d831e7D75f4fc10d9B43E",
-                "0x8c1aB78601c259E1B43F19816923609dC7d7de9B",
-                "0x88855cdF2b0A8413D470B86952E726684de915be",
-            ].map((a) => a.toLowerCase()),
-            137: [  // polygon
-                "0xAe00f57663F4C85FC948B13963cd4627dAF01061",
-                "0xA9134FaE98F92217f457918505375Ae91fdc5e3c",
-                "0xf31bcdf0B9a5eCD7AB463eB905551fBc32e51856",
-            ].map((a) => a.toLowerCase()),
-            250: [  // fantom
-                "0xE6358f6a45B502477e83CC1CDa759f540E4459ee",
-                "0x5d58Eb45e97B43e471AF05cD2b11CeB4106E1b1a",
-                "0xb11Dc44A9f981fAF1669dca6DD40c3cc2554A2ce",
-            ].map((a) => a.toLowerCase()),
-            42161: [  // arbitrum
-                "0x7DA64233Fefb352f8F501B357c018158ED8aA455",
-                "0xAAe75FAebCae43b9d541Fd875622BE48D9B4f5D0",
-                "0x89287c32c2CAC1C76227F6d300B2DBbab6b75C08",
-            ].map((a) => a.toLowerCase()),
-            43114: [  // avalanche
-                "0x64448B78561690B70E17CBE8029a3e5c1bB7136e",
-                "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc",
-                "0x0eb0F1FaF5F509Ac53fA224477509EAD167cf410",
-            ].map((a) => a.toLowerCase()),
-        }[curve.chainId] ?? [];
-
-        return vulnerable_implementations.includes(this.implementation ?? "");
+        return checkVyperVulnerability(
+            curve.chainId,
+            this.id,
+            this.implementation
+        );
     }
 
     public rewardsOnly(): boolean {
@@ -260,193 +121,8 @@ export class PoolTemplate {
             .find((func) => ['', 'uint256'].includes(func.inputs.map((a) => `${a.type}`).join(',')))
     }
 
-    private statsParameters = async (): Promise<{
-        lpTokenSupply: string,
-        virtualPrice: string,
-        fee: string, // %
-        adminFee: string, // %
-        A: string,
-        future_A?: string,
-        initial_A?: string,
-        future_A_time?: number,
-        initial_A_time?: number,
-        gamma?: string,
-        priceOracle?: string[],
-        priceScale?: string[],
-    }> => {
-        const multicallContract = curve.contracts[this.address].multicallContract;
-        const lpMulticallContract = curve.contracts[this.lpToken].multicallContract;
-
-        const calls = [
-            multicallContract.get_virtual_price(),
-            multicallContract.fee(),
-            "admin_fee" in multicallContract ? multicallContract.admin_fee() : multicallContract.ADMIN_FEE(),
-            multicallContract.A(),
-            lpMulticallContract.totalSupply(),
-        ]
-        if (this.isCrypto) {
-            calls.push(multicallContract.gamma());
-
-            if (this.wrappedCoins.length === 2) {
-                calls.push(multicallContract.price_oracle());
-                calls.push(multicallContract.price_scale());
-            } else {
-                for (let i = 0; i < this.wrappedCoins.length - 1; i++) {
-                    calls.push(multicallContract.price_oracle(i));
-                    calls.push(multicallContract.price_scale(i));
-                }
-            }
-        }
-
-        const additionalCalls = this.isCrypto ? [] : [multicallContract.future_A()];
-        if ('initial_A' in multicallContract) {
-            additionalCalls.push(
-                multicallContract.initial_A(),
-                multicallContract.future_A_time(),
-                multicallContract.initial_A_time()
-            );
-        }
-
-        let _virtualPrice = curve.parseUnits("0");
-        let _fee = curve.parseUnits("0");
-        let _prices, _adminFee, _A, _lpTokenSupply, _gamma;
-        try {
-            [_virtualPrice, _fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
-        } catch (e) { // Empty pool
-            calls.shift();
-            if (this.isCrypto) {
-                calls.shift();
-                [_adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
-            } else {
-                [_fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
-            }
-        }
-
-        const [virtualPrice, fee, adminFee, A, lpTokenSupply, gamma] = [
-            curve.formatUnits(_virtualPrice),
-            curve.formatUnits(_fee, 8),
-            curve.formatUnits(_adminFee * _fee),
-            curve.formatUnits(_A, 0),
-            curve.formatUnits(_lpTokenSupply),
-            _gamma ? curve.formatUnits(_gamma) : undefined,
-        ]
-
-        let priceOracle, priceScale;
-        if (this.isCrypto) {
-            const prices = _prices.map((_p) => curve.formatUnits(_p));
-            priceOracle = [];
-            priceScale = [];
-            for (let i = 0; i < this.wrappedCoins.length - 1; i++) {
-                priceOracle.push(prices.shift() as string);
-                priceScale.push(prices.shift() as string);
-            }
-        }
-
-        const A_PRECISION = curve.chainId === 1 && ['compound', 'usdt', 'y', 'busd', 'susd', 'pax', 'ren', 'sbtc', 'hbtc', '3pool'].includes(this.id) ? 1 : 100;
-        const [_future_A, _initial_A, _future_A_time, _initial_A_time] = await curve.multicallProvider.all(additionalCalls) as bigint[]
-        const [future_A, initial_A, future_A_time, initial_A_time] = [
-            _future_A ? String(Number(curve.formatUnits(_future_A, 0)) / A_PRECISION) : undefined,
-            _initial_A ? String(Number(curve.formatUnits(_initial_A, 0)) / A_PRECISION) : undefined,
-            _future_A_time ? Number(curve.formatUnits(_future_A_time, 0)) * 1000 : undefined,
-            _initial_A_time ? Number(curve.formatUnits(_initial_A_time, 0)) * 1000 : undefined,
-        ]
-
-        return { lpTokenSupply, virtualPrice, fee, adminFee, A, future_A, initial_A, future_A_time, initial_A_time, gamma, priceOracle, priceScale };
-    }
-
-    private async statsWrappedBalances(): Promise<string[]> {
-        const contract = curve.contracts[this.address].multicallContract;
-        const calls = [];
-        for (let i = 0; i < this.wrappedCoins.length; i++) calls.push(contract.balances(i));
-        const _wrappedBalances: bigint[] = await curve.multicallProvider.all(calls);
-
-        return _wrappedBalances.map((_b, i) => curve.formatUnits(_b, this.wrappedDecimals[i]));
-    }
-
-    // OVERRIDE
-    private async statsUnderlyingBalances(): Promise<string[]> {
-        return await this.statsWrappedBalances();
-    }
-
-    private statsTotalLiquidity = async (useApi = true): Promise<string> => {
-        if (curve.chainId === 1 && this.id === "crveth") return "0"
-
-        if (this.isLlamma) {
-            const stablecoinContract = curve.contracts[this.underlyingCoinAddresses[0]].multicallContract;
-            const collateralContract = curve.contracts[this.underlyingCoinAddresses[1]].multicallContract;
-            const ammContract = curve.contracts[this.address].multicallContract;
-
-            const [_balance_x, _fee_x, _balance_y, _fee_y]: bigint[] = await curve.multicallProvider.all([
-                stablecoinContract.balanceOf(this.address),
-                ammContract.admin_fees_x(),
-                collateralContract.balanceOf(this.address),
-                ammContract.admin_fees_y(),
-            ]);
-            const collateralRate = await _getUsdRate(this.underlyingCoinAddresses[1]);
-
-            const stablecoinTvlBN = toBN(_balance_x).minus(toBN(_fee_x));
-            const collateralTvlBN = toBN(_balance_y).minus(toBN(_fee_y)).times(collateralRate);
-
-            return stablecoinTvlBN.plus(collateralTvlBN).toString()
-        }
-
-        if (useApi) {
-            const network = curve.constants.NETWORK_NAME;
-            let poolType = this.isCrypto ? "crypto" : "main";
-            if (this.id.startsWith("factory")) {
-                poolType = this.id.replace(/-\d+$/, '');
-                poolType = poolType.replace(/-v2$/, '');
-            }
-            const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType)).poolData;
-
-            try {
-                const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.address.toLowerCase())[0].usdTotal;
-                return String(totalLiquidity);
-            } catch (err) {
-                console.log(this.id, (err as Error).message);
-            }
-        }
-
-        const balances = await this.statsUnderlyingBalances();
-        const promises = [];
-        for (const addr of this.underlyingCoinAddresses) {
-            promises.push(_getUsdRate(addr))
-        }
-        const prices = await Promise.all(promises);
-        const totalLiquidity = (balances as string[]).reduce(
-            (liquidity: number, b: string, i: number) => liquidity + (Number(b) * (prices[i] as number)), 0);
-
-        return totalLiquidity.toFixed(8)
-    }
-
-    private statsVolume = async (): Promise<string> => {
-        const network = curve.constants.NETWORK_NAME;
-        const {poolsData} = await getVolumeApiController(network);
-        const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
-
-        if(poolData) {
-            return poolData.volumeUSD.toString()
-        }
-
-        throw Error(`Can't get Volume for ${this.name} (id: ${this.id})`)
-    }
-
-    private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
-        const network = curve.constants.NETWORK_NAME;
-        const {poolsData} = await getVolumeApiController(network);
-        const poolData = poolsData.find((d) => d.address.toLowerCase() === this.address);
-
-        if(poolData) {
-            return {
-                day: poolData.day.toString(),
-                week: poolData.week.toString(),
-            }
-        }
-        throw Error(`Can't get base APY for ${this.name} (id: ${this.id})`)
-    }
-
-    private _calcTokenApy = async (futureWorkingSupplyBN: BigNumber | null = null): Promise<[baseApy: number, boostedApy: number]> => {
-        const totalLiquidityUSD = await this.statsTotalLiquidity();
+    public _calcTokenApy = async (futureWorkingSupplyBN: BigNumber | null = null): Promise<[baseApy: number, boostedApy: number]> => {
+        const totalLiquidityUSD = await this.stats.totalLiquidity();
         if (Number(totalLiquidityUSD) === 0) return [0, 0];
 
         let inflationRateBN, workingSupplyBN, totalSupplyBN;
@@ -455,7 +131,7 @@ export class PoolTemplate {
             const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
             const crvContract = curve.contracts[curve.constants.ALIASES.crv].contract;
 
-            const currentWeek = Math.floor(Date.now() / 1000 / WEEK);
+            const currentWeek = Math.floor(Date.now() / 1000 / PERIODS.WEEK);
             [inflationRateBN, workingSupplyBN, totalSupplyBN] = (await curve.multicallProvider.all([
                 gaugeContract.inflation_rate(currentWeek),
                 gaugeContract.working_supply(),
@@ -463,7 +139,7 @@ export class PoolTemplate {
             ]) as bigint[]).map((value) => toBN(value));
 
             if (inflationRateBN.eq(0)) {
-                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge.address, curve.constantOptions)).div(WEEK);
+                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge.address, curve.constantOptions)).div(PERIODS.WEEK);
             }
         } else {
             const gaugeContract = curve.contracts[this.gauge.address].multicallContract;
@@ -492,63 +168,6 @@ export class PoolTemplate {
         const boostedApyBN = baseApyBN.times(2.5);
 
         return [baseApyBN.times(100).toNumber(), boostedApyBN.times(100).toNumber()]
-    }
-
-    private statsTokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
-        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
-
-        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
-        if (useApi && !isDisabledChain) {
-            const crvAPYs = await _getCrvApyFromApi();
-            const poolCrvApy = crvAPYs[this.gauge.address] ?? [0, 0];  // new pools might be missing
-            return [poolCrvApy[0], poolCrvApy[1]];
-        }
-
-        return await this._calcTokenApy();
-    }
-
-    private statsRewardsApy = async (useApi = true): Promise<IReward[]> => {
-        if (this.gauge.address === curve.constants.ZERO_ADDRESS) return [];
-
-        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
-        if (useApi && !isDisabledChain) {
-            const rewards = await _getRewardsFromApi();
-            if (!rewards[this.gauge.address]) return [];
-            return rewards[this.gauge.address].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));
-        }
-
-        const apy: IReward[] = [];
-        const rewardTokens = await this.rewardTokens(false);
-        for (const rewardToken of rewardTokens) {
-            const gaugeContract = curve.contracts[this.gauge.address].multicallContract;
-            const lpTokenContract = curve.contracts[this.lpToken].multicallContract;
-            const rewardContract = curve.contracts[this.sRewardContract || this.gauge.address].multicallContract;
-
-            const totalLiquidityUSD = await this.statsTotalLiquidity();
-            const rewardRate = await _getUsdRate(rewardToken.token);
-
-            const [rewardData, _stakedSupply, _totalSupply] = (await curve.multicallProvider.all([
-                rewardContract.reward_data(rewardToken.token),
-                gaugeContract.totalSupply(),
-                lpTokenContract.totalSupply(),
-            ]) as any[]);
-            const stakedSupplyBN = toBN(_stakedSupply as bigint);
-            const totalSupplyBN = toBN(_totalSupply as bigint);
-            const inflationBN = toBN(rewardData.rate, rewardToken.decimals);
-            const periodFinish = Number(curve.formatUnits(rewardData.period_finish, 0)) * 1000;
-            const baseApy = periodFinish > Date.now() ?
-                inflationBN.times(31536000).times(rewardRate).div(stakedSupplyBN).times(totalSupplyBN).div(Number(totalLiquidityUSD)) :
-                BN(0);
-
-            apy.push({
-                gaugeAddress: this.gauge.address,
-                tokenAddress: rewardToken.token,
-                symbol: rewardToken.symbol,
-                apy: baseApy.times(100).toNumber(),
-            });
-        }
-
-        return apy
     }
 
     private async _pureCalcLpTokenAmount(_amounts: bigint[], isDeposit = true, useUnderlying = true): Promise<bigint> {
@@ -593,13 +212,11 @@ export class PoolTemplate {
         }
 
         try {
-            const contract = curve.contracts[curve.constants.ALIASES.stable_calc].contract;
+            if (this.isNg) return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
 
-            if (curve.constants.ALIASES.stable_calc === curve.constants.ZERO_ADDRESS || this.id.startsWith("factory-stable-ng")) {
-                return await this._pureCalcLpTokenAmount(_amounts, isDeposit, useUnderlying);
-            } else if (this.isMeta) {
+            if (this.isMeta) {
                 const basePool = new PoolTemplate(this.basePool);
-                return await contract.calc_token_amount_meta(
+                return await curve.contracts[curve.constants.ALIASES.stable_calc].contract.calc_token_amount_meta(
                     this.address,
                     this.lpToken,
                     _amounts.concat(Array(10 - _amounts.length).fill(curve.parseUnits("0"))),
@@ -610,7 +227,7 @@ export class PoolTemplate {
                     useUnderlying
                 );
             } else {
-                return await contract.calc_token_amount(
+                return await curve.contracts[curve.constants.ALIASES.stable_calc].contract.calc_token_amount(
                     this.address,
                     this.lpToken,
                     _amounts.concat(Array(10 - _amounts.length).fill(curve.parseUnits("0"))),
@@ -930,7 +547,7 @@ export class PoolTemplate {
             const gaugeContract = curve.contracts[this.gauge.address].multicallContract;
             const crvContract = curve.contracts[curve.constants.ALIASES.crv].contract;
 
-            const currentWeek = Math.floor(Date.now() / 1000 / WEEK);
+            const currentWeek = Math.floor(Date.now() / 1000 / PERIODS.WEEK);
             [inflationRateBN, workingBalanceBN, workingSupplyBN] = (await curve.multicallProvider.all([
                 gaugeContract.inflation_rate(currentWeek),
                 gaugeContract.working_balances(address),
@@ -938,7 +555,7 @@ export class PoolTemplate {
             ]) as bigint[]).map((value) => toBN(value));
 
             if (inflationRateBN.eq(0)) {
-                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge.address, curve.constantOptions)).div(WEEK);
+                inflationRateBN = toBN(await crvContract.balanceOf(this.gauge.address, curve.constantOptions)).div(PERIODS.WEEK);
             }
         } else {
             const gaugeContract = curve.contracts[this.gauge.address].multicallContract;
@@ -966,10 +583,10 @@ export class PoolTemplate {
             price: crvPrice,
         };
 
-        const dailyIncome = inflationRateBN.times(DAY).times(workingBalanceBN).div(workingSupplyBN);
-        const weeklyIncome = inflationRateBN.times(WEEK).times(workingBalanceBN).div(workingSupplyBN);
-        const monthlyIncome = inflationRateBN.times(MONTH).times(workingBalanceBN).div(workingSupplyBN);
-        const annualIncome = inflationRateBN.times(YEAR).times(workingBalanceBN).div(workingSupplyBN);
+        const dailyIncome = inflationRateBN.times(PERIODS.DAY).times(workingBalanceBN).div(workingSupplyBN);
+        const weeklyIncome = inflationRateBN.times(PERIODS.WEEK).times(workingBalanceBN).div(workingSupplyBN);
+        const monthlyIncome = inflationRateBN.times(PERIODS.MONTH).times(workingBalanceBN).div(workingSupplyBN);
+        const annualIncome = inflationRateBN.times(PERIODS.YEAR).times(workingBalanceBN).div(workingSupplyBN);
 
         return {
             day: dailyIncome.toString(),
@@ -1126,7 +743,7 @@ export class PoolTemplate {
         if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
         address = _getAddress(address)
 
-        const [minApy, maxApy] = await this.statsTokenApy();
+        const [minApy, maxApy] = await this.stats.tokenApy();
         const boost = await this.userBoost(address);
         if (boost == "2.5") return maxApy;
         if (boost === "NaN") return NaN;
@@ -1270,10 +887,10 @@ export class PoolTemplate {
 
                 result.push(
                     {
-                        day: inflationRateBN.times(DAY).times(balanceBN).div(totalSupplyBN).toString(),
-                        week: inflationRateBN.times(WEEK).times(balanceBN).div(totalSupplyBN).toString(),
-                        month: inflationRateBN.times(MONTH).times(balanceBN).div(totalSupplyBN).toString(),
-                        year: inflationRateBN.times(YEAR).times(balanceBN).div(totalSupplyBN).toString(),
+                        day: inflationRateBN.times(PERIODS.DAY).times(balanceBN).div(totalSupplyBN).toString(),
+                        week: inflationRateBN.times(PERIODS.WEEK).times(balanceBN).div(totalSupplyBN).toString(),
+                        month: inflationRateBN.times(PERIODS.MONTH).times(balanceBN).div(totalSupplyBN).toString(),
+                        year: inflationRateBN.times(PERIODS.YEAR).times(balanceBN).div(totalSupplyBN).toString(),
                         token: rewardToken.token,
                         symbol: rewardToken.symbol,
                         price: tokenPrice,
@@ -1298,10 +915,10 @@ export class PoolTemplate {
 
             result.push(
                 {
-                    day: inflationRateBN.times(DAY).times(balanceBN).div(totalSupplyBN).toString(),
-                    week: inflationRateBN.times(WEEK).times(balanceBN).div(totalSupplyBN).toString(),
-                    month: inflationRateBN.times(MONTH).times(balanceBN).div(totalSupplyBN).toString(),
-                    year: inflationRateBN.times(YEAR).times(balanceBN).div(totalSupplyBN).toString(),
+                    day: inflationRateBN.times(PERIODS.DAY).times(balanceBN).div(totalSupplyBN).toString(),
+                    week: inflationRateBN.times(PERIODS.WEEK).times(balanceBN).div(totalSupplyBN).toString(),
+                    month: inflationRateBN.times(PERIODS.MONTH).times(balanceBN).div(totalSupplyBN).toString(),
+                    year: inflationRateBN.times(PERIODS.YEAR).times(balanceBN).div(totalSupplyBN).toString(),
                     token: rewardToken.token,
                     symbol: rewardToken.symbol,
                     price: tokenPrice,
@@ -1586,7 +1203,7 @@ export class PoolTemplate {
             throw Error(`${this.name} pool has ${coinAddresses.length} coins (amounts provided for ${amounts.length})`);
         }
 
-        const balances = isUnderlying ? Object.values(await this.walletUnderlyingCoinBalances()) : Object.values(await this.walletWrappedCoinBalances());
+        const balances = isUnderlying ? Object.values(await this.wallet.underlyingCoinBalances()) : Object.values(await this.wallet.wrappedCoinBalances());
         for (let i = 0; i < balances.length; i++) {
             if (Number(balances[i]) < Number(amounts[i])) {
                 throw Error(`Not enough ${coins[i]}. Actual: ${balances[i]}, required: ${amounts[i]}`);
@@ -1901,52 +1518,11 @@ export class PoolTemplate {
         throw Error(`withdrawOneCoinWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
-    // ---------------- WALLET BALANCES ----------------
-
-    private async walletBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        if (this.gauge.address === curve.constants.ZERO_ADDRESS) {
-            return await this._balances(
-                ['lpToken', ...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
-                [this.lpToken, ...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
-                ...addresses
-            );
-        } else {
-            return await this._balances(
-                ['lpToken', 'gauge', ...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
-                [this.lpToken, this.gauge.address, ...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
-                ...addresses
-            );
-        }
-    }
-
-    private async walletLpTokenBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        if (this.gauge.address === curve.constants.ZERO_ADDRESS) {
-            return await this._balances(['lpToken'], [this.lpToken], ...addresses);
-        } else {
-            return await this._balances(['lpToken', 'gauge'], [this.lpToken, this.gauge.address], ...addresses);
-        }
-    }
-
-    private async walletUnderlyingCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        return await this._balances(this.underlyingCoinAddresses, this.underlyingCoinAddresses, ...addresses)
-    }
-
-    private async walletWrappedCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        return await this._balances(this.wrappedCoinAddresses, this.wrappedCoinAddresses, ...addresses)
-    }
-
-    private async walletAllCoinBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        return await this._balances(
-            [...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
-            [...this.underlyingCoinAddresses, ...this.wrappedCoinAddresses],
-            ...addresses
-        )
-    }
 
     // ---------------- USER BALANCES, BASE PROFIT AND SHARE ----------------
 
     private async _userLpTotalBalance(address: string): Promise<BigNumber> {
-        const lpBalances = await this.walletLpTokenBalances(address);
+        const lpBalances = await this.wallet.lpTokenBalances(address);
         let lpTotalBalanceBN = BN(lpBalances.lpToken as string);
         if ('gauge' in lpBalances) lpTotalBalanceBN = lpTotalBalanceBN.plus(BN(lpBalances.gauge as string));
 
@@ -1981,7 +1557,7 @@ export class PoolTemplate {
     }
 
     public async baseProfit(address = ""): Promise<{ day: string, week: string, month: string, year: string }> {
-        const apyData = await this.statsBaseApy();
+        const apyData = await this.stats.baseApy();
         if (!('week' in apyData)) return { day: "0", week: "0", month: "0", year: "0" };
 
         const apyBN = BN(apyData.week).div(100);
@@ -2007,7 +1583,7 @@ export class PoolTemplate {
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
-        const userLpBalance = await this.walletLpTokenBalances(address) as IDict<string>;
+        const userLpBalance = await this.wallet.lpTokenBalances(address) as IDict<string>;
         let userLpTotalBalanceBN = BN(userLpBalance.lpToken);
         if (withGauge) userLpTotalBalanceBN = userLpTotalBalanceBN.plus(BN(userLpBalance.gauge as string));
 
@@ -2338,33 +1914,6 @@ export class PoolTemplate {
         }
 
         return _rates
-    }
-
-
-    private _balances = async (rawCoinNames: string[], rawCoinAddresses: string[], ...addresses: string[] | string[][]):
-        Promise<IDict<IDict<string>> | IDict<string>> => {
-        const coinNames: string[] = [];
-        const coinAddresses: string[] = [];
-        // removing duplicates
-        for (let i = 0; i < rawCoinAddresses.length; i++) {
-            if (!coinAddresses.includes(rawCoinAddresses[i])) {
-                coinNames.push(rawCoinNames[i]);
-                coinAddresses.push(rawCoinAddresses[i])
-            }
-        }
-
-        addresses = _prepareAddresses(addresses);
-        const rawBalances: IDict<string[]> = await _getBalances(coinAddresses, addresses);
-
-        const balances: IDict<IDict<string>> = {};
-        for (const address of addresses) {
-            balances[address] = {};
-            for (const coinName of coinNames) {
-                balances[address][coinName] = rawBalances[address].shift() as string;
-            }
-        }
-
-        return addresses.length === 1 ? balances[addresses[0]] : balances
     }
 
     private _storedRatesBN = async (useUnderlying: boolean): Promise<BigNumber[]> => {

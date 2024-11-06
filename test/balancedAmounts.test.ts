@@ -3,10 +3,10 @@ import { getPool, PoolTemplate } from "../src/pools/index.js";
 import curve from "../src/index.js";
 
 
-// const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'eurs', 'steth', 'ankreth', 'link', 'reth'];
-const PLAIN_POOLS = ['susd', 'ren', 'sbtc', 'hbtc', '3pool', 'seth', 'steth', 'ankreth', 'link', 'reth']; // Without eurs
-const LENDING_POOLS = ['compound', 'usdt', 'y', 'busd', 'pax', 'aave', 'saave', 'ib'];
-const META_POOLS = ['gusd', 'husd', 'usdk', 'usdn', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'ust', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
+// const PLAIN_POOLS = ['susd', 'ren', 'sbtc', '3pool', 'eurs', 'steth', 'ankreth', 'link', 'reth'];
+const PLAIN_POOLS = ['susd', 'ren', 'sbtc', '3pool', 'steth', 'ankreth', 'link', 'reth']; // Without eurs
+const LENDING_POOLS = ['compound', 'usdt', 'aave', 'saave', 'ib'];
+const META_POOLS = ['gusd', 'usdk', 'musd', 'rsv', 'tbtc', 'dusd', 'pbtc', 'bbtc', 'obtc', 'usdp', 'tusd', 'frax', 'lusd', 'busdv2', 'alusd', 'mim'];
 const FACTORY_CRYPTO_META_POOLS = ['factory-crypto-116', 'factory-crypto-97']; // ['DCHF/3CRV', 'cvxCrv/FraxBP'];
 
 const POLYGON_POOLS = ['aave', 'ren', 'atricrypto3', 'eurtusd'];

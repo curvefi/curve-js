@@ -50,7 +50,8 @@ const ALIASES_ETHEREUM = lowerCaseValues({
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
     "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
 
-    "router": "0x16C6521Dff6baB339122a0FE25a9116693265353",
+    // "router": "0x16C6521Dff6baB339122a0FE25a9116693265353", v1.1.0
+    "router": "0x45312ea0eFf7E09C83CBE249fa1d7598c4C8cd4e", // v1.2.0
     "deposit_and_stake": "0x56C526b0159a258887e0d79ec3a80dfb940d0cD7",
     "stable_calc": "0x0DCDED3545D565bA3B19E683431381007245d983",
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',

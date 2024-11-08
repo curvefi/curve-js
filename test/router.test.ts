@@ -43,11 +43,15 @@ describe('Router swap', async function () {
 
     before(async function () {
         await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
         await curve.factory.fetchPools();
-        await curve.cryptoFactory.fetchPools();
-        await curve.tricryptoFactory.fetchPools();
+        await curve.stableNgFactory.fetchPools();
         await curve.crvUSDFactory.fetchPools();
         await curve.EYWAFactory.fetchPools();
+
+        await curve.cryptoFactory.fetchPools();
+        await curve.twocryptoFactory.fetchPools();
+        await curve.tricryptoFactory.fetchPools();
     });
 
     // const coins = Object.keys(COINS_POLYGON).filter((c) => c !== 'snx' && c !== 'eurs'); // TODO remove eurs

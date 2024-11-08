@@ -119,7 +119,7 @@ export function routeGraphWorker() {
                 swapAddress: constants.COINS.sfrxeth,
                 inputCoinAddress: constants.COINS.frxeth,
                 outputCoinAddress: constants.COINS.sfrxeth,
-                swapParams: [0, 0, 8, 0, 0],
+                swapParams: [0, 1, 9, 0, 0],
                 poolAddress: constants.ZERO_ADDRESS,
                 basePool: constants.ZERO_ADDRESS,
                 baseToken: constants.ZERO_ADDRESS,
@@ -134,7 +134,58 @@ export function routeGraphWorker() {
                 swapAddress: constants.COINS.sfrxeth,
                 inputCoinAddress: constants.COINS.sfrxeth,
                 outputCoinAddress: constants.COINS.frxeth,
-                swapParams: [0, 0, 8, 0, 0],
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
+        // crvUSD <-> scrvUSD (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.crvusd] = {};
+            routerGraph[constants.COINS.crvusd][constants.COINS.scrvusd] = [{
+                poolId: "scrvUSD wrapper",
+                swapAddress: constants.COINS.scrvusd,
+                inputCoinAddress: constants.COINS.crvusd,
+                outputCoinAddress: constants.COINS.scrvusd,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.scrvusd] = {};
+            routerGraph[constants.COINS.scrvusd][constants.COINS.crvusd] = [{
+                poolId: "scrvUSD wrapper",
+                swapAddress: constants.COINS.scrvusd,
+                inputCoinAddress: constants.COINS.scrvusd,
+                outputCoinAddress: constants.COINS.crvusd,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
+        // USDe -> sUSDe (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.usde] = {};
+            routerGraph[constants.COINS.usde][constants.COINS.susde] = [{
+                poolId: "sUSDe wrapper",
+                swapAddress: constants.COINS.susde,
+                inputCoinAddress: constants.COINS.usde,
+                outputCoinAddress: constants.COINS.susde,
+                swapParams: [0, 1, 9, 0, 0],
                 poolAddress: constants.ZERO_ADDRESS,
                 basePool: constants.ZERO_ADDRESS,
                 baseToken: constants.ZERO_ADDRESS,

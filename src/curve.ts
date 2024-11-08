@@ -354,6 +354,8 @@ class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.crv, ERC20Abi);
         this.constants.DECIMALS[this.constants.ALIASES.crv] = 18;
+        this.setContract(this.constants.COINS.scrvusd, ERC20Abi);
+        this.constants.DECIMALS[this.constants.COINS.scrvusd] = 18;
 
         if(this.chainId === 1) {
             this.setContract(this.constants.ALIASES.minter, minterMainnetABI);

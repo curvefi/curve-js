@@ -52,6 +52,29 @@ export interface IPoolData {
     gauge_status?: Record<string, boolean> | null,
 }
 
+export interface INetworkConstants {
+    NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
+    NETWORK_NAME: INetworkName,
+    ALIASES: IDict<string>,
+    POOLS_DATA: IDict<IPoolData>,
+    STABLE_FACTORY_CONSTANTS: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string }
+    CRYPTO_FACTORY_CONSTANTS: { lpTokenBasePoolIdDict?: IDict<string>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, tricryptoDeployImplementations?: IDict<string | number> }
+    FACTORY_POOLS_DATA: IDict<IPoolData>,
+    STABLE_NG_FACTORY_POOLS_DATA: IDict<IPoolData>,
+    CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
+    CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+    TWOCRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+    TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+    EYWA_FACTORY_POOLS_DATA: IDict<IPoolData>,
+    BASE_POOLS: IDict<number>,
+    LLAMMAS_DATA: IDict<IPoolData>,
+    COINS: IDict<string>,
+    DECIMALS: IDict<number>,
+    GAUGES: string[],
+    FACTORY_GAUGE_IMPLEMENTATIONS: any,
+    ZERO_ADDRESS: string,
+}
+
 export interface ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider,
     multicallProvider: MulticallProvider,
@@ -63,23 +86,7 @@ export interface ICurve {
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
     constantOptions: { gasLimit?: number },
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint },
-    constants: {
-        NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
-        NETWORK_NAME: INetworkName,
-        ALIASES: IDict<string>,
-        POOLS_DATA: IDict<IPoolData>,
-        STABLE_FACTORY_CONSTANTS: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string }
-        CRYPTO_FACTORY_CONSTANTS: { lpTokenBasePoolIdDict?: IDict<string>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, tricryptoDeployImplementations?: IDict<string | number> }
-        FACTORY_POOLS_DATA: IDict<IPoolData>,
-        CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        BASE_POOLS: IDict<number>,
-        LLAMMAS_DATA: IDict<IPoolData>,
-        COINS: IDict<string>,
-        DECIMALS: IDict<number>,
-        GAUGES: string[],
-    };
+    constants: INetworkConstants,
     setContract: (address: string | undefined, abi: any) => void,
 }
 

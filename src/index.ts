@@ -185,7 +185,7 @@ const curve = {
     hasDepositAndStake,
     hasRouter,
     getCurveLiteNetworks,
-    constants: _curve.constants,
+    getNetworkConstants: _curve.getNetworkConstants,
     factory: {
         fetchPools: _curve.fetchFactoryPools,
         fetchNewPools: _curve.fetchNewFactoryPools,

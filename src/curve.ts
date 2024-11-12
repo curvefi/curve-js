@@ -16,7 +16,7 @@ import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
 import { getTricryptoFactoryPoolData } from "./factory/factory-tricrypto.js";
-import {IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType, Abi} from "./interfaces";
+import {IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType, Abi, INetworkConstants} from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
@@ -98,28 +98,7 @@ class Curve implements ICurve {
     constantOptions: { gasLimit?: number };
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };
     L1WeightedGasPrice?: number;
-    constants: {
-        NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
-        NETWORK_NAME: INetworkName,
-        ALIASES: IDict<string>,
-        POOLS_DATA: IDict<IPoolData>,
-        STABLE_FACTORY_CONSTANTS: { implementationABIDict?: IDict<any>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, stableNgBasePoolZap?: string }
-        CRYPTO_FACTORY_CONSTANTS: { lpTokenBasePoolIdDict?: IDict<string>, basePoolIdZapDict?: IDict<{ address: string, ABI: any }>, tricryptoDeployImplementations?: IDict<string | number> }
-        FACTORY_POOLS_DATA: IDict<IPoolData>,
-        CRVUSD_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        EYWA_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        TWOCRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>
-        TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        STABLE_NG_FACTORY_POOLS_DATA: IDict<IPoolData>,
-        BASE_POOLS: IDict<number>
-        LLAMMAS_DATA: IDict<IPoolData>,
-        COINS: IDict<string>,
-        DECIMALS: IDict<number>,
-        GAUGES: string[],
-        FACTORY_GAUGE_IMPLEMENTATIONS: IDict<IFactoryPoolType>,
-        ZERO_ADDRESS: string,
-    };
+    constants: INetworkConstants;
 
     constructor() {
         // @ts-ignore
@@ -135,7 +114,7 @@ class Curve implements ICurve {
         this.feeData = {}
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
-        this.constants ={
+        this.constants = {
             NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',
             ALIASES: {},
@@ -813,6 +792,10 @@ class Curve implements ICurve {
                 this.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
                 feeData.maxPriorityFeePerGas;
         }
+    }
+
+    getNetworkConstants = (): INetworkConstants => {
+        return this.constants
     }
 }
 

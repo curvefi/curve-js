@@ -425,10 +425,6 @@ export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => 
 
 const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export const _getUsdRate = async (assetId: string): Promise<number> => {
-    if(curve.isLiteChain) {
-        throw Error('This method is not supported for the lite version')
-    }
-
     if (curve.chainId === 1 && assetId.toLowerCase() === '0x8762db106b2c2a0bccb3a80d1ed41273552616e8') return 0; // RSR
     const pricesFromApi = await _getUsdPricesFromApi();
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
@@ -515,10 +511,6 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 }
 
 export const getUsdRate = async (coin: string): Promise<number> => {
-    if(curve.isLiteChain) {
-        throw Error('This method is not supported for the lite version')
-    }
-
     const [coinAddress] = _getCoinAddressesNoCheck(coin);
     return await _getUsdRate(coinAddress);
 }

@@ -288,6 +288,7 @@ export interface ICurveLiteNetwork {
     name: string
     rpcUrl: string
     explorerUrl: string
+    nativeCurrencySymbol: string
 }
 
 export type TVoteType = "PARAMETER" | "OWNERSHIP"

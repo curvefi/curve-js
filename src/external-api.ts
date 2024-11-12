@@ -317,6 +317,7 @@ export const _getCurveLiteNetworks = memoize(
                     rpcUrl: metadata.rpcUrl,
                     chainId: metadata.chainId,
                     explorerUrl: metadata.explorerBaseUrl,
+                    nativeCurrencySymbol: metadata.nativeCurrencySymbol,
                 };
             })
             .filter((network): network is ICurveLiteNetwork => network !== null);

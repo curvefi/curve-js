@@ -30,7 +30,7 @@ export const poolBalancesLendingMixin: IStatsPool = {
         const _poolWrappedBalances: bigint[] = await curve.multicallProvider.all(contractCalls);
 
         // @ts-ignore
-        const _rates: bigint[] = await this._getRates();
+        const _rates: bigint[] = await this.pool._getRates();
         const _poolUnderlyingBalances = _poolWrappedBalances.map(
             (_b: bigint, i: number) => _b * _rates[i] / curve.parseUnits(String(10**18), 0));
 

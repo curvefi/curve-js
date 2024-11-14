@@ -27,17 +27,25 @@ export const _getPoolsFromApi = memoize(
 )
 
 export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<IExtendedPoolDataFromApi[]> => {
-    return await Promise.all([
-        _getPoolsFromApi(network, "main", isLiteChain),
-        _getPoolsFromApi(network, "crypto", isLiteChain),
-        _getPoolsFromApi(network, "factory", isLiteChain),
-        _getPoolsFromApi(network, "factory-crvusd", isLiteChain),
-        _getPoolsFromApi(network, "factory-eywa", isLiteChain),
-        _getPoolsFromApi(network, "factory-crypto", isLiteChain),
-        _getPoolsFromApi(network, "factory-twocrypto", isLiteChain),
-        _getPoolsFromApi(network, "factory-tricrypto", isLiteChain),
-        _getPoolsFromApi(network, "factory-stable-ng", isLiteChain),
-    ]);
+    if(isLiteChain) {
+        return await Promise.all([
+            _getPoolsFromApi(network, "factory-twocrypto", isLiteChain),
+            _getPoolsFromApi(network, "factory-tricrypto", isLiteChain),
+            _getPoolsFromApi(network, "factory-stable-ng", isLiteChain),
+        ]);
+    } else {
+        return await Promise.all([
+            _getPoolsFromApi(network, "main", isLiteChain),
+            _getPoolsFromApi(network, "crypto", isLiteChain),
+            _getPoolsFromApi(network, "factory", isLiteChain),
+            _getPoolsFromApi(network, "factory-crvusd", isLiteChain),
+            _getPoolsFromApi(network, "factory-eywa", isLiteChain),
+            _getPoolsFromApi(network, "factory-crypto", isLiteChain),
+            _getPoolsFromApi(network, "factory-twocrypto", isLiteChain),
+            _getPoolsFromApi(network, "factory-tricrypto", isLiteChain),
+            _getPoolsFromApi(network, "factory-stable-ng", isLiteChain),
+        ]);
+    }
 }
 
 export const _getSubgraphData = memoize(

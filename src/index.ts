@@ -186,6 +186,7 @@ const curve = {
     hasRouter,
     getCurveLiteNetworks,
     getNetworkConstants: _curve.getNetworkConstants,
+    getIsLiteChain: _curve.getIsLiteChain,
     factory: {
         fetchPools: _curve.fetchFactoryPools,
         fetchNewPools: _curve.fetchNewFactoryPools,

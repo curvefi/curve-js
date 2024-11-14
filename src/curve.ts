@@ -797,6 +797,10 @@ class Curve implements ICurve {
     getNetworkConstants = (): INetworkConstants => {
         return this.constants
     }
+
+    getIsLiteChain = (): boolean => {
+        return this.isLiteChain
+    }
 }
 
 export const curve = new Curve();

@@ -359,7 +359,7 @@ export const getUserPoolList = async (address = curve.signerAddress, useApi = tr
 
 export const _getAmplificationCoefficientsFromApi = async (): Promise<IDict<number>> => {
     const network = curve.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);
     const amplificationCoefficientDict: IDict<number> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {

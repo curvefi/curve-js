@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { curve } from "../src/curve.js";
-import { ETH_RPC, ARBITRUM_RPC, AURORA_RPC } from "./rpcUrls.test.js";
+import { ETH_RPC } from "./rpcUrls.test.js";
 import { IDict, IPoolData } from "../src/interfaces.js";
 import { BLACK_LIST } from "../src/factory/factory.js";
 

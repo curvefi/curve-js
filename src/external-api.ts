@@ -290,6 +290,9 @@ export const _getLiteNetworksData = memoize(
                             : `W${native_currency_symbol}`,
                     wrappedAddress: wrapped_native_token,
                 },
+                API_CONSTANTS: {
+                    nativeTokenName: config.native_currency_coingecko_id,
+                },
             };
         } catch (error) {
             console.error('Error fetching network data:', error);

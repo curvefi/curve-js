@@ -73,6 +73,9 @@ export interface INetworkConstants {
     GAUGES: string[],
     FACTORY_GAUGE_IMPLEMENTATIONS: any,
     ZERO_ADDRESS: string,
+    API_CONSTANTS?: {
+        nativeTokenName: string
+    }
 }
 
 export interface ICurve {

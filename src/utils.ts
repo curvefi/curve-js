@@ -431,7 +431,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
 
     if (assetId === 'USD' || (curve.chainId === 137 && (assetId.toLowerCase() === curve.constants.COINS.am3crv.toLowerCase()))) return 1
 
-    let chainName = {
+    let chainName = curve.isLiteChain? await curve.constants.NETWORK_NAME : {
         1: 'ethereum',
         10: 'optimistic-ethereum',
         56: "binance-smart-chain",
@@ -451,7 +451,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         1313161554: 'aurora',
     }[curve.chainId];
 
-    const nativeTokenName = {
+    const nativeTokenName = curve.isLiteChain ? curve.constants?.API_CONSTANTS?.nativeTokenName:{
         1: 'ethereum',
         10: 'ethereum',
         56: 'binancecoin',
@@ -475,6 +475,10 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         throw Error('curve object is not initialized')
     }
 
+    if (nativeTokenName === undefined) {
+        throw Error('nativeTokenName not found')
+    }
+
     assetId = {
         'CRV': 'curve-dao-token',
         'EUR': 'stasis-eurs',
@@ -482,6 +486,7 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         'ETH': 'ethereum',
         'LINK': 'link',
     }[assetId.toUpperCase()] || assetId
+
     assetId = isEth(assetId) ? nativeTokenName : assetId.toLowerCase();
 
     // No EURT on Coingecko Polygon

@@ -246,6 +246,11 @@ class Curve implements ICurve {
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.address] = 18;
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.wrappedAddress] = 18;
         this.constants.GAUGES = extractGauges(this.constants.POOLS_DATA);
+
+        if(this.isLiteChain) {
+            this.constants.API_CONSTANTS = network_constants.API_CONSTANTS
+        }
+
         const [cTokens, yTokens, ycTokens, aTokens] = [
             network_constants.cTokens ?? [],
             network_constants.yTokens ?? [],

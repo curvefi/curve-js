@@ -16,7 +16,7 @@ import { getFactoryPoolData } from "./factory/factory.js";
 import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
 import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
 import { getTricryptoFactoryPoolData } from "./factory/factory-tricrypto.js";
-import {IPoolData, IDict, ICurve, INetworkName, IChainId, IFactoryPoolType, Abi, INetworkConstants} from "./interfaces";
+import {IPoolData, IDict, ICurve, IChainId, IFactoryPoolType, Abi, INetworkConstants} from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' assert { type: 'json' };
 import cERC20Abi from './constants/abis/cERC20.json' assert { type: 'json' };
 import yERC20Abi from './constants/abis/yERC20.json' assert { type: 'json' };
@@ -30,6 +30,7 @@ import feeDistributorABI from './constants/abis/fee_distributor.json' assert { t
 import feeDistributorCrvUSDABI from './constants/abis/fee_distributor_crvusd.json' assert { type: 'json' };
 import gaugeControllerABI from './constants/abis/gaugecontroller.json' assert { type: 'json' };
 import depositAndStakeABI from './constants/abis/deposit_and_stake.json' assert { type: 'json' };
+import depositAndStakeNgOnlyABI from './constants/abis/deposit_and_stake_ng_only.json' assert { type: 'json' };
 import cryptoCalcZapABI from './constants/abis/crypto_calc.json' assert { type: 'json'};
 import StableCalcZapABI from './constants/abis/stable_calc.json' assert { type: 'json' };
 import routerABI from './constants/abis/router.json' assert { type: 'json' };
@@ -55,6 +56,9 @@ import {_getHiddenPools} from "./external-api.js";
 import { L2Networks } from "./constants/L2Networks.js";
 import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
 import {getNetworkConstants} from "./utils.js";
+
+
+export const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
 
 export const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
     const cache: Record<string, Contract> = {};
@@ -369,7 +373,11 @@ class Curve implements ICurve {
             this.setContract(this.constants.ALIASES.router, routerNgPoolsOnlyABI);
         }
 
-        this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI);
+        if (OLD_CHAINS.includes(this.chainId)) {
+            this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeABI);
+        } else {
+            this.setContract(this.constants.ALIASES.deposit_and_stake, depositAndStakeNgOnlyABI);
+        }
 
         this.setContract(this.constants.ALIASES.crypto_calc, cryptoCalcZapABI);
 

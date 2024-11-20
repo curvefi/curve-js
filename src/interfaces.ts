@@ -75,6 +75,7 @@ export interface INetworkConstants {
     ZERO_ADDRESS: string,
     API_CONSTANTS?: {
         nativeTokenName: string
+        wrappedNativeTokenAddress: string
     }
 }
 

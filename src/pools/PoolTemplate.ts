@@ -28,7 +28,7 @@ import {
     PERIODS,
 } from '../utils.js';
 import {IDict, IProfit} from '../interfaces';
-import { curve } from "../curve.js";
+import { curve, OLD_CHAINS } from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
 import {CorePool} from "./subClasses/corePool.js";
 import {StatsPool} from "./subClasses/statsPool.js";
@@ -1227,6 +1227,7 @@ export class PoolTemplate extends CorePool {
 
         const contract = curve.contracts[curve.constants.ALIASES.deposit_and_stake].contract;
         const useUnderlying = isUnderlying && (this.isLending || (this.isCrypto && !this.isPlain)) && (!this.zap || this.id == 'avaxcrypto');
+        const useDynarray = (!this.isCrypto && this.isNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isNg);
         const _expectedLpTokenAmount = isUnderlying ?
             curve.parseUnits(await this.depositAndStakeExpected(amounts)) :
             curve.parseUnits(await this.depositAndStakeWrappedExpected(amounts));
@@ -1235,37 +1236,68 @@ export class PoolTemplate extends CorePool {
         const ethIndex = getEthIndex(coinAddresses);
         const value = _amounts[ethIndex] || curve.parseUnits("0");
 
-        const _gas = (await contract.deposit_and_stake.estimateGas(
-            depositAddress,
-            this.lpToken,
-            this.gauge.address,
-            coins.length,
-            coinAddresses,
-            _amounts,
-            _minMintAmount,
-            useUnderlying,
-            (!this.isCrypto && this.isNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isNg),
-            this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
-            { ...curve.constantOptions, value }
-        ))
+        let _gas = BigInt(0)
+        if (OLD_CHAINS.includes(curve.chainId)) {
+            _gas = (await contract.deposit_and_stake.estimateGas(
+                depositAddress,
+                this.lpToken,
+                this.gauge.address,
+                coins.length,
+                coinAddresses,
+                _amounts,
+                _minMintAmount,
+                useUnderlying,  // <--- DIFFERENCE
+                useDynarray,
+                this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
+                {...curve.constantOptions, value}
+            ))
+        } else {
+            _gas = (await contract.deposit_and_stake.estimateGas(
+                depositAddress,
+                this.lpToken,
+                this.gauge.address,
+                coins.length,
+                coinAddresses,
+                _amounts,
+                _minMintAmount,
+                useDynarray,
+                this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
+                {...curve.constantOptions, value}
+            ))
+        }
 
         if (estimateGas) return smartNumber(_gas)
 
         await curve.updateFeeData();
         const gasLimit = DIGas(_gas) * curve.parseUnits("200", 0) / curve.parseUnits("100", 0);
-        return (await contract.deposit_and_stake(
-            depositAddress,
-            this.lpToken,
-            this.gauge.address,
-            coins.length,
-            coinAddresses,
-            _amounts,
-            _minMintAmount,
-            useUnderlying,
-            (!this.isCrypto && this.isNg && this.isPlain) || (isUnderlying && this.isMeta && (new PoolTemplate(this.basePool)).isNg),
-            this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
-            { ...curve.options, gasLimit, value }
-        )).hash
+        if (OLD_CHAINS.includes(curve.chainId)) {
+            return (await contract.deposit_and_stake(
+                depositAddress,
+                this.lpToken,
+                this.gauge.address,
+                coins.length,
+                coinAddresses,
+                _amounts,
+                _minMintAmount,
+                useUnderlying,  // <--- DIFFERENCE
+                useDynarray,
+                this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
+                {...curve.options, gasLimit, value}
+            )).hash
+        } else {
+            return (await contract.deposit_and_stake(
+                depositAddress,
+                this.lpToken,
+                this.gauge.address,
+                coins.length,
+                coinAddresses,
+                _amounts,
+                _minMintAmount,
+                useDynarray,
+                this.isMetaFactory && isUnderlying ? this.address : curve.constants.ZERO_ADDRESS,
+                {...curve.options, gasLimit, value}
+            )).hash
+        }
     }
 
     // ---------------- WITHDRAW ----------------

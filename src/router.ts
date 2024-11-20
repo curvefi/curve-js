@@ -2,7 +2,7 @@ import axios from "axios";
 import memoize from "memoizee";
 import BigNumber from "bignumber.js";
 import {ethers} from "ethers";
-import {curve} from "./curve.js";
+import { curve, OLD_CHAINS } from "./curve.js";
 import {IDict, IRoute, IRouteOutputAndCost, IRouteStep} from "./interfaces";
 import {
     _cutZeros,
@@ -34,8 +34,6 @@ import {IRouteGraphInput, routeGraphWorker, routeGraphWorkerCode} from "./route-
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
-
-const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
 
 const _getTVL = memoize(
     async (poolId: string) => Number(await (getPool(poolId)).stats.totalLiquidity()),

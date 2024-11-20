@@ -361,7 +361,7 @@ const ALIASES_FRAXTAL = lowerCaseValues({
     "address_provider": "0x0000000000000000000000000000000000000000",
 
     "router": "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db",
-    "deposit_and_stake": "0x0fE38dCC905eC14F6099a83Ac5C93BF2601300CF",
+    "deposit_and_stake": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
 
     "stable_ng_factory": '0xd2002373543Ce3527023C75e7518C274A51ce712',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
@@ -399,7 +399,7 @@ const ALIASES_MANTLE = lowerCaseValues({
     "address_provider": "0x0000000000000000000000000000000000000000",
 
     "router": "0x4f37A9d177470499A2dD084621020b023fcffc1F",
-    "deposit_and_stake": "0x5552b631e2ad801faa129aacf4b701071cc9d1f7",
+    "deposit_and_stake": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
 
     "stable_ng_factory": '0x5eeE3091f747E60a045a2E715a4c71e600e31F6E',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',

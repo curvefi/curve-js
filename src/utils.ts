@@ -624,10 +624,6 @@ const _getNetworkName = (network: INetworkName | IChainId = curve.chainId): INet
 }
 
 export const getTVL = async (network: INetworkName | IChainId = curve.chainId): Promise<number> => {
-    if(curve.isLiteChain) {
-        throw Error('This method is not supported for the lite version')
-    }
-
     network = _getNetworkName(network);
     const allTypesExtendedPoolData = await _getAllPoolsFromApi(network);
 

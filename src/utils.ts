@@ -500,6 +500,10 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
         assetId = 'curve-dao-token';
     }
 
+    if(curve.isLiteChain && assetId.toLowerCase() === curve.constants.API_CONSTANTS?.wrappedNativeTokenAddress.toLowerCase()) {
+        assetId = nativeTokenName
+    }
+
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
         const url = [nativeTokenName, 'ethereum', 'bitcoin', 'link', 'curve-dao-token', 'stasis-eurs'].includes(assetId.toLowerCase()) ?
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :

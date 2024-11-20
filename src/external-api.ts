@@ -292,6 +292,7 @@ export const _getLiteNetworksData = memoize(
                 },
                 API_CONSTANTS: {
                     nativeTokenName: config.native_currency_coingecko_id,
+                    wrappedNativeTokenAddress: config.wrapped_native_token,
                 },
             };
         } catch (error) {

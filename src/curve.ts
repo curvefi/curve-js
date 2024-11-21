@@ -236,7 +236,7 @@ class Curve implements ICurve {
 
         this.isLiteChain = !(this.chainId in NETWORK_CONSTANTS);
 
-        const network_constants = await getNetworkConstants(this.chainId, this.isLiteChain);
+        const network_constants = await getNetworkConstants(this.chainId);
         this.constants.NATIVE_TOKEN = network_constants.NATIVE_COIN;
         this.constants.NETWORK_NAME = network_constants.NAME;
         this.constants.ALIASES = network_constants.ALIASES;

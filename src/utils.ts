@@ -622,34 +622,19 @@ export const getNetworkNameByChainId = (chainId: number, networks: ICurveLiteNet
     return network ? network.id : "Unknown Network";
 }
 
-export const getNetworkConstants = async (chainId: IChainId | number, isLiteChain: boolean): Promise<IDict<any>> => {
-    if(isLiteChain) {
+export const getNetworkConstants = async (chainId: IChainId | number): Promise<IDict<any>> => {
+    if (chainId in NETWORK_CONSTANTS) {
+        return { ...NETWORK_CONSTANTS[chainId], IS_LITE_CHAIN: false};
+    } else {
         const NAME = getNetworkNameByChainId(chainId, await _getCurveLiteNetworks());
         if (NAME === "Unknown Network") throw Error(`Wrong chain id: ${chainId}`);
-        return  {... await _getLiteNetworksData(NAME), NAME };
-    } else {
-        if (chainId in NETWORK_CONSTANTS) {
-            return NETWORK_CONSTANTS[chainId] || {};
-        } else {
-            throw Error(`Wrong chain id: ${chainId}`);
-        }
+        return  {... await _getLiteNetworksData(NAME), NAME, IS_LITE_CHAIN: true };
     }
 }
 
-const _getNetworkName = async (network: INetworkName | IChainId = curve.chainId): Promise<INetworkName> => {
-    if (typeof network === "number") {
-        const network_constants = await getNetworkConstants(network, curve.isLiteChain);
-        return network_constants.NAME;
-    } else if (Object.values(NETWORK_CONSTANTS).map((n) => n.NAME).includes(network)) {
-        return network;
-    } else {
-        throw Error(`Wrong network name or id: ${network}`);
-    }
-}
-
-export const getTVL = async (network: INetworkName | IChainId = curve.chainId, isLiteChain = curve.isLiteChain): Promise<number> => {
-    network = await _getNetworkName(network);
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, isLiteChain);
+export const getTVL = async (chainId = curve.chainId): Promise<number> => {
+    const networkConstants = await getNetworkConstants(chainId);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(networkConstants.NAME, networkConstants.IS_LITE_CHAIN);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }
@@ -672,13 +657,13 @@ export const getVolumeApiController = async (network: INetworkName): Promise<IVo
     throw Error(`Can't get volume for network: ${network}`);
 }
 
-export const getVolume = async (network: INetworkName | IChainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
+export const getVolume = async (chainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
     if(curve.isLiteChain) {
         throw Error('This method is not supported for the lite version')
     }
 
-    network = await _getNetworkName(network);
-    const { totalVolume, cryptoVolume, cryptoShare } = await getVolumeApiController(network);
+    const networkConstants = await getNetworkConstants(chainId);
+    const { totalVolume, cryptoVolume, cryptoShare } = await getVolumeApiController(networkConstants.NAME);
     return { totalVolume, cryptoVolume, cryptoShare }
 }
 

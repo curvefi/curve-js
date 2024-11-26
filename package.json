@@ -1,11 +1,14 @@
 {
   "name": "@curvefi/api",
-  "version": "2.65.13",
+  "version": "3.0.0",
   "description": "JavaScript library for curve.fi",
   "main": "lib/index.js",
   "author": "Macket",
   "license": "MIT",
   "private": false,
+  "engines": {
+    "node": "22"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/curvefi/curve-js.git"

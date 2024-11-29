@@ -1,6 +1,6 @@
 // important: only type imports, the worker needs to be standalone
 import type {IChainId, IDict, IPoolData, IRouteStep, ISwapType} from "./interfaces";
-import type {curve} from "./curve";
+import { curve } from "./curve.js";
 
 export type IRouteGraphInput = {
     constants: typeof curve['constants'],
@@ -253,7 +253,7 @@ export function routeGraphWorker() {
             const tvl = poolTvlDict[poolId] * tvlMultiplier;
             // Skip empty pools
             if (chainId === 1 && tvl < 1000) continue;
-            if (chainId !== 1 && tvl < 100) continue;
+            if (chainId !== 1 && !curve.isLiteChain && tvl < 100) continue;
 
             const excludedUnderlyingSwaps = (poolId === 'ib' && chainId === 1) ||
             (poolId === 'geist' && chainId === 250) ||

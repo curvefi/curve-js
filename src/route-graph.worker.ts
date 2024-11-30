@@ -1,10 +1,11 @@
 // important: only type imports, the worker needs to be standalone
 import type {IChainId, IDict, IPoolData, IRouteStep, ISwapType} from "./interfaces";
-import { curve } from "./curve.js";
+import type {curve} from "./curve";
 
 export type IRouteGraphInput = {
     constants: typeof curve['constants'],
     chainId: IChainId,
+    isLiteChain: boolean,
     allPools: [string, IPoolData][],
     amplificationCoefficientDict: IDict<number>,
     poolTvlDict: IDict<number>
@@ -24,7 +25,7 @@ export function routeGraphWorker() {
         },
     }
 
-    const createRouteGraph = ({constants, chainId, allPools, amplificationCoefficientDict, poolTvlDict}: IRouteGraphInput): IDict<IDict<IRouteStep[]>> => {
+    const createRouteGraph = ({constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict}: IRouteGraphInput): IDict<IDict<IRouteStep[]>> => {
         const routerGraph: IDict<IDict<IRouteStep[]>> = {}
         // ETH <-> WETH (exclude Celo)
         if (chainId !== 42220) {
@@ -253,7 +254,7 @@ export function routeGraphWorker() {
             const tvl = poolTvlDict[poolId] * tvlMultiplier;
             // Skip empty pools
             if (chainId === 1 && tvl < 1000) continue;
-            if (chainId !== 1 && !curve.isLiteChain && tvl < 100) continue;
+            if (chainId !== 1 && !isLiteChain && tvl < 100) continue;
 
             const excludedUnderlyingSwaps = (poolId === 'ib' && chainId === 1) ||
             (poolId === 'geist' && chainId === 250) ||

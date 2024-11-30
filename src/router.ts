@@ -54,12 +54,12 @@ function mapDict<T, U>(dict: IDict<T>, mapper: (key: string, value: T) => U): ID
     return result;
 }
 
-const _buildRouteGraph = memoize(async (chainId: IChainId): Promise<IDict<IDict<IRouteStep[]>>> => {
+const _buildRouteGraph = memoize(async (chainId: IChainId, isLiteChain: boolean): Promise<IDict<IDict<IRouteStep[]>>> => {
     const constants = curve.constants;
     const allPools = Object.entries(curve.getPoolsData()).filter(([id]) => !["crveth", "y", "busd", "pax"].includes(id));
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi();
     const poolTvlDict: IDict<number> = await entriesToDictAsync(allPools, _getTVL);
-    const input: IRouteGraphInput = {constants, chainId, allPools, amplificationCoefficientDict, poolTvlDict};
+    const input: IRouteGraphInput = {constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict};
     return runWorker(routeGraphWorkerCode, routeGraphWorker, {type: 'createRouteGraph', ...input});
 },
 {
@@ -68,7 +68,7 @@ const _buildRouteGraph = memoize(async (chainId: IChainId): Promise<IDict<IDict<
 });
 
 const _findRoutes = async (inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]>  => {
-    const routerGraph = await _buildRouteGraph(curve.chainId); // It's important to pass chainId to not use cache from another network
+    const routerGraph = await _buildRouteGraph(curve.chainId, curve.isLiteChain); // It's important to pass chainId to not use cache from another network
     // extract only the fields we need for the worker
     const poolData = mapDict(
         curve.getPoolsData(),

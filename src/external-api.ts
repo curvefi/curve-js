@@ -1,15 +1,15 @@
 import axios from "axios";
 import memoize from "memoizee";
 import {
-    IExtendedPoolDataFromApi,
-    IDict,
-    INetworkName,
-    IPoolType,
-    IGaugesDataFromApi,
+    ICurveLiteNetwork,
     IDaoProposal,
     IDaoProposalListItem,
+    IDict,
+    IExtendedPoolDataFromApi,
+    IGaugesDataFromApi,
+    INetworkName,
+    IPoolType,
     IVolumeAndAPYs,
-    ICurveLiteNetwork,
 } from "./interfaces";
 
 
@@ -317,24 +317,20 @@ export const _getCurveLiteNetworks = memoize(
         }
 
         const { platforms, platformsMetadata } = response.data.data;
-
-        const networks: ICurveLiteNetwork[] = Object.entries(platforms)
-            .map(([platformId, _factories]) => {
-                const metadata = platformsMetadata[platformId];
-                if (!metadata) return null;
-
-                return {
-                    id: platformId,
-                    name: metadata.name,
-                    rpcUrl: metadata.rpcUrl,
-                    chainId: metadata.chainId,
-                    explorerUrl: metadata.explorerBaseUrl,
-                    nativeCurrencySymbol: metadata.nativeCurrencySymbol,
+        return Object.keys(platforms)
+            .map((id) => {
+                const { name, rpcUrl, nativeCurrencySymbol, explorerBaseUrl, isMainnet, chainId} = platformsMetadata[id] ?? {};
+                return name && {
+                    id,
+                    name,
+                    rpcUrl,
+                    chainId,
+                    explorerUrl: explorerBaseUrl,
+                    nativeCurrencySymbol,
+                    isTestnet: !isMainnet,
                 };
             })
-            .filter((network): network is ICurveLiteNetwork => network !== null);
-
-        return networks;
+            .filter(Boolean);
     },
     {
         promise: true,

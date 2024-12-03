@@ -318,9 +318,9 @@ export const _getCurveLiteNetworks = memoize(
 
         const { platforms, platformsMetadata } = response.data.data;
         return Object.keys(platforms)
-            .map(id => {
-                const {explorerBaseUrl, name, rpcUrl, nativeCurrencySymbol, isMainnet, chainId} = platformsMetadata[id];
-                return {
+            .map((id) => {
+                const { name, rpcUrl, nativeCurrencySymbol, explorerBaseUrl, isMainnet, chainId} = platformsMetadata[id] ?? {};
+                return name && {
                     id,
                     name,
                     rpcUrl,
@@ -330,7 +330,7 @@ export const _getCurveLiteNetworks = memoize(
                     isTestnet: !isMainnet,
                 };
             })
-            .filter(({ name }) => name);
+            .filter(Boolean);
     },
     {
         promise: true,

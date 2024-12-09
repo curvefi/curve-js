@@ -507,12 +507,35 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
         const url = [nativeTokenName, 'ethereum', 'bitcoin', 'link', 'curve-dao-token', 'stasis-eurs'].includes(assetId.toLowerCase()) ?
             `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
-            `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`
-        const response = await axios.get(url);
+            `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`;
+
         try {
-            _usdRatesCache[assetId] = {'rate': response.data[assetId]['usd'] ?? 0, 'time': Date.now()};
-        } catch (err) { // TODO pay attention!
-            _usdRatesCache[assetId] = {'rate': 0, 'time': Date.now()};
+            const response = await axios.get(url, {
+                validateStatus: (status) => status < 500,
+            });
+
+            if (response.status === 200 && response.data[assetId]?.usd !== undefined) {
+                _usdRatesCache[assetId] = {
+                    'rate': response.data[assetId].usd,
+                    'time': Date.now(),
+                };
+            } else {
+                if (!curve.isLiteChain) {
+                    console.warn(`Non-200 response for ${assetId}:`, response.status, response.data);
+                }
+                _usdRatesCache[assetId] = {
+                    'rate': 0,
+                    'time': Date.now(),
+                };
+            }
+        } catch (err: any) {
+            if (!curve.isLiteChain) {
+                console.error(`Error fetching USD rate for ${assetId}:`, err.message);
+            }
+            _usdRatesCache[assetId] = {
+                'rate': 0,
+                'time': Date.now(),
+            };
         }
     }
 

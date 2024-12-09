@@ -102,7 +102,7 @@ const _deployStableNgPlainPool = async (
     offpegFeeMultiplier: number | string,
     assetTypes: Array<0 | 1 | 2 | 3>, // 0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
     implementationIdx: 0,
-    emaTime = 600, // seconds
+    emaTime = 866, // seconds
     oracleAddresses: string[],
     methodNames: string[],
     estimateGas: boolean
@@ -286,7 +286,7 @@ const _deployStableNgMetaPool = async (
     fee: number | string, // %
     offpegFeeMultiplier: number | string,
     assetType: 0 | 1 | 2 | 3, // 0 = Standard, 1 = Oracle, 2 = Rebasing, 3 = ERC4626
-    emaTime = 600, // seconds
+    emaTime = 866, // seconds
     implementationIdx = 0,
     methodName = "0x00000000",
     oracleAddress = curve.constants.ZERO_ADDRESS,

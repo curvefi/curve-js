@@ -21,6 +21,9 @@ import curve from "@curvefi/api";
     
     // 3. Web3 provider
     await curve.init('Web3', { externalProvider: <WEB3_PROVIDER> }, { chainId: 1 });
+
+    // 4. Without RPC
+    await curve.init('NoRPC', {chainId: 1, networkName: 'ETHEREUM'});
     
     // Fetch factory pools
     await curve.factory.fetchPools();

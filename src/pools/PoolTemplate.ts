@@ -374,16 +374,31 @@ export class PoolTemplate extends CorePool {
     public async depositBonus(amounts: (number | string)[]): Promise<string> {
         const amountsBN = amounts.map(BN);
         let pricesBN: BigNumber[] = [];
-
+        const multicallContract = curve.contracts[this.address].multicallContract;
         if(this.isCrypto || this.id === 'wsteth') {
-            pricesBN = (await this._underlyingPrices()).map(BN);
+            if(curve.isLiteChain) {
+                const prices = this.id.includes('twocrypto')
+                    ? [
+                        1,
+                        Number(await curve.contracts[this.address].contract.price_oracle()) / (10 ** 18),
+                    ]
+                    : [
+                        1,
+                        ...(await curve.multicallProvider.all([
+                            multicallContract.price_oracle(0),
+                            multicallContract.price_oracle(1),
+                        ])).map((value) => Number(value) / (10 ** 18)),
+                    ]
+                pricesBN = prices.map(BN);
+            } else {
+                pricesBN = (await this._underlyingPrices()).map(BN);
+            }
         } else {
             pricesBN = await this._storedRatesBN(true);
         }
 
         const balancesBN = (await this.stats.underlyingBalances()).map(BN);
         const balancedAmounts = this._balancedAmountsWithSameValue(amountsBN, pricesBN, balancesBN);
-
         const expectedBN = BN(await this.depositExpected(amounts));
         const balancedExpectedBN = BN(await this.depositExpected(balancedAmounts));
 

@@ -29,7 +29,7 @@ import {
 } from '../utils.js';
 import {IDict, IProfit} from '../interfaces';
 import { curve, OLD_CHAINS } from "../curve.js";
-import ERC20Abi from '../constants/abis/ERC20.json' assert { type: 'json' };
+import ERC20Abi from '../constants/abis/ERC20.json' with { type: 'json' };
 import {CorePool} from "./subClasses/corePool.js";
 import {StatsPool} from "./subClasses/statsPool.js";
 import {WalletPool} from "./subClasses/walletPool.js";

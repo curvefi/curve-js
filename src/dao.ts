@@ -19,7 +19,7 @@ import {
     IDict,
     TVoteType,
 } from './interfaces';
-import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" assert { type: 'json' };
+import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" with { type: 'json' };
 
 
 // ----------------- Refactored boosting stuff -----------------

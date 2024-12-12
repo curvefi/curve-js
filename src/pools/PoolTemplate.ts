@@ -1374,9 +1374,25 @@ export class PoolTemplate extends CorePool {
 
     public async withdrawImbalanceBonus(amounts: (number | string)[]): Promise<string> {
         let pricesBN: BigNumber[] = [];
-
+        const multicallContract = curve.contracts[this.address].multicallContract;
         if(this.isCrypto || this.id === 'wsteth') {
-            pricesBN = (await this._underlyingPrices()).map(BN);
+            if(curve.isLiteChain) {
+                const prices = this.id.includes('twocrypto')
+                    ? [
+                        1,
+                        Number(await curve.contracts[this.address].contract.price_oracle()) / (10 ** 18),
+                    ]
+                    : [
+                        1,
+                        ...(await curve.multicallProvider.all([
+                            multicallContract.price_oracle(0),
+                            multicallContract.price_oracle(1),
+                        ])).map((value) => Number(value) / (10 ** 18)),
+                    ]
+                pricesBN = prices.map(BN);
+            } else {
+                pricesBN = (await this._underlyingPrices()).map(BN);
+            }
         } else {
             pricesBN = await this._storedRatesBN(true);
         }
@@ -1484,8 +1500,25 @@ export class PoolTemplate extends CorePool {
     public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
         let pricesBN: BigNumber[] = [];
 
+        const multicallContract = curve.contracts[this.address].multicallContract;
         if(this.isCrypto || this.id === 'wsteth') {
-            pricesBN = (await this._underlyingPrices()).map(BN);
+            if(curve.isLiteChain) {
+                const prices = this.id.includes('twocrypto')
+                    ? [
+                        1,
+                        Number(await curve.contracts[this.address].contract.price_oracle()) / (10 ** 18),
+                    ]
+                    : [
+                        1,
+                        ...(await curve.multicallProvider.all([
+                            multicallContract.price_oracle(0),
+                            multicallContract.price_oracle(1),
+                        ])).map((value) => Number(value) / (10 ** 18)),
+                    ]
+                pricesBN = prices.map(BN);
+            } else {
+                pricesBN = (await this._underlyingPrices()).map(BN);
+            }
         } else {
             pricesBN = await this._storedRatesBN(true);
         }

@@ -18,26 +18,29 @@
   },
   "scripts": {
     "build": "rm -rf lib && tsc -p tsconfig.build.json",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src"
   },
   "type": "module",
   "devDependencies": {
+    "@babel/eslint-parser": "^7.25.9",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.16.0",
     "@types/chai": "^5.0.1",
     "@types/memoizee": "^0.4.11",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.10.2",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
-    "@babel/eslint-parser": "^7.25.9",
     "chai": "^5.1.2",
     "eslint": "^9.16.0",
+    "globals": "^15.13.0",
     "mocha": "^11.0.1",
     "typescript": "^5.7.2",
     "vue-eslint-parser": "^9.4.3"
   },
   "dependencies": {
-    "bignumber.js": "^9.1.2",
     "@curvefi/ethcall": "6.0.7",
+    "bignumber.js": "^9.1.2",
     "ethers": "^6.13.4",
     "memoizee": "^0.4.17"
   }

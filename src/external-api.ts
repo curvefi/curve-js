@@ -181,7 +181,7 @@ export const _getDaoProposalList = memoize(async (): Promise<IDaoProposalListIte
 })
 
 export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> =>
-        fetchJson(`https://api-py.llama.airforce/curve/v1/dao/proposals/${type.toLowerCase()}/${id}`),
+    fetchJson(`https://api-py.llama.airforce/curve/v1/dao/proposals/${type.toLowerCase()}/${id}`),
 {
     promise: true,
     maxAge: 5 * 60 * 1000, // 5m

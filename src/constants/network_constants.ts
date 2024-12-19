@@ -233,7 +233,7 @@ const ALIASES_AURORA = lowerCaseValues({
     "deposit_and_stake": "0x0000000000000000000000000000000000000000",
     "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4", // <-- CHANGED
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
-    "factory": '0xb9fc157394af804a3578134a6585c0dc9cc990d4', // <--- TODO CHANGE
+    "factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- TODO CHANGE
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
     "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE

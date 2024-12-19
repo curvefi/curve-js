@@ -1,7 +1,7 @@
 import { IDict, IPoolData } from "../../interfaces";
 import { lowerCasePoolDataAddresses } from "../utils.js";
-import tripoolSwapABI from '../abis/3pool-optimism/swap.json' assert { type: 'json' };
-import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json' assert { type: 'json' };
+import tripoolSwapABI from '../abis/3pool-optimism/swap.json' with { type: 'json' };
+import gaugeRewardsOnlyABI from '../abis/gauge_rewards_only.json' with { type: 'json' };
 
 export const POOLS_DATA_AURORA: IDict<IPoolData> = lowerCasePoolDataAddresses({
     '3pool': {

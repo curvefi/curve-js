@@ -1,4 +1,3 @@
-import axios from "axios";
 import memoize from "memoizee";
 import BigNumber from "bignumber.js";
 import {ethers} from "ethers";
@@ -257,10 +256,10 @@ const _getBestRoute = memoize(
         const [gasAmounts, outputCoinUsdRate, gasData, ethUsdRate] = await Promise.all([
             _estimateGasForDifferentRoutes(routes.map((r) => r.route), inputCoinAddress, outputCoinAddress, _amount),
             _getUsdRate(outputCoinAddress),
-            axios.get("https://api.curve.fi/api/getGas"),
+            fetch("https://api.curve.fi/api/getGas").then((res) => res.json()),
             _getUsdRate(ETH_ADDRESS),
         ]);
-        const gasPrice = gasData.data.data.gas.standard;
+        const gasPrice = gasData.data.gas.standard;
         const expectedAmounts = (routes).map(
             (route) => Number(curve.formatUnits(route._output, outputCoinDecimals))
         );

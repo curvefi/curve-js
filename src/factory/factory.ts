@@ -1,12 +1,12 @@
 import { Contract as MulticallContract } from "@curvefi/ethcall";
 import { curve } from "../curve.js";
 import {IDict, IPoolData, ICurve, REFERENCE_ASSET, IPoolDataShort} from "../interfaces";
-import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
-import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" assert { type: 'json' };
+import ERC20ABI from "../constants/abis/ERC20.json" with { type: 'json' };
+import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with { type: 'json' };
 import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" assert {type: 'json'};
-import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
-import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
-import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" assert { type: 'json' };
+import factoryGaugeABI from "../constants/abis/gauge_factory.json" with { type: 'json' };
+import gaugeChildABI from "../constants/abis/gauge_child.json" with { type: 'json' };
+import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with { type: 'json' };
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import {getPoolName, isStableNgPool} from "../utils.js";
 

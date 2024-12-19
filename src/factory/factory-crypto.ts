@@ -1,9 +1,9 @@
 import { IDict, IPoolData, ICurve } from "../interfaces";
 import { curve } from "../curve.js";
-import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
-import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" assert { type: 'json' };
-import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
-import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
+import ERC20ABI from "../constants/abis/ERC20.json" with { type: 'json' };
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" with { type: 'json' };
+import factoryGaugeABI from "../constants/abis/gauge_factory.json" with { type: 'json' };
+import gaugeChildABI from "../constants/abis/gauge_child.json" with { type: 'json' };
 import { setFactoryZapContracts } from "./common.js";
 
 

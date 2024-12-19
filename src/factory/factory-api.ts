@@ -1,18 +1,18 @@
 import { curve } from "../curve.js";
 import { IDict, IFactoryPoolType, IPoolData, ICurve, IPoolDataFromApi } from "../interfaces";
-import factoryGaugeABI from "../constants/abis/gauge_factory.json" assert { type: 'json' };
-import gaugeChildABI from "../constants/abis/gauge_child.json" assert { type: 'json' };
-import ERC20ABI from "../constants/abis/ERC20.json" assert { type: 'json' };
-import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" assert { type: 'json' };
-import twocryptoFactorySwapABI from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" assert { type: 'json' };
-import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" assert { type: 'json' };
-import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" assert { type: 'json' };
+import factoryGaugeABI from "../constants/abis/gauge_factory.json" with { type: 'json' };
+import gaugeChildABI from "../constants/abis/gauge_child.json" with { type: 'json' };
+import ERC20ABI from "../constants/abis/ERC20.json" with { type: 'json' };
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" with { type: 'json' };
+import twocryptoFactorySwapABI from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" with { type: 'json' };
+import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" with { type: 'json' };
+import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" with { type: 'json' };
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
 import { _getPoolsFromApi } from "../external-api.js";
 import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
-import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" assert { type: 'json' };
-import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" assert { type: 'json' };
-import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" assert { type: 'json' };
+import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with { type: 'json' };
+import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with { type: 'json' };
+import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with { type: 'json' };
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {

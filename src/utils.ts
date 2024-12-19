@@ -1,9 +1,9 @@
-import axios from 'axios';
 import {Contract} from 'ethers';
 import {Contract as MulticallContract} from "@curvefi/ethcall";
 import BigNumber from 'bignumber.js';
 import {
-    Abi, AbiFunction,
+    Abi,
+    AbiFunction,
     IBasePoolShortItem,
     IChainId,
     ICurveLiteNetwork,
@@ -13,11 +13,12 @@ import {
     IVolumeAndAPYs,
     REFERENCE_ASSET,
 } from './interfaces';
-import { curve } from "./curve.js";
+import {curve} from "./curve.js";
 import {
     _getAllPoolsFromApi,
     _getCurveLiteNetworks,
-    _getFactoryAPYs, _getLiteNetworksData,
+    _getFactoryAPYs,
+    _getLiteNetworksData,
     _getSubgraphData,
     _getVolumes,
 } from "./external-api.js";
@@ -510,18 +511,17 @@ export const _getUsdRate = async (assetId: string): Promise<number> => {
             `https://api.coingecko.com/api/v3/simple/token_price/${chainName}?contract_addresses=${assetId}&vs_currencies=usd`;
 
         try {
-            const response = await axios.get(url, {
-                validateStatus: (status) => status < 500,
-            });
+            const response = await fetch(url);
+            const data = await response.json() ?? {};
 
-            if (response.status === 200 && response.data[assetId]?.usd !== undefined) {
+            if (response.status === 200 && data[assetId]?.usd !== undefined) {
                 _usdRatesCache[assetId] = {
-                    'rate': response.data[assetId].usd,
+                    'rate': data[assetId].usd,
                     'time': Date.now(),
                 };
             } else {
                 if (!curve.isLiteChain) {
-                    console.warn(`Non-200 response for ${assetId}:`, response.status, response.data);
+                    console.warn(`Non-200 response for ${assetId}:`, response.status, data);
                 }
                 _usdRatesCache[assetId] = {
                     'rate': 0,

@@ -291,7 +291,7 @@ export const _getLiteNetworksData = memoize(
                     wrappedAddress: wrapped_native_token,
                 },
                 API_CONSTANTS: {
-                    nativeTokenName: config.native_currency_coingecko_id,
+                    nativeTokenName: config.native_currency_coingecko_id || config.platform_coingecko_id,
                     wrappedNativeTokenAddress: config.wrapped_native_token,
                 },
             };

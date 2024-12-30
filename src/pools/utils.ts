@@ -3,7 +3,7 @@ import { IDict } from "../interfaces";
 import { curve } from "../curve.js";
 import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils.js";
 import { _getAllPoolsFromApi } from "../external-api.js";
-import ERC20Abi from "../constants/abis/ERC20.json" assert { type: 'json' };
+import ERC20Abi from "../constants/abis/ERC20.json" with { type: 'json' };
 
 // _userLpBalance: { address: { poolId: { _lpBalance: 0, time: 0 } } }
 const _userLpBalanceCache: IDict<IDict<{ _lpBalance: bigint, time: number }>> = {};

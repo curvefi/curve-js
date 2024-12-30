@@ -1,13 +1,13 @@
 import { IDict, IPoolData } from "../../interfaces";
 import { lowerCasePoolDataAddresses } from "../utils.js";
-import aaveSwapABI from '../abis/aave/swap.json' assert { type: 'json' };
-import paaveRewardsabi from '../abis/paave/rewards.json' assert { type: 'json' };
-import renSwapABI from '../abis/ren-polygon/swap.json' assert { type: 'json' };
-import atricrypto3Swap from '../abis/atricrypto3/swap.json' assert { type: 'json' };
-import atricrypto3Zap from '../abis/atricrypto3/zap.json' assert { type: 'json' };
-import eurtusdSwap from '../abis/eurtusd/swap.json' assert { type: 'json' };
-import eurtusdZap from '../abis/eurtusd/deposit.json' assert { type: 'json' };
-import gaugeChildABI from '../abis/gauge_child.json' assert { type: 'json' };
+import aaveSwapABI from '../abis/aave/swap.json' with { type: 'json' };
+import paaveRewardsabi from '../abis/paave/rewards.json' with { type: 'json' };
+import renSwapABI from '../abis/ren-polygon/swap.json' with { type: 'json' };
+import atricrypto3Swap from '../abis/atricrypto3/swap.json' with { type: 'json' };
+import atricrypto3Zap from '../abis/atricrypto3/zap.json' with { type: 'json' };
+import eurtusdSwap from '../abis/eurtusd/swap.json' with { type: 'json' };
+import eurtusdZap from '../abis/eurtusd/deposit.json' with { type: 'json' };
+import gaugeChildABI from '../abis/gauge_child.json' with { type: 'json' };
 
 
 export const POOLS_DATA_POLYGON: IDict<IPoolData> = lowerCasePoolDataAddresses({

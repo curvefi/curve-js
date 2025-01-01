@@ -341,7 +341,7 @@ export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserL
     const proposalList = await _getDaoProposalList();
     const calls = [];
     for (const proposal of proposalList) {
-        if (proposal.voteType == "PARAMETER") {
+        if (proposal.voteType.toUpperCase() == "PARAMETER") {
             calls.push(curve.contracts[curve.constants.ALIASES.voting_parameter].multicallContract.getVoterState(proposal.voteId, address));
         } else {
             calls.push(curve.contracts[curve.constants.ALIASES.voting_ownership].multicallContract.getVoterState(proposal.voteId, address));
@@ -364,7 +364,7 @@ export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserL
 
 const _voteForProposal = async (type: TVoteType, id: number, support: boolean, estimateGas: boolean): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
+    const contractAddress = type.toUpperCase() === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
     const contract = curve.contracts[contractAddress].contract;
     const yesPct = support ? BigInt(10**18) : BigInt(0);
     const noPct = BigInt(10**18) - yesPct;
@@ -386,7 +386,7 @@ export const voteForProposal = async (type: TVoteType, id: number, support: bool
 
 const _executeVote = async (type: TVoteType, id: number, estimateGas = false): Promise<string | number | number[]> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
+    const contractAddress = type.toUpperCase() === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
     const contract = curve.contracts[contractAddress].contract;
     const gas = await contract.executeVote.estimateGas(id, curve.constantOptions);
     if (estimateGas) return smartNumber(gas);
@@ -406,7 +406,7 @@ export const executeVote = async (type:TVoteType, id: number): Promise<string> =
 
 export const isCanVoteExecute = async (type: TVoteType, id: number): Promise<boolean> => {
     if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const contractAddress = type === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
+    const contractAddress = type.toUpperCase() === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
     const contract = curve.contracts[contractAddress].contract;
 
     return await contract.canExecute(id, { ...curve.options });

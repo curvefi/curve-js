@@ -279,7 +279,7 @@ export const _getLiteNetworksData = memoize(
                     deposit_and_stake: contracts.helpers.deposit_and_stake_zap.address.toLowerCase(),
                     stable_ng_meta_zap: contracts.helpers.stable_swap_meta_zap.address.toLowerCase(),
 
-                    crv: config.dao.crv.toLowerCase(),
+                    crv: config.dao.crv ? config.dao.crv.toLowerCase() : '0x0000000000000000000000000000000000000000',
                 },
                 NATIVE_COIN: {
                     symbol: native_currency_symbol,

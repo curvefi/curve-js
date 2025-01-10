@@ -131,6 +131,7 @@ export interface IPoolDataFromApi {
     implementationAddress: string,
     coins: ICoinFromPoolDataApi[],
     gaugeRewards: IRewardFromApi[],
+    gaugeExtraRewards?: IRewardFromApi[],
     usdTotal: number,
     totalSupply: number,
     amplificationCoefficient: string,

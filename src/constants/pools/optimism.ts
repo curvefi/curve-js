@@ -1,8 +1,8 @@
 import { IDict, IPoolData } from "../../interfaces";
 import { lowerCasePoolDataAddresses } from "../utils.js";
-import tripoolSwapABI from '../abis/3pool-optimism/swap.json' assert { type: 'json' };
-import wstETHSwapABI from '../abis/wsteth/swap.json' assert { type: 'json' };
-import gaugeChildABI from '../abis/gauge_child.json' assert { type: 'json' };
+import tripoolSwapABI from '../abis/3pool-optimism/swap.json' with { type: 'json' };
+import wstETHSwapABI from '../abis/wsteth/swap.json' with { type: 'json' };
+import gaugeChildABI from '../abis/gauge_child.json' with { type: 'json' };
 
 export const POOLS_DATA_OPTIMISM: IDict<IPoolData> = lowerCasePoolDataAddresses({
     '3pool': {

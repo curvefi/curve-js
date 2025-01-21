@@ -3,9 +3,9 @@ import { curve } from "../curve.js";
 import { NETWORK_CONSTANTS } from "../constants/network_constants.js";
 import { getPool } from "../pools/index.js";
 import { parseUnits, BN, mulBy1_3, getPoolIdBySwapAddress, DIGas, smartNumber } from '../utils.js';
-import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" assert { type: 'json' };
-import Plain2ETHOracleABIABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" assert { type: 'json' };
-import rootGaugeFactoryABI from '../constants/abis/gauge_factory/root_gauge_factory.json' assert { type: 'json' };
+import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" with { type: 'json' };
+import Plain2ETHOracleABIABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" with { type: 'json' };
+import rootGaugeFactoryABI from '../constants/abis/gauge_factory/root_gauge_factory.json' with { type: 'json' };
 
 
 // ------- STABLE PLAIN POOLS -------

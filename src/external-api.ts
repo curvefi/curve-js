@@ -1,4 +1,3 @@
-import axios from "axios";
 import memoize from "memoizee";
 import {
     ICurveLiteNetwork,
@@ -17,8 +16,7 @@ export const _getPoolsFromApi = memoize(
     async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
         const api = isLiteChain ? "https://api-core.curve.fi/v1/" : "https://api.curve.fi/api";
         const url = `${api}/getPools/${network}/${poolType}`;
-        const response = await axios.get(url, { validateStatus: () => true });
-        return response.data.data ?? { poolData: [], tvl: 0, tvlAll: 0 };
+        return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
     },
     {
         promise: true,
@@ -50,23 +48,19 @@ export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = f
 
 export const _getSubgraphData = memoize(
     async (network: INetworkName): Promise<IVolumeAndAPYs> => {
-        const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
-        const response = await axios.get(url, { validateStatus: () => true });
-
-        const poolsData = response.data.data.poolList.map((item: any) => {
-            return {
-                address: item.address,
-                volumeUSD: item.volumeUSD,
-                day: item.latestDailyApy,
-                week: item.latestWeeklyApy,
-            }
-        })
+        const data = await fetchData(`https://api.curve.fi/api/getSubgraphData/${network}`);
+        const poolsData = data.poolList.map((data: any) => ({
+            address: data.address,
+            volumeUSD: data.volumeUSD,
+            day: data.latestDailyApy,
+            week: data.latestWeeklyApy,
+        }));
 
         return {
-            poolsData: poolsData ?? [],
-            totalVolume: response.data.data.totalVolume ?? 0,
-            cryptoVolume: response.data.data.cryptoVolume ?? 0,
-            cryptoShare: response.data.data.cryptoShare ?? 0,
+            poolsData: poolsData,
+            totalVolume: data.totalVolume ?? 0,
+            cryptoVolume: data.cryptoVolume ?? 0,
+            cryptoShare: data.cryptoShare ?? 0,
         };
     },
     {
@@ -78,23 +72,19 @@ export const _getSubgraphData = memoize(
 export const _getVolumes = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
 
-        const url = `https://api.curve.fi/api/getVolumes/${network}`;
-        const response = await axios.get(url, { validateStatus: () => true });
-
-        const poolsData = response.data.data.pools.map((item: any) => {
-            return {
-                address: item.address,
-                volumeUSD: item.volumeUSD,
-                day: item.latestDailyApyPcent,
-                week: item.latestWeeklyApyPcent,
-            }
-        })
+        const { pools, totalVolumes } = await fetchData(`https://api.curve.fi/api/getVolumes/${network}`);
+        const poolsData = pools.map((data: any) => ({
+            address: data.address,
+            volumeUSD: data.volumeUSD,
+            day: data.latestDailyApyPcent,
+            week: data.latestWeeklyApyPcent,
+        }));
 
         return {
             poolsData: poolsData ?? [],
-            totalVolume: response.data.data.totalVolumes.totalVolume ?? 0,
-            cryptoVolume: response.data.data.totalVolumes.totalCryptoVolume ?? 0,
-            cryptoShare: response.data.data.totalVolumes.cryptoVolumeSharePcent ?? 0,
+            totalVolume: totalVolumes.totalVolume ?? 0,
+            cryptoVolume: totalVolumes.totalCryptoVolume ?? 0,
+            cryptoShare: totalVolumes.cryptoVolumeSharePcent ?? 0,
         };
     },
     {
@@ -105,30 +95,21 @@ export const _getVolumes = memoize(
 
 export const _getFactoryAPYs = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
-        const urlStable = `https://api.curve.fi/api/getFactoryAPYs/${network}/stable`;
-        const urlCrypto = `https://api.curve.fi/api/getFactoryAPYs/${network}/crypto`;
-        const response = await Promise.all([
-            axios.get(urlStable, { validateStatus: () => true }),
-            axios.get(urlCrypto, { validateStatus: () => true }),
-        ]);
-
-        const stableVolume = response[0].data.data.totalVolumeUsd || response[0].data.data.totalVolume || 0;
-        const cryptoVolume = response[1].data.data.totalVolumeUsd || response[1].data.data.totalVolume || 0;
-
-        const poolsData = [...response[0].data.data.poolDetails, ...response[1].data.data.poolDetails].map((item) => {
-            return {
+        const [stableData, cryptoData] = await Promise.all(
+            ['stable', 'crypto'].map((type) => fetchData(`https://api.curve.fi/api/getFactoryAPYs/${network}/${type}`))
+        );
+        const stableVolume = stableData.totalVolumeUsd || stableData.totalVolume || 0;
+        const cryptoVolume = cryptoData.totalVolumeUsd || cryptoData.totalVolume || 0;
+        return {
+            poolsData: [...stableData.poolDetails, ...cryptoData.poolDetails].map((item) => ({
                 address: item.poolAddress,
                 volumeUSD: item.totalVolumeUsd ?? 0,
                 day: item.apy ?? 0,
-                week: item.apy*7 ?? 0, //Because api does not return week apy
-            }
-        })
-
-        return {
-            poolsData: poolsData ?? [],
-            totalVolume: stableVolume + cryptoVolume ?? 0,
-            cryptoVolume: cryptoVolume ?? 0,
-            cryptoShare: 100*cryptoVolume/(stableVolume + cryptoVolume) || 0,
+                week: (item.apy ?? 0) * 7, // Because api does not return week apy
+            })),
+            totalVolume: stableVolume + cryptoVolume,
+            cryptoVolume,
+            cryptoShare: 100 * cryptoVolume / (stableVolume + cryptoVolume),
         };
     },
     {
@@ -137,37 +118,8 @@ export const _getFactoryAPYs = memoize(
     }
 )
 
-//4
-export const _getTotalVolumes = memoize(
-    async (network: string): Promise<{
-        totalVolume: number;
-        cryptoVolume: number;
-        cryptoShare: number;
-    }> => {
-        if (network === "aurora") return {
-            totalVolume: 0,
-            cryptoVolume: 0,
-            cryptoShare: 0,
-        };  // Exclude Aurora
-
-        const url = `https://api.curve.fi/api/getSubgraphData/${network}`;
-        const response = await axios.get(url, { validateStatus: () => true });
-
-        return response.data.data;
-    },
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
 export const _getAllGauges = memoize(
-    async (): Promise<IDict<IGaugesDataFromApi>> => {
-        const url = `https://api.curve.fi/api/getAllGauges`;
-        const response = await axios.get(url, { validateStatus: () => true });
-
-        return response.data.data;
-    },
+    (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://api.curve.fi/api/getAllGauges`),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -176,12 +128,11 @@ export const _getAllGauges = memoize(
 
 export const _getAllGaugesFormatted = memoize(
     async (): Promise<IDict<any>> => {
-        const url = `https://api.curve.fi/api/getAllGauges`;
-        const response = await axios.get(url, { validateStatus: () => true });
+        const data = await fetchData(`https://api.curve.fi/api/getAllGauges`);
 
         const gaugesDict: Record<string, any> = {}
 
-        Object.values(response.data.data).forEach((d: any) => {
+        Object.values(data).forEach((d: any) => {
             gaugesDict[d.gauge.toLowerCase()] = {
                 is_killed: d.is_killed ?? false,
                 gaugeStatus: d.gaugeStatus ?? null,
@@ -197,12 +148,7 @@ export const _getAllGaugesFormatted = memoize(
 )
 
 export const _getHiddenPools = memoize(
-    async (): Promise<IDict<string[]>> => {
-        const url = `https://api.curve.fi/api/getHiddenPools`;
-        const response = await axios.get(url, { validateStatus: () => true });
-
-        return response.data.data;
-    },
+    (): Promise<IDict<string[]>> => fetchData(`https://api.curve.fi/api/getHiddenPools`),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -212,9 +158,8 @@ export const _getHiddenPools = memoize(
 export const _generateBoostingProof = memoize(
     async (block: number, address: string): Promise<{ block_header_rlp: string, proof_rlp: string }> => {
         const url = `https://prices.curve.fi/v1/general/get_merkle_proof?block=${block}&account_address=${address}`;
-        const response = await axios.get(url, { validateStatus: () => true });
-
-        return { block_header_rlp: response.data.block_header_rlp, proof_rlp: response.data.proof_rlp };
+        const { block_header_rlp, proof_rlp } = await fetchJson(url);
+        return { block_header_rlp, proof_rlp };
     },
     {
         promise: true,
@@ -227,21 +172,16 @@ export const _generateBoostingProof = memoize(
 
 export const _getDaoProposalList = memoize(async (): Promise<IDaoProposalListItem[]> => {
     const url = "https://api-py.llama.airforce/curve/v1/dao/proposals";
-    const response = await axios.get(url, { validateStatus: () => true });
-
-    return response.data.proposals;
+    const {proposals} = await fetchJson(url);
+    return proposals;
 },
 {
     promise: true,
     maxAge: 5 * 60 * 1000, // 5m
 })
 
-export const _getDaoProposal = memoize(async (type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> => {
-    const url = `https://api-py.llama.airforce/curve/v1/dao/proposals/${type.toLowerCase()}/${id}`;
-    const response = await axios.get(url, { validateStatus: () => true });
-
-    return response.data;
-},
+export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> =>
+    fetchJson(`https://api-py.llama.airforce/curve/v1/dao/proposals/${type.toLowerCase()}/${id}`),
 {
     promise: true,
     maxAge: 5 * 60 * 1000, // 5m
@@ -253,14 +193,15 @@ export const _getLiteNetworksData = memoize(
     async (networkName: string): Promise<any> => {
         try {
             const url = `https://api-core.curve.fi/v1/getDeployment/${networkName}`;
-            const response = await axios.get(url, { validateStatus: () => true });
+            const response = await fetch(url);
+            const {data} = await response.json() ?? {};
 
-            if (response.status !== 200 || !response.data?.data) {
-                console.error('Failed to fetch network data:', response);
+            if (response.status !== 200 || !data) {
+                console.error('Failed to fetch network data:', response.status, data);
                 return null;
             }
 
-            const { config, contracts } = response.data.data;
+            const { config, contracts } = data;
 
             const network_name = config.network_name || 'Unknown Network';
             const native_currency_symbol = config.native_currency_symbol || 'N/A';
@@ -308,15 +249,15 @@ export const _getLiteNetworksData = memoize(
 
 export const _getCurveLiteNetworks = memoize(
     async (): Promise<ICurveLiteNetwork[]> => {
-        const url = `https://api-core.curve.fi/v1/getPlatforms`;
-        const response = await axios.get(url, { validateStatus: () => true });
+        const response = await fetch(`https://api-core.curve.fi/v1/getPlatforms`);
+        const {data} = await response.json() ?? {};
 
-        if (response.status !== 200 || !response.data?.data?.platforms) {
+        if (response.status !== 200 || !data?.platforms) {
             console.error('Failed to fetch Curve platforms:', response);
             return [];
         }
 
-        const { platforms, platformsMetadata } = response.data.data;
+        const { platforms, platformsMetadata } = data;
         return Object.keys(platforms)
             .map((id) => {
                 const { name, rpcUrl, nativeCurrencySymbol, explorerBaseUrl, isMainnet, chainId} = platformsMetadata[id] ?? {};
@@ -337,3 +278,13 @@ export const _getCurveLiteNetworks = memoize(
         maxAge: 5 * 60 * 1000, // 5 minutes
     }
 );
+
+async function fetchJson(url: string) {
+    const response = await fetch(url);
+    return await response.json() ?? {};
+}
+
+async function fetchData(url: string) {
+    const {data} = await fetchJson(url);
+    return data;
+}

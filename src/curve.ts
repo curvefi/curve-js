@@ -92,7 +92,6 @@ export type ContractItem = { contract: Contract, multicallContract: MulticallCon
 
 class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
-    chainOptions?: {chainId: number, name: string};
     isNoRPC: boolean;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
@@ -147,7 +146,7 @@ class Curve implements ICurve {
 
     async init(
         providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'NoRPC',
-        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | {chainId: number, networkName: string},
+        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | 'NoRPC',
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
         // @ts-ignore
@@ -230,18 +229,16 @@ class Curve implements ICurve {
             this.provider = new ethers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
         } else if (providerType.toLowerCase() === 'NoRPC'.toLowerCase()) {
-            providerSettings = providerSettings as { chainId: number, networkName: string };
             this.isNoRPC = true;
-            this.chainOptions = {
-                chainId: providerSettings.chainId as number,
-                name: providerSettings.networkName as string,
-            }
             this.signer = null;
+            if (!options.chainId) {
+                throw Error('ChainId is required for NoRPC provider');
+            }
         } else {
             throw Error('Wrong providerType');
         }
 
-        const network = this.chainOptions || await this.provider.getNetwork();
+        const network = this.isNoRPC ? { chainId: options.chainId!, name: 'NoRPC' } : await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
 

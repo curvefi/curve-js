@@ -92,7 +92,7 @@ export type ContractItem = { contract: Contract, multicallContract: MulticallCon
 
 class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
-    abstractProvider?: {chainId: number, name: string};
+    chainOptions?: {chainId: number, name: string};
     isNoRPC: boolean;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
@@ -232,7 +232,7 @@ class Curve implements ICurve {
         } else if (providerType.toLowerCase() === 'NoRPC'.toLowerCase()) {
             providerSettings = providerSettings as { chainId: number, networkName: string };
             this.isNoRPC = true;
-            this.abstractProvider = {
+            this.chainOptions = {
                 chainId: providerSettings.chainId as number,
                 name: providerSettings.networkName as string,
             }
@@ -241,7 +241,7 @@ class Curve implements ICurve {
             throw Error('Wrong providerType');
         }
 
-        const network = this.abstractProvider || await this.provider.getNetwork();
+        const network = this.chainOptions || await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
 

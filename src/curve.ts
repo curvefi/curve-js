@@ -92,6 +92,8 @@ export type ContractItem = { contract: Contract, multicallContract: MulticallCon
 
 class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
+    chainOptions?: {chainId: number, name: string};
+    isNoRPC: boolean;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
     signerAddress: string;
@@ -109,6 +111,7 @@ class Curve implements ICurve {
         this.provider = null;
         // @ts-ignore
         this.signer = null;
+        this.isNoRPC = false;
         this.signerAddress = '';
         this.chainId = 1;
         this.isLiteChain = false;
@@ -143,8 +146,8 @@ class Curve implements ICurve {
     }
 
     async init(
-        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy',
-        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string },
+        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'NoRPC',
+        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | {chainId: number, networkName: string},
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
         // @ts-ignore
@@ -226,11 +229,19 @@ class Curve implements ICurve {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
             this.provider = new ethers.AlchemyProvider(providerSettings.network, providerSettings.apiKey);
             this.signer = null;
+        } else if (providerType.toLowerCase() === 'NoRPC'.toLowerCase()) {
+            providerSettings = providerSettings as { chainId: number, networkName: string };
+            this.isNoRPC = true;
+            this.chainOptions = {
+                chainId: providerSettings.chainId as number,
+                name: providerSettings.networkName as string,
+            }
+            this.signer = null;
         } else {
             throw Error('Wrong providerType');
         }
 
-        const network = await this.provider.getNetwork();
+        const network = this.chainOptions || await this.provider.getNetwork();
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
 
@@ -389,8 +400,10 @@ class Curve implements ICurve {
             this.setContract(this.constants.ALIASES.factory, factoryABI);
 
             const factoryContract = this.contracts[this.constants.ALIASES.factory].contract;
-            this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
-            this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
+            if(!this.isNoRPC) {
+                this.constants.ALIASES.factory_admin = (await factoryContract.admin(this.constantOptions) as string).toLowerCase();
+                this.setContract(this.constants.ALIASES.factory_admin, factoryAdminABI);
+            }
         }
 
         this.setContract(this.constants.ALIASES.crvusd_factory, factoryABI);
@@ -523,7 +536,7 @@ class Curve implements ICurve {
         this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
-        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = this.isNoRPC ? null : await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
     }
 
     fetchCrvusdFactoryPools = async (useApi = true): Promise<void> => {
@@ -532,6 +545,9 @@ class Curve implements ICurve {
         if (useApi) {
             this.constants.CRVUSD_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-crvusd"));
         } else {
+            if (this.isNoRPC) {
+                throw new Error('RPC connection is required');
+            }
             this.constants.CRVUSD_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(
                 await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory)
             );
@@ -546,6 +562,9 @@ class Curve implements ICurve {
         if (useApi) {
             this.constants.EYWA_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-eywa"));
         } else {
+            if (this.isNoRPC) {
+                throw new Error('RPC connection is required');
+            }
             this.constants.EYWA_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(
                 await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.eywa_factory)
             );
@@ -560,12 +579,15 @@ class Curve implements ICurve {
         if (useApi) {
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-crypto"));
         } else {
+            if (this.isNoRPC) {
+                throw new Error('RPC connection is required');
+            }
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
         this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
-        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = this.isNoRPC? null : await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
     fetchStableNgFactoryPools = async (useApi = true): Promise<void> => {
@@ -574,6 +596,9 @@ class Curve implements ICurve {
         if (useApi) {
             this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-stable-ng"));
         } else {
+            if (this.isNoRPC) {
+                throw new Error('RPC connection is required');
+            }
             this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
         }
 
@@ -587,16 +612,19 @@ class Curve implements ICurve {
         if (useApi) {
             this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-twocrypto"));
         } else {
+            if (this.isNoRPC) {
+                throw new Error('RPC connection is required');
+            }
             this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this));
         }
         this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] =
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = this.isNoRPC ? null :
                 await this.contracts[this.constants.ALIASES.twocrypto_factory].contract.gauge_implementation(this.constantOptions);
         } else {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] =
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = this.isNoRPC ? null :
                 await this.contracts[this.constants.ALIASES.child_gauge_factory].contract.get_implementation(this.constantOptions);
         }
     }
@@ -607,16 +635,19 @@ class Curve implements ICurve {
         if (useApi) {
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-tricrypto"));
         } else {
+            if (this.isNoRPC) {
+                throw new Error('RPC connection is required');
+            }
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this));
         }
         this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] =
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = this.isNoRPC ? null :
                 await this.contracts[this.constants.ALIASES.tricrypto_factory].contract.gauge_implementation(this.constantOptions);
         } else {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] =
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = this.isNoRPC ? null :
                 await this.contracts[this.constants.ALIASES.child_gauge_factory].contract.get_implementation(this.constantOptions);
         }
     }
@@ -787,6 +818,10 @@ class Curve implements ICurve {
     }
 
     async updateFeeData(): Promise<void> {
+        if(this.isNoRPC) {
+            return
+        }
+
         const feeData = await this.provider.getFeeData();
         if (feeData.maxFeePerGas === null || feeData.maxPriorityFeePerGas === null) {
             delete this.options.maxFeePerGas;

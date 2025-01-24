@@ -3,7 +3,7 @@ import { curve } from "../curve.js";
 import {IDict, IPoolData, ICurve, REFERENCE_ASSET, IPoolDataShort} from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json" with { type: 'json' };
 import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with { type: 'json' };
-import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" assert {type: 'json'};
+import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with { type: 'json' };
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" with { type: 'json' };
 import gaugeChildABI from "../constants/abis/gauge_child.json" with { type: 'json' };
 import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with { type: 'json' };

@@ -31,7 +31,7 @@ import feeDistributorCrvUSDABI from './constants/abis/fee_distributor_crvusd.jso
 import gaugeControllerABI from './constants/abis/gaugecontroller.json' with { type: 'json' };
 import depositAndStakeABI from './constants/abis/deposit_and_stake.json' with { type: 'json' };
 import depositAndStakeNgOnlyABI from './constants/abis/deposit_and_stake_ng_only.json' with { type: 'json' };
-import cryptoCalcZapABI from './constants/abis/crypto_calc.json' assert { type: 'json'};
+import cryptoCalcZapABI from './constants/abis/crypto_calc.json' with { type: 'json' };
 import StableCalcZapABI from './constants/abis/stable_calc.json' with { type: 'json' };
 import routerABI from './constants/abis/router.json' with { type: 'json' };
 import routerPolygonABI from './constants/abis/routerPolygon.json' with { type: 'json' };
@@ -45,11 +45,11 @@ import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' wit
 import tricryptoFactoryMainnetABI from './constants/abis/factory-tricrypto-mainnet.json' with { type: 'json' };
 import tricryptoFactorySidechainABI from './constants/abis/factory-tricrypto-sidechain.json' with { type: 'json' };
 import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' with { type: 'json' };
-import gasOracleABI from './constants/abis/gas_oracle_optimism.json' assert { type: 'json'};
-import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' assert { type: 'json'};
-import votingProposalABI from './constants/abis/voting_proposal.json' assert { type: 'json'};
-import circulatingSupplyABI from './constants/abis/circulating_supply.json' assert { type: 'json'};
-import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json" assert { type: 'json'};
+import gasOracleABI from './constants/abis/gas_oracle_optimism.json' with { type: 'json' };
+import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' with { type: 'json' };
+import votingProposalABI from './constants/abis/voting_proposal.json' with { type: 'json' };
+import circulatingSupplyABI from './constants/abis/circulating_supply.json' with { type: 'json' };
+import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json" with { type: 'json' };
 
 import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
 import {_getHiddenPools} from "./external-api.js";

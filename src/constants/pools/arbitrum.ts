@@ -20,8 +20,8 @@ export const POOLS_DATA_ARBITRUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         token_address: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
         gauge_address: '0xCE5F24B7A95e9cBa7df4B54E911B4A3Dc8CDAf6f',
         is_plain: true,
-        underlying_coins: ['USDC.e', 'USDT'],
-        wrapped_coins: ['USDC.e', 'USDT'],
+        underlying_coins: ['USDC.e', 'USD₮0'],
+        wrapped_coins: ['USDC.e', 'USD₮0'],
         underlying_coin_addresses: [
             '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
             '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
@@ -46,8 +46,8 @@ export const POOLS_DATA_ARBITRUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         token_address: '0x8e0B8c8BB9db49a46697F3a5Bb8A308e744821D2',
         gauge_address: '0x555766f3da968ecBefa690Ffd49A2Ac02f47aa5f',
         deposit_address: '0xF97c707024ef0DD3E77a0824555a46B622bfB500',
-        underlying_coins: ['USDT', 'WBTC', 'ETH'],
-        wrapped_coins: ['USDT', 'WBTC', 'WETH'],
+        underlying_coins: ['USD₮0', 'WBTC', 'ETH'],
+        wrapped_coins: ['USD₮0', 'WBTC', 'WETH'],
         underlying_coin_addresses: [
             '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
             '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
@@ -102,7 +102,7 @@ export const POOLS_DATA_ARBITRUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         is_meta: true,
         is_crypto: true,
         base_pool: '2pool',
-        underlying_coins: ['EURS', 'USDC.e', 'USDT'],
+        underlying_coins: ['EURS', 'USDC.e', 'USD₮0'],
         wrapped_coins: ['EURS', '2CRV'],
         underlying_coin_addresses: [
             '0xd22a58f79e9481d1a88e00c343885a588b34b68b',

@@ -16,9 +16,12 @@ function _depositBalancedAmounts(poolBalances: string[], walletBalances: string[
         ))
     ));
     const firstCoinBalanceForEachScenarioBN = balancedAmountsForEachScenarioBN.map(([a]) => a);
-    const scenarioWithLowestBalancesBN = firstCoinBalanceForEachScenarioBN.map(String).indexOf(BigNumber.min(...firstCoinBalanceForEachScenarioBN).toString());
+    const min = BigNumber.min(...firstCoinBalanceForEachScenarioBN.filter(Boolean)); // ignore any coins not present in the wallet
+    const scenarioWithLowestBalancesBN = firstCoinBalanceForEachScenarioBN.map(String).indexOf(min.toString());
 
-    return balancedAmountsForEachScenarioBN[scenarioWithLowestBalancesBN].map((a, i) => a.toFixed(decimals[i]))
+    return balancedAmountsForEachScenarioBN[scenarioWithLowestBalancesBN].map(
+        (a, i) => walletBalancesBN[i].isZero() ? "0" : a.toFixed(decimals[i])
+    )
 }
 
 // @ts-ignore

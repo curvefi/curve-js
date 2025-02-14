@@ -19,6 +19,7 @@
   "scripts": {
     "build": "rm -rf lib && tsc -p tsconfig.build.json",
     "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "tsc": "tsc -w"
   },
   "type": "module",

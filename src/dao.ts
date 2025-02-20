@@ -250,7 +250,8 @@ export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUser
     const gaugeData = Object.values(await _getAllGauges());
     const calls: any[] = [veMulticallContract.balanceOf(address)];
     for (const d of gaugeData) {
-        calls.push(gcMulticallContract.vote_user_slopes(address, d.gauge));
+        const gaugeAddress = d.rootGauge ? d.rootGauge : d.gauge;
+        calls.push(gcMulticallContract.vote_user_slopes(address, gaugeAddress));
     }
     const [veCrvBalance, ...votes] = await curve.multicallProvider.all(calls) as [bigint, bigint[]];
 

@@ -193,6 +193,7 @@ export interface IProfit {
 export interface IGaugesDataFromApi {
     blockchainId: string;
     gauge: string,
+    rootGauge?: string,
     swap: string,
     swap_token: string,
     shortName: string,

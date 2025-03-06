@@ -226,7 +226,7 @@ export class StatsPool implements IStatsPool {
     }
 
     public tokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
-        if(curve.isLiteChain) {
+        if(curve.isLiteChain && curve.chainId !== 146) {
             throw Error('tokenApy is not supported for the lite version')
         }
 

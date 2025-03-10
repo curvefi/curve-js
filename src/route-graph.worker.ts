@@ -178,6 +178,39 @@ export function routeGraphWorker() {
             }];
         }
 
+        // sUSDS <-> USDS (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.usds] = {};
+            routerGraph[constants.COINS.usds][constants.COINS.susds] = [{
+                poolId: "sUSDS wrapper",
+                swapAddress: constants.COINS.susds,
+                inputCoinAddress: constants.COINS.usds,
+                outputCoinAddress: constants.COINS.susds,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.susds] = {};
+            routerGraph[constants.COINS.susds][constants.COINS.usds] = [{
+                poolId: "sUSDS wrapper",
+                swapAddress: constants.COINS.susds,
+                inputCoinAddress: constants.COINS.susds,
+                outputCoinAddress: constants.COINS.usds,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
         // USDe -> sUSDe (Ethereum only)
         if (chainId === 1) {
             routerGraph[constants.COINS.usde] = {};

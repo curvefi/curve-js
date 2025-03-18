@@ -323,7 +323,7 @@ export async function getFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?
                 is_ng,
             };
         } else {
-            const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
+            const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
             // @ts-ignore
             const basePoolIdCoinsDict = Object.fromEntries(basePools.ids.map(
                 (poolId) => [poolId, allPoolsData[poolId]?.underlying_coins]));

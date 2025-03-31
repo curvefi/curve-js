@@ -667,7 +667,7 @@ export const getTVL = async (chainId = curve.chainId): Promise<number> => {
 }
 
 export const getVolumeApiController = async (network: INetworkName): Promise<IVolumeAndAPYs> => {
-    if(curve.isLiteChain) {
+    if(curve.isLiteChain && curve.chainId !== 146) {
         throw Error('This method is not supported for the lite version')
     }
 
@@ -685,7 +685,7 @@ export const getVolumeApiController = async (network: INetworkName): Promise<IVo
 }
 
 export const getVolume = async (chainId = curve.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> => {
-    if(curve.isLiteChain) {
+    if(curve.isLiteChain && curve.chainId !== 146) {
         throw Error('This method is not supported for the lite version')
     }
 

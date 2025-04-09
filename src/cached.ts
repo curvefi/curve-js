@@ -14,6 +14,7 @@ const _getCachedData = memoize(
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
+        primitive: true,
     }
 )
 

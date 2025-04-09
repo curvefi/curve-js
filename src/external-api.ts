@@ -10,8 +10,6 @@ import {
     IPoolType,
     IVolumeAndAPYs,
 } from "./interfaces";
-import {curve} from "./curve";
-import {_getAllPoolsFromApi} from "./cached";
 
 
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {

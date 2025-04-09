@@ -15,13 +15,13 @@ import {
 } from './interfaces';
 import {curve} from "./curve.js";
 import {
-    _getAllPoolsFromApi,
     _getCurveLiteNetworks,
     _getFactoryAPYs,
     _getLiteNetworksData,
     _getSubgraphData,
     _getVolumes,
 } from "./external-api.js";
+import {_getAllPoolsFromApi, _getUsdPricesFromApi} from "./cached.js";
 import ERC20Abi from './constants/abis/ERC20.json' with { type: 'json' };
 import {L2Networks} from './constants/L2Networks.js';
 import {volumeNetworks} from "./constants/volumeNetworks.js";
@@ -314,97 +314,6 @@ export const getPoolIdBySwapAddress = (swapAddress: string): string => {
     const poolIds = Object.entries(poolsData).filter(([, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
     if (poolIds.length === 0) return "";
     return poolIds[0][0];
-}
-
-export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
-    const network = curve.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);
-    const priceDict: IDict<Record<string, number>[]> = {};
-    const priceDictByMaxTvl: IDict<number> = {};
-
-    for (const extendedPoolData of allTypesExtendedPoolData) {
-        for (const pool of extendedPoolData.poolData) {
-            const lpTokenAddress = pool.lpTokenAddress ?? pool.address;
-            const totalSupply = pool.totalSupply / (10 ** 18);
-            if(lpTokenAddress.toLowerCase() in priceDict) {
-                priceDict[lpTokenAddress.toLowerCase()].push({
-                    price: pool.usdTotal && totalSupply ? pool.usdTotal / totalSupply : 0,
-                    tvl: pool.usdTotal,
-                })
-            } else {
-                priceDict[lpTokenAddress.toLowerCase()] = []
-                priceDict[lpTokenAddress.toLowerCase()].push({
-                    price: pool.usdTotal && totalSupply ? pool.usdTotal / totalSupply : 0,
-                    tvl: pool.usdTotal,
-                })
-            }
-
-            for (const coin of pool.coins) {
-                if (typeof coin.usdPrice === "number") {
-                    if(coin.address.toLowerCase() in priceDict) {
-                        priceDict[coin.address.toLowerCase()].push({
-                            price: coin.usdPrice,
-                            tvl: pool.usdTotal,
-                        })
-                    } else {
-                        priceDict[coin.address.toLowerCase()] = []
-                        priceDict[coin.address.toLowerCase()].push({
-                            price: coin.usdPrice,
-                            tvl: pool.usdTotal,
-                        })
-                    }
-                }
-            }
-
-            for (const coin of pool.gaugeRewards ?? []) {
-                if (typeof coin.tokenPrice === "number") {
-                    if(coin.tokenAddress.toLowerCase() in priceDict) {
-                        priceDict[coin.tokenAddress.toLowerCase()].push({
-                            price: coin.tokenPrice,
-                            tvl: pool.usdTotal,
-                        });
-                    } else {
-                        priceDict[coin.tokenAddress.toLowerCase()] = []
-                        priceDict[coin.tokenAddress.toLowerCase()].push({
-                            price: coin.tokenPrice,
-                            tvl: pool.usdTotal,
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    for(const address in priceDict) {
-        if (priceDict[address].length) {
-            const maxTvlItem = priceDict[address].reduce((prev, current) => +current.tvl > +prev.tvl ? current : prev);
-            priceDictByMaxTvl[address] = maxTvlItem.price
-        } else {
-            priceDictByMaxTvl[address] = 0
-        }
-    }
-
-    return priceDictByMaxTvl
-}
-
-export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
-    const network = curve.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);
-    const apyDict: IDict<[number, number]> = {};
-
-    for (const extendedPoolData of allTypesExtendedPoolData) {
-        for (const pool of extendedPoolData.poolData) {
-            if (pool.gaugeAddress) {
-                if (!pool.gaugeCrvApy) {
-                    apyDict[pool.gaugeAddress.toLowerCase()] = [0, 0];
-                } else {
-                    apyDict[pool.gaugeAddress.toLowerCase()] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
-                }
-            }
-        }
-    }
-
-    return apyDict
 }
 
 export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => {

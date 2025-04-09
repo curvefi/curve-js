@@ -1,14 +1,18 @@
 import memoize from "memoizee";
 import {IDict, IExtendedPoolDataFromApi, INetworkName, IPoolType} from "./interfaces.js";
-import {uncached_getAllPoolsFromApi, uncached_getCrvApyFromApi, uncached_getUsdPricesFromApi} from './external-api.js'
+import {uncached_getAllPoolsFromApi, createCrvApyDict, createUsdPricesDict} from './external-api.js'
 import {curve} from "./curve";
 
+/**
+ * This function is used to cache the data fetched from the API and the data derived from it.
+ * Note: do not expose this function to the outside world, instead encapsulate it in a function that returns the data you need.
+ */
 const _getCachedData = memoize(
     async (network: INetworkName, isLiteChain: boolean) => {
         const poolsDict = await uncached_getAllPoolsFromApi(network, isLiteChain);
         const poolLists = Object.values(poolsDict)
-        const usdPrices = uncached_getUsdPricesFromApi(poolLists);
-        const crvApy = uncached_getCrvApyFromApi(poolLists)
+        const usdPrices = createUsdPricesDict(poolLists);
+        const crvApy = createCrvApyDict(poolLists)
         return { poolsDict, poolLists, usdPrices, crvApy };
     },
     {

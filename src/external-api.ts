@@ -42,7 +42,7 @@ export const uncached_getAllPoolsFromApi = async (network: INetworkName, isLiteC
     )
 }
 
-export const uncached_getUsdPricesFromApi = async (allTypesExtendedPoolData:  IExtendedPoolDataFromApi[]): Promise<IDict<number>> => {
+export const uncached_getUsdPricesFromApi = (allTypesExtendedPoolData:  IExtendedPoolDataFromApi[]): IDict<number> => {
     const priceDict: IDict<Record<string, number>[]> = {};
     const priceDictByMaxTvl: IDict<number> = {};
 

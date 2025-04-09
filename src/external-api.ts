@@ -18,31 +18,18 @@ const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolTy
     return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
 }
 
-export const uncached_getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<Record<IPoolType, IExtendedPoolDataFromApi>> => {
-    const poolTypes = isLiteChain ? [
-        "factory-twocrypto",
-        "factory-tricrypto",
-        "factory-stable-ng",
-    ] as const : [
-        "main",
-        "crypto",
-        "factory",
-        "factory-crvusd",
-        "factory-eywa",
-        "factory-crypto",
-        "factory-twocrypto",
-        "factory-tricrypto",
-        "factory-stable-ng",
-    ] as const;
-    return Object.fromEntries(
-        await Promise.all(poolTypes.map(async (poolType) => {
+const getPoolTypes = (isLiteChain: boolean) => isLiteChain ? ["factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const :
+    ["main", "crypto", "factory", "factory-crvusd", "factory-eywa", "factory-crypto", "factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const;
+
+export const uncached_getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<Record<IPoolType, IExtendedPoolDataFromApi>> =>
+    Object.fromEntries(
+        await Promise.all(getPoolTypes(isLiteChain).map(async (poolType) => {
             const data = await uncached_getPoolsFromApi(network, poolType, isLiteChain);
             return [poolType, data];
         }))
     )
-}
 
-export const uncached_getUsdPricesFromApi = (allTypesExtendedPoolData:  IExtendedPoolDataFromApi[]): IDict<number> => {
+export const createUsdPricesDict = (allTypesExtendedPoolData:  IExtendedPoolDataFromApi[]): IDict<number> => {
     const priceDict: IDict<Record<string, number>[]> = {};
     const priceDictByMaxTvl: IDict<number> = {};
 
@@ -111,7 +98,7 @@ export const uncached_getUsdPricesFromApi = (allTypesExtendedPoolData:  IExtende
     return priceDictByMaxTvl
 }
 
-export const uncached_getCrvApyFromApi = (allTypesExtendedPoolData:  IExtendedPoolDataFromApi[]): IDict<[number, number]> => {
+export const createCrvApyDict = (allTypesExtendedPoolData:  IExtendedPoolDataFromApi[]): IDict<[number, number]> => {
     const apyDict: IDict<[number, number]> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {

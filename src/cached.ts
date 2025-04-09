@@ -1,5 +1,5 @@
 import {IDict, IExtendedPoolDataFromApi, INetworkName, IPoolType} from "./interfaces.js";
-import {uncached_getAllPoolsFromApi, uncached_getCrvApyFromApi, uncached_getUsdPricesFromApi} from './external-api.js'
+import {uncached_getAllPoolsFromApi, createCrvApyDict, createUsdPricesDict} from './external-api.js'
 import {curve} from "./curve";
 
 /**
@@ -39,11 +39,15 @@ const memoize = <TResult, TParams extends any[], TFunc extends (...args: TParams
 
 function createCache(poolsDict: Record<"main" | "crypto" | "factory" | "factory-crvusd" | "factory-eywa" | "factory-crypto" | "factory-twocrypto" | "factory-tricrypto" | "factory-stable-ng", IExtendedPoolDataFromApi>) {
     const poolLists = Object.values(poolsDict)
-    const usdPrices = uncached_getUsdPricesFromApi(poolLists);
-    const crvApy = uncached_getCrvApyFromApi(poolLists)
+    const usdPrices = createUsdPricesDict(poolLists);
+    const crvApy = createCrvApyDict(poolLists)
     return {poolsDict, poolLists, usdPrices, crvApy};
 }
 
+/**
+ * This function is used to cache the data fetched from the API and the data derived from it.
+ * Note: do not expose this function to the outside world, instead encapsulate it in a function that returns the data you need.
+ */
 const _getCachedData = memoize(async (network: INetworkName, isLiteChain: boolean) =>
     createCache(await uncached_getAllPoolsFromApi(network, isLiteChain)), { maxAge: 1000 * 60 * 5 /* 5 minutes */ })
 

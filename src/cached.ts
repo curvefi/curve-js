@@ -2,6 +2,13 @@ import {IDict, IExtendedPoolDataFromApi, INetworkName, IPoolType} from "./interf
 import {uncached_getAllPoolsFromApi, uncached_getCrvApyFromApi, uncached_getUsdPricesFromApi} from './external-api.js'
 import {curve} from "./curve";
 
+/**
+ * Memoizes a function that returns a promise.
+ * Custom function instead of `memoizee` because we want to be able to set the cache manually based on server data.
+ * @param fn The function that returns a promise and will be memoized
+ * @param maxAge The maximum age of the cache in milliseconds
+ * @returns A memoized `fn` function that includes a `set` method to set the cache manually
+ */
 const memoize = <TResult, TParams extends any[], TFunc extends (...args: TParams) => Promise<TResult>>(fn: TFunc, {maxAge}: {
     maxAge: number
 }) => {
@@ -37,11 +44,8 @@ function createCache(poolsDict: Record<"main" | "crypto" | "factory" | "factory-
     return {poolsDict, poolLists, usdPrices, crvApy};
 }
 
-const _getCachedData = memoize(
-    async (network: INetworkName, isLiteChain: boolean) => createCache(await uncached_getAllPoolsFromApi(network, isLiteChain))
-    , {
-        maxAge: 1000 * 60 * 5, // 5 minutes
-    })
+const _getCachedData = memoize(async (network: INetworkName, isLiteChain: boolean) =>
+    createCache(await uncached_getAllPoolsFromApi(network, isLiteChain)), { maxAge: 1000 * 60 * 5 /* 5 minutes */ })
 
 export const _getPoolsFromApi =
     async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {

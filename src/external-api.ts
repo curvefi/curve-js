@@ -10,6 +10,8 @@ import {
     IPoolType,
     IVolumeAndAPYs,
 } from "./interfaces";
+import {curve} from "./curve";
+import {_getAllPoolsFromApi} from "./cached";
 
 
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
@@ -109,6 +111,24 @@ export const uncached_getUsdPricesFromApi = async (allTypesExtendedPoolData:  IE
     }
 
     return priceDictByMaxTvl
+}
+
+export const uncached_getCrvApyFromApi = (allTypesExtendedPoolData:  IExtendedPoolDataFromApi[]): IDict<[number, number]> => {
+    const apyDict: IDict<[number, number]> = {};
+
+    for (const extendedPoolData of allTypesExtendedPoolData) {
+        for (const pool of extendedPoolData.poolData) {
+            if (pool.gaugeAddress) {
+                if (!pool.gaugeCrvApy) {
+                    apyDict[pool.gaugeAddress.toLowerCase()] = [0, 0];
+                } else {
+                    apyDict[pool.gaugeAddress.toLowerCase()] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
+                }
+            }
+        }
+    }
+
+    return apyDict
 }
 
 export const _getSubgraphData = memoize(

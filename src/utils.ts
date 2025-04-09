@@ -316,26 +316,6 @@ export const getPoolIdBySwapAddress = (swapAddress: string): string => {
     return poolIds[0][0];
 }
 
-export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
-    const network = curve.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);
-    const apyDict: IDict<[number, number]> = {};
-
-    for (const extendedPoolData of allTypesExtendedPoolData) {
-        for (const pool of extendedPoolData.poolData) {
-            if (pool.gaugeAddress) {
-                if (!pool.gaugeCrvApy) {
-                    apyDict[pool.gaugeAddress.toLowerCase()] = [0, 0];
-                } else {
-                    apyDict[pool.gaugeAddress.toLowerCase()] = [pool.gaugeCrvApy[0] ?? 0, pool.gaugeCrvApy[1] ?? 0];
-                }
-            }
-        }
-    }
-
-    return apyDict
-}
-
 export const _getRewardsFromApi = async (): Promise<IDict<IRewardFromApi[]>> => {
     const network = curve.constants.NETWORK_NAME;
     const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, curve.isLiteChain);

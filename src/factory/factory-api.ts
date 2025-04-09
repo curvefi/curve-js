@@ -8,7 +8,7 @@ import twocryptoFactorySwapABI from "../constants/abis/factory-twocrypto/factory
 import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" with { type: 'json' };
 import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" with { type: 'json' };
 import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
-import { _getPoolsFromApi } from "../external-api.js";
+import { _getPoolsFromApi } from "../cached.js";
 import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
 import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with { type: 'json' };
 import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with { type: 'json' };

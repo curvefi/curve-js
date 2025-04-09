@@ -1,6 +1,6 @@
 import { curve } from "../../curve.js";
 import {IPoolType, IReward} from '../../interfaces.js';
-import {_getPoolsFromApi} from '../../external-api.js';
+import {_getPoolsFromApi} from '../../cached.js';
 import {
     _getUsdRate,
     BN,

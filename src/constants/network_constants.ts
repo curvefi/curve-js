@@ -38,6 +38,8 @@ import {
     COINS_XLAYER,
     COINS_MANTLE,
 } from "./coins/index.js";
+import {POOLS_DATA_SONIC} from "./pools/sonic";
+import {COINS_SONIC} from "./coins/sonic";
 
 const ALIASES_ETHEREUM = lowerCaseValues({
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52", // <--- CHANGE
@@ -408,6 +410,24 @@ const ALIASES_MANTLE = lowerCaseValues({
     "factory_admin": '0x0000000000000000000000000000000000000000',
 });
 
+const ALIASES_SONIC = lowerCaseValues({
+    "crv": "0x5af79133999f7908953e94b7a5cf367740ebee35", //
+    "child_gauge_factory": "0xf3A431008396df8A8b2DF492C913706BDB0874ef", //
+    "voting_escrow": "0x0000000000000000000000000000000000000000",
+    "fee_distributor": "0x0000000000000000000000000000000000000000",
+    "gauge_controller": "0x0000000000000000000000000000000000000000",
+    "address_provider": "0x87FE17697D0f14A222e8bEf386a0860eCffDD617", //
+
+    "router": "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E", //
+    "deposit_and_stake": "0x505d666E4DD174DcDD7FA090ed95554486d2Be44", //
+
+    "stable_ng_factory": '0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8', //
+    "twocrypto_factory": '0x1A83348F9cCFD3Fe1A8C0adBa580Ac4e267Fe495', //
+    "tricrypto_factory": '0x635742dCC8313DCf8c904206037d962c042EAfBd', //
+
+    "factory_admin": '0x0000000000000000000000000000000000000000', //
+});
+
 
 export const NETWORK_CONSTANTS: { [index: number]: any } = {
     1: {
@@ -475,6 +495,18 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
             wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
         },
         aTokens: aTokensPolygon,
+    },
+    146: {
+        NAME: 'sonic',
+        ALIASES: ALIASES_SONIC,
+        POOLS_DATA: POOLS_DATA_SONIC,
+        COINS: COINS_SONIC,
+        NATIVE_COIN: {
+            symbol: 'S',
+            wrappedSymbol: 'wS',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x039e2fb66102314ce7b64ce5ce3e5183bc94ad38'.toLowerCase(),
+        },
     },
     196: {
         NAME: 'x-layer',

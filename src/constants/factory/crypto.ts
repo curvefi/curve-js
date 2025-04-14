@@ -59,6 +59,11 @@ export const tricryptoDeployImplementations = {
         amm_native_transfers_enabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //0
         implementationIdx: 1,
     },
+    146: {  // SONIC
+        amm_native_transfers_disabled: '0xf3A6aa40cf048a3960E9664847E9a7be025a390a'.toLowerCase(), //1
+        amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(), //0
+        implementationIdx: 1,
+    },
     196: {  // X-LAYER
         amm_native_transfers_disabled: '0x64379C265Fc6595065D7d835AAaa731c0584dB80'.toLowerCase(), //1
         amm_native_transfers_enabled: '0x0C9D8c7e486e822C29488Ff51BFf0167B4650953'.toLowerCase(), //0
@@ -145,6 +150,9 @@ export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: {
         lpTokenBasePoolIdDict: lpTokenBasePoolIdDictPolygon,
         basePoolIdZapDict: basePoolIdZapDictPolygon,
         tricryptoDeployImplementations: tricryptoDeployImplementations[137],
+    },
+    146: { // SONIC
+        tricryptoDeployImplementations: tricryptoDeployImplementations[146],
     },
     196: {  // X-LAYER
         tricryptoDeployImplementations: tricryptoDeployImplementations[196],

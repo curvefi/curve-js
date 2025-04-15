@@ -5,6 +5,20 @@ import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils.j
 import { _getAllPoolsFromApi } from "../external-api.js";
 import ERC20Abi from "../constants/abis/ERC20.json" with { type: 'json' };
 
+const BATCH_SIZE = 100;
+
+const batchedMulticall = async (calls: any[]): Promise<bigint[]> => {
+    const results: bigint[] = [];
+
+    for (let i = 0; i < calls.length; i += BATCH_SIZE) {
+        const batch = calls.slice(i, i + BATCH_SIZE);
+        const res: bigint[] = await curve.multicallProvider.all(batch);
+        results.push(...res );
+    }
+
+    return results;
+};
+
 // _userLpBalance: { address: { poolId: { _lpBalance: 0, time: 0 } } }
 const _userLpBalanceCache: IDict<IDict<{ _lpBalance: bigint, time: number }>> = {};
 const _isUserLpBalanceCacheExpired = (address: string, poolId: string) => (_userLpBalanceCache[address]?.[poolId]?.time || 0) + 600000 < Date.now();
@@ -18,7 +32,7 @@ const _getUserLpBalances = async (pools: string[], address: string, useCache: bo
             calls.push(curve.contracts[pool.lpToken].multicallContract.balanceOf(address));
             if (pool.gauge.address !== curve.constants.ZERO_ADDRESS) calls.push(curve.contracts[pool.gauge.address].multicallContract.balanceOf(address));
         }
-        const _rawBalances: bigint[] = await curve.multicallProvider.all(calls);
+        const _rawBalances: bigint[] = await batchedMulticall(calls);
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
             let _balance = _rawBalances.shift() as bigint;

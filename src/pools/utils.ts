@@ -7,7 +7,7 @@ import ERC20Abi from "../constants/abis/ERC20.json" with { type: 'json' };
 
 const BATCH_SIZE = 50;
 
-const batchedMulticall = async (calls: any[]): Promise<bigint[]> => {
+const batchedMulticall = async (calls: any[]): Promise<bigint[] | string[]> => {
     const results: bigint[] = [];
 
     for (let i = 0; i < calls.length; i += BATCH_SIZE) {
@@ -34,7 +34,7 @@ const _getUserLpBalances = async (pools: string[], address: string, useCache: bo
                 calls.push(curve.contracts[pool.gauge.address].multicallContract.balanceOf(address));
             }
         }
-        const _rawBalances: bigint[] = await batchedMulticall(calls as any[]);
+        const _rawBalances: bigint[] = (await batchedMulticall(calls as any[]) as bigint[]);
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
             let _balance = _rawBalances.shift() as bigint;
@@ -143,7 +143,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             }
         }
 
-        const rawRewardTokens: string[] = (await curve.multicallProvider.all(rewardTokenCalls) as string[]).map((t) => t.toLowerCase());
+        const rawRewardTokens: string[] = (await batchedMulticall(rewardTokenCalls) as string[]).map((t) => t.toLowerCase());
         const rewardTokens: IDict<string[]> = {};
         for (let i = 0; i < poolsToFetch.length; i++) {
             rewardTokens[poolsToFetch[i]] = [];
@@ -185,7 +185,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             }
         }
 
-        const rawRewardInfo = await curve.multicallProvider.all(rewardInfoCalls);
+        const rawRewardInfo = await batchedMulticall(rewardInfoCalls);
         for (let i = 0; i < poolsToFetch.length; i++) {
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);
@@ -208,7 +208,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
 
             for (const token of rewardTokens[poolId]) {
                 const symbol = rawRewardInfo.shift() as string;
-                const decimals = rawRewardInfo.shift() as number;
+                const decimals = Number(rawRewardInfo.shift()) as number;
                 let _amount = rawRewardInfo.shift() as bigint;
                 if ('claimable_reward(address)' in gaugeContract) {
                     const _claimedAmount = rawRewardInfo.shift() as bigint;

@@ -5,6 +5,20 @@ import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils.j
 import { _getAllPoolsFromApi } from "../cached.js";
 import ERC20Abi from "../constants/abis/ERC20.json" with { type: 'json' };
 
+const BATCH_SIZE = 50;
+
+const batchedMulticall = async (calls: any[]): Promise<bigint[] | string[]> => {
+    const results: bigint[] = [];
+
+    for (let i = 0; i < calls.length; i += BATCH_SIZE) {
+        const batch = calls.slice(i, i + BATCH_SIZE);
+        const res: bigint[] = await curve.multicallProvider.all(batch);
+        results.push(...res );
+    }
+
+    return results;
+};
+
 // _userLpBalance: { address: { poolId: { _lpBalance: 0, time: 0 } } }
 const _userLpBalanceCache: IDict<IDict<{ _lpBalance: bigint, time: number }>> = {};
 const _isUserLpBalanceCacheExpired = (address: string, poolId: string) => (_userLpBalanceCache[address]?.[poolId]?.time || 0) + 600000 < Date.now();
@@ -16,13 +30,15 @@ const _getUserLpBalances = async (pools: string[], address: string, useCache: bo
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
             calls.push(curve.contracts[pool.lpToken].multicallContract.balanceOf(address));
-            if (pool.gauge.address !== curve.constants.ZERO_ADDRESS) calls.push(curve.contracts[pool.gauge.address].multicallContract.balanceOf(address));
+            if (pool.gauge.address && pool.gauge.address !== curve.constants.ZERO_ADDRESS) {
+                calls.push(curve.contracts[pool.gauge.address].multicallContract.balanceOf(address));
+            }
         }
-        const _rawBalances: bigint[] = await curve.multicallProvider.all(calls);
+        const _rawBalances: bigint[] = (await batchedMulticall(calls as any[]) as bigint[]);
         for (const poolId of poolsToFetch) {
             const pool = getPool(poolId);
             let _balance = _rawBalances.shift() as bigint;
-            if (pool.gauge.address !== curve.constants.ZERO_ADDRESS) _balance = _balance + (_rawBalances.shift() as bigint);
+            if (pool.gauge.address && pool.gauge.address !== curve.constants.ZERO_ADDRESS) _balance = _balance + (_rawBalances.shift() as bigint);
 
             if (!_userLpBalanceCache[address]) _userLpBalanceCache[address] = {};
             _userLpBalanceCache[address][poolId] = {'_lpBalance': _balance, 'time': Date.now()}
@@ -127,7 +143,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             }
         }
 
-        const rawRewardTokens: string[] = (await curve.multicallProvider.all(rewardTokenCalls) as string[]).map((t) => t.toLowerCase());
+        const rawRewardTokens: string[] = (await batchedMulticall(rewardTokenCalls) as string[]).map((t) => t.toLowerCase());
         const rewardTokens: IDict<string[]> = {};
         for (let i = 0; i < poolsToFetch.length; i++) {
             rewardTokens[poolsToFetch[i]] = [];
@@ -169,7 +185,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             }
         }
 
-        const rawRewardInfo = await curve.multicallProvider.all(rewardInfoCalls);
+        const rawRewardInfo = await batchedMulticall(rewardInfoCalls);
         for (let i = 0; i < poolsToFetch.length; i++) {
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);
@@ -192,7 +208,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
 
             for (const token of rewardTokens[poolId]) {
                 const symbol = rawRewardInfo.shift() as string;
-                const decimals = rawRewardInfo.shift() as number;
+                const decimals = Number(rawRewardInfo.shift()) as number;
                 let _amount = rawRewardInfo.shift() as bigint;
                 if ('claimable_reward(address)' in gaugeContract) {
                     const _claimedAmount = rawRewardInfo.shift() as bigint;
@@ -268,7 +284,7 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
             }
         }
 
-        const rawRewardInfo = await curve.multicallProvider.all(rewardInfoCalls);
+        const rawRewardInfo = await batchedMulticall(rewardInfoCalls);
         for (let i = 0; i < poolsToFetch.length; i++) {
             const poolId = poolsToFetch[i];
             const pool = getPool(poolId);

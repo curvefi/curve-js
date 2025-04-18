@@ -173,9 +173,9 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
             }
 
             for (const token of rewardTokens[poolId]) {
-                _setContracts(token, ERC20Abi);
-                const tokenMulticallContract = curve.contracts[token].multicallContract;
-                rewardInfoCalls.push(tokenMulticallContract.symbol(), tokenMulticallContract.decimals());
+                // Don't reset the reward ABI if the reward is the LP token itself, otherwise we lose LP contract functions
+                const { multicallContract } = token !== pool.address ? _setContracts(token, ERC20Abi) : curve.contracts[token]
+                rewardInfoCalls.push(multicallContract.symbol(), multicallContract.decimals());
 
                 if ('claimable_reward(address,address)' in gaugeContract) {
                     rewardInfoCalls.push(gaugeMulticallContract.claimable_reward(address, token));
@@ -275,7 +275,11 @@ const _getUserClaimableUseApi = async (pools: string[], address: string, useCach
             }
 
             for (const r of rewardTokens[poolId]) {
-                _setContracts(r.token, ERC20Abi);
+                // Don't reset the reward ABI if the reward is the LP token itself, otherwise we lose LP contract functions
+                if (r.token !== pool.address) {
+                    _setContracts(r.token, ERC20Abi)
+                }
+
                 if ('claimable_reward(address,address)' in gaugeContract) {
                     rewardInfoCalls.push(gaugeMulticallContract.claimable_reward(address, r.token));
                 } else if ('claimable_reward(address)' in gaugeContract) { // Synthetix Gauge

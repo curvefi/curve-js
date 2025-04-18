@@ -819,7 +819,8 @@ export class PoolTemplate extends CorePool {
         if (useApi) {
             const rewards = await _getRewardsFromApi();
             if (!rewards[this.gauge.address]) return [];
-            rewards[this.gauge.address].forEach((r) => _setContracts(r.tokenAddress, ERC20Abi));
+            // Don't reset ABI if its already set, we might override an LP token ABI
+            rewards[this.gauge.address].forEach((r) => !curve.contracts[r.tokenAddress] && _setContracts(r.tokenAddress, ERC20Abi));
             return rewards[this.gauge.address].map((r) => ({ token: r.tokenAddress, symbol: r.symbol, decimals: Number(r.decimals) }));
         }
 
@@ -842,9 +843,9 @@ export class PoolTemplate extends CorePool {
 
             const tokenInfoCalls = [];
             for (const token of tokens) {
-                _setContracts(token, ERC20Abi);
-                const tokenMulticallContract = curve.contracts[token].multicallContract;
-                tokenInfoCalls.push(tokenMulticallContract.symbol(), tokenMulticallContract.decimals());
+                // Don't reset ABI if its already set, we might override an LP token ABI
+                const { multicallContract } = curve.contracts[token] || _setContracts(token, ERC20Abi)
+                tokenInfoCalls.push(multicallContract.symbol(), multicallContract.decimals());
             }
             const tokenInfo = await curve.multicallProvider.all(tokenInfoCalls);
             for (let i = 0; i < tokens.length; i++) {

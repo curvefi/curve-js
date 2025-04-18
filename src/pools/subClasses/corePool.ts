@@ -69,7 +69,11 @@ export class CorePool implements ICorePool {
     inApi: boolean;
 
     constructor(id: string) {
-        const poolData = curve.getPoolsData()[id];
+        const poolsData = curve.getPoolsData();
+        if (!poolsData[id]) {
+            throw new Error(`Pool ${id} not found. Available pools: ${Object.keys(poolsData).join(', ')}`);
+        }
+        const poolData = poolsData[id];
 
         this.id = id;
         this.name = poolData.name;

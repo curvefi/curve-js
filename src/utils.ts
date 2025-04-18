@@ -696,12 +696,14 @@ export const getVolume = async (chainId = curve.chainId): Promise<{ totalVolume:
     return { totalVolume, cryptoVolume, cryptoShare }
 }
 
-export const _setContracts = (address: string, abi: any): void => {
-    curve.contracts[address] = {
+export const _setContracts = (address: string, abi: any) => {
+    const contracts = {
         abi,
         contract: new Contract(address, abi, curve.signer || curve.provider),
         multicallContract: new MulticallContract(address, abi),
     }
+    curve.contracts[address] = contracts;
+    return contracts;
 }
 
 // Find k for which x * k = target_x or y * k = target_y

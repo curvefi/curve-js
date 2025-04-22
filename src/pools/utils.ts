@@ -174,7 +174,7 @@ const _getUserClaimable = async (pools: string[], address: string, useCache: boo
 
             for (const token of rewardTokens[poolId]) {
                 // Don't reset the reward ABI if the reward is the LP token itself, otherwise we lose LP contract functions
-                const { multicallContract } = token !== pool.address ? _setContracts(token, ERC20Abi) : curve.contracts[token]
+                const { multicallContract } = token === pool.address ? curve.contracts[token] : _setContracts(token, ERC20Abi)
                 rewardInfoCalls.push(multicallContract.symbol(), multicallContract.decimals());
 
                 if ('claimable_reward(address,address)' in gaugeContract) {

@@ -540,10 +540,10 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         POOLS_DATA: POOLS_DATA_FRAXTAL,
         COINS: COINS_FRAXTAL,
         NATIVE_COIN: {
-            symbol: 'frxETH',
-            wrappedSymbol: 'wfrxETH',
+            symbol: 'FRAX',
+            wrappedSymbol: 'wFRAX',
             address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            wrappedAddress: '0xfc00000000000000000000000000000000000006'.toLowerCase(),
+            wrappedAddress: '0xfc00000000000000000000000000000000000002'.toLowerCase(),
         },
     },
     324: {

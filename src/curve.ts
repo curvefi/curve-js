@@ -153,6 +153,7 @@ class Curve implements ICurve {
         this.provider = null;
         // @ts-ignore
         this.signer = null;
+        this.isNoRPC = false;
         this.signerAddress = '';
         this.chainId = 1;
         // @ts-ignore

@@ -20,7 +20,7 @@ import {
     swap,
     getSwappedAmount,
 } from "./router.js";
-import { curve as _curve } from "./curve.js";
+import { Curve } from "./curve.js";
 import {
     getCrv,
     getLockedAmountAndUnlockTime,
@@ -139,286 +139,290 @@ import {
     isCanVoteExecute,
 } from "./dao.js";
 
-async function init (
-    providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'NoRPC',
-    providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | 'NoRPC',
-    options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {}
-): Promise<void> {
-    await _curve.init(providerType, providerSettings, options);
-    // @ts-ignore
-    this.signerAddress = _curve.signerAddress;
-    // @ts-ignore
-    this.chainId = _curve.chainId;
-    // @ts-ignore
-    this.isNoRPC = _curve.isNoRPC;
-}
+export const createCurve = () => {
+    const _curve = new Curve();
 
-function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
-    _curve.setCustomFeeData(customFeeData);
-}
+    async function init (
+        providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'NoRPC',
+        providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | 'NoRPC',
+        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {}
+    ): Promise<void> {
+        await _curve.init(providerType, providerSettings, options);
+        // @ts-ignore
+        this.signerAddress = _curve.signerAddress;
+        // @ts-ignore
+        this.chainId = _curve.chainId;
+        // @ts-ignore
+        this.isNoRPC = _curve.isNoRPC;
+    }
 
-const curve = {
-    init,
-    chainId: 0,
-    signerAddress: '',
-    setCustomFeeData,
-    getPoolList: _curve.getPoolList,
-    getMainPoolList: _curve.getMainPoolList,
-    getUserPoolListByLiquidity,
-    getUserPoolListByClaimable,
-    getUserPoolList,
-    getUserLiquidityUSD,
-    getUserClaimable,
-    PoolTemplate,
-    getBasePools,
-    getPool,
-    getUsdRate,
-    getGasPriceFromL1,
-    getGasPriceFromL2,
-    getGasInfoForL2,
-    getGasPrice,
-    getTVL,
-    getBalances,
-    getAllowance,
-    hasAllowance,
-    ensureAllowance,
-    getCoinsData,
-    getVolume,
-    hasDepositAndStake,
-    hasRouter,
-    getCurveLiteNetworks,
-    getNetworkConstants: _curve.getNetworkConstants,
-    getIsLiteChain: _curve.getIsLiteChain,
-    isNoRPC: _curve.isNoRPC,
-    factory: {
-        fetchPools: _curve.fetchFactoryPools,
-        fetchNewPools: _curve.fetchNewFactoryPools,
-        getPoolList: _curve.getFactoryPoolList,
-        deployPlainPool: deployStablePlainPool,
-        setOracle,
-        deployMetaPool: deployStableMetaPool,
-        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.factory),
-        deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
-        deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
-        getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
-        getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
-        getDeployedGaugeAddress: getDeployedGaugeAddress,
-        getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
-        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
-        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedFactoryPool,
-        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory"),
-        estimateGas: {
-            deployPlainPool: deployStablePlainPoolEstimateGas,
-            setOracle: setOracleEstimateGas,
-            deployMetaPool: deployStableMetaPoolEstimateGas,
-            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.factory),
-            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
-            deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
-        },
-    },
-    crvUSDFactory: {
-        fetchPools: _curve.fetchCrvusdFactoryPools,
-        getPoolList: _curve.getCrvusdFactoryPoolList,
-    },
-    EYWAFactory: {
-        fetchPools: _curve.fetchEywaFactoryPools,
-        getPoolList: _curve.getEywaFactoryPoolList,
-    },
-    stableNgFactory: {
-        fetchPools: _curve.fetchStableNgFactoryPools,
-        fetchNewPools: _curve.fetchNewStableNgFactoryPools,
-        getPoolList: _curve.getStableNgFactoryPoolList,
-        deployPlainPool: deployStableNgPlainPool,
-        deployMetaPool: deployStableNgMetaPool,
-        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.stable_ng_factory),
-        deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
-        deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
-        getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
-        getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
-        getDeployedGaugeAddress: getDeployedGaugeAddress,
-        getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
-        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
-        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedStableNgFactoryPool,
-        estimateGas: {
-            deployPlainPool: deployStableNgPlainPoolEstimateGas,
-            deployMetaPool: deployStableNgMetaPoolEstimateGas,
-        },
-    },
-    cryptoFactory: {
-        fetchPools: _curve.fetchCryptoFactoryPools,
-        fetchNewPools: _curve.fetchNewCryptoFactoryPools,
-        getPoolList: _curve.getCryptoFactoryPoolList,
-        deployPool: deployCryptoPool,
-        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.crypto_factory),
-        deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
-        deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
-        getDeployedPoolAddress: getDeployedCryptoPoolAddress,
-        getDeployedGaugeAddress: getDeployedGaugeAddress,
-        getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
-        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
-        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedCryptoFactoryPool,
-        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-crypto"),
-        estimateGas: {
-            deployPool: deployCryptoPoolEstimateGas,
-            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.crypto_factory),
-            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
-            deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
-        },
-    },
-    twocryptoFactory: {
-        fetchPools: _curve.fetchTworyptoFactoryPools,
-        fetchNewPools: _curve.fetchNewTwocryptoFactoryPools,
-        getPoolList: _curve.getTworyptoFactoryPoolList,
-        deployPool: deployTwocryptoPool,
-        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.twocrypto_factory),
-        deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
-        deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
-        getDeployedPoolAddress: getDeployedTwocryptoPoolAddress,
-        getDeployedGaugeAddress: getDeployedGaugeAddress,
-        getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
-        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
-        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTwocryptoFactoryPool,
-        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-twocrypto"),
-        estimateGas: {
-            deployPool: deployTwocryptoPoolEstimateGas, //
-            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.twocrypto_factory),
-            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
-            deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
-        },
-    },
-    tricryptoFactory: {
-        fetchPools: _curve.fetchTricryptoFactoryPools,
-        fetchNewPools: _curve.fetchNewTricryptoFactoryPools,
-        getPoolList: _curve.getTricryptoFactoryPoolList,
-        deployPool: deployTricryptoPool,
-        deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.tricrypto_factory),
-        deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
-        deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
-        getDeployedPoolAddress: getDeployedTricryptoPoolAddress,
-        getDeployedGaugeAddress: getDeployedGaugeAddress,
-        getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
-        getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
-        fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTricryptoFactoryPool,
-        gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-tricrypto"),
-        estimateGas: {
-            deployPool: deployTricryptoPoolEstimateGas,
-            deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.tricrypto_factory),
-            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
-            deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
-        },
-    },
-    estimateGas: {
-        ensureAllowance: ensureAllowanceEstimateGas,
-    },
-    boosting: {
-        getCrv,
-        getLockedAmountAndUnlockTime,
-        getVeCrv,
-        getVeCrvPct,
-        calcUnlockTime,
-        isApproved,
-        approve,
-        createLock,
-        increaseAmount,
-        increaseUnlockTime,
-        withdrawLockedCrv,
-        claimableFees,
-        claimFees,
-        claimableFeesCrvUSD,
-        claimFeesCrvUSD,
-        estimateGas: {
-            approve: approveEstimateGas,
-            createLock: createLockEstimateGas,
-            increaseAmount: increaseAmountEstimateGas,
-            increaseUnlockTime: increaseUnlockTimeEstimateGas,
-            withdrawLockedCrv: withdrawLockedCrvEstimateGas,
-            claimFees: claimFeesEstimateGas,
-            claimFeesCrvUSD: claimFeesCrvUSDEstimateGas,
-        },
-        sidechain: {
-            lastEthBlock,
-            getAnycallBalance,
-            topUpAnycall,
-            lastBlockSent,
-            blockToSend,
-            sendBlockhash,
-            submitProof,
+    function setCustomFeeData (customFeeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number }): void {
+        _curve.setCustomFeeData(customFeeData);
+    }
+
+    return {
+        init,
+        chainId: 0,
+        signerAddress: '',
+        setCustomFeeData,
+        getPoolList: _curve.getPoolList,
+        getMainPoolList: _curve.getMainPoolList,
+        getUserPoolListByLiquidity,
+        getUserPoolListByClaimable,
+        getUserPoolList,
+        getUserLiquidityUSD,
+        getUserClaimable,
+        PoolTemplate,
+        getBasePools,
+        getPool,
+        getUsdRate,
+        getGasPriceFromL1,
+        getGasPriceFromL2,
+        getGasInfoForL2,
+        getGasPrice,
+        getTVL,
+        getBalances,
+        getAllowance,
+        hasAllowance,
+        ensureAllowance,
+        getCoinsData,
+        getVolume,
+        hasDepositAndStake,
+        hasRouter,
+        getCurveLiteNetworks,
+        getNetworkConstants: _curve.getNetworkConstants,
+        getIsLiteChain: _curve.getIsLiteChain,
+        isNoRPC: _curve.isNoRPC,
+        factory: {
+            fetchPools: _curve.fetchFactoryPools,
+            fetchNewPools: _curve.fetchNewFactoryPools,
+            getPoolList: _curve.getFactoryPoolList,
+            deployPlainPool: deployStablePlainPool,
+            setOracle,
+            deployMetaPool: deployStableMetaPool,
+            deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.factory),
+            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
+            deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
+            getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
+            getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
+            getDeployedGaugeAddress: getDeployedGaugeAddress,
+            getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+            getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
+            fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedFactoryPool,
+            gaugeImplementation: (): string => _curve.getGaugeImplementation("factory"),
             estimateGas: {
-                topUpAnycall: topUpAnycallEstimateGas,
-                sendBlockhash: sendBlockhashEstimateGas,
-                submitProof: submitProofEstimateGas,
+                deployPlainPool: deployStablePlainPoolEstimateGas,
+                setOracle: setOracleEstimateGas,
+                deployMetaPool: deployStableMetaPoolEstimateGas,
+                deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.factory),
+                deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
+                deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
             },
         },
-    },
-    router: {
-        getBestRouteAndOutput,
-        getArgs,
-        expected: swapExpected,
-        required: swapRequired,
-        priceImpact: swapPriceImpact,
-        isApproved: swapIsApproved,
-        approve: swapApprove,
-        swap,
-        getSwappedAmount,
-        estimateGas: {
-            approve: swapApproveEstimateGas,
-            swap: swapEstimateGas,
+        crvUSDFactory: {
+            fetchPools: _curve.fetchCrvusdFactoryPools,
+            getPoolList: _curve.getCrvusdFactoryPoolList,
         },
-    },
-    dao: {
-        // --- CRV lock ---
-
-        // View methods
-        crvSupplyStats,
-        userCrv,
-        userVeCrv,
-        crvLockIsApproved,
-        calcCrvUnlockTime,
-        claimableFees: daoClaimableFees,
-        // Transaction methods
-        crvLockApprove,
-        createCrvLock,
-        increaseCrvLockedAmount,
-        increaseCrvUnlockTime,
-        withdrawLockedCrv: daoWithdrawLockedCrv,
-        claimFees: daoClaimFees,
-
-
-        // --- Gauge voting ---
-
-        // View methods
-        getVotingGaugeList,
-        userGaugeVotes,
-        voteForGaugeNextTime,
-        // Transaction methods
-        voteForGauge,
-
-        // --- Proposal voting ---
-
-        // View methods
-        getProposalList,
-        getProposal,
-        userProposalVotes,
-        // Transaction methods
-        voteForProposal,
-        executeVote,
-        isCanVoteExecute,
-
+        EYWAFactory: {
+            fetchPools: _curve.fetchEywaFactoryPools,
+            getPoolList: _curve.getEywaFactoryPoolList,
+        },
+        stableNgFactory: {
+            fetchPools: _curve.fetchStableNgFactoryPools,
+            fetchNewPools: _curve.fetchNewStableNgFactoryPools,
+            getPoolList: _curve.getStableNgFactoryPoolList,
+            deployPlainPool: deployStableNgPlainPool,
+            deployMetaPool: deployStableNgMetaPool,
+            deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.stable_ng_factory),
+            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
+            deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
+            getDeployedPlainPoolAddress: getDeployedStablePlainPoolAddress,
+            getDeployedMetaPoolAddress: getDeployedStableMetaPoolAddress,
+            getDeployedGaugeAddress: getDeployedGaugeAddress,
+            getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+            getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
+            fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedStableNgFactoryPool,
+            estimateGas: {
+                deployPlainPool: deployStableNgPlainPoolEstimateGas,
+                deployMetaPool: deployStableNgMetaPoolEstimateGas,
+            },
+        },
+        cryptoFactory: {
+            fetchPools: _curve.fetchCryptoFactoryPools,
+            fetchNewPools: _curve.fetchNewCryptoFactoryPools,
+            getPoolList: _curve.getCryptoFactoryPoolList,
+            deployPool: deployCryptoPool,
+            deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.crypto_factory),
+            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
+            deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
+            getDeployedPoolAddress: getDeployedCryptoPoolAddress,
+            getDeployedGaugeAddress: getDeployedGaugeAddress,
+            getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+            getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
+            fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedCryptoFactoryPool,
+            gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-crypto"),
+            estimateGas: {
+                deployPool: deployCryptoPoolEstimateGas,
+                deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.crypto_factory),
+                deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
+                deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
+            },
+        },
+        twocryptoFactory: {
+            fetchPools: _curve.fetchTworyptoFactoryPools,
+            fetchNewPools: _curve.fetchNewTwocryptoFactoryPools,
+            getPoolList: _curve.getTworyptoFactoryPoolList,
+            deployPool: deployTwocryptoPool,
+            deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.twocrypto_factory),
+            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
+            deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
+            getDeployedPoolAddress: getDeployedTwocryptoPoolAddress,
+            getDeployedGaugeAddress: getDeployedGaugeAddress,
+            getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+            getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
+            fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTwocryptoFactoryPool,
+            gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-twocrypto"),
+            estimateGas: {
+                deployPool: deployTwocryptoPoolEstimateGas, //
+                deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.twocrypto_factory),
+                deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
+                deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
+            },
+        },
+        tricryptoFactory: {
+            fetchPools: _curve.fetchTricryptoFactoryPools,
+            fetchNewPools: _curve.fetchNewTricryptoFactoryPools,
+            getPoolList: _curve.getTricryptoFactoryPoolList,
+            deployPool: deployTricryptoPool,
+            deployGauge: async (poolAddress: string): Promise<ethers.ContractTransactionResponse> => deployGauge(poolAddress, _curve.constants.ALIASES.tricrypto_factory),
+            deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeSidechain(poolAddress, salt),
+            deployGaugeMirror: async (chainId: number, salt: string): Promise<ethers.ContractTransactionResponse> => deployGaugeMirror(chainId, salt),
+            getDeployedPoolAddress: getDeployedTricryptoPoolAddress,
+            getDeployedGaugeAddress: getDeployedGaugeAddress,
+            getDeployedGaugeMirrorAddress: getDeployedGaugeMirrorAddress,
+            getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx,
+            fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTricryptoFactoryPool,
+            gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-tricrypto"),
+            estimateGas: {
+                deployPool: deployTricryptoPoolEstimateGas,
+                deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas(poolAddress, _curve.constants.ALIASES.tricrypto_factory),
+                deployGaugeSidechain: async (poolAddress: string, salt: string): Promise<number> => deployGaugeSidechainEstimateGas(poolAddress, salt),
+                deployGaugeMirror: async (chainId: number, salt: string): Promise<number> => deployGaugeMirrorEstimateGas(chainId, salt),
+            },
+        },
         estimateGas: {
+            ensureAllowance: ensureAllowanceEstimateGas,
+        },
+        boosting: {
+            getCrv,
+            getLockedAmountAndUnlockTime,
+            getVeCrv,
+            getVeCrvPct,
+            calcUnlockTime,
+            isApproved,
+            approve,
+            createLock,
+            increaseAmount,
+            increaseUnlockTime,
+            withdrawLockedCrv,
+            claimableFees,
+            claimFees,
+            claimableFeesCrvUSD,
+            claimFeesCrvUSD,
+            estimateGas: {
+                approve: approveEstimateGas,
+                createLock: createLockEstimateGas,
+                increaseAmount: increaseAmountEstimateGas,
+                increaseUnlockTime: increaseUnlockTimeEstimateGas,
+                withdrawLockedCrv: withdrawLockedCrvEstimateGas,
+                claimFees: claimFeesEstimateGas,
+                claimFeesCrvUSD: claimFeesCrvUSDEstimateGas,
+            },
+            sidechain: {
+                lastEthBlock,
+                getAnycallBalance,
+                topUpAnycall,
+                lastBlockSent,
+                blockToSend,
+                sendBlockhash,
+                submitProof,
+                estimateGas: {
+                    topUpAnycall: topUpAnycallEstimateGas,
+                    sendBlockhash: sendBlockhashEstimateGas,
+                    submitProof: submitProofEstimateGas,
+                },
+            },
+        },
+        router: {
+            getBestRouteAndOutput,
+            getArgs,
+            expected: swapExpected,
+            required: swapRequired,
+            priceImpact: swapPriceImpact,
+            isApproved: swapIsApproved,
+            approve: swapApprove,
+            swap,
+            getSwappedAmount,
+            estimateGas: {
+                approve: swapApproveEstimateGas,
+                swap: swapEstimateGas,
+            },
+        },
+        dao: {
             // --- CRV lock ---
-            crvLockApprove: crvLockApproveEstimateGas,
-            createCrvLock: createCrvLockEstimateGas,
-            increaseCrvLockedAmount: increaseCrvLockedAmountEstimateGas,
-            increaseCrvUnlockTime: increaseCrvUnlockTimeEstimateGas,
-            withdrawLockedCrv: daoWithdrawLockedCrvEstimateGas,
-            claimFees: daoClaimFeesEstimateGas,
+
+            // View methods
+            crvSupplyStats,
+            userCrv,
+            userVeCrv,
+            crvLockIsApproved,
+            calcCrvUnlockTime,
+            claimableFees: daoClaimableFees,
+            // Transaction methods
+            crvLockApprove,
+            createCrvLock,
+            increaseCrvLockedAmount,
+            increaseCrvUnlockTime,
+            withdrawLockedCrv: daoWithdrawLockedCrv,
+            claimFees: daoClaimFees,
+
+
             // --- Gauge voting ---
-            voteForGauge: voteForGaugeEstimateGas,
+
+            // View methods
+            getVotingGaugeList,
+            userGaugeVotes,
+            voteForGaugeNextTime,
+            // Transaction methods
+            voteForGauge,
+
             // --- Proposal voting ---
-            voteForProposal: voteForProposalEstimateGas,
-            executeVote: executeVoteEstimateGas,
+
+            // View methods
+            getProposalList,
+            getProposal,
+            userProposalVotes,
+            // Transaction methods
+            voteForProposal,
+            executeVote,
+            isCanVoteExecute,
+
+            estimateGas: {
+                // --- CRV lock ---
+                crvLockApprove: crvLockApproveEstimateGas,
+                createCrvLock: createCrvLockEstimateGas,
+                increaseCrvLockedAmount: increaseCrvLockedAmountEstimateGas,
+                increaseCrvUnlockTime: increaseCrvUnlockTimeEstimateGas,
+                withdrawLockedCrv: daoWithdrawLockedCrvEstimateGas,
+                claimFees: daoClaimFeesEstimateGas,
+                // --- Gauge voting ---
+                voteForGauge: voteForGaugeEstimateGas,
+                // --- Proposal voting ---
+                voteForProposal: voteForProposalEstimateGas,
+                executeVote: executeVoteEstimateGas,
+            },
         },
-    },
+    }
 }
 
-export default curve;
+export default createCurve();

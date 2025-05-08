@@ -90,7 +90,7 @@ export const memoizedMulticallContract = (): (address: string, abi: any) => Mult
 
 export type ContractItem = { contract: Contract, multicallContract: MulticallContract, abi: Abi };
 
-class Curve implements ICurve {
+export class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
     isNoRPC: boolean;
     multicallProvider: MulticallProvider;

@@ -1,60 +1,65 @@
 import {
-    ethers,
-    Contract,
-    Networkish,
-    BigNumberish,
-    Numeric,
     AbstractProvider,
+    BigNumberish,
     BrowserProvider,
+    Contract,
+    ethers,
     JsonRpcProvider,
+    Networkish,
+    Numeric,
     Signer,
 } from "ethers";
-import { Provider as MulticallProvider, Contract as MulticallContract } from "@curvefi/ethcall";
-import { NETWORK_CONSTANTS } from "./constants/network_constants.js";
-import { STABLE_FACTORY_CONSTANTS, CRYPTO_FACTORY_CONSTANTS } from "./constants/factory/index.js";
-import { getFactoryPoolData } from "./factory/factory.js";
-import { getFactoryPoolsDataFromApi } from "./factory/factory-api.js";
-import { getCryptoFactoryPoolData } from "./factory/factory-crypto.js";
-import { getTricryptoFactoryPoolData } from "./factory/factory-tricrypto.js";
-import {IPoolData, IDict, ICurve, IChainId, IFactoryPoolType, Abi, INetworkConstants} from "./interfaces";
-import ERC20Abi from './constants/abis/ERC20.json' with { type: 'json' };
-import cERC20Abi from './constants/abis/cERC20.json' with { type: 'json' };
-import yERC20Abi from './constants/abis/yERC20.json' with { type: 'json' };
-import childGaugeFactoryABI from './constants/abis/gauge_factory/child_gauge_factory.json' with { type: 'json' };
-import minterMainnetABI from './constants/abis/minter_mainnet.json' with { type: 'json' };
-import votingEscrowABI from './constants/abis/votingescrow.json' with { type: 'json' };
-import anycallABI from './constants/abis/anycall.json' with { type: 'json' };
-import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' with { type: 'json' };
-import votingEscrowOracleEthABI from './constants/abis/voting_escrow_oracle_eth.json' with { type: 'json' };
-import feeDistributorABI from './constants/abis/fee_distributor.json' with { type: 'json' };
-import feeDistributorCrvUSDABI from './constants/abis/fee_distributor_crvusd.json' with { type: 'json' };
-import gaugeControllerABI from './constants/abis/gaugecontroller.json' with { type: 'json' };
-import depositAndStakeABI from './constants/abis/deposit_and_stake.json' with { type: 'json' };
-import depositAndStakeNgOnlyABI from './constants/abis/deposit_and_stake_ng_only.json' with { type: 'json' };
-import cryptoCalcZapABI from './constants/abis/crypto_calc.json' with { type: 'json' };
-import StableCalcZapABI from './constants/abis/stable_calc.json' with { type: 'json' };
-import routerABI from './constants/abis/router.json' with { type: 'json' };
-import routerPolygonABI from './constants/abis/routerPolygon.json' with { type: 'json' };
-import routerNgPoolsOnlyABI from './constants/abis/router-ng-pools-only.json' with { type: 'json' };
-import streamerABI from './constants/abis/streamer.json' with { type: 'json' };
-import factoryABI from './constants/abis/factory.json' with { type: 'json' };
-import factoryEywaABI from './constants/abis/factory-eywa.json' with { type: 'json' };
-import factoryAdminABI from './constants/abis/factory-admin.json' with { type: 'json' };
-import cryptoFactoryABI from './constants/abis/factory-crypto.json' with { type: 'json' };
-import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' with { type: 'json' };
-import tricryptoFactoryMainnetABI from './constants/abis/factory-tricrypto-mainnet.json' with { type: 'json' };
-import tricryptoFactorySidechainABI from './constants/abis/factory-tricrypto-sidechain.json' with { type: 'json' };
-import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' with { type: 'json' };
-import gasOracleABI from './constants/abis/gas_oracle_optimism.json' with { type: 'json' };
-import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' with { type: 'json' };
-import votingProposalABI from './constants/abis/voting_proposal.json' with { type: 'json' };
-import circulatingSupplyABI from './constants/abis/circulating_supply.json' with { type: 'json' };
-import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json" with { type: 'json' };
-
-import { lowerCasePoolDataAddresses, extractDecimals, extractGauges } from "./constants/utils.js";
+import {Contract as MulticallContract, Provider as MulticallProvider} from "@curvefi/ethcall";
+import {NETWORK_CONSTANTS} from "./constants/network_constants.js";
+import {CRYPTO_FACTORY_CONSTANTS, STABLE_FACTORY_CONSTANTS} from "./constants/factory/index.js";
+import {getFactoryPoolData} from "./factory/factory.js";
+import {getFactoryPoolsDataFromApi} from "./factory/factory-api.js";
+import {getCryptoFactoryPoolData} from "./factory/factory-crypto.js";
+import {getTricryptoFactoryPoolData} from "./factory/factory-tricrypto.js";
+import {Abi, IChainId, ICurve, IDict, IFactoryPoolType, INetworkConstants, IPoolData} from "./interfaces";
+import ERC20Abi from './constants/abis/ERC20.json' with {type: 'json'};
+import cERC20Abi from './constants/abis/cERC20.json' with {type: 'json'};
+import yERC20Abi from './constants/abis/yERC20.json' with {type: 'json'};
+import childGaugeFactoryABI from './constants/abis/gauge_factory/child_gauge_factory.json' with {type: 'json'};
+import minterMainnetABI from './constants/abis/minter_mainnet.json' with {type: 'json'};
+import votingEscrowABI from './constants/abis/votingescrow.json' with {type: 'json'};
+import anycallABI from './constants/abis/anycall.json' with {type: 'json'};
+import votingEscrowOracleABI from './constants/abis/voting_escrow_oracle.json' with {type: 'json'};
+import votingEscrowOracleEthABI from './constants/abis/voting_escrow_oracle_eth.json' with {type: 'json'};
+import feeDistributorABI from './constants/abis/fee_distributor.json' with {type: 'json'};
+import feeDistributorCrvUSDABI from './constants/abis/fee_distributor_crvusd.json' with {type: 'json'};
+import gaugeControllerABI from './constants/abis/gaugecontroller.json' with {type: 'json'};
+import depositAndStakeABI from './constants/abis/deposit_and_stake.json' with {type: 'json'};
+import depositAndStakeNgOnlyABI from './constants/abis/deposit_and_stake_ng_only.json' with {type: 'json'};
+import cryptoCalcZapABI from './constants/abis/crypto_calc.json' with {type: 'json'};
+import StableCalcZapABI from './constants/abis/stable_calc.json' with {type: 'json'};
+import routerABI from './constants/abis/router.json' with {type: 'json'};
+import routerPolygonABI from './constants/abis/routerPolygon.json' with {type: 'json'};
+import routerNgPoolsOnlyABI from './constants/abis/router-ng-pools-only.json' with {type: 'json'};
+import streamerABI from './constants/abis/streamer.json' with {type: 'json'};
+import factoryABI from './constants/abis/factory.json' with {type: 'json'};
+import factoryEywaABI from './constants/abis/factory-eywa.json' with {type: 'json'};
+import factoryAdminABI from './constants/abis/factory-admin.json' with {type: 'json'};
+import cryptoFactoryABI from './constants/abis/factory-crypto.json' with {type: 'json'};
+import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' with {type: 'json'};
+import tricryptoFactoryMainnetABI from './constants/abis/factory-tricrypto-mainnet.json' with {type: 'json'};
+import tricryptoFactorySidechainABI from './constants/abis/factory-tricrypto-sidechain.json' with {type: 'json'};
+import stableNgFactoryABI from './constants/abis/factory-stable-ng.json' with {type: 'json'};
+import gasOracleABI from './constants/abis/gas_oracle_optimism.json' with {type: 'json'};
+import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' with {type: 'json'};
+import votingProposalABI from './constants/abis/voting_proposal.json' with {type: 'json'};
+import circulatingSupplyABI from './constants/abis/circulating_supply.json' with {type: 'json'};
+import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json" with {type: "json"};
+import {
+    extractDecimals,
+    extractGauges,
+    formatUnits,
+    lowerCasePoolDataAddresses,
+    parseUnits,
+} from "./constants/utils.js";
 import {_getHiddenPools} from "./external-api.js";
-import { L2Networks } from "./constants/L2Networks.js";
-import { getTwocryptoFactoryPoolData } from "./factory/factory-twocrypto.js";
+import {L2Networks} from "./constants/L2Networks.js";
+import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import {getNetworkConstants} from "./utils.js";
 
 
@@ -106,16 +111,13 @@ export class Curve implements ICurve {
     constants: INetworkConstants;
 
     constructor() {
-        // @ts-ignore
-        this.provider = null;
-        // @ts-ignore
+        this.provider = null!;
         this.signer = null;
         this.isNoRPC = false;
         this.signerAddress = '';
         this.chainId = 1;
         this.isLiteChain = false;
-        // @ts-ignore
-        this.multicallProvider = null;
+        this.multicallProvider = null!;
         this.contracts = {};
         this.feeData = {}
         this.constantOptions = { gasLimit: 12000000 }
@@ -149,15 +151,12 @@ export class Curve implements ICurve {
         providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | 'NoRPC',
         options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
     ): Promise<void> {
-        // @ts-ignore
-        this.provider = null;
-        // @ts-ignore
+        this.provider = null!;
         this.signer = null;
         this.isNoRPC = false;
         this.signerAddress = '';
         this.chainId = 1;
-        // @ts-ignore
-        this.multicallProvider = null;
+        this.multicallProvider = null!;
         this.contracts = {};
         this.feeData = {}
         this.constantOptions = { gasLimit: 12000000 }
@@ -210,7 +209,7 @@ export class Curve implements ICurve {
             } else if (!providerSettings.url?.startsWith("https://rpc.gnosischain.com")) {
                 try {
                     this.signer = await this.provider.getSigner();
-                } catch (e) {
+                } catch {
                     this.signer = null;
                 }
             }
@@ -245,7 +244,7 @@ export class Curve implements ICurve {
 
         this.isLiteChain = !(this.chainId in NETWORK_CONSTANTS);
 
-        const network_constants = await getNetworkConstants(this.chainId);
+        const network_constants = await getNetworkConstants.call(this, this.chainId);
         this.constants.NATIVE_TOKEN = network_constants.NATIVE_COIN;
         this.constants.NETWORK_NAME = network_constants.NAME;
         this.constants.ALIASES = network_constants.ALIASES;
@@ -258,7 +257,7 @@ export class Curve implements ICurve {
         this.constants.DECIMALS = extractDecimals({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA});
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.address] = 18;
         this.constants.DECIMALS[this.constants.NATIVE_TOKEN.wrappedAddress] = 18;
-        this.constants.GAUGES = extractGauges(this.constants.POOLS_DATA);
+        this.constants.GAUGES = extractGauges.call(this, this.constants.POOLS_DATA);
 
         if(this.isLiteChain) {
             this.constants.API_CONSTANTS = network_constants.API_CONSTANTS
@@ -287,7 +286,7 @@ export class Curve implements ICurve {
         if (this.signer) {
             try {
                 this.signerAddress = await this.signer.getAddress();
-            } catch (err) {
+            } catch {
                 this.signer = null;
             }
         } else {
@@ -438,47 +437,29 @@ export class Curve implements ICurve {
             curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle, gasOracleABI);
             curveInstance.setContract(curveInstance.constants.ALIASES.gas_oracle_blob, gasOracleBlobABI);
 
-            // @ts-ignore
-            if(AbstractProvider.prototype.originalEstimate) {
-                // @ts-ignore
-                AbstractProvider.prototype.estimateGas = AbstractProvider.prototype.originalEstimate;
+            if('originalEstimate' in AbstractProvider.prototype) {
+                AbstractProvider.prototype.estimateGas = AbstractProvider.prototype.originalEstimate as any;
             }
 
             const originalEstimate = AbstractProvider.prototype.estimateGas;
 
-            const oldEstimate = async function(arg: any) {
-                // @ts-ignore
-                const originalEstimateFunc = originalEstimate.bind(this);
-
-                const gas = await originalEstimateFunc(arg);
-
-                return gas;
-            }
+            const oldEstimate = originalEstimate.bind(this)
 
             //Override
             const newEstimate = async function(arg: any) {
-                // @ts-ignore
-                const L2EstimateGas = originalEstimate.bind(this);
-
+                const L2EstimateGas = oldEstimate;
                 const L1GasUsed = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle_blob].contract.getL1GasUsed(arg.data);
                 const L1Fee = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle_blob].contract.getL1Fee(arg.data);
-
                 curveInstance.L1WeightedGasPrice = Number(L1Fee)/Number(L1GasUsed);
-
                 const L2GasUsed = await L2EstimateGas(arg);
-
                 return [L2GasUsed,L1GasUsed];
             }
 
-            // @ts-ignore
-            AbstractProvider.prototype.estimateGas = newEstimate;
-            // @ts-ignore
-            AbstractProvider.prototype.originalEstimate = oldEstimate;
+            AbstractProvider.prototype.estimateGas = newEstimate as any;
+            (AbstractProvider.prototype as any).originalEstimate = oldEstimate;
         } else {
-            // @ts-ignore
-            if(AbstractProvider.prototype.originalEstimate) {
-                // @ts-ignore
-                AbstractProvider.prototype.estimateGas = AbstractProvider.prototype.originalEstimate;
+            if('originalEstimate' in AbstractProvider.prototype) {
+                AbstractProvider.prototype.estimateGas = AbstractProvider.prototype.originalEstimate as any;
             }
         }
     }
@@ -514,13 +495,12 @@ export class Curve implements ICurve {
 
     async _filterHiddenPools(pools: IDict<IPoolData>): Promise<IDict<IPoolData>> {
         const hiddenPools = (await _getHiddenPools())[this.constants.NETWORK_NAME] || [];
-        // @ts-ignore
-        return Object.fromEntries(Object.entries(pools).filter(([id]) => !hiddenPools.includes(id)));
+        return Object.fromEntries(Object.entries(pools).filter(([id]) => !hiddenPools.includes(id))) as IDict<IPoolData>;
     }
 
     _updateDecimalsAndGauges(pools: IDict<IPoolData>): void {
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(pools) };
-        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges(pools) ];
+        this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges.call(this, pools) ];
     }
 
     fetchFactoryPools = async (useApi = true): Promise<void> => {
@@ -808,11 +788,11 @@ export class Curve implements ICurve {
     }
 
     formatUnits(value: BigNumberish, unit?: string | Numeric): string {
-        return ethers.formatUnits(value, unit);
+        return formatUnits(value, unit);
     }
 
     parseUnits(value: string, unit?: string | Numeric): bigint {
-        return ethers.parseUnits(value, unit);
+        return parseUnits(value, unit);
     }
 
     async updateFeeData(): Promise<void> {

@@ -1,4 +1,3 @@
-import { curve } from "../../curve.js";
 import {IPoolType, IReward} from '../../interfaces.js';
 import {_getPoolsFromApi} from '../../external-api.js';
 import {
@@ -10,6 +9,7 @@ import {
     getVolumeApiController,
 } from '../../utils.js';
 import {PoolTemplate} from "../PoolTemplate.js";
+import memoize from "memoizee";
 
 export interface IStatsParameters {
     lpTokenSupply: string,
@@ -46,6 +46,7 @@ export class StatsPool implements IStatsPool {
     }
 
     public parameters = async (): Promise<IStatsParameters> => {
+        const curve = this.pool.curve;
         const multicallContract = curve.contracts[this.pool.address].multicallContract;
         const lpMulticallContract = curve.contracts[this.pool.lpToken].multicallContract;
 
@@ -84,7 +85,7 @@ export class StatsPool implements IStatsPool {
         let _prices, _adminFee, _A, _lpTokenSupply, _gamma;
         try {
             [_virtualPrice, _fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
-        } catch (e) { // Empty pool
+        } catch { // Empty pool
             calls.shift();
             if (this.pool.isCrypto) {
                 calls.shift();
@@ -127,6 +128,7 @@ export class StatsPool implements IStatsPool {
     }
 
     public async wrappedBalances(): Promise<string[]> {
+        const curve = this.pool.curve;
         const contract = curve.contracts[this.pool.address].multicallContract;
         const calls = [];
         for (let i = 0; i < this.pool.wrappedCoins.length; i++) calls.push(contract.balances(i));
@@ -140,6 +142,7 @@ export class StatsPool implements IStatsPool {
     }
 
     public totalLiquidity = async (useApi = true): Promise<string> => {
+        const curve = this.pool.curve;
         if (curve.chainId === 1 && this.pool.id === "crveth") return "0"
 
         if (this.pool.isLlamma) {
@@ -153,7 +156,7 @@ export class StatsPool implements IStatsPool {
                 collateralContract.balanceOf(this.pool.address),
                 ammContract.admin_fees_y(),
             ]);
-            const collateralRate = await _getUsdRate(this.pool.underlyingCoinAddresses[1]);
+            const collateralRate = await _getUsdRate.call(curve, this.pool.underlyingCoinAddresses[1]);
 
             const stablecoinTvlBN = toBN(_balance_x).minus(toBN(_fee_x));
             const collateralTvlBN = toBN(_balance_y).minus(toBN(_fee_y)).times(collateralRate);
@@ -181,7 +184,7 @@ export class StatsPool implements IStatsPool {
         const balances = await this.underlyingBalances();
         const promises = [];
         for (const addr of this.pool.underlyingCoinAddresses) {
-            promises.push(_getUsdRate(addr))
+            promises.push(_getUsdRate.call(curve, addr))
         }
         const prices = await Promise.all(promises);
         const totalLiquidity = (balances as string[]).reduce(
@@ -190,14 +193,20 @@ export class StatsPool implements IStatsPool {
         return totalLiquidity.toFixed(8)
     }
 
+    totalLiquidityMemoized = memoize(this.totalLiquidity.bind(this), {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    });
+
     public volume = async (): Promise<string> => {
+        const curve = this.pool.curve;
         if(curve.isLiteChain && curve.chainId !== 146) {
             throw Error('This method is not supported for the lite version')
         }
 
 
         const network = curve.constants.NETWORK_NAME;
-        const {poolsData} = await getVolumeApiController(network);
+        const {poolsData} = await getVolumeApiController.call(curve, network);
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.pool.address);
 
         if(poolData) {
@@ -208,12 +217,13 @@ export class StatsPool implements IStatsPool {
     }
 
     public baseApy = async (): Promise<{ day: string, week: string }> => {
+        const curve = this.pool.curve;
         if(curve.isLiteChain && curve.chainId !== 146) {
             throw Error('baseApy is not supported for the lite version')
         }
 
         const network = curve.constants.NETWORK_NAME;
-        const {poolsData} = await getVolumeApiController(network);
+        const {poolsData} = await getVolumeApiController.call(curve, network);
         const poolData = poolsData.find((d) => d.address.toLowerCase() === this.pool.address);
 
         if(poolData) {
@@ -226,6 +236,7 @@ export class StatsPool implements IStatsPool {
     }
 
     public tokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
+        const curve = this.pool.curve;
         if(curve.isLiteChain && curve.chainId !== 146) {
             throw Error('tokenApy is not supported for the lite version')
         }
@@ -234,7 +245,7 @@ export class StatsPool implements IStatsPool {
 
         const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
         if (useApi && !isDisabledChain) {
-            const crvAPYs = await _getCrvApyFromApi();
+            const crvAPYs = await _getCrvApyFromApi.call(curve);
             const poolCrvApy = crvAPYs[this.pool.gauge.address] ?? [0, 0];  // new pools might be missing
             return [poolCrvApy[0], poolCrvApy[1]];
         }
@@ -243,11 +254,12 @@ export class StatsPool implements IStatsPool {
     }
 
     public rewardsApy = async (useApi = true): Promise<IReward[]> => {
+        const curve = this.pool.curve;
         if (this.pool.gauge.address === curve.constants.ZERO_ADDRESS) return [];
 
         const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
         if (useApi && !isDisabledChain) {
-            const rewards = await _getRewardsFromApi();
+            const rewards = await _getRewardsFromApi.call(curve);
             if (!rewards[this.pool.gauge.address]) return [];
             return rewards[this.pool.gauge.address].map((r) => ({ gaugeAddress: r.gaugeAddress, tokenAddress: r.tokenAddress, symbol: r.symbol, apy: r.apy }));
         }
@@ -260,7 +272,7 @@ export class StatsPool implements IStatsPool {
             const rewardContract = curve.contracts[this.pool.sRewardContract || this.pool.gauge.address].multicallContract;
 
             const totalLiquidityUSD = await this.totalLiquidity();
-            const rewardRate = await _getUsdRate(rewardToken.token);
+            const rewardRate = await _getUsdRate.call(curve, rewardToken.token);
 
             const [rewardData, _stakedSupply, _totalSupply] = (await curve.multicallProvider.all([
                 rewardContract.reward_data(rewardToken.token),

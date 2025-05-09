@@ -1,62 +1,76 @@
-import { curve } from "./curve.js";
-import { Contract } from "ethers";
-import { _getAllGauges, _getDaoProposalList, _getDaoProposal } from './external-api.js';
+import { type Curve} from "./curve.js";
+import {Contract} from "ethers";
+import {_getAllGauges, _getDaoProposal, _getDaoProposalList} from './external-api.js';
 import {
     _getAddress,
-    DIGas, ensureAllowance, ensureAllowanceEstimateGas, hasAllowance,
+    BN,
+    DIGas,
+    ensureAllowance,
+    ensureAllowanceEstimateGas,
+    hasAllowance,
     mulBy1_3,
     parseUnits,
     smartNumber,
     toBN,
-    BN,
 } from './utils.js';
 import {
-    IGaugeUserVote,
-    IVotingGauge,
+    IDaoProposal,
     IDaoProposalListItem,
     IDaoProposalUserListItem,
-    IDaoProposal,
     IDict,
+    IGaugeUserVote,
+    IVotingGauge,
     TVoteType,
 } from './interfaces';
-import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" with { type: 'json' };
+import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" with {type: "json"};
 
 
 // ----------------- Refactored boosting stuff -----------------
 
-export const crvSupplyStats = async (): Promise<{ circulating: string, locked: string, total: string, veCrv: string, averageLockTime: string }> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const crvContract = curve.contracts[curve.constants.ALIASES.crv].multicallContract;
-    const veContract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
-    const csContract = curve.contracts[curve.constants.ALIASES.circulating_supply].multicallContract;
-    const [_circulating, _locked, _veCrv] = await curve.multicallProvider.all([
+export async function crvSupplyStats(this: Curve): Promise<{
+    circulating: string,
+    locked: string,
+    total: string,
+    veCrv: string,
+    averageLockTime: string
+}> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const crvContract = this.contracts[this.constants.ALIASES.crv].multicallContract;
+    const veContract = this.contracts[this.constants.ALIASES.voting_escrow].multicallContract;
+    const csContract = this.contracts[this.constants.ALIASES.circulating_supply].multicallContract;
+    const [_circulating, _locked, _veCrv] = await this.multicallProvider.all([
         csContract.circulating_supply(),
-        crvContract.balanceOf(curve.constants.ALIASES.voting_escrow),
+        crvContract.balanceOf(this.constants.ALIASES.voting_escrow),
         veContract.totalSupply(),
     ]) as [bigint, bigint, bigint];
 
     return {
-        circulating: curve.formatUnits(_circulating),
-        locked: curve.formatUnits(_locked),
-        total: curve.formatUnits(_circulating + _locked),
-        veCrv: curve.formatUnits(_veCrv),
+        circulating: this.formatUnits(_circulating),
+        locked: this.formatUnits(_locked),
+        total: this.formatUnits(_circulating + _locked),
+        veCrv: this.formatUnits(_veCrv),
         averageLockTime: toBN(_veCrv).div(toBN(_locked)).times(4).toFixed(4), // years
     }
 }
 
-export const userCrv = async (address = ""): Promise<string> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    address = _getAddress(address);
-    const _balance: bigint = await curve.contracts[curve.constants.ALIASES.crv].contract.balanceOf(address);
+export async function userCrv(this: Curve, address = ""): Promise<string> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    address = _getAddress.call(this, address);
+    const _balance: bigint = await this.contracts[this.constants.ALIASES.crv].contract.balanceOf(address);
 
-    return curve.formatUnits(_balance)
+    return this.formatUnits(_balance)
 }
 
-export const userVeCrv = async (address = ""): Promise<{ veCrv: string, veCrvPct: string, lockedCrv: string, unlockTime: number }> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    address = _getAddress(address);
-    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].multicallContract;
-    const [_veCrv, _veCrvTotal, _locked] = await curve.multicallProvider.all([
+export async function userVeCrv(this: Curve, address = ""): Promise<{
+    veCrv: string,
+    veCrvPct: string,
+    lockedCrv: string,
+    unlockTime: number
+}> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    address = _getAddress.call(this, address);
+    const contract = this.contracts[this.constants.ALIASES.voting_escrow].multicallContract;
+    const [_veCrv, _veCrvTotal, _locked] = await this.multicallProvider.all([
         contract.balanceOf(address),
         contract.totalSupply(),
         contract.locked(address),
@@ -65,26 +79,26 @@ export const userVeCrv = async (address = ""): Promise<{ veCrv: string, veCrvPct
     const _unlockTime = (_locked as bigint[])[1];
 
     return {
-        veCrv: curve.formatUnits(_veCrv),
+        veCrv: this.formatUnits(_veCrv),
         veCrvPct: toBN(_veCrv).div(toBN(_veCrvTotal)).times(100).toString(),
-        lockedCrv: curve.formatUnits(_lockedCrv),
-        unlockTime: Number(curve.formatUnits(_unlockTime, 0)) * 1000,
+        lockedCrv: this.formatUnits(_lockedCrv),
+        unlockTime: Number(this.formatUnits(_unlockTime, 0)) * 1000,
     }
 }
 
-export const crvLockIsApproved = async (amount: number | string): Promise<boolean> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    return await hasAllowance([curve.constants.ALIASES.crv], [amount], curve.signerAddress, curve.constants.ALIASES.voting_escrow);
+export async function crvLockIsApproved(this: Curve, amount: number | string): Promise<boolean> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    return await hasAllowance.call(this, [this.constants.ALIASES.crv], [amount], this.signerAddress, this.constants.ALIASES.voting_escrow);
 }
 
-export const crvLockApproveEstimateGas = async (amount: number | string): Promise<number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    return await ensureAllowanceEstimateGas([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow, false);
+export async function crvLockApproveEstimateGas(this: Curve, amount: number | string): Promise<number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    return await ensureAllowanceEstimateGas.call(this, [this.constants.ALIASES.crv], [amount], this.constants.ALIASES.voting_escrow, false);
 }
 
-export const crvLockApprove = async (amount: number | string): Promise<string[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    return await ensureAllowance([curve.constants.ALIASES.crv], [amount], curve.constants.ALIASES.voting_escrow, false);
+export async function crvLockApprove(this: Curve, amount: number | string): Promise<string[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    return await ensureAllowance.call(this, [this.constants.ALIASES.crv], [amount], this.constants.ALIASES.voting_escrow, false);
 }
 
 export const calcCrvUnlockTime = (days: number | string, start: number | string = Date.now()): number => {
@@ -95,132 +109,127 @@ export const calcCrvUnlockTime = (days: number | string, start: number | string 
     return Math.floor(unlockTime / week) * week * 1000;
 }
 
-const _createCrvLock = async (amount: number | string, days: number, estimateGas: boolean): Promise<string | number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const crvBalance = await userCrv();
+async function _createCrvLock(this: Curve, amount: number | string, days: number, estimateGas: boolean): Promise<string | number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const crvBalance = await userCrv.call(this);
     if (BN(crvBalance).lt(amount)) throw Error(`Not enough CRV. Wallet balance: ${crvBalance}, required: ${amount}`);
-    if (!(await crvLockIsApproved(amount))) throw Error("Token allowance is needed to estimate gas")
+    if (!(await crvLockIsApproved.call(this, amount))) throw Error("Token allowance is needed to estimate gas")
 
     const _amount = parseUnits(amount);
     const unlockTime = Math.floor(Date.now() / 1000) + (days * 86400);
-    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
-    const gas = await contract.create_lock.estimateGas(_amount, unlockTime, curve.constantOptions);
+    const contract = this.contracts[this.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.create_lock.estimateGas(_amount, unlockTime, this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await contract.create_lock(_amount, unlockTime, { ...curve.options, gasLimit })).hash;
+    return (await contract.create_lock(_amount, unlockTime, { ...this.options, gasLimit })).hash;
 }
 
-export const createCrvLockEstimateGas = async (amount: number | string, days: number | string): Promise<number | number[]> => {
-    return await _createCrvLock(amount, Number(days), true) as number | number[];
+export async function createCrvLockEstimateGas(this: Curve, amount: number | string, days: number | string): Promise<number | number[]> {
+    return await _createCrvLock.call(this, amount, Number(days), true) as number | number[];
 }
 
-export const createCrvLock = async (amount: number | string, days: number | string): Promise<string> => {
-    return await _createCrvLock(amount, Number(days), false) as string;
+export async function createCrvLock(this: Curve, amount: number | string, days: number | string): Promise<string> {
+    return await _createCrvLock.call(this, amount, Number(days), false) as string;
 }
 
-const _increaseCrvLockedAmount = async (amount: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const crvBalance = await userCrv();
+async function _increaseCrvLockedAmount(this: Curve, amount: number | string, estimateGas: boolean): Promise<string | number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const crvBalance = await userCrv.call(this);
     if (BN(crvBalance).lt(amount)) throw Error(`Not enough CRV. Wallet balance: ${crvBalance}, required: ${amount}`);
-    if (!(await crvLockIsApproved(amount))) throw Error("Token allowance is needed to estimate gas")
+    if (!(await crvLockIsApproved.call(this, amount))) throw Error("Token allowance is needed to estimate gas")
 
     const _amount = parseUnits(amount);
-    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
-    const gas = await contract.increase_amount.estimateGas(_amount, curve.constantOptions);
+    const contract = this.contracts[this.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.increase_amount.estimateGas(_amount, this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await contract.increase_amount(_amount, { ...curve.options, gasLimit })).hash;
+    return (await contract.increase_amount(_amount, { ...this.options, gasLimit })).hash;
 }
 
-export const increaseCrvLockedAmountEstimateGas = async (amount: number | string): Promise<number | number[]> => {
-    return await _increaseCrvLockedAmount(amount, true) as number | number[];
+export async function increaseCrvLockedAmountEstimateGas(this: Curve, amount: number | string): Promise<number | number[]> {
+    return await _increaseCrvLockedAmount.call(this, amount, true) as number | number[];
 }
 
-export const increaseCrvLockedAmount = async (amount: number | string): Promise<string> => {
-    return await _increaseCrvLockedAmount(amount, false) as string;
+export async function increaseCrvLockedAmount(this: Curve, amount: number | string): Promise<string> {
+    return await _increaseCrvLockedAmount.call(this, amount, false) as string;
 }
 
-const _increaseCrvUnlockTime = async (days: number, estimateGas: boolean): Promise<string | number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const { unlockTime } = await userVeCrv();
+async function _increaseCrvUnlockTime(this: Curve, days: number, estimateGas: boolean): Promise<string | number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const { unlockTime } = await userVeCrv.call(this);
     const newUnlockTime = Math.floor(unlockTime / 1000) + (days * 86400);
-    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
-    const gas = await contract.increase_unlock_time.estimateGas(newUnlockTime, curve.constantOptions);
+    const contract = this.contracts[this.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.increase_unlock_time.estimateGas(newUnlockTime, this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await contract.increase_unlock_time(newUnlockTime, { ...curve.options, gasLimit })).hash;
+    return (await contract.increase_unlock_time(newUnlockTime, { ...this.options, gasLimit })).hash;
 }
 
-export const increaseCrvUnlockTimeEstimateGas = async (days: number | string): Promise<number | number[]> => {
-    return await _increaseCrvUnlockTime(Number(days), true) as number | number[];
+export async function increaseCrvUnlockTimeEstimateGas(this: Curve, days: number | string): Promise<number | number[]> {
+    return await _increaseCrvUnlockTime.call(this, Number(days), true) as number | number[];
 }
 
-export const increaseCrvUnlockTime = async (days: number | string): Promise<string> => {
-    return await _increaseCrvUnlockTime(Number(days), false) as string;
+export async function increaseCrvUnlockTime(this: Curve, days: number | string): Promise<string> {
+    return await _increaseCrvUnlockTime.call(this, Number(days), false) as string;
 }
 
-const _withdrawLockedCrv = async (estimateGas: boolean): Promise<string | number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method");
-    const { unlockTime } = await userVeCrv();
+async function _withdrawLockedCrv(this: Curve, estimateGas: boolean): Promise<string | number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method");
+    const { unlockTime } = await userVeCrv.call(this);
     if (unlockTime > Date.now()) throw Error("The lock haven't expired yet")
-    const contract = curve.contracts[curve.constants.ALIASES.voting_escrow].contract;
-    const gas = await contract.withdraw.estimateGas(curve.constantOptions);
+    const contract = this.contracts[this.constants.ALIASES.voting_escrow].contract;
+    const gas = await contract.withdraw.estimateGas(this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await contract.withdraw({ ...curve.options, gasLimit })).hash;
+    return (await contract.withdraw({ ...this.options, gasLimit })).hash;
 }
 
-export const withdrawLockedCrvEstimateGas = async (): Promise<number | number[]> => {
-    return await _withdrawLockedCrv(true) as number | number[];
+export async function withdrawLockedCrvEstimateGas(this: Curve): Promise<number | number[]> {
+    return await _withdrawLockedCrv.call(this, true) as number | number[];
 }
 
-export const withdrawLockedCrv = async (): Promise<string> => {
-    return await _withdrawLockedCrv(false) as string;
+export async function withdrawLockedCrv(this: Curve): Promise<string> {
+    return await _withdrawLockedCrv.call(this, false) as string;
 }
 
-export const claimableFees = async (address = ""): Promise<string> => {
-    address = _getAddress(address);
-    const contract = new Contract(curve.constants.ALIASES.fee_distributor, feeDistributorViewABI, curve.provider)
-    return curve.formatUnits(await contract.claim(address, curve.constantOptions));
+export async function claimableFees(this: Curve, address = ""): Promise<string> {
+    address = _getAddress.call(this, address);
+    const contract = new Contract(this.constants.ALIASES.fee_distributor, feeDistributorViewABI, this.provider)
+    return this.formatUnits(await contract.claim(address, this.constantOptions));
 }
 
-const _claimFees = async (address: string, estimateGas: boolean): Promise<string | number | number[]> => {
-    address = _getAddress(address);
-    const contract = curve.contracts[curve.constants.ALIASES.fee_distributor].contract;
-    const gas = await contract.claim.estimateGas(address, curve.constantOptions);
+async function _claimFees(this: Curve, address: string, estimateGas: boolean): Promise<string | number | number[]> {
+    address = _getAddress.call(this, address);
+    const contract = this.contracts[this.constants.ALIASES.fee_distributor].contract;
+    const gas = await contract.claim.estimateGas(address, this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await contract.claim(address, { ...curve.options, gasLimit })).hash;
+    return (await contract.claim(address, { ...this.options, gasLimit })).hash;
 }
 
-export const claimFeesEstimateGas = async (address = ""): Promise<number | number[]> => {
-    return await _claimFees(address,true) as number | number[];
+export async function claimFeesEstimateGas(this: Curve, address = ""): Promise<number | number[]> {
+    return await _claimFees.call(this, address,true) as number | number[];
 }
 
-export const claimFees = async (address = ""): Promise<string> => {
-    return await _claimFees(address,false) as string;
+export async function claimFees(this: Curve, address = ""): Promise<string> {
+    return await _claimFees.call(this, address,false) as string;
 }
 
 
 // ----------------- Gauge weights -----------------
 
-const _extractNetworkFromPoolUrl = (poolUrl: string): string => {
-    if (!poolUrl) return "unknown";
-    return poolUrl.split("/")[4]
-}
-
-export const getVotingGaugeList = async (): Promise<IVotingGauge[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
+export async function getVotingGaugeList(this: Curve): Promise<IVotingGauge[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
     const gaugeData = Object.values(await _getAllGauges());
     const res = [];
     for (let i = 0; i < gaugeData.length; i++) {
@@ -232,8 +241,8 @@ export const getVotingGaugeList = async (): Promise<IVotingGauge[]> => {
             poolAddress: gaugeData[i].swap || '',
             lpTokenAddress: gaugeData[i].swap_token || '',
             poolName: gaugeData[i].shortName,
-            totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
-            relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
+            totalVeCrv: this.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
+            relativeWeight: this.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
             isKilled: gaugeData[i].is_killed ?? false,
         });
     }
@@ -241,11 +250,15 @@ export const getVotingGaugeList = async (): Promise<IVotingGauge[]> => {
     return res
 }
 
-export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } > => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    address = _getAddress(address);
-    const gcMulticallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
-    const veMulticallContract = curve.contracts[curve.constants.ALIASES.voting_escrow]. multicallContract;
+export async function userGaugeVotes(this: Curve, address = ""): Promise<{
+    gauges: IGaugeUserVote[],
+    powerUsed: string,
+    veCrvUsed: string
+}> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    address = _getAddress.call(this, address);
+    const gcMulticallContract = this.contracts[this.constants.ALIASES.gauge_controller].multicallContract;
+    const veMulticallContract = this.contracts[this.constants.ALIASES.voting_escrow]. multicallContract;
 
     const gaugeData = Object.values(await _getAllGauges());
     const calls: any[] = [veMulticallContract.balanceOf(address)];
@@ -253,7 +266,7 @@ export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUser
         const gaugeAddress = d.rootGauge ? d.rootGauge : d.gauge;
         calls.push(gcMulticallContract.vote_user_slopes(address, gaugeAddress));
     }
-    const [veCrvBalance, ...votes] = await curve.multicallProvider.all(calls) as [bigint, bigint[]];
+    const [veCrvBalance, ...votes] = await this.multicallProvider.all(calls) as [bigint, bigint[]];
 
     const res: { gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string } = { gauges: [], powerUsed: "0.0", veCrvUsed: "0.0" };
     let powerUsed = BigInt(0);
@@ -263,9 +276,9 @@ export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUser
         let dt = votes[i][2] - BigInt(Math.floor(Date.now() / 1000));
         if (dt < BigInt(0)) dt = BigInt(0);
         res.gauges.push({
-            userPower: curve.formatUnits(votes[i][1], 2),
-            userVeCrv: curve.formatUnits(votes[i][0] * dt, 18),
-            userFutureVeCrv: curve.formatUnits(veCrvBalance * votes[i][1] / BigInt(10000), 18),
+            userPower: this.formatUnits(votes[i][1], 2),
+            userVeCrv: this.formatUnits(votes[i][0] * dt, 18),
+            userFutureVeCrv: this.formatUnits(veCrvBalance * votes[i][1] / BigInt(10000), 18),
             expired: dt === BigInt(0),
             gaugeData: {
                 poolUrl: gaugeData[i].poolUrls?.swap[0] || '',
@@ -274,81 +287,81 @@ export const userGaugeVotes = async (address = ""): Promise<{ gauges: IGaugeUser
                 poolAddress: gaugeData[i].swap || '',
                 lpTokenAddress: gaugeData[i].swap_token || '',
                 poolName: gaugeData[i].shortName,
-                totalVeCrv: curve.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
-                relativeWeight: curve.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
+                totalVeCrv: this.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
+                relativeWeight: this.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
                 isKilled: gaugeData[i].is_killed ?? false,
             },
         });
         powerUsed += votes[i][1];
         veCrvUsed += votes[i][0] * dt;
     }
-    res.powerUsed = curve.formatUnits(powerUsed, 2);
-    res.veCrvUsed = curve.formatUnits(veCrvUsed.toString(), 18);
+    res.powerUsed = this.formatUnits(powerUsed, 2);
+    res.veCrvUsed = this.formatUnits(veCrvUsed.toString(), 18);
 
     return res
 }
 
-export const voteForGaugeNextTime = async (gauge: string): Promise<number> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const _lastVote: bigint = await curve.contracts[curve.constants.ALIASES.gauge_controller].contract.last_user_vote(curve.signerAddress, gauge, curve.constantOptions);
+export async function voteForGaugeNextTime(this: Curve, gauge: string): Promise<number> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const _lastVote: bigint = await this.contracts[this.constants.ALIASES.gauge_controller].contract.last_user_vote(this.signerAddress, gauge, this.constantOptions);
 
     return (Number(_lastVote) + (10 * 86400)) * 1000;
 }
 
-const _voteForGauge = async (gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const gcContract = curve.contracts[curve.constants.ALIASES.gauge_controller].contract;
-    const gcMulticallContract = curve.contracts[curve.constants.ALIASES.gauge_controller].multicallContract;
+async function _voteForGauge(this: Curve, gauge: string, power: number | string, estimateGas: boolean): Promise<string | number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const gcContract = this.contracts[this.constants.ALIASES.gauge_controller].contract;
+    const gcMulticallContract = this.contracts[this.constants.ALIASES.gauge_controller].multicallContract;
     const _power = parseUnits(power, 2);
-    const [_powerUsed, _vote_slopes] = await curve.multicallProvider.all([
-        gcMulticallContract.vote_user_power(curve.signerAddress),
-        gcMulticallContract.vote_user_slopes(curve.signerAddress, gauge),
+    const [_powerUsed, _vote_slopes] = await this.multicallProvider.all([
+        gcMulticallContract.vote_user_power(this.signerAddress),
+        gcMulticallContract.vote_user_slopes(this.signerAddress, gauge),
     ]) as [bigint, bigint[]];
     const _freePower = BigInt(10000) - _powerUsed;
-    if (_power > _freePower + _vote_slopes[1]) throw Error(`User have only ${curve.formatUnits(_freePower, 2)} % free power. Trying to use ${curve.formatUnits(_power, 2)}`);
-    const nextVoteTime = await voteForGaugeNextTime(gauge);
+    if (_power > _freePower + _vote_slopes[1]) throw Error(`User have only ${this.formatUnits(_freePower, 2)} % free power. Trying to use ${this.formatUnits(_power, 2)}`);
+    const nextVoteTime = await voteForGaugeNextTime.call(this, gauge);
     if (Date.now() < nextVoteTime) throw Error(`User can't change vote for this gauge earlier than ${new Date(nextVoteTime)}`);
 
-    const gas = await gcContract.vote_for_gauge_weights.estimateGas(gauge, _power, curve.constantOptions);
+    const gas = await gcContract.vote_for_gauge_weights.estimateGas(gauge, _power, this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await gcContract.vote_for_gauge_weights(gauge, _power, { ...curve.options, gasLimit })).hash;
+    return (await gcContract.vote_for_gauge_weights(gauge, _power, { ...this.options, gasLimit })).hash;
 }
 
-export const voteForGaugeEstimateGas = async (gauge: string, power: number | string): Promise<number | number[]> => {
-    return await _voteForGauge(gauge, power, true) as number | number[];
+export async function voteForGaugeEstimateGas(this: Curve, gauge: string, power: number | string): Promise<number | number[]> {
+    return await _voteForGauge.call(this, gauge, power, true) as number | number[];
 }
 
-export const voteForGauge = async (gauge: string, power: number | string): Promise<string> => {
-    return await _voteForGauge(gauge, power, false) as string;
+export async function voteForGauge(this: Curve, gauge: string, power: number | string): Promise<string> {
+    return await _voteForGauge.call(this, gauge, power, false) as string;
 }
 
 
 // ----------------- Proposals -----------------
 
-export const getProposalList = async (): Promise<IDaoProposalListItem[]> => {
+export async function getProposalList(this: Curve): Promise<IDaoProposalListItem[]> {
     return await _getDaoProposalList();
 }
 
-export const getProposal = async (type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> => {
+export async function getProposal(this: Curve, type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> {
     return await _getDaoProposal(type, id);
 }
 
-export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserListItem[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    address = _getAddress(address);
+export async function userProposalVotes(this: Curve, address = ""): Promise<IDaoProposalUserListItem[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    address = _getAddress.call(this, address);
     const proposalList = await _getDaoProposalList();
     const calls = [];
     for (const proposal of proposalList) {
         if (proposal.voteType.toUpperCase() == "PARAMETER") {
-            calls.push(curve.contracts[curve.constants.ALIASES.voting_parameter].multicallContract.getVoterState(proposal.voteId, address));
+            calls.push(this.contracts[this.constants.ALIASES.voting_parameter].multicallContract.getVoterState(proposal.voteId, address));
         } else {
-            calls.push(curve.contracts[curve.constants.ALIASES.voting_ownership].multicallContract.getVoterState(proposal.voteId, address));
+            calls.push(this.contracts[this.constants.ALIASES.voting_ownership].multicallContract.getVoterState(proposal.voteId, address));
         }
     }
-    const userState: number[] = (await curve.multicallProvider.all(calls)).map(Number);
+    const userState: number[] = (await this.multicallProvider.all(calls)).map(Number);
 
     const userProposalList: IDaoProposalUserListItem[] = [];
     const voteEnum: IDict<"yes" | "no" | "even"> = {
@@ -363,52 +376,52 @@ export const userProposalVotes = async (address = ""): Promise<IDaoProposalUserL
     return userProposalList
 }
 
-const _voteForProposal = async (type: TVoteType, id: number, support: boolean, estimateGas: boolean): Promise<string | number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const contractAddress = type.toUpperCase() === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
-    const contract = curve.contracts[contractAddress].contract;
+async function _voteForProposal(this: Curve, type: TVoteType, id: number, support: boolean, estimateGas: boolean): Promise<string | number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const contractAddress = type.toUpperCase() === "PARAMETER" ? this.constants.ALIASES.voting_parameter : this.constants.ALIASES.voting_ownership;
+    const contract = this.contracts[contractAddress].contract;
     const yesPct = support ? BigInt(10**18) : BigInt(0);
     const noPct = BigInt(10**18) - yesPct;
-    const gas = await contract.votePct.estimateGas(id, yesPct, noPct, true, curve.constantOptions);
+    const gas = await contract.votePct.estimateGas(id, yesPct, noPct, true, this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await contract.votePct(id, yesPct, noPct, false, { ...curve.options, gasLimit })).hash;
+    return (await contract.votePct(id, yesPct, noPct, false, { ...this.options, gasLimit })).hash;
 }
 
-export const voteForProposalEstimateGas = async (type: TVoteType, id: number, support: boolean): Promise<number | number[]> => {
-    return await _voteForProposal(type, id, support, true) as number | number[];
+export async function voteForProposalEstimateGas(this: Curve, type: TVoteType, id: number, support: boolean): Promise<number | number[]> {
+    return await _voteForProposal.call(this, type, id, support, true) as number | number[];
 }
 
-export const voteForProposal = async (type: TVoteType, id: number, support: boolean): Promise<string> => {
-    return await _voteForProposal(type, id, support, false) as string;
+export async function voteForProposal(this: Curve, type: TVoteType, id: number, support: boolean): Promise<string> {
+    return await _voteForProposal.call(this, type, id, support, false) as string;
 }
 
-const _executeVote = async (type: TVoteType, id: number, estimateGas = false): Promise<string | number | number[]> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const contractAddress = type.toUpperCase() === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
-    const contract = curve.contracts[contractAddress].contract;
-    const gas = await contract.executeVote.estimateGas(id, curve.constantOptions);
+async function _executeVote(this: Curve, type: TVoteType, id: number, estimateGas = false): Promise<string | number | number[]> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const contractAddress = type.toUpperCase() === "PARAMETER" ? this.constants.ALIASES.voting_parameter : this.constants.ALIASES.voting_ownership;
+    const contract = this.contracts[contractAddress].contract;
+    const gas = await contract.executeVote.estimateGas(id, this.constantOptions);
     if (estimateGas) return smartNumber(gas);
 
-    await curve.updateFeeData();
+    await this.updateFeeData();
     const gasLimit = mulBy1_3(DIGas(gas));
-    return (await contract.executeVote(id, { ...curve.options, gasLimit })).hash;
+    return (await contract.executeVote(id, { ...this.options, gasLimit })).hash;
 }
 
-export const executeVoteEstimateGas = async (type: TVoteType, id: number): Promise<number | number[]> => {
-    return await _executeVote(type, id, true) as number | number[];
+export async function executeVoteEstimateGas(this: Curve, type: TVoteType, id: number): Promise<number | number[]> {
+    return await _executeVote.call(this, type, id, true) as number | number[];
 }
 
-export const executeVote = async (type:TVoteType, id: number): Promise<string> => {
-    return await _executeVote(type, id, false) as string;
+export async function executeVote(this: Curve, type: TVoteType, id: number): Promise<string> {
+    return await _executeVote.call(this, type, id, false) as string;
 }
 
-export const isCanVoteExecute = async (type: TVoteType, id: number): Promise<boolean> => {
-    if (curve.chainId !== 1) throw Error("Ethereum-only method")
-    const contractAddress = type.toUpperCase() === "PARAMETER" ? curve.constants.ALIASES.voting_parameter : curve.constants.ALIASES.voting_ownership;
-    const contract = curve.contracts[contractAddress].contract;
+export async function isCanVoteExecute(this: Curve, type: TVoteType, id: number): Promise<boolean> {
+    if (this.chainId !== 1) throw Error("Ethereum-only method")
+    const contractAddress = type.toUpperCase() === "PARAMETER" ? this.constants.ALIASES.voting_parameter : this.constants.ALIASES.voting_ownership;
+    const contract = this.contracts[contractAddress].contract;
 
-    return await contract.canExecute(id, { ...curve.options });
+    return await contract.canExecute(id, { ...this.options });
 }

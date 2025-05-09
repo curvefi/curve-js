@@ -1,6 +1,10 @@
-import { curve } from "../curve.js";
-import { IDict, IPoolData } from "../interfaces.js";
+import {IDict, IPoolData} from "../interfaces.js";
+import {BigNumberish, ethers, Numeric} from "ethers/lib.esm";
+import memoize from "memoizee";
+import {Curve} from "../curve";
 
+export const formatUnits = (value: BigNumberish, unit?: string | Numeric): string => ethers.formatUnits(value, unit);
+export const parseUnits = (value: string, unit?: string | Numeric) => ethers.parseUnits(value, unit)
 
 export const lowerCasePoolDataAddresses = (poolsData: IDict<IPoolData>): IDict<IPoolData> => {
     for (const poolId in poolsData) {
@@ -42,10 +46,10 @@ export const extractDecimals = (poolsData: IDict<IPoolData>): IDict<number> => {
     return DECIMALS;
 }
 
-export const extractGauges = (poolsData: IDict<IPoolData>): string[] => {
+export function extractGauges(this: Curve, poolsData: IDict<IPoolData>): string[] {
     const GAUGES: string[] = [];
     for (const poolData of Object.values(poolsData)) {
-        if (poolData.gauge_address === curve.constants.ZERO_ADDRESS) continue;
+        if (poolData.gauge_address === this.constants.ZERO_ADDRESS) continue;
         GAUGES.push(poolData.gauge_address);
     }
 
@@ -53,11 +57,16 @@ export const extractGauges = (poolsData: IDict<IPoolData>): string[] => {
 }
 
 export const lowerCaseValues = (dict: IDict<string>): IDict<string> => {
-    // @ts-ignore
     return Object.fromEntries(Object.entries(dict).map((entry) => [entry[0], entry[1].toLowerCase()]))
 }
 
 export const lowerCaseKeys = (dict: IDict<any>): IDict<any> => {
-    // @ts-ignore
     return Object.fromEntries(Object.entries(dict).map((entry) => [entry[0].toLowerCase(), entry[1]]))
+}
+
+export const memoizeMethod = <Obj extends object, Method extends (this: Obj, ...params: any[]) => Promise<unknown>>(curve: Obj, name: string, method: Method) => {
+    if (!(name in curve)) {
+        (curve as any)['name'] = memoize(method.bind(curve), { promise: true, maxAge: 5 * 60 * 1000 /* 5m */ });
+    }
+    return (curve as any)[name] as Method;
 }

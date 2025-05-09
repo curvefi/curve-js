@@ -1,4 +1,3 @@
-import { curve } from "../../curve.js";
 import {IDict} from '../../interfaces';
 import {
     _prepareAddresses,
@@ -17,7 +16,7 @@ export interface IWalletPool {
 export class WalletPool implements IWalletPool {
     private pool: PoolTemplate;
 
-    constructor(pool: PoolTemplate) {
+    constructor(pool: PoolTemplate, readonly curve = pool.curve) {
         this.pool = pool;
     }
 
@@ -33,8 +32,8 @@ export class WalletPool implements IWalletPool {
             }
         }
 
-        addresses = _prepareAddresses(addresses);
-        const rawBalances: IDict<string[]> = await _getBalances(coinAddresses, addresses);
+        addresses = _prepareAddresses.call(this.curve, addresses);
+        const rawBalances: IDict<string[]> = await _getBalances.call(this.curve, coinAddresses, addresses);
 
         const balances: IDict<IDict<string>> = {};
         for (const address of addresses) {
@@ -48,7 +47,7 @@ export class WalletPool implements IWalletPool {
     }
 
     public async balances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        if (this.pool.gauge.address === curve.constants.ZERO_ADDRESS) {
+        if (this.pool.gauge.address === this.curve.constants.ZERO_ADDRESS) {
             return await this._balances(
                 ['lpToken', ...this.pool.underlyingCoinAddresses, ...this.pool.wrappedCoinAddresses],
                 [this.pool.lpToken, ...this.pool.underlyingCoinAddresses, ...this.pool.wrappedCoinAddresses],
@@ -64,7 +63,7 @@ export class WalletPool implements IWalletPool {
     }
 
     public async lpTokenBalances(...addresses: string[] | string[][]): Promise<IDict<IDict<string>> | IDict<string>> {
-        if (this.pool.gauge.address === curve.constants.ZERO_ADDRESS) {
+        if (this.pool.gauge.address === this.curve.constants.ZERO_ADDRESS) {
             return await this._balances(['lpToken'], [this.pool.lpToken], ...addresses);
         } else {
             return await this._balances(['lpToken', 'gauge'], [this.pool.lpToken, this.pool.gauge.address], ...addresses);

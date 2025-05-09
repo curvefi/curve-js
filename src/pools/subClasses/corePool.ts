@@ -1,5 +1,6 @@
-import {curve} from "../../curve.js";
+import {type Curve} from "../../curve.js";
 import {GaugePool, IGaugePool} from "./gaugePool.js";
+import {IPoolData} from "../../interfaces";
 
 export interface ICorePool {
     id: string;
@@ -68,9 +69,7 @@ export class CorePool implements ICorePool {
     useLending: boolean[];
     inApi: boolean;
 
-    constructor(id: string) {
-        const poolData = curve.getPoolsData()[id];
-
+    constructor(id: string, poolData: IPoolData, readonly curve: Curve) {
         this.id = id;
         this.name = poolData.name;
         this.fullName = poolData.full_name;
@@ -78,7 +77,7 @@ export class CorePool implements ICorePool {
         this.referenceAsset = poolData.reference_asset;
         this.address = poolData.swap_address;
         this.lpToken = poolData.token_address;
-        this.gauge = new GaugePool(poolData.gauge_address, poolData.name);
+        this.gauge = new GaugePool(poolData.gauge_address, poolData.name, curve);
         this.zap = poolData.deposit_address || null;
         this.sRewardContract = poolData.sCurveRewards_address || null;
         this.rewardContract = poolData.reward_contract || null;

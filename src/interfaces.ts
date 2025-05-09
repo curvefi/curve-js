@@ -1,5 +1,6 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract, Provider as MulticallProvider } from "@curvefi/ethcall";
+import {BigNumberish, Numeric} from "ethers/lib.esm";
 
 export interface IDict<T> {
     [index: string]: T,
@@ -91,6 +92,7 @@ export interface ICurve {
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint },
     constants: INetworkConstants,
     setContract: (address: string | undefined, abi: any) => void,
+    formatUnits(value: BigNumberish, unit?: string | Numeric): string
 }
 
 export interface ICoinFromPoolDataApi {

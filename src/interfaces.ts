@@ -1,6 +1,6 @@
 import { Contract, ethers } from "ethers";
 import { Contract as MulticallContract, Provider as MulticallProvider } from "@curvefi/ethcall";
-import {BigNumberish, Numeric} from "ethers/lib.esm";
+import {BigNumberish, Numeric} from "ethers";
 
 export interface IDict<T> {
     [index: string]: T,

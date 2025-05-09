@@ -27,7 +27,7 @@ import {
     toBN,
     toStringFromBN,
 } from '../utils.js';
-import {IDict, IPoolData, IProfit} from '../interfaces';
+import {IDict, IProfit} from '../interfaces';
 import {Curve, OLD_CHAINS} from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' with {type: 'json'};
 import {CorePool} from "./subClasses/corePool.js";

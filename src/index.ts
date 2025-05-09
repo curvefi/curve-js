@@ -141,9 +141,16 @@ import {
 
 export const createCurve = () => {
     const _curve = new Curve();
+    async function init (this: ReturnType<typeof createCurve>, ...params: Parameters<Curve['init']>): Promise<void> {
+        await _curve.init(...params);
+        this.signerAddress = _curve.signerAddress;
+        this.chainId = _curve.chainId;
+        this.isNoRPC = _curve.isNoRPC;
+    }
+
     return {
-        init: _curve.init.bind(_curve),
-        chainId: 0,
+        init,
+        chainId: 0, // until init is called
         signerAddress: '',
         setCustomFeeData: _curve.setCustomFeeData.bind(_curve),
         getPoolList: _curve.getPoolList.bind(_curve),

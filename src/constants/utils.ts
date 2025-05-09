@@ -1,5 +1,5 @@
 import {IDict, IPoolData} from "../interfaces.js";
-import {BigNumberish, ethers, Numeric} from "ethers/lib.esm";
+import {BigNumberish, ethers, Numeric} from "ethers";
 import memoize from "memoizee";
 import {Curve} from "../curve";
 

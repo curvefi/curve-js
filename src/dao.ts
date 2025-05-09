@@ -27,13 +27,7 @@ import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" w
 
 // ----------------- Refactored boosting stuff -----------------
 
-export async function crvSupplyStats(this: Curve): Promise<{
-    circulating: string,
-    locked: string,
-    total: string,
-    veCrv: string,
-    averageLockTime: string
-}> {
+export async function crvSupplyStats(this: Curve): Promise<{ circulating: string, locked: string, total: string, veCrv: string, averageLockTime: string }> {
     if (this.chainId !== 1) throw Error("Ethereum-only method")
     const crvContract = this.contracts[this.constants.ALIASES.crv].multicallContract;
     const veContract = this.contracts[this.constants.ALIASES.voting_escrow].multicallContract;
@@ -61,12 +55,7 @@ export async function userCrv(this: Curve, address = ""): Promise<string> {
     return this.formatUnits(_balance)
 }
 
-export async function userVeCrv(this: Curve, address = ""): Promise<{
-    veCrv: string,
-    veCrvPct: string,
-    lockedCrv: string,
-    unlockTime: number
-}> {
+export async function userVeCrv(this: Curve, address = ""): Promise<{ veCrv: string, veCrvPct: string, lockedCrv: string, unlockTime: number }> {
     if (this.chainId !== 1) throw Error("Ethereum-only method")
     address = _getAddress.call(this, address);
     const contract = this.contracts[this.constants.ALIASES.voting_escrow].multicallContract;
@@ -250,11 +239,7 @@ export async function getVotingGaugeList(this: Curve): Promise<IVotingGauge[]> {
     return res
 }
 
-export async function userGaugeVotes(this: Curve, address = ""): Promise<{
-    gauges: IGaugeUserVote[],
-    powerUsed: string,
-    veCrvUsed: string
-}> {
+export async function userGaugeVotes(this: Curve, address = ""): Promise<{ gauges: IGaugeUserVote[], powerUsed: string, veCrvUsed: string }> {
     if (this.chainId !== 1) throw Error("Ethereum-only method")
     address = _getAddress.call(this, address);
     const gcMulticallContract = this.contracts[this.constants.ALIASES.gauge_controller].multicallContract;

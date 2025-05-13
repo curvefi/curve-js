@@ -14,7 +14,7 @@ import {
 
 export const _getPoolsFromApi = memoize(
     async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
-        const api = isLiteChain ? "https://dy9z253d96rct.cloudfront.net/v1/" : "https://d3dl9x5bpp6us7.cloudfront.net/api";
+        const api = isLiteChain ? "https://api-core.curve.finance/v1/" : "https://api.curve.finance/api";
         const url = `${api}/getPools/${network}/${poolType}`;
         return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
     },
@@ -48,7 +48,7 @@ export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = f
 
 export const _getSubgraphData = memoize(
     async (network: INetworkName): Promise<IVolumeAndAPYs> => {
-        const data = await fetchData(`https://d3dl9x5bpp6us7.cloudfront.net/api/getSubgraphData/${network}`);
+        const data = await fetchData(`https://api.curve.finance/api/getSubgraphData/${network}`);
         const poolsData = data.poolList.map((data: any) => ({
             address: data.address,
             volumeUSD: data.volumeUSD,
@@ -72,7 +72,7 @@ export const _getSubgraphData = memoize(
 export const _getVolumes = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
 
-        const { pools, totalVolumes } = await fetchData(`https://d3dl9x5bpp6us7.cloudfront.net/api/getVolumes/${network}`);
+        const { pools, totalVolumes } = await fetchData(`https://api.curve.finance/api/getVolumes/${network}`);
         const poolsData = pools.map((data: any) => ({
             address: data.address,
             volumeUSD: data.volumeUSD,
@@ -96,7 +96,7 @@ export const _getVolumes = memoize(
 export const _getFactoryAPYs = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
         const [stableData, cryptoData] = await Promise.all(
-            ['stable', 'crypto'].map((type) => fetchData(`https://d3dl9x5bpp6us7.cloudfront.net/api/getFactoryAPYs/${network}/${type}`))
+            ['stable', 'crypto'].map((type) => fetchData(`https://api.curve.finance/api/getFactoryAPYs/${network}/${type}`))
         );
         const stableVolume = stableData.totalVolumeUsd || stableData.totalVolume || 0;
         const cryptoVolume = cryptoData.totalVolumeUsd || cryptoData.totalVolume || 0;
@@ -119,7 +119,7 @@ export const _getFactoryAPYs = memoize(
 )
 
 export const _getAllGauges = memoize(
-    (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://d3dl9x5bpp6us7.cloudfront.net/api/getAllGauges`),
+    (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://api.curve.finance/api/getAllGauges`),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -128,7 +128,7 @@ export const _getAllGauges = memoize(
 
 export const _getAllGaugesFormatted = memoize(
     async (): Promise<IDict<any>> => {
-        const data = await fetchData(`https://d3dl9x5bpp6us7.cloudfront.net/api/getAllGauges`);
+        const data = await fetchData(`https://api.curve.finance/api/getAllGauges`);
 
         const gaugesDict: Record<string, any> = {}
 
@@ -148,7 +148,7 @@ export const _getAllGaugesFormatted = memoize(
 )
 
 export const _getHiddenPools = memoize(
-    (): Promise<IDict<string[]>> => fetchData(`https://d3dl9x5bpp6us7.cloudfront.net/api/getHiddenPools`),
+    (): Promise<IDict<string[]>> => fetchData(`https://api.curve.finance/api/getHiddenPools`),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -192,7 +192,7 @@ export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: num
 export const _getLiteNetworksData = memoize(
     async (networkName: string): Promise<any> => {
         try {
-            const url = `https://dy9z253d96rct.cloudfront.net/v1/getDeployment/${networkName}`;
+            const url = `https://api-core.curve.finance/v1/getDeployment/${networkName}`;
             const response = await fetch(url);
             const {data} = await response.json() ?? {};
 
@@ -249,7 +249,7 @@ export const _getLiteNetworksData = memoize(
 
 export const _getCurveLiteNetworks = memoize(
     async (): Promise<ICurveLiteNetwork[]> => {
-        const response = await fetch(`https://dy9z253d96rct.cloudfront.net/v1/getPlatforms`);
+        const response = await fetch(`https://api-core.curve.finance/v1/getPlatforms`);
         const {data} = await response.json() ?? {};
 
         if (response.status !== 200 || !data?.platforms) {

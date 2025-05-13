@@ -14,7 +14,7 @@ import {
 
 export const _getPoolsFromApi = memoize(
     async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
-        const api = isLiteChain ? "https://dy9z253d96rct.cloudfront.net/v1/" : "https://api.curve.finance/api";
+        const api = isLiteChain ? "https://api-core.curve.finance/v1/" : "https://api.curve.finance/api";
         const url = `${api}/getPools/${network}/${poolType}`;
         return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
     },
@@ -192,7 +192,7 @@ export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: num
 export const _getLiteNetworksData = memoize(
     async (networkName: string): Promise<any> => {
         try {
-            const url = `https://dy9z253d96rct.cloudfront.net/v1/getDeployment/${networkName}`;
+            const url = `https://api-core.curve.finance/v1/getDeployment/${networkName}`;
             const response = await fetch(url);
             const {data} = await response.json() ?? {};
 
@@ -249,7 +249,7 @@ export const _getLiteNetworksData = memoize(
 
 export const _getCurveLiteNetworks = memoize(
     async (): Promise<ICurveLiteNetwork[]> => {
-        const response = await fetch(`https://dy9z253d96rct.cloudfront.net/v1/getPlatforms`);
+        const response = await fetch(`https://api-core.curve.finance/v1/getPlatforms`);
         const {data} = await response.json() ?? {};
 
         if (response.status !== 200 || !data?.platforms) {

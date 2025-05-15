@@ -266,7 +266,7 @@ const curve = {
         },
     },
     twocryptoFactory: {
-        fetchPools: _curve.fetchTworyptoFactoryPools,
+        fetchPools: _curve.fetchTwocryptoFactoryPools,
         fetchNewPools: _curve.fetchNewTwocryptoFactoryPools,
         getPoolList: _curve.getTworyptoFactoryPoolList,
         deployPool: deployTwocryptoPool,

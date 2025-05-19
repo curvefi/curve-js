@@ -13,7 +13,7 @@ import {
     mulBy1_3,
     smartNumber,
 } from "./utils.js";
-import { _ensureAllowance, toBN, toStringFromBN, parseUnits } from './utils.js';
+import { _ensureAllowance, toBN, toStringFromBN, parseUnits, BN } from './utils.js';
 import { _generateBoostingProof } from './external-api.js';
 
 
@@ -123,6 +123,25 @@ export const calcUnlockTime = (days: number, start = Date.now()): number => {
     const unlockTime = now + (86400 * days);
 
     return Math.floor(unlockTime / week) * week * 1000;
+}
+
+export const calculateVeCrv = (
+    amount: number | string,
+    weeks: number
+): number => {
+    const DAYS_IN_WEEK = new BigNumber(7);
+    const MAX_TIME_DAYS = new BigNumber(1460); // 4 years (4 * 365)
+
+    const amountBN = BN(amount);
+    const weeksBN = BN(weeks);
+
+    const durationDays = weeksBN.times(DAYS_IN_WEEK)
+
+    const veCrvBN = amountBN
+        .times(durationDays)
+        .div(MAX_TIME_DAYS)
+
+    return veCrvBN.toNumber()
 }
 
 export const createLock = async (amount: number | string, days: number): Promise<string> => {

@@ -127,19 +127,31 @@ export const calcUnlockTime = (days: number, start = Date.now()): number => {
 
 export const calculateVeCrv = (
     amount: number | string,
-    weeks: number
+    unlockTimestamp: number
 ): number => {
-    const DAYS_IN_WEEK = new BigNumber(7);
-    const MAX_TIME_DAYS = new BigNumber(1460); // 4 years (4 * 365)
+    const WEEK_SECONDS = BN(7 * 86400)
+    const MAX_TIME_SECONDS = BN(4 * 365 * 86400)
 
-    const amountBN = BN(amount);
-    const weeksBN = BN(weeks);
+    const nowBN    = BN(Math.floor(Date.now() / 1000))
+    const unlockBN = BN(unlockTimestamp)
 
-    const durationDays = weeksBN.times(DAYS_IN_WEEK)
+    const unlockRounded = unlockBN
+        .div(WEEK_SECONDS)
+        .integerValue(BigNumber.ROUND_FLOOR)
+        .times(WEEK_SECONDS)
 
-    const veCrvBN = amountBN
-        .times(durationDays)
-        .div(MAX_TIME_DAYS)
+
+    let duration = unlockRounded.minus(nowBN)
+
+    if (duration.isNegative()) {
+        duration = BN(0)
+    } else if (duration.gt(MAX_TIME_SECONDS)) {
+        duration = MAX_TIME_SECONDS
+    }
+
+    const veCrvBN = BN(amount)
+        .times(duration)
+        .div(MAX_TIME_SECONDS)
 
     return veCrvBN.toNumber()
 }

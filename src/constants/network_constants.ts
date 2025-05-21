@@ -18,6 +18,7 @@ import {
     POOLS_DATA_FRAXTAL,
     POOLS_DATA_XLAYER,
     POOLS_DATA_MANTLE,
+    POOLS_DATA_SONIC,
 } from './pools/index.js';
 import {
     COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
@@ -37,9 +38,8 @@ import {
     COINS_FRAXTAL,
     COINS_XLAYER,
     COINS_MANTLE,
+    COINS_SONIC,
 } from "./coins/index.js";
-import {POOLS_DATA_SONIC} from "./pools/sonic";
-import {COINS_SONIC} from "./coins/sonic";
 
 const ALIASES_ETHEREUM = lowerCaseValues({
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52", // <--- CHANGE

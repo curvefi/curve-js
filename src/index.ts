@@ -54,6 +54,7 @@ import {
     claimFeesCrvUSDEstimateGas,
     claimableFeesCrvUSD,
     claimFeesCrvUSD,
+    calculateVeCrv,
 } from "./boosting.js";
 import {
     getBalances,
@@ -317,7 +318,7 @@ export const createCurve = () => {
             claimFees: claimFees.bind(_curve),
             claimableFeesCrvUSD: claimableFeesCrvUSD.bind(_curve),
             claimFeesCrvUSD: claimFeesCrvUSD.bind(_curve),
-            estimateGas: {
+            calculateVeCrv,estimateGas: {
                 approve: approveEstimateGas.bind(_curve),
                 createLock: createLockEstimateGas.bind(_curve),
                 increaseAmount: increaseAmountEstimateGas.bind(_curve),

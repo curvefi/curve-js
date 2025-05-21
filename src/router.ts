@@ -247,7 +247,7 @@ async function _getBestRouteImpl(this: Curve, inputCoinAddress: string, outputCo
     const [gasAmounts, outputCoinUsdRate, gasData, ethUsdRate] = await Promise.all([
         _estimateGasForDifferentRoutes.call(this, routes.map((r) => r.route), inputCoinAddress, outputCoinAddress, _amount),
         _getUsdRate.call(this, outputCoinAddress),
-        fetch("https://api.this.fi/api/getGas").then((res) => res.json()),
+        fetch("https://api.this.finance/api/getGas").then((res) => res.json()),
         _getUsdRate.call(this, ETH_ADDRESS),
     ]);
     const gasPrice = gasData.data.gas.standard;

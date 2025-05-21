@@ -8,6 +8,7 @@ import {
     _ensureAllowance,
     _getBalances,
     _prepareAddresses,
+    BN,
     DIGas,
     ensureAllowance,
     ensureAllowanceEstimateGas,
@@ -126,6 +127,37 @@ export const calcUnlockTime = (days: number, start = Date.now()): number => {
     const unlockTime = now + (86400 * days);
 
     return Math.floor(unlockTime / week) * week * 1000;
+}
+
+export const calculateVeCrv = (
+    amount: number | string,
+    unlockTimestamp: number
+): number => {
+    const WEEK_SECONDS = BN(7 * 86400)
+    const MAX_TIME_SECONDS = BN(4 * 365 * 86400)
+
+    const nowBN    = BN(Math.floor(Date.now() / 1000))
+    const unlockBN = BN(unlockTimestamp)
+
+    const unlockRounded = unlockBN
+        .div(WEEK_SECONDS)
+        .integerValue(BigNumber.ROUND_FLOOR)
+        .times(WEEK_SECONDS)
+
+
+    let duration = unlockRounded.minus(nowBN)
+
+    if (duration.isNegative()) {
+        duration = BN(0)
+    } else if (duration.gt(MAX_TIME_SECONDS)) {
+        duration = MAX_TIME_SECONDS
+    }
+
+    const veCrvBN = BN(amount)
+        .times(duration)
+        .div(MAX_TIME_SECONDS)
+
+    return veCrvBN.toNumber()
 }
 
 export async function createLock(this: Curve, amount: number | string, days: number): Promise<string> {

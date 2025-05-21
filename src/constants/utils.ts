@@ -64,9 +64,17 @@ export const lowerCaseKeys = (dict: IDict<any>): IDict<any> => {
     return Object.fromEntries(Object.entries(dict).map((entry) => [entry[0].toLowerCase(), entry[1]]))
 }
 
-export const memoizeMethod = <Obj extends object, Method extends (this: Obj, ...params: any[]) => Promise<unknown>>(curve: Obj, name: string, method: Method) => {
-    if (!(name in curve)) {
-        (curve as any)['name'] = memoize(method.bind(curve), { promise: true, maxAge: 5 * 60 * 1000 /* 5m */ });
+/**
+ * Memoizes a method of an object by binding it to this when needed.
+ * The memoized method will cache the result for 5 minutes.
+ * @param obj The object to which the method belongs.
+ * @param name The name of the method to memoize. It must be unique within the object.
+ * @param method The method to memoize. It must be a function that returns a Promise.
+ * @returns The memoized method.
+ */
+export const memoizeMethod = <Obj extends object, Method extends (this: Obj, ...params: any[]) => Promise<unknown>>(obj: Obj, name: string, method: Method) => {
+    if (!(name in obj)) {
+        (obj as any)[name] = memoize(method.bind(obj), { promise: true, maxAge: 5 * 60 * 1000 /* 5m */ });
     }
-    return (curve as any)[name] as Method;
+    return (obj as any)[name] as Method;
 }

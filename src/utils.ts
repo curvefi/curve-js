@@ -1,4 +1,4 @@
-import {Contract} from 'ethers';
+import {Contract, ethers} from 'ethers';
 import {Contract as MulticallContract} from "@curvefi/ethcall";
 import BigNumber from 'bignumber.js';
 import {
@@ -55,7 +55,7 @@ export const formatNumber = (n: number | string, decimals = 18): string => {
 }
 
 export function parseUnits(n: number | string, decimals = 18): bigint {
-    return parseUnits(formatNumber(n, decimals), decimals);
+    return ethers.parseUnits(formatNumber(n, decimals), decimals);
 }
 
 // bignumber.js

@@ -70,6 +70,9 @@ export class CorePool implements ICorePool {
     inApi: boolean;
 
     constructor(id: string, poolData: IPoolData, readonly curve: Curve) {
+        if (!poolData) {
+            throw new Error(`Pool data is required for pool ${id}`);
+        }
         this.id = id;
         this.name = poolData.name;
         this.fullName = poolData.full_name;

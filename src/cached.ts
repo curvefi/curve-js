@@ -1,7 +1,6 @@
 import memoize from "memoizee";
 import {IDict, IExtendedPoolDataFromApi, INetworkName, IPoolType} from "./interfaces.js";
-import {uncached_getAllPoolsFromApi, createCrvApyDict, createUsdPricesDict} from './external-api.js'
-import {curve} from "./curve";
+import {createCrvApyDict, createUsdPricesDict, uncached_getAllPoolsFromApi} from './external-api.js'
 
 /**
  * This function is used to cache the data fetched from the API and the data derived from it.
@@ -33,14 +32,12 @@ export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = f
     return poolLists
 }
 
-export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
-    const network = curve.constants.NETWORK_NAME;
+export const _getUsdPricesFromApi = async (network:INetworkName): Promise<IDict<number>> => {
     const {usdPrices} = await _getCachedData(network, false);
     return usdPrices
 }
 
-export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
-    const network = curve.constants.NETWORK_NAME;
+export const _getCrvApyFromApi = async (network:INetworkName): Promise<IDict<[number, number]>> => {
     const {crvApy} = await _getCachedData(network, false);
     return crvApy
 }

@@ -319,7 +319,7 @@ export function getPoolIdBySwapAddress(this: Curve, swapAddress: string): string
 
 export async function _getRewardsFromApi(this: Curve): Promise<IDict<IRewardFromApi[]>> {
     const network = this.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, this.isLiteChain);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi.call(this, network);
     const rewardsDict: IDict<IRewardFromApi[]> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
@@ -337,7 +337,7 @@ export async function _getRewardsFromApi(this: Curve): Promise<IDict<IRewardFrom
 const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export async function _getUsdRate(this: Curve, assetId: string): Promise<number> {
     if (this.chainId === 1 && assetId.toLowerCase() === '0x8762db106b2c2a0bccb3a80d1ed41273552616e8') return 0; // RSR
-    const pricesFromApi = await _getUsdPricesFromApi.call(this);
+    const pricesFromApi = await _getUsdPricesFromApi(this.constants.NETWORK_NAME);
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
 
     if (assetId === 'USD' || (this.chainId === 137 && (assetId.toLowerCase() === this.constants.COINS.am3crv.toLowerCase()))) return 1
@@ -573,7 +573,7 @@ export async function getNetworkConstants(this: Curve, chainId: IChainId | numbe
 
 export async function getTVL(this: Curve, chainId = this.chainId): Promise<number> {
     const networkConstants = await getNetworkConstants.call(this, chainId);
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(networkConstants.NAME, networkConstants.IS_LITE_CHAIN);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi.call(this, networkConstants.NAME);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }
@@ -584,7 +584,7 @@ export async function getVolumeApiController(this: Curve, network: INetworkName)
     }
 
     if(volumeNetworks.getVolumes.includes(this.chainId)) {
-        return  await _getVolumes(network);
+        return await _getVolumes(network);
     }
     if(volumeNetworks.getFactoryAPYs.includes(this.chainId)) {
         return await _getFactoryAPYs(network);

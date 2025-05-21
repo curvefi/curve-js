@@ -170,7 +170,7 @@ export class StatsPool implements IStatsPool {
                 poolType = this.pool.id.replace(/-\d+$/, '');
                 poolType = poolType.replace(/-v2$/, '');
             }
-            const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType)).poolData;
+            const poolsData = (await _getPoolsFromApi.call(curve, network, poolType as IPoolType)).poolData;
 
             try {
                 const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.pool.address.toLowerCase())[0].usdTotal;
@@ -244,7 +244,7 @@ export class StatsPool implements IStatsPool {
 
         const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
         if (useApi && !isDisabledChain) {
-            const crvAPYs = await _getCrvApyFromApi.call(curve);
+            const crvAPYs = await _getCrvApyFromApi(curve.constants.NETWORK_NAME);
             const poolCrvApy = crvAPYs[this.pool.gauge.address] ?? [0, 0];  // new pools might be missing
             return [poolCrvApy[0], poolCrvApy[1]];
         }

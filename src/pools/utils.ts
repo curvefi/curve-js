@@ -2,7 +2,7 @@ import { getPool } from "./poolConstructor.js";
 import { IDict } from "../interfaces";
 import { curve } from "../curve.js";
 import { _getRewardsFromApi, _getUsdRate, _setContracts, toBN } from "../utils.js";
-import { _getAllPoolsFromApi } from "../external-api.js";
+import { _getAllPoolsFromApi } from "../cached.js";
 import ERC20Abi from "../constants/abis/ERC20.json" with { type: 'json' };
 
 const BATCH_SIZE = 50;

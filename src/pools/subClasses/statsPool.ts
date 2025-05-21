@@ -1,11 +1,10 @@
 import { curve } from "../../curve.js";
 import {IPoolType, IReward} from '../../interfaces.js';
-import {_getPoolsFromApi} from '../../external-api.js';
+import {_getPoolsFromApi,_getCrvApyFromApi} from '../../cached.js';
 import {
     _getUsdRate,
     BN,
     toBN,
-    _getCrvApyFromApi,
     _getRewardsFromApi,
     getVolumeApiController,
 } from '../../utils.js';

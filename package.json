@@ -1,6 +1,6 @@
 {
   "name": "@curvefi/api",
-  "version": "2.66.26",
+  "version": "2.66.27",
   "description": "JavaScript library for curve.finance",
   "main": "lib/index.js",
   "author": "Macket",
@@ -17,9 +17,10 @@
     "url": "https://github.com/curvefi/curve-js/issues"
   },
   "scripts": {
-    "build": "rm -rf lib && tsc -p tsconfig.build.json",
-    "lint": "eslint src",
-    "tsc": "tsc -w"
+    "build": "rm -rf lib && tsc --project tsconfig.build.json",
+    "lint": "eslint src --ext .ts",
+    "watch": "tsc --watch",
+    "watch:lib": "rm -rf lib && tsc --watch --project tsconfig.build.json"
   },
   "type": "module",
   "devDependencies": {
@@ -40,9 +41,9 @@
     "vue-eslint-parser": "^9.4.3"
   },
   "dependencies": {
-    "@curvefi/ethcall": "6.0.12",
-    "bignumber.js": "^9.1.2",
-    "ethers": "^6.13.4",
-    "memoizee": "^0.4.17"
+    "@curvefi/ethcall": "6.0.13",
+    "bignumber.js": "9.3.0",
+    "ethers": "6.14.1",
+    "memoizee": "0.4.17"
   }
 }

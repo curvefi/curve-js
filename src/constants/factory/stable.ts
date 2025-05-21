@@ -448,6 +448,9 @@ export const STABLE_FACTORY_CONSTANTS: { [index: number]: { implementationABIDic
         basePoolIdZapDict: basePoolIdZapDictPolygon,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
+    146: { // SONIC
+        stableNgBasePoolZap: stableNgBasePoolZap,
+    },
     196: { //XLAYER
         stableNgBasePoolZap: stableNgBasePoolZap,
     },

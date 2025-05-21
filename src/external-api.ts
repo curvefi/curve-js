@@ -13,7 +13,7 @@ import {
 
 
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
-    const api = isLiteChain ? "https://api-core.curve.fi/v1/" : "https://api.curve.fi/api";
+    const api = isLiteChain ? "https://api-core.curve.finance/v1/" : "https://api.curve.finance/api";
     const url = `${api}/getPools/${network}/${poolType}`;
     return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
 }
@@ -118,7 +118,7 @@ export const createCrvApyDict = (allTypesExtendedPoolData:  IExtendedPoolDataFro
 
 export const _getSubgraphData = memoize(
     async (network: INetworkName): Promise<IVolumeAndAPYs> => {
-        const data = await fetchData(`https://api.curve.fi/api/getSubgraphData/${network}`);
+        const data = await fetchData(`https://api.curve.finance/api/getSubgraphData/${network}`);
         const poolsData = data.poolList.map((data: any) => ({
             address: data.address,
             volumeUSD: data.volumeUSD,
@@ -142,7 +142,7 @@ export const _getSubgraphData = memoize(
 export const _getVolumes = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
 
-        const { pools, totalVolumes } = await fetchData(`https://api.curve.fi/api/getVolumes/${network}`);
+        const { pools, totalVolumes } = await fetchData(`https://api.curve.finance/api/getVolumes/${network}`);
         const poolsData = pools.map((data: any) => ({
             address: data.address,
             volumeUSD: data.volumeUSD,
@@ -166,7 +166,7 @@ export const _getVolumes = memoize(
 export const _getFactoryAPYs = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
         const [stableData, cryptoData] = await Promise.all(
-            ['stable', 'crypto'].map((type) => fetchData(`https://api.curve.fi/api/getFactoryAPYs/${network}/${type}`))
+            ['stable', 'crypto'].map((type) => fetchData(`https://api.curve.finance/api/getFactoryAPYs/${network}/${type}`))
         );
         const stableVolume = stableData.totalVolumeUsd || stableData.totalVolume || 0;
         const cryptoVolume = cryptoData.totalVolumeUsd || cryptoData.totalVolume || 0;
@@ -189,7 +189,7 @@ export const _getFactoryAPYs = memoize(
 )
 
 export const _getAllGauges = memoize(
-    (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://api.curve.fi/api/getAllGauges`),
+    (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://api.curve.finance/api/getAllGauges`),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -198,7 +198,7 @@ export const _getAllGauges = memoize(
 
 export const _getAllGaugesFormatted = memoize(
     async (): Promise<IDict<any>> => {
-        const data = await fetchData(`https://api.curve.fi/api/getAllGauges`);
+        const data = await fetchData(`https://api.curve.finance/api/getAllGauges`);
 
         const gaugesDict: Record<string, any> = {}
 
@@ -218,7 +218,7 @@ export const _getAllGaugesFormatted = memoize(
 )
 
 export const _getHiddenPools = memoize(
-    (): Promise<IDict<string[]>> => fetchData(`https://api.curve.fi/api/getHiddenPools`),
+    (): Promise<IDict<string[]>> => fetchData(`https://api.curve.finance/api/getHiddenPools`),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -227,7 +227,7 @@ export const _getHiddenPools = memoize(
 
 export const _generateBoostingProof = memoize(
     async (block: number, address: string): Promise<{ block_header_rlp: string, proof_rlp: string }> => {
-        const url = `https://prices.curve.fi/v1/general/get_merkle_proof?block=${block}&account_address=${address}`;
+        const url = `https://prices.curve.finance/v1/general/get_merkle_proof?block=${block}&account_address=${address}`;
         const { block_header_rlp, proof_rlp } = await fetchJson(url);
         return { block_header_rlp, proof_rlp };
     },
@@ -262,7 +262,7 @@ export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: num
 export const _getLiteNetworksData = memoize(
     async (networkName: string): Promise<any> => {
         try {
-            const url = `https://api-core.curve.fi/v1/getDeployment/${networkName}`;
+            const url = `https://api-core.curve.finance/v1/getDeployment/${networkName}`;
             const response = await fetch(url);
             const {data} = await response.json() ?? {};
 
@@ -319,7 +319,7 @@ export const _getLiteNetworksData = memoize(
 
 export const _getCurveLiteNetworks = memoize(
     async (): Promise<ICurveLiteNetwork[]> => {
-        const response = await fetch(`https://api-core.curve.fi/v1/getPlatforms`);
+        const response = await fetch(`https://api-core.curve.finance/v1/getPlatforms`);
         const {data} = await response.json() ?? {};
 
         if (response.status !== 200 || !data?.platforms) {

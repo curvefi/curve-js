@@ -18,6 +18,7 @@ import {
     POOLS_DATA_FRAXTAL,
     POOLS_DATA_XLAYER,
     POOLS_DATA_MANTLE,
+    POOLS_DATA_SONIC,
 } from './pools/index.js';
 import {
     COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
@@ -37,6 +38,7 @@ import {
     COINS_FRAXTAL,
     COINS_XLAYER,
     COINS_MANTLE,
+    COINS_SONIC,
 } from "./coins/index.js";
 
 const ALIASES_ETHEREUM = lowerCaseValues({
@@ -360,7 +362,7 @@ const ALIASES_FRAXTAL = lowerCaseValues({
     "gauge_controller": "0x0000000000000000000000000000000000000000",
     "address_provider": "0x0000000000000000000000000000000000000000",
 
-    "router": "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db",
+    "router": "0x56C526b0159a258887e0d79ec3a80dfb940d0cD7",
     "deposit_and_stake": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
 
     "stable_ng_factory": '0xd2002373543Ce3527023C75e7518C274A51ce712',
@@ -406,6 +408,24 @@ const ALIASES_MANTLE = lowerCaseValues({
     "tricrypto_factory": '0x0C9D8c7e486e822C29488Ff51BFf0167B4650953',
 
     "factory_admin": '0x0000000000000000000000000000000000000000',
+});
+
+const ALIASES_SONIC = lowerCaseValues({
+    "crv": "0x5af79133999f7908953e94b7a5cf367740ebee35", //
+    "child_gauge_factory": "0xf3A431008396df8A8b2DF492C913706BDB0874ef", //
+    "voting_escrow": "0x0000000000000000000000000000000000000000",
+    "fee_distributor": "0x0000000000000000000000000000000000000000",
+    "gauge_controller": "0x0000000000000000000000000000000000000000",
+    "address_provider": "0x87FE17697D0f14A222e8bEf386a0860eCffDD617", //
+
+    "router": "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E", //
+    "deposit_and_stake": "0x505d666E4DD174DcDD7FA090ed95554486d2Be44", //
+
+    "stable_ng_factory": '0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8', //
+    "twocrypto_factory": '0x1A83348F9cCFD3Fe1A8C0adBa580Ac4e267Fe495', //
+    "tricrypto_factory": '0x635742dCC8313DCf8c904206037d962c042EAfBd', //
+
+    "factory_admin": '0x0000000000000000000000000000000000000000', //
 });
 
 
@@ -476,6 +496,18 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         },
         aTokens: aTokensPolygon,
     },
+    146: {
+        NAME: 'sonic',
+        ALIASES: ALIASES_SONIC,
+        POOLS_DATA: POOLS_DATA_SONIC,
+        COINS: COINS_SONIC,
+        NATIVE_COIN: {
+            symbol: 'S',
+            wrappedSymbol: 'wS',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x039e2fb66102314ce7b64ce5ce3e5183bc94ad38'.toLowerCase(),
+        },
+    },
     196: {
         NAME: 'x-layer',
         ALIASES: ALIASES_XLAYER,
@@ -508,10 +540,10 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         POOLS_DATA: POOLS_DATA_FRAXTAL,
         COINS: COINS_FRAXTAL,
         NATIVE_COIN: {
-            symbol: 'frxETH',
-            wrappedSymbol: 'wfrxETH',
+            symbol: 'FRAX',
+            wrappedSymbol: 'wFRAX',
             address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            wrappedAddress: '0xfc00000000000000000000000000000000000006'.toLowerCase(),
+            wrappedAddress: '0xfc00000000000000000000000000000000000002'.toLowerCase(),
         },
     },
     324: {

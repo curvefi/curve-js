@@ -16,9 +16,12 @@ function _depositBalancedAmounts(poolBalances: string[], walletBalances: string[
         ))
     ));
     const firstCoinBalanceForEachScenarioBN = balancedAmountsForEachScenarioBN.map(([a]) => a);
-    const scenarioWithLowestBalancesBN = firstCoinBalanceForEachScenarioBN.map(String).indexOf(BigNumber.min(...firstCoinBalanceForEachScenarioBN).toString());
 
-    return balancedAmountsForEachScenarioBN[scenarioWithLowestBalancesBN].map((a, i) => a.toFixed(decimals[i]))
+    // get the scenario with the lowest balances, ignoring scenarios where the wallet balance is zero
+    const min = BigNumber.min(...firstCoinBalanceForEachScenarioBN.filter((b) => !b.isZero()));
+    const scenarioWithLowestBalancesBN = firstCoinBalanceForEachScenarioBN.map(String).indexOf(min.toString());
+    const bestScenario = balancedAmountsForEachScenarioBN[scenarioWithLowestBalancesBN];
+    return bestScenario.map((a, i) => walletBalancesBN[i].isZero() ? "0" : a.toFixed(decimals[i]))
 }
 
 export const depositBalancedAmountsMixin = {

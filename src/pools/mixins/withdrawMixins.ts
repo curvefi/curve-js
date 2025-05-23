@@ -1,192 +1,150 @@
-import { curve } from "../../curve.js";
-import { PoolTemplate } from "../PoolTemplate.js";
-import { _ensureAllowance, fromBN, hasAllowance, toBN, parseUnits, mulBy1_3, smartNumber, DIGas } from '../../utils.js';
+import {PoolTemplate} from "../PoolTemplate.js";
+import {_ensureAllowance, DIGas, fromBN, hasAllowance, mulBy1_3, parseUnits, smartNumber, toBN} from '../../utils.js';
 
-// @ts-ignore
 async function _withdrawCheck(this: PoolTemplate, lpTokenAmount: number | string, estimateGas = false): Promise<bigint> {
     const lpTokenBalance = (await this.wallet.lpTokenBalances())['lpToken'];
     if (Number(lpTokenBalance) < Number(lpTokenAmount)) {
         throw Error(`Not enough LP tokens. Actual: ${lpTokenBalance}, required: ${lpTokenAmount}`);
     }
 
-    if (estimateGas && this.zap && !(await hasAllowance([this.lpToken], [lpTokenAmount], curve.signerAddress, this.zap))) {
+    if (estimateGas && this.zap && !(await hasAllowance.call(this.curve, [this.lpToken], [lpTokenAmount], this.curve.signerAddress, this.zap))) {
         throw Error("Token allowance is needed to estimate gas")
     }
 
-    if (!estimateGas) await curve.updateFeeData();
+    if (!estimateGas) await this.curve.updateFeeData();
 
     return parseUnits(lpTokenAmount);
 }
 
 async function _withdrawMinAmounts(this: PoolTemplate, _lpTokenAmount: bigint, slippage = 0.5): Promise<bigint[]> {
-    const expectedAmounts = await this.withdrawExpected(curve.formatUnits(_lpTokenAmount));
-    const _expectedAmounts = expectedAmounts.map((a, i) => curve.parseUnits(a, this.underlyingDecimals[i]));
+    const expectedAmounts = await this.withdrawExpected(this.curve.formatUnits(_lpTokenAmount));
+    const _expectedAmounts = expectedAmounts.map((a, i) => this.curve.parseUnits(a, this.underlyingDecimals[i]));
     const minRecvAmountsBN = _expectedAmounts.map((_a, i) => toBN(_a, this.underlyingDecimals[i]).times(100 - slippage).div(100));
 
     return minRecvAmountsBN.map((a, i) => fromBN(a, this.underlyingDecimals[i]));
 }
 
-// @ts-ignore
-export const withdrawMetaFactoryMixin: PoolTemplate = {
-    // @ts-ignore
-    async _withdraw(_lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
-        if (!estimateGas) await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
+export const withdrawMetaFactoryMixin = {
+    async _withdraw(this: PoolTemplate, _lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+        if (!estimateGas) await _ensureAllowance.bind(this.curve, [this.lpToken], [_lpTokenAmount], this.zap as string);
 
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, slippage);
-        const contract = curve.contracts[this.zap as string].contract;
+        const contract = this.curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.remove_liquidity.estimateGas(this.address, _lpTokenAmount, _minAmounts, curve.constantOptions);
+        const gas = await contract.remove_liquidity.estimateGas(this.address, _lpTokenAmount, _minAmounts, this.curve.constantOptions);
         if (estimateGas) return smartNumber(gas)
         
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
-        // @ts-ignore
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, 0.1, true);
+        return await withdrawMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
     },
 
-    async withdraw(lpTokenAmount: number | string, slippage?: number): Promise<string> {
-        // @ts-ignore
+    async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, slippage);
+        return await withdrawMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, slippage) as string;
     },
 }
 
-// @ts-ignore
-export const withdrawCryptoMetaFactoryMixin: PoolTemplate = {
-    // @ts-ignore
-    async _withdraw(_lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
-        if (!estimateGas) await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
+export const withdrawCryptoMetaFactoryMixin = {
+    async _withdraw(this: PoolTemplate, _lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+        if (!estimateGas) await _ensureAllowance.bind(this.curve, [this.lpToken], [_lpTokenAmount], this.zap as string);
 
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, slippage);
-        const contract = curve.contracts[this.zap as string].contract;
+        const contract = this.curve.contracts[this.zap as string].contract;
 
-        const gas = await contract.remove_liquidity.estimateGas(this.address, _lpTokenAmount, _minAmounts, true, curve.constantOptions);
+        const gas = await contract.remove_liquidity.estimateGas(this.address, _lpTokenAmount, _minAmounts, true, this.curve.constantOptions);
         if (estimateGas) return smartNumber(gas)
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, true, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, true, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
-        // @ts-ignore
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, 0.1, true);
+        return await withdrawCryptoMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
     },
 
-    async withdraw(lpTokenAmount: number | string, slippage?: number): Promise<string> {
-        // @ts-ignore
+    async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, slippage);
+        return await withdrawCryptoMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, slippage) as string;
     },
 }
 
-// @ts-ignore
-export const withdrawZapMixin: PoolTemplate = {
-    // @ts-ignore
-    async _withdraw(_lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
-        if (!estimateGas) await _ensureAllowance([this.lpToken], [_lpTokenAmount], this.zap as string);
+export const withdrawZapMixin = {
+    async _withdraw(this: PoolTemplate, _lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+        if (!estimateGas) await _ensureAllowance.bind(this.curve, [this.lpToken], [_lpTokenAmount], this.zap as string);
 
-        // @ts-ignore
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, slippage);
-        const contract = curve.contracts[this.zap as string].contract;
+        const contract = this.curve.contracts[this.zap as string].contract;
 
         const args: any[] = [_lpTokenAmount, _minAmounts];
         if (`remove_liquidity(uint256,uint256[${this.underlyingCoinAddresses.length}],bool)` in contract) args.push(true);
-        const gas = await contract.remove_liquidity.estimateGas(...args, curve.constantOptions);
+        const gas = await contract.remove_liquidity.estimateGas(...args, this.curve.constantOptions);
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.remove_liquidity(...args, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(...args, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
-        // @ts-ignore
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, 0.1, true);
+        return await withdrawZapMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
     },
 
-    async withdraw(lpTokenAmount: number | string, slippage?: number): Promise<string> {
-        // @ts-ignore
+    async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, slippage);
+        return await withdrawZapMixin._withdraw.call(this, _lpTokenAmount, slippage) as string;
     },
 }
 
-// @ts-ignore
-export const withdrawLendingOrCryptoMixin: PoolTemplate = {
-    // @ts-ignore
-    async _withdraw(_lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+export const withdrawLendingOrCryptoMixin = {
+    async _withdraw(this: PoolTemplate, _lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, slippage);
-        const contract = curve.contracts[this.address].contract;
+        const contract = this.curve.contracts[this.address].contract;
 
-        const gas = await contract.remove_liquidity.estimateGas(_lpTokenAmount, _minAmounts, true, curve.constantOptions);
+        const gas = await contract.remove_liquidity.estimateGas(_lpTokenAmount, _minAmounts, true, this.curve.constantOptions);
         if (estimateGas) return smartNumber(gas)
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, true, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, true, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
-        // @ts-ignore
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, 0.1, true);
+        return await withdrawLendingOrCryptoMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
     },
 
-    async withdraw(lpTokenAmount: number | string, slippage?: number): Promise<string> {
-        // @ts-ignore
+    async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount);
-
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, slippage);
+        return await withdrawLendingOrCryptoMixin._withdraw.call(this, _lpTokenAmount, slippage) as string;
     },
 }
 
-// @ts-ignore
-export const withdrawPlainMixin: PoolTemplate = {
-    // @ts-ignore
-    async _withdraw(_lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
-        // @ts-ignore
+export const withdrawPlainMixin = {
+    async _withdraw(this: PoolTemplate, _lpTokenAmount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         const _minAmounts = await _withdrawMinAmounts.call(this, _lpTokenAmount, slippage);
-        const contract = curve.contracts[this.address].contract;
+        const contract = this.curve.contracts[this.address].contract;
 
-        const gas = await contract.remove_liquidity.estimateGas(_lpTokenAmount, _minAmounts, curve.constantOptions);
+        const gas = await contract.remove_liquidity.estimateGas(_lpTokenAmount, _minAmounts, this.curve.constantOptions);
         if (estimateGas) return smartNumber(gas);
 
         const gasLimit = mulBy1_3(DIGas(gas));
-        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...curve.options, gasLimit })).hash;
+        return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
-        // @ts-ignore
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
 
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, 0.1, true);
+        return await withdrawPlainMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
     },
 
-    async withdraw(lpTokenAmount: number | string, slippage?: number): Promise<string> {
-        // @ts-ignore
+    async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount);
 
-        // @ts-ignore
-        return await this._withdraw(_lpTokenAmount, slippage);
+        return await withdrawPlainMixin._withdraw.call(this, _lpTokenAmount, slippage) as string;
     },
 }

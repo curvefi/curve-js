@@ -12,7 +12,7 @@ import {
 } from "./interfaces";
 
 
-const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
+const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi> => {
     const api = isLiteChain ? "https://api-core.curve.finance/v1/" : "https://api.curve.finance/api";
     const url = `${api}/getPools/${network}/${poolType}`;
     return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
@@ -21,7 +21,7 @@ const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolTy
 const getPoolTypes = (isLiteChain: boolean) => isLiteChain ? ["factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const :
     ["main", "crypto", "factory", "factory-crvusd", "factory-eywa", "factory-crypto", "factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const;
 
-export const uncached_getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<Record<IPoolType, IExtendedPoolDataFromApi>> =>
+export const uncached_getAllPoolsFromApi = async (network: INetworkName, isLiteChain: boolean): Promise<Record<IPoolType, IExtendedPoolDataFromApi>> =>
     Object.fromEntries(
         await Promise.all(getPoolTypes(isLiteChain).map(async (poolType) => {
             const data = await uncached_getPoolsFromApi(network, poolType, isLiteChain);

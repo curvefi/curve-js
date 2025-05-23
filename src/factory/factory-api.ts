@@ -1,18 +1,21 @@
-import { curve } from "../curve.js";
-import { IDict, IFactoryPoolType, IPoolData, ICurve, IPoolDataFromApi } from "../interfaces";
-import factoryGaugeABI from "../constants/abis/gauge_factory.json" with { type: 'json' };
-import gaugeChildABI from "../constants/abis/gauge_child.json" with { type: 'json' };
-import ERC20ABI from "../constants/abis/ERC20.json" with { type: 'json' };
-import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" with { type: 'json' };
-import twocryptoFactorySwapABI from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" with { type: 'json' };
-import tricryptoFactorySwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" with { type: 'json' };
-import tricryptoFactoryEthDisabledSwapABI from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" with { type: 'json' };
-import { getPoolIdByAddress, setFactoryZapContracts } from "./common.js";
-import { _getPoolsFromApi } from "../cached.js";
+import {ICurve, IDict, IFactoryPoolType, IPoolData, IPoolDataFromApi} from "../interfaces";
+import factoryGaugeABI from "../constants/abis/gauge_factory.json" with {type: "json"};
+import gaugeChildABI from "../constants/abis/gauge_child.json" with {type: "json"};
+import ERC20ABI from "../constants/abis/ERC20.json" with {type: "json"};
+import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" with {type: "json"};
+import twocryptoFactorySwapABI
+    from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" with {type: "json"};
+import tricryptoFactorySwapABI
+    from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" with {type: "json"};
+import tricryptoFactoryEthDisabledSwapABI
+    from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" with {type: "json"};
+import {getPoolIdByAddress, setFactoryZapContracts} from "./common.js";
+import {_getPoolsFromApi} from "../cached.js";
 import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
-import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with { type: 'json' };
-import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with { type: 'json' };
-import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with { type: 'json' };
+import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with {type: "json"};
+import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with {type: "json"};
+import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with {type: "json"};
+import {type Curve} from "../curve";
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -32,8 +35,8 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
     return poolsData
 }
 
-const getSwapAbiByFactoryType = (factoryType: IFactoryPoolType, pool: IPoolDataFromApi) => {
-    const isETHEnabled = pool.implementationAddress === curve.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
+function getSwapAbiByFactoryType(this: ICurve, factoryType: IFactoryPoolType, pool: IPoolDataFromApi) {
+    const isETHEnabled = pool.implementationAddress === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
     const map: Record<string, any> = {
         "factory-crypto": cryptoFactorySwapABI,
         "factory-twocrypto": twocryptoFactorySwapABI,
@@ -46,7 +49,7 @@ const getSwapAbiByFactoryType = (factoryType: IFactoryPoolType, pool: IPoolDataF
 function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], swapABIs: any, factoryType: IFactoryPoolType): void {
     if (["factory-crypto", "factory-twocrypto", "factory-tricrypto"].includes(factoryType)) {
         rawPoolList.forEach((pool) => {
-            this.setContract(pool.address, getSwapAbiByFactoryType(factoryType, pool));
+            this.setContract(pool.address, getSwapAbiByFactoryType.call(this, factoryType, pool));
         });
     } else {
         rawPoolList.forEach((pool, i) => {
@@ -78,7 +81,7 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
     }
 }
 
-export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFactoryPoolType): Promise<IDict<IPoolData>> {
+export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFactoryPoolType): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
     const is_ng = ["factory-stable-ng", "factory-twocrypto", "factory-tricrypto"].includes(factoryType);
     const isCrypto = ["factory-crypto", "factory-twocrypto", "factory-tricrypto"].includes(factoryType);
@@ -102,7 +105,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     rawPoolList.forEach((pool, i) => {
         const nativeToken = this.constants.NATIVE_TOKEN;
-        const isETHEnabled = pool.implementationAddress === curve.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
+        const isETHEnabled = pool.implementationAddress === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
         let coinAddresses = pool.coins.map((c) => c.address);
         if (this.chainId === 137) {
             coinAddresses = coinAddresses.map((a) => a === "0x0000000000000000000000000000000000001010" ? nativeToken.wrappedAddress : a);
@@ -159,7 +162,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                     reference_asset: "CRYPTO",
                     swap_address: pool.address,
                     token_address: pool.lpTokenAddress as string,
-                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
+                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : this.constants.ZERO_ADDRESS,
                     deposit_address: basePoolZap.address,
                     is_meta: true,
                     is_crypto: true,
@@ -185,7 +188,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                     reference_asset: "CRYPTO",
                     swap_address: pool.address,
                     token_address: pool.lpTokenAddress as string,
-                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
+                    gauge_address: pool.gaugeAddress ? pool.gaugeAddress : this.constants.ZERO_ADDRESS,
                     is_crypto: true,
                     is_plain: isPlain,
                     is_factory: true,
@@ -195,7 +198,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                     wrapped_coin_addresses: coinAddresses,
                     underlying_decimals: coinDecimals,
                     wrapped_decimals: coinDecimals,
-                    swap_abi: getSwapAbiByFactoryType(factoryType, pool),
+                    swap_abi: getSwapAbiByFactoryType.call(this, factoryType, pool),
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                     in_api: true,
                     is_ng,
@@ -203,7 +206,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
             }
         } else if (pool.isMetaPool) {
             const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
-            const basePoolId = getPoolIdByAddress(rawPoolList, pool.basePoolAddress as string);
+            const basePoolId = getPoolIdByAddress.call(this, rawPoolList, pool.basePoolAddress as string);
             this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
 
             const basePoolCoinNames = allPoolsData[basePoolId]?.underlying_coins;
@@ -212,7 +215,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
 
             const basePoolIdZapDict = this.constants.STABLE_FACTORY_CONSTANTS.basePoolIdZapDict ?? {};
 
-            let deposit_address = this.constants.STABLE_FACTORY_CONSTANTS.stableNgBasePoolZap ?? curve.constants.ZERO_ADDRESS;
+            let deposit_address = this.constants.STABLE_FACTORY_CONSTANTS.stableNgBasePoolZap ?? this.constants.ZERO_ADDRESS;
             let deposit_abi = StableNgBasePoolZapABI;
             if (isStableNgPool(basePoolId)) {
                 this.setContract(deposit_address, StableNgBasePoolZapABI);
@@ -228,7 +231,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 reference_asset: assetTypeNameHandler(pool.assetTypeName),
                 swap_address: pool.address,
                 token_address: pool.address,
-                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
+                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : this.constants.ZERO_ADDRESS,
                 deposit_address,
                 implementation_address: pool.implementationAddress, // Only for testing
                 is_meta: true,
@@ -254,7 +257,7 @@ export async function getFactoryPoolsDataFromApi(this: ICurve, factoryType: IFac
                 reference_asset: assetTypeNameHandler(pool.assetTypeName),
                 swap_address: pool.address,
                 token_address: pool.address,
-                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : curve.constants.ZERO_ADDRESS,
+                gauge_address: pool.gaugeAddress ? pool.gaugeAddress : this.constants.ZERO_ADDRESS,
                 implementation_address: pool.implementationAddress, // Only for testing
                 is_plain: true,
                 is_factory: true,

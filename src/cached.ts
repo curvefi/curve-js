@@ -35,12 +35,12 @@ export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = f
 
 export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
     const network = curve.constants.NETWORK_NAME;
-    const {usdPrices} = await _getCachedData(network, false);
+    const {usdPrices} = await _getCachedData(network, curve.isLiteChain);
     return usdPrices
 }
 
 export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
     const network = curve.constants.NETWORK_NAME;
-    const {crvApy} = await _getCachedData(network, false);
+    const {crvApy} = await _getCachedData(network, curve.isLiteChain);
     return crvApy
 }

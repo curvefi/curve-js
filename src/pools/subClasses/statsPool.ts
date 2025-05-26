@@ -167,7 +167,7 @@ export class StatsPool implements IStatsPool {
                 poolType = this.pool.id.replace(/-\d+$/, '');
                 poolType = poolType.replace(/-v2$/, '');
             }
-            const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType)).poolData;
+            const poolsData = (await _getPoolsFromApi(network, poolType as IPoolType, curve.isLiteChain)).poolData;
 
             try {
                 const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.pool.address.toLowerCase())[0].usdTotal;

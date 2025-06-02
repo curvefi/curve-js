@@ -27,17 +27,17 @@ export const _getPoolsFromApi =
         return poolsDict[poolType]
     }
 
-export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<IExtendedPoolDataFromApi[]> => {
+export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi[]> => {
     const {poolLists} = await _getCachedData(network, isLiteChain);
     return poolLists
 }
 
-export const _getUsdPricesFromApi = async (network:INetworkName): Promise<IDict<number>> => {
-    const {usdPrices} = await _getCachedData(network, false);
+export const _getUsdPricesFromApi = async (network:INetworkName, isLiteChain: boolean): Promise<IDict<number>> => {
+    const {usdPrices} = await _getCachedData(network, isLiteChain);
     return usdPrices
 }
 
-export const _getCrvApyFromApi = async (network:INetworkName): Promise<IDict<[number, number]>> => {
-    const {crvApy} = await _getCachedData(network, false);
+export const _getCrvApyFromApi = async (network:INetworkName, isLiteChain: boolean): Promise<IDict<[number, number]>> => {
+    const {crvApy} = await _getCachedData(network, isLiteChain);
     return crvApy
 }

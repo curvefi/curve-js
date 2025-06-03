@@ -29,12 +29,9 @@ function _depositBalancedAmounts(poolBalances: string[], walletBalances: string[
     return bestScenario.map((a, i) => walletBalancesBN[i].isZero() ? "0" : a.toFixed(decimals[i]))
 }
 
-// @ts-ignore
-export const depositBalancedAmountsMixin: PoolTemplate = {
-    async depositBalancedAmounts(): Promise<string[]> {
-        // @ts-ignore
+export const depositBalancedAmountsMixin = {
+    async depositBalancedAmounts(this: PoolTemplate): Promise<string[]> {
         const poolBalances = await this.stats.underlyingBalances();
-        // @ts-ignore
         const walletBalances = Object.values(await this.wallet.underlyingCoinBalances());
         const balancedAmountsBN = (_depositBalancedAmounts(poolBalances, walletBalances, this.underlyingDecimals));
 
@@ -42,14 +39,10 @@ export const depositBalancedAmountsMixin: PoolTemplate = {
     },
 }
 
-// @ts-ignore
-export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
-    async depositBalancedAmounts(): Promise<string[]> {
-        // @ts-ignore
+export const depositBalancedAmountsCryptoMixin = {
+    async depositBalancedAmounts(this: PoolTemplate): Promise<string[]> {
         const poolBalances = await this.stats.underlyingBalances();
-        // @ts-ignore
         const walletBalances = Object.values(await this.wallet.underlyingCoinBalances());
-        // @ts-ignore
         const prices = await this._underlyingPrices();
         const poolBalancesUSD = poolBalances.map((b, i) => BN(b).times(prices[i]).toString());
         const walletBalancesUSD = walletBalances.map((b, i) => BN(b).times(prices[i]).toString());
@@ -59,12 +52,9 @@ export const depositBalancedAmountsCryptoMixin: PoolTemplate = {
     },
 }
 
-// @ts-ignore
-export const depositWrappedBalancedAmountsMixin: PoolTemplate = {
-    async depositWrappedBalancedAmounts(): Promise<string[]> {
-        // @ts-ignore
+export const depositWrappedBalancedAmountsMixin = {
+    async depositWrappedBalancedAmounts(this: PoolTemplate): Promise<string[]> {
         const poolBalances = await this.stats.wrappedBalances();
-        // @ts-ignore
         const walletBalances = Object.values(await this.wallet.wrappedCoinBalances());
         const balancedAmountsBN = (_depositBalancedAmounts(poolBalances, walletBalances, this.underlyingDecimals));
 
@@ -72,14 +62,10 @@ export const depositWrappedBalancedAmountsMixin: PoolTemplate = {
     },
 }
 
-// @ts-ignore
-export const depositWrappedBalancedAmountsCryptoMixin: PoolTemplate = {
-    async depositWrappedBalancedAmounts(): Promise<string[]> {
-        // @ts-ignore
+export const depositWrappedBalancedAmountsCryptoMixin = {
+    async depositWrappedBalancedAmounts(this: PoolTemplate): Promise<string[]> {
         const poolBalances = (await this.stats.wrappedBalances()).map(Number);
-        // @ts-ignore
-        const walletBalances = Object.values(await this.walletWrappedCoinBalances()).map(Number);
-        // @ts-ignore
+        const walletBalances = Object.values(await this.wallet.wrappedCoinBalances()).map(Number);
         const prices = await this._wrappedPrices();
         const poolBalancesUSD = poolBalances.map((b, i) => BN(b).times(prices[i]).toString());
         const walletBalancesUSD = walletBalances.map((b, i) => BN(b).times(prices[i]).toString());

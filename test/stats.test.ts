@@ -68,7 +68,7 @@ const poolStatsTest = (name: string) => {
         let pool: PoolTemplate;
 
         before(async function () {
-            pool = getPool(name);
+            pool = getPool.call(_curve, name);
         });
 
 

@@ -16,7 +16,7 @@ import { COINS_FRAXTAL } from "./fraxtal.js";
 import { COINS_XLAYER } from "./xlayer.js";
 import { COINS_MANTLE } from "./mantle.js";
 import { COINS_SONIC } from "./sonic.js";
-
+import { COINS_HYPERLIQUID } from "./hyperliquid.js";
 export {
     COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
     COINS_POLYGON, aTokensPolygon,
@@ -36,4 +36,5 @@ export {
     COINS_XLAYER,
     COINS_MANTLE,
     COINS_SONIC,
+    COINS_HYPERLIQUID,
 };

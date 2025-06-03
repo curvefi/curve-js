@@ -465,6 +465,9 @@ export const STABLE_FACTORY_CONSTANTS: { [index: number]: { implementationABIDic
     324: {  // ZKSYNC
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
+    999: { // HYPERLIQUID
+        stableNgBasePoolZap: stableNgBasePoolZap,
+    },
     1284: {  // MOONBEAM
         implementationABIDict: implementationABIDictMoonbeam,
     },

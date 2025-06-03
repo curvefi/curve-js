@@ -1,6 +1,5 @@
 import {IDict, IExtendedPoolDataFromApi, INetworkName, IPoolType} from "./interfaces.js";
 import {createCrvApyDict, createUsdPricesDict, uncached_getAllPoolsFromApi} from './external-api.js'
-import {curve} from "./curve";
 
 /**
  * Memoizes a function that returns a promise.
@@ -87,19 +86,17 @@ export const _setPoolsFromApi =
     (network: INetworkName, isLiteChain: boolean, data: Record<IPoolType, IExtendedPoolDataFromApi>): void =>
         _getCachedData.set(createCache(data), network, isLiteChain)
 
-export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain = false): Promise<IExtendedPoolDataFromApi[]> => {
+export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi[]> => {
     const {poolLists} = await _getCachedData(network, isLiteChain);
     return poolLists
 }
 
-export const _getUsdPricesFromApi = async (): Promise<IDict<number>> => {
-    const network = curve.constants.NETWORK_NAME;
-    const {usdPrices} = await _getCachedData(network, false);
+export const _getUsdPricesFromApi = async (network:INetworkName, isLiteChain: boolean): Promise<IDict<number>> => {
+    const {usdPrices} = await _getCachedData(network, isLiteChain);
     return usdPrices
 }
 
-export const _getCrvApyFromApi = async (): Promise<IDict<[number, number]>> => {
-    const network = curve.constants.NETWORK_NAME;
-    const {crvApy} = await _getCachedData(network, false);
+export const _getCrvApyFromApi = async (network:INetworkName, isLiteChain: boolean): Promise<IDict<[number, number]>> => {
+    const {crvApy} = await _getCachedData(network, isLiteChain);
     return crvApy
 }

@@ -341,7 +341,7 @@ import curve from "@curvefi/api";
     pool.name;
     // FEI Metapool
     pool.fullName;
-    // Curve.fi Factory USD Metapool: FEI Metapool
+    // Curve.finance Factory USD Metapool: FEI Metapool
     pool.symbol;
     // FEI3CRV3CRV-f
     pool.referenceAsset;
@@ -2181,7 +2181,7 @@ import curve from "@curvefi/api";
     await curve.dao.getVotingGaugeList();
     // [
     //     {
-    //         poolUrl: 'https://curve.fi/#/ethereum/pools/compound/swap',
+    //         poolUrl: 'https://curve.finance/#/ethereum/pools/compound/swap',
     //         network: 'ethereum',
     //         gaugeAddress: '0x7ca5b0a2910b33e9759dc7ddb0413949071d7575',
     //         poolAddress: '0xa2b47e3d5c44877cca798226b7b8118f9bfb7a56',
@@ -2192,7 +2192,7 @@ import curve from "@curvefi/api";
     //         isKilled: false
     //     },
     //     {
-    //         poolUrl: 'https://curve.fi/#/ethereum/pools/usdt/swap',
+    //         poolUrl: 'https://curve.finance/#/ethereum/pools/usdt/swap',
     //         network: 'ethereum',
     //         gaugeAddress: '0xbc89cd85491d81c6ad2954e6d0362ee29fca8f53',
     //         poolAddress: '0x52ea46506b9cc5ef470c5bf89f17dc28bb35d85c',

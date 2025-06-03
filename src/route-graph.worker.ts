@@ -1,9 +1,9 @@
 // important: only type imports, the worker needs to be standalone
 import type {IChainId, IDict, IPoolData, IRouteStep, ISwapType} from "./interfaces";
-import type {curve} from "./curve";
+import type {Curve} from "./curve";
 
 export type IRouteGraphInput = {
-    constants: typeof curve['constants'],
+    constants: Curve['constants'],
     chainId: IChainId,
     isLiteChain: boolean,
     allPools: [string, IPoolData][],
@@ -24,7 +24,6 @@ export function routeGraphWorker() {
             ].map((a) => a.toLowerCase()),
         },
     }
-
     const createRouteGraph = ({constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict}: IRouteGraphInput): IDict<IDict<IRouteStep[]>> => {
         const routerGraph: IDict<IDict<IRouteStep[]>> = {}
         // ETH <-> WETH (exclude Celo)
@@ -231,17 +230,15 @@ export function routeGraphWorker() {
 
         // SNX swaps
         if (chainId in SNX) {
-        // @ts-ignore
-            for (const inCoin of SNX[chainId].coins) {
-            // @ts-ignore
-                for (const outCoin of SNX[chainId].coins) {
+            const chain = chainId as keyof typeof SNX;
+            for (const inCoin of SNX[chain].coins) {
+                for (const outCoin of SNX[chain].coins) {
                     if (inCoin === outCoin) continue;
 
                     if (!routerGraph[inCoin]) routerGraph[inCoin] = {};
                     routerGraph[inCoin][outCoin] = [{
                         poolId: "SNX exchanger",
-                        // @ts-ignore
-                        swapAddress: SNX[chainId].swap,
+                        swapAddress: SNX[chain].swap,
                         inputCoinAddress: inCoin,
                         outputCoinAddress: outCoin,
                         swapParams: [0, 0, 9, 0, 0],

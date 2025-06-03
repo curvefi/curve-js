@@ -1,7 +1,7 @@
 {
   "name": "@curvefi/api",
-  "version": "2.66.15",
-  "description": "JavaScript library for curve.fi",
+  "version": "2.66.30",
+  "description": "JavaScript library for curve.finance",
   "main": "lib/index.js",
   "author": "Macket",
   "license": "MIT",
@@ -17,32 +17,34 @@
     "url": "https://github.com/curvefi/curve-js/issues"
   },
   "scripts": {
-    "build": "rm -rf lib && tsc -p tsconfig.build.json",
-    "lint": "eslint src",
-    "tsc": "tsc -w"
+    "build": "rm -rf lib && tsc --project tsconfig.build.json",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --fix",
+    "watch": "tsc --watch",
+    "watch:lib": "rm -rf lib && tsc --watch --project tsconfig.build.json"
   },
   "type": "module",
   "devDependencies": {
-    "@babel/eslint-parser": "^7.25.9",
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.16.0",
-    "@types/chai": "^5.0.1",
-    "@types/memoizee": "^0.4.11",
+    "@babel/eslint-parser": "^7.27.1",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.27.0",
+    "@types/chai": "^5.2.2",
+    "@types/memoizee": "^0.4.12",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.2",
-    "@typescript-eslint/eslint-plugin": "^8.18.0",
-    "@typescript-eslint/parser": "^8.18.0",
-    "chai": "^5.1.2",
-    "eslint": "^9.16.0",
-    "globals": "^15.13.0",
-    "mocha": "^11.0.1",
-    "typescript": "^5.7.2",
-    "vue-eslint-parser": "^9.4.3"
+    "@types/node": "^22.15.21",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "chai": "^5.2.0",
+    "eslint": "^9.27.0",
+    "globals": "^16.1.0",
+    "mocha": "^11.4.0",
+    "typescript": "^5.8.3",
+    "vue-eslint-parser": "^10.1.3"
   },
   "dependencies": {
-    "@curvefi/ethcall": "6.0.12",
-    "bignumber.js": "^9.1.2",
-    "ethers": "^6.13.4",
+    "@curvefi/ethcall": "^6.0.13",
+    "bignumber.js": "^9.3.0",
+    "ethers": "^6.14.1",
     "memoizee": "^0.4.17"
   }
 }

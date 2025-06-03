@@ -18,6 +18,7 @@ import {
     POOLS_DATA_FRAXTAL,
     POOLS_DATA_XLAYER,
     POOLS_DATA_MANTLE,
+    POOLS_DATA_SONIC,
 } from './pools/index.js';
 import {
     COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
@@ -37,9 +38,8 @@ import {
     COINS_FRAXTAL,
     COINS_XLAYER,
     COINS_MANTLE,
+    COINS_SONIC,
 } from "./coins/index.js";
-import {POOLS_DATA_SONIC} from "./pools/sonic";
-import {COINS_SONIC} from "./coins/sonic";
 
 const ALIASES_ETHEREUM = lowerCaseValues({
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52", // <--- CHANGE
@@ -362,7 +362,7 @@ const ALIASES_FRAXTAL = lowerCaseValues({
     "gauge_controller": "0x0000000000000000000000000000000000000000",
     "address_provider": "0x0000000000000000000000000000000000000000",
 
-    "router": "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db",
+    "router": "0x56C526b0159a258887e0d79ec3a80dfb940d0cD7",
     "deposit_and_stake": "0xF0d4c12A5768D806021F80a262B4d39d26C58b8D",
 
     "stable_ng_factory": '0xd2002373543Ce3527023C75e7518C274A51ce712',
@@ -540,10 +540,10 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         POOLS_DATA: POOLS_DATA_FRAXTAL,
         COINS: COINS_FRAXTAL,
         NATIVE_COIN: {
-            symbol: 'frxETH',
-            wrappedSymbol: 'wfrxETH',
+            symbol: 'FRAX',
+            wrappedSymbol: 'wFRAX',
             address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            wrappedAddress: '0xfc00000000000000000000000000000000000006'.toLowerCase(),
+            wrappedAddress: '0xfc00000000000000000000000000000000000002'.toLowerCase(),
         },
     },
     324: {

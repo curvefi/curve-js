@@ -16,7 +16,17 @@ import {getFactoryPoolData} from "./factory/factory.js";
 import {getFactoryPoolsDataFromApi} from "./factory/factory-api.js";
 import {getCryptoFactoryPoolData} from "./factory/factory-crypto.js";
 import {getTricryptoFactoryPoolData} from "./factory/factory-tricrypto.js";
-import {Abi, IChainId, ICurve, IDict, IFactoryPoolType, INetworkConstants, IPoolData} from "./interfaces";
+import {
+    IPoolData,
+    IDict,
+    ICurve,
+    IChainId,
+    IFactoryPoolType,
+    Abi,
+    INetworkConstants,
+    IPoolType,
+    IExtendedPoolDataFromApi,
+} from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' with {type: 'json'};
 import cERC20Abi from './constants/abis/cERC20.json' with {type: 'json'};
 import yERC20Abi from './constants/abis/yERC20.json' with {type: 'json'};
@@ -61,7 +71,7 @@ import {_getHiddenPools} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import {getNetworkConstants} from "./utils.js";
-
+import {_setPoolsFromApi} from "./cached";
 
 export const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
 
@@ -149,7 +159,7 @@ export class Curve implements ICurve {
     async init(
         providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'NoRPC',
         providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | 'NoRPC',
-        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number } = {} // gasPrice in Gwei
+        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number, poolsData?: Record<IPoolType, IExtendedPoolDataFromApi> } = {} // gasPrice in Gwei
     ): Promise<void> {
         this.provider = null!;
         this.signer = null;
@@ -294,6 +304,10 @@ export class Curve implements ICurve {
         }
 
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };
+        if (options.poolsData) {
+            _setPoolsFromApi(this.constants.NETWORK_NAME, this.isLiteChain, options.poolsData);
+        }
+
         await this.updateFeeData();
 
         for (const pool of Object.values({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA})) {

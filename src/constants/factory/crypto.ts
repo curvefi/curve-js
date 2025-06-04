@@ -84,6 +84,11 @@ export const tricryptoDeployImplementations = {
         amm_native_transfers_enabled: '0x18d01726FeDaBd91579A9368DFB2F8A24f905280'.toLowerCase(),
         implementationIdx: 0,
     },
+    999: {  // HYPERLIQUID
+        amm_native_transfers_disabled: '0x635742dCC8313DCf8c904206037d962c042EAfBd'.toLowerCase(), // 1
+        amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(), // 0
+        implementationIdx: 1,
+    },
     1284: {  // MOONBEAM
         amm_native_transfers_disabled: '0x0000000000000000000000000000000000000000'.toLowerCase(),
         amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(),
@@ -165,6 +170,9 @@ export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: {
     },
     324: {  // ZKSYNC
         tricryptoDeployImplementations: tricryptoDeployImplementations[324],
+    },
+    999: { // HYPERLIQUID
+        tricryptoDeployImplementations: tricryptoDeployImplementations[999],
     },
     1284: {  // MOONBEAM
         tricryptoDeployImplementations: tricryptoDeployImplementations[1284],

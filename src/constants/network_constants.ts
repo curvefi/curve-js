@@ -19,6 +19,7 @@ import {
     POOLS_DATA_XLAYER,
     POOLS_DATA_MANTLE,
     POOLS_DATA_SONIC,
+    POOLS_DATA_HYPERLIQUID,
 } from './pools/index.js';
 import {
     COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
@@ -39,6 +40,7 @@ import {
     COINS_XLAYER,
     COINS_MANTLE,
     COINS_SONIC,
+    COINS_HYPERLIQUID,
 } from "./coins/index.js";
 
 const ALIASES_ETHEREUM = lowerCaseValues({
@@ -411,21 +413,39 @@ const ALIASES_MANTLE = lowerCaseValues({
 });
 
 const ALIASES_SONIC = lowerCaseValues({
-    "crv": "0x5af79133999f7908953e94b7a5cf367740ebee35", //
-    "child_gauge_factory": "0xf3A431008396df8A8b2DF492C913706BDB0874ef", //
+    "crv": "0x5af79133999f7908953e94b7a5cf367740ebee35",
+    "child_gauge_factory": "0xf3A431008396df8A8b2DF492C913706BDB0874ef",
     "voting_escrow": "0x0000000000000000000000000000000000000000",
     "fee_distributor": "0x0000000000000000000000000000000000000000",
     "gauge_controller": "0x0000000000000000000000000000000000000000",
-    "address_provider": "0x87FE17697D0f14A222e8bEf386a0860eCffDD617", //
+    "address_provider": "0x87FE17697D0f14A222e8bEf386a0860eCffDD617",
 
-    "router": "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E", //
-    "deposit_and_stake": "0x505d666E4DD174DcDD7FA090ed95554486d2Be44", //
+    "router": "0x5eeE3091f747E60a045a2E715a4c71e600e31F6E",
+    "deposit_and_stake": "0x505d666E4DD174DcDD7FA090ed95554486d2Be44",
 
-    "stable_ng_factory": '0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8', //
-    "twocrypto_factory": '0x1A83348F9cCFD3Fe1A8C0adBa580Ac4e267Fe495', //
-    "tricrypto_factory": '0x635742dCC8313DCf8c904206037d962c042EAfBd', //
+    "stable_ng_factory": '0x7C2085419BE6a04f4ad88ea91bC9F5C6E6C463D8',
+    "twocrypto_factory": '0x1A83348F9cCFD3Fe1A8C0adBa580Ac4e267Fe495',
+    "tricrypto_factory": '0x635742dCC8313DCf8c904206037d962c042EAfBd',
 
-    "factory_admin": '0x0000000000000000000000000000000000000000', //
+    "factory_admin": '0x0000000000000000000000000000000000000000',
+});
+
+const ALIASES_HYPERLIQUID = lowerCaseValues({
+    "crv": "0x0000000000000000000000000000000000000000", //
+    "child_gauge_factory": "0x8b3EFBEfa6eD222077455d6f0DCdA3bF4f3F57A6", //
+    "voting_escrow": "0x0000000000000000000000000000000000000000",
+    "fee_distributor": "0x0000000000000000000000000000000000000000",
+    "gauge_controller": "0x0000000000000000000000000000000000000000",
+    "address_provider": "0x87FE17697D0f14A222e8bEf386a0860eCffDD617", 
+
+    "router": "0xd2002373543Ce3527023C75e7518C274A51ce712", //
+    "deposit_and_stake": "0x5a8C93EE12a8Df4455BA111647AdA41f29D5CfcC", //
+
+    "stable_ng_factory": '0x604388Bb1159AFd21eB5191cE22b4DeCdEE2Ae22', //
+    "twocrypto_factory": '0xc9Fe0C63Af9A39402e8a5514f9c43Af0322b665F', //
+    "tricrypto_factory": '0x5702BDB1Ec244704E3cBBaAE11a0275aE5b07499', //
+
+    "factory_admin": '0x0000000000000000000000000000000000000000',
 });
 
 
@@ -556,6 +576,18 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
             wrappedSymbol: 'WETH',
             address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             wrappedAddress: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91'.toLowerCase(),
+        },
+    },
+    999: {
+        NAME: 'hyperliquid',
+        ALIASES: ALIASES_HYPERLIQUID,
+        POOLS_DATA: POOLS_DATA_HYPERLIQUID,
+        COINS: COINS_HYPERLIQUID,
+        NATIVE_COIN: {
+            symbol: 'HYPE',
+            wrappedSymbol: 'WHYPE',
+            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            wrappedAddress: '0x5555555555555555555555555555555555555555'.toLowerCase(),
         },
     },
     1284: {

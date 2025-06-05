@@ -17,15 +17,15 @@ import {getFactoryPoolsDataFromApi} from "./factory/factory-api.js";
 import {getCryptoFactoryPoolData} from "./factory/factory-crypto.js";
 import {getTricryptoFactoryPoolData} from "./factory/factory-tricrypto.js";
 import {
-    IPoolData,
-    IDict,
-    ICurve,
-    IChainId,
-    IFactoryPoolType,
     Abi,
-    INetworkConstants,
-    IPoolType,
+    IChainId,
+    ICurve,
+    IDict,
     IExtendedPoolDataFromApi,
+    IFactoryPoolType,
+    INetworkConstants,
+    IPoolData,
+    IPoolType,
 } from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' with {type: 'json'};
 import cERC20Abi from './constants/abis/cERC20.json' with {type: 'json'};
@@ -457,20 +457,17 @@ export class Curve implements ICurve {
 
             const originalEstimate = AbstractProvider.prototype.estimateGas;
 
-            const oldEstimate = originalEstimate.bind(this)
-
             //Override
-            const newEstimate = async function(arg: any) {
-                const L2EstimateGas = oldEstimate;
+            const newEstimate = async function(this: AbstractProvider, arg: any) {
                 const L1GasUsed = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle_blob].contract.getL1GasUsed(arg.data);
                 const L1Fee = await curveInstance.contracts[curveInstance.constants.ALIASES.gas_oracle_blob].contract.getL1Fee(arg.data);
                 curveInstance.L1WeightedGasPrice = Number(L1Fee)/Number(L1GasUsed);
-                const L2GasUsed = await L2EstimateGas(arg);
+                const L2GasUsed = await originalEstimate.call(this, arg);
                 return [L2GasUsed,L1GasUsed];
             }
 
             AbstractProvider.prototype.estimateGas = newEstimate as any;
-            (AbstractProvider.prototype as any).originalEstimate = oldEstimate;
+            (AbstractProvider.prototype as any).originalEstimate = originalEstimate;
         } else {
             if('originalEstimate' in AbstractProvider.prototype) {
                 AbstractProvider.prototype.estimateGas = AbstractProvider.prototype.originalEstimate as any;

@@ -912,7 +912,7 @@ async function _deployGaugeSidechain(this: Curve, pool: string, salt: string, es
 
 async function _deployGaugeMirror(this: Curve, chainId: number, salt: string, estimateGas: boolean): Promise<ethers.ContractTransactionResponse | number | number[]> {
     if (this.chainId !== 1) throw Error("There is no deployGaugeMirror method on sidechain network");
-    const rootGaugeFactory = chainId !== 42161? NETWORK_CONSTANTS[this.chainId].ALIASES.root_gauge_factory: NETWORK_CONSTANTS[this.chainId].ALIASES.root_gauge_factory_arbitrum;
+    const rootGaugeFactory = NETWORK_CONSTANTS[this.chainId].ALIASES.root_gauge_factory
     const contract = this.contracts[rootGaugeFactory].contract;
     const _salt = ethers.encodeBytes32String(salt)
     const gas = await contract.deploy_gauge.estimateGas(chainId, Typed.bytes32(_salt), this.constantOptions);
@@ -952,7 +952,7 @@ export async function getDeployedGaugeMirrorAddressByTx(this: Curve, tx: ethers.
 
 export async function getDeployedGaugeMirrorAddress(this: Curve, chainId: number): Promise<string> {
     if (this.chainId !== 1) throw Error("There is no getDeployedGaugeMirrorAddress method on sidechain network");
-    const rootGaugeFactory = chainId !== 42161? NETWORK_CONSTANTS[this.chainId].ALIASES.root_gauge_factory: NETWORK_CONSTANTS[this.chainId].ALIASES.root_gauge_factory_arbitrum;
+    const rootGaugeFactory = NETWORK_CONSTANTS[this.chainId].ALIASES.root_gauge_factory;
     const contract = this.contracts[rootGaugeFactory].contract;
     const gaugeCount = await contract.get_gauge_count(chainId);
     const currentIndex: number = Number(gaugeCount) - 1;

@@ -371,8 +371,6 @@ export class Curve implements ICurve {
             this.setContract(this.constants.ALIASES.minter, minterMainnetABI);
             this.setContract(this.constants.ALIASES.fee_distributor_crvusd, feeDistributorCrvUSDABI);
             this.setContract(this.constants.ALIASES.root_gauge_factory, rootGaugeFactoryABI);
-            //TODO should be deleted
-            this.setContract(this.constants.ALIASES.root_gauge_factory_arbitrum, rootGaugeFactoryABI);
         } else {
             this.setContract(this.constants.ALIASES.child_gauge_factory, childGaugeFactoryABI);
             if ("child_gauge_factory_old" in this.constants.ALIASES) {

@@ -47,7 +47,6 @@ const ALIASES_ETHEREUM = lowerCaseValues({
     "crv": "0xD533a949740bb3306d119CC777fa900bA034cd52", // <--- CHANGE
     "minter": '0xd061D61a4d941c39E5453435B6345Dc261C2fcE0', // <--- RECOVERED
     "root_gauge_factory": "0x306A45a1478A000dC701A6e1f7a569afb8D9DCD6",
-    "root_gauge_factory_arbitrum": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc",
     "fee_distributor_crvusd": "0xD16d5eC345Dd86Fb63C6a9C43c517210F1027914",
@@ -144,7 +143,8 @@ const ALIASES_AVALANCHE = lowerCaseValues({
 
 const ALIASES_ARBITRUM = lowerCaseValues({
     "crv": "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978",
-    "child_gauge_factory": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
+    "child_gauge_factory": "0x988d1037e9608B21050A8EFba0c6C45e01A3Bce7",
+    "child_gauge_factory_old": "0xabC000d88f23Bb45525E447528DBF656A9D55bf5",
     "voting_escrow": "0x98c80fa823759b642c3e02f40533c164f40727ae",
     "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
     "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",

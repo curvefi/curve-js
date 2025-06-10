@@ -193,6 +193,11 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
         gaugeAddresses.push(rawGaugeAddresses[i] !== this.constants.ZERO_ADDRESS ? rawGaugeAddresses[i] : rawOldGaugeAddresses[i]);
     }
 
+    swapAddresses.forEach((address,index) => {
+        const isNativeCoinEnabled = this.chainId === 1 || implementationAddresses[index] === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
+        this.setContract(address, isNativeCoinEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI);
+    });
+
     setCryptoFactoryGaugeContracts.call(this, gaugeAddresses);
     setCryptoFactoryCoinsContracts.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
@@ -204,7 +209,6 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
 
     for (let i = 0; i < poolIds.length; i++) {
         const isETHEnabled = this.chainId === 1 || implementationAddresses[i] === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
-        this.setContract(swapAddresses[i], isETHEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI);
         const underlyingCoinAddresses = coinAddresses[i].map((addr) => {
             if(isETHEnabled) {
                 return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;

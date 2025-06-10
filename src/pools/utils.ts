@@ -172,8 +172,8 @@ async function _getUserClaimable(this: Curve, pools: string[], address: string, 
             }
 
             for (const token of rewardTokens[poolId]) {
-                // Don't reset the reward ABI if the reward is the LP token itself, otherwise we lose LP contract functions
-                const { multicallContract } = token === pool.address ? this.contracts[token] : _setContracts.call(this, token, ERC20Abi)
+                // Don't reset ABI if its already set, we might override an LP token ABI
+                const { multicallContract } = this.contracts[token] || _setContracts.call(this, token, ERC20Abi)
                 rewardInfoCalls.push(multicallContract.symbol(), multicallContract.decimals());
 
                 if ('claimable_reward(address,address)' in gaugeContract) {
@@ -274,8 +274,8 @@ async function _getUserClaimableUseApi(this: Curve, pools: string[], address: st
             }
 
             for (const r of rewardTokens[poolId]) {
-                // Don't reset the reward ABI if the reward is the LP token itself, otherwise we lose LP contract functions
-                if (r.token !== pool.address) {
+                // Don't reset ABI if its already set, we might override an LP token ABI
+                if (!this.contracts[r.token]) {
                     _setContracts.call(this, r.token, ERC20Abi)
                 }
 

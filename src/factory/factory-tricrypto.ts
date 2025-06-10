@@ -209,7 +209,6 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
 
     for (let i = 0; i < poolIds.length; i++) {
         const isETHEnabled = this.chainId === 1 || implementationAddresses[i] === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
-        this.setContract(swapAddresses[i], isETHEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI);
         const underlyingCoinAddresses = coinAddresses[i].map((addr) => {
             if(isETHEnabled) {
                 return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;

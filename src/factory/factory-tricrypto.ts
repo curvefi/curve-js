@@ -91,12 +91,6 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
     return [gaugeAddresses, gaugeOldAddresses, coinAddresses, implementationAddresses]
 }
 
-function setCryptoFactorySwapContracts(this: ICurve, factorySwapAddresses: string[]): void {
-    factorySwapAddresses.forEach((addr) => {
-        this.setContract(addr, tricryptoFactorySwapABI);
-    });
-}
-
 function setCryptoFactoryGaugeContracts(this: ICurve, factoryGaugeAddresses: string[]): void {
     factoryGaugeAddresses.filter((addr) => addr !== this.constants.ZERO_ADDRESS).forEach((addr) => {
         this.setContract(addr, this.chainId === 1 ? factoryGaugeABI : gaugeChildABI);
@@ -198,7 +192,7 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
     for (let i = 0; i < rawGaugeAddresses.length; i++) {
         gaugeAddresses.push(rawGaugeAddresses[i] !== this.constants.ZERO_ADDRESS ? rawGaugeAddresses[i] : rawOldGaugeAddresses[i]);
     }
-    setCryptoFactorySwapContracts.call(this, swapAddresses);
+
     setCryptoFactoryGaugeContracts.call(this, gaugeAddresses);
     setCryptoFactoryCoinsContracts.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);
@@ -210,6 +204,7 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
 
     for (let i = 0; i < poolIds.length; i++) {
         const isETHEnabled = this.chainId === 1 || implementationAddresses[i] === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
+        this.setContract(swapAddresses[i], isETHEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI);
         const underlyingCoinAddresses = coinAddresses[i].map((addr) => {
             if(isETHEnabled) {
                 return addr === nativeToken.wrappedAddress ? nativeToken.address : addr;

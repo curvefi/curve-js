@@ -193,6 +193,11 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
         gaugeAddresses.push(rawGaugeAddresses[i] !== this.constants.ZERO_ADDRESS ? rawGaugeAddresses[i] : rawOldGaugeAddresses[i]);
     }
 
+    swapAddresses.forEach((address,index) => {
+        const isNativeCoinEnabled = this.chainId === 1 || implementationAddresses[index] === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
+        this.setContract(address, isNativeCoinEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI);
+    });
+
     setCryptoFactoryGaugeContracts.call(this, gaugeAddresses);
     setCryptoFactoryCoinsContracts.call(this, coinAddresses);
     const existingCoinAddressNameDict = getExistingCoinAddressNameDict.call(this);

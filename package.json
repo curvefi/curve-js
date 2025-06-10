@@ -1,6 +1,6 @@
 {
   "name": "@curvefi/api",
-  "version": "2.67.5",
+  "version": "2.67.6",
   "description": "JavaScript library for curve.finance",
   "main": "lib/index.js",
   "author": "Macket",

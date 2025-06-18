@@ -2010,6 +2010,15 @@ export class PoolTemplate extends CorePool {
         return this.wrappedCoins.map(() => BN(1))
     }
 
+    public async getStoredRates(useUnderlying = false): Promise<string[]> {
+        try {
+            const storedRatesBN = await this._storedRatesBN(useUnderlying);
+            return storedRatesBN.map(rate => rate.toString());
+        } catch (error) {
+            throw new Error(`Failed to get stored rates for pool ${this.name}`);
+        }
+    }
+
     _underlyingPrices = async (): Promise<number[]> => {
         const promises = [];
         for (const addr of this.underlyingCoinAddresses) {

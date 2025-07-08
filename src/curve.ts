@@ -71,7 +71,7 @@ import {_getHiddenPools} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import {getNetworkConstants} from "./utils.js";
-import {_setPoolsFromApi} from "./cached";
+import {_setPoolsFromApi} from "./cached.js";
 
 export const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
 

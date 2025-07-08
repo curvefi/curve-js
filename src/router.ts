@@ -29,7 +29,7 @@ import {_getAmplificationCoefficientsFromApi} from "./pools/utils.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {IRouterWorkerInput, routeFinderWorker, routeFinderWorkerCode} from "./route-finder.worker.js";
 import {IRouteGraphInput, routeGraphWorker, routeGraphWorkerCode} from "./route-graph.worker.js";
-import {memoizeMethod} from "./constants/utils";
+import {memoizeMethod} from "./constants/utils.js";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;

@@ -1,7 +1,7 @@
 import { PoolTemplate } from "../PoolTemplate.js";
 import { parseUnits } from "../../utils.js";
 import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./common.js";
-import {formatUnits} from "../../constants/utils";
+import {formatUnits} from "../../constants/utils.js";
 
 export const withdrawExpectedMixin = {
     async withdrawExpected(this: PoolTemplate, lpTokenAmount: number | string): Promise<string[]> {

@@ -1,6 +1,6 @@
 import { PoolTemplate } from "../PoolTemplate.js";
 import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./common.js";
-import {IStatsPool} from "../subClasses/statsPool";
+import {type IStatsPool} from "../subClasses/statsPool.js";
 
 
 export const poolBalancesMetaMixin = {

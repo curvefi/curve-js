@@ -8,8 +8,8 @@ import gaugeChildABI from "../constants/abis/gauge_child.json" with {type: "json
 import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with {type: "json"};
 import {getPoolIdByAddress, setFactoryZapContracts} from "./common.js";
 import {getPoolName, isStableNgPool} from "../utils.js";
-import {formatUnits} from "../constants/utils";
-import {Curve} from "../curve";
+import {formatUnits} from "../constants/utils.js";
+import {Curve} from "../curve.js";
 
 export const BLACK_LIST: { [index: number]: any } = {
     1: [

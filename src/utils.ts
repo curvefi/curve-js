@@ -27,7 +27,7 @@ import {L2Networks} from './constants/L2Networks.js';
 import {volumeNetworks} from "./constants/volumeNetworks.js";
 import {getPool} from "./pools/index.js";
 import {NETWORK_CONSTANTS} from "./constants/network_constants.js";
-import {formatUnits} from "./constants/utils";
+import {formatUnits} from "./constants/utils.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

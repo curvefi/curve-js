@@ -1,6 +1,6 @@
 // important: only type imports, the worker needs to be standalone
 import type {IChainId, IDict, IPoolData, IRouteStep, ISwapType} from "./interfaces";
-import type {Curve} from "./curve";
+import type {Curve} from "./curve.js";
 
 export type IRouteGraphInput = {
     constants: Curve['constants'],

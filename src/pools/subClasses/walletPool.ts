@@ -3,7 +3,7 @@ import {
     _prepareAddresses,
     _getBalances,
 } from '../../utils.js';
-import {PoolTemplate} from "../PoolTemplate";
+import {type PoolTemplate} from "../PoolTemplate.js";
 
 export interface IWalletPool {
     balances: (...addresses: string[] | string[][]) => Promise<IDict<IDict<string>> | IDict<string>>,

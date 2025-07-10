@@ -1,6 +1,6 @@
 import { ICurve, IPoolDataShort } from "../interfaces";
 import { getPoolIdBySwapAddress } from "../utils.js";
-import {Curve} from "../curve";
+import {type Curve} from "../curve.js";
 
 export function setFactoryZapContracts(this: ICurve, isCrypto: boolean): void {
     const basePoolIdZapDict = (isCrypto ? this.constants.CRYPTO_FACTORY_CONSTANTS : this.constants.STABLE_FACTORY_CONSTANTS).basePoolIdZapDict ?? {};

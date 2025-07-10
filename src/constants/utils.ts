@@ -1,7 +1,7 @@
 import {IDict, IPoolData} from "../interfaces.js";
 import {BigNumberish, ethers, Numeric} from "ethers";
 import memoize from "memoizee";
-import {Curve} from "../curve";
+import {type Curve} from "../curve.js";
 
 export const formatUnits = (value: BigNumberish, unit?: string | Numeric): string => ethers.formatUnits(value, unit);
 export const parseUnits = (value: string, unit?: string | Numeric) => ethers.parseUnits(value, unit)

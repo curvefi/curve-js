@@ -503,7 +503,7 @@ export class Curve implements ICurve {
     }
 
     async _filterHiddenPools(pools: IDict<IPoolData>): Promise<IDict<IPoolData>> {
-        const hiddenPools = (await _getHiddenPools())[this.constants.NETWORK_NAME] || [];
+        const hiddenPools = (await _getHiddenPools(this.isLiteChain))[this.constants.NETWORK_NAME] || [];
         return Object.fromEntries(Object.entries(pools).filter(([id]) => !hiddenPools.includes(id))) as IDict<IPoolData>;
     }
 

@@ -218,7 +218,7 @@ export const _getAllGaugesFormatted = memoize(
 )
 
 export const _getHiddenPools = memoize(
-    (): Promise<IDict<string[]>> => fetchData(`https://api.curve.finance/api/getHiddenPools`),
+    (isLiteChain: boolean): Promise<IDict<string[]>> => fetchData(`https://${isLiteChain ? 'api-core' : 'api'}.curve.finance/v1/getHiddenPools`),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m

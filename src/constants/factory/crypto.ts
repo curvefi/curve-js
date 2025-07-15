@@ -60,9 +60,9 @@ export const tricryptoDeployImplementations = {
         implementationIdx: 1,
     },
     146: {  // SONIC
-        amm_native_transfers_disabled: '0xf3A6aa40cf048a3960E9664847E9a7be025a390a'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(), //0
-        implementationIdx: 1,
+        amm_native_transfers_disabled: '0xf3A6aa40cf048a3960E9664847E9a7be025a390a'.toLowerCase(), //0
+        amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(), //1
+        implementationIdx: 0,
     },
     196: {  // X-LAYER
         amm_native_transfers_disabled: '0x64379C265Fc6595065D7d835AAaa731c0584dB80'.toLowerCase(), //1

@@ -509,8 +509,8 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
         POOLS_DATA: POOLS_DATA_POLYGON,
         COINS: COINS_POLYGON,
         NATIVE_COIN: {
-            symbol: 'MATIC',
-            wrappedSymbol: 'WMATIC',
+            symbol: 'POL',
+            wrappedSymbol: 'WPOL',
             address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             wrappedAddress: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'.toLowerCase(),
         },

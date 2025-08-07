@@ -50,7 +50,7 @@ function mapDict<T, U>(dict: IDict<T>, mapper: (key: string, value: T) => U): ID
 
 async function _buildRouteGraphImpl(this: Curve, chainId: IChainId, isLiteChain: boolean): Promise<IDict<IDict<IRouteStep[]>>> {
     const constants = this.constants;
-    const allPools = Object.entries(this.getPoolsData()).filter(([id]) => !["crveth", "y", "busd", "pax"].includes(id));
+    const allPools = Object.entries(this.getPoolsData()).filter(([id]) => !["crveth", "y", "busd", "pax", "susd"].includes(id));
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi.call(this);
     const poolTvlDict: IDict<number> = await entriesToDictAsync(allPools, _getTVL.bind(this));
     const input: IRouteGraphInput = { constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict };

@@ -8,6 +8,7 @@ import {
     getVolumeApiController,
 } from '../../utils.js';
 import {PoolTemplate} from "../PoolTemplate.js";
+import {rewardNetworks} from '../../constants/rewardNetworks.js';
 import memoize from "memoizee";
 
 export interface IStatsParameters {
@@ -236,13 +237,13 @@ export class StatsPool implements IStatsPool {
 
     public tokenApy = async (useApi = true): Promise<[baseApy: number, boostedApy: number]> => {
         const curve = this.pool.curve;
-        if(curve.isLiteChain && curve.chainId !== 146) {
+        if(curve.isLiteChain && !rewardNetworks.tokenApyLiteChainExceptions.includes(curve.chainId)) {
             throw Error('tokenApy is not supported for the lite version')
         }
 
         if (this.pool.rewardsOnly()) throw Error(`${this.pool.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
 
-        const isDisabledChain = [1313161554].includes(curve.chainId); // Disable Aurora
+        const isDisabledChain = rewardNetworks.tokenApyDisabledChains.includes(curve.chainId);
         if (useApi && !isDisabledChain) {
             const crvAPYs = await _getCrvApyFromApi(curve.constants.NETWORK_NAME, curve.isLiteChain);
             const poolCrvApy = crvAPYs[this.pool.gauge.address] ?? [0, 0];  // new pools might be missing

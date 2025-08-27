@@ -129,10 +129,12 @@ export class StatsPool implements IStatsPool {
 
     public async wrappedBalances(): Promise<string[]> {
         const curve = this.pool.curve;
-        const contract = curve.contracts[this.pool.address].multicallContract;
-        const calls = [];
-        for (let i = 0; i < this.pool.wrappedCoins.length; i++) calls.push(contract.balances(i));
-        const _wrappedBalances: bigint[] = await curve.multicallProvider.all(calls);
+        const contract = curve.contracts[this.pool.address].contract;
+        const promises = [];
+        for (let i = 0; i < this.pool.wrappedCoins.length; i++) {
+            promises.push(contract.balances(i));
+        }
+        const _wrappedBalances: bigint[] = await Promise.all(promises);
 
         return _wrappedBalances.map((_b, i) => curve.formatUnits(_b, this.pool.wrappedDecimals[i]));
     }

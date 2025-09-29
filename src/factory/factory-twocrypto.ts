@@ -2,8 +2,10 @@ import {ICurve, IDict, IPoolData} from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json" with {type: "json"};
 import twocryptoFactorySwapABI
     from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" with {type: "json"};
+import ybTwocryptoPoolABI from "../constants/abis/factory-twocrypto/yb-twocrypto-pool.json" with {type: "json"};
 import factoryGaugeABI from "../constants/abis/gauge_factory.json" with {type: "json"};
 import gaugeChildABI from "../constants/abis/gauge_child.json" with {type: "json"};
+import { isYBPool } from "../constants/ybPools.js";
 
 
 const deepFlatten = (arr: any[]): any[] => [].concat(...arr.map((v) => (Array.isArray(v) ? deepFlatten(v) : v)));
@@ -90,7 +92,8 @@ async function getPoolsData(this: ICurve, factorySwapAddresses: string[]): Promi
 
 function setTwocryptoFactorySwapContracts(this: ICurve, factorySwapAddresses: string[]): void {
     factorySwapAddresses.forEach((addr) => {
-        this.setContract(addr, twocryptoFactorySwapABI);
+        const abi = isYBPool(addr) ? ybTwocryptoPoolABI : twocryptoFactorySwapABI;
+        this.setContract(addr, abi);
     });
 }
 

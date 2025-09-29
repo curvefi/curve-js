@@ -5,6 +5,7 @@ import ERC20ABI from "../constants/abis/ERC20.json" with {type: "json"};
 import cryptoFactorySwapABI from "../constants/abis/factory-crypto/factory-crypto-pool-2.json" with {type: "json"};
 import twocryptoFactorySwapABI
     from "../constants/abis/factory-twocrypto/factory-twocrypto-pool.json" with {type: "json"};
+import ybTwocryptoPoolABI from "../constants/abis/factory-twocrypto/yb-twocrypto-pool.json" with {type: "json"};
 import tricryptoFactorySwapABI
     from "../constants/abis/factory-tricrypto/factory-tricrypto-pool.json" with {type: "json"};
 import tricryptoFactoryEthDisabledSwapABI
@@ -16,6 +17,7 @@ import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.js
 import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with {type: "json"};
 import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with {type: "json"};
 import {type Curve} from "../curve";
+import { isYBPool } from "../constants/ybPools.js";
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -37,6 +39,11 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
 
 function getSwapAbiByFactoryType(this: ICurve, factoryType: IFactoryPoolType, pool: IPoolDataFromApi) {
     const isETHEnabled = pool.implementationAddress === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
+    
+    if (factoryType === "factory-twocrypto" && isYBPool(pool.address)) {
+        return ybTwocryptoPoolABI;
+    }
+    
     const map: Record<string, any> = {
         "factory-crypto": cryptoFactorySwapABI,
         "factory-twocrypto": twocryptoFactorySwapABI,

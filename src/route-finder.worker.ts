@@ -5,11 +5,11 @@ export type IRouterWorkerInput = {
     inputCoinAddress: string,
     outputCoinAddress: string,
     routerGraph: IDict<IDict<IRouteStep[]>>,
-    poolData: IDict<IRoutePoolData>
+    poolData: IDict<IRoutePoolData>,
+    ybAssets: string[]
 }
 
 export function routeFinderWorker() {
-    const MAX_ROUTES_FOR_ONE_COIN = 5;
     const MAX_DEPTH = 4;
 
     const _removeDuplications = (routesA: IRouteTvl[], routesB: IRouteTvl[]) => {
@@ -62,9 +62,13 @@ export function routeFinderWorker() {
 
     const _findPool = (route: IRouteTvl, poolId: string) => route.route.find((r) => r.poolId === poolId);
 
-    const findRoutes = ({ inputCoinAddress, outputCoinAddress, routerGraph, poolData }: IRouterWorkerInput): IRouteStep[][] => {
+    const findRoutes = ({ inputCoinAddress, outputCoinAddress, routerGraph, poolData, ybAssets }: IRouterWorkerInput): IRouteStep[][] => {
         inputCoinAddress = inputCoinAddress.toLowerCase();
         outputCoinAddress = outputCoinAddress.toLowerCase();
+        
+        const isYBAsset = ybAssets.includes(inputCoinAddress) || ybAssets.includes(outputCoinAddress);
+        const MAX_ROUTES_FOR_ONE_COIN = isYBAsset ? 10 : 5;
+        
 
         const routes: IRouteTvl[] = [{route: [], minTvl: Infinity, totalTvl: 0}];
         const targetRoutesByTvl: IRouteTvl[] = [];

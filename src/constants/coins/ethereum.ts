@@ -15,6 +15,8 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     susde: "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497",
     usds: "0xdc035d45d973e3ec169d2276ddab16f1e407384f",
     susds: "0xa3931d71877c0e7a3148cb7eb4463524fec27fbd",
+    reusd: "0x5086bf358635B81D8C47C66d1C8b9E567Db70c72",
+    sreusd: "0x557AB1e003951A73c12D16F0fEA8490E39C33C35",
 
     ycdai: "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // pax/yDAI
     ycusdc: "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // pax/yUSDC

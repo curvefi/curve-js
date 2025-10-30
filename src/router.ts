@@ -417,7 +417,7 @@ export async function swapEstimateGas(this: Curve, inputCoin: string, outputCoin
     return gas
 }
 
-export async function swap(this: Curve, inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<ethers.ContractTransactionResponse> {
+async function prepareSwap(this: Curve, inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5) {
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses.call(this, inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals.call(this, inputCoinAddress, outputCoinAddress);
 
@@ -447,16 +447,20 @@ export async function swap(this: Curve, inputCoin: string, outputCoin: string, a
             { ...this.constantOptions, value }
         ))) * (this.chainId === 1 ? this.parseUnits("130", 0) : this.parseUnits("160", 0)) / this.parseUnits("100", 0);
         return await contract.exchange(_route, _swapParams, _amount, _minRecvAmount, _pools, { ...this.options, value, gasLimit });
-    } else {
-        const gasLimit = (DIGas(await contract.exchange.estimateGas(
-            _route,
-            _swapParams,
-            _amount,
-            _minRecvAmount,
-            { ...this.constantOptions, value }
-        ))) * this.parseUnits("160", 0) / this.parseUnits("100", 0);
-        return await contract.exchange(_route, _swapParams, _amount, _minRecvAmount, { ...this.options, value, gasLimit });
     }
+    const gasLimit = (DIGas(await contract.exchange.estimateGas(
+        _route,
+        _swapParams,
+        _amount,
+        _minRecvAmount,
+        { ...this.constantOptions, value }
+    ))) * this.parseUnits("160", 0) / this.parseUnits("100", 0);
+    return [contract, [_route, _swapParams, _amount, _minRecvAmount], { ...this.options, value, gasLimit }] as const
+}
+
+export async function swap(this: Curve, inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<ethers.ContractTransactionResponse> {
+    const [contract, params, options] = await prepareSwap.call(this, inputCoin, outputCoin, amount, slippage);
+    return await contract.exchange(...params, options);
 }
 
 export async function getSwappedAmount(this: Curve, tx: ethers.ContractTransactionResponse, outputCoin: string): Promise<string> {

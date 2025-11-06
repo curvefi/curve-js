@@ -106,6 +106,7 @@ import {
     deployTwocryptoPoolEstimateGas,
     getDeployedTwocryptoPoolAddress,
 } from './factory/deploy.js';
+import { getTwoCryptoImplementations } from './constants/twoCryptoImplementations.js';
 import {
     crvSupplyStats,
     userCrv,
@@ -271,6 +272,7 @@ export const createCurve = () => {
             getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx.bind(_curve),
             fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTwocryptoFactoryPool.bind(_curve),
             gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-twocrypto"),
+            getImplementations: getTwoCryptoImplementations,
             estimateGas: {
                 deployPool: deployTwocryptoPoolEstimateGas, //
                 deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas.call(_curve,poolAddress, _curve.constants.ALIASES.twocrypto_factory),

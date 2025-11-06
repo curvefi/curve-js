@@ -1919,8 +1919,24 @@ import curve from "@curvefi/api";
         "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
     ];
 
-    // Deploy pool
-    
+    // Get only UI-available implementations
+    const implementations = curve.twocryptoFactory.getImplementations(true);
+    // [
+    //     {
+    //         index: 0,
+    //         address: '0x934791f7F391727db92BFF94cd789c4623d14c52',
+    //         description: '',
+    //         availableInUI: true
+    //     },
+    //     {
+    //         index: '110205523814837221872401067839670671012439480455633721548677383351514213591649',
+    //         address: '0xD1FAeCA80d6FDd1DF4CBcCe4b2551b6Ee63Ae3D6',
+    //         description: 'TwoCrypto (50% DAO fee) — for FX / regular pairs (where donations may stream from within Curve protocol)',
+    //         availableInUI: true
+    //     }
+    // ]
+
+    // Deploy pool with default implementation (implementations[0].index === 0)
     const deployPoolTx = await curve.twocryptoFactory.deployPool(
         "Test crypto pool",
         "TCP",
@@ -1935,6 +1951,23 @@ import curve from "@curvefi/api";
         600,
         1500
     );
+    
+    // OR deploy with FX implementation with 50% DAO fee (implementations[1])
+    // const deployPoolTx = await curve.twocryptoFactory.deployPool(
+    //     "Test crypto pool",
+    //     "TCP",
+    //     coins,
+    //     400000,
+    //     0.0000725,
+    //     0.25,
+    //     0.45,
+    //     0.000002,
+    //     0.00023,
+    //     0.000146,
+    //     600,
+    //     1500,
+    //     implementations[1].index
+    // );
     // {
     //     hash: '0x406900448e537f2fd5c833a4f62a81305b9567e71f870772e10c72271bd78c37',
     //     type: 0,

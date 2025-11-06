@@ -6,6 +6,6 @@ export interface IRewardNetworks {
 }
 
 export const rewardNetworks: IRewardNetworks = {
-    tokenApyLiteChainExceptions: [146, 167000], // Sonic, Taiko
+    tokenApyLiteChainExceptions: [146, 167000, 42793], // Sonic, Taiko, Etherlink
     tokenApyDisabledChains: [1313161554], // Aurora
-}
+};

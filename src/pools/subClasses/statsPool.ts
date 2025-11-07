@@ -10,6 +10,7 @@ import {
 import {PoolTemplate} from "../PoolTemplate.js";
 import {rewardNetworks} from '../../constants/rewardNetworks.js';
 import memoize from "memoizee";
+import {Contract} from "ethers";
 
 export interface IStatsParameters {
     lpTokenSupply: string,
@@ -45,15 +46,42 @@ export class StatsPool implements IStatsPool {
         this.pool = pool;
     }
 
+    /**
+     * Safely fetches admin_fee from contract with fallback logic.
+     * This is necessary because for new pools we don't know their ABI in advance, 
+     * and there's no way to determine it beforehand.
+     */
+    private async _getAdminFeeSafely(): Promise<bigint> {
+        const curve = this.pool.curve;
+        const contract = curve.contracts[this.pool.address].contract;
+        
+        try {
+            if ('admin_fee' in contract) {
+                return await contract.admin_fee();
+            } else {
+                return await contract.ADMIN_FEE();
+            }
+        } catch {
+            const ADMIN_FEE_ABI = {"stateMutability":"view","type":"function","name":"admin_fee","inputs":[],"outputs":[{"name":"","type":"uint256"}]};
+            const tmpContract = new Contract(
+                this.pool.address,
+                [ADMIN_FEE_ABI] as any,
+                curve.signer || curve.provider
+            );
+            return await tmpContract.admin_fee();
+        }
+    }
+
     public parameters = async (): Promise<IStatsParameters> => {
         const curve = this.pool.curve;
         const multicallContract = curve.contracts[this.pool.address].multicallContract;
         const lpMulticallContract = curve.contracts[this.pool.lpToken].multicallContract;
 
+        const _adminFee = await this._getAdminFeeSafely();
+
         const calls = [
             multicallContract.get_virtual_price(),
             multicallContract.fee(),
-            "admin_fee" in multicallContract ? multicallContract.admin_fee() : multicallContract.ADMIN_FEE(),
             multicallContract.A(),
             lpMulticallContract.totalSupply(),
         ]
@@ -82,16 +110,16 @@ export class StatsPool implements IStatsPool {
 
         let _virtualPrice = curve.parseUnits("0");
         let _fee = curve.parseUnits("0");
-        let _prices, _adminFee, _A, _lpTokenSupply, _gamma;
+        let _prices, _A, _lpTokenSupply, _gamma;
         try {
-            [_virtualPrice, _fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
+            [_virtualPrice, _fee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
         } catch { // Empty pool
             calls.shift();
             if (this.pool.isCrypto) {
                 calls.shift();
-                [_adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
+                [_A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
             } else {
-                [_fee, _adminFee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
+                [_fee, _A, _lpTokenSupply, _gamma, ..._prices] = await curve.multicallProvider.all(calls) as bigint[];
             }
         }
 

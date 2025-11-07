@@ -48,6 +48,8 @@ export class StatsPool implements IStatsPool {
 
     /**
      * Safely fetches admin_fee from contract with fallback logic.
+     * This is necessary because for new pools we don't know their ABI in advance, 
+     * and there's no way to determine it beforehand.
      */
     private async _getAdminFeeSafely(): Promise<bigint> {
         const curve = this.pool.curve;

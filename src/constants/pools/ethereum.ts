@@ -13,7 +13,6 @@ import usdtDepositABI from '../abis/usdt/deposit.json' with { type: 'json' };
 import usdtSwapABI from '../abis/usdt/swap.json' with { type: 'json' };
 import iearnDepositABI from '../abis/iearn/deposit.json' with { type: 'json' };
 import iearnSwapABI from '../abis/iearn/swap.json' with { type: 'json' };
-import iearnSCurveRewardsABI from '../abis/iearn/sCurveRewards.json' with { type: 'json' };
 import busdDepositABI from '../abis/busd/deposit.json' with { type: 'json' };
 import busdSwapABI from '../abis/busd/swap.json' with { type: 'json' };
 import susdv2DepositABI from '../abis/susdv2/deposit.json' with { type: 'json' };
@@ -1317,30 +1316,6 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         underlying_decimals: [6, 2],
         wrapped_decimals: [6, 2],
         swap_abi: eursusdSwapABI,
-        gauge_abi: gaugeV4ABI,
-    },
-    crveth: {
-        name: "crveth",
-        full_name: "crveth",
-        symbol: "crveth",
-        reference_asset: 'CRYPTO',
-        swap_address: '0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511',
-        token_address: '0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d',
-        gauge_address: '0x1cEBdB0856dd985fAe9b8fEa2262469360B8a3a6',
-        is_crypto: true,
-        underlying_coins: ['ETH', 'CRV'],
-        wrapped_coins: ['WETH', 'CRV'],
-        underlying_coin_addresses: [
-            '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-            '0xD533a949740bb3306d119CC777fa900bA034cd52',
-        ],
-        wrapped_coin_addresses: [
-            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-            '0xD533a949740bb3306d119CC777fa900bA034cd52',
-        ],
-        underlying_decimals: [18, 18],
-        wrapped_decimals: [18, 18],
-        swap_abi: crvethSwapABI,
         gauge_abi: gaugeV4ABI,
     },
     rai: {

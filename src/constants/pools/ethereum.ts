@@ -13,7 +13,6 @@ import usdtDepositABI from '../abis/usdt/deposit.json' with { type: 'json' };
 import usdtSwapABI from '../abis/usdt/swap.json' with { type: 'json' };
 import iearnDepositABI from '../abis/iearn/deposit.json' with { type: 'json' };
 import iearnSwapABI from '../abis/iearn/swap.json' with { type: 'json' };
-import iearnSCurveRewardsABI from '../abis/iearn/sCurveRewards.json' with { type: 'json' };
 import busdDepositABI from '../abis/busd/deposit.json' with { type: 'json' };
 import busdSwapABI from '../abis/busd/swap.json' with { type: 'json' };
 import susdv2DepositABI from '../abis/susdv2/deposit.json' with { type: 'json' };

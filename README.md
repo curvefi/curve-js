@@ -1641,12 +1641,17 @@ import curve from "@curvefi/api";
 
     const methodNames = [
         '',
-        'pricePerShare',
+        'pricePerShare()',
     ];
     // OR 
     //const methodNames = [
     //  '0x00000000',
-    //  'pricePerShare',
+    //  'pricePerShare()',
+    //];
+    // AND NOT
+    //const methodNames = [
+    //  '0x00000000',
+    //  '0x99530b06', //computed selectors do not work `$cast keccak "pricePerShare()"`
     //];
     
     

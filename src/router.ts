@@ -459,6 +459,35 @@ export async function swap(this: Curve, inputCoin: string, outputCoin: string, a
     }
 }
 
+export async function swapCalldata(this: Curve, inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<string> {
+    console.log(inputCoin, outputCoin, amount, slippage);
+    const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses.call(this, inputCoin, outputCoin);
+    const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals.call(this, inputCoinAddress, outputCoinAddress);
+
+    const { route, output } = _getBestRouteAndOutput.call(this, inputCoinAddress, outputCoinAddress, amount);
+
+    if (route.length === 0) {
+        throw new Error("This pair can't be exchanged");
+    }
+
+    const { _route, _swapParams, _pools } = _getExchangeArgs.call(this, route);
+    const _amount = parseUnits(amount, inputCoinDecimals);
+    const minRecvAmountBN: BigNumber = BN(output).times(100 - slippage).div(100);
+    const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
+
+    const contract = this.contracts[this.constants.ALIASES.router].contract;
+    const value = isEth(inputCoinAddress) ? _amount : this.parseUnits("0");
+
+    let populatedTx;
+    if (_pools) {
+        populatedTx = await contract.exchange.populateTransaction(_route, _swapParams, _amount, _minRecvAmount, _pools, { value });
+    } else {
+        populatedTx = await contract.exchange.populateTransaction(_route, _swapParams, _amount, _minRecvAmount, { value });
+    }
+    
+    return populatedTx.data as string;
+}
+
 export async function getSwappedAmount(this: Curve, tx: ethers.ContractTransactionResponse, outputCoin: string): Promise<string> {
     const [outputCoinAddress] = _getCoinAddresses.call(this, outputCoin);
     const [outputCoinDecimals] = _getCoinDecimals.call(this, outputCoinAddress);

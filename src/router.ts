@@ -479,7 +479,7 @@ export async function populateSwap(this: Curve, inputCoin: string, outputCoin: s
     return await contract.exchange.populateTransaction(...[
         _route, _swapParams, _amount, _minRecvAmount,
         ..._pools ? [_pools] : [],
-        { value: isEth(inputCoinAddress) ? _amount : this.parseUnits("0") }
+        { value: isEth(inputCoinAddress) ? _amount : this.parseUnits("0") },
     ])
 }
 

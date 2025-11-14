@@ -1206,9 +1206,9 @@ import curve from "@curvefi/api";
     await curve.router.getBestRouteAndOutput('DAI', 'CRV', '1000');
     
     // Then get calldata
-    const calldata = await curve.router.swapCalldata('DAI', 'CRV', '1000', 0.5);
-    // OR const calldata = await curve.router.swapCalldata('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000', 0.5);
-    console.log(calldata);
+    const { data, to, from, amount } = await curve.router.populateSwap('DAI', 'CRV', '1000', 0.5);
+    // OR const tx = await curve.router.populateSwap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000', 0.5);
+    console.log(data);
     // 0x8f726f1c000000000000000000000000...
 })()
 ```

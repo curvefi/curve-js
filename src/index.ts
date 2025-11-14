@@ -18,7 +18,7 @@ import {
     swapApprove,
     swapEstimateGas,
     swap,
-    swapCalldata,
+    populateSwap,
     getSwappedAmount,
 } from "./router.js";
 import { Curve } from "./curve.js";
@@ -354,7 +354,7 @@ export const createCurve = () => {
             isApproved: swapIsApproved.bind(_curve),
             approve: swapApprove.bind(_curve),
             swap: swap.bind(_curve),
-            swapCalldata: swapCalldata.bind(_curve),
+            populateSwap: populateSwap.bind(_curve),
             getSwappedAmount: getSwappedAmount.bind(_curve),
             estimateGas: {
                 approve: swapApproveEstimateGas.bind(_curve),

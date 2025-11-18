@@ -189,8 +189,8 @@ import curve from "@curvefi/api";
     // Returns array of TransactionLike objects (may include reset to 0 if needed for some tokens)
     console.log(approveTxs);
     // [
-    //   { to: '0x6B17...', data: '0x095ea7b3...', from: '0x...', ... },
-    //   { to: '0xA0b8...', data: '0x095ea7b3...', from: '0x...', ... }
+    //   { to: '0x6B17...', data: '0x095ea7b3...', hash: '0x...', ... },
+    //   { to: '0xA0b8...', data: '0x095ea7b3...', hash: '0x...', ... }
     // ]
 })()
 ```

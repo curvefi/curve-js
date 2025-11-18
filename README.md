@@ -181,6 +181,15 @@ import curve from "@curvefi/api";
     //     '0xb0cada2a2983dc0ed85a26916d32b9caefe45fecde47640bd7d0e214ff22aed3',
     //     '0x00ea7d827b3ad50ce933e96c579810cd7e70d66a034a86ec4e1e10005634d041'
     // ]
+    
+    // Get populated approve transactions (without executing)
+    const approveTxs = await curve.populateApprove(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], ['1000', '1000'], spender);
+    // Returns array of TransactionLike objects (may include reset to 0 if needed for some tokens)
+    console.log(approveTxs);
+    // [
+    //   { to: '0x6B17...', data: '0x095ea7b3...', from: '0x...', ... },
+    //   { to: '0xA0b8...', data: '0x095ea7b3...', from: '0x...', ... }
+    // ]
 })()
 ```
 
@@ -1191,6 +1200,14 @@ import curve from "@curvefi/api";
     // [
     //     '0xc111e471715ae6f5437e12d3b94868a5b6542cd7304efca18b5782d315760ae5'
     // ]
+    
+    // Get populated transactions for approve (without executing)
+    const approveTxs = await curve.router.populateApprove('DAI', 1000);
+    // OR const approveTxs = await curve.router.populateApprove('0x6B175474E89094C44Da98b954EedeAC495271d0F', 1000);
+    // OR with custom spender: await curve.router.populateApprove('DAI', 1000, '0x...customSpender');
+    console.log(approveTxs);
+    // [{ to: '0x6B17...', data: '0x...', ... }]
+    // Returns array of TransactionLike objects
     const swapTx = await curve.router.swap('DAI', 'CRV', '1000');
     // OR const swapTx = await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     console.log(swapTx.hash);

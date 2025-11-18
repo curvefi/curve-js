@@ -1,4 +1,4 @@
-import {Contract, ethers} from 'ethers';
+import {Contract, ethers, TransactionLike} from 'ethers';
 import {Contract as MulticallContract} from "@curvefi/ethcall";
 import BigNumber from 'bignumber.js';
 import {
@@ -308,6 +308,32 @@ export async function ensureAllowance(this: Curve, coins: string[], amounts: (nu
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
 
     return await _ensureAllowance.call(this, coinAddresses, _amounts, spender, isMax)
+}
+
+export async function populateApprove(this: Curve, coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<TransactionLike[]> {
+    const coinAddresses = _getCoinAddresses.call(this, coins);
+    const decimals = _getCoinDecimals.call(this, coinAddresses);
+    const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
+    
+    const address = this.signerAddress;
+    const allowance = await _getAllowance.call(this, coinAddresses, address, spender);
+    
+    const transactions: TransactionLike[] = [];
+    
+    for (let i = 0; i < allowance.length; i++) {
+        if (allowance[i] < _amounts[i]) {
+            const contract = this.contracts[coinAddresses[i]].contract;
+            const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
+            
+            if (allowance[i] > parseUnits("0")) {
+                transactions.push(await contract.approve.populateTransaction(spender, parseUnits("0")));
+            }
+            
+            transactions.push(await contract.approve.populateTransaction(spender, _approveAmount));
+        }
+    }
+    
+    return transactions;
 }
 
 export function getPoolIdBySwapAddress(this: Curve, swapAddress: string): string {

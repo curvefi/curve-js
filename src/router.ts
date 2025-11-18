@@ -8,6 +8,7 @@ import {
     _get_small_x,
     _getCoinAddresses,
     _getCoinDecimals,
+    _getAllowance,
     _getUsdRate,
     BN,
     DIGas,
@@ -19,7 +20,9 @@ import {
     getTxCostsUsd,
     hasAllowance,
     isEth,
+    MAX_ALLOWANCE,
     parseUnits,
+    populateApprove,
     runWorker,
     smartNumber,
     toBN,
@@ -404,6 +407,11 @@ export async function swapApproveEstimateGas(this: Curve, inputCoin: string, amo
 
 export async function swapApprove(this: Curve, inputCoin: string, amount: number | string): Promise<string[]> {
     return await ensureAllowance.call(this, [inputCoin], [amount], this.constants.ALIASES.router);
+}
+
+export async function swapPopulateApprove(this: Curve, inputCoin: string, amount: number | string, spender?: string, isMax = true): Promise<TransactionLike[]> {
+    const routerAddress = this.contracts[this.constants.ALIASES.router].contract.target as string;
+    return await populateApprove.call(this, [inputCoin], [amount], spender || routerAddress, isMax);
 }
 
 export async function swapEstimateGas(this: Curve, inputCoin: string, outputCoin: string, amount: number | string): Promise<number | number[]> {

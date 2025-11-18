@@ -20,7 +20,6 @@ import {
     getTxCostsUsd,
     hasAllowance,
     isEth,
-    MAX_ALLOWANCE,
     parseUnits,
     populateApprove,
     runWorker,
@@ -409,9 +408,8 @@ export async function swapApprove(this: Curve, inputCoin: string, amount: number
     return await ensureAllowance.call(this, [inputCoin], [amount], this.constants.ALIASES.router);
 }
 
-export async function swapPopulateApprove(this: Curve, inputCoin: string, amount: number | string, spender?: string, isMax = true): Promise<TransactionLike[]> {
-    const routerAddress = this.contracts[this.constants.ALIASES.router].contract.target as string;
-    return await populateApprove.call(this, [inputCoin], [amount], spender || routerAddress, isMax);
+export async function swapPopulateApprove(this: Curve, inputCoin: string, amount: number | string, isMax = true, userAddress: string): Promise<TransactionLike[]> {
+    return await populateApprove.call(this, [inputCoin], [amount], this.constants.ALIASES.router, isMax, userAddress);
 }
 
 export async function swapEstimateGas(this: Curve, inputCoin: string, outputCoin: string, amount: number | string): Promise<number | number[]> {

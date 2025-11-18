@@ -184,6 +184,8 @@ import curve from "@curvefi/api";
     
     // Get populated approve transactions (without executing)
     const approveTxs = await curve.populateApprove(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], ['1000', '1000'], spender);
+    // OR with custom user address (for API): 
+    // await curve.populateApprove(["DAI", "USDC"], ['1000', '1000'], spender, false, '0x...userAddress');
     // Returns array of TransactionLike objects (may include reset to 0 if needed for some tokens)
     console.log(approveTxs);
     // [
@@ -1202,9 +1204,8 @@ import curve from "@curvefi/api";
     // ]
     
     // Get populated transactions for approve (without executing)
-    const approveTxs = await curve.router.populateApprove('DAI', 1000);
-    // OR const approveTxs = await curve.router.populateApprove('0x6B175474E89094C44Da98b954EedeAC495271d0F', 1000);
-    // OR with custom spender: await curve.router.populateApprove('DAI', 1000, '0x...customSpender');
+    const approveTxs = await curve.router.populateApprove('DAI', 1000, false, userAddress);
+    // OR const approveTxs = await curve.router.populateApprove('0x6B175474E89094C44Da98b954EedeAC495271d0F', 1000, false, userAddress);
     console.log(approveTxs);
     // [{ to: '0x6B17...', data: '0x...', ... }]
     // Returns array of TransactionLike objects

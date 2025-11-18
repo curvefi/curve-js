@@ -310,12 +310,14 @@ export async function ensureAllowance(this: Curve, coins: string[], amounts: (nu
     return await _ensureAllowance.call(this, coinAddresses, _amounts, spender, isMax)
 }
 
-export async function populateApprove(this: Curve, coins: string[], amounts: (number | string)[], spender: string, isMax = true): Promise<TransactionLike[]> {
+export async function populateApprove(this: Curve, coins: string[], amounts: (number | string)[], spender: string, isMax = true, userAddress?: string): Promise<TransactionLike[]> {
     const coinAddresses = _getCoinAddresses.call(this, coins);
     const decimals = _getCoinDecimals.call(this, coinAddresses);
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     
-    const address = this.signerAddress;
+    const address = userAddress || this.signerAddress;
+    if (!address) throw Error("User address is not defined. Pass userAddress parameter.");
+    
     const allowance = await _getAllowance.call(this, coinAddresses, address, spender);
     
     const transactions: TransactionLike[] = [];

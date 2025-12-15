@@ -16,8 +16,10 @@ import {
     swapIsApproved,
     swapApproveEstimateGas,
     swapApprove,
+    swapPopulateApprove,
     swapEstimateGas,
     swap,
+    populateSwap,
     getSwappedAmount,
 } from "./router.js";
 import { Curve } from "./curve.js";
@@ -62,6 +64,7 @@ import {
     hasAllowance,
     ensureAllowanceEstimateGas,
     ensureAllowance,
+    populateApprove,
     getUsdRate,
     getGasPriceFromL1,
     getGasPriceFromL2,
@@ -106,6 +109,7 @@ import {
     deployTwocryptoPoolEstimateGas,
     getDeployedTwocryptoPoolAddress,
 } from './factory/deploy.js';
+import { getTwoCryptoImplementations } from './constants/twoCryptoImplementations.js';
 import {
     crvSupplyStats,
     userCrv,
@@ -174,6 +178,7 @@ export const createCurve = () => {
         getAllowance: getAllowance.bind(_curve),
         hasAllowance: hasAllowance.bind(_curve),
         ensureAllowance: ensureAllowance.bind(_curve),
+        populateApprove: populateApprove.bind(_curve),
         getCoinsData: getCoinsData.bind(_curve),
         getVolume: getVolume.bind(_curve),
         hasDepositAndStake: hasDepositAndStake.bind(_curve),
@@ -271,6 +276,7 @@ export const createCurve = () => {
             getDeployedGaugeMirrorAddressByTx: getDeployedGaugeMirrorAddressByTx.bind(_curve),
             fetchRecentlyDeployedPool: _curve.fetchRecentlyDeployedTwocryptoFactoryPool.bind(_curve),
             gaugeImplementation: (): string => _curve.getGaugeImplementation("factory-twocrypto"),
+            getImplementations: getTwoCryptoImplementations,
             estimateGas: {
                 deployPool: deployTwocryptoPoolEstimateGas, //
                 deployGauge: async (poolAddress: string): Promise<number> => deployGaugeEstimateGas.call(_curve,poolAddress, _curve.constants.ALIASES.twocrypto_factory),
@@ -350,7 +356,9 @@ export const createCurve = () => {
             priceImpact: swapPriceImpact.bind(_curve),
             isApproved: swapIsApproved.bind(_curve),
             approve: swapApprove.bind(_curve),
+            populateApprove: swapPopulateApprove.bind(_curve),
             swap: swap.bind(_curve),
+            populateSwap: populateSwap.bind(_curve),
             getSwappedAmount: getSwappedAmount.bind(_curve),
             estimateGas: {
                 approve: swapApproveEstimateGas.bind(_curve),

@@ -181,6 +181,17 @@ import curve from "@curvefi/api";
     //     '0xb0cada2a2983dc0ed85a26916d32b9caefe45fecde47640bd7d0e214ff22aed3',
     //     '0x00ea7d827b3ad50ce933e96c579810cd7e70d66a034a86ec4e1e10005634d041'
     // ]
+    
+    // Get populated approve transactions (without executing)
+    const approveTxs = await curve.populateApprove(["DAI", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], ['1000', '1000'], spender);
+    // OR with custom user address (for API): 
+    // await curve.populateApprove(["DAI", "USDC"], ['1000', '1000'], spender, false, '0x...userAddress');
+    // Returns array of TransactionLike objects (may include reset to 0 if needed for some tokens)
+    console.log(approveTxs);
+    // [
+    //   { to: '0x6B17...', data: '0x095ea7b3...', hash: '0x...', ... },
+    //   { to: '0xA0b8...', data: '0x095ea7b3...', hash: '0x...', ... }
+    // ]
 })()
 ```
 
@@ -1191,6 +1202,13 @@ import curve from "@curvefi/api";
     // [
     //     '0xc111e471715ae6f5437e12d3b94868a5b6542cd7304efca18b5782d315760ae5'
     // ]
+    
+    // Get populated transactions for approve (without executing)
+    const approveTxs = await curve.router.populateApprove('DAI', 1000, false, userAddress);
+    // OR const approveTxs = await curve.router.populateApprove('0x6B175474E89094C44Da98b954EedeAC495271d0F', 1000, false, userAddress);
+    console.log(approveTxs);
+    // [{ to: '0x6B17...', data: '0x...', ... }]
+    // Returns array of TransactionLike objects
     const swapTx = await curve.router.swap('DAI', 'CRV', '1000');
     // OR const swapTx = await curve.router.swap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000');
     console.log(swapTx.hash);
@@ -1200,6 +1218,16 @@ import curve from "@curvefi/api";
 
     await curve.getBalances(['DAI', 'CRV']);
     // [ '8900.0', '100428.626463428100672494' ]
+
+    // Get calldata for swap (without executing transaction)
+    // First, you need to call getBestRouteAndOutput to cache the route
+    await curve.router.getBestRouteAndOutput('DAI', 'CRV', '1000');
+    
+    // Then get calldata
+    const { data, to, from, amount } = await curve.router.populateSwap('DAI', 'CRV', '1000', 0.5);
+    // OR const tx = await curve.router.populateSwap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000', 0.5);
+    console.log(data);
+    // 0x8f726f1c000000000000000000000000...
 })()
 ```
 
@@ -1919,8 +1947,24 @@ import curve from "@curvefi/api";
         "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
     ];
 
-    // Deploy pool
-    
+    // Get only UI-available implementations
+    const implementations = curve.twocryptoFactory.getImplementations(true);
+    // [
+    //     {
+    //         index: 0,
+    //         address: '0x934791f7F391727db92BFF94cd789c4623d14c52',
+    //         description: '',
+    //         availableInUI: true
+    //     },
+    //     {
+    //         index: '110205523814837221872401067839670671012439480455633721548677383351514213591649',
+    //         address: '0xD1FAeCA80d6FDd1DF4CBcCe4b2551b6Ee63Ae3D6',
+    //         description: 'TwoCrypto (50% DAO fee) — for FX / regular pairs (where donations may stream from within Curve protocol)',
+    //         availableInUI: true
+    //     }
+    // ]
+
+    // Deploy pool with default implementation (implementations[0].index === 0)
     const deployPoolTx = await curve.twocryptoFactory.deployPool(
         "Test crypto pool",
         "TCP",
@@ -1935,6 +1979,23 @@ import curve from "@curvefi/api";
         600,
         1500
     );
+    
+    // OR deploy with FX implementation with 50% DAO fee (implementations[1])
+    // const deployPoolTx = await curve.twocryptoFactory.deployPool(
+    //     "Test crypto pool",
+    //     "TCP",
+    //     coins,
+    //     400000,
+    //     0.0000725,
+    //     0.25,
+    //     0.45,
+    //     0.000002,
+    //     0.00023,
+    //     0.000146,
+    //     600,
+    //     1500,
+    //     implementations[1].index
+    // );
     // {
     //     hash: '0x406900448e537f2fd5c833a4f62a81305b9567e71f870772e10c72271bd78c37',
     //     type: 0,

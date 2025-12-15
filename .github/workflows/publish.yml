@@ -48,12 +48,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          registry-url: 'https://registry.npmjs.org'
       - name: Install modules
         run: npm ci
       - name: Build
         run: npm run build
       - name: Publish to npm
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public

@@ -5,6 +5,7 @@ import {getPool} from "../pools/index.js";
 import {BN, DIGas, getPoolIdBySwapAddress, mulBy1_3, parseUnits, smartNumber} from '../utils.js';
 import CurveLpTokenV5ABI from "../constants/abis/curve_lp_token_v5.json" with {type: "json"};
 import Plain2ETHOracleABIABI from "../constants/abis/factory-v2/Plain2ETHOracle.json" with {type: "json"};
+import {TwoCryptoImplementation} from "../constants/twoCryptoImplementations.js";
 
 // ------- STABLE PLAIN POOLS -------
 
@@ -557,6 +558,7 @@ async function _deployTwocryptoPool(
     adjustmentStep: number | string,
     maHalfTime: number, // Seconds
     initialPrice: number | string,
+    implementationIdx: TwoCryptoImplementation,
     estimateGas: boolean
 ): Promise<ethers.ContractTransactionResponse | number | number[]> {
     if (name.length > 32) throw Error("Max name length = 32");
@@ -599,7 +601,7 @@ async function _deployTwocryptoPool(
         name,
         symbol,
         coins,
-        0,
+        implementationIdx,
         _A,
         _gamma,
         _midFee,
@@ -619,7 +621,7 @@ async function _deployTwocryptoPool(
         name,
         symbol,
         coins,
-        0,
+        implementationIdx,
         _A,
         _gamma,
         _midFee,
@@ -646,7 +648,8 @@ export async function deployTwocryptoPoolEstimateGas(
     feeGamma: number | string,
     adjustmentStep: number | string,
     maHalfTime: number, // Seconds
-    initialPrice: number | string
+    initialPrice: number | string,
+    implementationIdx: TwoCryptoImplementation = TwoCryptoImplementation.DEFAULT
 ): Promise<number> {
     return await _deployTwocryptoPool.call(
         this,
@@ -662,6 +665,7 @@ export async function deployTwocryptoPoolEstimateGas(
         adjustmentStep,
         maHalfTime,
         initialPrice,
+        implementationIdx,
         true
     ) as number
 }
@@ -679,7 +683,8 @@ export async function deployTwocryptoPool(
     feeGamma: number | string,
     adjustmentStep: number | string,
     maHalfTime: number, // Seconds
-    initialPrice: number | string
+    initialPrice: number | string,
+    implementationIdx: TwoCryptoImplementation = TwoCryptoImplementation.DEFAULT
 ): Promise<ethers.ContractTransactionResponse> {
     return await _deployTwocryptoPool.call(
         this,
@@ -695,6 +700,7 @@ export async function deployTwocryptoPool(
         adjustmentStep,
         maHalfTime,
         initialPrice,
+        implementationIdx,
         false
     ) as ethers.ContractTransactionResponse
 }

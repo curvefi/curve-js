@@ -41,6 +41,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    environment: production
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

@@ -299,12 +299,13 @@ export function routeGraphWorker() {
             let poolType = poolData.is_llamma ? 4 : poolData.is_crypto ? Math.min(poolData.wrapped_coins.length, 3) : 1;
             if (poolData.is_ng) poolType *= 10;
             const tvlMultiplier = poolData.is_crypto ? 1 : (amplificationCoefficientDict[poolData.swap_address] ?? 1);
-            const basePool = poolData.is_meta ? {...constants.POOLS_DATA, ...constants.FACTORY_POOLS_DATA}[poolData.base_pool as string] : null;
+            const basePool = poolData.is_meta ? {...constants.POOLS_DATA, ...constants.FACTORY_POOLS_DATA, ...constants.STABLE_NG_FACTORY_POOLS_DATA, ...constants.CRVUSD_FACTORY_POOLS_DATA}[poolData.base_pool as string] : null;
             const basePoolAddress = basePool ? basePool.swap_address.toLowerCase() : constants.ZERO_ADDRESS;
             let baseTokenAddress = basePool ? basePool.token_address.toLowerCase() : constants.ZERO_ADDRESS;
             const secondBasePool = basePool && basePool.base_pool ? {
                 ...constants.POOLS_DATA,
                 ...constants.FACTORY_POOLS_DATA,
+                ...constants.STABLE_NG_FACTORY_POOLS_DATA,
                 ...constants.CRVUSD_FACTORY_POOLS_DATA,
             }[basePool.base_pool as string] : null;
             const secondBasePoolAddress = secondBasePool ? secondBasePool.swap_address.toLowerCase() : constants.ZERO_ADDRESS;

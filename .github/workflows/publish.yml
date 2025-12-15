@@ -48,7 +48,6 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          registry-url: 'https://registry.npmjs.org'
       - name: Install modules
         run: npm ci
       - name: Build

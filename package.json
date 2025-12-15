@@ -1,13 +1,13 @@
 {
   "name": "@curvefi/api",
-  "version": "2.68.20",
+  "version": "2.68.21",
   "description": "JavaScript library for curve.finance",
   "main": "lib/index.js",
   "author": "Macket",
   "license": "MIT",
   "private": false,
   "engines": {
-    "node": "22"
+    "node": "24"
   },
   "repository": {
     "type": "git",
@@ -25,20 +25,20 @@
   },
   "type": "module",
   "devDependencies": {
-    "@babel/eslint-parser": "^7.28.0",
+    "@babel/eslint-parser": "^7.28.5",
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.34.0",
-    "@types/chai": "^5.2.2",
+    "@eslint/js": "^9.38.0",
+    "@types/chai": "^5.2.3",
     "@types/memoizee": "^0.4.12",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^24.3.1",
-    "@typescript-eslint/eslint-plugin": "^8.42.0",
-    "@typescript-eslint/parser": "^8.42.0",
+    "@types/node": "^24.9.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "chai": "^5.3.3",
-    "eslint": "^9.34.0",
-    "globals": "^16.3.0",
-    "mocha": "^11.7.2",
-    "typescript": "^5.9.2",
+    "eslint": "^9.38.0",
+    "globals": "^16.4.0",
+    "mocha": "^11.7.4",
+    "typescript": "^5.9.3",
     "vue-eslint-parser": "^10.2.0"
   },
   "dependencies": {

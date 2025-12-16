@@ -28,10 +28,14 @@ export function routeGraphWorker() {
         const routerGraph: IDict<IDict<IRouteStep[]>> = {}
         // ETH <-> WETH (exclude Celo)
         if (chainId !== 42220) {
+            const wrapperAddress = constants.NATIVE_TOKEN.wrapperAddress && constants.NATIVE_TOKEN.wrapperAddress !== constants.NATIVE_TOKEN.wrappedAddress 
+                ? constants.NATIVE_TOKEN.wrapperAddress 
+                : constants.NATIVE_TOKEN.wrappedAddress;
+            
             routerGraph[constants.NATIVE_TOKEN.address] = {};
             routerGraph[constants.NATIVE_TOKEN.address][constants.NATIVE_TOKEN.wrappedAddress] = [{
                 poolId: "WETH wrapper",
-                swapAddress: constants.NATIVE_TOKEN.wrappedAddress,
+                swapAddress: wrapperAddress,
                 inputCoinAddress: constants.NATIVE_TOKEN.address,
                 outputCoinAddress: constants.NATIVE_TOKEN.wrappedAddress,
                 swapParams: [0, 0, 8, 0, 0],
@@ -46,7 +50,7 @@ export function routeGraphWorker() {
             routerGraph[constants.NATIVE_TOKEN.wrappedAddress] = {};
             routerGraph[constants.NATIVE_TOKEN.wrappedAddress][constants.NATIVE_TOKEN.address] = [{
                 poolId: "WETH wrapper",
-                swapAddress: constants.NATIVE_TOKEN.wrappedAddress,
+                swapAddress: wrapperAddress,
                 inputCoinAddress: constants.NATIVE_TOKEN.wrappedAddress,
                 outputCoinAddress: constants.NATIVE_TOKEN.address,
                 swapParams: [0, 0, 8, 0, 0],

@@ -276,6 +276,8 @@ export const _getLiteNetworksData = memoize(
             const network_name = config.network_name || 'Unknown Network';
             const native_currency_symbol = config.native_currency_symbol || 'N/A';
             const wrapped_native_token = config.wrapped_native_token?.toLowerCase() || '';
+            const native_token = config.native_token?.toLowerCase() || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+            const wrapper = config.wrapper?.toLowerCase() || wrapped_native_token;
 
             return {
                 NAME: network_name,
@@ -294,12 +296,13 @@ export const _getLiteNetworksData = memoize(
                 },
                 NATIVE_COIN: {
                     symbol: native_currency_symbol,
-                    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+                    address: native_token,
                     wrappedSymbol:
                         native_currency_symbol[0].toLowerCase() === native_currency_symbol[0]
                             ? `w${native_currency_symbol}`
                             : `W${native_currency_symbol}`,
                     wrappedAddress: wrapped_native_token,
+                    wrapperAddress: wrapper,
                 },
                 API_CONSTANTS: {
                     nativeTokenName: config.native_currency_coingecko_id,

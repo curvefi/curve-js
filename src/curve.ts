@@ -70,7 +70,7 @@ import {
 import {_getHiddenPools} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
-import {getNetworkConstants} from "./utils.js";
+import {getNetworkConstants, setNativeTokenAddress} from "./utils.js";
 import {_setPoolsFromApi} from "./cached.js";
 
 export const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
@@ -256,6 +256,7 @@ export class Curve implements ICurve {
 
         const network_constants = await getNetworkConstants.call(this, this.chainId);
         this.constants.NATIVE_TOKEN = network_constants.NATIVE_COIN;
+        setNativeTokenAddress(network_constants.NATIVE_COIN.address);
         this.constants.NETWORK_NAME = network_constants.NAME;
         this.constants.ALIASES = network_constants.ALIASES;
         this.constants.ALIASES.anycall = "0x37414a8662bc1d25be3ee51fb27c2686e2490a89";

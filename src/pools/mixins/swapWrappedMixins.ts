@@ -8,7 +8,6 @@ import {
     ensureAllowanceEstimateGas,
     fromBN,
     hasAllowance,
-    isEth,
     mulBy1_3,
     parseUnits,
     smartNumber,
@@ -55,7 +54,7 @@ export const swapWrappedTricrypto2Mixin= {
 
         const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
         const contract = this.curve.contracts[this.address].contract;
-        const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
+        const value = this.curve.isEth(this.wrappedCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract.exchange.estimateGas(i, j, _amount, _minRecvAmount, false, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);
@@ -81,7 +80,7 @@ export const swapWrappedMixin= {
 
         const _minRecvAmount = await _swapWrappedMinAmount.call(this, i, j, _amount, slippage);
         const contract = this.curve.contracts[this.address].contract;
-        const value = isEth(this.wrappedCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
+        const value = this.curve.isEth(this.wrappedCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract.exchange.estimateGas(i, j, _amount, _minRecvAmount, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);

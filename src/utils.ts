@@ -34,9 +34,6 @@ export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 // export const MAX_ALLOWANCE = curve.parseUnits(new BigNumber(2).pow(256).minus(1).toFixed(), 0);
 export const MAX_ALLOWANCE = BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935");  // 2**256 - 1
 
-// Global variable for current native token address (updated during Curve.init)
-let CURRENT_NATIVE_TOKEN_ADDRESS = ETH_ADDRESS;
-
 
 // Formatting numbers
 
@@ -79,13 +76,6 @@ export const fromBN = (bn: BigNumber, decimals = 18): bigint => {
 
 // -------------------
 
-
-export const setNativeTokenAddress = (address: string): void => {
-    CURRENT_NATIVE_TOKEN_ADDRESS = address;
-};
-
-export const isEth = (address: string): boolean => address.toLowerCase() === CURRENT_NATIVE_TOKEN_ADDRESS.toLowerCase();
-export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(CURRENT_NATIVE_TOKEN_ADDRESS.toLowerCase());
 export const mulBy1_3 = (n: bigint): bigint => n * parseUnits("130", 0) / parseUnits("100", 0);
 
 export const smartNumber = (abstractNumber: bigint | bigint[]): number | number[] => {
@@ -150,7 +140,7 @@ export async function _getBalances(this: Curve, coins: string[], addresses: stri
     const coinAddresses = _getCoinAddresses.call(this, coins);
     const decimals = _getCoinDecimals.call(this, coinAddresses);
 
-    const ethIndex = getEthIndex(coinAddresses);
+    const ethIndex = this.getEthIndex(coinAddresses);
     if (ethIndex !== -1) {
         coinAddresses.splice(ethIndex, 1);
     }
@@ -207,7 +197,7 @@ export async function getBalances(this: Curve, coins: string[], ...addresses: st
 
 export async function _getAllowance(this: Curve, coins: string[], address: string, spender: string): Promise<bigint[]> {
     const _coins = [...coins]
-    const ethIndex = getEthIndex(_coins);
+    const ethIndex = this.getEthIndex(_coins);
     if (ethIndex !== -1) {
         _coins.splice(ethIndex, 1);
 
@@ -443,11 +433,11 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
 
     // Special case for chainId 988 native and wrapped tokens are USDT
     if (this.chainId === 988) {
-        if (isEth(assetId) || assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase()) {
+        if (this.isEth(assetId) || assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase()) {
             assetId = 'tether';
         }
     } else {
-        assetId = isEth(assetId) ? nativeTokenName : assetId.toLowerCase();
+        assetId = this.isEth(assetId) ? nativeTokenName : assetId.toLowerCase();
     }
 
     // No EURT on Coingecko Polygon
@@ -701,7 +691,7 @@ export async function getCoinsData(this: Curve, ...coins: string[] | string[][])
     const coinAddresses = _getCoinAddressesNoCheck.call(this, coins);
     console.log(coinAddresses);
 
-    const ethIndex = getEthIndex(coinAddresses);
+    const ethIndex = this.getEthIndex(coinAddresses);
     if (ethIndex !== -1) {
         coinAddresses.splice(ethIndex, 1);
     }

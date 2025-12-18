@@ -3,7 +3,6 @@ import {
     _ensureAllowance,
     DIGas,
     fromBN,
-    getEthIndex,
     hasAllowance,
     mulBy1_3,
     parseUnits,
@@ -43,7 +42,7 @@ export const depositMetaFactoryMixin = {
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.zap as string);
 
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
-        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const ethIndex = this.curve.getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || parseUnits("0");
         const contract = this.curve.contracts[this.zap as string].contract;
 
@@ -70,7 +69,7 @@ export const depositCryptoMetaFactoryMixin = {
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.zap as string);
 
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
-        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const ethIndex = this.curve.getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
         const contract = this.curve.contracts[this.zap as string].contract;
 
@@ -97,7 +96,7 @@ export const depositZapMixin = {
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.zap as string);
 
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
-        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const ethIndex = this.curve.getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
         const contract = this.curve.contracts[this.zap as string].contract;
 
@@ -126,7 +125,7 @@ export const depositLendingOrCryptoMixin = {
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.address);
 
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
-        const ethIndex = getEthIndex(this.underlyingCoinAddresses);
+        const ethIndex = this.curve.getEthIndex(this.underlyingCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
         const contract = this.curve.contracts[this.address].contract;
 
@@ -152,7 +151,7 @@ export const depositPlainMixin = {
     async _deposit(this: PoolTemplate, _amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);
         const _minMintAmount = await _depositMinAmount.call(this, _amounts, slippage);
-        const ethIndex = getEthIndex(this.wrappedCoinAddresses);
+        const ethIndex = this.curve.getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
         const contract = this.curve.contracts[this.address].contract;
 

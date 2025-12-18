@@ -6,7 +6,6 @@ import {
     DIGas,
     fromBN,
     hasAllowance,
-    isEth,
     mulBy1_3,
     parseUnits,
     smartNumber,
@@ -56,7 +55,7 @@ export const swapTricrypto2Mixin = {
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = this.curve.contracts[contractAddress].contract;
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
-        const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
+        const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(i, j, _amount, _minRecvAmount, true, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);
@@ -84,7 +83,7 @@ export const swapMetaFactoryMixin = {
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = this.curve.contracts[contractAddress].contract;
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
-        const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
+        const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(this.address, i, j, _amount, _minRecvAmount, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);
@@ -112,7 +111,7 @@ export const swapCryptoMetaFactoryMixin = {
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = this.curve.contracts[contractAddress].contract;
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
-        const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
+        const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(this.address, i, j, _amount, _minRecvAmount, true, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);
@@ -140,7 +139,7 @@ export const swapMixin = {
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
         const contract = this.curve.contracts[contractAddress].contract;
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
-        const value = isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
+        const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(i, j, _amount, _minRecvAmount, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);

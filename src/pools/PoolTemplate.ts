@@ -18,7 +18,6 @@ import {
     ensureAllowanceEstimateGas,
     findAbiFunction,
     fromBN,
-    getEthIndex,
     hasAllowance,
     mulBy1_3,
     parseUnits,
@@ -1251,7 +1250,7 @@ export class PoolTemplate extends CorePool {
             this.curve.parseUnits(await this.depositAndStakeWrappedExpected(amounts));
         const minAmountBN = toBN(_expectedLpTokenAmount).times(100 - slippage).div(100);
         const _minMintAmount = fromBN(minAmountBN);
-        const ethIndex = getEthIndex(coinAddresses);
+        const ethIndex = this.curve.getEthIndex(coinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
 
         const _gas = OLD_CHAINS.includes(this.curve.chainId) ? (await contract.deposit_and_stake.estimateGas(

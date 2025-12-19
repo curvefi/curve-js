@@ -19,7 +19,6 @@ import {
     getGasPriceFromL1,
     getTxCostsUsd,
     hasAllowance,
-    isEth,
     parseUnits,
     populateApprove,
     runWorker,
@@ -142,7 +141,7 @@ async function _estimateGasForDifferentRoutes(this: Curve, routes: IRoute[], inp
 
     const contract = this.contracts[this.constants.ALIASES.router].contract;
     const gasPromises: Promise<bigint | bigint[]>[] = [];
-    const value = isEth(inputCoinAddress) ? _amount : this.parseUnits("0");
+    const value = this.isEth(inputCoinAddress) ? _amount : this.parseUnits("0");
     for (const route of routes) {
         const routeKey = _getRouteKey(route, inputCoinAddress, outputCoinAddress);
         let gasPromise: Promise<bigint | bigint[]>;
@@ -440,7 +439,7 @@ async function prepareSwap(this: Curve, inputCoin: string, outputCoin: string, a
     const _minRecvAmount = fromBN(minRecvAmountBN, outputCoinDecimals);
 
     const contract = this.contracts[this.constants.ALIASES.router].contract;
-    const value = isEth(inputCoinAddress) ? _amount : this.parseUnits("0");
+    const value = this.isEth(inputCoinAddress) ? _amount : this.parseUnits("0");
 
     await this.updateFeeData();
     if (_pools) {
@@ -489,7 +488,7 @@ export async function populateSwap(this: Curve, inputCoin: string, outputCoin: s
     return await contract.exchange.populateTransaction(...[
         _route, _swapParams, _amount, _minRecvAmount,
         ..._pools ? [_pools] : [],
-        { value: isEth(inputCoinAddress) ? _amount : this.parseUnits("0") },
+        { value: this.isEth(inputCoinAddress) ? _amount : this.parseUnits("0") },
     ])
 }
 

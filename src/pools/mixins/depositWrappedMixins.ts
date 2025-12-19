@@ -3,7 +3,6 @@ import {
     _ensureAllowance,
     DIGas,
     fromBN,
-    getEthIndex,
     hasAllowance,
     mulBy1_3,
     parseUnits,
@@ -48,7 +47,7 @@ export const depositWrapped2argsMixin = {
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);
 
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
-        const ethIndex = getEthIndex(this.wrappedCoinAddresses);
+        const ethIndex = this.curve.getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
         const contract = this.curve.contracts[this.address].contract;
 
@@ -75,7 +74,7 @@ export const depositWrapped3argsMixin = {
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);
 
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
-        const ethIndex = getEthIndex(this.wrappedCoinAddresses);
+        const ethIndex = this.curve.getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
         const contract = this.curve.contracts[this.address].contract;
 

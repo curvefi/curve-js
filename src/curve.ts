@@ -119,6 +119,7 @@ export class Curve implements ICurve {
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };
     L1WeightedGasPrice?: number;
     constants: INetworkConstants;
+    nativeTokenAddress: string;
 
     constructor() {
         this.provider = null!;
@@ -132,6 +133,7 @@ export class Curve implements ICurve {
         this.feeData = {}
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
+        this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
         this.constants = {
             NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',
@@ -171,6 +173,7 @@ export class Curve implements ICurve {
         this.feeData = {}
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
+        this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
         this.constants = {
             NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',
@@ -256,6 +259,7 @@ export class Curve implements ICurve {
 
         const network_constants = await getNetworkConstants.call(this, this.chainId);
         this.constants.NATIVE_TOKEN = network_constants.NATIVE_COIN;
+        this.nativeTokenAddress = network_constants.NATIVE_COIN.address;
         this.constants.NETWORK_NAME = network_constants.NAME;
         this.constants.ALIASES = network_constants.ALIASES;
         this.constants.ALIASES.anycall = "0x37414a8662bc1d25be3ee51fb27c2686e2490a89";
@@ -835,6 +839,14 @@ export class Curve implements ICurve {
 
     getIsLiteChain = (): boolean => {
         return this.isLiteChain
+    }
+
+    isEth = (address: string): boolean => {
+        return address.toLowerCase() === this.nativeTokenAddress.toLowerCase();
+    }
+
+    getEthIndex = (addresses: string[]): number => {
+        return addresses.map((address: string) => address.toLowerCase()).indexOf(this.nativeTokenAddress.toLowerCase());
     }
 }
 

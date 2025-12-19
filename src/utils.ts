@@ -76,9 +76,6 @@ export const fromBN = (bn: BigNumber, decimals = 18): bigint => {
 
 // -------------------
 
-
-export const isEth = (address: string): boolean => address.toLowerCase() === ETH_ADDRESS.toLowerCase();
-export const getEthIndex = (addresses: string[]): number => addresses.map((address: string) => address.toLowerCase()).indexOf(ETH_ADDRESS.toLowerCase());
 export const mulBy1_3 = (n: bigint): bigint => n * parseUnits("130", 0) / parseUnits("100", 0);
 
 export const smartNumber = (abstractNumber: bigint | bigint[]): number | number[] => {
@@ -143,7 +140,7 @@ export async function _getBalances(this: Curve, coins: string[], addresses: stri
     const coinAddresses = _getCoinAddresses.call(this, coins);
     const decimals = _getCoinDecimals.call(this, coinAddresses);
 
-    const ethIndex = getEthIndex(coinAddresses);
+    const ethIndex = this.getEthIndex(coinAddresses);
     if (ethIndex !== -1) {
         coinAddresses.splice(ethIndex, 1);
     }
@@ -200,7 +197,7 @@ export async function getBalances(this: Curve, coins: string[], ...addresses: st
 
 export async function _getAllowance(this: Curve, coins: string[], address: string, spender: string): Promise<bigint[]> {
     const _coins = [...coins]
-    const ethIndex = getEthIndex(_coins);
+    const ethIndex = this.getEthIndex(_coins);
     if (ethIndex !== -1) {
         _coins.splice(ethIndex, 1);
 
@@ -434,7 +431,14 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
         'LINK': 'link',
     }[assetId.toUpperCase()] || assetId
 
-    assetId = isEth(assetId) ? nativeTokenName : assetId.toLowerCase();
+    // Special case for chainId 988 native and wrapped tokens are USDT
+    if (this.chainId === 988) {
+        if (this.isEth(assetId) || assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase()) {
+            assetId = 'tether';
+        }
+    } else {
+        assetId = this.isEth(assetId) ? nativeTokenName : assetId.toLowerCase();
+    }
 
     // No EURT on Coingecko Polygon
     if (this.chainId === 137 && assetId.toLowerCase() === this.constants.COINS.eurt) {
@@ -448,7 +452,10 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
     }
 
     if(this.isLiteChain && assetId.toLowerCase() === this.constants.API_CONSTANTS?.wrappedNativeTokenAddress.toLowerCase()) {
-        assetId = nativeTokenName
+        // For chainId 988, already handled above (tether)
+        if (this.chainId !== 988) {
+            assetId = nativeTokenName
+        }
     }
 
     if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
@@ -684,7 +691,7 @@ export async function getCoinsData(this: Curve, ...coins: string[] | string[][])
     const coinAddresses = _getCoinAddressesNoCheck.call(this, coins);
     console.log(coinAddresses);
 
-    const ethIndex = getEthIndex(coinAddresses);
+    const ethIndex = this.getEthIndex(coinAddresses);
     if (ethIndex !== -1) {
         coinAddresses.splice(ethIndex, 1);
     }

@@ -53,7 +53,7 @@ export interface IPoolData {
 }
 
 export interface INetworkConstants {
-    NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string },
+    NATIVE_TOKEN: { symbol: string, wrappedSymbol: string, address: string, wrappedAddress: string, wrapperAddress?: string },
     NETWORK_NAME: INetworkName,
     ALIASES: IDict<string>,
     POOLS_DATA: IDict<IPoolData>,

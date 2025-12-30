@@ -26,7 +26,7 @@ import {
     toBN,
     toStringFromBN,
 } from '../utils.js';
-import {IDict, IProfit} from '../interfaces';
+import {IDict, IProfit, ISwapMethodInfo} from '../interfaces';
 import {Curve, OLD_CHAINS} from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' with {type: 'json'};
 import {CorePool} from "./subClasses/corePool.js";
@@ -66,6 +66,10 @@ export class PoolTemplate extends CorePool {
         swapWrappedApprove: (inputCoin: string | number, amount: number | string) => Promise<number | number[]>,
         swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number | number[]>,
     };
+    abi: {
+        swap: () => Promise<ISwapMethodInfo>,
+        swapWrapped: () => Promise<ISwapMethodInfo>,
+    };
     stats: StatsPool;
     wallet: WalletPool;
 
@@ -103,7 +107,11 @@ export class PoolTemplate extends CorePool {
             swap: this.swapEstimateGas.bind(this),
             swapWrappedApprove: this.swapWrappedApproveEstimateGas.bind(this),
             swapWrapped: this.swapWrappedEstimateGas.bind(this),
-        }
+        };
+        this.abi = {
+            swap: this.getSwapInfo.bind(this),
+            swapWrapped: this.getSwapWrappedInfo.bind(this),
+        };
     }
 
     public hasVyperVulnerability(): boolean {
@@ -1822,6 +1830,11 @@ export class PoolTemplate extends CorePool {
         throw Error(`swap method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
+    // OVERRIDE
+    public async getSwapInfo(): Promise<ISwapMethodInfo> {
+        throw Error(`getSwapInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
+    }
+
     // ---------------- SWAP WRAPPED ----------------
 
     async _swapWrappedExpected(i: number, j: number, _amount: bigint): Promise<bigint> {
@@ -1878,6 +1891,11 @@ export class PoolTemplate extends CorePool {
     // OVERRIDE
     public async swapWrapped(inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.5): Promise<string> {
         throw Error(`swapWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
+    // OVERRIDE
+    public async getSwapWrappedInfo(): Promise<ISwapMethodInfo> {
+        throw Error(`getSwapWrappedInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
     }
 
     // ---------------- ... ----------------

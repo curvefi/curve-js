@@ -320,3 +320,9 @@ export type AbiReceive = {type: 'receive', stateMutability: Extract<AbiStateMuta
 export type AbiEvent = {type: 'event', anonymous?: boolean, inputs: readonly AbiParameter[], name: string}
 export type AbiError = {type: 'error', inputs: readonly AbiParameter[], name: string}
 export type Abi = (AbiConstructor | AbiError | AbiEvent | AbiFallback | AbiFunction | AbiReceive)[]
+
+export interface ISwapMethodInfo {
+    address: string;
+    method: string;
+    abi: any;
+}

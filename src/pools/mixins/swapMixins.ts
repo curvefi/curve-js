@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import {PoolTemplate} from "../PoolTemplate.js";
+import {ISwapMethodInfo} from "../../interfaces.js";
 import {
     _ensureAllowance,
     _getCoinDecimals,
@@ -48,13 +49,22 @@ async function _swapMinAmount(this: PoolTemplate, i: number, j: number, _amount:
 }
 
 export const swapTricrypto2Mixin = {
-    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | ISwapMethodInfo> {
         const contractAddress = this._swapContractAddress();
+        const contract = this.curve.contracts[contractAddress].contract;
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
+
+        if (getInfo) {
+            return {
+                address: contractAddress,
+                method: exchangeMethod,
+                abi: contract[exchangeMethod].fragment,
+            };
+        }
+
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
-        const contract = this.curve.contracts[contractAddress].contract;
-        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(i, j, _amount, _minRecvAmount, true, { ...this.curve.constantOptions, value });
@@ -73,16 +83,29 @@ export const swapTricrypto2Mixin = {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
         return await swapTricrypto2Mixin._swap.call(this, i, j, _amount, slippage) as string
     },
+
+    async getSwapInfo(this: PoolTemplate): Promise<ISwapMethodInfo> {
+        return await swapTricrypto2Mixin._swap.call(this, 0, 0, BigInt(0), 0, false, true) as ISwapMethodInfo;
+    },
 }
 
 export const swapMetaFactoryMixin = {
-    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | ISwapMethodInfo> {
         const contractAddress = this._swapContractAddress();
+        const contract = this.curve.contracts[contractAddress].contract;
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
+
+        if (getInfo) {
+            return {
+                address: contractAddress,
+                method: exchangeMethod,
+                abi: contract[exchangeMethod].fragment,
+            };
+        }
+
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
-        const contract = this.curve.contracts[contractAddress].contract;
-        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(this.address, i, j, _amount, _minRecvAmount, { ...this.curve.constantOptions, value });
@@ -101,16 +124,29 @@ export const swapMetaFactoryMixin = {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
         return await swapMetaFactoryMixin._swap.call(this, i, j, _amount, slippage) as string;
     },
+
+    async getSwapInfo(this: PoolTemplate): Promise<ISwapMethodInfo> {
+        return await swapMetaFactoryMixin._swap.call(this, 0, 0, BigInt(0), 0, false, true) as ISwapMethodInfo;
+    },
 }
 
 export const swapCryptoMetaFactoryMixin = {
-    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | ISwapMethodInfo> {
         const contractAddress = this._swapContractAddress();
+        const contract = this.curve.contracts[contractAddress].contract;
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
+
+        if (getInfo) {
+            return {
+                address: contractAddress,
+                method: exchangeMethod,
+                abi: contract[exchangeMethod].fragment,
+            };
+        }
+
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
-        const contract = this.curve.contracts[contractAddress].contract;
-        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(this.address, i, j, _amount, _minRecvAmount, true, { ...this.curve.constantOptions, value });
@@ -129,21 +165,34 @@ export const swapCryptoMetaFactoryMixin = {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
         return await swapCryptoMetaFactoryMixin._swap.call(this, i, j, _amount, slippage) as string;
     },
+
+    async getSwapInfo(this: PoolTemplate): Promise<ISwapMethodInfo> {
+        return await swapCryptoMetaFactoryMixin._swap.call(this, 0, 0, BigInt(0), 0, false, true) as ISwapMethodInfo;
+    },
 }
 
 export const swapMixin = {
-    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+    async _swap(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | ISwapMethodInfo> {
         const contractAddress = this._swapContractAddress();
+        const contract = this.curve.contracts[contractAddress].contract;
+        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
+
+        if (getInfo) {
+            return {
+                address: contractAddress,
+                method: exchangeMethod,
+                abi: contract[exchangeMethod].fragment,
+            };
+        }
+
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);
 
         const _minRecvAmount = await _swapMinAmount.call(this, i, j, _amount, slippage);
-        const contract = this.curve.contracts[contractAddress].contract;
-        const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
         const value = this.curve.isEth(this.underlyingCoinAddresses[i]) ? _amount : this.curve.parseUnits("0");
 
         const gas = await contract[exchangeMethod].estimateGas(i, j, _amount, _minRecvAmount, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);
-
+        
         await this.curve.updateFeeData();
         const gasLimit = this.curve.chainId === 137 && this.id === 'ren' ? DIGas(gas) * this.curve.parseUnits("160", 0) / this.curve.parseUnits("100", 0) : mulBy1_3(DIGas(gas));
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...this.curve.options, value, gasLimit })).hash
@@ -157,5 +206,9 @@ export const swapMixin = {
     async swap(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount);
         return await swapMixin._swap.call(this, i, j, _amount, slippage) as string;
+    },
+
+    async getSwapInfo(this: PoolTemplate): Promise<ISwapMethodInfo> {
+        return await swapMixin._swap.call(this, 0, 0, BigInt(0), 0, false, true) as ISwapMethodInfo;
     },
 }

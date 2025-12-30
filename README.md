@@ -983,6 +983,55 @@ import curve from "@curvefi/api";
 })()
 ```
 
+### Getting swap ABI metadata
+```ts
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPool('mim');
+
+    // Get exact ABI information for swap (underlying) without executing the transaction
+    const swapInfo = await pool.abi.swap();
+    console.log(swapInfo);
+    // {
+    //     address: '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',  // Contract address
+    //     method: 'exchange_underlying',                           // Method name (exchange or exchange_underlying)
+    //     abi: {
+    //         type: 'function',
+    //         name: 'exchange_underlying',
+    //         inputs: [
+    //             { name: 'i', type: 'int128' },
+    //             { name: 'j', type: 'int128' },
+    //             { name: 'dx', type: 'uint256' },
+    //             { name: 'min_dy', type: 'uint256' }
+    //         ],
+    //         outputs: [ { name: '', type: 'uint256' } ],
+    //         stateMutability: 'nonpayable'
+    //     }
+    // }
+
+    // Get exact ABI information for swap wrapped without executing the transaction
+    const swapWrappedInfo = await pool.abi.swapWrapped();
+    console.log(swapWrappedInfo);
+    // {
+    //     address: '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',  // Contract address
+    //     method: 'exchange',                                      // Method name (always exchange for wrapped)
+    //     abi: {
+    //         type: 'function',
+    //         name: 'exchange',
+    //         inputs: [
+    //             { name: 'i', type: 'int128' },
+    //             { name: 'j', type: 'int128' },
+    //             { name: 'dx', type: 'uint256' },
+    //             { name: 'min_dy', type: 'uint256' }
+    //         ],
+    //         outputs: [ { name: '', type: 'uint256' } ],
+    //         stateMutability: 'nonpayable'
+    //     }
+    // }
+})()
+```
+
 ### Deposit & Stake
 ```ts
 (async () => {

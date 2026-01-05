@@ -13,6 +13,12 @@ export type IRouteGraphInput = {
 
 export function routeGraphWorker() {
     const GRAPH_MAX_EDGES = 3;
+    
+    // Pools excluded from router
+    const EXCLUDED_POOLS_FROM_ROUTER: Record<number, string[]> = {
+        1: ['usdt'],  // Ethereum mainnet
+    };
+    
     const SNX = {
         10: {
             swap: "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4".toLowerCase(),
@@ -321,6 +327,9 @@ export function routeGraphWorker() {
             // Skip empty pools
             if (chainId === 1 && tvl < 1000) continue;
             if (chainId !== 1 && !isLiteChain && tvl < 100) continue;
+            
+            // Skip excluded pools from router
+            if (EXCLUDED_POOLS_FROM_ROUTER[chainId]?.includes(poolId)) continue;
 
             const excludedUnderlyingSwaps = (poolId === 'ib' && chainId === 1) ||
             (poolId === 'geist' && chainId === 250) ||

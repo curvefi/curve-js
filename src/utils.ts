@@ -336,10 +336,33 @@ export async function populateApprove(this: Curve, coins: string[], amounts: (nu
 }
 
 export function getPoolIdBySwapAddress(this: Curve, swapAddress: string): string {
-    const poolsData = this.getPoolsData();
-    const poolIds = Object.entries(poolsData).filter(([, poolData]) => poolData.swap_address.toLowerCase() === swapAddress.toLowerCase());
-    if (poolIds.length === 0) return "";
-    return poolIds[0][0];
+    const _swapAddress = swapAddress.toLowerCase();
+    
+    const buildCache = () => {
+        const poolsData = this.getPoolsData();
+        this.poolAddressMapCache = {};
+        
+        for (const [poolId, poolData] of Object.entries(poolsData)) {
+            this.poolAddressMapCache[poolData.swap_address.toLowerCase()] = poolId;
+        }
+    };
+    
+    if (this.poolAddressMapCache === null) {
+        buildCache();
+    }
+    
+    if (this.poolAddressMapCache![_swapAddress]) {
+        return this.poolAddressMapCache![_swapAddress];
+    }
+    
+    // Retry - cache update (if new pools were added through fetchFactoryPools and etc.)
+    buildCache();
+    
+    if (this.poolAddressMapCache![_swapAddress]) {
+        return this.poolAddressMapCache![_swapAddress];
+    }
+    
+    return "";
 }
 
 export async function _getRewardsFromApi(this: Curve): Promise<IDict<IRewardFromApi[]>> {

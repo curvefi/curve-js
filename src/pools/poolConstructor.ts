@@ -67,11 +67,30 @@ import {
     swapWrappedRequiredMixin,
     swapWrappedTricrypto2Mixin,
 } from "./mixins/swapWrappedMixins.js";
-import {findAbiSignature, getCountArgsOfMethodByAbi} from "../utils.js";
+import {findAbiSignature, getCountArgsOfMethodByAbi, getPoolIdBySwapAddress} from "../utils.js";
 import {StatsPool} from "./subClasses/statsPool.js";
 
 
-export function getPool(this: Curve, poolId: string): PoolTemplate {
+export function getPool(this: Curve, poolIdOrAddress: string): PoolTemplate {
+    let poolId: string;
+
+    const _poolIdOrAddress = poolIdOrAddress.toLowerCase()
+    
+    if (_poolIdOrAddress.startsWith('0x')) {
+        poolId = getPoolIdBySwapAddress.call(this, _poolIdOrAddress);
+        
+        if (!poolId) {
+            throw new Error(`Pool with address ${_poolIdOrAddress} not found`);
+        }
+    } else {
+        poolId = _poolIdOrAddress;
+        
+        const poolsData = this.getPoolsData();
+        if (!poolsData[poolId]) {
+            throw new Error(`Pool with id ${_poolIdOrAddress} not found`);
+        }
+    }
+    
     const poolDummy = new PoolTemplate(poolId, this);
     
     class Pool extends PoolTemplate {

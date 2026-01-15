@@ -120,7 +120,7 @@ export class Curve implements ICurve {
     L1WeightedGasPrice?: number;
     constants: INetworkConstants;
     nativeTokenAddress: string;
-    poolAddressMapCache: Record<string, string> | null;
+    poolAddressMapCache: IDict<string> | null;
 
     constructor() {
         this.provider = null!;

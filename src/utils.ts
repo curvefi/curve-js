@@ -340,11 +340,14 @@ export function getPoolIdBySwapAddress(this: Curve, swapAddress: string): string
     
     const buildCache = () => {
         const poolsData = this.getPoolsData();
-        this.poolAddressMapCache = {};
-        
-        for (const [poolId, poolData] of Object.entries(poolsData)) {
-            this.poolAddressMapCache[poolData.swap_address.toLowerCase()] = poolId;
-        }
+      
+        this.poolAddressMapCache = Object.entries(poolsData).reduce<IDict<string>>(
+            (acc, [poolId, poolData]) => {
+                acc[poolData.swap_address.toLowerCase()] = poolId;
+                return acc;
+            },
+            {}
+        );
     };
     
     if (this.poolAddressMapCache === null) {
@@ -358,12 +361,8 @@ export function getPoolIdBySwapAddress(this: Curve, swapAddress: string): string
     // Retry - cache update (if new pools were added through fetchFactoryPools and etc.)
     buildCache();
     
-    if (this.poolAddressMapCache![_swapAddress]) {
-        return this.poolAddressMapCache![_swapAddress];
-    }
-    
-    return "";
-}
+    return this.poolAddressMapCache![_swapAddress] ?? "";
+}   
 
 export async function _getRewardsFromApi(this: Curve): Promise<IDict<IRewardFromApi[]>> {
     const network = this.constants.NETWORK_NAME;

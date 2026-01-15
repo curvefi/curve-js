@@ -79,7 +79,7 @@ export function getPool(this: Curve, poolIdOrAddress: string): PoolTemplate {
     if (_poolIdOrAddress.startsWith('0x')) {
         poolId = getPoolIdBySwapAddress.call(this, _poolIdOrAddress);
         
-        if (!poolId) {
+        if (!poolId || !this.getPoolsData()[poolId]) {
             throw new Error(`Pool with address ${_poolIdOrAddress} not found`);
         }
     } else {

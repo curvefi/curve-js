@@ -120,6 +120,7 @@ export class Curve implements ICurve {
     L1WeightedGasPrice?: number;
     constants: INetworkConstants;
     nativeTokenAddress: string;
+    poolAddressMapCache: IDict<string> | null;
 
     constructor() {
         this.provider = null!;
@@ -134,6 +135,7 @@ export class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
+        this.poolAddressMapCache = null;
         this.constants = {
             NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',

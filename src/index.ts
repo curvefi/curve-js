@@ -21,6 +21,10 @@ import {
     swap,
     populateSwap,
     getSwappedAmount,
+    approveFromCalldata,
+    approveFromCalldataEstimateGas,
+    swapFromCalldata,
+    swapFromCalldataEstimateGas,
 } from "./router.js";
 import { Curve } from "./curve.js";
 import {
@@ -360,9 +364,13 @@ export const createCurve = () => {
             swap: swap.bind(_curve),
             populateSwap: populateSwap.bind(_curve),
             getSwappedAmount: getSwappedAmount.bind(_curve),
+            approveFromCalldata: approveFromCalldata.bind(_curve),
+            swapFromCalldata: swapFromCalldata.bind(_curve),
             estimateGas: {
                 approve: swapApproveEstimateGas.bind(_curve),
                 swap: swapEstimateGas.bind(_curve),
+                approveFromCalldata: approveFromCalldataEstimateGas.bind(_curve),
+                swapFromCalldata: swapFromCalldataEstimateGas.bind(_curve),
             },
         },
         dao: {

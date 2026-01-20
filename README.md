@@ -1277,6 +1277,106 @@ import curve from "@curvefi/api";
     // OR const tx = await curve.router.populateSwap('0x6B175474E89094C44Da98b954EedeAC495271d0F', '0xD533a949740bb3306d119CC777fa900bA034cd52', '1000', 0.5);
     console.log(data);
     // 0x8f726f1c000000000000000000000000...
+    
+    // --- Execute swap from external calldata (e.g., from router API) ---
+    
+    // Swap using ready transaction data (from router API or any other provider)
+    // Uses standard ethers.js TransactionRequest
+ё    
+    // Option 1: Use built-in approve methods
+    await curve.router.isApproved('DAI', 1000);
+    // false
+    await curve.router.approve('DAI', 1000);
+    // [ '0xc111e471715ae6f5437e12d3b94868a5b6542cd7304efca18b5782d315760ae5' ]
+    
+    // Option 2: Get populated approve transactions (for multisig, batching, etc.)
+    const approveTxs = await curve.router.populateApprove('DAI', 1000, false, userAddress);
+    // [{ to: '0x6B17...', data: '0x...', ... }]
+    
+    // Option 3: Execute approve from calldata (when API returns approve tx)
+    const approveCalldata = {
+        to: "0x6B175474E89094C44Da98b954EedeAC495271d0F",  // Token address
+        data: "0x095ea7b3...",  // Approve calldata from API
+    };
+    const approveHash = await curve.router.approveFromCalldata(approveCalldata);
+    // 0x1234...
+    
+    // Get swap transaction data from external API
+    const swapCalldata = {
+        to: "0x99a58482BD75cbab83b27EC03CA68fF489b5788f",  // Router contract address
+        data: "0x5c9c18e2....",  // Swap calldata from API
+        value: 0n  // Optional: amount of ETH to send
+    };
+    
+    // Estimate gas
+    const gasEstimateFromCalldata = await curve.router.estimateGas.swapFromCalldata(swapCalldata);
+    console.log(gasEstimateFromCalldata);
+    // 476904
+    
+    // Execute swap (returns transaction hash)
+    const swapHash = await curve.router.swapFromCalldata(swapCalldata);
+    console.log(swapHash);
+    // 0xc7ba1d60871c0295ac5471bb602c37ec0f00a71543b3a041308ebd91833f26ba
+    
+    
+    // --- Complete example: Generate calldata and execute with approveFromCalldata/swapFromCalldata ---
+    
+    // This example demonstrates a full workflow where you generate transaction calldata
+    // internally and then execute it using the *FromCalldata methods. This pattern is useful
+    // for transaction batching, multisig workflows, or when you need to store/forward
+    // transaction data before execution.
+    
+    const inputCoin = '0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf';  // cbBTC
+    const outputCoin = '0xdac17f958d2ee523a2206206994597c13d831ec7'; // USDT
+    const amount = 2;
+    
+    // Step 1: Find the best route and cache it
+    await curve.router.getBestRouteAndOutput(inputCoin, outputCoin, amount);
+    
+    // Step 2: Generate swap transaction calldata
+    const swapTx = await curve.router.populateSwap(inputCoin, outputCoin, amount);
+    console.log(swapTx);
+    // {
+    //     to: '0x99a58482BD75cbab83b27EC03CA68fF489b5788f',
+    //     data: '0x...',
+    //     from: '0x...',
+    //     amount: '2'
+    // }
+    
+    // Step 3: Check if approval is needed
+    const isApproved = await curve.router.isApproved(inputCoin, amount);
+    console.log(isApproved);
+    // false
+    
+    // Step 4: Generate approve transaction calldata
+    const approveTxs = await curve.router.populateApprove(
+        inputCoin,
+        amount,
+        false,
+        curve.signerAddress
+    );
+    console.log(approveTxs);
+    // [{ to: '0xcbb7c0...', data: '0x095ea7b3...', ... }]
+    
+    // Step 5: Execute approve using calldata
+    const approveHash = await curve.router.approveFromCalldata(approveTxs[0]);
+    console.log(approveHash);
+    // 0xabc123...
+    
+    // Step 6: Verify approval
+    const isNowApproved = await curve.router.isApproved(inputCoin, amount);
+    console.log(isNowApproved);
+    // true
+    
+    // Step 7: Estimate gas for swap
+    const estimatedGas = await curve.router.estimateGas.swapFromCalldata(swapTx);
+    console.log(estimatedGas);
+    // 287654
+    
+    // Step 8: Execute swap using calldata
+    const swapTxHash = await curve.router.swapFromCalldata(swapTx);
+    console.log(swapTxHash);
+    // 0xdef456...
 })()
 ```
 

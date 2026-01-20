@@ -511,3 +511,44 @@ export async function getSwappedAmount(this: Curve, tx: ethers.ContractTransacti
 
     return this.formatUnits(res[res.length - 1], outputCoinDecimals);
 }
+
+
+async function _approveFromCalldata(this: Curve, tx: ethers.TransactionRequest, estimateGas = false): Promise<string | number | number[]> {
+    if (!this.signer) {
+        throw new Error("Signer is not available");
+    }
+
+    const gas = await this.signer.estimateGas({ ...tx, ...this.constantOptions });
+    if (estimateGas) return smartNumber(gas);
+
+    await this.updateFeeData();
+    return (await this.signer.sendTransaction({ ...tx, ...this.options })).hash;
+}
+
+export async function approveFromCalldataEstimateGas(this: Curve, tx: ethers.TransactionRequest): Promise<number | number[]> {
+    return await _approveFromCalldata.call(this, tx, true) as number | number[];
+}
+
+export async function approveFromCalldata(this: Curve, tx: ethers.TransactionRequest): Promise<string> {
+    return await _approveFromCalldata.call(this, tx, false) as string;
+}
+
+async function _swapFromCalldata(this: Curve, tx: ethers.TransactionRequest, estimateGas = false): Promise<string | number | number[]> {
+    if (!this.signer) {
+        throw new Error("Signer is not available");
+    }
+
+    const gas = await this.signer.estimateGas({ ...tx, ...this.constantOptions });
+    if (estimateGas) return smartNumber(gas);
+
+    await this.updateFeeData();
+    return (await this.signer.sendTransaction({ ...tx, ...this.options })).hash;
+}
+
+export async function swapFromCalldataEstimateGas(this: Curve, tx: ethers.TransactionRequest): Promise<number | number[]> {
+    return await _swapFromCalldata.call(this, tx, true) as number | number[];
+}
+
+export async function swapFromCalldata(this: Curve, tx: ethers.TransactionRequest): Promise<string> {
+    return await _swapFromCalldata.call(this, tx, false) as string;
+}

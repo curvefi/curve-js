@@ -72,26 +72,16 @@ import {StatsPool} from "./subClasses/statsPool.js";
 
 
 export function getPool(this: Curve, poolIdOrAddress: string): PoolTemplate {
-    let poolId: string;
-
-    const _poolIdOrAddress = poolIdOrAddress.toLowerCase()
-    
-    if (_poolIdOrAddress.startsWith('0x')) {
-        poolId = getPoolIdBySwapAddress.call(this, _poolIdOrAddress);
-        
-        if (!poolId || !this.getPoolsData()[poolId]) {
-            throw new Error(`Pool with address ${_poolIdOrAddress} not found`);
-        }
-    } else {
-        poolId = _poolIdOrAddress;
-        
-        const poolsData = this.getPoolsData();
-        if (!poolsData[poolId]) {
-            throw new Error(`Pool with id ${_poolIdOrAddress} not found`);
-        }
+    const poolId = poolIdOrAddress.toLowerCase().startsWith('0x') ? getPoolIdBySwapAddress.call(this, poolIdOrAddress.toLowerCase()) : poolIdOrAddress;
+    if (!poolId) {
+        throw new Error(`Pool with address ${poolIdOrAddress} not found`);
     }
-    
-    const poolDummy = new PoolTemplate(poolId, this);
+    const poolData = (this.getPoolsData())[poolId];
+    if (!poolData) {
+        throw new Error(`Pool with id ${poolIdOrAddress} not found`);
+    }
+
+    const poolDummy = new PoolTemplate(poolId, this, poolData);
     
     class Pool extends PoolTemplate {
         stats: StatsPool;

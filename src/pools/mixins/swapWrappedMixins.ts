@@ -138,6 +138,14 @@ export const swapWrappedExpectedAndApproveMixin = {
         return this.curve.formatUnits(_expected, this.wrappedDecimals[j])
     },
 
+    async swapWrappedExpectedBigInt(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: bigint): Promise<bigint> {
+        const i = this._getCoinIdx(inputCoin, false);
+        const j = this._getCoinIdx(outputCoin, false);
+        const _expected = await this._swapWrappedExpected.call(this, i, j, amount);
+
+        return _expected;
+    },
+
     async swapWrappedIsApproved(this: PoolTemplate, inputCoin: string | number, amount: number | string): Promise<boolean> {
         const i = this._getCoinIdx.call(this, inputCoin, false);
         return await hasAllowance.call(this.curve, [this.wrappedCoinAddresses[i]], [amount], this.curve.signerAddress, this.address);

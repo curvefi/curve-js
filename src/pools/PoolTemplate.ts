@@ -1716,6 +1716,14 @@ export class PoolTemplate extends CorePool {
         return this.curve.formatUnits(_expected, this.underlyingDecimals[j])
     }
 
+    public async swapExpectedBigInt(inputCoin: string | number, outputCoin: string | number, amount: bigint): Promise<bigint> {
+        const i = this._getCoinIdx(inputCoin);
+        const j = this._getCoinIdx(outputCoin);
+        const _expected = await this._swapExpected(i, j, amount);
+
+        return _expected;
+    }
+
     async _swapRequired(i: number, j: number, _amount: bigint, isUnderlying: boolean): Promise<any> {
         if(this.isCrypto) {
             if (this.isNg) return await this.curve.contracts[this.address].contract.get_dx(i, j, _amount, this.curve.constantOptions);

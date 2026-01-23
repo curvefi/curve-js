@@ -1854,6 +1854,11 @@ export class PoolTemplate extends CorePool {
         throw Error(`swapWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
+    // OVERRIDE
+    public async swapWrappedExpectedBigInt(inputCoin: string | number, outputCoin: string | number, amount: bigint): Promise<bigint> {
+        throw Error(`swapWrappedExpectedBigInt method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
     public async swapWrappedPriceImpact(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
         if (this.isPlain || this.isFake) {
             throw Error(`swapWrappedPriceImpact method doesn't exist for pool ${this.name} (id: ${this.name})`);

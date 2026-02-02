@@ -161,6 +161,8 @@ const ALIASES_ARBITRUM = lowerCaseValues({
     "tricrypto_factory": '0xbC0797015fcFc47d9C1856639CaE50D0e69FbEE8',
 
     "factory_admin": "",
+    "fast_bridge": "0x1F2aF270029d028400265Ce1dd0919BA8780dAe1",
+    "crvusd": "0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5",
 });
 
 const ALIASES_OPTIMISM = lowerCaseValues({
@@ -185,6 +187,8 @@ const ALIASES_OPTIMISM = lowerCaseValues({
     "factory_admin": "",
     "gas_oracle": '0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f',
     "gas_oracle_blob": '0x420000000000000000000000000000000000000f',
+    "fast_bridge": "0xD16d5eC345Dd86Fb63C6a9C43c517210F1027914",
+    "crvusd": "0xC52D7F23a2e460248Db6eE192Cb23dD12bDDCbf6",
 });
 
 const ALIASES_XDAI = lowerCaseValues({
@@ -372,6 +376,8 @@ const ALIASES_FRAXTAL = lowerCaseValues({
     "tricrypto_factory": '0xc9Fe0C63Af9A39402e8a5514f9c43Af0322b665F',
 
     "factory_admin": '0x0000000000000000000000000000000000000000',
+    "fast_bridge": "0x3fE593E651Cd0B383AD36b75F4159f30BB0631A6",
+    "crvusd": "0xB102f7Efa0d5dE071A8D37B3548e1C7CB148Caf3",
 });
 
 const ALIASES_XLAYER = lowerCaseValues({

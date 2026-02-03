@@ -1544,6 +1544,13 @@ export class PoolTemplate extends CorePool {
         return this.curve.formatUnits(_expected, this.underlyingDecimals[i]);
     }
 
+    public async withdrawOneCoinExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint> {
+        const i = this._getCoinIdx(coin);
+        const _expected = await this._withdrawOneCoinExpected(lpTokenAmount, i);
+
+        return _expected;
+    }
+
     public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {
         let pricesBN: BigNumber[] = [];
 

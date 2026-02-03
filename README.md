@@ -983,6 +983,17 @@ import curve from "@curvefi/api";
 })()
 ```
 
+### BigInt methods
+
+- `pool.swapExpectedBigInt(inputCoin, outputCoin, amount: bigint): Promise<bigint>`
+- `pool.swapWrappedExpectedBigInt(inputCoin, outputCoin, amount: bigint): Promise<bigint>`
+- `pool.depositExpectedBigInt(amounts: bigint[]): Promise<bigint>`
+- `pool.depositWrappedExpectedBigInt(amounts: bigint[]): Promise<bigint>`
+- `pool.withdrawExpectedBigInt(lpTokenAmount: bigint): Promise<bigint[]>`
+- `pool.withdrawWrappedExpectedBigInt(lpTokenAmount: bigint): Promise<bigint[]>`
+- `pool.withdrawOneCoinExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint>`
+- `pool.withdrawOneCoinWrappedExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint>`
+
 ### Getting swap ABI metadata
 ```ts
 (async () => {

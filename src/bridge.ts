@@ -21,10 +21,21 @@ export interface IFastBridgeNetwork {
     crvUsdAddress: string;
 }
 
-async function _allowedToBridge(this: Curve): Promise<{ _min: bigint, _max: bigint }> {
+export function isSupported(this: Curve): boolean {
+    return !!(this.constants.ALIASES.fast_bridge && this.constants.ALIASES.crvusd);
+}
+
+export function assertIsSupported(this: Curve): void {
     if (!this.constants.ALIASES.fast_bridge) {
         throw new Error("FastBridge is not available on this network");
     }
+    if (!this.constants.ALIASES.crvusd) {
+        throw new Error("crvUSD is not available on this network");
+    }
+}
+
+async function _allowedToBridge(this: Curve): Promise<{ _min: bigint, _max: bigint }> {
+    assertIsSupported.call(this);
 
     const contract = this.contracts[this.constants.ALIASES.fast_bridge].contract;
     const result = await contract.allowed_to_bridge(this.constantOptions);
@@ -45,9 +56,7 @@ export async function allowedToBridge(this: Curve): Promise<{ min: number, max: 
 }
 
 async function _bridgeCost(this: Curve): Promise<bigint> {
-    if (!this.constants.ALIASES.fast_bridge) {
-        throw new Error("FastBridge is not available on this network");
-    }
+    assertIsSupported.call(this);
 
     const contract = this.contracts[this.constants.ALIASES.fast_bridge].contract;
     return await contract.cost(this.constantOptions);
@@ -62,41 +71,25 @@ export async function bridgeCost(this: Curve): Promise<number> {
 }
 
 export async function bridgeIsApproved(this: Curve, amount: number | string): Promise<boolean> {
-    const crvUsdAddress = this.constants.ALIASES.crvusd;
-    if (!crvUsdAddress) {
-        throw new Error("crvUSD is not available on this network");
-    }
+    assertIsSupported.call(this);
 
-    return await hasAllowance.call(this, [crvUsdAddress], [amount], this.signerAddress, this.constants.ALIASES.fast_bridge);
+    return await hasAllowance.call(this, [this.constants.ALIASES.crvusd], [amount], this.signerAddress, this.constants.ALIASES.fast_bridge);
 }
 
 export async function bridgeApproveEstimateGas(this: Curve, amount: number | string): Promise<number | number[]> {
-    const crvUsdAddress = this.constants.ALIASES.crvusd;
-    if (!crvUsdAddress) {
-        throw new Error("crvUSD is not available on this network");
-    }
+    assertIsSupported.call(this);
 
-    return await ensureAllowanceEstimateGas.call(this, [crvUsdAddress], [amount], this.constants.ALIASES.fast_bridge);
+    return await ensureAllowanceEstimateGas.call(this, [this.constants.ALIASES.crvusd], [amount], this.constants.ALIASES.fast_bridge);
 }
 
 export async function bridgeApprove(this: Curve, amount: number | string): Promise<string[]> {
-    const crvUsdAddress = this.constants.ALIASES.crvusd;
-    if (!crvUsdAddress) {
-        throw new Error("crvUSD is not available on this network");
-    }
+    assertIsSupported.call(this);
 
-    return await ensureAllowance.call(this, [crvUsdAddress], [amount], this.constants.ALIASES.fast_bridge);
+    return await ensureAllowance.call(this, [this.constants.ALIASES.crvusd], [amount], this.constants.ALIASES.fast_bridge);
 }
 
 async function _bridge(this: Curve, amount: number | string, address?: string, estimateGas = false): Promise<string | number | number[] | ethers.ContractTransactionResponse> {
-    if (!this.constants.ALIASES.fast_bridge) {
-        throw new Error("FastBridge is not available on this network");
-    }
-
-    const crvUsdAddress = this.constants.ALIASES.crvusd;
-    if (!crvUsdAddress) {
-        throw new Error("crvUSD is not available on this network");
-    }
+    assertIsSupported.call(this);
 
     const _amount = parseUnits(amount, CRVUSD_DECIMALS);
 
@@ -117,7 +110,7 @@ async function _bridge(this: Curve, amount: number | string, address?: string, e
     if (!estimateGas) await bridgeApprove.call(this, amount);
 
     const gas = await contract.bridge.estimateGas(
-        crvUsdAddress,
+        this.constants.ALIASES.crvusd,
         to,
         _amount,
         _amount,
@@ -130,7 +123,7 @@ async function _bridge(this: Curve, amount: number | string, address?: string, e
     const gasLimit = DIGas(gas) * this.parseUnits("160", 0) / this.parseUnits("100", 0);
 
     return await contract.bridge(
-        crvUsdAddress,
+        this.constants.ALIASES.crvusd,
         to,
         _amount,
         _amount,

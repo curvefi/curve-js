@@ -27,6 +27,8 @@ import {
     swapFromCalldataEstimateGas,
 } from "./router.js";
 import {
+    isSupported,
+    assertIsSupported,
     allowedToBridge,
     bridgeCost,
     bridgeIsApproved,
@@ -384,6 +386,8 @@ export const createCurve = () => {
             },
         },
         fastBridge: {
+            assertIsSupported: assertIsSupported.bind(_curve),
+            isSupported: isSupported.bind(_curve),
             getSupportedNetworks: getSupportedNetworks.bind(_curve),
             allowedToBridge: allowedToBridge.bind(_curve),
             bridgeCost: bridgeCost.bind(_curve),

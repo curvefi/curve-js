@@ -1391,6 +1391,16 @@ import curve from "@curvefi/api";
     // Initialize on L2 network (Arbitrum, Optimism, or Fraxtal)
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 42161 }); // Arbitrum
     
+    // Check if FastBridge is supported on current network
+    curve.fastBridge.isSupported();
+    // true (on Arbitrum, Optimism, Fraxtal)
+    // false (on other networks)
+    
+    // Assert that FastBridge is supported (throws error if not)
+    curve.fastBridge.assertIsSupported();
+    // No error on supported networks
+    // Throws "FastBridge is not available on this network" on unsupported networks
+    
     // Get list of supported networks
     const supportedNetworks = curve.fastBridge.getSupportedNetworks();
     console.log(supportedNetworks);
@@ -1455,6 +1465,8 @@ import curve from "@curvefi/api";
 
 **Important Notes:**
 1. FastBridge is only available on L2 networks (Arbitrum, Optimism, Fraxtal)
+   - Use `isSupported()` to check if current network supports FastBridge
+   - Use `assertIsSupported()` to throw an error if not supported
 2. You must call `bridgeCost()` before calling `bridge()` to cache the cost value
 3. The bridge method is payable - it will send the cost amount in ETH/native currency
 4. Bridge amount must be within the allowed range (min/max from `allowedToBridge()`)

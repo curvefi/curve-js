@@ -60,6 +60,7 @@ import gasOracleBlobABI from './constants/abis/gas_oracle_optimism_blob.json' wi
 import votingProposalABI from './constants/abis/voting_proposal.json' with {type: 'json'};
 import circulatingSupplyABI from './constants/abis/circulating_supply.json' with {type: 'json'};
 import rootGaugeFactoryABI from "./constants/abis/gauge_factory/root_gauge_factory.json" with {type: "json"};
+import fastBridgeABI from './constants/abis/fastBridge.json' with {type: 'json'};
 import {
     extractDecimals,
     extractGauges,
@@ -372,6 +373,15 @@ export class Curve implements ICurve {
         this.constants.DECIMALS[this.constants.ALIASES.crv] = 18;
         this.setContract(this.constants.COINS.scrvusd, ERC20Abi);
         this.constants.DECIMALS[this.constants.COINS.scrvusd] = 18;
+
+        if (this.constants.ALIASES.fast_bridge) {
+            this.setContract(this.constants.ALIASES.fast_bridge, fastBridgeABI);
+        }
+
+        if (this.constants.ALIASES.crvusd) {
+            this.setContract(this.constants.ALIASES.crvusd, ERC20Abi);
+            this.constants.DECIMALS[this.constants.ALIASES.crvusd] = 18;
+        }
 
         if(this.chainId === 1) {
             this.setContract(this.constants.ALIASES.minter, minterMainnetABI);

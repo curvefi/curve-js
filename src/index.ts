@@ -26,6 +26,18 @@ import {
     swapFromCalldata,
     swapFromCalldataEstimateGas,
 } from "./router.js";
+import {
+    isSupported,
+    assertIsSupported,
+    allowedToBridge,
+    bridgeCost,
+    bridgeIsApproved,
+    bridgeApproveEstimateGas,
+    bridgeApprove,
+    bridgeEstimateGas,
+    bridge,
+    getSupportedNetworks,
+} from "./bridge.js";
 import { Curve } from "./curve.js";
 import {
     getCrv,
@@ -371,6 +383,20 @@ export const createCurve = () => {
                 swap: swapEstimateGas.bind(_curve),
                 approveFromCalldata: approveFromCalldataEstimateGas.bind(_curve),
                 swapFromCalldata: swapFromCalldataEstimateGas.bind(_curve),
+            },
+        },
+        fastBridge: {
+            assertIsSupported: assertIsSupported.bind(_curve),
+            isSupported: isSupported.bind(_curve),
+            getSupportedNetworks: getSupportedNetworks.bind(_curve),
+            allowedToBridge: allowedToBridge.bind(_curve),
+            bridgeCost: bridgeCost.bind(_curve),
+            isApproved: bridgeIsApproved.bind(_curve),
+            approve: bridgeApprove.bind(_curve),
+            bridge: bridge.bind(_curve),
+            estimateGas: {
+                approve: bridgeApproveEstimateGas.bind(_curve),
+                bridge: bridgeEstimateGas.bind(_curve),
             },
         },
         dao: {

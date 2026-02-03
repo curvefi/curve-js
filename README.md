@@ -1380,6 +1380,98 @@ import curve from "@curvefi/api";
 })()
 ```
 
+## FastBridge
+
+FastBridge allows bridging crvUSD from L2 networks (Arbitrum, Optimism, Fraxtal) to Ethereum mainnet.
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    // Initialize on L2 network (Arbitrum, Optimism, or Fraxtal)
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0, chainId: 42161 }); // Arbitrum
+    
+    // Check if FastBridge is supported on current network
+    curve.fastBridge.isSupported();
+    // true (on Arbitrum, Optimism, Fraxtal)
+    // false (on other networks)
+    
+    // Assert that FastBridge is supported (throws error if not)
+    curve.fastBridge.assertIsSupported();
+    // No error on supported networks
+    // Throws "FastBridge is not available on this network" on unsupported networks
+    
+    // Get list of supported networks
+    const supportedNetworks = curve.fastBridge.getSupportedNetworks();
+    console.log(supportedNetworks);
+    // [
+    //     {
+    //         chainId: 42161,
+    //         name: 'Arbitrum',
+    //         fastBridgeAddress: '0x1F2aF270029d028400265Ce1dd0919BA8780dAe1',
+    //         crvUsdAddress: '0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5'
+    //     },
+    //     {
+    //         chainId: 10,
+    //         name: 'Optimism',
+    //         fastBridgeAddress: '0xD16d5eC345Dd86Fb63C6a9C43c517210F1027914',
+    //         crvUsdAddress: '0x417Ac0e078398C154EdFadD9Ef675d30Be60Af93'
+    //     },
+    //     {
+    //         chainId: 252,
+    //         name: 'Fraxtal',
+    //         fastBridgeAddress: '0x3fE593E651Cd0B383AD36b75F4159f30BB0631A6',
+    //         crvUsdAddress: '0x67bCae3700C0fd13FB1951C7801050349F8C5caa'
+    //     }
+    // ]
+
+    // Check allowed bridge amounts (min/max)
+    const { min, max } = await curve.fastBridge.allowedToBridge();
+    console.log(min, max);
+    // 10.0 49990.0
+
+    // Get bridge cost (must be called before bridging to cache the value)
+    const cost = await curve.fastBridge.bridgeCost();
+    console.log(cost);
+    // 0.001234567890123456 (in ETH)
+
+    // Check if crvUSD is approved for the amount you want to bridge
+    await curve.fastBridge.isApproved(1000);
+    // false
+
+    // Approve crvUSD for bridging
+    await curve.fastBridge.approve(1000);
+    // [
+    //     '0xc111e471715ae6f5437e12d3b94868a5b6542cd7304efca18b5782d315760ae5'
+    // ]
+
+    // Bridge crvUSD to Ethereum mainnet
+    // Note: You must call bridgeCost() first to cache the cost value
+    const bridgeTx = await curve.fastBridge.bridge(1000);
+    // OR bridge to specific address:
+    // const bridgeTx = await curve.fastBridge.bridge(1000, '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+    console.log(bridgeTx.hash);
+    // 0xc7ba1d60871c0295ac5471bb602c37ec0f00a71543b3a041308ebd91833f26ba
+
+    // Estimate gas for approve
+    await curve.fastBridge.estimateGas.approve(1000);
+    // 46000
+
+    // Estimate gas for bridge
+    await curve.fastBridge.estimateGas.bridge(1000);
+    // 150000
+})()
+```
+
+**Important Notes:**
+1. FastBridge is only available on L2 networks (Arbitrum, Optimism, Fraxtal)
+   - Use `isSupported()` to check if current network supports FastBridge
+   - Use `assertIsSupported()` to throw an error if not supported
+2. You must call `bridgeCost()` before calling `bridge()` to cache the cost value
+3. The bridge method is payable - it will send the cost amount in ETH/native currency
+4. Bridge amount must be within the allowed range (min/max from `allowedToBridge()`)
+5. `_min_amount` is automatically set equal to `_amount` for slippage protection
+
 ## Boosting
 
 ### Lock

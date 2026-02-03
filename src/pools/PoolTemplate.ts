@@ -281,6 +281,14 @@ export class PoolTemplate extends CorePool {
         return this.curve.formatUnits(_expected);
     }
 
+    private async calcLpTokenAmountBigInt(amounts: bigint[], isDeposit = true): Promise<bigint> {
+        if (amounts.length !== this.underlyingCoinAddresses.length) {
+            throw Error(`${this.name} pool has ${this.underlyingCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
+        }
+
+        return await this._calcLpTokenAmount(amounts, isDeposit, true);
+    }
+
     private async calcLpTokenAmountWrapped(amounts: (number | string)[], isDeposit = true): Promise<string> {
         if (amounts.length !== this.wrappedCoinAddresses.length) {
             throw Error(`${this.name} pool has ${this.wrappedCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
@@ -294,6 +302,18 @@ export class PoolTemplate extends CorePool {
         const _expected = await this._calcLpTokenAmount(_amounts, isDeposit, false);
 
         return this.curve.formatUnits(_expected);
+    }
+
+    private async calcLpTokenAmountWrappedBigInt(amounts: bigint[], isDeposit = true): Promise<bigint> {
+        if (amounts.length !== this.wrappedCoinAddresses.length) {
+            throw Error(`${this.name} pool has ${this.wrappedCoinAddresses.length} coins (amounts provided for ${amounts.length})`);
+        }
+
+        if (this.isFake) {
+            throw Error(`${this.name} pool doesn't have this method`);
+        }
+
+        return await this._calcLpTokenAmount(amounts, isDeposit, false);
     }
 
 
@@ -352,6 +372,10 @@ export class PoolTemplate extends CorePool {
 
     public async depositExpected(amounts: (number | string)[]): Promise<string> {
         return await this.calcLpTokenAmount(amounts);
+    }
+
+    public async depositExpectedBigInt(amounts: bigint[]): Promise<bigint> {
+        return await this.calcLpTokenAmountBigInt(amounts);
     }
 
     // | balanced[i] / sum(balanced[j]) = balance[i] / sum(balance[j]) |
@@ -447,6 +471,14 @@ export class PoolTemplate extends CorePool {
         }
 
         return await this.calcLpTokenAmountWrapped(amounts);
+    }
+
+    public async depositWrappedExpectedBigInt(amounts: bigint[]): Promise<bigint> {
+        if (this.isFake) {
+            throw Error(`depositWrappedExpectedBigInt method doesn't exist for pool ${this.name} (id: ${this.name})`);
+        }
+
+        return await this.calcLpTokenAmountWrappedBigInt(amounts);
     }
 
     public async depositWrappedBonus(amounts: (number | string)[]): Promise<string> {
@@ -1327,6 +1359,11 @@ export class PoolTemplate extends CorePool {
         throw Error(`withdrawExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
+    // OVERRIDE
+    public async withdrawExpectedBigInt(lpTokenAmount: bigint): Promise<bigint[]> {
+        throw Error(`withdrawExpectedBigInt method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
     public async withdrawIsApproved(lpTokenAmount: number | string): Promise<boolean> {
         if (!this.zap) return true
         return await hasAllowance.call(this.curve, [this.lpToken], [lpTokenAmount], this.curve.signerAddress, this.zap as string);
@@ -1357,6 +1394,11 @@ export class PoolTemplate extends CorePool {
     // OVERRIDE
     public async withdrawWrappedExpected (lpTokenAmount: number | string): Promise<string[]> {
         throw Error(`withdrawWrappedExpected method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
+    // OVERRIDE
+    public async withdrawWrappedExpectedBigInt(lpTokenAmount: bigint): Promise<bigint[]> {
+        throw Error(`withdrawWrappedExpectedBigInt method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     // OVERRIDE
@@ -1578,6 +1620,11 @@ export class PoolTemplate extends CorePool {
         const _expected = await this._withdrawOneCoinWrappedExpected(_lpTokenAmount, i);
 
         return this.curve.formatUnits(_expected, this.wrappedDecimals[i]);
+    }
+
+    // OVERRIDE
+    public async withdrawOneCoinWrappedExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint> {
+        throw Error(`withdrawOneCoinWrappedExpectedBigInt method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
     public async withdrawOneCoinWrappedBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {

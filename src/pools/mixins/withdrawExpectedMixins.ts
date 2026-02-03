@@ -9,6 +9,11 @@ export const withdrawExpectedMixin = {
         const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount);
         return _expected.map((amount: bigint, i: number) => formatUnits(amount, this.underlyingDecimals[i]));
     },
+
+    async withdrawExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
+        const _expected = await _calcExpectedAmounts.call(this, lpTokenAmount);
+        return _expected;
+    },
 }
 
 export const withdrawExpectedLendingOrCryptoMixin = {
@@ -20,6 +25,14 @@ export const withdrawExpectedLendingOrCryptoMixin = {
 
         return _expected.map((amount: bigint, i: number) => formatUnits(amount, this.underlyingDecimals[i]));
     },
+
+    async withdrawExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
+        const _expectedAmounts = await _calcExpectedAmounts.call(this, lpTokenAmount);
+        const _rates: bigint[] = await this._getRates();
+        const _expected = _expectedAmounts.map((_amount: bigint, i: number) => _amount * _rates[i] / parseUnits(String(10**18), 0));
+
+        return _expected;
+    },
 }
 
 export const withdrawExpectedMetaMixin = {
@@ -29,6 +42,12 @@ export const withdrawExpectedMetaMixin = {
 
         return _expected.map((amount: bigint, i: number) => formatUnits(amount, this.underlyingDecimals[i]));
     },
+
+    async withdrawExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
+        const _expected = await _calcExpectedUnderlyingAmountsMeta.call(this, lpTokenAmount)
+
+        return _expected;
+    },
 }
 
 export const withdrawWrappedExpectedMixin = {
@@ -36,5 +55,10 @@ export const withdrawWrappedExpectedMixin = {
         const _lpTokenAmount = parseUnits(lpTokenAmount);
         const _expected = await _calcExpectedAmounts.call(this, _lpTokenAmount)
         return _expected.map((amount: bigint, i: number) => formatUnits(amount, this.wrappedDecimals[i]));
+    },
+
+    async withdrawWrappedExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
+        const _expected = await _calcExpectedAmounts.call(this, lpTokenAmount)
+        return _expected;
     },
 }

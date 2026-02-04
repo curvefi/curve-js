@@ -1546,9 +1546,7 @@ export class PoolTemplate extends CorePool {
 
     public async withdrawOneCoinExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint> {
         const i = this._getCoinIdx(coin);
-        const _expected = await this._withdrawOneCoinExpected(lpTokenAmount, i);
-
-        return _expected;
+        return await this._withdrawOneCoinExpected(lpTokenAmount, i);
     }
 
     public async withdrawOneCoinBonus(lpTokenAmount: number | string, coin: string | number): Promise<string> {

@@ -1,6 +1,6 @@
-import { PoolTemplate } from "../PoolTemplate.js";
-import { parseUnits } from "../../utils.js";
-import { _calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta } from "./common.js";
+import {PoolTemplate} from "../PoolTemplate.js";
+import {parseUnits} from "../../utils.js";
+import {_calcExpectedAmounts, _calcExpectedUnderlyingAmountsMeta} from "./common.js";
 import {formatUnits} from "../../constants/utils.js";
 
 export const withdrawExpectedMixin = {
@@ -11,8 +11,7 @@ export const withdrawExpectedMixin = {
     },
 
     async withdrawExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
-        const _expected = await _calcExpectedAmounts.call(this, lpTokenAmount);
-        return _expected;
+        return await _calcExpectedAmounts.call(this, lpTokenAmount);
     },
 }
 
@@ -29,9 +28,7 @@ export const withdrawExpectedLendingOrCryptoMixin = {
     async withdrawExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
         const _expectedAmounts = await _calcExpectedAmounts.call(this, lpTokenAmount);
         const _rates: bigint[] = await this._getRates();
-        const _expected = _expectedAmounts.map((_amount: bigint, i: number) => _amount * _rates[i] / parseUnits(String(10**18), 0));
-
-        return _expected;
+        return _expectedAmounts.map((_amount: bigint, i: number) => _amount * _rates[i] / parseUnits(String(10 ** 18), 0));
     },
 }
 
@@ -44,9 +41,7 @@ export const withdrawExpectedMetaMixin = {
     },
 
     async withdrawExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
-        const _expected = await _calcExpectedUnderlyingAmountsMeta.call(this, lpTokenAmount)
-
-        return _expected;
+        return await _calcExpectedUnderlyingAmountsMeta.call(this, lpTokenAmount);
     },
 }
 
@@ -58,7 +53,6 @@ export const withdrawWrappedExpectedMixin = {
     },
 
     async withdrawWrappedExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint): Promise<bigint[]> {
-        const _expected = await _calcExpectedAmounts.call(this, lpTokenAmount)
-        return _expected;
+        return await _calcExpectedAmounts.call(this, lpTokenAmount);
     },
 }

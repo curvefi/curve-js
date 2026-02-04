@@ -8,8 +8,7 @@ export const withdrawOneCoinWrappedExpected2argsMixin = {
 
     async withdrawOneCoinWrappedExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint, coin: string | number): Promise<bigint> {
         const i = this._getCoinIdx(coin, false);
-        const _expected = await this._withdrawOneCoinWrappedExpected(lpTokenAmount, i);
-        return _expected;
+        return await this._withdrawOneCoinWrappedExpected(lpTokenAmount, i);
     },
 }
 
@@ -21,7 +20,6 @@ export const withdrawOneCoinWrappedExpected3argsMixin = {
 
     async withdrawOneCoinWrappedExpectedBigInt(this: PoolTemplate, lpTokenAmount: bigint, coin: string | number): Promise<bigint> {
         const i = this._getCoinIdx(coin, false);
-        const _expected = await this._withdrawOneCoinWrappedExpected(lpTokenAmount, i);
-        return _expected;
+        return await this._withdrawOneCoinWrappedExpected(lpTokenAmount, i);
     },
 }

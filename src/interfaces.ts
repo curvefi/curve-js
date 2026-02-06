@@ -321,7 +321,7 @@ export type AbiEvent = {type: 'event', anonymous?: boolean, inputs: readonly Abi
 export type AbiError = {type: 'error', inputs: readonly AbiParameter[], name: string}
 export type Abi = (AbiConstructor | AbiError | AbiEvent | AbiFallback | AbiFunction | AbiReceive)[]
 
-export interface ISwapMethodInfo {
+export interface IMethodInfo {
     address: string;
     method: string;
     abi: any;

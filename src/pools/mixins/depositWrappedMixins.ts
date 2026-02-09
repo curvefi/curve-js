@@ -1,4 +1,5 @@
 import {PoolTemplate} from "../PoolTemplate.js";
+import {IMethodInfo} from "../../interfaces.js";
 import {
     _ensureAllowance,
     DIGas,
@@ -43,13 +44,22 @@ async function _depositWrappedMinAmount(this: PoolTemplate, _amounts: bigint[], 
 }
 
 export const depositWrapped2argsMixin = {
-    async _depositWrapped(this: PoolTemplate, _amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+    async _depositWrapped(this: PoolTemplate, _amounts: bigint[], slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | IMethodInfo> {
+        const contract = this.curve.contracts[this.address].contract;
+
+        if (getInfo) {
+            return {
+                address: this.address,
+                method: 'add_liquidity',
+                abi: contract.add_liquidity.fragment,
+            };
+        }
+
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);
 
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
         const ethIndex = this.curve.getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
-        const contract = this.curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);
@@ -67,16 +77,29 @@ export const depositWrapped2argsMixin = {
         const _amounts = await _depositWrappedCheck.call(this, amounts);
         return await depositWrapped2argsMixin._depositWrapped.call(this, _amounts, slippage) as string;
     },
+
+    async getDepositWrappedInfo(this: PoolTemplate): Promise<IMethodInfo> {
+        return await depositWrapped2argsMixin._depositWrapped.call(this, [], 0, false, true) as IMethodInfo;
+    },
 }
 
 export const depositWrapped3argsMixin = {
-    async _depositWrapped(this: PoolTemplate, _amounts: bigint[], slippage?: number, estimateGas = false): Promise<string | number | number[]> {
+    async _depositWrapped(this: PoolTemplate, _amounts: bigint[], slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | IMethodInfo> {
+        const contract = this.curve.contracts[this.address].contract;
+
+        if (getInfo) {
+            return {
+                address: this.address,
+                method: 'add_liquidity',
+                abi: contract.add_liquidity.fragment,
+            };
+        }
+
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);
 
         const _minMintAmount = await _depositWrappedMinAmount.call(this, _amounts, slippage);
         const ethIndex = this.curve.getEthIndex(this.wrappedCoinAddresses);
         const value = _amounts[ethIndex] || this.curve.parseUnits("0");
-        const contract = this.curve.contracts[this.address].contract;
 
         const gas = await contract.add_liquidity.estimateGas(_amounts, _minMintAmount, false, { ...this.curve.constantOptions, value });
         if (estimateGas) return smartNumber(gas);
@@ -93,5 +116,9 @@ export const depositWrapped3argsMixin = {
     async depositWrapped(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {
         const _amounts = await _depositWrappedCheck.call(this, amounts);
         return await depositWrapped3argsMixin._depositWrapped.call(this, _amounts, slippage) as string;
+    },
+
+    async getDepositWrappedInfo(this: PoolTemplate): Promise<IMethodInfo> {
+        return await depositWrapped3argsMixin._depositWrapped.call(this, [], 0, false, true) as IMethodInfo;
     },
 }

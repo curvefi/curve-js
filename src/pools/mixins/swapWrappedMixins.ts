@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import {PoolTemplate} from "../PoolTemplate.js";
-import {ISwapMethodInfo} from "../../interfaces.js";
+import {IMethodInfo} from "../../interfaces.js";
 import {
     _ensureAllowance,
     _getCoinDecimals,
@@ -50,7 +50,7 @@ async function _swapWrappedMinAmount(this: PoolTemplate, i: number, j: number, _
 }
 
 export const swapWrappedTricrypto2Mixin= {
-    async _swapWrapped(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | ISwapMethodInfo> {
+    async _swapWrapped(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | IMethodInfo> {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
@@ -83,13 +83,13 @@ export const swapWrappedTricrypto2Mixin= {
         return await swapWrappedTricrypto2Mixin._swapWrapped.call(this, i, j, _amount, slippage) as string;
     },
 
-    async getSwapWrappedInfo(this: PoolTemplate): Promise<ISwapMethodInfo> {
-        return await swapWrappedTricrypto2Mixin._swapWrapped.call(this, 0, 0, BigInt(0), 0, false, true) as ISwapMethodInfo;
+    async getSwapWrappedInfo(this: PoolTemplate): Promise<IMethodInfo> {
+        return await swapWrappedTricrypto2Mixin._swapWrapped.call(this, 0, 0, BigInt(0), 0, false, true) as IMethodInfo;
     },
 }
 
 export const swapWrappedMixin= {
-    async _swapWrapped(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | ISwapMethodInfo> {
+    async _swapWrapped(this: PoolTemplate, i: number, j: number, _amount: bigint, slippage?: number, estimateGas = false, getInfo = false): Promise<string | number | number[] | IMethodInfo> {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
@@ -123,8 +123,8 @@ export const swapWrappedMixin= {
         return await swapWrappedMixin._swapWrapped.call(this, i, j, _amount, slippage) as string;
     },
 
-    async getSwapWrappedInfo(this: PoolTemplate): Promise<ISwapMethodInfo> {
-        return await swapWrappedMixin._swapWrapped.call(this, 0, 0, BigInt(0), 0, false, true) as ISwapMethodInfo;
+    async getSwapWrappedInfo(this: PoolTemplate): Promise<IMethodInfo> {
+        return await swapWrappedMixin._swapWrapped.call(this, 0, 0, BigInt(0), 0, false, true) as IMethodInfo;
     },
 }
 

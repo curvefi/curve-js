@@ -26,7 +26,7 @@ import {
     toBN,
     toStringFromBN,
 } from '../utils.js';
-import {IDict, IProfit, ISwapMethodInfo} from '../interfaces';
+import {IDict, IProfit, IMethodInfo} from '../interfaces';
 import {Curve, OLD_CHAINS} from "../curve.js";
 import ERC20Abi from '../constants/abis/ERC20.json' with {type: 'json'};
 import {CorePool} from "./subClasses/corePool.js";
@@ -67,8 +67,12 @@ export class PoolTemplate extends CorePool {
         swapWrapped: (inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage: number) => Promise<number | number[]>,
     };
     abi: {
-        swap: () => Promise<ISwapMethodInfo>,
-        swapWrapped: () => Promise<ISwapMethodInfo>,
+        deposit: () => Promise<IMethodInfo>,
+        depositWrapped: () => Promise<IMethodInfo>,
+        withdrawOneCoin: () => Promise<IMethodInfo>,
+        withdrawOneCoinWrapped: () => Promise<IMethodInfo>,
+        swap: () => Promise<IMethodInfo>,
+        swapWrapped: () => Promise<IMethodInfo>,
     };
     stats: StatsPool;
     wallet: WalletPool;
@@ -109,6 +113,10 @@ export class PoolTemplate extends CorePool {
             swapWrapped: this.swapWrappedEstimateGas.bind(this),
         };
         this.abi = {
+            deposit: this.getDepositInfo.bind(this),
+            depositWrapped: this.getDepositWrappedInfo.bind(this),
+            withdrawOneCoin: this.getWithdrawOneCoinInfo.bind(this),
+            withdrawOneCoinWrapped: this.getWithdrawOneCoinWrappedInfo.bind(this),
             swap: this.getSwapInfo.bind(this),
             swapWrapped: this.getSwapWrappedInfo.bind(this),
         };
@@ -459,6 +467,10 @@ export class PoolTemplate extends CorePool {
         throw Error(`deposit method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
+    public async getDepositInfo(): Promise<IMethodInfo> {
+        throw Error(`getDepositInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
+    }
+
     // ---------------- DEPOSIT WRAPPED ----------------
 
     public async depositWrappedBalancedAmounts(): Promise<string[]> {
@@ -525,6 +537,10 @@ export class PoolTemplate extends CorePool {
     // OVERRIDE
     public async depositWrapped(amounts: (number | string)[], slippage = 0.5): Promise<string> {
         throw Error(`depositWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
+    public async getDepositWrappedInfo(): Promise<IMethodInfo> {
+        throw Error(`getDepositWrappedInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
     }
 
     // ---------------- STAKING ----------------
@@ -1611,6 +1627,10 @@ export class PoolTemplate extends CorePool {
         throw Error(`withdrawOneCoin method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
+    public async getWithdrawOneCoinInfo(): Promise<IMethodInfo> {
+        throw Error(`getWithdrawOneCoinInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
+    }
+
     // ---------------- WITHDRAW ONE COIN WRAPPED ----------------
 
     // OVERRIDE
@@ -1653,6 +1673,10 @@ export class PoolTemplate extends CorePool {
     // OVERRIDE
     public async withdrawOneCoinWrapped(lpTokenAmount: number | string, coin: string | number, slippage = 0.5): Promise<string> {
         throw Error(`withdrawOneCoinWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
+    }
+
+    public async getWithdrawOneCoinWrappedInfo(): Promise<IMethodInfo> {
+        throw Error(`getWithdrawOneCoinWrappedInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
     }
 
 
@@ -1891,7 +1915,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    public async getSwapInfo(): Promise<ISwapMethodInfo> {
+    public async getSwapInfo(): Promise<IMethodInfo> {
         throw Error(`getSwapInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
     }
 
@@ -1959,7 +1983,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    public async getSwapWrappedInfo(): Promise<ISwapMethodInfo> {
+    public async getSwapWrappedInfo(): Promise<IMethodInfo> {
         throw Error(`getSwapWrappedInfo method doesn't exist for pool ${this.name} (id: ${this.id})`);
     }
 

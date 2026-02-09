@@ -994,12 +994,88 @@ import curve from "@curvefi/api";
 - `pool.withdrawOneCoinExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint>`
 - `pool.withdrawOneCoinWrappedExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint>`
 
-### Getting swap ABI metadata
+### Getting method ABI metadata
 ```ts
 (async () => {
     await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
 
     const pool = curve.getPool('mim');
+
+    // Get exact ABI information for deposit (underlying) without executing the transaction
+    const depositInfo = await pool.abi.deposit();
+    console.log(depositInfo);
+    // {
+    //     address: '0xa79828df1850e8a3a3064576f380d90aecdd3359',  // Contract address (zap or pool)
+    //     method: 'add_liquidity',                                 // Method name
+    //     abi: {
+    //         type: 'function',
+    //         name: 'add_liquidity',
+    //         inputs: [
+    //             { name: '_pool', type: 'address' },
+    //             { name: '_deposit_amounts', type: 'uint256[4]' },
+    //             { name: '_min_mint_amount', type: 'uint256' }
+    //         ],
+    //         outputs: [ { name: '', type: 'uint256' } ],
+    //         stateMutability: 'nonpayable'
+    //     }
+    // }
+
+    // Get exact ABI information for deposit wrapped without executing the transaction
+    const depositWrappedInfo = await pool.abi.depositWrapped();
+    console.log(depositWrappedInfo);
+    // {
+    //     address: '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',  // Contract address (pool)
+    //     method: 'add_liquidity',                                 // Method name
+    //     abi: {
+    //         type: 'function',
+    //         name: 'add_liquidity',
+    //         inputs: [
+    //             { name: 'amounts', type: 'uint256[2]' },
+    //             { name: 'min_mint_amount', type: 'uint256' }
+    //         ],
+    //         outputs: [ { name: '', type: 'uint256' } ],
+    //         stateMutability: 'nonpayable'
+    //     }
+    // }
+
+    // Get exact ABI information for withdrawOneCoin (underlying) without executing the transaction
+    const withdrawOneCoinInfo = await pool.abi.withdrawOneCoin();
+    console.log(withdrawOneCoinInfo);
+    // {
+    //     address: '0xa79828df1850e8a3a3064576f380d90aecdd3359',  // Contract address (zap or pool)
+    //     method: 'remove_liquidity_one_coin',                     // Method name
+    //     abi: {
+    //         type: 'function',
+    //         name: 'remove_liquidity_one_coin',
+    //         inputs: [
+    //             { name: '_pool', type: 'address' },
+    //             { name: '_burn_amount', type: 'uint256' },
+    //             { name: 'i', type: 'int128' },
+    //             { name: '_min_amount', type: 'uint256' }
+    //         ],
+    //         outputs: [ { name: '', type: 'uint256' } ],
+    //         stateMutability: 'nonpayable'
+    //     }
+    // }
+
+    // Get exact ABI information for withdrawOneCoin wrapped without executing the transaction
+    const withdrawOneCoinWrappedInfo = await pool.abi.withdrawOneCoinWrapped();
+    console.log(withdrawOneCoinWrappedInfo);
+    // {
+    //     address: '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',  // Contract address (pool)
+    //     method: 'remove_liquidity_one_coin',                     // Method name
+    //     abi: {
+    //         type: 'function',
+    //         name: 'remove_liquidity_one_coin',
+    //         inputs: [
+    //             { name: '_token_amount', type: 'uint256' },
+    //             { name: 'i', type: 'int128' },
+    //             { name: '_min_amount', type: 'uint256' }
+    //         ],
+    //         outputs: [ { name: '', type: 'uint256' } ],
+    //         stateMutability: 'nonpayable'
+    //     }
+    // }
 
     // Get exact ABI information for swap (underlying) without executing the transaction
     const swapInfo = await pool.abi.swap();

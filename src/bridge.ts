@@ -38,12 +38,9 @@ async function _allowedToBridge(this: Curve): Promise<{ _min: bigint, _max: bigi
     assertIsSupported.call(this);
 
     const contract = this.contracts[this.constants.ALIASES.fast_bridge].contract;
-    const result = await contract.allowed_to_bridge(this.constantOptions);
-    
-    return {
-        _min: result[0],
-        _max: result[1],
-    };
+    const [_min, _max] = await contract.allowed_to_bridge();
+
+    return { _min, _max };
 }
 
 export async function allowedToBridge(this: Curve): Promise<{ min: number, max: number }> {
@@ -79,13 +76,13 @@ export async function bridgeIsApproved(this: Curve, amount: number | string): Pr
 export async function bridgeApproveEstimateGas(this: Curve, amount: number | string): Promise<number | number[]> {
     assertIsSupported.call(this);
 
-    return await ensureAllowanceEstimateGas.call(this, [this.constants.ALIASES.crvusd], [amount], this.constants.ALIASES.fast_bridge);
+    return await ensureAllowanceEstimateGas.call(this, [this.constants.ALIASES.crvusd], [amount], this.constants.ALIASES.fast_bridge, false);
 }
 
 export async function bridgeApprove(this: Curve, amount: number | string): Promise<string[]> {
     assertIsSupported.call(this);
 
-    return await ensureAllowance.call(this, [this.constants.ALIASES.crvusd], [amount], this.constants.ALIASES.fast_bridge);
+    return await ensureAllowance.call(this, [this.constants.ALIASES.crvusd], [amount], this.constants.ALIASES.fast_bridge, false);
 }
 
 async function _bridge(this: Curve, amount: number | string, address?: string, estimateGas = false): Promise<string | number | number[] | ethers.ContractTransactionResponse> {

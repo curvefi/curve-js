@@ -8,6 +8,7 @@ import {
     IChainId,
     ICurveLiteNetwork,
     IDict,
+    IMethodInfo,
     INetworkName,
     IRewardFromApi,
     IVolumeAndAPYs,
@@ -34,6 +35,11 @@ export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 // export const MAX_ALLOWANCE = curve.parseUnits(new BigNumber(2).pow(256).minus(1).toFixed(), 0);
 export const MAX_ALLOWANCE = BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935");  // 2**256 - 1
 
+export const abiInfoBuild = (address: string, method: string, abi: any): IMethodInfo => ({
+    address,
+    method,
+    abi,
+});
 
 // Formatting numbers
 

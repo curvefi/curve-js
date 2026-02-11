@@ -1,194 +1,161 @@
 [
   {
-    "outputs":[],
-    "inputs":[
+    "name": "add_liquidity",
+    "outputs": [],
+    "inputs": [
       {
-        "type":"address[2]",
-        "name":"_coins"
+        "type": "uint256[2]",
+        "name": "uamounts"
       },
       {
-        "type":"address[2]",
-        "name":"_underlying_coins"
-      },
-      {
-        "type":"address",
-        "name":"_curve"
-      },
-      {
-        "type":"address",
-        "name":"_token"
+        "type": "uint256",
+        "name": "min_mint_amount"
       }
     ],
-    "constant":false,
-    "payable":false,
-    "type":"constructor"
+    "constant": false,
+    "payable": false,
+    "type": "function"
   },
   {
-    "name":"add_liquidity",
-    "outputs":[],
-    "inputs":[
+    "name": "remove_liquidity",
+    "outputs": [],
+    "inputs": [
       {
-        "type":"uint256[2]",
-        "name":"uamounts"
+        "type": "uint256",
+        "name": "_amount"
       },
       {
-        "type":"uint256",
-        "name":"min_mint_amount"
+        "type": "uint256[2]",
+        "name": "min_uamounts"
       }
     ],
-    "constant":false,
-    "payable":false,
-    "type":"function",
-    "gas":"992271"
+    "constant": false,
+    "payable": false,
+    "type": "function"
   },
   {
-    "name":"remove_liquidity",
-    "outputs":[],
-    "inputs":[
+    "name": "remove_liquidity_imbalance",
+    "outputs": [],
+    "inputs": [
       {
-        "type":"uint256",
-        "name":"_amount"
+        "type": "uint256[2]",
+        "name": "uamounts"
       },
       {
-        "type":"uint256[2]",
-        "name":"min_uamounts"
+        "type": "uint256",
+        "name": "max_burn_amount"
       }
     ],
-    "constant":false,
-    "payable":false,
-    "type":"function",
-    "gas":"621194"
+    "constant": false,
+    "payable": false,
+    "type": "function"
   },
   {
-    "name":"remove_liquidity_imbalance",
-    "outputs":[],
-    "inputs":[
+    "name": "calc_withdraw_one_coin",
+    "outputs": [
       {
-        "type":"uint256[2]",
-        "name":"uamounts"
-      },
-      {
-        "type":"uint256",
-        "name":"max_burn_amount"
+        "type": "uint256",
+        "name": ""
       }
     ],
-    "constant":false,
-    "payable":false,
-    "type":"function",
-    "gas":"840484"
-  },
-  {
-    "name":"calc_withdraw_one_coin",
-    "outputs":[
+    "inputs": [
       {
-        "type":"uint256",
-        "name":""
-      }
-    ],
-    "inputs":[
-      {
-        "type":"uint256",
-        "name":"_token_amount"
+        "type": "uint256",
+        "name": "_token_amount"
       },
       {
-        "type":"int128",
-        "name":"i"
+        "type": "int128",
+        "name": "i"
       }
     ],
     "stateMutability": "view",
-    "type":"function",
-    "gas":"2945630"
+    "type": "function"
   },
   {
-    "name":"remove_liquidity_one_coin",
-    "outputs":[],
-    "inputs":[
+    "name": "remove_liquidity_one_coin",
+    "outputs": [],
+    "inputs": [
       {
-        "type":"uint256",
-        "name":"_token_amount"
+        "type": "uint256",
+        "name": "_token_amount"
       },
       {
-        "type":"int128",
-        "name":"i"
+        "type": "int128",
+        "name": "i"
       },
       {
-        "type":"uint256",
-        "name":"min_uamount"
+        "type": "uint256",
+        "name": "min_uamount"
       }
     ],
-    "constant":false,
-    "payable":false,
-    "type":"function"
+    "constant": false,
+    "payable": false,
+    "type": "function"
   },
   {
-    "name":"withdraw_donated_dust",
-    "outputs":[],
-    "inputs":[],
-    "constant":false,
-    "payable":false,
-    "type":"function",
-    "gas":"63973"
+    "name": "withdraw_donated_dust",
+    "outputs": [],
+    "inputs": [],
+    "constant": false,
+    "payable": false,
+    "type": "function"
   },
   {
-    "name":"coins",
-    "outputs":[
+    "name": "coins",
+    "outputs": [
       {
-        "type":"address",
-        "name":""
+        "type": "address",
+        "name": ""
       }
     ],
-    "inputs":[
+    "inputs": [
       {
-        "type":"int128",
-        "name":"arg0"
+        "type": "int128",
+        "name": "arg0"
       }
     ],
     "stateMutability": "view",
-    "type":"function",
-    "gas":"1680"
+    "type": "function"
   },
   {
-    "name":"underlying_coins",
-    "outputs":[
+    "name": "underlying_coins",
+    "outputs": [
       {
-        "type":"address",
-        "name":""
+        "type": "address",
+        "name": ""
       }
     ],
-    "inputs":[
+    "inputs": [
       {
-        "type":"int128",
-        "name":"arg0"
+        "type": "int128",
+        "name": "arg0"
       }
     ],
     "stateMutability": "view",
-    "type":"function",
-    "gas":"1710"
+    "type": "function"
   },
   {
-    "name":"curve",
-    "outputs":[
+    "name": "curve",
+    "outputs": [
       {
-        "type":"address",
-        "name":""
+        "type": "address",
+        "name": ""
       }
     ],
-    "inputs":[],
+    "inputs": [],
     "stateMutability": "view",
-    "type":"function",
-    "gas":"1541"
+    "type": "function"
   },
   {
-    "name":"token",
-    "outputs":[
+    "name": "token",
+    "outputs": [
       {
-        "type":"address",
-        "name":""
+        "type": "address",
+        "name": ""
       }
     ],
-    "inputs":[],
+    "inputs": [],
     "stateMutability": "view",
-    "type":"function",
-    "gas":"1571"
+    "type": "function"
   }
 ]

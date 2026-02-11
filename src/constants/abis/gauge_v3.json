@@ -1,158 +1,5 @@
 [
   {
-    "name": "Deposit",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "value",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "Withdraw",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "value",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "UpdateLiquidityLimit",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "indexed": false
-      },
-      {
-        "name": "original_balance",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "original_supply",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "working_balance",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "working_supply",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "CommitOwnership",
-    "inputs": [
-      {
-        "name": "admin",
-        "type": "address",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "ApplyOwnership",
-    "inputs": [
-      {
-        "name": "admin",
-        "type": "address",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "Transfer",
-    "inputs": [
-      {
-        "name": "_from",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "_to",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "_value",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "Approval",
-    "inputs": [
-      {
-        "name": "_owner",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "_spender",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "_value",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "_lp_token",
-        "type": "address"
-      },
-      {
-        "name": "_minter",
-        "type": "address"
-      },
-      {
-        "name": "_admin",
-        "type": "address"
-      }
-    ],
-    "outputs": []
-  },
-  {
     "stateMutability": "view",
     "type": "function",
     "name": "decimals",
@@ -162,8 +9,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "288"
+    ]
   },
   {
     "stateMutability": "view",
@@ -175,8 +21,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4624"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -193,8 +38,7 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "3133638"
+    ]
   },
   {
     "stateMutability": "view",
@@ -211,8 +55,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3046705"
+    ]
   },
   {
     "stateMutability": "view",
@@ -224,8 +67,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2718"
+    ]
   },
   {
     "stateMutability": "view",
@@ -237,8 +79,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "2544"
+    ]
   },
   {
     "stateMutability": "view",
@@ -259,8 +100,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3066"
+    ]
   },
   {
     "stateMutability": "view",
@@ -281,8 +121,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3034"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -303,8 +142,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "1211002"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -316,8 +154,7 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "35733"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -336,8 +173,7 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "3150326"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -382,8 +218,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3238"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -404,8 +239,7 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "17172312"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -430,8 +264,7 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "17210262"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -452,8 +285,7 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "38241"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -474,8 +306,7 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "40785"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -496,8 +327,7 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "40809"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -517,8 +347,7 @@
         "type": "address[8]"
       }
     ],
-    "outputs": [],
-    "gas": "2743589"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -530,8 +359,7 @@
         "type": "bool"
       }
     ],
-    "outputs": [],
-    "gas": "38175"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -543,16 +371,14 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "39555"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "accept_transfer_ownership",
     "inputs": [],
-    "outputs": [],
-    "gas": "39500"
+    "outputs": []
   },
   {
     "stateMutability": "view",
@@ -564,8 +390,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3108"
+    ]
   },
   {
     "stateMutability": "view",
@@ -577,8 +402,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3138"
+    ]
   },
   {
     "stateMutability": "view",
@@ -590,8 +414,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3168"
+    ]
   },
   {
     "stateMutability": "view",
@@ -603,8 +426,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3198"
+    ]
   },
   {
     "stateMutability": "view",
@@ -616,8 +438,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3228"
+    ]
   },
   {
     "stateMutability": "view",
@@ -629,8 +450,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3258"
+    ]
   },
   {
     "stateMutability": "view",
@@ -647,8 +467,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3503"
+    ]
   },
   {
     "stateMutability": "view",
@@ -660,8 +479,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3318"
+    ]
   },
   {
     "stateMutability": "view",
@@ -673,8 +491,7 @@
         "name": "",
         "type": "string"
       }
-    ],
-    "gas": "13650"
+    ]
   },
   {
     "stateMutability": "view",
@@ -686,8 +503,7 @@
         "name": "",
         "type": "string"
       }
-    ],
-    "gas": "11403"
+    ]
   },
   {
     "stateMutability": "view",
@@ -704,8 +520,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3623"
+    ]
   },
   {
     "stateMutability": "view",
@@ -717,8 +532,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3438"
+    ]
   },
   {
     "stateMutability": "view",
@@ -730,8 +544,7 @@
         "name": "",
         "type": "int128"
       }
-    ],
-    "gas": "3468"
+    ]
   },
   {
     "stateMutability": "view",
@@ -748,8 +561,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3607"
+    ]
   },
   {
     "stateMutability": "view",
@@ -766,8 +578,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3637"
+    ]
   },
   {
     "stateMutability": "view",
@@ -784,8 +595,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3773"
+    ]
   },
   {
     "stateMutability": "view",
@@ -802,8 +612,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3803"
+    ]
   },
   {
     "stateMutability": "view",
@@ -820,8 +629,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3833"
+    ]
   },
   {
     "stateMutability": "view",
@@ -833,8 +641,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3648"
+    ]
   },
   {
     "stateMutability": "view",
@@ -851,8 +658,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3787"
+    ]
   },
   {
     "stateMutability": "view",
@@ -869,8 +675,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3923"
+    ]
   },
   {
     "stateMutability": "view",
@@ -887,8 +692,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3953"
+    ]
   },
   {
     "stateMutability": "view",
@@ -909,8 +713,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4198"
+    ]
   },
   {
     "stateMutability": "view",
@@ -922,8 +725,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3798"
+    ]
   },
   {
     "stateMutability": "view",
@@ -935,8 +737,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "3828"
+    ]
   },
   {
     "stateMutability": "view",
@@ -948,7 +749,6 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "3858"
+    ]
   }
 ]

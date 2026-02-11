@@ -1,114 +1,10 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_nexus",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_stakingToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_rewardsToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_rewardsDistributor",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "reward",
-        "type": "uint256"
-      }
-    ],
-    "name": "RewardAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "reward",
-        "type": "uint256"
-      }
-    ],
-    "name": "RewardPaid",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "payer",
-        "type": "address"
-      }
-    ],
-    "name": "Staked",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "Withdrawn",
-    "type": "event"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "DURATION",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -121,7 +17,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_account",
         "type": "address"
       }
@@ -129,7 +24,6 @@
     "name": "balanceOf",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -151,7 +45,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_account",
         "type": "address"
       }
@@ -159,7 +52,6 @@
     "name": "earned",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -183,7 +75,6 @@
     "name": "getRewardToken",
     "outputs": [
       {
-        "internalType": "contract IERC20",
         "name": "",
         "type": "address"
       }
@@ -198,7 +89,6 @@
     "name": "lastTimeRewardApplicable",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -213,7 +103,6 @@
     "name": "lastUpdateTime",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -228,7 +117,6 @@
     "name": "nexus",
     "outputs": [
       {
-        "internalType": "contract INexus",
         "name": "",
         "type": "address"
       }
@@ -241,7 +129,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "_reward",
         "type": "uint256"
       }
@@ -258,7 +145,6 @@
     "name": "periodFinish",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -273,7 +159,6 @@
     "name": "rewardPerToken",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -288,7 +173,6 @@
     "name": "rewardPerTokenStored",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -303,7 +187,6 @@
     "name": "rewardRate",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -316,7 +199,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -324,7 +206,6 @@
     "name": "rewards",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -339,7 +220,6 @@
     "name": "rewardsDistributor",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -354,7 +234,6 @@
     "name": "rewardsToken",
     "outputs": [
       {
-        "internalType": "contract IERC20",
         "name": "",
         "type": "address"
       }
@@ -367,7 +246,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_rewardsDistributor",
         "type": "address"
       }
@@ -382,7 +260,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
       }
@@ -397,12 +274,10 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_beneficiary",
         "type": "address"
       },
       {
-        "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
       }
@@ -419,7 +294,6 @@
     "name": "stakingToken",
     "outputs": [
       {
-        "internalType": "contract IERC20",
         "name": "",
         "type": "address"
       }
@@ -434,7 +308,6 @@
     "name": "totalSupply",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -447,7 +320,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -455,7 +327,6 @@
     "name": "userRewardPerTokenPaid",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -468,7 +339,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
       }

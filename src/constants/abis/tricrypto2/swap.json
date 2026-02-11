@@ -1,362 +1,5 @@
 [
   {
-    "name": "TokenExchange",
-    "inputs": [
-      {
-        "name": "buyer",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "sold_id",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "tokens_sold",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "bought_id",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "tokens_bought",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "AddLiquidity",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "token_amounts",
-        "type": "uint256[3]",
-        "indexed": false
-      },
-      {
-        "name": "fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "token_supply",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "RemoveLiquidity",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "token_amounts",
-        "type": "uint256[3]",
-        "indexed": false
-      },
-      {
-        "name": "token_supply",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "RemoveLiquidityOne",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "token_amount",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "coin_index",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "coin_amount",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "CommitNewAdmin",
-    "inputs": [
-      {
-        "name": "deadline",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "admin",
-        "type": "address",
-        "indexed": true
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "NewAdmin",
-    "inputs": [
-      {
-        "name": "admin",
-        "type": "address",
-        "indexed": true
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "CommitNewParameters",
-    "inputs": [
-      {
-        "name": "deadline",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "admin_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "mid_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "out_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "fee_gamma",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "allowed_extra_profit",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "adjustment_step",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "ma_half_time",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "NewParameters",
-    "inputs": [
-      {
-        "name": "admin_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "mid_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "out_fee",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "fee_gamma",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "allowed_extra_profit",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "adjustment_step",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "ma_half_time",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "RampAgamma",
-    "inputs": [
-      {
-        "name": "initial_A",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "future_A",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "initial_gamma",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "future_gamma",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "initial_time",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "future_time",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "StopRampA",
-    "inputs": [
-      {
-        "name": "current_A",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "current_gamma",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "time",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "ClaimAdminFee",
-    "inputs": [
-      {
-        "name": "admin",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "tokens",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "stateMutability": "nonpayable",
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "name": "admin_fee_receiver",
-        "type": "address"
-      },
-      {
-        "name": "A",
-        "type": "uint256"
-      },
-      {
-        "name": "gamma",
-        "type": "uint256"
-      },
-      {
-        "name": "mid_fee",
-        "type": "uint256"
-      },
-      {
-        "name": "out_fee",
-        "type": "uint256"
-      },
-      {
-        "name": "allowed_extra_profit",
-        "type": "uint256"
-      },
-      {
-        "name": "fee_gamma",
-        "type": "uint256"
-      },
-      {
-        "name": "adjustment_step",
-        "type": "uint256"
-      },
-      {
-        "name": "admin_fee",
-        "type": "uint256"
-      },
-      {
-        "name": "ma_half_time",
-        "type": "uint256"
-      },
-      {
-        "name": "initial_prices",
-        "type": "uint256[2]"
-      }
-    ],
-    "outputs": []
-  },
-  {
     "stateMutability": "payable",
     "type": "fallback"
   },
@@ -375,8 +18,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3361"
+    ]
   },
   {
     "stateMutability": "view",
@@ -393,8 +35,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3391"
+    ]
   },
   {
     "stateMutability": "view",
@@ -411,8 +52,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3421"
+    ]
   },
   {
     "stateMutability": "view",
@@ -424,8 +64,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "468"
+    ]
   },
   {
     "stateMutability": "view",
@@ -442,8 +81,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "582"
+    ]
   },
   {
     "stateMutability": "view",
@@ -455,8 +93,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "597"
+    ]
   },
   {
     "stateMutability": "view",
@@ -468,8 +105,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "11991"
+    ]
   },
   {
     "stateMutability": "view",
@@ -481,8 +117,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "21673"
+    ]
   },
   {
     "stateMutability": "view",
@@ -499,8 +134,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "11096"
+    ]
   },
   {
     "stateMutability": "view",
@@ -512,8 +146,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "11582"
+    ]
   },
   {
     "stateMutability": "payable",
@@ -566,8 +199,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3122"
+    ]
   },
   {
     "stateMutability": "view",
@@ -588,8 +220,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "26582"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -605,8 +236,7 @@
         "type": "uint256"
       }
     ],
-    "outputs": [],
-    "gas": "738687"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -622,8 +252,7 @@
         "type": "uint256[3]"
       }
     ],
-    "outputs": [],
-    "gas": "233981"
+    "outputs": []
   },
   {
     "stateMutability": "view",
@@ -644,8 +273,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3429"
+    ]
   },
   {
     "stateMutability": "view",
@@ -666,8 +294,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "13432"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -687,16 +314,14 @@
         "type": "uint256"
       }
     ],
-    "outputs": [],
-    "gas": "648579"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "claim_admin_fees",
     "inputs": [],
-    "outputs": [],
-    "gas": "389808"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -716,16 +341,14 @@
         "type": "uint256"
       }
     ],
-    "outputs": [],
-    "gas": "163102"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "stop_ramp_A_gamma",
     "inputs": [],
-    "outputs": [],
-    "gas": "157247"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -761,24 +384,21 @@
         "type": "uint256"
       }
     ],
-    "outputs": [],
-    "gas": "306190"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "apply_new_parameters",
     "inputs": [],
-    "outputs": [],
-    "gas": "683438"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "revert_new_parameters",
     "inputs": [],
-    "outputs": [],
-    "gas": "23222"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -790,40 +410,35 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "77260"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "apply_transfer_ownership",
     "inputs": [],
-    "outputs": [],
-    "gas": "65937"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "revert_transfer_ownership",
     "inputs": [],
-    "outputs": [],
-    "gas": "23312"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "kill_me",
     "inputs": [],
-    "outputs": [],
-    "gas": "40535"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "unkill_me",
     "inputs": [],
-    "outputs": [],
-    "gas": "23372"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -835,8 +450,7 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "38505"
+    "outputs": []
   },
   {
     "stateMutability": "view",
@@ -848,8 +462,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3378"
+    ]
   },
   {
     "stateMutability": "view",
@@ -861,8 +474,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3408"
+    ]
   },
   {
     "stateMutability": "view",
@@ -874,8 +486,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3438"
+    ]
   },
   {
     "stateMutability": "view",
@@ -887,8 +498,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3468"
+    ]
   },
   {
     "stateMutability": "view",
@@ -900,8 +510,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3498"
+    ]
   },
   {
     "stateMutability": "view",
@@ -913,8 +522,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3528"
+    ]
   },
   {
     "stateMutability": "view",
@@ -926,8 +534,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3558"
+    ]
   },
   {
     "stateMutability": "view",
@@ -939,8 +546,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3588"
+    ]
   },
   {
     "stateMutability": "view",
@@ -952,8 +558,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3618"
+    ]
   },
   {
     "stateMutability": "view",
@@ -965,8 +570,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3648"
+    ]
   },
   {
     "stateMutability": "view",
@@ -978,8 +582,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3678"
+    ]
   },
   {
     "stateMutability": "view",
@@ -991,8 +594,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3708"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1004,8 +606,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3738"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1017,8 +618,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3768"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1030,8 +630,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3798"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1043,8 +642,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3828"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1056,8 +654,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3858"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1069,8 +666,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3888"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1082,8 +678,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3918"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1100,8 +695,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4057"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1113,8 +707,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "3978"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1126,8 +719,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "4008"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1139,8 +731,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "4038"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1152,8 +743,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4068"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1165,8 +755,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4098"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1178,8 +767,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4128"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1191,8 +779,7 @@
         "name": "",
         "type": "bool"
       }
-    ],
-    "gas": "4158"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1204,8 +791,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4188"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1217,8 +803,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4218"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1230,8 +815,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "4248"
+    ]
   },
   {
     "stateMutability": "view",
@@ -1243,7 +827,6 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "4278"
+    ]
   }
 ]

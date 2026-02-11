@@ -1,123 +1,5 @@
 [
   {
-    "name": "CommitOwnership",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "admin",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "ApplyOwnership",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "admin",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "Deposit",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "provider",
-        "indexed": true
-      },
-      {
-        "type": "uint256",
-        "name": "value",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "locktime",
-        "indexed": true
-      },
-      {
-        "type": "int128",
-        "name": "type",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "ts",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "Withdraw",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "provider",
-        "indexed": true
-      },
-      {
-        "type": "uint256",
-        "name": "value",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "ts",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "name": "Supply",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "prevSupply",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "supply",
-        "indexed": false
-      }
-    ],
-    "anonymous": false,
-    "type": "event"
-  },
-  {
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "address",
-        "name": "token_addr"
-      },
-      {
-        "type": "string",
-        "name": "_name"
-      },
-      {
-        "type": "string",
-        "name": "_symbol"
-      },
-      {
-        "type": "string",
-        "name": "_version"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "name": "commit_transfer_ownership",
     "outputs": [],
     "inputs": [
@@ -127,16 +9,14 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "37597"
+    "type": "function"
   },
   {
     "name": "apply_transfer_ownership",
     "outputs": [],
     "inputs": [],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "38497"
+    "type": "function"
   },
   {
     "name": "commit_smart_wallet_checker",
@@ -148,16 +28,14 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "36307"
+    "type": "function"
   },
   {
     "name": "apply_smart_wallet_checker",
     "outputs": [],
     "inputs": [],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "37095"
+    "type": "function"
   },
   {
     "name": "get_last_user_slope",
@@ -174,8 +52,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2569"
+    "type": "function"
   },
   {
     "name": "user_point_history__ts",
@@ -196,8 +73,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1672"
+    "type": "function"
   },
   {
     "name": "locked__end",
@@ -214,16 +90,14 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1593"
+    "type": "function"
   },
   {
     "name": "checkpoint",
     "outputs": [],
     "inputs": [],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "37052342"
+    "type": "function"
   },
   {
     "name": "deposit_for",
@@ -239,8 +113,7 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "74279891"
+    "type": "function"
   },
   {
     "name": "create_lock",
@@ -256,8 +129,7 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "7428146"
+    "type": "function"
   },
   {
     "name": "increase_amount",
@@ -269,8 +141,7 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "259133"
+    "type": "function"
   },
   {
     "name": "increase_unlock_time",
@@ -282,16 +153,14 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "270000"
+    "type": "function"
   },
   {
     "name": "withdraw",
     "outputs": [],
     "inputs": [],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "372233"
+    "type": "function"
   },
   {
     "name": "balanceOf",
@@ -350,8 +219,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "514333"
+    "type": "function"
   },
   {
     "name": "totalSupply",
@@ -397,8 +265,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "812560"
+    "type": "function"
   },
   {
     "name": "changeController",
@@ -410,8 +277,7 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function",
-    "gas": "36907"
+    "type": "function"
   },
   {
     "name": "token",
@@ -423,8 +289,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1841"
+    "type": "function"
   },
   {
     "name": "supply",
@@ -436,8 +301,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1871"
+    "type": "function"
   },
   {
     "name": "locked",
@@ -458,8 +322,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "3359"
+    "type": "function"
   },
   {
     "name": "epoch",
@@ -471,8 +334,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1931"
+    "type": "function"
   },
   {
     "name": "point_history",
@@ -501,8 +363,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "5550"
+    "type": "function"
   },
   {
     "name": "user_point_history",
@@ -535,8 +396,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "6079"
+    "type": "function"
   },
   {
     "name": "user_point_epoch",
@@ -553,8 +413,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2175"
+    "type": "function"
   },
   {
     "name": "slope_changes",
@@ -571,8 +430,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2166"
+    "type": "function"
   },
   {
     "name": "controller",
@@ -584,8 +442,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2081"
+    "type": "function"
   },
   {
     "name": "transfersEnabled",
@@ -597,8 +454,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2111"
+    "type": "function"
   },
   {
     "name": "name",
@@ -610,8 +466,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "8543"
+    "type": "function"
   },
   {
     "name": "symbol",
@@ -623,8 +478,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "7596"
+    "type": "function"
   },
   {
     "name": "version",
@@ -636,8 +490,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "7626"
+    "type": "function"
   },
   {
     "name": "decimals",
@@ -649,8 +502,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2231"
+    "type": "function"
   },
   {
     "name": "future_smart_wallet_checker",
@@ -662,8 +514,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2261"
+    "type": "function"
   },
   {
     "name": "smart_wallet_checker",
@@ -675,8 +526,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2291"
+    "type": "function"
   },
   {
     "name": "admin",
@@ -688,8 +538,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2321"
+    "type": "function"
   },
   {
     "name": "future_admin",
@@ -701,7 +550,6 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2351"
+    "type": "function"
   }
 ]

@@ -1,20 +1,5 @@
 [
   {
-    "type": "constructor",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "address",
-        "name": "_pool"
-      },
-      {
-        "type": "address",
-        "name": "_base_pool"
-      }
-    ]
-  },
-  {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
@@ -28,8 +13,7 @@
         "type": "uint256",
         "name": "_min_mint_amount"
       }
-    ],
-    "gas": "67403"
+    ]
   },
   {
     "type": "function",
@@ -53,8 +37,7 @@
         "type": "uint256",
         "name": "_min_dy"
       }
-    ],
-    "gas": "42830"
+    ]
   },
   {
     "type": "function",
@@ -70,8 +53,7 @@
         "type": "uint256[5]",
         "name": "_min_amounts"
       }
-    ],
-    "gas": "93404"
+    ]
   },
   {
     "type": "function",
@@ -91,8 +73,7 @@
         "type": "uint256",
         "name": "_min_amount"
       }
-    ],
-    "gas": "33153"
+    ]
   },
   {
     "type": "function",
@@ -117,8 +98,7 @@
         "type": "uint256",
         "name": "_dx"
       }
-    ],
-    "gas": "19678"
+    ]
   },
   {
     "type": "function",
@@ -139,8 +119,7 @@
         "type": "bool",
         "name": "_is_deposit"
       }
-    ],
-    "gas": "9954"
+    ]
   },
   {
     "type": "function",
@@ -161,8 +140,7 @@
         "type": "uint256",
         "name": "i"
       }
-    ],
-    "gas": "14541"
+    ]
   },
   {
     "type": "function",
@@ -179,8 +157,7 @@
         "type": "uint256",
         "name": "arg0"
       }
-    ],
-    "gas": "2709"
+    ]
   },
   {
     "type": "function",
@@ -197,8 +174,7 @@
         "type": "uint256",
         "name": "arg0"
       }
-    ],
-    "gas": "2745"
+    ]
   },
   {
     "type": "function",
@@ -210,8 +186,7 @@
       }
     ],
     "name": "pool",
-    "inputs": [],
-    "gas": "2730"
+    "inputs": []
   },
   {
     "type": "function",
@@ -223,8 +198,7 @@
       }
     ],
     "name": "base_pool",
-    "inputs": [],
-    "gas": "2760"
+    "inputs": []
   },
   {
     "type": "function",
@@ -236,7 +210,6 @@
       }
     ],
     "name": "token",
-    "inputs": [],
-    "gas": "2790"
+    "inputs": []
   }
 ]

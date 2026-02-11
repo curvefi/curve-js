@@ -2,22 +2,6 @@
   {
     "inputs": [
       {
-        "name": "pool",
-        "type": "address"
-      },
-      {
-        "name": "base_pool",
-        "type": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor",
-    "name": "constructor"
-  },
-  {
-    "inputs": [
-      {
         "name": "i",
         "type": "uint256"
       }

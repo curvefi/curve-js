@@ -1,80 +1,5 @@
 [
   {
-    "inputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "Approval",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "Transfer",
-    "type": "event"
-  },
-  {
     "payable": true,
     "stateMutability": "payable",
     "type": "fallback"
@@ -85,7 +10,6 @@
     "name": "aave",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -100,7 +24,6 @@
     "name": "aaveToken",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -113,12 +36,10 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "owner",
         "type": "address"
       },
       {
-        "internalType": "address",
         "name": "spender",
         "type": "address"
       }
@@ -126,7 +47,6 @@
     "name": "allowance",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -139,12 +59,10 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "spender",
         "type": "address"
       },
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -152,7 +70,6 @@
     "name": "approve",
     "outputs": [
       {
-        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -176,7 +93,6 @@
     "name": "apr",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -191,7 +107,6 @@
     "name": "balance",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -206,7 +121,6 @@
     "name": "balanceAave",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -221,7 +135,6 @@
     "name": "balanceCompound",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -236,7 +149,6 @@
     "name": "balanceCompoundInToken",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -251,7 +163,6 @@
     "name": "balanceDydx",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -266,7 +177,6 @@
     "name": "balanceFulcrum",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -281,7 +191,6 @@
     "name": "balanceFulcrumInToken",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -294,7 +203,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -302,7 +210,6 @@
     "name": "balanceOf",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -317,7 +224,6 @@
     "name": "calcPoolValueInToken",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -332,7 +238,6 @@
     "name": "compound",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -347,7 +252,6 @@
     "name": "dToken",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -362,7 +266,6 @@
     "name": "decimals",
     "outputs": [
       {
-        "internalType": "uint8",
         "name": "",
         "type": "uint8"
       }
@@ -375,12 +278,10 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "spender",
         "type": "address"
       },
       {
-        "internalType": "uint256",
         "name": "subtractedValue",
         "type": "uint256"
       }
@@ -388,7 +289,6 @@
     "name": "decreaseAllowance",
     "outputs": [
       {
-        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -401,7 +301,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
       }
@@ -418,7 +317,6 @@
     "name": "dydx",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -433,7 +331,6 @@
     "name": "fulcrum",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -448,7 +345,6 @@
     "name": "getAave",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -463,7 +359,6 @@
     "name": "getAaveCore",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -478,7 +373,6 @@
     "name": "getPricePerFullShare",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -491,12 +385,10 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "spender",
         "type": "address"
       },
       {
-        "internalType": "uint256",
         "name": "addedValue",
         "type": "uint256"
       }
@@ -504,7 +396,6 @@
     "name": "increaseAllowance",
     "outputs": [
       {
-        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -519,7 +410,6 @@
     "name": "isOwner",
     "outputs": [
       {
-        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -534,7 +424,6 @@
     "name": "name",
     "outputs": [
       {
-        "internalType": "string",
         "name": "",
         "type": "string"
       }
@@ -549,7 +438,6 @@
     "name": "owner",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -564,7 +452,6 @@
     "name": "pool",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -579,7 +466,6 @@
     "name": "provider",
     "outputs": [
       {
-        "internalType": "enum yUSDT.Lender",
         "name": "",
         "type": "uint8"
       }
@@ -603,7 +489,6 @@
     "name": "recommend",
     "outputs": [
       {
-        "internalType": "enum yUSDT.Lender",
         "name": "",
         "type": "uint8"
       }
@@ -625,7 +510,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_new_APR",
         "type": "address"
       }
@@ -640,7 +524,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_new_COMPOUND",
         "type": "address"
       }
@@ -655,7 +538,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "_new_DTOKEN",
         "type": "uint256"
       }
@@ -670,7 +552,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_new_FULCRUM",
         "type": "address"
       }
@@ -685,7 +566,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -700,7 +580,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -715,7 +594,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -723,7 +601,6 @@
     "name": "supplyDydx",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -736,7 +613,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -753,7 +629,6 @@
     "name": "symbol",
     "outputs": [
       {
-        "internalType": "string",
         "name": "",
         "type": "string"
       }
@@ -768,7 +643,6 @@
     "name": "token",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -783,7 +657,6 @@
     "name": "totalSupply",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -796,12 +669,10 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "recipient",
         "type": "address"
       },
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -809,7 +680,6 @@
     "name": "transfer",
     "outputs": [
       {
-        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -822,17 +692,14 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "sender",
         "type": "address"
       },
       {
-        "internalType": "address",
         "name": "recipient",
         "type": "address"
       },
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -840,7 +707,6 @@
     "name": "transferFrom",
     "outputs": [
       {
-        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -853,7 +719,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "newOwner",
         "type": "address"
       }
@@ -868,7 +733,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "_shares",
         "type": "uint256"
       }

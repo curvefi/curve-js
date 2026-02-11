@@ -1,12 +1,6 @@
 [
   {
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "inputs": [],
-    "outputs": []
-  },
-  {
-    "stateMutability": "nonpayable",
     "type": "function",
     "name": "add_contract",
     "inputs": [

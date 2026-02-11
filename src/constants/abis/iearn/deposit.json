@@ -1,29 +1,5 @@
 [
   {
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "address[4]",
-        "name": "_coins"
-      },
-      {
-        "type": "address[4]",
-        "name": "_underlying_coins"
-      },
-      {
-        "type": "address",
-        "name": "_curve"
-      },
-      {
-        "type": "address",
-        "name": "_token"
-      }
-    ],
-    "constant": false,
-    "payable": false,
-    "type": "constructor"
-  },
-  {
     "name": "add_liquidity",
     "outputs": [],
     "inputs": [
@@ -38,8 +14,7 @@
     ],
     "constant": false,
     "payable": false,
-    "type": "function",
-    "gas": "1890987"
+    "type": "function"
   },
   {
     "name": "remove_liquidity",
@@ -56,8 +31,7 @@
     ],
     "constant": false,
     "payable": false,
-    "type": "function",
-    "gas": "1040945"
+    "type": "function"
   },
   {
     "name": "remove_liquidity_imbalance",
@@ -74,8 +48,7 @@
     ],
     "constant": false,
     "payable": false,
-    "type": "function",
-    "gas": "1708651"
+    "type": "function"
   },
   {
     "name": "calc_withdraw_one_coin",
@@ -96,8 +69,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "3881601"
+    "type": "function"
   },
   {
     "name": "remove_liquidity_one_coin",
@@ -126,8 +98,7 @@
     "inputs": [],
     "constant": false,
     "payable": false,
-    "type": "function",
-    "gas": "63973"
+    "type": "function"
   },
   {
     "name": "coins",
@@ -144,8 +115,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1680"
+    "type": "function"
   },
   {
     "name": "underlying_coins",
@@ -162,8 +132,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1710"
+    "type": "function"
   },
   {
     "name": "curve",
@@ -175,8 +144,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1541"
+    "type": "function"
   },
   {
     "name": "token",
@@ -188,7 +156,6 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1571"
+    "type": "function"
   }
 ]

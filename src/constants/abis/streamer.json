@@ -1,17 +1,6 @@
 [
   {
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "stateMutability": "nonpayable",
     "type": "function",
     "name": "add_reward",
     "inputs": [
@@ -28,8 +17,7 @@
         "type": "uint256"
       }
     ],
-    "outputs": [],
-    "gas": "147850"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -41,8 +29,7 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "898282"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -54,16 +41,14 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "37605"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "get_reward",
     "inputs": [],
-    "outputs": [],
-    "gas": "496490"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -75,8 +60,7 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "1502780"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -92,8 +76,7 @@
         "type": "uint256"
       }
     ],
-    "outputs": [],
-    "gas": "40303"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -109,8 +92,7 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "38012"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
@@ -122,16 +104,14 @@
         "type": "address"
       }
     ],
-    "outputs": [],
-    "gas": "37755"
+    "outputs": []
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "accept_transfer_ownership",
     "inputs": [],
-    "outputs": [],
-    "gas": "37700"
+    "outputs": []
   },
   {
     "stateMutability": "view",
@@ -143,8 +123,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2658"
+    ]
   },
   {
     "stateMutability": "view",
@@ -156,8 +135,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2688"
+    ]
   },
   {
     "stateMutability": "view",
@@ -169,8 +147,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2718"
+    ]
   },
   {
     "stateMutability": "view",
@@ -187,8 +164,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2857"
+    ]
   },
   {
     "stateMutability": "view",
@@ -200,8 +176,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "2778"
+    ]
   },
   {
     "stateMutability": "view",
@@ -238,8 +213,7 @@
         "name": "paid",
         "type": "uint256"
       }
-    ],
-    "gas": "14685"
+    ]
   },
   {
     "stateMutability": "view",
@@ -251,7 +225,6 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "2838"
+    ]
   }
 ]

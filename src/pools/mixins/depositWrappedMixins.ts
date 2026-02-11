@@ -1,6 +1,7 @@
 import {PoolTemplate} from "../PoolTemplate.js";
 import {IMethodInfo} from "../../interfaces.js";
 import {
+    abiInfoBuild,
     _ensureAllowance,
     DIGas,
     fromBN,
@@ -48,11 +49,7 @@ export const depositWrapped2argsMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'add_liquidity',
-                abi: contract.add_liquidity.fragment,
-            };
+            return abiInfoBuild(this.address, 'add_liquidity', contract.add_liquidity.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);
@@ -88,11 +85,7 @@ export const depositWrapped3argsMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'add_liquidity',
-                abi: contract.add_liquidity.fragment,
-            };
+            return abiInfoBuild(this.address, 'add_liquidity', contract.add_liquidity.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);

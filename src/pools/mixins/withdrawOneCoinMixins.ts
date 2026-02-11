@@ -1,6 +1,6 @@
 import {PoolTemplate} from "../PoolTemplate.js";
 import {IMethodInfo} from "../../interfaces.js";
-import {_ensureAllowance, DIGas, fromBN, hasAllowance, mulBy1_3, parseUnits, smartNumber, toBN} from '../../utils.js';
+import {abiInfoBuild, _ensureAllowance, DIGas, fromBN, hasAllowance, mulBy1_3, parseUnits, smartNumber, toBN} from '../../utils.js';
 
 async function _withdrawOneCoinCheck(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, estimateGas = false):
     Promise<[bigint, number]>
@@ -33,11 +33,7 @@ export const withdrawOneCoinMetaFactoryMixin = {
         const contract = this.curve.contracts[this.zap as string].contract;
 
         if (getInfo) {
-            return {
-                address: this.zap as string,
-                method: 'remove_liquidity_one_coin',
-                abi: contract.remove_liquidity_one_coin.fragment,
-            };
+            return abiInfoBuild(this.zap as string, 'remove_liquidity_one_coin', contract.remove_liquidity_one_coin.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.bind(this.curve, [this.lpToken], [_lpTokenAmount], this.zap as string);
@@ -71,11 +67,7 @@ export const withdrawOneCoinCryptoMetaFactoryMixin = {
         const contract = this.curve.contracts[this.zap as string].contract;
 
         if (getInfo) {
-            return {
-                address: this.zap as string,
-                method: 'remove_liquidity_one_coin',
-                abi: contract.remove_liquidity_one_coin.fragment,
-            };
+            return abiInfoBuild(this.zap as string, 'remove_liquidity_one_coin', contract.remove_liquidity_one_coin.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.bind(this.curve, [this.lpToken], [_lpTokenAmount], this.zap as string);
@@ -109,11 +101,7 @@ export const withdrawOneCoinZapMixin = {
         const contract = this.curve.contracts[this.zap as string].contract;
 
         if (getInfo) {
-            return {
-                address: this.zap as string,
-                method: 'remove_liquidity_one_coin',
-                abi: contract.remove_liquidity_one_coin.fragment,
-            };
+            return abiInfoBuild(this.zap as string, 'remove_liquidity_one_coin', contract.remove_liquidity_one_coin.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.bind(this.curve, [this.lpToken], [_lpTokenAmount], this.zap as string);
@@ -149,11 +137,7 @@ export const withdrawOneCoinLendingOrCryptoMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'remove_liquidity_one_coin',
-                abi: contract.remove_liquidity_one_coin.fragment,
-            };
+            return abiInfoBuild(this.address, 'remove_liquidity_one_coin', contract.remove_liquidity_one_coin.fragment);
         }
 
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);
@@ -185,11 +169,7 @@ export const withdrawOneCoinPlainMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'remove_liquidity_one_coin',
-                abi: contract.remove_liquidity_one_coin.fragment,
-            };
+            return abiInfoBuild(this.address, 'remove_liquidity_one_coin', contract.remove_liquidity_one_coin.fragment);
         }
 
         const _minAmount = await _withdrawOneCoinMinAmount.call(this, _lpTokenAmount, i, slippage);

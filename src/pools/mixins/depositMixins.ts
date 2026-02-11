@@ -1,6 +1,7 @@
 import {PoolTemplate} from "../PoolTemplate.js";
 import {IMethodInfo} from "../../interfaces.js";
 import {
+    abiInfoBuild,
     _ensureAllowance,
     DIGas,
     fromBN,
@@ -43,11 +44,7 @@ export const depositMetaFactoryMixin = {
         const contract = this.curve.contracts[this.zap as string].contract;
 
         if (getInfo) {
-            return {
-                address: this.zap as string,
-                method: 'add_liquidity',
-                abi: contract.add_liquidity.fragment,
-            };
+            return abiInfoBuild(this.zap as string, 'add_liquidity', contract.add_liquidity.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.zap as string);
@@ -83,11 +80,7 @@ export const depositCryptoMetaFactoryMixin = {
         const contract = this.curve.contracts[this.zap as string].contract;
 
         if (getInfo) {
-            return {
-                address: this.zap as string,
-                method: 'add_liquidity',
-                abi: contract.add_liquidity.fragment,
-            };
+            return abiInfoBuild(this.zap as string, 'add_liquidity', contract.add_liquidity.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.zap as string);
@@ -123,11 +116,7 @@ export const depositZapMixin = {
         const contract = this.curve.contracts[this.zap as string].contract;
 
         if (getInfo) {
-            return {
-                address: this.zap as string,
-                method: 'add_liquidity',
-                abi: contract.add_liquidity.fragment,
-            };
+            return abiInfoBuild(this.zap as string, 'add_liquidity', contract.add_liquidity.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.zap as string);
@@ -165,11 +154,7 @@ export const depositLendingOrCryptoMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'add_liquidity',
-                abi: contract.add_liquidity.fragment,
-            };
+            return abiInfoBuild(this.address, 'add_liquidity', contract.add_liquidity.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.underlyingCoinAddresses, _amounts, this.address);
@@ -205,11 +190,7 @@ export const depositPlainMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'add_liquidity',
-                abi: contract.add_liquidity.fragment,
-            };
+            return abiInfoBuild(this.address, 'add_liquidity', contract.add_liquidity.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, this.wrappedCoinAddresses, _amounts, this.address);

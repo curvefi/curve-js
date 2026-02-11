@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import {PoolTemplate} from "../PoolTemplate.js";
 import {IMethodInfo} from "../../interfaces.js";
 import {
+    abiInfoBuild,
     _ensureAllowance,
     _getCoinDecimals,
     DIGas,
@@ -54,11 +55,7 @@ export const swapWrappedTricrypto2Mixin= {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'exchange',
-                abi: contract.exchange.fragment,
-            };
+            return abiInfoBuild(this.address, 'exchange', contract.exchange.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.wrappedCoinAddresses[i]], [_amount], this.address);
@@ -93,11 +90,7 @@ export const swapWrappedMixin= {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'exchange',
-                abi: contract.exchange.fragment,
-            };
+            return abiInfoBuild(this.address, 'exchange', contract.exchange.fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.wrappedCoinAddresses[i]], [_amount], this.address);

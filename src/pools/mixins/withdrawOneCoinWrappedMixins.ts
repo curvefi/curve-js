@@ -1,6 +1,6 @@
 import {PoolTemplate} from "../PoolTemplate.js";
 import {IMethodInfo} from "../../interfaces.js";
-import {DIGas, fromBN, mulBy1_3, parseUnits, smartNumber, toBN} from '../../utils.js';
+import {abiInfoBuild, DIGas, fromBN, mulBy1_3, parseUnits, smartNumber, toBN} from '../../utils.js';
 
 async function _withdrawOneCoinWrappedCheck(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number):
     Promise<[bigint, number]>
@@ -30,11 +30,7 @@ export const withdrawOneCoinWrappedLendingOrCryptoMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'remove_liquidity_one_coin',
-                abi: contract.remove_liquidity_one_coin.fragment,
-            };
+            return abiInfoBuild(this.address, 'remove_liquidity_one_coin', contract.remove_liquidity_one_coin.fragment);
         }
 
         const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, slippage);
@@ -66,11 +62,7 @@ export const withdrawOneCoinWrappedMixin = {
         const contract = this.curve.contracts[this.address].contract;
 
         if (getInfo) {
-            return {
-                address: this.address,
-                method: 'remove_liquidity_one_coin',
-                abi: contract.remove_liquidity_one_coin.fragment,
-            };
+            return abiInfoBuild(this.address, 'remove_liquidity_one_coin', contract.remove_liquidity_one_coin.fragment);
         }
 
         const _minAmount = await _withdrawOneCoinWrappedMinAmount.call(this, _lpTokenAmount, i, slippage);

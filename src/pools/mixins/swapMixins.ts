@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import {PoolTemplate} from "../PoolTemplate.js";
 import {IMethodInfo} from "../../interfaces.js";
 import {
+    abiInfoBuild,
     _ensureAllowance,
     _getCoinDecimals,
     DIGas,
@@ -55,11 +56,7 @@ export const swapTricrypto2Mixin = {
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
 
         if (getInfo) {
-            return {
-                address: contractAddress,
-                method: exchangeMethod,
-                abi: contract[exchangeMethod].fragment,
-            };
+            return abiInfoBuild(contractAddress, exchangeMethod, contract[exchangeMethod].fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);
@@ -96,11 +93,7 @@ export const swapMetaFactoryMixin = {
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
 
         if (getInfo) {
-            return {
-                address: contractAddress,
-                method: exchangeMethod,
-                abi: contract[exchangeMethod].fragment,
-            };
+            return abiInfoBuild(contractAddress, exchangeMethod, contract[exchangeMethod].fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);
@@ -137,11 +130,7 @@ export const swapCryptoMetaFactoryMixin = {
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
 
         if (getInfo) {
-            return {
-                address: contractAddress,
-                method: exchangeMethod,
-                abi: contract[exchangeMethod].fragment,
-            };
+            return abiInfoBuild(contractAddress, exchangeMethod, contract[exchangeMethod].fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);
@@ -178,11 +167,7 @@ export const swapMixin = {
         const exchangeMethod = 'exchange_underlying' in contract ? 'exchange_underlying' : 'exchange';
 
         if (getInfo) {
-            return {
-                address: contractAddress,
-                method: exchangeMethod,
-                abi: contract[exchangeMethod].fragment,
-            };
+            return abiInfoBuild(contractAddress, exchangeMethod, contract[exchangeMethod].fragment);
         }
 
         if (!estimateGas) await _ensureAllowance.call(this.curve, [this.underlyingCoinAddresses[i]], [_amount], contractAddress);

@@ -1,6 +1,21 @@
 [
   {
     "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_base_pool",
+        "type": "address"
+      },
+      {
+        "name": "_base_token",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
     "type": "function",
     "name": "add_liquidity",
     "inputs": [

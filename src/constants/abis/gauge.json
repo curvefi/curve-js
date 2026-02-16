@@ -1,5 +1,86 @@
 [
   {
+    "name": "Deposit",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "provider",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "value",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "Withdraw",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "provider",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "value",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "UpdateLiquidityLimit",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "original_balance",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "original_supply",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "working_balance",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "working_supply",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "lp_addr"
+      },
+      {
+        "type": "address",
+        "name": "_minter"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "name": "user_checkpoint",
     "outputs": [
       {
@@ -14,7 +95,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "2079152"
   },
   {
     "name": "claimable_tokens",
@@ -31,7 +113,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1998318"
   },
   {
     "name": "kick",
@@ -43,7 +126,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "2084532"
   },
   {
     "name": "set_approve_deposit",
@@ -59,7 +143,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "35766"
   },
   {
     "name": "deposit",
@@ -83,7 +168,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "2208318"
   },
   {
     "name": "integrate_checkpoint",
@@ -95,7 +181,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2297"
   },
   {
     "name": "minter",
@@ -107,7 +194,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1421"
   },
   {
     "name": "crv_token",
@@ -119,7 +207,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1451"
   },
   {
     "name": "lp_token",
@@ -131,7 +220,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1481"
   },
   {
     "name": "controller",
@@ -143,7 +233,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1511"
   },
   {
     "name": "voting_escrow",
@@ -155,7 +246,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1541"
   },
   {
     "name": "balanceOf",
@@ -172,7 +264,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1725"
   },
   {
     "name": "totalSupply",
@@ -184,7 +277,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1601"
   },
   {
     "name": "future_epoch_time",
@@ -196,7 +290,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1631"
   },
   {
     "name": "approved_to_deposit",
@@ -217,7 +312,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1969"
   },
   {
     "name": "working_balances",
@@ -234,7 +330,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1845"
   },
   {
     "name": "working_supply",
@@ -246,7 +343,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1721"
   },
   {
     "name": "period",
@@ -258,7 +356,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1751"
   },
   {
     "name": "period_timestamp",
@@ -275,7 +374,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1890"
   },
   {
     "name": "integrate_inv_supply",
@@ -292,7 +392,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1920"
   },
   {
     "name": "integrate_inv_supply_of",
@@ -309,7 +410,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1995"
   },
   {
     "name": "integrate_checkpoint_of",
@@ -326,7 +428,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2025"
   },
   {
     "name": "integrate_fraction",
@@ -343,7 +446,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2055"
   },
   {
     "name": "inflation_rate",
@@ -355,6 +459,7 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1931"
   }
 ]

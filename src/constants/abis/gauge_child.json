@@ -1,5 +1,130 @@
 [
   {
+    "name": "Approval",
+    "inputs": [
+      {
+        "name": "_owner",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_spender",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "Transfer",
+    "inputs": [
+      {
+        "name": "_from",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_to",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "Deposit",
+    "inputs": [
+      {
+        "name": "_user",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "Withdraw",
+    "inputs": [
+      {
+        "name": "_user",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "UpdateLiquidityLimit",
+    "inputs": [
+      {
+        "name": "_user",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_original_balance",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "_original_supply",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "_working_balance",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "_working_supply",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_crv_token",
+        "type": "address"
+      },
+      {
+        "name": "_factory",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "deposit",

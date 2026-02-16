@@ -1,6 +1,12 @@
 [
   {
     "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
     "type": "function",
     "name": "add_liquidity",
     "inputs": [
@@ -126,7 +132,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "5753"
   },
   {
     "stateMutability": "view",
@@ -151,6 +158,7 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "6289"
   }
 ]

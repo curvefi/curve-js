@@ -1,5 +1,20 @@
 [
   {
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "_pool"
+      },
+      {
+        "type": "address",
+        "name": "_token"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "name": "add_liquidity",
     "outputs": [
       {
@@ -18,7 +33,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "33623"
   },
   {
     "name": "remove_liquidity",
@@ -39,7 +55,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "32551"
   },
   {
     "name": "remove_liquidity_one_coin",
@@ -64,7 +81,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "14313"
   },
   {
     "name": "remove_liquidity_imbalance",
@@ -85,7 +103,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "37758"
   },
   {
     "name": "calc_withdraw_one_coin",
@@ -106,7 +125,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "3002"
   },
   {
     "name": "calc_token_amount",
@@ -127,7 +147,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "4325"
   },
   {
     "name": "pool",
@@ -139,7 +160,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1241"
   },
   {
     "name": "token",
@@ -151,7 +173,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1271"
   },
   {
     "name": "base_pool",
@@ -163,7 +186,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1301"
   },
   {
     "name": "coins",
@@ -180,7 +204,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1440"
   },
   {
     "name": "base_coins",
@@ -197,6 +222,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1470"
   }
 ]

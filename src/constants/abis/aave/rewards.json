@@ -1,10 +1,22 @@
 [
   {
     "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "stateMutability": "nonpayable",
     "type": "function",
     "name": "claim_rewards",
     "inputs": [],
-    "outputs": []
+    "outputs": [],
+    "gas": "45372"
   },
   {
     "stateMutability": "view",
@@ -16,7 +28,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "2424"
   },
   {
     "stateMutability": "view",
@@ -28,7 +41,8 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "2658"
   },
   {
     "stateMutability": "nonpayable",
@@ -40,7 +54,8 @@
         "type": "address"
       }
     ],
-    "outputs": []
+    "outputs": [],
+    "gas": "37635"
   },
   {
     "stateMutability": "nonpayable",
@@ -52,14 +67,16 @@
         "type": "address"
       }
     ],
-    "outputs": []
+    "outputs": [],
+    "gas": "37665"
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "accept_transfer_ownership",
     "inputs": [],
-    "outputs": []
+    "outputs": [],
+    "gas": "37610"
   },
   {
     "stateMutability": "view",
@@ -71,7 +88,8 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "2568"
   },
   {
     "stateMutability": "view",
@@ -83,6 +101,7 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "2598"
   }
 ]

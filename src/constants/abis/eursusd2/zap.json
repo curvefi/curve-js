@@ -1,5 +1,22 @@
 [
   {
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      },
+      {
+        "name": "_base_pool",
+        "type": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "name": "constructor"
+  },
+  {
+    "gas": "4244",
     "inputs": [],
     "name": "price_oracle",
     "outputs": [
@@ -12,6 +29,7 @@
     "type": "function"
   },
   {
+    "gas": "4274",
     "inputs": [],
     "name": "price_scale",
     "outputs": [
@@ -24,6 +42,7 @@
     "type": "function"
   },
   {
+    "gas": "21320",
     "inputs": [
       {
         "name": "_amounts",
@@ -40,6 +59,7 @@
     "type": "function"
   },
   {
+    "gas": "23822",
     "inputs": [
       {
         "name": "i",
@@ -69,6 +89,7 @@
     "type": "function"
   },
   {
+    "gas": "31724",
     "inputs": [
       {
         "name": "_amount",
@@ -85,6 +106,7 @@
     "type": "function"
   },
   {
+    "gas": "14811",
     "inputs": [
       {
         "name": "_token_amount",
@@ -105,6 +127,7 @@
     "type": "function"
   },
   {
+    "gas": "9456",
     "inputs": [
       {
         "name": "i",
@@ -130,6 +153,7 @@
     "type": "function"
   },
   {
+    "gas": "4764",
     "inputs": [
       {
         "name": "_amounts",
@@ -147,6 +171,7 @@
     "type": "function"
   },
   {
+    "gas": "6585",
     "inputs": [
       {
         "name": "token_amount",
@@ -168,6 +193,7 @@
     "type": "function"
   },
   {
+    "gas": "1535",
     "inputs": [
       {
         "name": "arg0",
@@ -185,6 +211,7 @@
     "type": "function"
   },
   {
+    "gas": "1571",
     "inputs": [
       {
         "name": "arg0",
@@ -202,6 +229,7 @@
     "type": "function"
   },
   {
+    "gas": "1556",
     "inputs": [],
     "name": "pool",
     "outputs": [
@@ -214,6 +242,7 @@
     "type": "function"
   },
   {
+    "gas": "1586",
     "inputs": [],
     "name": "base_pool",
     "outputs": [
@@ -226,6 +255,7 @@
     "type": "function"
   },
   {
+    "gas": "1616",
     "inputs": [],
     "name": "token",
     "outputs": [

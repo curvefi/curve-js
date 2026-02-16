@@ -1,5 +1,28 @@
 [
   {
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_base_pool",
+        "type": "address"
+      },
+      {
+        "name": "_base_lp_token",
+        "type": "address"
+      },
+      {
+        "name": "_weth",
+        "type": "address"
+      },
+      {
+        "name": "_base_coins",
+        "type": "address[5]"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "stateMutability": "payable",
     "type": "fallback"
   },

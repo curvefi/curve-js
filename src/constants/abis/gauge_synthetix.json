@@ -1,5 +1,94 @@
 [
   {
+    "name": "Deposit",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "provider",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "value",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "Withdraw",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "provider",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "value",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "UpdateLiquidityLimit",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "user",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "original_balance",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "original_supply",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "working_balance",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "working_supply",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "outputs": [],
+    "inputs": [
+      {
+        "type": "address",
+        "name": "lp_addr"
+      },
+      {
+        "type": "address",
+        "name": "_minter"
+      },
+      {
+        "type": "address",
+        "name": "_reward_contract"
+      },
+      {
+        "type": "address",
+        "name": "_rewarded_token"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "name": "user_checkpoint",
     "outputs": [
       {
@@ -14,7 +103,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "2311984"
   },
   {
     "name": "claimable_tokens",
@@ -31,7 +121,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2231138"
   },
   {
     "name": "claimable_reward",
@@ -48,7 +139,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "7300"
   },
   {
     "name": "kick",
@@ -60,7 +152,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "2317383"
   },
   {
     "name": "set_approve_deposit",
@@ -76,7 +169,8 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "gas": "35826"
   },
   {
     "name": "deposit",
@@ -119,7 +213,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2387"
   },
   {
     "name": "minter",
@@ -131,7 +226,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1511"
   },
   {
     "name": "crv_token",
@@ -143,7 +239,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1541"
   },
   {
     "name": "lp_token",
@@ -155,7 +252,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1571"
   },
   {
     "name": "controller",
@@ -167,7 +265,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1601"
   },
   {
     "name": "voting_escrow",
@@ -179,7 +278,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1631"
   },
   {
     "name": "balanceOf",
@@ -196,7 +296,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1815"
   },
   {
     "name": "totalSupply",
@@ -208,7 +309,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1691"
   },
   {
     "name": "future_epoch_time",
@@ -220,7 +322,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1721"
   },
   {
     "name": "approved_to_deposit",
@@ -241,7 +344,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2059"
   },
   {
     "name": "working_balances",
@@ -258,7 +362,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1935"
   },
   {
     "name": "working_supply",
@@ -270,7 +375,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1811"
   },
   {
     "name": "period",
@@ -282,7 +388,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1841"
   },
   {
     "name": "period_timestamp",
@@ -299,7 +406,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "1980"
   },
   {
     "name": "integrate_inv_supply",
@@ -316,7 +424,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2010"
   },
   {
     "name": "integrate_inv_supply_of",
@@ -333,7 +442,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2085"
   },
   {
     "name": "integrate_checkpoint_of",
@@ -350,7 +460,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2115"
   },
   {
     "name": "integrate_fraction",
@@ -367,7 +478,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2145"
   },
   {
     "name": "inflation_rate",
@@ -379,7 +491,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2021"
   },
   {
     "name": "reward_contract",
@@ -391,7 +504,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2051"
   },
   {
     "name": "rewarded_token",
@@ -403,7 +517,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2081"
   },
   {
     "name": "reward_integral",
@@ -415,7 +530,8 @@
     ],
     "inputs": [],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2111"
   },
   {
     "name": "reward_integral_for",
@@ -432,7 +548,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2295"
   },
   {
     "name": "rewards_for",
@@ -449,7 +566,8 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2325"
   },
   {
     "name": "claimed_rewards_for",
@@ -466,6 +584,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "gas": "2355"
   }
 ]

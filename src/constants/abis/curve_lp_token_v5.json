@@ -1,5 +1,55 @@
 [
   {
+    "name": "Approval",
+    "inputs": [
+      {
+        "name": "_owner",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_spender",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "Transfer",
+    "inputs": [
+      {
+        "name": "_from",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_to",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "_value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [],
+    "outputs": []
+  },
+  {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "transfer",
@@ -18,7 +68,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "78632"
   },
   {
     "stateMutability": "nonpayable",
@@ -43,7 +94,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "116616"
   },
   {
     "stateMutability": "nonpayable",
@@ -64,7 +116,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "39151"
   },
   {
     "stateMutability": "nonpayable",
@@ -105,7 +158,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "102221"
   },
   {
     "stateMutability": "nonpayable",
@@ -126,7 +180,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "41711"
   },
   {
     "stateMutability": "nonpayable",
@@ -147,7 +202,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "41737"
   },
   {
     "stateMutability": "nonpayable",
@@ -168,7 +224,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "80902"
   },
   {
     "stateMutability": "nonpayable",
@@ -189,7 +246,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "81224"
   },
   {
     "stateMutability": "nonpayable",
@@ -210,7 +268,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "80954"
   },
   {
     "stateMutability": "view",
@@ -222,7 +281,8 @@
         "name": "",
         "type": "uint8"
       }
-    ]
+    ],
+    "gas": "630"
   },
   {
     "stateMutability": "view",
@@ -234,7 +294,8 @@
         "name": "",
         "type": "string"
       }
-    ]
+    ],
+    "gas": "6287"
   },
   {
     "stateMutability": "nonpayable",
@@ -254,7 +315,8 @@
         "type": "address"
       }
     ],
-    "outputs": []
+    "outputs": [],
+    "gas": "259459"
   },
   {
     "stateMutability": "view",
@@ -266,7 +328,8 @@
         "name": "",
         "type": "string"
       }
-    ]
+    ],
+    "gas": "13109"
   },
   {
     "stateMutability": "view",
@@ -278,7 +341,8 @@
         "name": "",
         "type": "string"
       }
-    ]
+    ],
+    "gas": "10868"
   },
   {
     "stateMutability": "view",
@@ -290,7 +354,8 @@
         "name": "",
         "type": "bytes32"
       }
-    ]
+    ],
+    "gas": "2880"
   },
   {
     "stateMutability": "view",
@@ -307,7 +372,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3176"
   },
   {
     "stateMutability": "view",
@@ -328,7 +394,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3472"
   },
   {
     "stateMutability": "view",
@@ -340,7 +407,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "2970"
   },
   {
     "stateMutability": "view",
@@ -352,7 +420,8 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "3000"
   },
   {
     "stateMutability": "view",
@@ -369,6 +438,7 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3296"
   }
 ]

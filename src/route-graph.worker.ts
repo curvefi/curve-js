@@ -18,18 +18,7 @@ export function routeGraphWorker() {
     const EXCLUDED_POOLS_FROM_ROUTER: Record<number, string[]> = {
         1: ['usdt'],  // Ethereum mainnet
     };
-    
-    const SNX = {
-        10: {
-            swap: "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4".toLowerCase(),
-            coins: [  // Optimism
-                "0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9", // sUSD
-                "0xFBc4198702E81aE77c06D58f81b629BDf36f0a71", // sEUR
-                "0xe405de8f52ba7559f9df3c368500b6e6ae6cee49", // sETH
-                "0x298b9b95708152ff6968aafd889c6586e9169f1d", // sBTC
-            ].map((a) => a.toLowerCase()),
-        },
-    }
+
     const createRouteGraph = ({constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict}: IRouteGraphInput): IDict<IDict<IRouteStep[]>> => {
         const routerGraph: IDict<IDict<IRouteStep[]>> = {}
         // ETH <-> WETH (exclude Celo)
@@ -267,31 +256,6 @@ export function routeGraphWorker() {
                 secondBaseToken: constants.ZERO_ADDRESS,
                 tvl: Infinity,
             }];
-        }
-
-        // SNX swaps
-        if (chainId in SNX) {
-            const chain = chainId as keyof typeof SNX;
-            for (const inCoin of SNX[chain].coins) {
-                for (const outCoin of SNX[chain].coins) {
-                    if (inCoin === outCoin) continue;
-
-                    if (!routerGraph[inCoin]) routerGraph[inCoin] = {};
-                    routerGraph[inCoin][outCoin] = [{
-                        poolId: "SNX exchanger",
-                        swapAddress: SNX[chain].swap,
-                        inputCoinAddress: inCoin,
-                        outputCoinAddress: outCoin,
-                        swapParams: [0, 0, 9, 0, 0],
-                        poolAddress: constants.ZERO_ADDRESS,
-                        basePool: constants.ZERO_ADDRESS,
-                        baseToken: constants.ZERO_ADDRESS,
-                        secondBasePool: constants.ZERO_ADDRESS,
-                        secondBaseToken: constants.ZERO_ADDRESS,
-                        tvl: Infinity,
-                    }];
-                }
-            }
         }
 
         const start = Date.now();

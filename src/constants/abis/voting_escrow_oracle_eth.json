@@ -13,7 +13,8 @@
         "type": "uint256"
       }
     ],
-    "outputs": []
+    "outputs": [],
+    "gas": "54147"
   },
   {
     "stateMutability": "view",
@@ -25,7 +26,8 @@
         "name": "",
         "type": "uint256[2]"
       }
-    ]
+    ],
+    "gas": "740"
   },
   {
     "stateMutability": "view",
@@ -50,7 +52,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "21089"
   },
   {
     "stateMutability": "view",
@@ -67,6 +70,7 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "2747"
   }
 ]

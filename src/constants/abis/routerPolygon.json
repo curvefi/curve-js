@@ -1,7 +1,73 @@
 [
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "route",
+        "type": "address[11]"
+      },
+      {
+        "indexed": false,
+        "name": "swap_params",
+        "type": "uint256[5][5]"
+      },
+      {
+        "indexed": false,
+        "name": "pools",
+        "type": "address[5]"
+      },
+      {
+        "indexed": false,
+        "name": "in_amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "out_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Exchange",
+    "type": "event"
+  },
+  {
     "stateMutability": "payable",
     "type": "fallback"
+  },
+  {
+    "inputs": [
+      {
+        "name": "_weth",
+        "type": "address"
+      },
+      {
+        "name": "_stable_calc",
+        "type": "address"
+      },
+      {
+        "name": "_crypto_calc",
+        "type": "address"
+      },
+      {
+        "name": "_snx_coins",
+        "type": "address[4]"
+      }
+    ],
+    "name": "constructor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
     "inputs": [

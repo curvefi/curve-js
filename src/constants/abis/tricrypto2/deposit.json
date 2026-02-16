@@ -4,6 +4,17 @@
     "type": "fallback"
   },
   {
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_pool",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "stateMutability": "payable",
     "type": "function",
     "name": "add_liquidity",
@@ -80,7 +91,8 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "2568"
   },
   {
     "stateMutability": "view",
@@ -92,7 +104,8 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "2598"
   },
   {
     "stateMutability": "view",
@@ -109,6 +122,7 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "2737"
   }
 ]

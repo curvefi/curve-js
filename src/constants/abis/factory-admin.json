@@ -1,5 +1,76 @@
 [
   {
+    "name": "CommitAdmins",
+    "inputs": [
+      {
+        "name": "ownership_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "parameter_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "emergency_admin",
+        "type": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "ApplyAdmins",
+    "inputs": [
+      {
+        "name": "ownership_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "parameter_admin",
+        "type": "address",
+        "indexed": false
+      },
+      {
+        "name": "emergency_admin",
+        "type": "address",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_ownership_admin",
+        "type": "address"
+      },
+      {
+        "name": "_parameter_admin",
+        "type": "address"
+      },
+      {
+        "name": "_emergency_admin",
+        "type": "address"
+      },
+      {
+        "name": "_factory",
+        "type": "address"
+      },
+      {
+        "name": "_old_manager_proxy",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "deploy_plain_pool",
@@ -44,6 +115,7 @@
       }
     ]
   },
+
   {
     "stateMutability": "nonpayable",
     "type": "function",

@@ -1,5 +1,249 @@
 [
   {
+    "name": "Transfer",
+    "inputs": [
+      {
+        "name": "sender",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "receiver",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "Approval",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "spender",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "value",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "TokenExchange",
+    "inputs": [
+      {
+        "name": "buyer",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "sold_id",
+        "type": "int128",
+        "indexed": false
+      },
+      {
+        "name": "tokens_sold",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "bought_id",
+        "type": "int128",
+        "indexed": false
+      },
+      {
+        "name": "tokens_bought",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "AddLiquidity",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "token_amounts",
+        "type": "uint256[6]",
+        "indexed": false
+      },
+      {
+        "name": "fees",
+        "type": "uint256[6]",
+        "indexed": false
+      },
+      {
+        "name": "invariant",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "token_supply",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "RemoveLiquidity",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "token_amounts",
+        "type": "uint256[6]",
+        "indexed": false
+      },
+      {
+        "name": "fees",
+        "type": "uint256[6]",
+        "indexed": false
+      },
+      {
+        "name": "token_supply",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "RemoveLiquidityOne",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "token_amount",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "coin_amount",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "token_supply",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "RemoveLiquidityImbalance",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true
+      },
+      {
+        "name": "token_amounts",
+        "type": "uint256[6]",
+        "indexed": false
+      },
+      {
+        "name": "fees",
+        "type": "uint256[6]",
+        "indexed": false
+      },
+      {
+        "name": "invariant",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "token_supply",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "RampA",
+    "inputs": [
+      {
+        "name": "old_A",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "new_A",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "initial_time",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "future_time",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "name": "StopRampA",
+    "inputs": [
+      {
+        "name": "A",
+        "type": "uint256",
+        "indexed": false
+      },
+      {
+        "name": "t",
+        "type": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false,
+    "type": "event"
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "inputs": [],
+    "outputs": []
+  },
+  {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "initialize",
@@ -29,7 +273,8 @@
         "type": "uint256"
       }
     ],
-    "outputs": []
+    "outputs": [],
+    "gas": "798491"
   },
   {
     "stateMutability": "view",
@@ -41,7 +286,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "390"
   },
   {
     "stateMutability": "nonpayable",
@@ -62,7 +308,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "79005"
   },
   {
     "stateMutability": "nonpayable",
@@ -87,7 +334,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "116985"
   },
   {
     "stateMutability": "nonpayable",
@@ -108,7 +356,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "39211"
   },
   {
     "stateMutability": "nonpayable",
@@ -149,7 +398,8 @@
         "name": "",
         "type": "bool"
       }
-    ]
+    ],
+    "gas": "102281"
   },
   {
     "stateMutability": "view",
@@ -161,7 +411,8 @@
         "name": "",
         "type": "uint256[6]"
       }
-    ]
+    ],
+    "gas": "13230"
   },
   {
     "stateMutability": "view",
@@ -173,7 +424,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "570"
   },
   {
     "stateMutability": "view",
@@ -185,7 +437,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "10508"
   },
   {
     "stateMutability": "view",
@@ -197,7 +450,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "10508"
   },
   {
     "stateMutability": "view",
@@ -209,7 +463,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "1393062"
   },
   {
     "stateMutability": "view",
@@ -230,7 +485,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "2766317"
   },
   {
     "stateMutability": "nonpayable",
@@ -251,7 +507,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "4532131"
   },
   {
     "stateMutability": "view",
@@ -276,7 +533,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "1743321"
   },
   {
     "stateMutability": "nonpayable",
@@ -305,7 +563,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "1897737"
   },
   {
     "stateMutability": "nonpayable",
@@ -326,7 +585,8 @@
         "name": "",
         "type": "uint256[6]"
       }
-    ]
+    ],
+    "gas": "445558"
   },
   {
     "stateMutability": "nonpayable",
@@ -347,7 +607,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "4531972"
   },
   {
     "stateMutability": "view",
@@ -368,7 +629,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "1286"
   },
   {
     "stateMutability": "nonpayable",
@@ -393,7 +655,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "2290249"
   },
   {
     "stateMutability": "nonpayable",
@@ -409,14 +672,16 @@
         "type": "uint256"
       }
     ],
-    "outputs": []
+    "outputs": [],
+    "gas": "161164"
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "stop_ramp_A",
     "inputs": [],
-    "outputs": []
+    "outputs": [],
+    "gas": "157387"
   },
   {
     "stateMutability": "view",
@@ -433,14 +698,16 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "7829"
   },
   {
     "stateMutability": "nonpayable",
     "type": "function",
     "name": "withdraw_admin_fees",
     "inputs": [],
-    "outputs": []
+    "outputs": [],
+    "gas": "75523"
   },
   {
     "stateMutability": "view",
@@ -452,7 +719,8 @@
         "name": "",
         "type": "string"
       }
-    ]
+    ],
+    "gas": "6677"
   },
   {
     "stateMutability": "view",
@@ -469,7 +737,8 @@
         "name": "",
         "type": "address"
       }
-    ]
+    ],
+    "gas": "3225"
   },
   {
     "stateMutability": "view",
@@ -486,7 +755,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3255"
   },
   {
     "stateMutability": "view",
@@ -498,7 +768,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3240"
   },
   {
     "stateMutability": "view",
@@ -510,7 +781,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3270"
   },
   {
     "stateMutability": "view",
@@ -522,7 +794,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3300"
   },
   {
     "stateMutability": "view",
@@ -534,7 +807,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3330"
   },
   {
     "stateMutability": "view",
@@ -546,7 +820,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3360"
   },
   {
     "stateMutability": "view",
@@ -558,7 +833,8 @@
         "name": "",
         "type": "string"
       }
-    ]
+    ],
+    "gas": "13679"
   },
   {
     "stateMutability": "view",
@@ -570,7 +846,8 @@
         "name": "",
         "type": "string"
       }
-    ]
+    ],
+    "gas": "11438"
   },
   {
     "stateMutability": "view",
@@ -587,7 +864,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": "3716"
   },
   {
     "stateMutability": "view",
@@ -608,7 +886,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": 4012
   },
   {
     "stateMutability": "view",
@@ -620,7 +899,8 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": 3510
   },
   {
     "stateMutability": "view",
@@ -632,7 +912,8 @@
         "name": "",
         "type": "bytes32"
       }
-    ]
+    ],
+    "gas": 3540
   },
   {
     "stateMutability": "view",
@@ -649,6 +930,7 @@
         "name": "",
         "type": "uint256"
       }
-    ]
+    ],
+    "gas": 3836
   }
 ]

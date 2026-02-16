@@ -1,362 +1,5 @@
 [
   {
-    "type": "event",
-    "name": "TokenExchange",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "buyer",
-        "indexed": true
-      },
-      {
-        "type": "uint256",
-        "name": "sold_id",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "tokens_sold",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "bought_id",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "tokens_bought",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AddLiquidity",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "provider",
-        "indexed": true
-      },
-      {
-        "type": "uint256[3]",
-        "name": "token_amounts",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "fee",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "token_supply",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "RemoveLiquidity",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "provider",
-        "indexed": true
-      },
-      {
-        "type": "uint256[3]",
-        "name": "token_amounts",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "token_supply",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "RemoveLiquidityOne",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "provider",
-        "indexed": true
-      },
-      {
-        "type": "uint256",
-        "name": "token_amount",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "coin_index",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "coin_amount",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "CommitNewAdmin",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "deadline",
-        "indexed": true
-      },
-      {
-        "type": "address",
-        "name": "admin",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "NewAdmin",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "admin",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "CommitNewParameters",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "deadline",
-        "indexed": true
-      },
-      {
-        "type": "uint256",
-        "name": "admin_fee",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "mid_fee",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "out_fee",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "fee_gamma",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "allowed_extra_profit",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "adjustment_step",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "ma_half_time",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "NewParameters",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "admin_fee",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "mid_fee",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "out_fee",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "fee_gamma",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "allowed_extra_profit",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "adjustment_step",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "ma_half_time",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "RampAgamma",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "initial_A",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "future_A",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "initial_gamma",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "future_gamma",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "initial_time",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "future_time",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "StopRampA",
-    "inputs": [
-      {
-        "type": "uint256",
-        "name": "current_A",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "current_gamma",
-        "indexed": false
-      },
-      {
-        "type": "uint256",
-        "name": "time",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ClaimAdminFee",
-    "inputs": [
-      {
-        "type": "address",
-        "name": "admin",
-        "indexed": true
-      },
-      {
-        "type": "uint256",
-        "name": "tokens",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "constructor",
-    "stateMutability": "nonpayable",
-    "outputs": [],
-    "inputs": [
-      {
-        "type": "address",
-        "name": "owner"
-      },
-      {
-        "type": "address",
-        "name": "admin_fee_receiver"
-      },
-      {
-        "type": "uint256",
-        "name": "A"
-      },
-      {
-        "type": "uint256",
-        "name": "gamma"
-      },
-      {
-        "type": "uint256",
-        "name": "mid_fee"
-      },
-      {
-        "type": "uint256",
-        "name": "out_fee"
-      },
-      {
-        "type": "uint256",
-        "name": "allowed_extra_profit"
-      },
-      {
-        "type": "uint256",
-        "name": "fee_gamma"
-      },
-      {
-        "type": "uint256",
-        "name": "adjustment_step"
-      },
-      {
-        "type": "uint256",
-        "name": "admin_fee"
-      },
-      {
-        "type": "uint256",
-        "name": "ma_half_time"
-      },
-      {
-        "type": "uint256[2]",
-        "name": "initial_prices"
-      }
-    ]
-  },
-  {
     "type": "fallback",
     "stateMutability": "payable"
   },
@@ -375,8 +18,7 @@
         "type": "uint256",
         "name": "k"
       }
-    ],
-    "gas": "3189"
+    ]
   },
   {
     "type": "function",
@@ -393,8 +35,7 @@
         "type": "uint256",
         "name": "k"
       }
-    ],
-    "gas": "3219"
+    ]
   },
   {
     "type": "function",
@@ -411,8 +52,7 @@
         "type": "uint256",
         "name": "k"
       }
-    ],
-    "gas": "3249"
+    ]
   },
   {
     "type": "function",
@@ -424,8 +64,7 @@
       }
     ],
     "name": "token",
-    "inputs": [],
-    "gas": "540"
+    "inputs": []
   },
   {
     "type": "function",
@@ -442,8 +81,7 @@
         "type": "uint256",
         "name": "i"
       }
-    ],
-    "gas": "684"
+    ]
   },
   {
     "type": "function",
@@ -455,8 +93,7 @@
       }
     ],
     "name": "A",
-    "inputs": [],
-    "gas": "703"
+    "inputs": []
   },
   {
     "type": "function",
@@ -468,8 +105,7 @@
       }
     ],
     "name": "gamma",
-    "inputs": [],
-    "gas": "11360"
+    "inputs": []
   },
   {
     "type": "function",
@@ -481,8 +117,7 @@
       }
     ],
     "name": "fee",
-    "inputs": [],
-    "gas": "21008"
+    "inputs": []
   },
   {
     "type": "function",
@@ -499,8 +134,7 @@
         "type": "uint256[3]",
         "name": "xp"
       }
-    ],
-    "gas": "10799"
+    ]
   },
   {
     "type": "function",
@@ -512,8 +146,7 @@
       }
     ],
     "name": "get_virtual_price",
-    "inputs": [],
-    "gas": "11241"
+    "inputs": []
   },
   {
     "type": "function",
@@ -546,8 +179,7 @@
         "type": "bool",
         "name": "use_eth"
       }
-    ],
-    "gas": "775369"
+    ]
   },
   {
     "type": "function",
@@ -572,8 +204,7 @@
         "type": "uint256",
         "name": "dx"
       }
-    ],
-    "gas": "3208"
+    ]
   },
   {
     "type": "function",
@@ -594,8 +225,7 @@
         "type": "uint256[3]",
         "name": "xp"
       }
-    ],
-    "gas": "15069"
+    ]
   },
   {
     "type": "function",
@@ -611,8 +241,7 @@
         "type": "uint256",
         "name": "min_mint_amount"
       }
-    ],
-    "gas": "726697"
+    ]
   },
   {
     "type": "function",
@@ -628,8 +257,7 @@
         "type": "uint256[3]",
         "name": "min_amounts"
       }
-    ],
-    "gas": "233147"
+    ]
   },
   {
     "type": "function",
@@ -650,8 +278,7 @@
         "type": "bool",
         "name": "deposit"
       }
-    ],
-    "gas": "3524"
+    ]
   },
   {
     "type": "function",
@@ -672,8 +299,7 @@
         "type": "uint256",
         "name": "i"
       }
-    ],
-    "gas": "12128"
+    ]
   },
   {
     "type": "function",
@@ -693,16 +319,14 @@
         "type": "uint256",
         "name": "min_amount"
       }
-    ],
-    "gas": "637383"
+    ]
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "claim_admin_fees",
-    "inputs": [],
-    "gas": "360524"
+    "inputs": []
   },
   {
     "type": "function",
@@ -722,16 +346,14 @@
         "type": "uint256",
         "name": "future_time"
       }
-    ],
-    "gas": "161064"
+    ]
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "stop_ramp_A_gamma",
-    "inputs": [],
-    "gas": "156373"
+    "inputs": []
   },
   {
     "type": "function",
@@ -767,24 +389,21 @@
         "type": "uint256",
         "name": "_new_ma_half_time"
       }
-    ],
-    "gas": "305138"
+    ]
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "apply_new_parameters",
-    "inputs": [],
-    "gas": "652722"
+    "inputs": []
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "revert_new_parameters",
-    "inputs": [],
-    "gas": "23231"
+    "inputs": []
   },
   {
     "type": "function",
@@ -796,40 +415,35 @@
         "type": "address",
         "name": "_owner"
       }
-    ],
-    "gas": "78866"
+    ]
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "apply_transfer_ownership",
-    "inputs": [],
-    "gas": "67134"
+    "inputs": []
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "revert_transfer_ownership",
-    "inputs": [],
-    "gas": "23321"
+    "inputs": []
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "kill_me",
-    "inputs": [],
-    "gas": "40544"
+    "inputs": []
   },
   {
     "type": "function",
     "stateMutability": "nonpayable",
     "outputs": [],
     "name": "unkill_me",
-    "inputs": [],
-    "gas": "23381"
+    "inputs": []
   },
   {
     "type": "function",
@@ -841,8 +455,7 @@
         "type": "address",
         "name": "_admin_fee_receiver"
       }
-    ],
-    "gas": "38565"
+    ]
   },
   {
     "type": "function",
@@ -854,8 +467,7 @@
       }
     ],
     "name": "last_prices_timestamp",
-    "inputs": [],
-    "gas": "3450"
+    "inputs": []
   },
   {
     "type": "function",
@@ -867,8 +479,7 @@
       }
     ],
     "name": "initial_A_gamma",
-    "inputs": [],
-    "gas": "3480"
+    "inputs": []
   },
   {
     "type": "function",
@@ -880,8 +491,7 @@
       }
     ],
     "name": "future_A_gamma",
-    "inputs": [],
-    "gas": "3510"
+    "inputs": []
   },
   {
     "type": "function",
@@ -893,8 +503,7 @@
       }
     ],
     "name": "initial_A_gamma_time",
-    "inputs": [],
-    "gas": "3540"
+    "inputs": []
   },
   {
     "type": "function",
@@ -906,8 +515,7 @@
       }
     ],
     "name": "future_A_gamma_time",
-    "inputs": [],
-    "gas": "3570"
+    "inputs": []
   },
   {
     "type": "function",
@@ -919,8 +527,7 @@
       }
     ],
     "name": "allowed_extra_profit",
-    "inputs": [],
-    "gas": "3600"
+    "inputs": []
   },
   {
     "type": "function",
@@ -932,8 +539,7 @@
       }
     ],
     "name": "future_allowed_extra_profit",
-    "inputs": [],
-    "gas": "3630"
+    "inputs": []
   },
   {
     "type": "function",
@@ -945,8 +551,7 @@
       }
     ],
     "name": "fee_gamma",
-    "inputs": [],
-    "gas": "3660"
+    "inputs": []
   },
   {
     "type": "function",
@@ -958,8 +563,7 @@
       }
     ],
     "name": "future_fee_gamma",
-    "inputs": [],
-    "gas": "3690"
+    "inputs": []
   },
   {
     "type": "function",
@@ -971,8 +575,7 @@
       }
     ],
     "name": "adjustment_step",
-    "inputs": [],
-    "gas": "3720"
+    "inputs": []
   },
   {
     "type": "function",
@@ -984,8 +587,7 @@
       }
     ],
     "name": "future_adjustment_step",
-    "inputs": [],
-    "gas": "3750"
+    "inputs": []
   },
   {
     "type": "function",
@@ -997,8 +599,7 @@
       }
     ],
     "name": "ma_half_time",
-    "inputs": [],
-    "gas": "3780"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1010,8 +611,7 @@
       }
     ],
     "name": "future_ma_half_time",
-    "inputs": [],
-    "gas": "3810"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1023,8 +623,7 @@
       }
     ],
     "name": "mid_fee",
-    "inputs": [],
-    "gas": "3840"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1036,8 +635,7 @@
       }
     ],
     "name": "out_fee",
-    "inputs": [],
-    "gas": "3870"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1049,8 +647,7 @@
       }
     ],
     "name": "admin_fee",
-    "inputs": [],
-    "gas": "3900"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1062,8 +659,7 @@
       }
     ],
     "name": "future_mid_fee",
-    "inputs": [],
-    "gas": "3930"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1075,8 +671,7 @@
       }
     ],
     "name": "future_out_fee",
-    "inputs": [],
-    "gas": "3960"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1088,8 +683,7 @@
       }
     ],
     "name": "future_admin_fee",
-    "inputs": [],
-    "gas": "3990"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1106,8 +700,7 @@
         "type": "uint256",
         "name": "arg0"
       }
-    ],
-    "gas": "4065"
+    ]
   },
   {
     "type": "function",
@@ -1119,8 +712,7 @@
       }
     ],
     "name": "D",
-    "inputs": [],
-    "gas": "4050"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1132,8 +724,7 @@
       }
     ],
     "name": "owner",
-    "inputs": [],
-    "gas": "4080"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1145,8 +736,7 @@
       }
     ],
     "name": "future_owner",
-    "inputs": [],
-    "gas": "4110"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1158,8 +748,7 @@
       }
     ],
     "name": "xcp_profit",
-    "inputs": [],
-    "gas": "4140"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1171,8 +760,7 @@
       }
     ],
     "name": "xcp_profit_a",
-    "inputs": [],
-    "gas": "4170"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1184,8 +772,7 @@
       }
     ],
     "name": "virtual_price",
-    "inputs": [],
-    "gas": "4200"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1197,8 +784,7 @@
       }
     ],
     "name": "is_killed",
-    "inputs": [],
-    "gas": "4230"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1210,8 +796,7 @@
       }
     ],
     "name": "kill_deadline",
-    "inputs": [],
-    "gas": "4260"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1223,8 +808,7 @@
       }
     ],
     "name": "transfer_ownership_deadline",
-    "inputs": [],
-    "gas": "4290"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1236,8 +820,7 @@
       }
     ],
     "name": "admin_actions_deadline",
-    "inputs": [],
-    "gas": "4320"
+    "inputs": []
   },
   {
     "type": "function",
@@ -1249,7 +832,6 @@
       }
     ],
     "name": "admin_fee_receiver",
-    "inputs": [],
-    "gas": "4350"
+    "inputs": []
   }
 ]

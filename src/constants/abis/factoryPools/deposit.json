@@ -1,11 +1,5 @@
 [
   {
-    "outputs": [],
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "name": "add_liquidity",
     "outputs": [
       {
@@ -132,8 +126,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "1650"
+    "type": "function"
   },
   {
     "name": "calc_token_amount",
@@ -158,7 +151,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "gas": "2717"
+    "type": "function"
   }
 ]

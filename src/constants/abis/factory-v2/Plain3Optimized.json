@@ -1,250 +1,5 @@
 [
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "Transfer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "Approval",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "buyer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "sold_id",
-        "type": "int128"
-      },
-      {
-        "indexed": false,
-        "name": "tokens_sold",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "bought_id",
-        "type": "int128"
-      },
-      {
-        "indexed": false,
-        "name": "tokens_bought",
-        "type": "uint256"
-      }
-    ],
-    "name": "TokenExchange",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "token_amounts",
-        "type": "uint256[3]"
-      },
-      {
-        "indexed": false,
-        "name": "fees",
-        "type": "uint256[3]"
-      },
-      {
-        "indexed": false,
-        "name": "invariant",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "token_supply",
-        "type": "uint256"
-      }
-    ],
-    "name": "AddLiquidity",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "token_amounts",
-        "type": "uint256[3]"
-      },
-      {
-        "indexed": false,
-        "name": "fees",
-        "type": "uint256[3]"
-      },
-      {
-        "indexed": false,
-        "name": "token_supply",
-        "type": "uint256"
-      }
-    ],
-    "name": "RemoveLiquidity",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "token_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "coin_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "token_supply",
-        "type": "uint256"
-      }
-    ],
-    "name": "RemoveLiquidityOne",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "token_amounts",
-        "type": "uint256[3]"
-      },
-      {
-        "indexed": false,
-        "name": "fees",
-        "type": "uint256[3]"
-      },
-      {
-        "indexed": false,
-        "name": "invariant",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "token_supply",
-        "type": "uint256"
-      }
-    ],
-    "name": "RemoveLiquidityImbalance",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "old_A",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "new_A",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "initial_time",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "future_time",
-        "type": "uint256"
-      }
-    ],
-    "name": "RampA",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "A",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "t",
-        "type": "uint256"
-      }
-    ],
-    "name": "StopRampA",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "gas": "430099",
     "inputs": [
       {
         "name": "_name",
@@ -277,7 +32,6 @@
     "type": "function"
   },
   {
-    "gas": "318",
     "inputs": [],
     "name": "decimals",
     "outputs": [
@@ -290,7 +44,6 @@
     "type": "function"
   },
   {
-    "gas": "75377",
     "inputs": [
       {
         "name": "_to",
@@ -312,7 +65,6 @@
     "type": "function"
   },
   {
-    "gas": "112012",
     "inputs": [
       {
         "name": "_from",
@@ -338,7 +90,6 @@
     "type": "function"
   },
   {
-    "gas": "37851",
     "inputs": [
       {
         "name": "_spender",
@@ -360,7 +111,6 @@
     "type": "function"
   },
   {
-    "gas": "2925",
     "inputs": [],
     "name": "get_balances",
     "outputs": [
@@ -373,7 +123,6 @@
     "type": "function"
   },
   {
-    "gas": "468",
     "inputs": [],
     "name": "admin_fee",
     "outputs": [
@@ -386,7 +135,6 @@
     "type": "function"
   },
   {
-    "gas": "5564",
     "inputs": [],
     "name": "A",
     "outputs": [
@@ -399,7 +147,6 @@
     "type": "function"
   },
   {
-    "gas": "5526",
     "inputs": [],
     "name": "A_precise",
     "outputs": [
@@ -412,7 +159,6 @@
     "type": "function"
   },
   {
-    "gas": "1185279",
     "inputs": [],
     "name": "get_virtual_price",
     "outputs": [
@@ -425,7 +171,6 @@
     "type": "function"
   },
   {
-    "gas": "2363201",
     "inputs": [
       {
         "name": "_amounts",
@@ -468,7 +213,6 @@
     "type": "function"
   },
   {
-    "gas": "2800682",
     "inputs": [
       {
         "name": "i",
@@ -565,7 +309,6 @@
     "type": "function"
   },
   {
-    "gas": "1100",
     "inputs": [
       {
         "name": "_burn_amount",
@@ -612,7 +355,6 @@
     "type": "function"
   },
   {
-    "gas": "152901",
     "inputs": [
       {
         "name": "_future_A",
@@ -629,7 +371,6 @@
     "type": "function"
   },
   {
-    "gas": "149665",
     "inputs": [],
     "name": "stop_ramp_A",
     "outputs": [],
@@ -637,7 +378,6 @@
     "type": "function"
   },
   {
-    "gas": "3740",
     "inputs": [
       {
         "name": "i",
@@ -655,7 +395,6 @@
     "type": "function"
   },
   {
-    "gas": "14458",
     "inputs": [],
     "name": "withdraw_admin_fees",
     "outputs": [],
@@ -663,7 +402,6 @@
     "type": "function"
   },
   {
-    "gas": "1793",
     "inputs": [
       {
         "name": "arg0",
@@ -681,7 +419,6 @@
     "type": "function"
   },
   {
-    "gas": "1823",
     "inputs": [
       {
         "name": "arg0",
@@ -699,7 +436,6 @@
     "type": "function"
   },
   {
-    "gas": "1808",
     "inputs": [],
     "name": "fee",
     "outputs": [
@@ -712,7 +448,6 @@
     "type": "function"
   },
   {
-    "gas": "1838",
     "inputs": [],
     "name": "initial_A",
     "outputs": [
@@ -725,7 +460,6 @@
     "type": "function"
   },
   {
-    "gas": "1868",
     "inputs": [],
     "name": "future_A",
     "outputs": [
@@ -738,7 +472,6 @@
     "type": "function"
   },
   {
-    "gas": "1898",
     "inputs": [],
     "name": "initial_A_time",
     "outputs": [
@@ -751,7 +484,6 @@
     "type": "function"
   },
   {
-    "gas": "1928",
     "inputs": [],
     "name": "future_A_time",
     "outputs": [
@@ -764,7 +496,6 @@
     "type": "function"
   },
   {
-    "gas": "8288",
     "inputs": [],
     "name": "name",
     "outputs": [
@@ -777,7 +508,6 @@
     "type": "function"
   },
   {
-    "gas": "7341",
     "inputs": [],
     "name": "symbol",
     "outputs": [
@@ -790,7 +520,6 @@
     "type": "function"
   },
   {
-    "gas": "2233",
     "inputs": [
       {
         "name": "arg0",
@@ -808,7 +537,6 @@
     "type": "function"
   },
   {
-    "gas": "2478",
     "inputs": [
       {
         "name": "arg0",
@@ -830,7 +558,6 @@
     "type": "function"
   },
   {
-    "gas": "2078",
     "inputs": [],
     "name": "totalSupply",
     "outputs": [

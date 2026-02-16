@@ -1,20 +1,5 @@
 [
   {
-    "stateMutability": "nonpayable",
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      },
-      {
-        "name": "_base_pool",
-        "type": "address"
-      }
-    ],
-    "outputs": []
-  },
-  {
     "stateMutability": "payable",
     "type": "fallback"
   },

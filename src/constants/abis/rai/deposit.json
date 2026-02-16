@@ -1,21 +1,6 @@
 [
   {
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "_pool",
-        "type": "address"
-      },
-      {
-        "name": "_token",
-        "type": "address"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "stateMutability": "nonpayable",
     "type": "function",
     "name": "add_liquidity",
     "inputs": [
@@ -33,8 +18,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "86660"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -55,8 +39,7 @@
         "name": "",
         "type": "uint256[4]"
       }
-    ],
-    "gas": "82960"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -81,8 +64,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "38114"
+    ]
   },
   {
     "stateMutability": "nonpayable",
@@ -103,8 +85,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "88693"
+    ]
   },
   {
     "stateMutability": "view",
@@ -125,8 +106,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "9894"
+    ]
   },
   {
     "stateMutability": "view",
@@ -147,8 +127,7 @@
         "name": "",
         "type": "uint256"
       }
-    ],
-    "gas": "10963"
+    ]
   },
   {
     "stateMutability": "view",
@@ -160,8 +139,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2568"
+    ]
   },
   {
     "stateMutability": "view",
@@ -173,8 +151,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2598"
+    ]
   },
   {
     "stateMutability": "view",
@@ -186,8 +163,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2628"
+    ]
   },
   {
     "stateMutability": "view",
@@ -204,8 +180,7 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2767"
+    ]
   },
   {
     "stateMutability": "view",
@@ -222,7 +197,6 @@
         "name": "",
         "type": "address"
       }
-    ],
-    "gas": "2797"
+    ]
   }
 ]

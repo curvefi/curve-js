@@ -1,100 +1,10 @@
 [
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "reward",
-        "type": "uint256"
-      }
-    ],
-    "name": "RewardAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "reward",
-        "type": "uint256"
-      }
-    ],
-    "name": "RewardPaid",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "Staked",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "Withdrawn",
-    "type": "event"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "DURATION",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -107,7 +17,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -115,7 +24,6 @@
     "name": "balanceOf",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -128,7 +36,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -136,7 +43,6 @@
     "name": "earned",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -169,7 +75,6 @@
     "name": "isOwner",
     "outputs": [
       {
-        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -184,7 +89,6 @@
     "name": "lastTimeRewardApplicable",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -199,7 +103,6 @@
     "name": "lastUpdateTime",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -212,7 +115,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "reward",
         "type": "uint256"
       }
@@ -229,7 +131,6 @@
     "name": "owner",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -244,7 +145,6 @@
     "name": "periodFinish",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -268,7 +168,6 @@
     "name": "rewardDistribution",
     "outputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -283,7 +182,6 @@
     "name": "rewardPerToken",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -298,7 +196,6 @@
     "name": "rewardPerTokenStored",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -313,7 +210,6 @@
     "name": "rewardRate",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -326,7 +222,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -334,7 +229,6 @@
     "name": "rewards",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -347,7 +241,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "_rewardDistribution",
         "type": "address"
       }
@@ -364,7 +257,6 @@
     "name": "snx",
     "outputs": [
       {
-        "internalType": "contract IERC20",
         "name": "",
         "type": "address"
       }
@@ -377,7 +269,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -394,7 +285,6 @@
     "name": "totalSupply",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -407,7 +297,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
         "name": "newOwner",
         "type": "address"
       }
@@ -424,7 +313,6 @@
     "name": "uni",
     "outputs": [
       {
-        "internalType": "contract IERC20",
         "name": "",
         "type": "address"
       }
@@ -437,7 +325,6 @@
     "constant": true,
     "inputs": [
       {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -445,7 +332,6 @@
     "name": "userRewardPerTokenPaid",
     "outputs": [
       {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -458,7 +344,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }

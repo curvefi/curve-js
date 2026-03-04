@@ -203,11 +203,9 @@ export class StatsPool implements IStatsPool {
             }
             const poolsData = (await _getPoolsFromApi.call(curve, network, poolType as IPoolType, curve.isLiteChain)).poolData;
 
-            try {
-                const totalLiquidity = poolsData.filter((data) => data.address.toLowerCase() === this.pool.address.toLowerCase())[0].usdTotal;
-                return String(totalLiquidity);
-            } catch (err) {
-                console.log(this.pool.id, (err as Error).message);
+            const poolEntry = poolsData.find((data) => data.address.toLowerCase() === this.pool.address.toLowerCase());
+            if (poolEntry) {
+                return String(poolEntry.usdTotal);
             }
         }
 

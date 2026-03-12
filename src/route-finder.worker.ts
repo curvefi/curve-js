@@ -77,7 +77,7 @@ export function routeFinderWorker() {
         while (routes.length) {
             const route = routes.pop() as IRouteTvl;
             const inCoin = route.route.length > 0 ? route.route[route.route.length - 1].outputCoinAddress : inputCoinAddress;
-            Object.entries(routerGraph[inCoin]).forEach((leaf) => {
+            Object.entries(routerGraph[inCoin] ?? {}).forEach((leaf) => {
                 const outCoin = leaf[0], steps = leaf[1];
                 if (_isVisitedCoin(outCoin, route)) return;
 

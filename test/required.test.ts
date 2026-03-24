@@ -49,7 +49,6 @@ describe('Test swapRequired and swapWrappedRequired methods in PoolTemplate', as
         await curve.init('JsonRpc', { url: ETH_RPC }, { gasPrice: 0 });
         await curve.factory.fetchPools();
         await curve.crvUSDFactory.fetchPools();
-        await curve.EYWAFactory.fetchPools();
         await curve.cryptoFactory.fetchPools();
         await curve.tricryptoFactory.fetchPools();
 

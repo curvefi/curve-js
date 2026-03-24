@@ -48,7 +48,6 @@ import routerPolygonABI from './constants/abis/routerPolygon.json' with {type: '
 import routerNgPoolsOnlyABI from './constants/abis/router-ng-pools-only.json' with {type: 'json'};
 import streamerABI from './constants/abis/streamer.json' with {type: 'json'};
 import factoryABI from './constants/abis/factory.json' with {type: 'json'};
-import factoryEywaABI from './constants/abis/factory-eywa.json' with {type: 'json'};
 import factoryAdminABI from './constants/abis/factory-admin.json' with {type: 'json'};
 import cryptoFactoryABI from './constants/abis/factory-crypto.json' with {type: 'json'};
 import twocryptoFactoryABI from './constants/abis/factory-twocrypto-ng.json' with {type: 'json'};
@@ -146,7 +145,6 @@ export class Curve implements ICurve {
             CRYPTO_FACTORY_CONSTANTS: {},
             FACTORY_POOLS_DATA: {},
             CRVUSD_FACTORY_POOLS_DATA: {},
-            EYWA_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
             TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
@@ -186,7 +184,6 @@ export class Curve implements ICurve {
             CRYPTO_FACTORY_CONSTANTS: {},
             FACTORY_POOLS_DATA: {},
             CRVUSD_FACTORY_POOLS_DATA: {},
-            EYWA_FACTORY_POOLS_DATA: {},
             CRYPTO_FACTORY_POOLS_DATA: {},
             TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
@@ -433,8 +430,6 @@ export class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.crvusd_factory, factoryABI);
 
-        this.setContract(this.constants.ALIASES.eywa_factory, factoryEywaABI);
-
         this.setContract(this.constants.ALIASES.crypto_factory, cryptoFactoryABI);
 
         this.setContract(this.constants.ALIASES.stable_ng_factory, stableNgFactoryABI);
@@ -557,23 +552,6 @@ export class Curve implements ICurve {
         }
         this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
-    }
-
-    fetchEywaFactoryPools = async (useApi = true): Promise<void> => {
-        if (!("eywa_factory" in this.constants.ALIASES)) return;
-
-        if (useApi) {
-            this.constants.EYWA_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolsDataFromApi.call(this, "factory-eywa"));
-        } else {
-            if (this.isNoRPC) {
-                throw new Error('RPC connection is required');
-            }
-            this.constants.EYWA_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(
-                await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.eywa_factory)
-            );
-        }
-        this.constants.EYWA_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.EYWA_FACTORY_POOLS_DATA);
-        this._updateDecimalsAndGauges(this.constants.EYWA_FACTORY_POOLS_DATA);
     }
 
     fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
@@ -771,8 +749,6 @@ export class Curve implements ICurve {
 
     getCrvusdFactoryPoolList = (): string[] => Object.keys(this.constants.CRVUSD_FACTORY_POOLS_DATA);
 
-    getEywaFactoryPoolList = (): string[] => Object.keys(this.constants.EYWA_FACTORY_POOLS_DATA);
-
     getCryptoFactoryPoolList = (): string[] => Object.keys(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
     getStableNgFactoryPoolList = (): string[] => Object.keys(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
@@ -786,7 +762,6 @@ export class Curve implements ICurve {
             ...this.getMainPoolList(),
             ...this.getFactoryPoolList(),
             ...this.getCrvusdFactoryPoolList(),
-            ...this.getEywaFactoryPoolList(),
             ...this.getCryptoFactoryPoolList(),
             ...this.getStableNgFactoryPoolList(),
             ...this.getTworyptoFactoryPoolList(),
@@ -798,7 +773,6 @@ export class Curve implements ICurve {
         ...this.constants.POOLS_DATA,
         ...this.constants.FACTORY_POOLS_DATA,
         ...this.constants.CRVUSD_FACTORY_POOLS_DATA,
-        ...this.constants.EYWA_FACTORY_POOLS_DATA,
         ...this.constants.CRYPTO_FACTORY_POOLS_DATA,
         ...this.constants.STABLE_NG_FACTORY_POOLS_DATA,
         ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA,

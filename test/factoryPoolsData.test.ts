@@ -101,15 +101,6 @@ describe('Factory pools data', async function () {
         factoryPoolsDataTest(factoryPoolsDataFromApi, factoryPoolsData, false);
     });
 
-    it('EYWA factory', async function () {
-        await curve.fetchEywaFactoryPools();
-        const factoryPoolsDataFromApi = { ...curve.constants.EYWA_FACTORY_POOLS_DATA };
-        await curve.fetchEywaFactoryPools(false);
-        const factoryPoolsData = { ...curve.constants.EYWA_FACTORY_POOLS_DATA };
-
-        factoryPoolsDataTest(factoryPoolsDataFromApi, factoryPoolsData, false);
-    });
-
     it('Stable NG factory', async function () {
         await curve.fetchStableNgFactoryPools();
         const factoryPoolsDataFromApi = { ...curve.constants.STABLE_NG_FACTORY_POOLS_DATA };

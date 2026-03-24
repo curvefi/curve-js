@@ -84,8 +84,7 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0, factoryA
     if (calls.length === 0) return [[], []];
 
     const prefix = factoryAddress === this.constants.ALIASES.factory ? "factory-v2-" :
-        factoryAddress === this.constants.ALIASES.crvusd_factory ? "factory-crvusd-" :
-        factoryAddress === this.constants.ALIASES.stable_ng_factory ? "factory-stable-ng-" : "factory-eywa-";
+        factoryAddress === this.constants.ALIASES.crvusd_factory ? "factory-crvusd-" : "factory-stable-ng-";
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
         (addr, i) => ({ id: prefix + (fromIdx + i), address: addr.toLowerCase()})
     );

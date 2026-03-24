@@ -233,10 +233,6 @@ export const createCurve = () => {
             fetchPools: _curve.fetchCrvusdFactoryPools.bind(_curve),
             getPoolList: _curve.getCrvusdFactoryPoolList.bind(_curve),
         },
-        EYWAFactory: {
-            fetchPools: _curve.fetchEywaFactoryPools.bind(_curve),
-            getPoolList: _curve.getEywaFactoryPoolList.bind(_curve),
-        },
         stableNgFactory: {
             fetchPools: _curve.fetchStableNgFactoryPools.bind(_curve),
             fetchNewPools: _curve.fetchNewStableNgFactoryPools.bind(_curve),

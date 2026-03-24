@@ -47,7 +47,6 @@ describe('Router swap', async function () {
         await curve.factory.fetchPools();
         await curve.stableNgFactory.fetchPools();
         await curve.crvUSDFactory.fetchPools();
-        await curve.EYWAFactory.fetchPools();
 
         await curve.cryptoFactory.fetchPools();
         await curve.twocryptoFactory.fetchPools();

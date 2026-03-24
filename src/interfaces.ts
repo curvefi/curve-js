@@ -8,7 +8,7 @@ export interface IDict<T> {
 
 export type INetworkName = string;
 export type IChainId = number;
-export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-eywa" | "factory-crypto" | "factory-twocrypto" | "factory-tricrypto" | "factory-stable-ng";
+export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-crypto" | "factory-twocrypto" | "factory-tricrypto" | "factory-stable-ng";
 export type IPoolType = "main" | "crypto" | IFactoryPoolType;
 export type ISwapType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
@@ -65,7 +65,6 @@ export interface INetworkConstants {
     CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
     TWOCRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
     TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
-    EYWA_FACTORY_POOLS_DATA: IDict<IPoolData>,
     BASE_POOLS: IDict<number>,
     LLAMMAS_DATA: IDict<IPoolData>,
     COINS: IDict<string>,

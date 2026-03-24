@@ -110,7 +110,6 @@ const ALIASES_FANTOM = lowerCaseValues({
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
 
     "factory": "0x686d67265703d1f124c45e33d47d794c566889ba",
-    "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367',
     "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
     "stable_ng_factory": '0xe61Fb97Ef6eBFBa12B36Ffd7be785c1F5A2DE66b',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
@@ -243,7 +242,6 @@ const ALIASES_AURORA = lowerCaseValues({
     "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC', // <--- NEW
     "factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- TODO CHANGE
     "crvusd_factory": '0x4F8846Ae9380B90d2E71D5e3D042dff3E7ebb40d', // <-- DUMMY
-    "eywa_factory": '0x37F22A0B028f2152e6CAcef210e0C4d3b875f367', // <--- DUMMY
     "crypto_factory": '0xF18056Bbd320E96A48e3Fbf8bC061322531aac99', // <--- TODO CHANGE
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F', // <--- NEW
     "tricrypto_factory": '0x0c0e5f2fF0ff18a3be9b835635039256dC4B4963', // <--- TODO CHANGE

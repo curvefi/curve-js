@@ -19,7 +19,7 @@ const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolTy
 }
 
 const getPoolTypes = (isLiteChain: boolean) => isLiteChain ? ["factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const :
-    ["main", "crypto", "factory", "factory-crvusd", "factory-eywa", "factory-crypto", "factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const;
+    ["main", "crypto", "factory", "factory-crvusd", "factory-crypto", "factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const;
 
 export const uncached_getAllPoolsFromApi = async (network: INetworkName, isLiteChain: boolean): Promise<Record<IPoolType, IExtendedPoolDataFromApi>> =>
     Object.fromEntries(

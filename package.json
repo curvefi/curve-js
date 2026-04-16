@@ -42,7 +42,7 @@
     "vue-eslint-parser": "^10.4.0"
   },
   "dependencies": {
-    "@curvefi/ethcall": "^6.0.16",
+    "@curvefi/ethcall": "6.0.20",
     "bignumber.js": "^10.0.2",
     "ethers": "^6.16.0",
     "memoizee": "^0.4.17"

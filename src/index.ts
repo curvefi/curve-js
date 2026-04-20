@@ -174,6 +174,7 @@ export const createCurve = () => {
         chainId: 0, // until init is called
         signerAddress: '',
         setCustomFeeData: _curve.setCustomFeeData.bind(_curve),
+        setGasStrategy: _curve.setGasStrategy.bind(_curve),
         getPoolList: _curve.getPoolList.bind(_curve),
         getMainPoolList: _curve.getMainPoolList.bind(_curve),
         getUserPoolListByLiquidity: getUserPoolListByLiquidity.bind(_curve),
@@ -453,3 +454,4 @@ export const createCurve = () => {
 }
 
 export default createCurve();
+export type { IGasStrategy } from "./interfaces.js";

@@ -23,6 +23,7 @@ import {
     IDict,
     IExtendedPoolDataFromApi,
     IFactoryPoolType,
+    IGasStrategy,
     INetworkConstants,
     IPoolData,
     IPoolType,
@@ -70,7 +71,13 @@ import {
 import {_getHiddenPools} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
-import {getNetworkConstants} from "./utils.js";
+import {
+    applyFeeDataOverride,
+    computeEip1559Fees,
+    computeLegacyOrFallback,
+    fetchFeeHistory,
+    getNetworkConstants,
+} from "./utils.js";
 import {_setPoolsFromApi} from "./cached.js";
 
 export const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
@@ -115,6 +122,7 @@ export class Curve implements ICurve {
     isLiteChain: boolean;
     contracts: { [index: string]: ContractItem };
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number };
+    gasStrategy: IGasStrategy;
     constantOptions: { gasLimit?: number };
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint };
     L1WeightedGasPrice?: number;
@@ -132,6 +140,7 @@ export class Curve implements ICurve {
         this.multicallProvider = null!;
         this.contracts = {};
         this.feeData = {}
+        this.gasStrategy = 'standard';
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
@@ -162,7 +171,7 @@ export class Curve implements ICurve {
     async init(
         providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'NoRPC',
         providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | 'NoRPC',
-        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, chainId?: number, poolsData?: Record<IPoolType, IExtendedPoolDataFromApi> } = {} // gasPrice in Gwei
+        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, gasStrategy?: IGasStrategy, chainId?: number, poolsData?: Record<IPoolType, IExtendedPoolDataFromApi> } = {} // gasPrice in Gwei
     ): Promise<void> {
         this.provider = null!;
         this.signer = null;
@@ -172,6 +181,7 @@ export class Curve implements ICurve {
         this.multicallProvider = null!;
         this.contracts = {};
         this.feeData = {}
+        this.gasStrategy = options.gasStrategy ?? 'standard';
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
@@ -786,6 +796,10 @@ export class Curve implements ICurve {
         this.feeData = { ...this.feeData, ...customFeeData };
     }
 
+    setGasStrategy(strategy: IGasStrategy): void {
+        this.gasStrategy = strategy;
+    }
+
     formatUnits(value: BigNumberish, unit?: string | Numeric): string {
         return formatUnits(value, unit);
     }
@@ -795,28 +809,15 @@ export class Curve implements ICurve {
     }
 
     async updateFeeData(): Promise<void> {
-        if(this.isNoRPC) {
-            return
-        }
+        if (this.isNoRPC) return;
 
-        const feeData = await this.provider.getFeeData();
-        if (feeData.maxFeePerGas === null || feeData.maxPriorityFeePerGas === null) {
-            delete this.options.maxFeePerGas;
-            delete this.options.maxPriorityFeePerGas;
+        const history = await fetchFeeHistory(this.provider, this.gasStrategy);
+        
+        const computed = history
+            ? computeEip1559Fees(history, this.gasStrategy, this.chainId)
+            : await computeLegacyOrFallback(this.provider, this.gasStrategy);
 
-            this.options.gasPrice = this.feeData.gasPrice !== undefined ?
-                this.parseUnits(this.feeData.gasPrice.toString(), "gwei") :
-                (feeData.gasPrice || this.parseUnits("20", "gwei"));
-        } else {
-            delete this.options.gasPrice;
-
-            this.options.maxFeePerGas = (this.feeData.maxFeePerGas !== undefined && this.feeData.maxFeePerGas !== null) ?
-                this.parseUnits(this.feeData.maxFeePerGas.toString(), "gwei") :
-                feeData.maxFeePerGas;
-            this.options.maxPriorityFeePerGas = (this.feeData.maxPriorityFeePerGas !== undefined && this.feeData.maxPriorityFeePerGas !== null) ?
-                this.parseUnits(this.feeData.maxPriorityFeePerGas.toString(), "gwei") :
-                feeData.maxPriorityFeePerGas;
-        }
+        this.options = applyFeeDataOverride(computed, this.feeData);
     }
 
     getNetworkConstants = (): INetworkConstants => {

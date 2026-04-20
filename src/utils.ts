@@ -8,6 +8,7 @@ import {
     IChainId,
     ICurveLiteNetwork,
     IDict,
+    IGasStrategy,
     IMethodInfo,
     INetworkName,
     IRewardFromApi,
@@ -29,6 +30,11 @@ import {volumeNetworks} from "./constants/volumeNetworks.js";
 import {getPool} from "./pools/index.js";
 import {NETWORK_CONSTANTS} from "./constants/network_constants.js";
 import {formatUnits} from "./constants/utils.js";
+import {
+    FEE_HISTORY_BLOCK_COUNT,
+    GAS_STRATEGIES,
+    MAINNET_CHAIN_ID,
+} from "./constants/gas.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -607,6 +613,95 @@ export async function getGasInfoForL2(this: Curve ): Promise<Record<string, numb
     } else {
         throw Error("This method exists only for L2 networks");
     }
+}
+
+// ─── Gas strategy helpers ─────────────────────────────────────────────────────
+
+export function medianBigInt(values: bigint[]): bigint {
+    if (values.length === 0) return BigInt(0);
+    const sorted = [...values].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / BigInt(2)
+        : sorted[mid];
+}
+
+export async function fetchFeeHistory(
+    provider: ethers.JsonRpcProvider | ethers.BrowserProvider,
+    strategy: IGasStrategy
+): Promise<{ baseFees: bigint[]; tips: bigint[] } | null> {
+    const { percentile } = GAS_STRATEGIES[strategy];
+    try {
+        const raw = await (provider as ethers.JsonRpcProvider).send('eth_feeHistory', [
+            `0x${FEE_HISTORY_BLOCK_COUNT.toString(16)}`,
+            'latest',
+            [percentile],
+        ]);
+        if (!raw || !Array.isArray(raw.baseFeePerGas) || !Array.isArray(raw.reward)) return null;
+
+        const baseFees = (raw.baseFeePerGas as string[]).map(BigInt);
+        if (baseFees.length === 0 || baseFees[baseFees.length - 1] <= BigInt(0)) return null;
+
+        const tips = (raw.reward as unknown[][]).map((row) => {
+            try { return BigInt((row?.[0] as string) ?? 0); } catch { return BigInt(0); }
+        });
+
+        return { baseFees, tips };
+    } catch {
+        return null;
+    }
+}
+
+export function computeEip1559Fees(
+    history: { baseFees: bigint[]; tips: bigint[] },
+    strategy: IGasStrategy,
+    chainId: number
+): { maxFeePerGas: bigint; maxPriorityFeePerGas: bigint } {
+    const strategyConfig = GAS_STRATEGIES[strategy];
+
+    const latestBase = history.baseFees[history.baseFees.length - 1];
+    const adjustedBase = (latestBase * BigInt(strategyConfig.baseFeeMulBps)) / BigInt(10000);
+
+    const nonZeroTips = history.tips.filter((tip) => tip > BigInt(0));
+    const medianTip = medianBigInt(nonZeroTips);
+    let tip = (medianTip * BigInt(strategyConfig.tipMulBps)) / BigInt(10000);
+
+    if (chainId === MAINNET_CHAIN_ID) {
+        const minTip = (latestBase * BigInt(strategyConfig.minTipBaseFractionBps)) / BigInt(10000);
+        
+        if (tip < minTip) tip = minTip;
+    }
+
+    return { maxPriorityFeePerGas: tip, maxFeePerGas: adjustedBase + tip };
+}
+
+export async function computeLegacyOrFallback(
+    provider: ethers.JsonRpcProvider | ethers.BrowserProvider,
+    strategy: IGasStrategy
+): Promise<{ maxFeePerGas?: bigint; maxPriorityFeePerGas?: bigint; gasPrice?: bigint }> {
+    const strategyConfig = GAS_STRATEGIES[strategy];
+    const networkFeeData = await provider.getFeeData();
+
+    if (networkFeeData.maxFeePerGas != null && networkFeeData.maxPriorityFeePerGas != null) {
+        const tip = (networkFeeData.maxPriorityFeePerGas * BigInt(strategyConfig.fallbackTipMulBps)) / BigInt(10000);
+        return { maxFeePerGas: networkFeeData.maxFeePerGas, maxPriorityFeePerGas: tip };
+    }
+
+    const gasPrice = networkFeeData.gasPrice ?? ethers.parseUnits('20', 'gwei');
+    return { gasPrice: (gasPrice * BigInt(strategyConfig.legacyGasPriceMulBps)) / BigInt(10000) };
+}
+
+export function applyFeeDataOverride(
+    computed: { maxFeePerGas?: bigint; maxPriorityFeePerGas?: bigint; gasPrice?: bigint },
+    feeData: { gasPrice?: number; maxFeePerGas?: number; maxPriorityFeePerGas?: number }
+): { maxFeePerGas?: bigint; maxPriorityFeePerGas?: bigint; gasPrice?: bigint } {
+    const result = { ...computed };
+
+    if ((feeData.gasPrice ?? 0) > 0) result.gasPrice = ethers.parseUnits(feeData.gasPrice!.toString(), 'gwei');
+    if ((feeData.maxFeePerGas ?? 0) > 0) result.maxFeePerGas = ethers.parseUnits(feeData.maxFeePerGas!.toString(), 'gwei');
+    if ((feeData.maxPriorityFeePerGas ?? 0) > 0) result.maxPriorityFeePerGas = ethers.parseUnits(feeData.maxPriorityFeePerGas!.toString(), 'gwei');
+
+    return result;
 }
 
 export const getTxCostsUsd = (ethUsdRate: number, gasPrice: number, gas: number | number[], gasPriceL1 = 0): number => {

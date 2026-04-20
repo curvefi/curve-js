@@ -60,9 +60,9 @@ export const depositMetaFactoryMixin = {
         return (await contract.add_liquidity(this.address, _amounts, _minMintAmount, { ...this.curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[]) {
+    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1) {
         const _amounts = await _depositCheck.call(this, amounts, true);
-        return await depositMetaFactoryMixin._deposit.call(this, _amounts, 0.1, true) as number;
+        return await depositMetaFactoryMixin._deposit.call(this, _amounts, slippage, true) as number;
     },
 
     async deposit(this: PoolTemplate, amounts: (number | string)[], slippage?: number) {
@@ -96,9 +96,9 @@ export const depositCryptoMetaFactoryMixin = {
         return (await contract.add_liquidity(this.address, _amounts, _minMintAmount, true, { ...this.curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number | number[]> {
+    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number | number[]> {
         const _amounts = await _depositCheck.call(this, amounts, true);
-        return await depositCryptoMetaFactoryMixin._deposit.call(this, _amounts, 0.1, true) as number | number[];
+        return await depositCryptoMetaFactoryMixin._deposit.call(this, _amounts, slippage, true) as number | number[];
     },
 
     async deposit(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {
@@ -134,9 +134,9 @@ export const depositZapMixin = {
         return (await contract.add_liquidity(...args, { ...this.curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number | number[]> {
+    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number | number[]> {
         const _amounts = await _depositCheck.call(this, amounts, true);
-        return await depositZapMixin._deposit.call(this, _amounts, 0.1, true) as number | number[];
+        return await depositZapMixin._deposit.call(this, _amounts, slippage, true) as number | number[];
     },
 
     async deposit(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {
@@ -170,9 +170,9 @@ export const depositLendingOrCryptoMixin = {
         return (await contract.add_liquidity(_amounts, _minMintAmount, true, { ...this.curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number | number[]> {
+    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number | number[]> {
         const _amounts = await _depositCheck.call(this, amounts, true);
-        return await depositLendingOrCryptoMixin._deposit.call(this, _amounts, 0.1, true) as number | number[];
+        return await depositLendingOrCryptoMixin._deposit.call(this, _amounts, slippage, true) as number | number[];
     },
 
     async deposit(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {
@@ -205,9 +205,9 @@ export const depositPlainMixin = {
         return (await contract.add_liquidity(_amounts, _minMintAmount, { ...this.curve.options, gasLimit, value })).hash;
     },
 
-    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number | number[]> {
+    async depositEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number | number[]> {
         const _amounts = await _depositCheck.call(this, amounts, true);
-        return await depositPlainMixin._deposit.call(this, _amounts, 0.1, true) as number | number[];
+        return await depositPlainMixin._deposit.call(this, _amounts, slippage, true) as number | number[];
     },
 
     async deposit(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {

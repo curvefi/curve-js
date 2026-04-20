@@ -458,7 +458,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async depositEstimateGas(amounts: (number | string)[]): Promise<number | number[]> {
+    private async depositEstimateGas(amounts: (number | string)[], slippage = 0.1): Promise<number | number[]> {
         throw Error(`depositEstimateGas method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -530,7 +530,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async depositWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
+    private async depositWrappedEstimateGas(amounts: (number | string)[], slippage = 0.1): Promise<number> {
         throw Error(`depositWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1149,12 +1149,12 @@ export class PoolTemplate extends CorePool {
         return approveCoinsTx;
     }
 
-    private async depositAndStakeEstimateGas(amounts: (number | string)[]): Promise<number> {
+    private async depositAndStakeEstimateGas(amounts: (number | string)[], slippage = 1): Promise<number> {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStake method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
 
-        return await this._depositAndStake(amounts, 1, true, true) as number
+        return await this._depositAndStake(amounts, slippage, true, true) as number
     }
 
     public async depositAndStake(amounts: (number | string)[], slippage = 0.1): Promise<string> {
@@ -1248,13 +1248,13 @@ export class PoolTemplate extends CorePool {
         return approveCoinsTx;
     }
 
-    private async depositAndStakeWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
+    private async depositAndStakeWrappedEstimateGas(amounts: (number | string)[], slippage = 1): Promise<number> {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) {
             throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name}). There is no gauge`);
         }
         if (this.isPlain || this.isFake) throw Error(`depositAndStakeWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
 
-        return await this._depositAndStake(amounts, 1, false, true) as number
+        return await this._depositAndStake(amounts, slippage, false, true) as number
     }
 
     public async depositAndStakeWrapped(amounts: (number | string)[], slippage = 0.1): Promise<string> {
@@ -1396,7 +1396,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async withdrawEstimateGas(lpTokenAmount: number | string): Promise<number | number[]> {
+    private async withdrawEstimateGas(lpTokenAmount: number | string, slippage = 0.1): Promise<number | number[]> {
         throw Error(`withdraw method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1418,7 +1418,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async withdrawWrappedEstimateGas(lpTokenAmount: number | string): Promise<number> {
+    private async withdrawWrappedEstimateGas(lpTokenAmount: number | string, slippage = 0.1): Promise<number> {
         throw Error(`withdrawWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1506,7 +1506,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async withdrawImbalanceEstimateGas(amounts: (number | string)[]): Promise<number> {
+    private async withdrawImbalanceEstimateGas(amounts: (number | string)[], slippage = 0.1): Promise<number> {
         throw Error(`withdrawImbalance method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1536,7 +1536,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async withdrawImbalanceWrappedEstimateGas(amounts: (number | string)[]): Promise<number> {
+    private async withdrawImbalanceWrappedEstimateGas(amounts: (number | string)[], slippage = 0.1): Promise<number> {
         throw Error(`withdrawImbalanceWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1618,7 +1618,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {
+    private async withdrawOneCoinEstimateGas(lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number | number[]> {
         throw Error(`withdrawOneCoin method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 
@@ -1666,7 +1666,7 @@ export class PoolTemplate extends CorePool {
     }
 
     // OVERRIDE
-    private async withdrawOneCoinWrappedEstimateGas(lpTokenAmount: number | string, coin: string | number): Promise<number> {
+    private async withdrawOneCoinWrappedEstimateGas(lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number> {
         throw Error(`withdrawOneCoinWrapped method doesn't exist for pool ${this.name} (id: ${this.name})`);
     }
 

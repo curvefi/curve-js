@@ -38,9 +38,9 @@ export const withdrawMetaFactoryMixin = {
         return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, slippage = 0.1): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-        return await withdrawMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
+        return await withdrawMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, slippage, true) as number | number[];
     },
 
     async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
@@ -63,9 +63,9 @@ export const withdrawCryptoMetaFactoryMixin = {
         return (await contract.remove_liquidity(this.address, _lpTokenAmount, _minAmounts, true, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, slippage = 0.1): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-        return await withdrawCryptoMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
+        return await withdrawCryptoMetaFactoryMixin._withdraw.call(this, _lpTokenAmount, slippage, true) as number | number[];
     },
 
     async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
@@ -90,9 +90,9 @@ export const withdrawZapMixin = {
         return (await contract.remove_liquidity(...args, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, slippage = 0.1): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-        return await withdrawZapMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
+        return await withdrawZapMixin._withdraw.call(this, _lpTokenAmount, slippage, true) as number | number[];
     },
 
     async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
@@ -113,9 +113,9 @@ export const withdrawLendingOrCryptoMixin = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, true, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, slippage = 0.1): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
-        return await withdrawLendingOrCryptoMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
+        return await withdrawLendingOrCryptoMixin._withdraw.call(this, _lpTokenAmount, slippage, true) as number | number[];
     },
 
     async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
@@ -136,10 +136,10 @@ export const withdrawPlainMixin = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number | number[]> {
+    async withdrawEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, slippage = 0.1): Promise<number | number[]> {
         const _lpTokenAmount = await _withdrawCheck.call(this, lpTokenAmount, true);
 
-        return await withdrawPlainMixin._withdraw.call(this, _lpTokenAmount, 0.1, true) as number | number[];
+        return await withdrawPlainMixin._withdraw.call(this, _lpTokenAmount, slippage, true) as number | number[];
     },
 
     async withdraw(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {

@@ -65,9 +65,9 @@ export const depositWrapped2argsMixin = {
         return (await contract.add_liquidity(_amounts, _minMintAmount, { ...this.curve.options, gasLimit, value })).hash;
     },
 
-    async depositWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number> {
+    async depositWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number> {
         const _amounts = await _depositWrappedCheck.call(this, amounts, true);
-        return await depositWrapped2argsMixin._depositWrapped.call(this, _amounts, 0.1, true) as number;
+        return await depositWrapped2argsMixin._depositWrapped.call(this, _amounts, slippage, true) as number;
     },
 
     async depositWrapped(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {
@@ -101,9 +101,9 @@ export const depositWrapped3argsMixin = {
         return (await contract.add_liquidity(_amounts, _minMintAmount, false, { ...this.curve.options, gasLimit, value })).hash;
     },
 
-    async depositWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number> {
+    async depositWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number> {
         const _amounts = await _depositWrappedCheck.call(this, amounts, true);
-        return await depositWrapped3argsMixin._depositWrapped.call(this, _amounts, 0.1, true) as number;
+        return await depositWrapped3argsMixin._depositWrapped.call(this, _amounts, slippage, true) as number;
     },
 
     async depositWrapped(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {

@@ -32,9 +32,9 @@ export const withdrawImbalanceWrapped2argsMixin = {
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawImbalanceWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number> {
+    async withdrawImbalanceWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number> {
         const _amounts = await _withdrawImbalanceWrappedCheck.call(this, amounts);
-        return await withdrawImbalanceWrapped2argsMixin._withdrawImbalanceWrapped.call(this, _amounts, 0.1, true) as number;
+        return await withdrawImbalanceWrapped2argsMixin._withdrawImbalanceWrapped.call(this, _amounts, slippage, true) as number;
     },
 
     async withdrawImbalanceWrapped(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {
@@ -55,9 +55,9 @@ export const withdrawImbalanceWrapped3argsMixin = {
         return (await contract.remove_liquidity_imbalance(_amounts, _maxBurnAmount, false, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawImbalanceWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[]): Promise<number> {
+    async withdrawImbalanceWrappedEstimateGas(this: PoolTemplate, amounts: (number | string)[], slippage = 0.1): Promise<number> {
         const _amounts = await _withdrawImbalanceWrappedCheck.call(this, amounts);
-        return await withdrawImbalanceWrapped3argsMixin._withdrawImbalanceWrapped.call(this, _amounts, 0.1, true) as number;
+        return await withdrawImbalanceWrapped3argsMixin._withdrawImbalanceWrapped.call(this, _amounts, slippage, true) as number;
     },
 
     async withdrawImbalanceWrapped(this: PoolTemplate, amounts: (number | string)[], slippage?: number): Promise<string> {

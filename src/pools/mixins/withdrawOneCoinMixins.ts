@@ -47,9 +47,9 @@ export const withdrawOneCoinMetaFactoryMixin = {
         return (await contract.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, { ...this.curve.options, gasLimit })).hash
     },
 
-    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {
+    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number | number[]> {
         const [_lpTokenAmount, i] = await _withdrawOneCoinCheck.call(this, lpTokenAmount, coin, true);
-        return await withdrawOneCoinMetaFactoryMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, 0.1, true) as number | number[];
+        return await withdrawOneCoinMetaFactoryMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, slippage, true) as number | number[];
     },
 
     async withdrawOneCoin(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
@@ -81,9 +81,9 @@ export const withdrawOneCoinCryptoMetaFactoryMixin = {
         return (await contract.remove_liquidity_one_coin(this.address, _lpTokenAmount, i, _minAmount, true, { ...this.curve.options, gasLimit })).hash
     },
 
-    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {
+    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number | number[]> {
         const [_lpTokenAmount, i] = await _withdrawOneCoinCheck.call(this, lpTokenAmount, coin, true);
-        return await withdrawOneCoinCryptoMetaFactoryMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, 0.1, true) as number | number[];
+        return await withdrawOneCoinCryptoMetaFactoryMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, slippage, true) as number | number[];
     },
 
     async withdrawOneCoin(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
@@ -117,9 +117,9 @@ export const withdrawOneCoinZapMixin = {
         return (await contract.remove_liquidity_one_coin(...args, { ...this.curve.options, gasLimit })).hash
     },
 
-    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {
+    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number | number[]> {
         const [_lpTokenAmount, i] = await _withdrawOneCoinCheck.call(this, lpTokenAmount, coin, true);
-        return await withdrawOneCoinZapMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, 0.1, true) as number | number[];
+        return await withdrawOneCoinZapMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, slippage, true) as number | number[];
     },
 
     async withdrawOneCoin(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
@@ -149,9 +149,9 @@ export const withdrawOneCoinLendingOrCryptoMixin = {
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, true, { ...this.curve.options, gasLimit })).hash
     },
 
-    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {
+    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number | number[]> {
         const [_lpTokenAmount, i] = await _withdrawOneCoinCheck.call(this, lpTokenAmount, coin, true);
-        return await withdrawOneCoinLendingOrCryptoMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, 0.1, true) as number | number[];
+        return await withdrawOneCoinLendingOrCryptoMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, slippage, true) as number | number[];
     },
 
     async withdrawOneCoin(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
@@ -181,9 +181,9 @@ export const withdrawOneCoinPlainMixin = {
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...this.curve.options, gasLimit })).hash
     },
 
-    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number): Promise<number | number[]> {
+    async withdrawOneCoinEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number | number[]> {
         const [_lpTokenAmount, i] = await _withdrawOneCoinCheck.call(this, lpTokenAmount, coin, true);
-        return await withdrawOneCoinPlainMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, 0.1, true) as number | number[];
+        return await withdrawOneCoinPlainMixin._withdrawOneCoin.call(this, _lpTokenAmount, i, slippage, true) as number | number[];
     },
 
     async withdrawOneCoin(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {

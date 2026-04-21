@@ -32,9 +32,9 @@ export const withdrawWrapped2argsMixin = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number> {
+    async withdrawWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, slippage = 0.1): Promise<number> {
         const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
-        return await withdrawWrapped2argsMixin._withdrawWrapped.call(this, _lpTokenAmount, 0.1, true) as number;
+        return await withdrawWrapped2argsMixin._withdrawWrapped.call(this, _lpTokenAmount, slippage, true) as number;
     },
 
     async withdrawWrapped(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {
@@ -55,9 +55,9 @@ export const withdrawWrapped3argsMixin = {
         return (await contract.remove_liquidity(_lpTokenAmount, _minAmounts, false, { ...this.curve.options, gasLimit })).hash;
     },
 
-    async withdrawWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string): Promise<number> {
+    async withdrawWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, slippage = 0.1): Promise<number> {
         const _lpTokenAmount = await _withdrawWrappedCheck.call(this, lpTokenAmount);
-        return await withdrawWrapped3argsMixin._withdrawWrapped.call(this, _lpTokenAmount, 0.1, true) as number;
+        return await withdrawWrapped3argsMixin._withdrawWrapped.call(this, _lpTokenAmount, slippage, true) as number;
     },
 
     async withdrawWrapped(this: PoolTemplate, lpTokenAmount: number | string, slippage?: number): Promise<string> {

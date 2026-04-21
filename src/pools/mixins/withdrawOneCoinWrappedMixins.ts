@@ -42,9 +42,9 @@ export const withdrawOneCoinWrappedLendingOrCryptoMixin = {
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, false, { ...this.curve.options, gasLimit })).hash
     },
 
-    async withdrawOneCoinWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number): Promise<number> {
+    async withdrawOneCoinWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number> {
         const [_lpTokenAmount, i] = await _withdrawOneCoinWrappedCheck.call(this, lpTokenAmount, coin);
-        return await withdrawOneCoinWrappedLendingOrCryptoMixin._withdrawOneCoinWrapped.call(this, _lpTokenAmount, i, 0.1, true) as number;
+        return await withdrawOneCoinWrappedLendingOrCryptoMixin._withdrawOneCoinWrapped.call(this, _lpTokenAmount, i, slippage, true) as number;
     },
 
     async withdrawOneCoinWrapped(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {
@@ -74,9 +74,9 @@ export const withdrawOneCoinWrappedMixin = {
         return (await contract.remove_liquidity_one_coin(_lpTokenAmount, i, _minAmount, { ...this.curve.options, gasLimit })).hash
     },
 
-    async withdrawOneCoinWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number): Promise<number> {
+    async withdrawOneCoinWrappedEstimateGas(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage = 0.1): Promise<number> {
         const [_lpTokenAmount, i] = await _withdrawOneCoinWrappedCheck.call(this, lpTokenAmount, coin);
-        return await withdrawOneCoinWrappedMixin._withdrawOneCoinWrapped.call(this, _lpTokenAmount, i, 0.1, true) as number;
+        return await withdrawOneCoinWrappedMixin._withdrawOneCoinWrapped.call(this, _lpTokenAmount, i, slippage, true) as number;
     },
 
     async withdrawOneCoinWrapped(this: PoolTemplate, lpTokenAmount: number | string, coin: string | number, slippage?: number): Promise<string> {

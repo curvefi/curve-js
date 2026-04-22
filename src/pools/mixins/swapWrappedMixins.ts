@@ -70,9 +70,9 @@ export const swapWrappedTricrypto2Mixin= {
         return (await contract.exchange(i, j, _amount, _minRecvAmount, false, { ...this.curve.options, value, gasLimit })).hash
     },
 
-    async swapWrappedEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
+    async swapWrappedEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.1): Promise<number> {
         const [i, j, _amount] = await _swapWrappedCheck.call(this, inputCoin, outputCoin, amount, true);
-        return await swapWrappedTricrypto2Mixin._swapWrapped.call(this, i, j, _amount, 0.1, true) as number;
+        return await swapWrappedTricrypto2Mixin._swapWrapped.call(this, i, j, _amount, slippage, true) as number;
     },
 
     async swapWrapped(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
@@ -106,9 +106,9 @@ export const swapWrappedMixin= {
         return (await contract.exchange(i, j, _amount, _minRecvAmount, { ...this.curve.options, value, gasLimit })).hash
     },
 
-    async swapWrappedEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
+    async swapWrappedEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.1): Promise<number> {
         const [i, j, _amount] = await _swapWrappedCheck.call(this, inputCoin, outputCoin, amount, true);
-        return await swapWrappedMixin._swapWrapped.call(this, i, j, _amount, 0.1, true) as number;
+        return await swapWrappedMixin._swapWrapped.call(this, i, j, _amount, slippage, true) as number;
     },
 
     async swapWrapped(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {

@@ -71,9 +71,9 @@ export const swapTricrypto2Mixin = {
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, true, { ...this.curve.options, value, gasLimit })).hash
     },
 
-    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
+    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.1): Promise<number> {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
-        return await swapTricrypto2Mixin._swap.call(this, i, j, _amount, 0.1, true) as number
+        return await swapTricrypto2Mixin._swap.call(this, i, j, _amount, slippage, true) as number
     },
 
     async swap(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
@@ -108,9 +108,9 @@ export const swapMetaFactoryMixin = {
         return (await contract[exchangeMethod](this.address, i, j, _amount, _minRecvAmount, { ...this.curve.options, value, gasLimit })).hash
     },
 
-    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
+    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.1): Promise<number> {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
-        return await swapMetaFactoryMixin._swap.call(this, i, j, _amount, 0.1, true) as number;
+        return await swapMetaFactoryMixin._swap.call(this, i, j, _amount, slippage, true) as number;
     },
 
     async swap(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
@@ -145,9 +145,9 @@ export const swapCryptoMetaFactoryMixin = {
         return (await contract[exchangeMethod](this.address, i, j, _amount, _minRecvAmount, true, { ...this.curve.options, value, gasLimit })).hash
     },
 
-    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
+    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.1): Promise<number> {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
-        return await swapCryptoMetaFactoryMixin._swap.call(this, i, j, _amount, 0.1, true) as number;
+        return await swapCryptoMetaFactoryMixin._swap.call(this, i, j, _amount, slippage, true) as number;
     },
 
     async swap(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {
@@ -183,9 +183,9 @@ export const swapMixin = {
         return (await contract[exchangeMethod](i, j, _amount, _minRecvAmount, { ...this.curve.options, value, gasLimit })).hash
     },
 
-    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<number> {
+    async swapEstimateGas(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage = 0.1): Promise<number> {
         const [i, j, _amount] = await _swapCheck.call(this, inputCoin, outputCoin, amount, true);
-        return await swapMixin._swap.call(this, i, j, _amount, 0.1, true) as number;
+        return await swapMixin._swap.call(this, i, j, _amount, slippage, true) as number;
     },
 
     async swap(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: number | string, slippage?: number): Promise<string> {

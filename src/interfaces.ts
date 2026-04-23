@@ -11,6 +11,7 @@ export type IChainId = number;
 export type IFactoryPoolType = "factory" | "factory-crvusd" | "factory-crypto" | "factory-twocrypto" | "factory-tricrypto" | "factory-stable-ng";
 export type IPoolType = "main" | "crypto" | IFactoryPoolType;
 export type ISwapType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type IGasStrategy = 'economy' | 'standard' | 'aggressive';
 
 export type REFERENCE_ASSET = 'USD' | 'EUR' | 'BTC' | 'ETH' | 'LINK' | 'CRYPTO' | 'OTHER';
 
@@ -87,10 +88,12 @@ export interface ICurve {
     isLiteChain: boolean,
     contracts: { [index: string]: { contract: Contract, multicallContract: MulticallContract } },
     feeData: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number },
+    gasStrategy: IGasStrategy,
     constantOptions: { gasLimit?: number },
     options: { gasPrice?: number | bigint, maxFeePerGas?: number | bigint, maxPriorityFeePerGas?: number | bigint },
     constants: INetworkConstants,
     setContract: (address: string | undefined, abi: any) => void,
+    setGasStrategy(strategy: IGasStrategy): void,
     formatUnits(value: BigNumberish, unit?: string | Numeric): string
 }
 

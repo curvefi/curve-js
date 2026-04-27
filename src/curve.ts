@@ -812,7 +812,6 @@ export class Curve implements ICurve {
         if (this.isNoRPC) return;
 
         const history = await fetchFeeHistory(this.provider, this.gasStrategy);
-        
         const computed = history
             ? computeEip1559Fees(history, this.gasStrategy, this.chainId)
             : await computeLegacyOrFallback(this.provider, this.gasStrategy);

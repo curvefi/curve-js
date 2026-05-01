@@ -5,7 +5,7 @@ export const GAS_STRATEGIES = {
         percentile: 20,
         baseFeeMulBps: 11_000,   // baseFee × 1.10
         tipMulBps: 9400,   // median tip × 0.94
-        minTipMainnet: 0, // 2 gwei
+        minTipMainnet: 0, // 0 gwei
         legacyGasPriceMulBps: 10_000,  // gasPrice × 1.00
         fallbackTipMulBps: 10_000,  // tip × 1.00
     },

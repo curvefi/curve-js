@@ -20,7 +20,6 @@ import {
     _getCurveLiteNetworks,
     _getFactoryAPYs,
     _getLiteNetworksData,
-    _getSubgraphData,
     _getVolumes,
 } from "./external-api.js";
 import {_getAllPoolsFromApi, _getUsdPricesFromApi} from "./cached.js";
@@ -748,9 +747,6 @@ export async function getVolumeApiController(this: Curve, network: INetworkName)
     }
     if(volumeNetworks.getFactoryAPYs.includes(this.chainId)) {
         return await _getFactoryAPYs(network);
-    }
-    if(volumeNetworks.getSubgraphData.includes(this.chainId)) {
-        return await _getSubgraphData(network);
     }
 
     throw Error(`Can't get volume for network: ${network}`);

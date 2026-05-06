@@ -28,6 +28,9 @@ interface IPricesPool {
     lp_token_address?: string | null,
     lp_token_symbol?: string | null,
     lp_token_supply?: number | null,
+    daily_volume?: number | null,
+    base_daily_apr?: number | null,
+    base_weekly_apr?: number | null,
     balances: number[],
     balances_usd: number[],
     coins: IPricesPoolCoin[],
@@ -41,6 +44,7 @@ interface IPricesPool {
 interface IPricesPoolsResponse {
     total?: {
         total_tvl?: number,
+        trading_volume_24h?: number,
     },
     data: IPricesPool[],
 }
@@ -111,8 +115,11 @@ const getLegacyPoolType = (poolType: TPricesPoolType | null): IPoolType | null =
     return PRICES_POOL_TYPE_TO_LEGACY[poolType] ?? null;
 }
 
+const isCryptoPoolType = (poolType: TPricesPoolType | null): boolean =>
+    poolType === "crypto" || poolType === "factory_crypto" || poolType === "factory_tricrypto" || poolType === "twocryptong";
+
 const getReferenceAssetName = (poolType: TPricesPoolType | null): string => {
-    if (poolType === "crypto" || poolType === "factory_crypto" || poolType === "factory_tricrypto" || poolType === "twocryptong") {
+    if (isCryptoPoolType(poolType)) {
         return "CRYPTO";
     }
 
@@ -213,6 +220,14 @@ const _getGaugeOverviewData = memoize(
     }
 )
 
+const _getPricesChainData = memoize(
+    async (network: INetworkName): Promise<IPricesPoolsResponse> => await fetchJson(`https://prices.curve.finance/v1/chains/${network}`) as IPricesPoolsResponse,
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
+
 const fetchNonLitePoolsFromApi = async (network: INetworkName, chainId: number): Promise<Record<IPoolType, IExtendedPoolDataFromApi>> => {
     if (!SUPPORTED_NON_LITE_POOL_CHAIN_IDS.has(chainId)) {
         console.warn(`Pool data via prices.curve.finance is not supported for non-lite chain id: ${chainId}`);
@@ -220,7 +235,7 @@ const fetchNonLitePoolsFromApi = async (network: INetworkName, chainId: number):
     }
 
     const [{ data, total }, gaugesByAddress] = await Promise.all([
-        fetchJson(`https://prices.curve.finance/v1/chains/${network}`) as Promise<IPricesPoolsResponse>,
+        _getPricesChainData(network),
         _getGaugeOverviewData(network),
     ]);
     const poolsDict = createEmptyPoolsDict();
@@ -361,45 +376,23 @@ export const createCrvApyDict = (allTypesExtendedPoolData:  IExtendedPoolDataFro
     return apyDict
 }
 
-export const _getSubgraphData = memoize(
-    async (network: INetworkName): Promise<IVolumeAndAPYs> => {
-        const data = await fetchData(`https://api.curve.finance/api/getSubgraphData/${network}`);
-        const poolsData = data.poolList.map((data: any) => ({
-            address: data.address,
-            volumeUSD: data.volumeUSD,
-            day: data.latestDailyApy,
-            week: data.latestWeeklyApy,
-        }));
-
-        return {
-            poolsData: poolsData,
-            totalVolume: data.totalVolume ?? 0,
-            cryptoVolume: data.cryptoVolume ?? 0,
-            cryptoShare: data.cryptoShare ?? 0,
-        };
-    },
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
 export const _getVolumes = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
-
-        const { pools, totalVolumes } = await fetchData(`https://api.curve.finance/api/getVolumes/${network}`);
-        const poolsData = pools.map((data: any) => ({
-            address: data.address,
-            volumeUSD: data.volumeUSD,
-            day: data.latestDailyApyPcent,
-            week: data.latestWeeklyApyPcent,
+        const { data, total } = await _getPricesChainData(network);
+        const poolsData = data.map((pool) => ({
+            address: pool.address,
+            volumeUSD: pool.daily_volume ?? 0,
+            day: pool.base_daily_apr ?? 0,
+            week: pool.base_weekly_apr ?? 0,
         }));
+        const totalVolume = total?.trading_volume_24h ?? data.reduce((sum, pool) => sum + (pool.daily_volume ?? 0), 0);
+        const cryptoVolume = data.reduce((sum, pool) => sum + (isCryptoPoolType(pool.pool_type) ? (pool.daily_volume ?? 0) : 0), 0);
 
         return {
             poolsData: poolsData ?? [],
-            totalVolume: totalVolumes.totalVolume ?? 0,
-            cryptoVolume: totalVolumes.totalCryptoVolume ?? 0,
-            cryptoShare: totalVolumes.cryptoVolumeSharePcent ?? 0,
+            totalVolume,
+            cryptoVolume,
+            cryptoShare: totalVolume ? 100 * cryptoVolume / totalVolume : 0,
         };
     },
     {

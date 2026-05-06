@@ -401,31 +401,6 @@ export const _getVolumes = memoize(
     }
 )
 
-export const _getFactoryAPYs = memoize(
-    async (network: string): Promise<IVolumeAndAPYs> => {
-        const [stableData, cryptoData] = await Promise.all(
-            ['stable', 'crypto'].map((type) => fetchData(`https://api.curve.finance/api/getFactoryAPYs/${network}/${type}`))
-        );
-        const stableVolume = stableData.totalVolumeUsd || stableData.totalVolume || 0;
-        const cryptoVolume = cryptoData.totalVolumeUsd || cryptoData.totalVolume || 0;
-        return {
-            poolsData: [...stableData.poolDetails, ...cryptoData.poolDetails].map((item) => ({
-                address: item.poolAddress,
-                volumeUSD: item.totalVolumeUsd ?? 0,
-                day: item.apy ?? 0,
-                week: (item.apy ?? 0) * 7, // Because api does not return week apy
-            })),
-            totalVolume: stableVolume + cryptoVolume,
-            cryptoVolume,
-            cryptoShare: 100 * cryptoVolume / (stableVolume + cryptoVolume),
-        };
-    },
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
 export const _getAllGauges = memoize(
     (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://api.curve.finance/api/getAllGauges`),
     {

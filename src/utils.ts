@@ -18,7 +18,6 @@ import {
 import {Curve} from "./curve.js";
 import {
     _getCurveLiteNetworks,
-    _getFactoryAPYs,
     _getLiteNetworksData,
     _getVolumes,
 } from "./external-api.js";
@@ -744,9 +743,6 @@ export async function getVolumeApiController(this: Curve, network: INetworkName)
 
     if(volumeNetworks.getVolumes.includes(this.chainId)) {
         return await _getVolumes(network);
-    }
-    if(volumeNetworks.getFactoryAPYs.includes(this.chainId)) {
-        return await _getFactoryAPYs(network);
     }
 
     throw Error(`Can't get volume for network: ${network}`);

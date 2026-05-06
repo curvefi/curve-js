@@ -1,5 +1,5 @@
-import {IPoolType, IReward} from '../../interfaces.js';
-import {_getPoolsFromApi,_getCrvApyFromApi} from '../../cached.js';
+import {IReward} from '../../interfaces.js';
+import {_getAllPoolsFromApi, _getCrvApyFromApi} from '../../cached.js';
 import {
     _getUsdRate,
     BN,
@@ -196,14 +196,9 @@ export class StatsPool implements IStatsPool {
 
         if (useApi) {
             const network = curve.constants.NETWORK_NAME;
-            let poolType = this.pool.isCrypto ? "crypto" : "main";
-            if (this.pool.id.startsWith("factory")) {
-                poolType = this.pool.id.replace(/-\d+$/, '');
-                poolType = poolType.replace(/-v2$/, '');
-            }
-            const poolsData = (await _getPoolsFromApi.call(curve, network, poolType as IPoolType, curve.isLiteChain)).poolData;
-
-            const poolEntry = poolsData.find((data) => data.address.toLowerCase() === this.pool.address.toLowerCase());
+            const poolEntry = (await _getAllPoolsFromApi.call(curve, network, curve.chainId, curve.isLiteChain))
+                .flatMap((data) => data.poolData)
+                .find((data) => data.address.toLowerCase() === this.pool.address.toLowerCase());
             if (poolEntry) {
                 return String(poolEntry.usdTotal);
             }
@@ -273,7 +268,7 @@ export class StatsPool implements IStatsPool {
 
         const isDisabledChain = rewardNetworks.tokenApyDisabledChains.includes(curve.chainId);
         if (useApi && !isDisabledChain) {
-            const crvAPYs = await _getCrvApyFromApi(curve.constants.NETWORK_NAME, curve.isLiteChain);
+            const crvAPYs = await _getCrvApyFromApi(curve.constants.NETWORK_NAME, curve.chainId, curve.isLiteChain);
             const poolCrvApy = crvAPYs[this.pool.gauge.address] ?? [0, 0];  // new pools might be missing
             return [poolCrvApy[0], poolCrvApy[1]];
         }

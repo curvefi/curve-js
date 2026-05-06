@@ -73,30 +73,30 @@ const createCache = (poolsDict: Record<IPoolType, IExtendedPoolDataFromApi>) => 
  * This function is used to cache the data fetched from the API and the data derived from it.
  * Note: do not expose this function to the outside world, instead encapsulate it in a function that returns the data you need.
  */
-const _getCachedData = memoize(async (network: INetworkName, isLiteChain: boolean) =>
-    createCache(await uncached_getAllPoolsFromApi(network, isLiteChain)), {maxAge: 1000 * 60 * 5 /* 5 minutes */})
+const _getCachedData = memoize(async (network: INetworkName, chainId: number, isLiteChain: boolean) =>
+    createCache(await uncached_getAllPoolsFromApi(network, chainId, isLiteChain)), {maxAge: 1000 * 60 * 5 /* 5 minutes */})
 
 export const _getPoolsFromApi =
-    async (network: INetworkName, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
-        const {poolsDict} = await _getCachedData(network, isLiteChain);
+    async (network: INetworkName, chainId: number, poolType: IPoolType, isLiteChain = false): Promise<IExtendedPoolDataFromApi> => {
+        const {poolsDict} = await _getCachedData(network, chainId, isLiteChain);
         return poolsDict[poolType]
     }
 
 export const _setPoolsFromApi =
-    (network: INetworkName, isLiteChain: boolean, data: Record<IPoolType, IExtendedPoolDataFromApi>): void =>
-        _getCachedData.set(createCache(data), network, isLiteChain)
+    (network: INetworkName, chainId: number, isLiteChain: boolean, data: Record<IPoolType, IExtendedPoolDataFromApi>): void =>
+        _getCachedData.set(createCache(data), network, chainId, isLiteChain)
 
-export const _getAllPoolsFromApi = async (network: INetworkName, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi[]> => {
-    const {poolLists} = await _getCachedData(network, isLiteChain);
+export const _getAllPoolsFromApi = async (network: INetworkName, chainId: number, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi[]> => {
+    const {poolLists} = await _getCachedData(network, chainId, isLiteChain);
     return poolLists
 }
 
-export const _getUsdPricesFromApi = async (network:INetworkName, isLiteChain: boolean): Promise<IDict<number>> => {
-    const {usdPrices} = await _getCachedData(network, isLiteChain);
+export const _getUsdPricesFromApi = async (network:INetworkName, chainId: number, isLiteChain: boolean): Promise<IDict<number>> => {
+    const {usdPrices} = await _getCachedData(network, chainId, isLiteChain);
     return usdPrices
 }
 
-export const _getCrvApyFromApi = async (network:INetworkName, isLiteChain: boolean): Promise<IDict<[number, number]>> => {
-    const {crvApy} = await _getCachedData(network, isLiteChain);
+export const _getCrvApyFromApi = async (network:INetworkName, chainId: number, isLiteChain: boolean): Promise<IDict<[number, number]>> => {
+    const {crvApy} = await _getCachedData(network, chainId, isLiteChain);
     return crvApy
 }

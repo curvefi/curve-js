@@ -32,6 +32,10 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
             reward.gaugeAddress = reward.gaugeAddress.toLowerCase();
             reward.tokenAddress = reward.tokenAddress.toLowerCase();
         }
+        for (const reward of poolData.gaugeExtraRewards ?? []) {
+            reward.gaugeAddress = reward.gaugeAddress.toLowerCase();
+            reward.tokenAddress = reward.tokenAddress.toLowerCase();
+        }
     }
 
     return poolsData
@@ -66,7 +70,7 @@ function setFactorySwapContracts(this: ICurve, rawPoolList: IPoolDataFromApi[], 
 }
 
 function setCryptoFactoryTokenContracts(this: ICurve, rawPoolList: IPoolDataFromApi[]): void {
-    rawPoolList.forEach((pool) => {
+    rawPoolList.forEach((pool, i) => {
         this.setContract(pool.lpTokenAddress as string, ERC20ABI);
     });
 }
@@ -94,7 +98,7 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
     const isCrypto = ["factory-crypto", "factory-twocrypto", "factory-tricrypto"].includes(factoryType);
 
     const implementationABIDict = this.constants.STABLE_FACTORY_CONSTANTS.implementationABIDict ?? {};
-    let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType, this.isLiteChain)).poolData);
+    let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, this.chainId, factoryType, this.isLiteChain)).poolData);
     if (!isCrypto) rawPoolList = rawPoolList.filter((p) => is_ng || p.implementationAddress in implementationABIDict);
     // Filter duplications
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address);
@@ -111,6 +115,7 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
 
     const FACTORY_POOLS_DATA: IDict<IPoolData> = {};
     rawPoolList.forEach((pool, i) => {
+        const poolId = pool.address.toLowerCase();
         const nativeToken = this.constants.NATIVE_TOKEN;
         const isETHEnabled = pool.implementationAddress === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
         let coinAddresses = pool.coins.map((c) => c.address);
@@ -162,7 +167,7 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
 
                 this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
 
-                FACTORY_POOLS_DATA[pool.id] = {
+                FACTORY_POOLS_DATA[poolId] = {
                     name: getPoolName(pool.name),
                     full_name: pool.name,
                     symbol: pool.symbol,
@@ -188,7 +193,7 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
                     is_ng,
                 };
             } else {
-                FACTORY_POOLS_DATA[pool.id] = {
+                FACTORY_POOLS_DATA[poolId] = {
                     name: factoryType === "factory-tricrypto" ? pool.name : getPoolName(pool.name),
                     full_name: pool.name,
                     symbol: pool.symbol,
@@ -231,7 +236,7 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
                 deposit_abi = basePoolIdZapDict[basePoolId].ABI;
             }
 
-            FACTORY_POOLS_DATA[pool.id] = {
+            FACTORY_POOLS_DATA[poolId] = {
                 name: getPoolName(pool.name),
                 full_name: pool.name,
                 symbol: pool.symbol,
@@ -257,7 +262,7 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
                 is_ng,
             };
         } else {
-            FACTORY_POOLS_DATA[pool.id] = {
+            FACTORY_POOLS_DATA[poolId] = {
                 name: getPoolName(pool.name),
                 full_name: pool.name,
                 symbol: pool.symbol,

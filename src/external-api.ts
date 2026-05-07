@@ -512,14 +512,6 @@ export const _getAllGaugesFormatted = memoize(
     }
 )
 
-export const _getHiddenPools = memoize(
-    (isLiteChain: boolean): Promise<IDict<string[]>> => fetchData(`https://${isLiteChain ? 'api-core' : 'api'}.curve.finance/v1/getHiddenPools`),
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
 export const _generateBoostingProof = memoize(
     async (block: number, address: string): Promise<{ block_header_rlp: string, proof_rlp: string }> => {
         const url = `https://prices.curve.finance/v1/general/get_merkle_proof?block=${block}&account_address=${address}`;

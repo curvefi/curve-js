@@ -68,7 +68,6 @@ import {
     lowerCasePoolDataAddresses,
     parseUnits,
 } from "./constants/utils.js";
-import {_getHiddenPools} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import {
@@ -548,13 +547,6 @@ export class Curve implements ICurve {
         this.contracts[address] = new Proxy(coreContract, proxyHandler)
     }
 
-    async _filterHiddenPools(pools: IDict<IPoolData>): Promise<IDict<IPoolData>> {
-        const hiddenPools = new Set(((await _getHiddenPools(this.isLiteChain))[this.constants.NETWORK_NAME] || []).map((id) => id.toLowerCase()));
-        return Object.fromEntries(
-            Object.entries(pools).filter(([id, pool]) => !hiddenPools.has(id.toLowerCase()) && !hiddenPools.has(pool.swap_address.toLowerCase()))
-        ) as IDict<IPoolData>;
-    }
-
     _updateDecimalsAndGauges(pools: IDict<IPoolData>): void {
         this.constants.DECIMALS = { ...this.constants.DECIMALS, ...extractDecimals(pools) };
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges.call(this, pools) ];
@@ -568,7 +560,6 @@ export class Curve implements ICurve {
         } else {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
         }
-        this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = this.isNoRPC ? null : await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
@@ -587,7 +578,6 @@ export class Curve implements ICurve {
                 await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory)
             );
         }
-        this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
     }
 
@@ -602,7 +592,6 @@ export class Curve implements ICurve {
             }
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
-        this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = this.isNoRPC? null : await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
@@ -619,8 +608,6 @@ export class Curve implements ICurve {
             }
             this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
         }
-
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
     }
 
@@ -635,7 +622,6 @@ export class Curve implements ICurve {
             }
             this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this));
         }
-        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
@@ -658,7 +644,6 @@ export class Curve implements ICurve {
             }
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this));
         }
-        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {

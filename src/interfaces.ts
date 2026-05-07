@@ -207,6 +207,8 @@ export interface IGaugesDataFromApi {
     },
     poolUrls?: {
         swap: string[],
+        deposit?: string[],
+        withdraw?: string[],
     }
     is_killed?: boolean,
     hasNoCrv?: boolean,

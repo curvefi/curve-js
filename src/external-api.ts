@@ -1,4 +1,5 @@
 import memoize from "memoizee";
+import BigNumber from "bignumber.js";
 import {
     ICurveLiteNetwork,
     IDaoProposal,
@@ -60,14 +61,28 @@ interface IPricesGaugeReward {
 
 interface IPricesGaugePool {
     address: string,
+    name?: string | null,
     chain: string,
 }
 
 interface IPricesGauge {
     address: string,
+    effective_address?: string | null,
     name?: string | null,
     lp_token?: string | null,
     pool?: IPricesGaugePool | null,
+    market?: IPricesGaugePool | null,
+    rootAddress?: string | null,
+    rootGauge?: string | null,
+    gauge_relative_weight?: number | null,
+    gauge_weight?: string | number | null,
+    emissions?: number | null,
+    poolUrls?: {
+        swap?: string[] | null,
+    } | null,
+    is_killed?: boolean | null,
+    hasNoCrv?: boolean | null,
+    gaugeStatus?: Record<string, boolean> | null,
     crv_apr_base?: number | null,
     crv_apr_boosted?: number | null,
     extra_rewards?: IPricesGaugeReward[] | null,
@@ -145,6 +160,33 @@ const getGaugeLookupKeys = (...addresses: (string | null | undefined)[]): string
 
 const isRewardGauge = (gauge: IPricesGauge): boolean => gauge.name?.includes("RewardGauge") ?? false;
 
+const getGaugeTarget = (gauge: IPricesGauge): IPricesGaugePool | null => gauge.pool ?? gauge.market ?? null;
+
+const getGaugeChain = (gauge: IPricesGauge): string => getGaugeTarget(gauge)?.chain ?? "ethereum";
+
+const isSidechainGauge = (gauge: IPricesGauge): boolean => getGaugeChain(gauge) !== "ethereum";
+
+const getRootGaugeAddress = (gauge: IPricesGauge): string => gauge.address.toLowerCase();
+
+const getEffectiveGaugeAddress = (gauge: IPricesGauge): string => (gauge.effective_address ?? gauge.address).toLowerCase();
+
+const resolveGaugeAddress = (gauge: IPricesGauge): string => isSidechainGauge(gauge) ? getEffectiveGaugeAddress(gauge) : getRootGaugeAddress(gauge);
+
+const buildPoolUrls = (chain: string, poolAddress: string): { swap: string[], deposit: string[], withdraw: string[] } => {
+    const base = `https://curve.finance/dex/#/${chain}/pools/${poolAddress}`;
+
+    return {
+        swap: [`${base}/swap`],
+        deposit: [`${base}/deposit`],
+        withdraw: [`${base}/withdraw`],
+    };
+}
+
+const getGaugeRelativeWeight = (gauge: IPricesGauge): string => {
+    if (!gauge.gauge_relative_weight) return "0";
+    return new BigNumber(gauge.gauge_relative_weight).times("1e18").integerValue(BigNumber.ROUND_DOWN).toFixed(0);
+}
+
 const mapGaugeRewards = (gaugeAddress: string, rewards?: IPricesGaugeReward[] | null): IRewardFromApi[] => (rewards ?? []).map((reward) => ({
     gaugeAddress,
     tokenAddress: reward.address,
@@ -166,10 +208,11 @@ const buildGaugeData = (gauges: IPricesGauge[]): IPricesGaugeData => {
     const rewardsSource = gauges.find((gauge) => (gauge.extra_rewards?.length ?? 0) > 0) ?? primaryGauge;
 
     if (!primaryGauge?.address) return getEmptyGaugeData();
+    const gaugeAddress = resolveGaugeAddress(primaryGauge);
 
     return {
-        gaugeAddress: primaryGauge.address,
-        gaugeRewards: mapGaugeRewards(primaryGauge.address, rewardsSource?.extra_rewards),
+        gaugeAddress,
+        gaugeRewards: mapGaugeRewards(gaugeAddress, rewardsSource?.extra_rewards),
         gaugeCrvApy: [aprSource?.crv_apr_base ?? 0, aprSource?.crv_apr_boosted ?? 0],
     };
 }
@@ -189,7 +232,7 @@ const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolTy
 
 const _getGaugeOverviewData = memoize(
     async (network: INetworkName): Promise<IDict<IPricesGaugeData>> => {
-        const { gauges } = await fetchJson("https://prices.curve.finance/v1/dao/gauges/overview") as IPricesGaugesOverviewResponse;
+        const { gauges } = await _getGaugesOverview();
         const gaugesByPoolAddress: IDict<IPricesGauge[]> = {};
 
         for (const gauge of gauges) {
@@ -214,6 +257,14 @@ const _getGaugeOverviewData = memoize(
             return acc;
         }, {} as IDict<IPricesGaugeData>);
     },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
+
+const _getGaugesOverview = memoize(
+    async (): Promise<IPricesGaugesOverviewResponse> => await fetchJson("https://prices.curve.finance/v1/dao/gauges/overview") as IPricesGaugesOverviewResponse,
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -402,7 +453,38 @@ export const _getVolumes = memoize(
 )
 
 export const _getAllGauges = memoize(
-    (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://api.curve.finance/api/getAllGauges`),
+    async (): Promise<IDict<IGaugesDataFromApi>> => {
+        const { gauges } = await _getGaugesOverview();
+
+        return gauges.reduce((acc, gauge) => {
+            const chain = getGaugeChain(gauge);
+            const isSidechain = isSidechainGauge(gauge);
+            const gaugeAddress = resolveGaugeAddress(gauge);
+            const rootGaugeAddress = getRootGaugeAddress(gauge);
+            const isPool = gauge.pool != null && gauge.market == null;
+            const poolAddress = isPool ? gauge.pool?.address : null;
+            const lpTokenAddress = isPool ? gauge.lp_token : null;
+
+            acc[gaugeAddress.toLowerCase()] = {
+                blockchainId: chain,
+                gauge: gaugeAddress,
+                rootGauge: isSidechain ? rootGaugeAddress : undefined,
+                swap: poolAddress?.toLowerCase() ?? "",
+                swap_token: lpTokenAddress?.toLowerCase() ?? "",
+                shortName: gauge.pool?.name ?? gauge.name ?? "",
+                gauge_controller: {
+                    gauge_relative_weight: getGaugeRelativeWeight(gauge),
+                    get_gauge_weight: String(gauge.gauge_weight ?? "0"),
+                },
+                poolUrls: poolAddress ? buildPoolUrls(chain, poolAddress) : undefined,
+                is_killed: gauge.is_killed ?? false,
+                hasNoCrv: (gauge.emissions ?? 0) === 0,
+                gaugeStatus: isSidechain ? {} : null,
+            };
+
+            return acc;
+        }, {} as IDict<IGaugesDataFromApi>);
+    },
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -411,11 +493,11 @@ export const _getAllGauges = memoize(
 
 export const _getAllGaugesFormatted = memoize(
     async (): Promise<IDict<any>> => {
-        const data = await fetchData(`https://api.curve.finance/api/getAllGauges`);
+        const data = Object.values(await _getAllGauges());
 
         const gaugesDict: Record<string, any> = {}
 
-        Object.values(data).forEach((d: any) => {
+        data.forEach((d: any) => {
             gaugesDict[d.gauge.toLowerCase()] = {
                 is_killed: d.is_killed ?? false,
                 gaugeStatus: d.gaugeStatus ?? null,

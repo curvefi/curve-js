@@ -98,6 +98,46 @@ interface IPricesGaugeData {
     gaugeCrvApy: [number | null, number | null],
 }
 
+interface IPricesDaoProposalListItem {
+    vote_id: number,
+    vote_type: "parameter" | "ownership",
+    creator: string,
+    start_date: number,
+    snapshot_block: number,
+    ipfs_metadata: string | null,
+    metadata: string | null,
+    votes_for: string,
+    votes_against: string,
+    vote_count: number,
+    support_required: string,
+    min_accept_quorum: string,
+    total_supply: string,
+    executed: boolean,
+    execution_tx?: string | null,
+    execution_date?: string | null,
+    transaction_hash?: string,
+    dt?: string,
+}
+
+interface IPricesDaoProposalVote {
+    voter: string,
+    supports: boolean,
+    voting_power: string,
+    transaction_hash: string,
+}
+
+interface IPricesDaoProposalDetail extends IPricesDaoProposalListItem {
+    creator_voting_power: string,
+    script: string | null,
+    votes: IPricesDaoProposalVote[],
+}
+
+interface IPricesDaoProposalListResponse {
+    count: number,
+    page: number,
+    proposals: IPricesDaoProposalListItem[],
+}
+
 const EMPTY_EXTENDED_POOL_DATA: IExtendedPoolDataFromApi = { poolData: [], tvl: 0, tvlAll: 0 };
 const LEGACY_POOL_TYPES: readonly IPoolType[] = ["main", "crypto", "factory", "factory-crvusd", "factory-crypto", "factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const;
 const PRICES_POOL_TYPE_TO_LEGACY: Record<NonNullable<TPricesPoolType>, IPoolType> = {
@@ -186,6 +226,41 @@ const getGaugeRelativeWeight = (gauge: IPricesGauge): string => {
     if (!gauge.gauge_relative_weight) return "0";
     return new BigNumber(gauge.gauge_relative_weight).times("1e18").integerValue(BigNumber.ROUND_DOWN).toFixed(0);
 }
+
+const mapDaoProposalType = (voteType: IPricesDaoProposalListItem["vote_type"]): "PARAMETER" | "OWNERSHIP" => voteType.toUpperCase() as "PARAMETER" | "OWNERSHIP";
+
+const mapDaoProposalListItem = (proposal: IPricesDaoProposalListItem): IDaoProposalListItem => ({
+    voteId: proposal.vote_id,
+    voteType: mapDaoProposalType(proposal.vote_type),
+    creator: proposal.creator,
+    startDate: proposal.start_date,
+    snapshotBlock: proposal.snapshot_block,
+    ipfsMetadata: proposal.ipfs_metadata ?? "",
+    metadata: proposal.metadata ?? "",
+    votesFor: proposal.votes_for,
+    votesAgainst: proposal.votes_against,
+    voteCount: proposal.vote_count,
+    supportRequired: proposal.support_required,
+    minAcceptQuorum: proposal.min_accept_quorum,
+    totalSupply: proposal.total_supply,
+    executed: proposal.executed,
+});
+
+const mapDaoProposalVote = (vote: IPricesDaoProposalVote, proposalVoteId: number) => ({
+    tx: vote.transaction_hash,
+    voteId: proposalVoteId,
+    voter: vote.voter,
+    supports: vote.supports,
+    stake: Number(vote.voting_power),
+});
+
+const mapDaoProposal = (proposal: IPricesDaoProposalDetail): IDaoProposal => ({
+    ...mapDaoProposalListItem(proposal),
+    tx: proposal.transaction_hash ?? "",
+    creatorVotingPower: Number(proposal.creator_voting_power),
+    script: proposal.script ?? "",
+    votes: proposal.votes.map((vote) => mapDaoProposalVote(vote, proposal.vote_id)),
+});
 
 const mapGaugeRewards = (gaugeAddress: string, rewards?: IPricesGaugeReward[] | null): IRewardFromApi[] => (rewards ?? []).map((reward) => ({
     gaugeAddress,
@@ -528,8 +603,24 @@ export const _generateBoostingProof = memoize(
 // --- DAO ---
 
 export const _getDaoProposalList = memoize(async (): Promise<IDaoProposalListItem[]> => {
-    const url = "https://api-py.llama.airforce/curve/v1/dao/proposals";
-    const {proposals} = await fetchJson(url);
+    const pagination = 100;
+    let page = 1;
+    let totalCount = Infinity;
+    const proposals: IDaoProposalListItem[] = [];
+
+    while (proposals.length < totalCount) {
+        const url = `https://prices.curve.finance/v1/dao/proposals?pagination=${pagination}&page=${page}`;
+        const response = await fetchJson(url) as IPricesDaoProposalListResponse;
+        totalCount = response.count ?? 0;
+
+        if (!response.proposals?.length) break;
+
+        proposals.push(...response.proposals.map(mapDaoProposalListItem));
+
+        if (response.proposals.length < pagination) break;
+        page += 1;
+    }
+
     return proposals;
 },
 {
@@ -537,12 +628,14 @@ export const _getDaoProposalList = memoize(async (): Promise<IDaoProposalListIte
     maxAge: 5 * 60 * 1000, // 5m
 })
 
-export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> =>
-    fetchJson(`https://api-py.llama.airforce/curve/v1/dao/proposals/${type.toLowerCase()}/${id}`),
-{
-    promise: true,
-    maxAge: 5 * 60 * 1000, // 5m
-})
+export const _getDaoProposal = memoize(
+    async (type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> =>
+        mapDaoProposal(await fetchJson(`https://prices.curve.finance/v1/dao/proposals/details/${type.toLowerCase()}/${id}`) as IPricesDaoProposalDetail),
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
 
 // --- CURVE LITE ---
 

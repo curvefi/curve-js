@@ -102,6 +102,9 @@ export interface ICoinFromPoolDataApi {
     symbol: string,
     decimals: string,
     usdPrice: number | string,
+    name?: string,
+    poolBalance?: string,
+    isBasePoolLpToken?: boolean,
 }
 
 export interface IReward {
@@ -126,20 +129,42 @@ export interface IPoolDataFromApi {
     name: string,
     symbol: string,
     assetTypeName: string,
+    assetType?: string,
     address: string,
+    coinsAddresses?: string[],
+    decimals?: string[],
+    virtualPrice?: string | number | null,
     isMetaPool: boolean,
     basePoolAddress?: string,
     lpTokenAddress?: string,
     gaugeAddress?: string,
     implementation: string,
-    implementationAddress: string,
+    implementationAddress?: string,
+    priceOracle?: string | number | null,
+    priceOracles?: Array<string | number> | null,
+    zapAddress?: string,
     coins: ICoinFromPoolDataApi[],
+    poolUrls?: {
+        swap: string[],
+        deposit?: string[],
+        withdraw?: string[],
+    },
     gaugeRewards: IRewardFromApi[],
     gaugeExtraRewards?: IRewardFromApi[],
     usdTotal: number,
+    usdTotalExcludingBasePool?: number,
     totalSupply: number,
     amplificationCoefficient: string,
-    gaugeCrvApy: [number | null, number | null],
+    gaugeCrvApy?: [number | null, number | null],
+    gaugeFutureCrvApy?: [number | null, number | null],
+    usesRateOracle?: boolean,
+    isBroken?: boolean,
+    hasMethods?: {
+        exchange_received?: boolean,
+        exchange_extended?: boolean,
+    },
+    creationTs?: number,
+    creationBlockNumber?: number,
 }
 
 export interface IPoolDataShort {
@@ -196,15 +221,31 @@ export interface IProfit {
 
 export interface IGaugesDataFromApi {
     blockchainId: string;
+    isPool?: boolean,
+    name?: string,
     gauge: string,
     rootGauge?: string,
+    poolAddress?: string,
+    virtualPrice?: number | string | null,
+    factory?: boolean,
+    type?: string | null,
     swap: string,
     swap_token: string,
+    lpTokenPrice?: number | null,
     shortName: string,
+    gauge_data?: {
+        inflation_rate?: string,
+        working_supply?: string,
+    },
     gauge_controller: {
         gauge_relative_weight: string,
+        gauge_future_relative_weight?: string,
         get_gauge_weight: string,
+        inflation_rate?: string,
     },
+    gaugeCrvApy?: [number | null, number | null],
+    gaugeFutureCrvApy?: [number | null, number | null],
+    side_chain?: boolean,
     poolUrls?: {
         swap: string[],
         deposit?: string[],

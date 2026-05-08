@@ -18,6 +18,7 @@ type TPricesPoolType = "main" | "crypto" | "factory" | "factory_crypto" | "crvus
 
 interface IPricesPoolCoin {
     symbol: string,
+    name?: string | null,
     address: string,
     decimals: number | null,
 }
@@ -39,7 +40,12 @@ interface IPricesPool {
     base_pool?: string | null,
     is_metapool?: boolean | null,
     implementation_address?: string | null,
+    creation_ts?: number | null,
+    creation_block_number?: number | null,
     amplification_coefficient?: number | null,
+    virtual_price?: number | string | null,
+    price_oracle?: number | number[] | null,
+    pool_methods?: string[] | null,
 }
 
 interface IPricesPoolsResponse {
@@ -68,6 +74,7 @@ interface IPricesGaugePool {
 interface IPricesGauge {
     address: string,
     effective_address?: string | null,
+    gauge_type?: string | null,
     name?: string | null,
     lp_token?: string | null,
     pool?: IPricesGaugePool | null,
@@ -77,6 +84,9 @@ interface IPricesGauge {
     gauge_relative_weight?: number | null,
     gauge_weight?: string | number | null,
     emissions?: number | null,
+    working_supply?: number | null,
+    lp_token_price?: number | null,
+    is_factory?: boolean | null,
     poolUrls?: {
         swap?: string[] | null,
     } | null,
@@ -185,10 +195,36 @@ const getReferenceAssetName = (poolType: TPricesPoolType | null): string => {
     return "UNKNOWN";
 }
 
+const getAssetType = (assetTypeName: string): string => {
+    if (assetTypeName.toUpperCase() === "USD") return "0";
+    if (assetTypeName.toUpperCase() === "ETH") return "1";
+    if (assetTypeName.toUpperCase() === "BTC") return "2";
+
+    return "3";
+}
+
 const getCoinUsdPrice = (balance?: number, balanceUsd?: number): number => {
     if (!balance) return 0;
     return (balanceUsd ?? 0) / balance;
 }
+
+const getCoinPoolBalance = (balance: number | undefined, decimals: number | null | undefined): string =>
+    new BigNumber(balance ?? 0).times(new BigNumber(10).pow(decimals ?? 18)).integerValue(BigNumber.ROUND_DOWN).toFixed(0);
+
+const getPoolPriceOracle = (priceOracle?: number | number[] | null): number | null =>
+    Array.isArray(priceOracle) ? priceOracle[0] ?? null : priceOracle ?? null;
+
+const getPoolPriceOracles = (priceOracle?: number | number[] | null): number[] | null => {
+    if (Array.isArray(priceOracle)) return priceOracle;
+    if (priceOracle == null) return null;
+
+    return [priceOracle];
+}
+
+const getPoolHasMethods = (pool: IPricesPool): { exchange_received: boolean, exchange_extended: boolean } => ({
+    exchange_received: pool.pool_methods?.includes("exchange_received") ?? false,
+    exchange_extended: pool.pool_methods?.includes("exchange_extended") ?? false,
+});
 
 const getGaugeLookupKeys = (...addresses: (string | null | undefined)[]): string[] => {
     const normalizedAddresses = addresses
@@ -211,6 +247,18 @@ const getRootGaugeAddress = (gauge: IPricesGauge): string => gauge.address.toLow
 const getEffectiveGaugeAddress = (gauge: IPricesGauge): string => (gauge.effective_address ?? gauge.address).toLowerCase();
 
 const resolveGaugeAddress = (gauge: IPricesGauge): string => isSidechainGauge(gauge) ? getEffectiveGaugeAddress(gauge) : getRootGaugeAddress(gauge);
+
+const getGaugeEntryName = (gauge: IPricesGauge): string => gauge.name ?? gauge.pool?.name ?? gauge.market?.name ?? resolveGaugeAddress(gauge);
+
+const getGaugeShortName = (gauge: IPricesGauge): string => gauge.pool?.name ?? gauge.market?.name ?? gauge.name ?? resolveGaugeAddress(gauge);
+
+const getGaugeType = (gauge: IPricesGauge): string | null => {
+    if (!gauge.gauge_type) return null;
+    return gauge.gauge_type.toLowerCase().includes("crypto") ? "crypto" : "stable";
+}
+
+const getGaugeWorkingSupply = (gauge: IPricesGauge): string =>
+    new BigNumber(gauge.working_supply ?? 0).times("1e18").integerValue(BigNumber.ROUND_DOWN).toFixed(0);
 
 const buildPoolUrls = (chain: string, poolAddress: string): { swap: string[], deposit: string[], withdraw: string[] } => {
     const base = `https://curve.finance/dex/#/${chain}/pools/${poolAddress}`;
@@ -292,6 +340,16 @@ const buildGaugeData = (gauges: IPricesGauge[]): IPricesGaugeData => {
     };
 }
 
+const getGaugeRecordKey = (acc: IDict<IGaugesDataFromApi>, gauge: IPricesGauge): string => {
+    const baseKey = getGaugeEntryName(gauge);
+    if (!(baseKey in acc)) return baseKey;
+
+    const addressKey = `${baseKey} (${resolveGaugeAddress(gauge)})`;
+    if (!(addressKey in acc)) return addressKey;
+
+    return `${addressKey}-${Object.keys(acc).length}`;
+}
+
 const getGaugeData = (gaugesByAddress: IDict<IPricesGaugeData>, ...addresses: (string | null | undefined)[]): IPricesGaugeData => {
     const gaugeData = getGaugeLookupKeys(...addresses)
         .map((address) => gaugesByAddress[address])
@@ -304,6 +362,14 @@ const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolTy
     const url = `https://api-core.curve.finance/v1/getPools/${network}/${poolType}`;
     return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
 }
+
+const _getGaugesOverview = memoize(
+    async (): Promise<IPricesGaugesOverviewResponse> => await fetchJson("https://prices.curve.finance/v1/dao/gauges/overview") as IPricesGaugesOverviewResponse,
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
 
 const _getGaugeOverviewData = memoize(
     async (network: INetworkName): Promise<IDict<IPricesGaugeData>> => {
@@ -322,7 +388,7 @@ const _getGaugeOverviewData = memoize(
             const gaugeData = buildGaugeData(poolGauges);
             const lookupKeys = getGaugeLookupKeys(
                 ...poolGauges.map((gauge) => gauge.pool?.address),
-                ...poolGauges.map((gauge) => gauge.lp_token),
+                ...poolGauges.map((gauge) => gauge.lp_token)
             );
 
             lookupKeys.forEach((key) => {
@@ -332,14 +398,6 @@ const _getGaugeOverviewData = memoize(
             return acc;
         }, {} as IDict<IPricesGaugeData>);
     },
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
-const _getGaugesOverview = memoize(
-    async (): Promise<IPricesGaugesOverviewResponse> => await fetchJson("https://prices.curve.finance/v1/dao/gauges/overview") as IPricesGaugesOverviewResponse,
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
@@ -372,30 +430,49 @@ const fetchNonLitePoolsFromApi = async (network: INetworkName, chainId: number):
         if (!legacyPoolType) continue;
 
         const gaugeData = getGaugeData(gaugesByAddress, pool.address, pool.lp_token_address);
+        const assetTypeName = getReferenceAssetName(pool.pool_type);
+        const priceOracle = getPoolPriceOracle(pool.price_oracle);
+        const priceOracles = getPoolPriceOracles(pool.price_oracle);
+        const gaugeCrvApy = [gaugeData.gaugeCrvApy[0] ?? 0, gaugeData.gaugeCrvApy[1] ?? 0] as [number, number];
         poolsDict[legacyPoolType].poolData.push({
             id: pool.address.toLowerCase(),
             name: pool.name,
             symbol: pool.lp_token_symbol ?? pool.name,
-            assetTypeName: getReferenceAssetName(pool.pool_type),
+            assetTypeName,
+            ...(["main", "factory", "crvusd"].includes(pool.pool_type ?? "") ? { assetType: getAssetType(assetTypeName) } : {}),
             address: pool.address,
+            coinsAddresses: pool.coins.map((coin) => coin.address),
+            decimals: pool.coins.map((coin) => String(coin.decimals ?? 18)),
+            virtualPrice: pool.virtual_price == null ? "0" : String(pool.virtual_price),
             isMetaPool: pool.is_metapool ?? false,
-            basePoolAddress: pool.base_pool ?? undefined,
+            ...(pool.base_pool ? { basePoolAddress: pool.base_pool } : {}),
             lpTokenAddress: pool.lp_token_address ?? pool.address,
-            gaugeAddress: gaugeData.gaugeAddress,
+            ...(gaugeData.gaugeAddress ? { gaugeAddress: gaugeData.gaugeAddress } : {}),
             implementation: pool.pool_type ?? "",
-            implementationAddress: pool.implementation_address ?? "",
+            ...(pool.implementation_address ? { implementationAddress: pool.implementation_address } : {}),
+            priceOracle,
+            priceOracles,
             coins: pool.coins.map((coin, index) => ({
                 address: coin.address,
                 symbol: coin.symbol,
+                name: coin.name ?? coin.symbol,
                 decimals: String(coin.decimals ?? 18),
                 usdPrice: getCoinUsdPrice(pool.balances[index], pool.balances_usd[index]),
+                poolBalance: getCoinPoolBalance(pool.balances[index], coin.decimals),
+                isBasePoolLpToken: false,
             })),
+            poolUrls: buildPoolUrls(network, pool.address),
             gaugeRewards: gaugeData.gaugeRewards,
-            gaugeExtraRewards: gaugeData.gaugeRewards,
             usdTotal: pool.tvl_usd ?? 0,
+            usdTotalExcludingBasePool: pool.tvl_usd ?? 0,
             totalSupply: (pool.lp_token_supply ?? 0) * 1e18,
             amplificationCoefficient: String(pool.amplification_coefficient ?? ""),
-            gaugeCrvApy: gaugeData.gaugeCrvApy,
+            ...(gaugeData.gaugeAddress ? { gaugeCrvApy, gaugeFutureCrvApy: gaugeCrvApy } : {}),
+            usesRateOracle: priceOracle != null,
+            isBroken: false,
+            hasMethods: getPoolHasMethods(pool),
+            creationTs: pool.creation_ts ?? 0,
+            creationBlockNumber: pool.creation_block_number ?? 0,
         });
         poolsDict[legacyPoolType].tvl = (poolsDict[legacyPoolType].tvl ?? 0) + (pool.tvl_usd ?? 0);
     }
@@ -537,24 +614,41 @@ export const _getAllGauges = memoize(
             const gaugeAddress = resolveGaugeAddress(gauge);
             const rootGaugeAddress = getRootGaugeAddress(gauge);
             const isPool = gauge.pool != null && gauge.market == null;
-            const poolAddress = isPool ? gauge.pool?.address : null;
+            const targetAddress = gauge.pool?.address ?? gauge.market?.address ?? "";
             const lpTokenAddress = isPool ? gauge.lp_token : null;
+            const gaugeCrvApy = [gauge.crv_apr_base ?? 0, gauge.crv_apr_boosted ?? 0] as [number, number];
 
-            acc[gaugeAddress.toLowerCase()] = {
+            acc[getGaugeRecordKey(acc, gauge)] = {
                 blockchainId: chain,
+                isPool,
+                name: getGaugeEntryName(gauge),
                 gauge: gaugeAddress,
-                rootGauge: isSidechain ? rootGaugeAddress : undefined,
-                swap: poolAddress?.toLowerCase() ?? "",
+                ...(isSidechain ? { rootGauge: rootGaugeAddress } : {}),
+                poolAddress: targetAddress || undefined,
+                virtualPrice: 0,
+                factory: gauge.is_factory ?? false,
+                type: getGaugeType(gauge),
+                swap: isPool ? targetAddress.toLowerCase() : "",
                 swap_token: lpTokenAddress?.toLowerCase() ?? "",
-                shortName: gauge.pool?.name ?? gauge.name ?? "",
+                lpTokenPrice: gauge.lp_token_price ?? null,
+                shortName: getGaugeShortName(gauge),
+                gauge_data: {
+                    inflation_rate: "0",
+                    working_supply: getGaugeWorkingSupply(gauge),
+                },
                 gauge_controller: {
                     gauge_relative_weight: getGaugeRelativeWeight(gauge),
+                    gauge_future_relative_weight: "0",
                     get_gauge_weight: String(gauge.gauge_weight ?? "0"),
+                    inflation_rate: "0",
                 },
-                poolUrls: poolAddress ? buildPoolUrls(chain, poolAddress) : undefined,
+                gaugeCrvApy,
+                gaugeFutureCrvApy: gaugeCrvApy,
+                side_chain: isSidechain,
+                poolUrls: isPool && targetAddress ? buildPoolUrls(chain, targetAddress) : undefined,
                 is_killed: gauge.is_killed ?? false,
                 hasNoCrv: (gauge.emissions ?? 0) === 0,
-                gaugeStatus: isSidechain ? {} : null,
+                ...(isSidechain ? { gaugeStatus: {} } : {}),
             };
 
             return acc;

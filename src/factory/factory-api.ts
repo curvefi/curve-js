@@ -99,14 +99,14 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
 
     const implementationABIDict = this.constants.STABLE_FACTORY_CONSTANTS.implementationABIDict ?? {};
     let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, this.chainId, factoryType, this.isLiteChain)).poolData);
-    if (!isCrypto) rawPoolList = rawPoolList.filter((p) => is_ng || p.implementationAddress in implementationABIDict);
+    if (!isCrypto) rawPoolList = rawPoolList.filter((p) => is_ng || Boolean(p.implementationAddress && p.implementationAddress in implementationABIDict));
     // Filter duplications
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address);
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address));
 
     const swapABIs = isCrypto ? [] : rawPoolList.map((pool: IPoolDataFromApi) => is_ng ?
         (pool.isMetaPool ? MetaStableSwapNGABI : PlainStableSwapNGABI) :
-        implementationABIDict[pool.implementationAddress]);
+        implementationABIDict[pool.implementationAddress as string]);
     setFactorySwapContracts.call(this, rawPoolList, swapABIs, factoryType);
     if (factoryType === "factory-crypto") setCryptoFactoryTokenContracts.call(this, rawPoolList);
     setFactoryGaugeContracts.call(this, rawPoolList);

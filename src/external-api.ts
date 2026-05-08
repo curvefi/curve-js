@@ -9,158 +9,27 @@ import {
     IGaugesDataFromApi,
     INetworkName,
     IPoolType,
+    IPricesDaoProposalDetail,
+    IPricesDaoProposalListItem,
+    IPricesDaoProposalListResponse,
+    IPricesDaoProposalVote,
+    IPricesGauge,
+    IPricesGaugeData,
+    IPricesGaugePool,
+    IPricesGaugeReward,
+    IPricesGaugesOverviewResponse,
+    IPricesPool,
+    IPricesPoolsResponse,
     IRewardFromApi,
+    TPricesPoolType,
     IVolumeAndAPYs,
 } from "./interfaces";
-import { volumeNetworks } from "./constants/volumeNetworks.js";
-
-type TPricesPoolType = "main" | "crypto" | "factory" | "factory_crypto" | "crvusd" | "factory_tricrypto" | "stableswapng" | "twocryptong";
-
-interface IPricesPoolCoin {
-    symbol: string,
-    name?: string | null,
-    address: string,
-    decimals: number | null,
-}
-
-interface IPricesPool {
-    name: string,
-    address: string,
-    pool_type: TPricesPoolType | null,
-    lp_token_address?: string | null,
-    lp_token_symbol?: string | null,
-    lp_token_supply?: number | null,
-    daily_volume?: number | null,
-    base_daily_apr?: number | null,
-    base_weekly_apr?: number | null,
-    balances: number[],
-    balances_usd: number[],
-    coins: IPricesPoolCoin[],
-    tvl_usd: number,
-    base_pool?: string | null,
-    is_metapool?: boolean | null,
-    implementation_address?: string | null,
-    creation_ts?: number | null,
-    creation_block_number?: number | null,
-    amplification_coefficient?: number | null,
-    virtual_price?: number | string | null,
-    price_oracle?: number | number[] | null,
-    pool_methods?: string[] | null,
-}
-
-interface IPricesPoolsResponse {
-    total?: {
-        total_tvl?: number,
-        trading_volume_24h?: number,
-    },
-    data: IPricesPool[],
-}
-
-interface IPricesGaugeReward {
-    apr?: number | null,
-    name: string,
-    price?: number | null,
-    symbol: string,
-    address: string,
-    decimals?: number | null,
-}
-
-interface IPricesGaugePool {
-    address: string,
-    name?: string | null,
-    chain: string,
-}
-
-interface IPricesGauge {
-    address: string,
-    effective_address?: string | null,
-    gauge_type?: string | null,
-    name?: string | null,
-    lp_token?: string | null,
-    pool?: IPricesGaugePool | null,
-    market?: IPricesGaugePool | null,
-    rootAddress?: string | null,
-    rootGauge?: string | null,
-    gauge_relative_weight?: number | null,
-    gauge_weight?: string | number | null,
-    emissions?: number | null,
-    working_supply?: number | null,
-    lp_token_price?: number | null,
-    is_factory?: boolean | null,
-    poolUrls?: {
-        swap?: string[] | null,
-    } | null,
-    is_killed?: boolean | null,
-    hasNoCrv?: boolean | null,
-    gaugeStatus?: Record<string, boolean> | null,
-    crv_apr_base?: number | null,
-    crv_apr_boosted?: number | null,
-    extra_rewards?: IPricesGaugeReward[] | null,
-}
-
-interface IPricesGaugesOverviewResponse {
-    gauges: IPricesGauge[],
-}
-
-interface IPricesGaugeData {
-    gaugeAddress?: string,
-    gaugeRewards: IRewardFromApi[],
-    gaugeCrvApy: [number | null, number | null],
-}
-
-interface IPricesDaoProposalListItem {
-    vote_id: number,
-    vote_type: "parameter" | "ownership",
-    creator: string,
-    start_date: number,
-    snapshot_block: number,
-    ipfs_metadata: string | null,
-    metadata: string | null,
-    votes_for: string,
-    votes_against: string,
-    vote_count: number,
-    support_required: string,
-    min_accept_quorum: string,
-    total_supply: string,
-    executed: boolean,
-    execution_tx?: string | null,
-    execution_date?: string | null,
-    transaction_hash?: string,
-    dt?: string,
-}
-
-interface IPricesDaoProposalVote {
-    voter: string,
-    supports: boolean,
-    voting_power: string,
-    transaction_hash: string,
-}
-
-interface IPricesDaoProposalDetail extends IPricesDaoProposalListItem {
-    creator_voting_power: string,
-    script: string | null,
-    votes: IPricesDaoProposalVote[],
-}
-
-interface IPricesDaoProposalListResponse {
-    count: number,
-    page: number,
-    proposals: IPricesDaoProposalListItem[],
-}
-
-const EMPTY_EXTENDED_POOL_DATA: IExtendedPoolDataFromApi = { poolData: [], tvl: 0, tvlAll: 0 };
-const LEGACY_POOL_TYPES: readonly IPoolType[] = ["main", "crypto", "factory", "factory-crvusd", "factory-crypto", "factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const;
-const PRICES_POOL_TYPE_TO_LEGACY: Record<NonNullable<TPricesPoolType>, IPoolType> = {
-    main: "main",
-    crypto: "crypto",
-    factory: "factory",
-    crvusd: "factory-crvusd",
-    factory_crypto: "factory-crypto",
-    factory_tricrypto: "factory-tricrypto",
-    stableswapng: "factory-stable-ng",
-    twocryptong: "factory-twocrypto",
-};
-const SUPPORTED_NON_LITE_POOL_CHAIN_IDS = new Set<number>(volumeNetworks.getVolumes);
+import {
+    EMPTY_EXTENDED_POOL_DATA,
+    LEGACY_POOL_TYPES,
+    PRICES_POOL_TYPE_TO_LEGACY,
+    SUPPORTED_NON_LITE_POOL_CHAIN_IDS,
+} from "./constants/external-api.js";
 
 const createEmptyPoolsDict = (): Record<IPoolType, IExtendedPoolDataFromApi> => ({
     "main": { ...EMPTY_EXTENDED_POOL_DATA, poolData: [] },
@@ -360,7 +229,7 @@ const getGaugeData = (gaugesByAddress: IDict<IPricesGaugeData>, ...addresses: (s
 
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType): Promise<IExtendedPoolDataFromApi> => {
     const url = `https://api-core.curve.finance/v1/getPools/${network}/${poolType}`;
-    return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
+    return await fetchData(url) ?? { ...EMPTY_EXTENDED_POOL_DATA, poolData: [] };
 }
 
 const _getGaugesOverview = memoize(

@@ -906,10 +906,14 @@ export class PoolTemplate extends CorePool {
             }
             const tokenInfo = await curve.multicallProvider.all(tokenInfoCalls);
             for (let i = 0; i < tokens.length; i++) {
-                curve.constants.DECIMALS[tokens[i]] = tokenInfo[(i * 2) + 1] as number;
+                const rawDec = tokenInfo[(i * 2) + 1];
+                curve.constants.DECIMALS[tokens[i]] = Number(rawDec);
             }
 
-            return tokens.map((token, i) => ({ token, symbol: tokenInfo[i * 2] as string, decimals: tokenInfo[(i * 2) + 1] as number }));
+            return tokens.map((token, i) => {
+                const rawDec = tokenInfo[(i * 2) + 1];
+                return { token, symbol: tokenInfo[i * 2] as string, decimals: Number(rawDec) };
+            });
         } else if ('claimable_reward(address)' in gaugeContract) { // gauge_synthetix
             const rewardContract = curve.contracts[this.sRewardContract as string].contract;
             const method = "snx()" in rewardContract ? "snx" : "rewardsToken" // susd, tbtc : dusd, musd, rsv, sbtc

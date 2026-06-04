@@ -378,7 +378,7 @@ export async function getUserPoolList(this: Curve, address = this.signerAddress,
 
 export async function _getAmplificationCoefficientsFromApi(this: Curve): Promise<IDict<number>> {
     const network = this.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, this.isLiteChain);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, this.chainId, this.isLiteChain);
     const amplificationCoefficientDict: IDict<number> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {

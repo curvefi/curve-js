@@ -102,6 +102,9 @@ export interface ICoinFromPoolDataApi {
     symbol: string,
     decimals: string,
     usdPrice: number | string,
+    name?: string,
+    poolBalance?: string,
+    isBasePoolLpToken?: boolean,
 }
 
 export interface IReward {
@@ -121,25 +124,181 @@ export interface IRewardFromApi {
     apy: number
 }
 
+export type TPricesPoolType = "main" | "crypto" | "factory" | "factory_crypto" | "crvusd" | "factory_tricrypto" | "stableswapng" | "twocryptong";
+
+export interface IPricesPoolCoin {
+    symbol: string,
+    name?: string | null,
+    address: string,
+    decimals: number | null,
+}
+
+export interface IPricesPool {
+    name: string,
+    address: string,
+    pool_type: TPricesPoolType | null,
+    lp_token_address?: string | null,
+    lp_token_symbol?: string | null,
+    lp_token_supply?: number | null,
+    daily_volume?: number | null,
+    base_daily_apr?: number | null,
+    base_weekly_apr?: number | null,
+    balances: number[],
+    balances_usd: number[],
+    coins: IPricesPoolCoin[],
+    tvl_usd: number,
+    base_pool?: string | null,
+    is_metapool?: boolean | null,
+    implementation_address?: string | null,
+    creation_ts?: number | null,
+    creation_block_number?: number | null,
+    amplification_coefficient?: number | null,
+    virtual_price?: number | string | null,
+    price_oracle?: number | number[] | null,
+    pool_methods?: string[] | null,
+}
+
+export interface IPricesPoolsResponse {
+    total?: {
+        total_tvl?: number,
+        trading_volume_24h?: number,
+    },
+    data: IPricesPool[],
+}
+
+export interface IPricesGaugeReward {
+    apr?: number | null,
+    name: string,
+    price?: number | null,
+    symbol: string,
+    address: string,
+    decimals?: number | null,
+}
+
+export interface IPricesGaugePool {
+    address: string,
+    name?: string | null,
+    chain: string,
+}
+
+export interface IPricesGauge {
+    address: string,
+    effective_address?: string | null,
+    gauge_type?: string | null,
+    name?: string | null,
+    lp_token?: string | null,
+    pool?: IPricesGaugePool | null,
+    market?: IPricesGaugePool | null,
+    rootAddress?: string | null,
+    rootGauge?: string | null,
+    gauge_relative_weight?: number | null,
+    gauge_weight?: string | number | null,
+    emissions?: number | null,
+    working_supply?: number | null,
+    lp_token_price?: number | null,
+    is_factory?: boolean | null,
+    poolUrls?: {
+        swap?: string[] | null,
+    } | null,
+    is_killed?: boolean | null,
+    hasNoCrv?: boolean | null,
+    gaugeStatus?: Record<string, boolean> | null,
+    crv_apr_base?: number | null,
+    crv_apr_boosted?: number | null,
+    extra_rewards?: IPricesGaugeReward[] | null,
+}
+
+export interface IPricesGaugesOverviewResponse {
+    gauges: IPricesGauge[],
+}
+
+export interface IPricesGaugeData {
+    gaugeAddress?: string,
+    gaugeRewards: IRewardFromApi[],
+    gaugeCrvApy: [number | null, number | null],
+}
+
+export interface IPricesDaoProposalListItem {
+    vote_id: number,
+    vote_type: "parameter" | "ownership",
+    creator: string,
+    start_date: number,
+    snapshot_block: number,
+    ipfs_metadata: string | null,
+    metadata: string | null,
+    votes_for: string,
+    votes_against: string,
+    vote_count: number,
+    support_required: string,
+    min_accept_quorum: string,
+    total_supply: string,
+    executed: boolean,
+    execution_tx?: string | null,
+    execution_date?: string | null,
+    transaction_hash?: string,
+    dt?: string,
+}
+
+export interface IPricesDaoProposalVote {
+    voter: string,
+    supports: boolean,
+    voting_power: string,
+    transaction_hash: string,
+}
+
+export interface IPricesDaoProposalDetail extends IPricesDaoProposalListItem {
+    creator_voting_power: string,
+    script: string | null,
+    votes: IPricesDaoProposalVote[],
+}
+
+export interface IPricesDaoProposalListResponse {
+    count: number,
+    page: number,
+    proposals: IPricesDaoProposalListItem[],
+}
+
 export interface IPoolDataFromApi {
     id: string,
     name: string,
     symbol: string,
     assetTypeName: string,
+    assetType?: string,
     address: string,
+    coinsAddresses?: string[],
+    decimals?: string[],
+    virtualPrice?: string | number | null,
     isMetaPool: boolean,
     basePoolAddress?: string,
     lpTokenAddress?: string,
     gaugeAddress?: string,
     implementation: string,
-    implementationAddress: string,
+    implementationAddress?: string,
+    priceOracle?: string | number | null,
+    priceOracles?: Array<string | number> | null,
+    zapAddress?: string,
     coins: ICoinFromPoolDataApi[],
+    poolUrls?: {
+        swap: string[],
+        deposit?: string[],
+        withdraw?: string[],
+    },
     gaugeRewards: IRewardFromApi[],
     gaugeExtraRewards?: IRewardFromApi[],
     usdTotal: number,
+    usdTotalExcludingBasePool?: number,
     totalSupply: number,
     amplificationCoefficient: string,
-    gaugeCrvApy: [number | null, number | null],
+    gaugeCrvApy?: [number | null, number | null],
+    gaugeFutureCrvApy?: [number | null, number | null],
+    usesRateOracle?: boolean,
+    isBroken?: boolean,
+    hasMethods?: {
+        exchange_received?: boolean,
+        exchange_extended?: boolean,
+    },
+    creationTs?: number,
+    creationBlockNumber?: number,
 }
 
 export interface IPoolDataShort {
@@ -196,17 +355,35 @@ export interface IProfit {
 
 export interface IGaugesDataFromApi {
     blockchainId: string;
+    isPool?: boolean,
+    name?: string,
     gauge: string,
     rootGauge?: string,
+    poolAddress?: string,
+    virtualPrice?: number | string | null,
+    factory?: boolean,
+    type?: string | null,
     swap: string,
     swap_token: string,
+    lpTokenPrice?: number | null,
     shortName: string,
+    gauge_data?: {
+        inflation_rate?: string,
+        working_supply?: string,
+    },
     gauge_controller: {
         gauge_relative_weight: string,
+        gauge_future_relative_weight?: string,
         get_gauge_weight: string,
+        inflation_rate?: string,
     },
+    gaugeCrvApy?: [number | null, number | null],
+    gaugeFutureCrvApy?: [number | null, number | null],
+    side_chain?: boolean,
     poolUrls?: {
         swap: string[],
+        deposit?: string[],
+        withdraw?: string[],
     }
     is_killed?: boolean,
     hasNoCrv?: boolean,

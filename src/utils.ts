@@ -18,9 +18,7 @@ import {
 import {Curve} from "./curve.js";
 import {
     _getCurveLiteNetworks,
-    _getFactoryAPYs,
     _getLiteNetworksData,
-    _getSubgraphData,
     _getVolumes,
 } from "./external-api.js";
 import {_getAllPoolsFromApi, _getUsdPricesFromApi} from "./cached.js";
@@ -378,7 +376,7 @@ export function getPoolIdBySwapAddress(this: Curve, swapAddress: string): string
 
 export async function _getRewardsFromApi(this: Curve): Promise<IDict<IRewardFromApi[]>> {
     const network = this.constants.NETWORK_NAME;
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, this.isLiteChain);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(network, this.chainId, this.isLiteChain);
     const rewardsDict: IDict<IRewardFromApi[]> = {};
 
     for (const extendedPoolData of allTypesExtendedPoolData) {
@@ -396,7 +394,7 @@ export async function _getRewardsFromApi(this: Curve): Promise<IDict<IRewardFrom
 const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
 export async function _getUsdRate(this: Curve, assetId: string): Promise<number> {
     if (this.chainId === 1 && assetId.toLowerCase() === '0x8762db106b2c2a0bccb3a80d1ed41273552616e8') return 0; // RSR
-    const pricesFromApi = await _getUsdPricesFromApi(this.constants.NETWORK_NAME, this.isLiteChain);
+    const pricesFromApi = await _getUsdPricesFromApi(this.constants.NETWORK_NAME, this.chainId, this.isLiteChain);
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
 
     if (assetId === 'USD' || (this.chainId === 137 && (assetId.toLowerCase() === this.constants.COINS.am3crv.toLowerCase()))) return 1
@@ -733,7 +731,7 @@ export async function getNetworkConstants(this: Curve, chainId: IChainId | numbe
 
 export async function getTVL(this: Curve, chainId = this.chainId): Promise<number> {
     const networkConstants = await getNetworkConstants.call(this, chainId);
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(networkConstants.NAME, this.isLiteChain);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(networkConstants.NAME, chainId, networkConstants.IS_LITE_CHAIN);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }
@@ -745,12 +743,6 @@ export async function getVolumeApiController(this: Curve, network: INetworkName)
 
     if(volumeNetworks.getVolumes.includes(this.chainId)) {
         return await _getVolumes(network);
-    }
-    if(volumeNetworks.getFactoryAPYs.includes(this.chainId)) {
-        return await _getFactoryAPYs(network);
-    }
-    if(volumeNetworks.getSubgraphData.includes(this.chainId)) {
-        return await _getSubgraphData(network);
     }
 
     throw Error(`Can't get volume for network: ${network}`);

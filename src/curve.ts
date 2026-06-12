@@ -68,7 +68,7 @@ import {
     lowerCasePoolDataAddresses,
     parseUnits,
 } from "./constants/utils.js";
-import {_getHiddenPools} from "./external-api.js";
+import {_getHiddenPools, _getPoolFilters} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import {
@@ -523,9 +523,17 @@ export class Curve implements ICurve {
         this.contracts[address] = new Proxy(coreContract, proxyHandler)
     }
 
-    async _filterHiddenPools(pools: IDict<IPoolData>): Promise<IDict<IPoolData>> {
-        const hiddenPools = (await _getHiddenPools(this.isLiteChain))[this.constants.NETWORK_NAME] || [];
-        return Object.fromEntries(Object.entries(pools).filter(([id]) => !hiddenPools.includes(id))) as IDict<IPoolData>;
+    async _filterHiddenPools(pools: IDict<IPoolData>, isFiltered = false): Promise<IDict<IPoolData>> {
+        const hiddenPoolsAll = await _getHiddenPools(this.isLiteChain);
+        const hiddenPools = hiddenPoolsAll[this.constants.NETWORK_NAME];
+        let filteredAddresses: Set<string>
+        if (isFiltered) {
+            const poolFilters = await _getPoolFilters();
+            filteredAddresses = new Set(poolFilters[this.constants.NETWORK_NAME]);
+        }
+        return Object.fromEntries(Object.entries(pools).filter(([id, pool]) =>
+            !hiddenPools?.includes(id) && !filteredAddresses?.has(pool.swap_address)
+        )) as IDict<IPoolData>;
     }
 
     _updateDecimalsAndGauges(pools: IDict<IPoolData>): void {
@@ -533,7 +541,7 @@ export class Curve implements ICurve {
         this.constants.GAUGES = [ ...this.constants.GAUGES, ...extractGauges.call(this, pools) ];
     }
 
-    fetchFactoryPools = async (useApi = true): Promise<void> => {
+    fetchFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
         if (!("factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
@@ -541,13 +549,13 @@ export class Curve implements ICurve {
         } else {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
         }
-        this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA);
+        this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = this.isNoRPC ? null : await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
     }
 
-    fetchCrvusdFactoryPools = async (useApi = true): Promise<void> => {
+    fetchCrvusdFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
         if (!("crvusd_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
@@ -560,11 +568,11 @@ export class Curve implements ICurve {
                 await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory)
             );
         }
-        this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA);
+        this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
     }
 
-    fetchCryptoFactoryPools = async (useApi = true): Promise<void> => {
+    fetchCryptoFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
         if (!("crypto_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
@@ -575,13 +583,13 @@ export class Curve implements ICurve {
             }
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
-        this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = this.isNoRPC? null : await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
-    fetchStableNgFactoryPools = async (useApi = true): Promise<void> => {
+    fetchStableNgFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
         if (!("stable_ng_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
@@ -593,11 +601,11 @@ export class Curve implements ICurve {
             this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
         }
 
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
     }
 
-    fetchTworyptoFactoryPools = async (useApi = true): Promise<void> => {
+    fetchTworyptoFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
         if (!("twocrypto_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
@@ -608,7 +616,7 @@ export class Curve implements ICurve {
             }
             this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this));
         }
-        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
@@ -620,7 +628,7 @@ export class Curve implements ICurve {
         }
     }
 
-    fetchTricryptoFactoryPools = async (useApi = true): Promise<void> => {
+    fetchTricryptoFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
         if (!("tricrypto_factory" in this.constants.ALIASES)) return;
 
         if (useApi) {
@@ -631,7 +639,7 @@ export class Curve implements ICurve {
             }
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this));
         }
-        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {

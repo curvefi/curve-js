@@ -225,6 +225,25 @@ export const _getHiddenPools = memoize(
     }
 )
 
+export const _getPoolFilters = memoize(
+    async (): Promise<IDict<string[]>> => {
+        try {
+            const { data } = await fetchJson("https://prices.curve.finance/v1/chains/pool_filters");
+            return Object.fromEntries((data ?? []).map(
+                ({ chain, pools }: { chain: string, pools: { address: string }[] }) =>
+                    [chain, pools.map((pool) => pool.address.toLowerCase())]
+            ));
+        } catch (error) {
+            console.error('Error fetching pool filters:', error);
+            return {};
+        }
+    },
+    {
+        promise: true,
+        maxAge: 5 * 60 * 1000, // 5m
+    }
+)
+
 export const _generateBoostingProof = memoize(
     async (block: number, address: string): Promise<{ block_header_rlp: string, proof_rlp: string }> => {
         const url = `https://prices.curve.finance/v1/general/get_merkle_proof?block=${block}&account_address=${address}`;

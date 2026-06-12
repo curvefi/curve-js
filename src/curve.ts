@@ -525,16 +525,14 @@ export class Curve implements ICurve {
 
     async _filterHiddenPools(pools: IDict<IPoolData>, isFiltered = false): Promise<IDict<IPoolData>> {
         const hiddenPoolsAll = await _getHiddenPools(this.isLiteChain);
-        const hiddenPools = hiddenPoolsAll[this.constants.NETWORK_NAME] || [];
-
-        let filteredAddresses = new Set<string>();
+        const hiddenPools = hiddenPoolsAll[this.constants.NETWORK_NAME];
+        let filteredAddresses: Set<string>
         if (isFiltered) {
             const poolFilters = await _getPoolFilters();
-            filteredAddresses = new Set(poolFilters[this.constants.NETWORK_NAME] || []);
+            filteredAddresses = new Set(poolFilters[this.constants.NETWORK_NAME]);
         }
-
         return Object.fromEntries(Object.entries(pools).filter(([id, pool]) =>
-            !hiddenPools.includes(id) && !filteredAddresses.has(pool.swap_address)
+            !hiddenPools?.includes(id) && !filteredAddresses?.has(pool.swap_address)
         )) as IDict<IPoolData>;
     }
 

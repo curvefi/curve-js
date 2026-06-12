@@ -233,7 +233,8 @@ export const _getPoolFilters = memoize(
                 ({ chain, pools }: { chain: string, pools: { address: string }[] }) =>
                     [chain, pools.map((pool) => pool.address.toLowerCase())]
             ));
-        } catch {
+        } catch (error) {
+            console.error('Error fetching pool filters:', error);
             return {};
         }
     },

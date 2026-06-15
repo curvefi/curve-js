@@ -129,6 +129,7 @@ export class Curve implements ICurve {
     constants: INetworkConstants;
     nativeTokenAddress: string;
     poolAddressMapCache: IDict<string> | null;
+    routerBlacklist: string[];
 
     constructor() {
         this.provider = null!;
@@ -145,6 +146,7 @@ export class Curve implements ICurve {
         this.options = {};
         this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
         this.poolAddressMapCache = null;
+        this.routerBlacklist = [];
         this.constants = {
             NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',
@@ -185,6 +187,7 @@ export class Curve implements ICurve {
         this.constantOptions = { gasLimit: 12000000 }
         this.options = {};
         this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
+        this.routerBlacklist = [];
         this.constants = {
             NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',

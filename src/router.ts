@@ -36,6 +36,13 @@ import {YB_ASSETS} from "./constants/ybPools.js";
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
 
+export function setRouterBlacklist(this: Curve, blacklist: string[]): void {
+    this.routerBlacklist = (blacklist ?? []).map((a) => a.toLowerCase());
+    // Drop the memoized route graph / routes so they get rebuilt with the new blacklist
+    delete (this as any)._buildRouteGraph;
+    delete (this as any)._getBestRoute;
+}
+
 async function _getTVL(this: Curve, poolId: string) { return Number(await getPool.call(this, poolId).stats.totalLiquidityMemoized()) }
 
 async function entriesToDictAsync<T, U>(entries: [string, T][], mapper: (key: string, value: T) => Promise<U>): Promise<IDict<U>> {
@@ -55,7 +62,7 @@ async function _buildRouteGraphImpl(this: Curve, chainId: IChainId, isLiteChain:
     const allPools = Object.entries(this.getPoolsData()).filter(([id]) => !["crveth", "y", "busd", "pax", "susd", "aave"].includes(id));
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi.call(this);
     const poolTvlDict: IDict<number> = await entriesToDictAsync(allPools, _getTVL.bind(this));
-    const input: IRouteGraphInput = { constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict };
+    const input: IRouteGraphInput = { constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict, blacklist: this.routerBlacklist };
     return runWorker(routeGraphWorkerCode, routeGraphWorker, {type: 'createRouteGraph', ...input});
 }
 

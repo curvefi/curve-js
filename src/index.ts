@@ -25,6 +25,7 @@ import {
     approveFromCalldataEstimateGas,
     swapFromCalldata,
     swapFromCalldataEstimateGas,
+    setRouterBlacklist,
 } from "./router.js";
 import {
     isSupported,
@@ -364,6 +365,7 @@ export const createCurve = () => {
         router: {
             getBestRouteAndOutput: getBestRouteAndOutput.bind(_curve),
             getArgs: getArgs.bind(_curve),
+            setBlacklist: setRouterBlacklist.bind(_curve),
             expected: swapExpected.bind(_curve),
             required: swapRequired.bind(_curve),
             priceImpact: swapPriceImpact.bind(_curve),

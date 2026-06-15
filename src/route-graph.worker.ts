@@ -8,7 +8,8 @@ export type IRouteGraphInput = {
     isLiteChain: boolean,
     allPools: [string, IPoolData][],
     amplificationCoefficientDict: IDict<number>,
-    poolTvlDict: IDict<number>
+    poolTvlDict: IDict<number>,
+    blacklist?: string[]
 };
 
 export function routeGraphWorker() {
@@ -19,8 +20,10 @@ export function routeGraphWorker() {
         1: ['usdt'],  // Ethereum mainnet
     };
 
-    const createRouteGraph = ({constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict}: IRouteGraphInput): IDict<IDict<IRouteStep[]>> => {
+    const createRouteGraph = ({constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict, blacklist}: IRouteGraphInput): IDict<IDict<IRouteStep[]>> => {
         const routerGraph: IDict<IDict<IRouteStep[]>> = {}
+        // Pool addresses we don't want to index when building routes
+        const blacklistedPools = new Set((blacklist ?? []).map((a) => a.toLowerCase()));
         // ETH <-> WETH (exclude Celo)
         if (chainId !== 42220) {
             const wrapperAddress = constants.NATIVE_TOKEN.wrapperAddress || constants.NATIVE_TOKEN.wrappedAddress;
@@ -294,6 +297,9 @@ export function routeGraphWorker() {
             
             // Skip excluded pools from router
             if (EXCLUDED_POOLS_FROM_ROUTER[chainId]?.includes(poolId)) continue;
+
+            // Skip blacklisted pools
+            if (blacklistedPools.has(poolAddress)) continue;
 
             const excludedUnderlyingSwaps = (poolId === 'ib' && chainId === 1) ||
             (poolId === 'geist' && chainId === 250) ||

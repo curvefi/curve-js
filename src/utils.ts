@@ -401,6 +401,9 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
 
     if (assetId === 'USD' || (this.chainId === 137 && (assetId.toLowerCase() === this.constants.COINS.am3crv.toLowerCase()))) return 1
 
+    if (this.chainId === 5042 && (this.isEth(assetId) ||
+        assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase())) return 1;
+
     let chainName = this.isLiteChain? await this.constants.NETWORK_NAME : {
         1: 'ethereum',
         10: 'optimistic-ethereum',

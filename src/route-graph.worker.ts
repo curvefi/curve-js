@@ -24,8 +24,8 @@ export function routeGraphWorker() {
         const routerGraph: IDict<IDict<IRouteStep[]>> = {}
         // Pool addresses we don't want to index when building routes
         const blacklistedPools = new Set((blacklist ?? []).map((a) => a.toLowerCase()));
-        // ETH <-> WETH (exclude Celo)
-        if (chainId !== 42220) {
+        // ETH <-> WETH (exclude Celo, Arc — native USDC = ERC-20 USDC)
+        if (chainId !== 42220 && chainId !== 5042) {
             const wrapperAddress = constants.NATIVE_TOKEN.wrapperAddress || constants.NATIVE_TOKEN.wrappedAddress;
             
             routerGraph[constants.NATIVE_TOKEN.address] = {};

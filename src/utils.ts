@@ -667,9 +667,8 @@ export function computeEip1559Fees(
     let tip = (medianTip * BigInt(strategyConfig.tipMulBps)) / BigInt(10000);
 
     if (chainId === MAINNET_CHAIN_ID) {
-        tip = tip > BigInt(strategyConfig.minTipMainnet)
-            ? tip
-            : BigInt(strategyConfig.minTipMainnet)
+        const minTip = (latestBase * BigInt(strategyConfig.minTipBaseFeeBps)) / BigInt(10000);
+        tip = tip > minTip ? tip : minTip;
     }
 
     return { maxPriorityFeePerGas: tip, maxFeePerGas: adjustedBase + tip };

@@ -14,6 +14,9 @@ export type IRouteGraphInput = {
 
 export function routeGraphWorker() {
     const GRAPH_MAX_EDGES = 3;
+
+    const CELO_CHAIN_ID = 42220;
+    const ARC_CHAIN_ID = 5042; // native USDC is the same asset as its ERC-20 interface
     
     // Pools excluded from router
     const EXCLUDED_POOLS_FROM_ROUTER: Record<number, string[]> = {
@@ -25,7 +28,7 @@ export function routeGraphWorker() {
         // Pool addresses we don't want to index when building routes
         const blacklistedPools = new Set((blacklist ?? []).map((a) => a.toLowerCase()));
         // ETH <-> WETH (exclude Celo, Arc — native USDC = ERC-20 USDC)
-        if (chainId !== 42220 && chainId !== 5042) {
+        if (chainId !== CELO_CHAIN_ID && chainId !== ARC_CHAIN_ID) {
             const wrapperAddress = constants.NATIVE_TOKEN.wrapperAddress || constants.NATIVE_TOKEN.wrappedAddress;
             
             routerGraph[constants.NATIVE_TOKEN.address] = {};

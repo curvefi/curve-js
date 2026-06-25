@@ -35,6 +35,7 @@ import {
     GAS_STRATEGIES,
     MAINNET_CHAIN_ID,
 } from "./constants/gas.js";
+import {ARC_CHAIN_ID, POLYGON_CHAIN_ID, STABLE_CHAIN_ID} from "./constants/chainIds.js";
 
 
 export const ETH_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -399,7 +400,10 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
     const pricesFromApi = await _getUsdPricesFromApi(this.constants.NETWORK_NAME, this.isLiteChain);
     if (assetId.toLowerCase() in pricesFromApi) return pricesFromApi[assetId.toLowerCase()];
 
-    if (assetId === 'USD' || (this.chainId === 137 && (assetId.toLowerCase() === this.constants.COINS.am3crv.toLowerCase()))) return 1
+    if (assetId === 'USD' || (this.chainId === POLYGON_CHAIN_ID && (assetId.toLowerCase() === this.constants.COINS.am3crv.toLowerCase()))) return 1
+
+    if (this.chainId === ARC_CHAIN_ID && (this.isEth(assetId) ||
+        assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase())) return 1;
 
     let chainName = this.isLiteChain? await this.constants.NETWORK_NAME : {
         1: 'ethereum',
@@ -465,8 +469,8 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
         'LINK': 'link',
     }[assetId.toUpperCase()] || assetId
 
-    // Special case for chainId 988 native and wrapped tokens are USDT
-    if (this.chainId === 988) {
+    // Special case for chainId STABLE_CHAIN_ID native and wrapped tokens are USDT
+    if (this.chainId === STABLE_CHAIN_ID) {
         if (this.isEth(assetId) || assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase()) {
             assetId = 'tether';
         }
@@ -475,7 +479,7 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
     }
 
     // No EURT on Coingecko Polygon
-    if (this.chainId === 137 && assetId.toLowerCase() === this.constants.COINS.eurt) {
+    if (this.chainId === POLYGON_CHAIN_ID && assetId.toLowerCase() === this.constants.COINS.eurt) {
         chainName = 'ethereum';
         assetId = '0xC581b735A1688071A1746c968e0798D642EDE491'.toLowerCase(); // EURT Ethereum
     }
@@ -486,8 +490,8 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
     }
 
     if(this.isLiteChain && assetId.toLowerCase() === this.constants.API_CONSTANTS?.wrappedNativeTokenAddress.toLowerCase()) {
-        // For chainId 988, already handled above (tether)
-        if (this.chainId !== 988) {
+        // For chainId STABLE_CHAIN_ID, already handled above (tether)
+        if (this.chainId !== STABLE_CHAIN_ID) {
             assetId = nativeTokenName
         }
     }

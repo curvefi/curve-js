@@ -535,6 +535,13 @@ import curve from "@curvefi/api";
     await steth.stats.volume();
     // 174737430.35185483
 
+    await curve.getPoolVolumes();
+    // {
+    //     '0xa2b47e3d5c44877cca798226b7b8118f9bfb7a56': '123456789.123',
+    //     '0xdc24316b9ae028f1497c275eb9192a3ea0f67022': '174737430.35185483',
+    //     ...
+    // }
+
     await steth.stats.baseApy();
     // { day: '3.1587592896017647', week: '2.6522145719060752' } (as %)
     

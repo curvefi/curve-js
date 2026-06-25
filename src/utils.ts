@@ -769,6 +769,12 @@ export async function getVolume(this: Curve, chainId = this.chainId): Promise<{ 
     return { totalVolume, cryptoVolume, cryptoShare }
 }
 
+export async function getPoolVolumes(this: Curve) {
+    const { poolsData } = await getVolumeApiController.call(this, this.constants.NETWORK_NAME);
+    const entries = poolsData.map(({ address, volumeUSD }) => [address.toLowerCase(), `${volumeUSD}`]);
+    return Object.fromEntries(entries) as Record<`0x${string}`, `${number}`>;
+}
+
 export function _setContracts(this: Curve, address: string, abi: any) {
     const contracts = {
         abi,

@@ -46,7 +46,7 @@ export const tricryptoDeployImplementations = {
     },
     56: { // BSC
         amm_native_transfers_disabled: '0x6A8cbed756804B16E05E741eDaBd5cB544AE21bf'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0xBff334F8D5912AC5c4f2c590A2396d1C5d990123'.toLowerCase(), //0
+        amm_native_transfers_enabled: '0xc6C09471Ee39C7E30a067952FcC89c8922f9Ab53'.toLowerCase(), //0
         implementationIdx: 1,
     },
     100: { // XDAI

@@ -335,7 +335,7 @@ const ALIASES_BASE = lowerCaseValues({
 });
 
 const ALIASES_BSC = lowerCaseValues({
-    "crv": "0x8Ee73c484A26e0A5df2Ee2a4960B789967dd0415", // <--- TODO CHANGE
+    "crv": "0x9996D0276612d23b35f90C51EE935520B3d7355B",
     "child_gauge_factory": "0xe35A879E5EfB4F1Bb7F70dCF3250f2e19f096bd8",
     "child_gauge_factory_old": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
     "voting_escrow": "0x0000000000000000000000000000000000000000", // <-- TODO CHANGE
@@ -352,7 +352,7 @@ const ALIASES_BSC = lowerCaseValues({
     "crypto_factory": '0xBd5fBd2FA58cB15228a9Abdac9ec994f79E3483C',
     "stable_ng_factory": '0xd7E72f3615aa65b92A4DBdC211E296a35512988B',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
-    "tricrypto_factory": '0xc55837710bc500F1E3c7bb9dd1d51F7c5647E657',
+    "tricrypto_factory": '0x38f8D93406fA2d9924DcFcB67dB5B0521Fb20F7D',
 
     "factory_admin": '0x0000000000000000000000000000000000000000',
 });

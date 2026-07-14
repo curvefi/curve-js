@@ -36,10 +36,6 @@ const XDAI_MAIN_POOLS = ['rai', 'tricrypto', 'eureusd'];
 const XDAI_FACTORY_META_POOLS = ['factory-v2-4']; // ['MAI Stablecoin'];
 const XDAI_POOLS = [...XDAI_MAIN_POOLS, ...XDAI_FACTORY_META_POOLS];
 
-const FANTOM_MAIN_POOLS = ['fusdt', 'ib', 'geist'];
-const FANTOM_FACTORY_META_POOLS = ['factory-v2-16', 'factory-v2-40']; // ['FRAX2pool', 'Geist Frax'];
-const FANTOM_POOLS = [...FANTOM_MAIN_POOLS, ...FANTOM_FACTORY_META_POOLS];
-
 // ------------------------------------------
 
 const POOLS_FOR_TESTING = FACTORY_TRICRYPTO_POOLS;

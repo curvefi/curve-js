@@ -29,10 +29,6 @@ const FACTORY_POOLS_COUNT_POLYGON = 263;
 const MAIN_POOLS_AVALANCHE = [ 'aave', 'ren', 'atricrypto'];
 const FACTORY_POOLS_COUNT_AVALANCHE = 81;
 
-const MAIN_POOLS_FANTOM = ['2pool', 'fusdt', 'ren', 'tricrypto', 'ib', 'geist'];
-const FACTORY_POOLS_COUNT_FANTOM = 110;
-const CRYPTO_FACTORY_POOLS_COUNT_FANTOM = 6;
-
 const MAIN_POOLS_ARBITRUM = ['2pool', 'tricrypto', 'ren', 'eursusd'];
 const FACTORY_POOLS_COUNT_ARBITRUM = 40;
 

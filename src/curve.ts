@@ -80,7 +80,7 @@ import {
 } from "./utils.js";
 import {_setPoolsFromApi} from "./cached.js";
 
-export const OLD_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
+export const OLD_CHAINS = [1, 10, 56, 100, 137, 1284, 2222, 8453, 42161, 42220, 43114, 1313161554];  // these chains have non-ng pools
 
 export const memoizedContract = (): (address: string, abi: any, provider: BrowserProvider | JsonRpcProvider | Signer) => Contract => {
     const cache: Record<string, Contract> = {};

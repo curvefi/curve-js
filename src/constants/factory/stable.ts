@@ -31,7 +31,6 @@ import fraxusdcMetaZapABI from "../abis/fraxusdc/meta_zap.json" with { type: 'js
 import MetaUsdZapPolygonABI from "../abis/factory-v2/DepositZapMetaUsdPolygon.json" with { type: 'json' };
 import MetaBtcZapPolygonABI from "../abis/factory-v2/DepositZapMetaBtcPolygon.json" with { type: 'json' };
 import MetaZapFantomABI from "../abis/factory-v2/DepositZapFantom.json" with { type: 'json' };
-import MetaGeistUsdZapFantomABI from "../abis/factory-v2/DepositZapMetaUsd2Fantom.json" with { type: 'json' };
 import RenMetaZapABI from "../abis/ren/meta_zap.json" with { type: 'json' };
 import Sbtc2MetaZapABI from "../abis/sbtc2/meta_zap.json" with { type: 'json' };
 import { lowerCaseKeys } from "../utils.js";
@@ -351,21 +350,6 @@ export const basePoolIdZapDictPolygon: IDict<{ address: string, ABI: any }> = {
     },
 }
 
-export const basePoolIdZapDictFantom: IDict<{ address: string, ABI: any }> = {
-    '2pool': {
-        address: "0x78D51EB71a62c081550EfcC0a9F9Ea94B2Ef081c".toLowerCase(),
-        ABI: MetaZapFantomABI,
-    },
-    ren: {
-        address: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
-        ABI: MetaZapFantomABI,
-    },
-    geist: {
-        address: "0x247aEB220E87f24c40C9F86b65d6bd5d3c987B55".toLowerCase(),
-        ABI: MetaGeistUsdZapFantomABI,
-    },
-}
-
 export const basePoolIdZapDictAvalanche: IDict<{ address: string, ABI: any }> = {
     aave: {
         address: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
@@ -441,11 +425,6 @@ export const STABLE_FACTORY_CONSTANTS: { [index: number]: { implementationABIDic
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     196: { //XLAYER
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
-    250: {  // FANTOM
-        implementationABIDict: implementationABIDictFantom,
-        basePoolIdZapDict: basePoolIdZapDictFantom,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     252: { // FRAXTAL

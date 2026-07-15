@@ -410,11 +410,6 @@ export const checkVyperVulnerability = (
             "0xA9134FaE98F92217f457918505375Ae91fdc5e3c",
             "0xf31bcdf0B9a5eCD7AB463eB905551fBc32e51856",
         ].map((a) => a.toLowerCase()),
-        250: [ // Fantom
-            "0xE6358f6a45B502477e83CC1CDa759f540E4459ee",
-            "0x5d58Eb45e97B43e471AF05cD2b11CeB4106E1b1a",
-            "0xb11Dc44A9f981fAF1669dca6DD40c3cc2554A2ce",
-        ].map((a) => a.toLowerCase()),
         42161: [ // Arbitrum
             "0x7DA64233Fefb352f8F501B357c018158ED8aA455",
             "0xAAe75FAebCae43b9d541Fd875622BE48D9B4f5D0",

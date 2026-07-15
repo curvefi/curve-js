@@ -3,7 +3,6 @@ import {
     POOLS_DATA_ETHEREUM,
     LLAMMAS_DATA_ETHEREUM,
     POOLS_DATA_POLYGON,
-    POOLS_DATA_FANTOM,
     POOLS_DATA_AVALANCHE,
     POOLS_DATA_ARBITRUM,
     POOLS_DATA_OPTIMISM,
@@ -25,7 +24,6 @@ import {
     COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
     COINS_OPTIMISM,
     COINS_POLYGON, aTokensPolygon,
-    COINS_FANTOM, cTokensFantom, aTokensFantom,
     COINS_AVALANCHE, aTokensAvalanche,
     COINS_ARBITRUM,
     COINS_XDAI,
@@ -91,29 +89,6 @@ const ALIASES_POLYGON = lowerCaseValues({
     "stable_ng_factory": '0x1764ee18e8B3ccA4787249Ceb249356192594585',
     "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
     "tricrypto_factory": '0xC1b393EfEF38140662b91441C6710Aa704973228',
-
-    "factory_admin": "",
-});
-
-const ALIASES_FANTOM = lowerCaseValues({
-    "crv": "0x1E4F97b9f9F913c46F1632781732927B9019C68b",
-    "child_gauge_factory": "0x004A476B5B76738E34c86C7144554B9d34402F13",
-    "child_gauge_factory_old": "0xDb205f215f568ADf21b9573b62566f6d9a40bed6",
-    "voting_escrow": "0xb75dca485e21a77e1b433ecacb74475fc67e259c",
-    "fee_distributor": "0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc", // <-- DUMMY
-    "gauge_controller": "0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB",
-    "address_provider": "0x0000000022d53366457f9d5e68ec105046fc4383",
-
-    "router": "0x0DCDED3545D565bA3B19E683431381007245d983",
-    "deposit_and_stake": "0x37c5ab57AF7100Bdc9B668d766e193CCbF6614FD",
-    "stable_calc": "0xCA8d0747B5573D69653C3aC22242e6341C36e4b4",
-    "crypto_calc": '0xA72C85C258A81761433B4e8da60505Fe3Dd551CC',
-
-    "factory": "0x686d67265703d1f124c45e33d47d794c566889ba",
-    "crypto_factory": "0xE5De15A9C9bBedb4F5EC13B131E61245f2983A69",
-    "stable_ng_factory": '0xe61Fb97Ef6eBFBa12B36Ffd7be785c1F5A2DE66b',
-    "twocrypto_factory": '0x98EE851a00abeE0d95D08cF4CA2BdCE32aeaAF7F',
-    "tricrypto_factory": '0x9AF14D26075f142eb3F292D5065EB3faa646167b',
 
     "factory_admin": "",
 });
@@ -544,20 +519,6 @@ export const NETWORK_CONSTANTS: { [index: number]: any } = {
             wrappedAddress: '0xe538905cf8410324e03a5a23c1c177a474d59b2b'.toLowerCase(),
         },
     },
-    250: {
-        NAME: 'fantom',
-        ALIASES: ALIASES_FANTOM,
-        POOLS_DATA: POOLS_DATA_FANTOM,
-        COINS: COINS_FANTOM,
-        NATIVE_COIN: {
-            symbol: 'FTM',
-            wrappedSymbol: 'WFTM',
-            address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            wrappedAddress: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'.toLowerCase(),
-        },
-        cTokens: cTokensFantom,
-        aTokens: aTokensFantom,
-    },
     252: {
         NAME: 'fraxtal',
         ALIASES: ALIASES_FRAXTAL,
@@ -698,7 +659,6 @@ const registry_exchange_deprecated = {
     '10': '0x22d710931f01c1681ca1570ff016ed42eb7b7c2a',
     '100': '0xe6358f6a45b502477e83cc1cda759f540e4459ee',
     '137': '0x2a426b3bb4fa87488387545f15d01d81352732f9',
-    '250': '0xfd8c73d35e522648312a43e7ceb85fe12c8c1760',
     '324': '0x0000000000000000000000000000000000000000',
     '1284': '0x6600e98b71dabfD4A8Cac03b302B0189Adb86Afb',
     '2222': '0xcbf451d41f2ba5b0d169740fd01293dcaf9becb9',

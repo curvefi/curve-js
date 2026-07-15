@@ -305,7 +305,6 @@ export function routeGraphWorker() {
             if (blacklistedPools.has(poolAddress)) continue;
 
             const excludedUnderlyingSwaps = (poolId === 'ib' && chainId === 1) ||
-            (poolId === 'geist' && chainId === 250) ||
             (poolId === 'saave' && chainId === 1);
 
             // Wrapped coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)

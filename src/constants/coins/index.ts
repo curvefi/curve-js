@@ -1,6 +1,5 @@
 import { COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum } from "./ethereum.js";
 import { COINS_POLYGON, aTokensPolygon } from "./polygon.js";
-import { COINS_FANTOM, cTokensFantom, aTokensFantom } from "./fantom.js";
 import { COINS_AVALANCHE, aTokensAvalanche } from "./avalanche.js";
 import { COINS_ARBITRUM } from "./arbitrum.js";
 import { COINS_OPTIMISM } from "./optimism.js";
@@ -20,7 +19,6 @@ import { COINS_HYPERLIQUID } from "./hyperliquid.js";
 export {
     COINS_ETHEREUM, cTokensEthereum, yTokensEthereum, ycTokensEthereum, aTokensEthereum,
     COINS_POLYGON, aTokensPolygon,
-    COINS_FANTOM, cTokensFantom, aTokensFantom,
     COINS_AVALANCHE, aTokensAvalanche,
     COINS_ARBITRUM,
     COINS_OPTIMISM,

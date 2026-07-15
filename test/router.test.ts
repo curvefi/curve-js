@@ -65,9 +65,6 @@ describe('Router swap', async function () {
     // AVALANCHE
     // const coins = ['dai.e', 'weth.e', 'wbtc.e', 'usdc', 'usdt', 'btc.b', 'avax', 'wavax', '2crv', 'avusdt', 'av3crv', '0x130966628846bfd36ff31a822705796e8cb8c18d']; // mim
 
-    // FANTOM
-    // const coins = ['dai', 'usdc', 'fusdt', 'idai', 'iusdc', 'ifusdt', 'gdai', 'gusdc', 'gfusdt', 'dai+usdc', 'eth', 'btc', 'renbtc', 'frax', 'crv', '0x666a3776b3e82f171cb1dff7428b6808d2cd7d02']; // aCRV
-
     // ARBITRUM
     // const coins = ['usdc', 'usdt', 'wbtc', 'eth', 'weth', 'eurs', '2crv', "0x8e0B8c8BB9db49a46697F3a5Bb8A308e744821D2"]; // tricrypto LP
 

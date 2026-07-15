@@ -69,11 +69,6 @@ export const tricryptoDeployImplementations = {
         amm_native_transfers_enabled: '0x0C9D8c7e486e822C29488Ff51BFf0167B4650953'.toLowerCase(), //0
         implementationIdx: 1,
     },
-    250: {  // FANTOM
-        amm_native_transfers_disabled: '0xd125E7a0cEddF89c6473412d85835450897be6Dc'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0x76303e4fDcA0AbF28aB3ee42Ce086E6503431F1D'.toLowerCase(), //0
-        implementationIdx: 1,
-    },
     252: { // FRAXTAL
         amm_native_transfers_disabled: '0x1A83348F9cCFD3Fe1A8C0adBa580Ac4e267Fe495'.toLowerCase(), //1
         amm_native_transfers_enabled: '0xd3b17f862956464ae4403ccf829ce69199856e1e'.toLowerCase(), //0
@@ -161,9 +156,6 @@ export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: {
     },
     196: {  // X-LAYER
         tricryptoDeployImplementations: tricryptoDeployImplementations[196],
-    },
-    250: {  // FANTOM
-        tricryptoDeployImplementations: tricryptoDeployImplementations[250],
     },
     252: { // FRAXTAL
         tricryptoDeployImplementations: tricryptoDeployImplementations[252],

@@ -59,44 +59,14 @@ export const tricryptoDeployImplementations = {
         amm_native_transfers_enabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //0
         implementationIdx: 1,
     },
-    146: {  // SONIC
-        amm_native_transfers_disabled: '0xf3A6aa40cf048a3960E9664847E9a7be025a390a'.toLowerCase(), //0
-        amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(), //1
-        implementationIdx: 0,
-    },
-    196: {  // X-LAYER
-        amm_native_transfers_disabled: '0x64379C265Fc6595065D7d835AAaa731c0584dB80'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0x0C9D8c7e486e822C29488Ff51BFf0167B4650953'.toLowerCase(), //0
-        implementationIdx: 1,
-    },
     252: { // FRAXTAL
         amm_native_transfers_disabled: '0x1A83348F9cCFD3Fe1A8C0adBa580Ac4e267Fe495'.toLowerCase(), //1
         amm_native_transfers_enabled: '0xd3b17f862956464ae4403ccf829ce69199856e1e'.toLowerCase(), //0
         implementationIdx: 1,
     },
-    324: {  // ZKSYNC
-        amm_native_transfers_disabled: '0x1BD7d40CF9bBb63537746C89992f421bC35C6716'.toLowerCase(),
-        amm_native_transfers_enabled: '0x18d01726FeDaBd91579A9368DFB2F8A24f905280'.toLowerCase(),
-        implementationIdx: 0,
-    },
     999: {  // HYPERLIQUID
         amm_native_transfers_disabled: '0x635742dCC8313DCf8c904206037d962c042EAfBd'.toLowerCase(), // 1
         amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(), // 0
-        implementationIdx: 1,
-    },
-    1284: {  // MOONBEAM
-        amm_native_transfers_disabled: '0x0000000000000000000000000000000000000000'.toLowerCase(),
-        amm_native_transfers_enabled: '0x0000000000000000000000000000000000000000'.toLowerCase(),
-        implementationIdx: 0,
-    },
-    2222: {  // KAVA
-        amm_native_transfers_disabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0xFAbC421e3368D158d802684A217a83c083c94CeB'.toLowerCase(), //0
-        implementationIdx: 1,
-    },
-    5000: {  // MANTLE
-        amm_native_transfers_disabled: '0x7Ca46A636b02D4aBC66883D7FF164bDE506DC66a'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0x046207cB759F527b6c10C2D61DBaca45513685CC'.toLowerCase(), //0
         implementationIdx: 1,
     },
     8453: {  // BASE
@@ -107,21 +77,6 @@ export const tricryptoDeployImplementations = {
     42161: {  // ARBITRUM
         amm_native_transfers_disabled: '0x1f7C86AffE5bCF7a1D74a8c8E2ef9E03BF31c1BD'.toLowerCase(), //1
         amm_native_transfers_enabled: '0xd7E72f3615aa65b92A4DBdC211E296a35512988B'.toLowerCase(),  //0
-        implementationIdx: 1,
-    },
-    42220: {  // CELO
-        amm_native_transfers_disabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0xFAbC421e3368D158d802684A217a83c083c94CeB'.toLowerCase(), //0
-        implementationIdx: 1,
-    },
-    43114: {  // AVALANCHE
-        amm_native_transfers_disabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0xFAbC421e3368D158d802684A217a83c083c94CeB'.toLowerCase(), //0
-        implementationIdx: 1,
-    },
-    1313161554: {  // AURORA
-        amm_native_transfers_disabled: '0x3d6cB2F6DcF47CDd9C13E4e3beAe9af041d8796a'.toLowerCase(), //1
-        amm_native_transfers_enabled: '0x0c59d36b23f809f8b6C7cb4c8C590a0AC103baEf'.toLowerCase(), //0
         implementationIdx: 1,
     },
 }
@@ -151,43 +106,16 @@ export const CRYPTO_FACTORY_CONSTANTS: { [index: number]: {
         basePoolIdZapDict: basePoolIdZapDictPolygon,
         tricryptoDeployImplementations: tricryptoDeployImplementations[137],
     },
-    146: { // SONIC
-        tricryptoDeployImplementations: tricryptoDeployImplementations[146],
-    },
-    196: {  // X-LAYER
-        tricryptoDeployImplementations: tricryptoDeployImplementations[196],
-    },
     252: { // FRAXTAL
         tricryptoDeployImplementations: tricryptoDeployImplementations[252],
     },
-    324: {  // ZKSYNC
-        tricryptoDeployImplementations: tricryptoDeployImplementations[324],
-    },
     999: { // HYPERLIQUID
         tricryptoDeployImplementations: tricryptoDeployImplementations[999],
-    },
-    1284: {  // MOONBEAM
-        tricryptoDeployImplementations: tricryptoDeployImplementations[1284],
-    },
-    2222: {  // KAVA
-        tricryptoDeployImplementations: tricryptoDeployImplementations[2222],
-    },
-    5000: {  // MANTLE
-        tricryptoDeployImplementations: tricryptoDeployImplementations[5000],
     },
     8453: {  // BASE
         tricryptoDeployImplementations: tricryptoDeployImplementations[8453],
     },
     42161: {  // ARBITRUM
         tricryptoDeployImplementations: tricryptoDeployImplementations[42161],
-    },
-    42220: {  // CELO
-        tricryptoDeployImplementations: tricryptoDeployImplementations[42220],
-    },
-    43114: {  // AVALANCHE
-        tricryptoDeployImplementations: tricryptoDeployImplementations[43114],
-    },
-    1313161554: {  // AURORA
-        tricryptoDeployImplementations: tricryptoDeployImplementations[1313161554],
     },
 }

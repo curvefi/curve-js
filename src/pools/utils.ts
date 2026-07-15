@@ -94,7 +94,7 @@ async function _getUserClaimable(this: Curve, pools: string[], address: string, 
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool.call(this, poolId);
-            if (this.chainId === 324 || this.chainId === 2222 || pool.gauge.address === this.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
+            if (pool.gauge.address === this.constants.ZERO_ADDRESS) {
                 hasCrvReward.push(false);
                 continue;
 
@@ -239,7 +239,7 @@ async function _getUserClaimableUseApi(this: Curve, pools: string[], address: st
         const hasCrvReward: boolean[] = [];
         for (const poolId of poolsToFetch) {
             const pool = getPool.call(this, poolId);
-            if (this.chainId === 324 || this.chainId === 2222 || pool.gauge.address === this.constants.ZERO_ADDRESS) { // TODO remove this for ZkSync and Kava
+            if (pool.gauge.address === this.constants.ZERO_ADDRESS) {
                 hasCrvReward.push(false);
                 continue;
 
@@ -414,11 +414,6 @@ export const checkVyperVulnerability = (
             "0x7DA64233Fefb352f8F501B357c018158ED8aA455",
             "0xAAe75FAebCae43b9d541Fd875622BE48D9B4f5D0",
             "0x89287c32c2CAC1C76227F6d300B2DBbab6b75C08",
-        ].map((a) => a.toLowerCase()),
-        43114: [ // Avalanche
-            "0x64448B78561690B70E17CBE8029a3e5c1bB7136e",
-            "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc",
-            "0x0eb0F1FaF5F509Ac53fA224477509EAD167cf410",
         ].map((a) => a.toLowerCase()),
     };
 

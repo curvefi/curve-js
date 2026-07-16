@@ -131,7 +131,6 @@ export class PoolTemplate extends CorePool {
     }
 
     public rewardsOnly(): boolean {
-        if (this.curve.chainId === 2222 || this.curve.chainId === 324) return true;  // TODO remove this for Kava and ZkSync
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
         return !findAbiFunction(this.curve.contracts[this.gauge.address].abi, 'inflation_rate')
             .find((func) => ['', 'uint256'].includes(func.inputs.map((a) => `${a.type}`).join(',')))

@@ -228,7 +228,7 @@ export class StatsPool implements IStatsPool {
 
     public volume = async (): Promise<string> => {
         const curve = this.pool.curve;
-        if(curve.isLiteChain && curve.chainId !== 146) {
+        if(curve.isLiteChain) {
             throw Error('This method is not supported for the lite version')
         }
 
@@ -246,7 +246,7 @@ export class StatsPool implements IStatsPool {
 
     public baseApy = async (): Promise<{ day: string, week: string }> => {
         const curve = this.pool.curve;
-        if(curve.isLiteChain && curve.chainId !== 146) {
+        if(curve.isLiteChain) {
             throw Error('baseApy is not supported for the lite version')
         }
 

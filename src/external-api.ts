@@ -116,29 +116,6 @@ export const createCrvApyDict = (allTypesExtendedPoolData:  IExtendedPoolDataFro
     return apyDict
 }
 
-export const _getSubgraphData = memoize(
-    async (network: INetworkName): Promise<IVolumeAndAPYs> => {
-        const data = await fetchData(`https://api.curve.finance/api/getSubgraphData/${network}`);
-        const poolsData = data.poolList.map((data: any) => ({
-            address: data.address,
-            volumeUSD: data.volumeUSD,
-            day: data.latestDailyApy,
-            week: data.latestWeeklyApy,
-        }));
-
-        return {
-            poolsData: poolsData,
-            totalVolume: data.totalVolume ?? 0,
-            cryptoVolume: data.cryptoVolume ?? 0,
-            cryptoShare: data.cryptoShare ?? 0,
-        };
-    },
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
 export const _getVolumes = memoize(
     async (network: string): Promise<IVolumeAndAPYs> => {
 
@@ -155,31 +132,6 @@ export const _getVolumes = memoize(
             totalVolume: totalVolumes.totalVolume ?? 0,
             cryptoVolume: totalVolumes.totalCryptoVolume ?? 0,
             cryptoShare: totalVolumes.cryptoVolumeSharePcent ?? 0,
-        };
-    },
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
-export const _getFactoryAPYs = memoize(
-    async (network: string): Promise<IVolumeAndAPYs> => {
-        const [stableData, cryptoData] = await Promise.all(
-            ['stable', 'crypto'].map((type) => fetchData(`https://api.curve.finance/api/getFactoryAPYs/${network}/${type}`))
-        );
-        const stableVolume = stableData.totalVolumeUsd || stableData.totalVolume || 0;
-        const cryptoVolume = cryptoData.totalVolumeUsd || cryptoData.totalVolume || 0;
-        return {
-            poolsData: [...stableData.poolDetails, ...cryptoData.poolDetails].map((item) => ({
-                address: item.poolAddress,
-                volumeUSD: item.totalVolumeUsd ?? 0,
-                day: item.apy ?? 0,
-                week: (item.apy ?? 0) * 7, // Because api does not return week apy
-            })),
-            totalVolume: stableVolume + cryptoVolume,
-            cryptoVolume,
-            cryptoShare: 100 * cryptoVolume / (stableVolume + cryptoVolume),
         };
     },
     {

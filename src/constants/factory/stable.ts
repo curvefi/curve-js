@@ -10,7 +10,6 @@ import MetaBTCRenABI from "../abis/factory-v2/MetaBTCRen.json" with { type: 'jso
 import MetaBTCRenBalancesABI from "../abis/factory-v2/MetaBTCBalancesRen.json" with { type: 'json' };
 import MetaSbtc2ABI from "../abis/factory-v2/MetaSbtc2.json" with { type: 'json' };
 import MetaSbtc2BalancesABI from "../abis/factory-v2/MetaSbtc2Balance.json" with { type: 'json' };
-import MetaUSDGeistABI from "../abis/factory-v2/MetaUSDGeist.json" with { type: 'json' };
 import Plain2BasicABI from "../abis/factory-v2/Plain2Basic.json" with { type: 'json' };
 import Plain2BasicWithRatesABI from "../abis/factory-v2/Plain2BasicWithRates.json" with { type: 'json' };
 import Plain2BalancesABI from "../abis/factory-v2/Plain2Balances.json" with { type: 'json' };
@@ -105,55 +104,6 @@ export const implementationABIDictPolygon: IDict<any> = lowerCaseKeys({
     "0xAc273d5b4FC06625d8b1abA3BE8De15bDFb8E39f": Plain4OptimizedABI,
 });
 
-export const implementationABIDictFantom: IDict<any> = lowerCaseKeys({
-    "0xfCE359115dFe1533a2458650123F86C454BC0213": MetaUSDABI,
-    "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": MetaUSDBalancesABI,
-
-    "0xC9438d8928486bD9621D326002F4672bF684187A": MetaBTCRenABI,
-    "0x2b70A5B878665FfDB4A06Ba40a264d6c70f68F4B": MetaBTCRenBalancesABI,
-
-    "0x210C806F6AE850279f7E298dE749EC4B427d00DD": MetaUSDGeistABI,
-    "0xf82162bB68aD5a168345bb7EFb2faA0EDCCA5177": MetaUSDBalancesABI,
-
-    "0x61E10659fe3aa93d036d099405224E4Ac24996d0": Plain2BasicABI,
-    "0xd9Acb0BAeeD77C99305017821167674Cc7e82f7a": Plain2BalancesABI,
-    "0xE6358f6a45B502477e83CC1CDa759f540E4459ee": Plain2ETHABI,
-    "0xAD4768F408dD170e62E074188D81A29AE31B8Fd8": Plain2OptimizedABI,
-
-    "0x3cABd83bCa606768939B843f91df8f4963dBC079": Plain3BasicABI,
-    "0xD1602F68CC7C4c7B59D686243EA35a9C73B0c6a2": Plain3BalancesABI,
-    "0x5d58Eb45e97B43e471AF05cD2b11CeB4106E1b1a": Plain3ETHABI,
-    "0x7Ee25A34C921E4009B726cC6be0643fd6a39DbfE": Plain3OptimizedABI,
-
-    "0xABE216918fFDa43B44e3FC09639Fd82fD3527D89": Plain4BasicABI,
-    "0x775A21E0dfE25aF30FF2FCAC37512EbD8fD36471": Plain4BalancesABI,
-    "0xb11Dc44A9f981fAF1669dca6DD40c3cc2554A2ce": Plain4ETHABI,
-    "0x9D7C28226AA7142cBF234ab9aa9C203D095c528B": Plain4OptimizedABI,
-});
-
-export const implementationABIDictAvalanche: IDict<any> = lowerCaseKeys({
-    "0xA237034249290De2B07988Ac64b96f22c0E76fE0": MetaUSDABI,
-    "0xc50C05Ca1f8C2346664bd0d4a1eb6aC1Da38414f": MetaUSDBalancesABI, // 0x7f90122BF0700F9E7e1F688fe926940E8839F353
-
-    "0xa27f39E9C21b3376F43266E13Ad5A5d6E9BdB320": MetaBTCRenABI,
-    "0x505C34ED8dBE96d2D5C7D83158aA844887770970": MetaBTCRenBalancesABI, // 0x16a7DA911A4DD1d83F3fF066fE28F3C792C50d90
-
-    "0x697434ca761d4F86b553784B69F4f37F5eDf54dF": Plain2BasicABI,
-    "0xBdFF0C27dd073C119ebcb1299a68A6A92aE607F0": Plain2BalancesABI,
-    "0x64448B78561690B70E17CBE8029a3e5c1bB7136e": Plain2ETHABI,
-    "0x09672362833d8f703D5395ef3252D4Bfa51c15ca": Plain2OptimizedABI,
-
-    "0x1de7f0866e2c4adAC7b457c58Cc25c8688CDa1f2": Plain3BasicABI,
-    "0x094d12e5b541784701FD8d65F11fc0598FBC6332": Plain3BalancesABI,
-    "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc": Plain3ETHABI,
-    "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c": Plain3OptimizedABI,
-
-    "0x7544Fe3d184b6B55D6B36c3FCA1157eE0Ba30287": Plain4BasicABI,
-    "0x7D86446dDb609eD0F5f8684AcF30380a356b2B4c": Plain4BalancesABI,
-    "0x0eb0F1FaF5F509Ac53fA224477509EAD167cf410": Plain4ETHABI,
-    "0xCE94D3E5b0D80565D7B713A687b39a3Dc81780BA": Plain4OptimizedABI,
-});
-
 export const implementationABIDictArbitrum: IDict<any> = lowerCaseKeys({
     "0x09672362833d8f703D5395ef3252D4Bfa51c15ca": MetaUSDABI,
     "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5": MetaUSDBalancesABI,
@@ -225,57 +175,6 @@ export const implementationABIDictXDai: IDict<any> = lowerCaseKeys({
     "0xcB4eB43E31C830e22baF764c64F11F32C280496c": Plain4BalancesABI,
     "0xc1C49622b63B961ce1D352ecb7D8261Ab5556695": Plain4ETHABI,
     "0x0E2615ce69Cd3Dc3Ff6f66a975bEa0655F3bA7b9": Plain4OptimizedABI,
-});
-
-export const implementationABIDictMoonbeam: IDict<any> = lowerCaseKeys({
-    "0x6842E0412AC1c00464dc48961330156a07268d14": Plain2BasicABI,
-    "0x9fAe78C4bBB649deB7b2295dDB8A03adA7eB660F": Plain2BalancesABI,
-    "0xfCE359115dFe1533a2458650123F86C454BC0213": Plain2ETHABI,
-    "0x09C62ad0694e3f1ad8cF8876aaBe56138C586f5F": Plain2OptimizedABI,
-
-    "0xD19Baeadc667Cf2015e395f2B08668Ef120f41F5": Plain3BasicABI,
-    "0x04e39EF8332e979Cf8e4f8891E64934FF65F231b": Plain3BalancesABI,
-    "0xC9438d8928486bD9621D326002F4672bF684187A": Plain3ETHABI,
-    "0x2b70A5B878665FfDB4A06Ba40a264d6c70f68F4B": Plain3OptimizedABI,
-
-    "0x2D036f0Ff6F440dB623e0D9D3B5Daa509e5500C3": Plain4BasicABI,
-    "0x7Bb707085905c9D80854652809A1ba8480C11789": Plain4BalancesABI,
-    "0xec9cEBE650E181079576C1b6d0d2e092B1EdfF13": Plain4ETHABI,
-    "0xe8269B33E47761f552E1a3070119560d5fa8bBD6": Plain4OptimizedABI,
-});
-
-export const implementationABIDictKava: IDict<any> = lowerCaseKeys({
-    "0x2632679f5ca396a1bd2647092d9dbf7ec5d7b263": Plain2BasicABI,
-    "0x12f196251efcaca0fd73d5b58132b16760ba96a8": Plain2BalancesABI,
-    "0xafdab4f8f6e6992b16e3906295fba390aab59ca5": Plain2ETHABI,
-    "0x50d7a3e0d5350d52e9e08a1b58eefd1db8759d7d": Plain2OptimizedABI,
-
-    "0xc8913d486a42459e6b34db33f0c660fca61306b9": Plain3BasicABI,
-    "0xc5ec776a55ea062fa3173c6c76703e9c9fa91c47": Plain3BalancesABI,
-    "0xed2c5f2c4cab6e82630d5615ea15dd47d8b29983": Plain3ETHABI,
-    "0xe7d5293c01685a414ddde527eb5effbf92b52648": Plain3OptimizedABI,
-
-    "0x77016d2de65de15a3c36bebbddc90804f670d2d0": Plain4BasicABI,
-    "0xd59c875dccb6cdcb3a75b91b58a363b5e4b0ca9a": Plain4BalancesABI,
-    "0x6378dd741b24bd884f3590d7bc7555fdb2f5b003": Plain4ETHABI,
-    "0x509495dfeec3a53acb2f60669985d868131ad9a5": Plain4OptimizedABI,
-});
-
-export const implementationABIDictCelo: IDict<any> = lowerCaseKeys({
-    "0xfEE7166C32Bdf6356Ef60636f43400AA55551A96": Plain2BasicABI,
-    "0x183Bb362aAa53f24BDF76a5E0FE11eEEce21F44d": Plain2BalancesABI,
-    "0x469CF0874E62cfbaD342AE7e11aBCfC0F08dC17d": Plain2ETHABI,
-    "0xE5ddCc991c29d3a5350E1Eb669439F0237dB7490": Plain2OptimizedABI,
-
-    "0xBcdCADB91446366d10b293152c967e64dE789B92": Plain3BasicABI,
-    "0x9Adb8f6B5c4A6Be6625E46e2fd352B859B4bf711": Plain3BalancesABI,
-    "0x15Eb833Fa0689458Dc7B11517932780DfdFaa046": Plain3ETHABI,
-    "0xa72F339708461537223Bc415008eD61338Fe0CA2": Plain3OptimizedABI,
-
-    "0x59395Ef4FB6F266F7B117CF0a7223eC45d78A2AF": Plain4BasicABI,
-    "0x3730D8B82BF3fF6Cc6dFDBe2Fd7B2A655e74eAae": Plain4BalancesABI,
-    "0x0F5390AB4C5456a769056C96E4D7C71770b52319": Plain4ETHABI,
-    "0xA73b02a97B45604cd9f0BBAA153eCfe01f409350": Plain4OptimizedABI,
 });
 
 export const implementationABIDictBase: IDict<any> = lowerCaseKeys({
@@ -350,16 +249,6 @@ export const basePoolIdZapDictPolygon: IDict<{ address: string, ABI: any }> = {
     },
 }
 
-export const basePoolIdZapDictAvalanche: IDict<{ address: string, ABI: any }> = {
-    aave: {
-        address: "0x001E3BA199B4FF4B5B6e97aCD96daFC0E2e4156e".toLowerCase(),
-        ABI: MetaUsdZapPolygonABI,
-    },
-    ren: {
-        address: "0xEeB3DDBcc4174e0b3fd1C13aD462b95D11Ef42C3".toLowerCase(),
-        ABI: MetaBtcZapPolygonABI,
-    },
-}
 
 export const basePoolIdZapDictArbitrum: IDict<{ address: string, ABI: any }> = {
     "2pool": {
@@ -421,42 +310,14 @@ export const STABLE_FACTORY_CONSTANTS: { [index: number]: { implementationABIDic
         basePoolIdZapDict: basePoolIdZapDictPolygon,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
-    146: { // SONIC
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
-    196: { //XLAYER
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
     252: { // FRAXTAL
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
-    324: {  // ZKSYNC
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     999: { // HYPERLIQUID
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
-    1284: {  // MOONBEAM
-        implementationABIDict: implementationABIDictMoonbeam,
-    },
-    2222: {  // KAVA
-        implementationABIDict: implementationABIDictKava,
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
-    5000: { //MANTLE
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
     8453: {  // BASE
         implementationABIDict: implementationABIDictBase,
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
-    42220: {  // CELO
-        implementationABIDict: implementationABIDictCelo,
-        stableNgBasePoolZap: stableNgBasePoolZap,
-    },
-    43114: {  // AVALANCHE
-        implementationABIDict: implementationABIDictAvalanche,
-        basePoolIdZapDict: basePoolIdZapDictAvalanche,
         stableNgBasePoolZap: stableNgBasePoolZap,
     },
     42161: {  // ARBITRUM

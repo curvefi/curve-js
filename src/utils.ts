@@ -765,7 +765,6 @@ export async function getCoinsData(this: Curve, ...coins: string[] | string[][])
     if (coins.length == 1 && Array.isArray(coins[0])) coins = coins[0];
     coins = coins as string[];
     const coinAddresses = _getCoinAddressesNoCheck.call(this, coins);
-    console.log(coinAddresses);
 
     const ethIndex = this.getEthIndex(coinAddresses);
     if (ethIndex !== -1) {

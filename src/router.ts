@@ -472,7 +472,6 @@ export async function swap(this: Curve, inputCoin: string, outputCoin: string, a
 }
 
 export async function populateSwap(this: Curve, inputCoin: string, outputCoin: string, amount: number | string, slippage = 0.5): Promise<TransactionLike> {
-    console.log(inputCoin, outputCoin, amount, slippage);
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses.call(this, inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals.call(this, inputCoinAddress, outputCoinAddress);
 

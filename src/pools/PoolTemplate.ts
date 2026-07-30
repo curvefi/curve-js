@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import {_getAllGaugesFormatted} from '../external-api.js';
+import {_getAllGaugesFormatted, _getPoolFilters} from '../external-api.js';
 import {
     _cutZeros,
     _ensureAllowance,
@@ -323,6 +323,11 @@ export class PoolTemplate extends CorePool {
         return await this._calcLpTokenAmount(amounts, isDeposit, false);
     }
 
+    async _isPoolFiltered(): Promise<boolean> {
+        const poolFilters = await _getPoolFilters();
+        const filteredAddresses = poolFilters[this.curve.constants.NETWORK_NAME];
+        return filteredAddresses?.includes(this.address) ?? false;
+    }
 
     // ---------------- DEPOSIT ----------------
 
@@ -382,6 +387,8 @@ export class PoolTemplate extends CorePool {
     }
 
     public async depositExpectedBigInt(amounts: bigint[]): Promise<bigint> {
+        if (await this._isPoolFiltered()) return BigInt(0);
+
         return await this.calcLpTokenAmountBigInt(amounts);
     }
 
@@ -488,6 +495,7 @@ export class PoolTemplate extends CorePool {
         if (this.isFake) {
             throw Error(`depositWrappedExpectedBigInt method doesn't exist for pool ${this.name} (id: ${this.name})`);
         }
+        if (await this._isPoolFiltered()) return BigInt(0);
 
         return await this.calcLpTokenAmountWrappedBigInt(amounts);
     }
@@ -1564,6 +1572,8 @@ export class PoolTemplate extends CorePool {
     }
 
     public async withdrawOneCoinExpectedBigInt(lpTokenAmount: bigint, coin: string | number): Promise<bigint> {
+        if (await this._isPoolFiltered()) return BigInt(0);
+
         const i = this._getCoinIdx(coin);
         return await this._withdrawOneCoinExpected(lpTokenAmount, i);
     }
@@ -1796,6 +1806,8 @@ export class PoolTemplate extends CorePool {
     }
 
     public async swapExpectedBigInt(inputCoin: string | number, outputCoin: string | number, amount: bigint): Promise<bigint> {
+        if (await this._isPoolFiltered()) return BigInt(0);
+
         const i = this._getCoinIdx(inputCoin);
         const j = this._getCoinIdx(outputCoin);
         const _expected = await this._swapExpected(i, j, amount);

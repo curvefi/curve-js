@@ -76,6 +76,7 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0, factoryA
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
 
     const poolCount = Number(this.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
+    console.log('POOL COUNT:', poolCount)
 
     const calls = [];
     for (let i = fromIdx; i < poolCount; i++) {
@@ -222,6 +223,10 @@ async function getCoinsData(
         if (addr in existingCoinAddrNameDict) {
             coinAddrNamesDict[addr] = existingCoinAddrNameDict[addr];
             coinAddrDecimalsDict[addr] = existingCoinAddrDecimalsDict[addr];
+        } else if (addr === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2") {
+            // MKR symbol() returns bytes32 instead of string and breaks multicall decoding
+            coinAddrNamesDict[addr] = "MKR";
+            coinAddrDecimalsDict[addr] = 18;
         } else {
             newCoinAddresses.push(addr);
         }

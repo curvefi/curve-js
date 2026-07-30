@@ -817,8 +817,8 @@ export const getPoolName = (name: string): string => {
 
 export const isStableNgPool = (name: string): boolean => name.includes('factory-stable-ng')
 
-export const assetTypeNameHandler = (assetTypeName: string): REFERENCE_ASSET => {
-    if (assetTypeName.toUpperCase() === 'UNKNOWN') {
+export const assetTypeNameHandler = (assetTypeName: string | null): REFERENCE_ASSET => {
+    if (!assetTypeName || assetTypeName.toUpperCase() === 'UNKNOWN') {
         return 'OTHER';
     } else {
         return assetTypeName.toUpperCase() as REFERENCE_ASSET;

@@ -10,10 +10,13 @@ import {
     IPoolType,
     IVolumeAndAPYs,
 } from "./interfaces";
+import { getPoolsFromPricesApi } from "./prices-api.js";
 
 
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi> => {
-    const api = isLiteChain ? "https://api-core.curve.finance/v1/" : "https://api.curve.finance/api";
+    if (!isLiteChain) return await getPoolsFromPricesApi(network, poolType);
+
+    const api = "https://api-core.curve.finance/v1/";
     const url = `${api}/getPools/${network}/${poolType}`;
     return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
 }

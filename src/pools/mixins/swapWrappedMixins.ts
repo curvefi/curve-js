@@ -132,6 +132,8 @@ export const swapWrappedExpectedAndApproveMixin = {
     },
 
     async swapWrappedExpectedBigInt(this: PoolTemplate, inputCoin: string | number, outputCoin: string | number, amount: bigint): Promise<bigint> {
+        if (await this._isPoolFiltered()) return BigInt(0);
+
         const i = this._getCoinIdx(inputCoin, false);
         const j = this._getCoinIdx(outputCoin, false);
         const _expected = await this._swapWrappedExpected.call(this, i, j, amount);

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
-import {_getAllGaugesFormatted} from '../external-api.js';
+import {getGaugesOverview} from '../prices-api.js';
 import {
     _cutZeros,
     _ensureAllowance,
@@ -37,7 +37,6 @@ import {checkVyperVulnerability} from "./utils.js";
 
 export class PoolTemplate extends CorePool {
     isGaugeKilled: () => Promise<boolean>;
-    gaugeStatus: () => Promise<any>;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         deposit: (amounts: (number | string)[], slippage?: number) => Promise<number | number[]>,
@@ -83,7 +82,6 @@ export class PoolTemplate extends CorePool {
         this.stats = new StatsPool(this);
         this.wallet = new WalletPool(this);
         this.isGaugeKilled = this.getIsGaugeKilled.bind(this);
-        this.gaugeStatus = this.getGaugeStatus.bind(this);
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),
@@ -2147,16 +2145,10 @@ export class PoolTemplate extends CorePool {
         return await Promise.all(promises)
     }
 
-    private async getGaugeStatus(): Promise<any> {
-        const gaugeData = await _getAllGaugesFormatted();
-
-        return gaugeData[this.gauge.address] ? gaugeData[this.gauge.address].gaugeStatus : null;
-    }
-
-
     private async getIsGaugeKilled(): Promise<boolean> {
-        const gaugeData = await _getAllGaugesFormatted();
+        const gauges = await getGaugesOverview();
+        const gauge = gauges.find((g) => g.address.toLowerCase() === this.gauge.address.toLowerCase());
 
-        return gaugeData[this.gauge.address] ? gaugeData[this.gauge.address].is_killed : false;
+        return gauge?.is_killed ?? false;
     }
 }

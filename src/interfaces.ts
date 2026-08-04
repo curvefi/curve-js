@@ -194,25 +194,6 @@ export interface IProfit {
     price: number,
 }
 
-export interface IGaugesDataFromApi {
-    blockchainId: string;
-    gauge: string,
-    rootGauge?: string,
-    swap: string,
-    swap_token: string,
-    shortName: string,
-    gauge_controller: {
-        gauge_relative_weight: string,
-        get_gauge_weight: string,
-    },
-    poolUrls?: {
-        swap: string[],
-    }
-    is_killed?: boolean,
-    hasNoCrv?: boolean,
-    gaugeStatus?: Record<string, boolean> | null,
-}
-
 export interface IVotingGauge {
     poolUrl: string,
     network: string,

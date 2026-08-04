@@ -5,17 +5,9 @@ import { BLACK_LIST } from "../src/factory/factory.js";
 import { CorePool } from "../src/pools/subClasses/corePool.js";
 import { ETH_RPC, OPTIMISM_RPC } from "./rpcUrls.test.js";
 
-// Сравниваем данные всех фабрик, полученные через Curve API (fetchPools(true))
-// и напрямую из блокчейна (fetchPools(false)), на уровне полей ICorePool.
-//
-// Файл запускается с mocha --delay: сначала фетчим все данные (с прогрессом в консоли),
-// затем генерируем отдельный it() на каждый пул, чтобы mocha печатала результат по каждому пулу.
-
-declare const run: () => void; // предоставляется mocha при запуске с --delay
-
 interface IFactoryCase {
     title: string;
-    alias: string; // ключ в curve.constants.ALIASES; если его нет в сети - фабрика не существует
+    alias: string;
     fetchPools: (useApi: boolean) => Promise<void>;
     getData: () => IDict<IPoolData>;
 }
@@ -67,7 +59,6 @@ const toCorePools = (poolsData: IDict<IPoolData>): IDict<CorePool> => {
     return result;
 };
 
-// On-chain фетчер отфильтровывает пулы из BLACK_LIST, API - нет. Убираем их из API-снапшота.
 const removeBlacklisted = (poolsData: IDict<IPoolData>): IDict<IPoolData> => {
     const blacklist: string[] = BLACK_LIST[curve.chainId] ?? [];
     const result: IDict<IPoolData> = {};
@@ -79,13 +70,10 @@ const removeBlacklisted = (poolsData: IDict<IPoolData>): IDict<IPoolData> => {
     return result;
 };
 
-// Display-поля (имена пула и монет, reference asset) - в логике библиотеки не участвуют.
-// API отдаёт курируемые метаданные (FRAXBP вместо crvFRAX и т.п.), из блокчейна их не достать,
-// поэтому расхождения тут только логируются как [soft] и тест не валят.
+
 const SOFT_SCALAR_FIELDS: (keyof CorePool)[] = ["name", "fullName", "symbol", "referenceAsset"];
 const SOFT_ARRAY_FIELDS: (keyof CorePool)[] = ["underlyingCoins", "wrappedCoins"];
 
-// Функциональные поля - любое расхождение валит it() пула
 const STRICT_SCALAR_FIELDS: (keyof CorePool)[] = [
     "address", "lpToken", "zap",
     "sRewardContract", "rewardContract", "implementation",
@@ -126,7 +114,7 @@ const comparePool = (apiPool: CorePool, chainPool: CorePool) => {
         }
     }
 
-    // in_api проставляется только API-фетчером - это ожидаемая разница
+
     if (!apiPool.inApi) errors.push("inApi is expected to be true for API data");
     if (chainPool.inApi) errors.push("inApi is expected to be false for on-chain data");
 
@@ -146,7 +134,7 @@ const timed = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
     }
 };
 
-// Фетчим обе версии данных фабрики и генерируем describe с it() на каждый пул
+
 const buildFactorySuite = async (networkName: string, factoryCase: IFactoryCase) => {
     const suiteTitle = `${networkName} / ${factoryCase.title}`;
 
@@ -181,7 +169,6 @@ const buildFactorySuite = async (networkName: string, factoryCase: IFactoryCase)
             }
         });
     } catch (err) {
-        // Фетч упал - регистрируем падающий тест, чтобы ошибка попала в отчёт mocha
         describe(suiteTitle, function () {
             it("fetch pools data", function () {
                 throw err;
@@ -200,7 +187,7 @@ const main = async () => {
         }
 
         console.log(`\n${networkName}: initializing...`);
-        // Публичные RPC часто режут большие JSON-RPC батчи, для них можно задать RPC_BATCH_MAX_COUNT=1
+
         const batchMaxCount = process.env.RPC_BATCH_MAX_COUNT ? Number(process.env.RPC_BATCH_MAX_COUNT) : undefined;
         await curve.init("JsonRpc", { url: rpcUrl, batchMaxCount }, { gasPrice: 0 });
 

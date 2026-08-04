@@ -5,12 +5,11 @@ import {
     IDaoProposalListItem,
     IDict,
     IExtendedPoolDataFromApi,
-    IGaugesDataFromApi,
     INetworkName,
     IPoolType,
     IVolumeAndAPYs,
 } from "./interfaces";
-import { getPoolsFromPricesApi } from "./prices-api.js";
+import { getPoolsFromPricesApi, getVolumesFromPricesApi } from "./prices-api.js";
 
 
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi> => {
@@ -120,55 +119,10 @@ export const createCrvApyDict = (allTypesExtendedPoolData:  IExtendedPoolDataFro
 }
 
 export const _getVolumes = memoize(
-    async (network: string): Promise<IVolumeAndAPYs> => {
-
-        const { pools, totalVolumes } = await fetchData(`https://api.curve.finance/api/getVolumes/${network}`);
-        const poolsData = pools.map((data: any) => ({
-            address: data.address,
-            volumeUSD: data.volumeUSD,
-            day: data.latestDailyApyPcent,
-            week: data.latestWeeklyApyPcent,
-        }));
-
-        return {
-            poolsData: poolsData ?? [],
-            totalVolume: totalVolumes.totalVolume ?? 0,
-            cryptoVolume: totalVolumes.totalCryptoVolume ?? 0,
-            cryptoShare: totalVolumes.cryptoVolumeSharePcent ?? 0,
-        };
-    },
+    (network: INetworkName): Promise<IVolumeAndAPYs> => getVolumesFromPricesApi(network),
     {
         promise: true,
         maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
-export const _getAllGauges = memoize(
-    (): Promise<IDict<IGaugesDataFromApi>> => fetchData(`https://api.curve.finance/api/getAllGauges`),
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
-export const _getAllGaugesFormatted = memoize(
-    async (): Promise<IDict<any>> => {
-        const data = await fetchData(`https://api.curve.finance/api/getAllGauges`);
-
-        const gaugesDict: Record<string, any> = {}
-
-        Object.values(data).forEach((d: any) => {
-            gaugesDict[d.gauge.toLowerCase()] = {
-                is_killed: d.is_killed ?? false,
-                gaugeStatus: d.gaugeStatus ?? null,
-            }
-        });
-
-        return gaugesDict;
-    },
-    {
-        promise: true,
-        maxAge: 60 * 60 * 1000, // 60m
     }
 )
 

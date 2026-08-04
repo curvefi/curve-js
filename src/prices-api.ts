@@ -4,6 +4,8 @@ import {
     IPoolDataFromApi,
     IPoolType,
     INetworkName,
+    IVolumeAndAPYs,
+    IVolumeAndAPYsPoolData,
 } from "./interfaces";
 
 // --- Adapter for https://prices.curve.finance/v1/chains/{network} ---
@@ -83,6 +85,9 @@ interface IPricesChainPool {
     tvl_usd: number | null,
     balances: number[] | null,
     balances_usd: number[] | null,
+    trading_volume_24h: number | null,
+    base_daily_apr: number | null,
+    base_weekly_apr: number | null,
     coins: IPricesChainCoin[],
     amplification_coefficient: number | string | null,
 }
@@ -111,9 +116,15 @@ const _getPricesChainData = memoize(
 // Global (all chains) list of gauges, replacing the legacy api.curve.finance/getAllGauges
 // as the source of a pool's gauge address.
 
-interface IPricesGauge {
+export interface IPricesGauge {
     address: string,
-    pool: { address: string, chain: string } | null,
+    effective_address: string,
+    name: string,
+    lp_token: string,
+    pool: { address: string, name: string, chain: string } | null,
+    is_killed: boolean,
+    gauge_weight: string,
+    gauge_relative_weight: number,
 }
 
 interface IPricesGaugesOverviewResponse {
@@ -136,6 +147,13 @@ const getGaugeAddressByPoolAddress = async (network: INetworkName): Promise<Map<
         if (gauge.pool?.chain === network) map.set(gauge.pool.address.toLowerCase(), gauge.address.toLowerCase());
     }
     return map;
+};
+
+// Used by src/dao.ts (voting gauge list / user gauge votes) - see dao_gauges_migration_report.txt
+// for why rootGauge (the mainnet mirror address for L2 gauges) can't be reconstructed from this yet.
+export const getGaugesOverview = async (): Promise<IPricesGauge[]> => {
+    const { gauges } = await _getGaugesOverview();
+    return gauges ?? [];
 };
 
 // Curve factories deploy pools in strictly increasing order and never remove them, so
@@ -200,5 +218,38 @@ export const getPoolsFromPricesApi = async (network: INetworkName, poolType: IPo
         poolData,
         tvl: poolData.reduce((sum, p) => sum + p.usdTotal, 0),
         tvlAll: chainData.total?.total_tvl ?? 0,
+    };
+};
+
+// Cryptoswap-family pool types, matching how the legacy getVolumes endpoint split
+// totalVolume into totalVolume/totalCryptoVolume/cryptoVolumeSharePcent.
+const CRYPTO_POOL_TYPES: readonly TPricesPoolType[] = ["crypto", "factory_crypto", "factory_tricrypto", "twocryptong"];
+
+export const getVolumesFromPricesApi = async (network: INetworkName): Promise<IVolumeAndAPYs> => {
+    const chainData = await _getPricesChainData(network);
+    if (!chainData?.data) return { poolsData: [], totalVolume: 0, cryptoVolume: 0, cryptoShare: 0 };
+
+    let totalVolume = 0;
+    let cryptoVolume = 0;
+    const poolsData: IVolumeAndAPYsPoolData[] = chainData.data.map((pool) => {
+        const volumeUSD = pool.trading_volume_24h ?? 0;
+        totalVolume += volumeUSD;
+        if (CRYPTO_POOL_TYPES.includes(pool.pool_type)) cryptoVolume += volumeUSD;
+
+        return {
+            address: pool.address,
+            volumeUSD,
+            // legacy latestDailyApyPcent/latestWeeklyApyPcent are percentages (100 = 100%),
+            // the new API's base_daily_apr/base_weekly_apr are fractions (1.0 = 100%).
+            day: (pool.base_daily_apr ?? 0) * 100,
+            week: (pool.base_weekly_apr ?? 0) * 100,
+        };
+    });
+
+    return {
+        poolsData,
+        totalVolume,
+        cryptoVolume,
+        cryptoShare: totalVolume ? (cryptoVolume / totalVolume) * 100 : 0,
     };
 };

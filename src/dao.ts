@@ -1,6 +1,7 @@
 import { type Curve} from "./curve.js";
 import {Contract} from "ethers";
-import {_getAllGauges, _getDaoProposal, _getDaoProposalList} from './external-api.js';
+import {_getDaoProposal, _getDaoProposalList} from './external-api.js';
+import {getGaugesOverview, IPricesGauge} from './prices-api.js';
 import {
     _getAddress,
     BN,
@@ -217,22 +218,39 @@ export async function claimFees(this: Curve, address = ""): Promise<string> {
 
 // ----------------- Gauge weights -----------------
 
+// prices.curve.finance's gauge_relative_weight is already a 0-1 fraction (legacy's raw
+// gauge_controller.gauge_relative_weight, formatted via formatUnits(x, 16), was a 0-100 percentage) -
+// see dao_gauges_migration_report.txt.
+const toRelativeWeightPct = (gaugeRelativeWeight: number): string => (gaugeRelativeWeight * 100).toString();
+
+// Throws for gauges whose mainnet GaugeController entry is a root gauge mirroring an L2 gauge:
+// prices.curve.finance's /v1/dao/gauges/overview has no rootGauge-equivalent field yet (unlike the
+// legacy api.curve.finance/getAllGauges, which exposed it directly) - effective_address is just the
+// gauge's own address, not the mainnet mirror. Querying vote_user_slopes()/voting by the local L2
+// address silently returns nothing on the mainnet GaugeController, so we fail loudly instead of
+// producing wrong/missing data. See dao_gauges_migration_report.txt and gauge_mismatches.txt.
+const assertHasNoRootGaugeGap = (gauge: IPricesGauge): void => {
+    if (gauge.pool?.chain && gauge.pool.chain !== 'ethereum') {
+        throw Error(`Cannot resolve mainnet root gauge for L2 gauge ${gauge.address} (chain: ${gauge.pool.chain}) - prices.curve.finance API doesn't provide a root-gauge field yet`);
+    }
+};
+
 export async function getVotingGaugeList(this: Curve): Promise<IVotingGauge[]> {
     if (this.chainId !== 1) throw Error("Ethereum-only method")
-    const gaugeData = Object.values(await _getAllGauges());
-    const res = [];
-    for (let i = 0; i < gaugeData.length; i++) {
-        if ((gaugeData[i].is_killed || gaugeData[i].hasNoCrv) && Number(gaugeData[i].gauge_controller.gauge_relative_weight) === 0) continue;
+    const gaugeData = await getGaugesOverview();
+    const res: IVotingGauge[] = [];
+    for (const gauge of gaugeData) {
+        if (gauge.is_killed && gauge.gauge_relative_weight === 0) continue;
         res.push({
-            poolUrl: gaugeData[i].poolUrls?.swap[0] || '',
-            network: gaugeData[i].blockchainId,
-            gaugeAddress: gaugeData[i].gauge,
-            poolAddress: gaugeData[i].swap || '',
-            lpTokenAddress: gaugeData[i].swap_token || '',
-            poolName: gaugeData[i].shortName,
-            totalVeCrv: this.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
-            relativeWeight: this.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
-            isKilled: gaugeData[i].is_killed ?? false,
+            poolUrl: '', // prices API doesn't expose a curated pool URL - see gauge_mismatches.txt
+            network: gauge.pool?.chain ?? '',
+            gaugeAddress: gauge.address,
+            poolAddress: gauge.pool?.address ?? '',
+            lpTokenAddress: gauge.lp_token,
+            poolName: gauge.pool?.name ?? gauge.name,
+            totalVeCrv: this.formatUnits(gauge.gauge_weight, 18),
+            relativeWeight: toRelativeWeightPct(gauge.gauge_relative_weight),
+            isKilled: gauge.is_killed,
         });
     }
 
@@ -245,11 +263,11 @@ export async function userGaugeVotes(this: Curve, address = ""): Promise<{ gauge
     const gcMulticallContract = this.contracts[this.constants.ALIASES.gauge_controller].multicallContract;
     const veMulticallContract = this.contracts[this.constants.ALIASES.voting_escrow]. multicallContract;
 
-    const gaugeData = Object.values(await _getAllGauges());
+    const gaugeData = await getGaugesOverview();
     const calls: any[] = [veMulticallContract.balanceOf(address)];
-    for (const d of gaugeData) {
-        const gaugeAddress = d.rootGauge ? d.rootGauge : d.gauge;
-        calls.push(gcMulticallContract.vote_user_slopes(address, gaugeAddress));
+    for (const gauge of gaugeData) {
+        assertHasNoRootGaugeGap(gauge);
+        calls.push(gcMulticallContract.vote_user_slopes(address, gauge.address));
     }
     const [veCrvBalance, ...votes] = await this.multicallProvider.all(calls) as [bigint, bigint[]];
 
@@ -260,21 +278,22 @@ export async function userGaugeVotes(this: Curve, address = ""): Promise<{ gauge
         if (votes[i][1] === BigInt(0)) continue;
         let dt = votes[i][2] - BigInt(Math.floor(Date.now() / 1000));
         if (dt < BigInt(0)) dt = BigInt(0);
+        const gauge = gaugeData[i];
         res.gauges.push({
             userPower: this.formatUnits(votes[i][1], 2),
             userVeCrv: this.formatUnits(votes[i][0] * dt, 18),
             userFutureVeCrv: this.formatUnits(veCrvBalance * votes[i][1] / BigInt(10000), 18),
             expired: dt === BigInt(0),
             gaugeData: {
-                poolUrl: gaugeData[i].poolUrls?.swap[0] || '',
-                network: gaugeData[i].blockchainId,
-                gaugeAddress: gaugeData[i].gauge,
-                poolAddress: gaugeData[i].swap || '',
-                lpTokenAddress: gaugeData[i].swap_token || '',
-                poolName: gaugeData[i].shortName,
-                totalVeCrv: this.formatUnits(gaugeData[i].gauge_controller.get_gauge_weight, 18),
-                relativeWeight: this.formatUnits(gaugeData[i].gauge_controller.gauge_relative_weight, 16),
-                isKilled: gaugeData[i].is_killed ?? false,
+                poolUrl: '', // prices API doesn't expose a curated pool URL - see gauge_mismatches.txt
+                network: gauge.pool?.chain ?? '',
+                gaugeAddress: gauge.address,
+                poolAddress: gauge.pool?.address ?? '',
+                lpTokenAddress: gauge.lp_token,
+                poolName: gauge.pool?.name ?? gauge.name,
+                totalVeCrv: this.formatUnits(gauge.gauge_weight, 18),
+                relativeWeight: toRelativeWeightPct(gauge.gauge_relative_weight),
+                isKilled: gauge.is_killed,
             },
         });
         powerUsed += votes[i][1];

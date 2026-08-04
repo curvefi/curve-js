@@ -22,6 +22,7 @@
     "lint:fix": "eslint src --fix",
     "watch": "tsc --watch",
     "test:core-pools": "tsc --project tsconfig.test.json && mocha --delay --timeout 600000 dist/test/corePoolsData.test.js",
+    "test:hidden-pools": "tsc --project tsconfig.test.json && mocha --delay --timeout 600000 dist/test/hiddenPools.test.js",
     "watch:lib": "rm -rf lib && tsc --watch --project tsconfig.build.json"
   },
   "type": "module",

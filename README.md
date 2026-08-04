@@ -402,13 +402,6 @@ import curve from "@curvefi/api";
     // true
     await pool.isGaugeKilled();
     // false
-    await pool.gaugeStatus();
-    // null OR
-    //{
-    //      rewardsNeedNudging: false,
-    //      areCrvRewardsStuckInBridge: false,
-    //
-    // }
 })()
 ````
 

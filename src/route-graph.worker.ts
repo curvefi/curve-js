@@ -245,6 +245,39 @@ export function routeGraphWorker() {
             }];
         }
 
+        // sDOLA <-> DOLA (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.dola] = {};
+            routerGraph[constants.COINS.dola][constants.COINS.sdola] = [{
+                poolId: "sDOLA wrapper",
+                swapAddress: constants.COINS.sdola,
+                inputCoinAddress: constants.COINS.dola,
+                outputCoinAddress: constants.COINS.sdola,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.sdola] = {};
+            routerGraph[constants.COINS.sdola][constants.COINS.dola] = [{
+                poolId: "sDOLA wrapper",
+                swapAddress: constants.COINS.sdola,
+                inputCoinAddress: constants.COINS.sdola,
+                outputCoinAddress: constants.COINS.dola,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
         // USDe -> sUSDe (Ethereum only)
         if (chainId === 1) {
             routerGraph[constants.COINS.usde] = {};

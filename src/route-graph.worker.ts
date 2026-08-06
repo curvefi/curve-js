@@ -279,6 +279,72 @@ export function routeGraphWorker() {
             }];
         }
 
+        // svZCHF <-> ZCHF (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.zchf] = {};
+            routerGraph[constants.COINS.zchf][constants.COINS.svzchf] = [{
+                poolId: "svZCHF wrapper",
+                swapAddress: constants.COINS.svzchf,
+                inputCoinAddress: constants.COINS.zchf,
+                outputCoinAddress: constants.COINS.svzchf,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.svzchf] = {};
+            routerGraph[constants.COINS.svzchf][constants.COINS.zchf] = [{
+                poolId: "svZCHF wrapper",
+                swapAddress: constants.COINS.svzchf,
+                inputCoinAddress: constants.COINS.svzchf,
+                outputCoinAddress: constants.COINS.zchf,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
+        // syrupUSDC <-> USDC (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.usdc] = {};
+            routerGraph[constants.COINS.usdc][constants.COINS.syrupusdc] = [{
+                poolId: "syrupUSDC wrapper",
+                swapAddress: constants.COINS.syrupusdc,
+                inputCoinAddress: constants.COINS.usdc,
+                outputCoinAddress: constants.COINS.syrupusdc,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.syrupusdc] = {};
+            routerGraph[constants.COINS.syrupusdc][constants.COINS.usdc] = [{
+                poolId: "syrupUSDC wrapper",
+                swapAddress: constants.COINS.syrupusdc,
+                inputCoinAddress: constants.COINS.syrupusdc,
+                outputCoinAddress: constants.COINS.usdc,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
         // USDe -> sUSDe (Ethereum only)
         if (chainId === 1) {
             routerGraph[constants.COINS.usde] = {};

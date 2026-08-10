@@ -74,7 +74,7 @@ export const TWOCRYPTO_IMPLEMENTATIONS: TwoCryptoImplementationInfo[] = [
 export function getTwoCryptoImplementations(chainId?: number, uiOnly: boolean = false): TwoCryptoImplementationInfo[] {
     let implementations = TWOCRYPTO_IMPLEMENTATIONS;
     if (uiOnly) implementations = implementations.filter((impl) => impl.availableInUI);
-    if (chainId !== undefined) implementations = implementations.filter((impl) => impl.addresses[chainId] !== undefined);
+    if (chainId) implementations = implementations.filter((impl) => chainId in impl.addresses);
     return implementations;
 }
 

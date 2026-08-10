@@ -224,7 +224,6 @@ async function getCoinsData(
             coinAddrNamesDict[addr] = existingCoinAddrNameDict[addr];
             coinAddrDecimalsDict[addr] = existingCoinAddrDecimalsDict[addr];
         } else if (addr === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2") {
-            // MKR symbol() returns bytes32 instead of string and breaks multicall decoding
             coinAddrNamesDict[addr] = "MKR";
             coinAddrDecimalsDict[addr] = 18;
         } else {

@@ -680,7 +680,7 @@ export async function getNetworkConstants(this: Curve, chainId: IChainId | numbe
     } else {
         const NAME = getNetworkNameByChainId(chainId, await _getCurveLiteNetworks());
         if (NAME === "Unknown Network") throw Error(`Wrong chain id: ${chainId}`);
-        return  {... await _getLiteNetworksData(NAME), NAME, IS_LITE_CHAIN: true };
+        return  {... await _getLiteNetworksData(chainId), NAME, IS_LITE_CHAIN: true };
     }
 }
 

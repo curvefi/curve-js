@@ -10,14 +10,16 @@ import {
     IVolumeAndAPYs,
 } from "./interfaces";
 import { getPoolsFromPricesApi, getVolumesFromPricesApi } from "./prices-api.js";
+import {
+    getLiteDeploymentFromApi2,
+    getLiteNetworksFromApi2,
+    getLitePoolsFromApi2,
+} from "./lite-api.js";
 
 
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi> => {
     if (!isLiteChain) return await getPoolsFromPricesApi(network, poolType);
-
-    const api = "https://api-core.curve.finance/v1/";
-    const url = `${api}/getPools/${network}/${poolType}`;
-    return await fetchData(url) ?? { poolData: [], tvl: 0, tvlAll: 0 };
+    return await getLitePoolsFromApi2(network, poolType);
 }
 
 const getPoolTypes = (isLiteChain: boolean) => isLiteChain ? ["factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const :
@@ -126,14 +128,6 @@ export const _getVolumes = memoize(
     }
 )
 
-export const _getHiddenPools = memoize(
-    (isLiteChain: boolean): Promise<IDict<string[]>> => fetchData(`https://${isLiteChain ? 'api-core' : 'api'}.curve.finance/v1/getHiddenPools`),
-    {
-        promise: true,
-        maxAge: 5 * 60 * 1000, // 5m
-    }
-)
-
 export const _getPoolFilters = memoize(
     async (): Promise<IDict<string[]>> => {
         try {
@@ -188,16 +182,10 @@ export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: num
 // --- CURVE LITE ---
 
 export const _getLiteNetworksData = memoize(
-    async (networkName: string): Promise<any> => {
+    async (chainId: number): Promise<any> => {
         try {
-            const url = `https://api-core.curve.finance/v1/getDeployment/${networkName}`;
-            const response = await fetch(url);
-            const {data} = await response.json() ?? {};
-
-            if (response.status !== 200 || !data) {
-                console.error('Failed to fetch network data:', response.status, data);
-                return null;
-            }
+            const data = await getLiteDeploymentFromApi2(chainId);
+            if (!data) return null;
 
             const { config, contracts } = data;
 
@@ -250,29 +238,12 @@ export const _getLiteNetworksData = memoize(
 
 export const _getCurveLiteNetworks = memoize(
     async (): Promise<ICurveLiteNetwork[]> => {
-        const response = await fetch(`https://api-core.curve.finance/v1/getPlatforms`);
-        const {data} = await response.json() ?? {};
-
-        if (response.status !== 200 || !data?.platforms) {
-            console.error('Failed to fetch Curve platforms:', response);
+        try {
+            return await getLiteNetworksFromApi2();
+        } catch (error) {
+            console.error('Failed to fetch Curve platforms:', error);
             return [];
         }
-
-        const { platforms, platformsMetadata } = data;
-        return Object.keys(platforms)
-            .map((id) => {
-                const { name, rpcUrl, nativeCurrencySymbol, explorerBaseUrl, isMainnet, chainId} = platformsMetadata[id] ?? {};
-                return name && {
-                    id,
-                    name,
-                    rpcUrl,
-                    chainId,
-                    explorerUrl: explorerBaseUrl,
-                    nativeCurrencySymbol,
-                    isTestnet: !isMainnet,
-                };
-            })
-            .filter(Boolean);
     },
     {
         promise: true,
@@ -283,9 +254,4 @@ export const _getCurveLiteNetworks = memoize(
 async function fetchJson(url: string) {
     const response = await fetch(url);
     return await response.json() ?? {};
-}
-
-async function fetchData(url: string) {
-    const {data} = await fetchJson(url);
-    return data;
 }

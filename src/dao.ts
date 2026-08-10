@@ -218,17 +218,8 @@ export async function claimFees(this: Curve, address = ""): Promise<string> {
 
 // ----------------- Gauge weights -----------------
 
-// prices.curve.finance's gauge_relative_weight is already a 0-1 fraction (legacy's raw
-// gauge_controller.gauge_relative_weight, formatted via formatUnits(x, 16), was a 0-100 percentage) -
-// see dao_gauges_migration_report.txt.
 const toRelativeWeightPct = (gaugeRelativeWeight: number): string => (gaugeRelativeWeight * 100).toString();
 
-// Throws for gauges whose mainnet GaugeController entry is a root gauge mirroring an L2 gauge:
-// prices.curve.finance's /v1/dao/gauges/overview has no rootGauge-equivalent field yet (unlike the
-// legacy api.curve.finance/getAllGauges, which exposed it directly) - effective_address is just the
-// gauge's own address, not the mainnet mirror. Querying vote_user_slopes()/voting by the local L2
-// address silently returns nothing on the mainnet GaugeController, so we fail loudly instead of
-// producing wrong/missing data. See dao_gauges_migration_report.txt and gauge_mismatches.txt.
 const assertHasNoRootGaugeGap = (gauge: IPricesGauge): void => {
     if (gauge.pool?.chain && gauge.pool.chain !== 'ethereum') {
         throw Error(`Cannot resolve mainnet root gauge for L2 gauge ${gauge.address} (chain: ${gauge.pool.chain}) - prices.curve.finance API doesn't provide a root-gauge field yet`);
@@ -242,7 +233,7 @@ export async function getVotingGaugeList(this: Curve): Promise<IVotingGauge[]> {
     for (const gauge of gaugeData) {
         if (gauge.is_killed && gauge.gauge_relative_weight === 0) continue;
         res.push({
-            poolUrl: '', // prices API doesn't expose a curated pool URL - see gauge_mismatches.txt
+            poolUrl: '',
             network: gauge.pool?.chain ?? '',
             gaugeAddress: gauge.address,
             poolAddress: gauge.pool?.address ?? '',
@@ -285,7 +276,7 @@ export async function userGaugeVotes(this: Curve, address = ""): Promise<{ gauge
             userFutureVeCrv: this.formatUnits(veCrvBalance * votes[i][1] / BigInt(10000), 18),
             expired: dt === BigInt(0),
             gaugeData: {
-                poolUrl: '', // prices API doesn't expose a curated pool URL - see gauge_mismatches.txt
+                poolUrl: '',
                 network: gauge.pool?.chain ?? '',
                 gaugeAddress: gauge.address,
                 poolAddress: gauge.pool?.address ?? '',

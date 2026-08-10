@@ -68,7 +68,7 @@ import {
     lowerCasePoolDataAddresses,
     parseUnits,
 } from "./constants/utils.js";
-import {_getHiddenPools, _getPoolFilters} from "./external-api.js";
+import {_getPoolFilters} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import {
@@ -522,24 +522,12 @@ export class Curve implements ICurve {
         this.contracts[address] = new Proxy(coreContract, proxyHandler)
     }
 
-    // Hidden-pool filtering only matters for the RPC path (useApi: false) - the RPC fetchers just
-    // enumerate every pool a factory contract ever deployed, with zero curation, so spam/broken
-    // pools would otherwise leak straight into e.g. FACTORY_POOLS_DATA. The API path (useApi: true)
-    // already doesn't return these pools (confirmed empirically against prices.curve.finance), so
-    // skip the extra _getHiddenPools() fetch there.
-    async _filterHiddenPools(pools: IDict<IPoolData>, useApi: boolean, isFiltered = false): Promise<IDict<IPoolData>> {
-        let hiddenPools: string[] | undefined;
-        if (!useApi) {
-            const hiddenPoolsAll = await _getHiddenPools(this.isLiteChain);
-            hiddenPools = hiddenPoolsAll[this.constants.NETWORK_NAME];
-        }
-        let filteredAddresses: Set<string>
-        if (isFiltered) {
-            const poolFilters = await _getPoolFilters();
-            filteredAddresses = new Set(poolFilters[this.constants.NETWORK_NAME]);
-        }
-        return Object.fromEntries(Object.entries(pools).filter(([id, pool]) =>
-            !hiddenPools?.includes(id) && !filteredAddresses?.has(pool.swap_address)
+    async _filterHiddenPools(pools: IDict<IPoolData>, isFiltered = false): Promise<IDict<IPoolData>> {
+        if (!isFiltered) return pools;
+        const poolFilters = await _getPoolFilters();
+        const filteredAddresses = new Set(poolFilters[this.constants.NETWORK_NAME]);
+        return Object.fromEntries(Object.entries(pools).filter(([, pool]) =>
+            !filteredAddresses.has(pool.swap_address)
         )) as IDict<IPoolData>;
     }
 
@@ -556,7 +544,7 @@ export class Curve implements ICurve {
         } else {
             this.constants.FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this));
         }
-        this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA, useApi, isFiltered);
+        this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = this.isNoRPC ? null : await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
@@ -575,7 +563,7 @@ export class Curve implements ICurve {
                 await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.crvusd_factory)
             );
         }
-        this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA, useApi, isFiltered);
+        this.constants.CRVUSD_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRVUSD_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
     }
 
@@ -590,7 +578,7 @@ export class Curve implements ICurve {
             }
             this.constants.CRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this));
         }
-        this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA, useApi, isFiltered);
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
         this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = this.isNoRPC? null : await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
@@ -608,7 +596,7 @@ export class Curve implements ICurve {
             this.constants.STABLE_NG_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, undefined, this.constants.ALIASES.stable_ng_factory));
         }
 
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA, useApi, isFiltered);
+        this.constants.STABLE_NG_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.STABLE_NG_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
     }
 
@@ -623,7 +611,7 @@ export class Curve implements ICurve {
             }
             this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this));
         }
-        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, useApi, isFiltered);
+        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
@@ -646,7 +634,7 @@ export class Curve implements ICurve {
             }
             this.constants.TRICRYPTO_FACTORY_POOLS_DATA = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this));
         }
-        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA, useApi, isFiltered);
+        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.TRICRYPTO_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {

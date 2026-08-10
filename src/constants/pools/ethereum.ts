@@ -1537,7 +1537,6 @@ export const POOLS_DATA_ETHEREUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         is_meta: true,
         is_crypto: true,
         base_pool: '3pool',
-        // Circle renamed the token EUROC -> EURC (same address), symbol() on-chain and API return EURC
         underlying_coins: ['EURC', 'DAI', 'USDC', 'USDT'],
         wrapped_coins: ['EURC', '3Crv'],
         underlying_coin_addresses: [

@@ -1,7 +1,14 @@
 import { assert } from "chai";
 import { curve } from "../src/curve.js";
 import { IDict, IPoolData } from "../src/interfaces.js";
-import { _getHiddenPools } from "../src/external-api.js";
+// The production hidden-pool fetch was removed (the API path already excludes them);
+// this test still uses the legacy getHiddenPools list directly as a reference set to
+// verify prices.curve.finance doesn't leak any pool that was flagged as hidden.
+const _getLegacyHiddenPools = async (): Promise<IDict<string[]>> => {
+    const response = await fetch("https://api.curve.finance/v1/getHiddenPools");
+    const { data } = (await response.json()) ?? {};
+    return data ?? {};
+};
 import { getFactoryPoolData } from "../src/factory/factory.js";
 import { getCryptoFactoryPoolData } from "../src/factory/factory-crypto.js";
 import { getTwocryptoFactoryPoolData } from "../src/factory/factory-twocrypto.js";
@@ -74,7 +81,7 @@ const main = async () => {
     console.log(`\n${networkName}: initializing...`);
     await curve.init("JsonRpc", { url: ETH_RPC }, { gasPrice: 0 });
 
-    const hiddenPoolsAll = await _getHiddenPools(false);
+    const hiddenPoolsAll = await _getLegacyHiddenPools();
     const hiddenIds = (hiddenPoolsAll[networkName] ?? []).filter((id) =>
         FACTORIES.some((f) => id.startsWith(`${f.idPrefix}-`))
     );

@@ -19,9 +19,6 @@ import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stab
 import {type Curve} from "../curve";
 import { isYBPool } from "../constants/ybPools.js";
 
-// Same alias keys/id prefixes used when pools are indexed directly from factory contracts
-// on-chain (see factory.ts/factory-tricrypto.ts/factory-twocrypto.ts: `factory-v2-${i}`,
-// `factory-tricrypto-${i}`, etc.)
 const FACTORY_ALIAS_BY_TYPE: Record<IFactoryPoolType, string> = {
     "factory": "factory",
     "factory-crvusd": "crvusd_factory",
@@ -40,11 +37,6 @@ const ID_PREFIX_BY_FACTORY_TYPE: Record<IFactoryPoolType, string> = {
     "factory-stable-ng": "factory-stable-ng",
 };
 
-// API sources (in particular the new prices.curve.finance-backed adapter) don't carry the
-// factory's on-chain pool index, so `pool.id` coming out of `_getPoolsFromApi` may not match
-// the id the on-chain fetch path (getFactoryPoolData) would assign to the same pool. Resolve
-// each pool's real on-chain index via a single cheap multicall so ids line up exactly with
-// the blockchain path, and drop any pool that (for whatever reason) can't be found on-chain.
 async function reconcilePoolIdsWithChain(this: Curve, poolList: IPoolDataFromApi[], factoryType: IFactoryPoolType): Promise<IPoolDataFromApi[]> {
     const factoryAddress = this.constants.ALIASES[FACTORY_ALIAS_BY_TYPE[factoryType]];
     const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;

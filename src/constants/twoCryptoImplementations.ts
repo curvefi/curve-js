@@ -2,6 +2,8 @@
  * TwoCrypto pool implementation configurations https://docs.curve.finance/deployments/implementations/#cryptoswap-ng
  */
 
+import { IDict } from "../interfaces.js";
+
 export type TwoCryptoImplementationIndex = number | string;
 
 /**
@@ -20,7 +22,7 @@ export enum TwoCryptoImplementation {
  */
 export interface TwoCryptoImplementationInfo {
     index: TwoCryptoImplementationIndex;
-    address: string;
+    addresses: IDict<string>;
     description: string;
     availableInUI: boolean;
 }
@@ -28,37 +30,51 @@ export interface TwoCryptoImplementationInfo {
 export const TWOCRYPTO_IMPLEMENTATIONS: TwoCryptoImplementationInfo[] = [
     {
         index: TwoCryptoImplementation.DEFAULT,
-        address: "0x934791f7F391727db92BFF94cd789c4623d14c52",
+        addresses: {
+            1: "0x934791f7F391727db92BFF94cd789c4623d14c52",
+        },
         description: "",
         availableInUI: true,
     },
     {
         index: TwoCryptoImplementation.YB_POOLS_0_PERCENT,
-        address: "0x82c251317ede0514302EEE1aD48f838a7A6EcE2F",
+        addresses: {
+            1: "0x82c251317ede0514302EEE1aD48f838a7A6EcE2F",
+        },
         description: "TwoCrypto (0% DAO fee) — for yb pools",
         availableInUI: false,
     },
     {
         index: TwoCryptoImplementation.FX_25_PERCENT,
-        address: "0x3B0df55A2c64Ac7A3ada784eEA0898F0FD3cF17e",
+        addresses: {
+            1: "0x3B0df55A2c64Ac7A3ada784eEA0898F0FD3cF17e",
+        },
         description: "TwoCrypto (25% DAO fee) — for FX where the asset issuer will be the main source of LP and donations",
         availableInUI: false,
     },
     {
         index: TwoCryptoImplementation.FX_REGULAR_50_PERCENT,
-        address: "0xD1FAeCA80d6FDd1DF4CBcCe4b2551b6Ee63Ae3D6",
+        addresses: {
+            1: "0xD1FAeCA80d6FDd1DF4CBcCe4b2551b6Ee63Ae3D6",
+            42161: "0x8c8CD70277b02E24aa9afE3dbAD1Ee10443eff2D",
+        },
         description: "TwoCrypto (50% DAO fee) — for FX / regular pairs (where donations may stream from within Curve protocol)",
         availableInUI: true,
     },
     {
         index: TwoCryptoImplementation.SETTABLE_ADMIN_FEE,
-        address: "0xeC1045809e383811Cc74B3D25219e1607A5f32dC",
+        addresses: {
+            1: "0xeC1045809e383811Cc74B3D25219e1607A5f32dC",
+        },
         description: "Alternative implementation with settable admin fee for two/tricrypto (default admin fee remains at 50%)",
         availableInUI: false,
     },
 ];
 
-export function getTwoCryptoImplementations(uiOnly: boolean = false): TwoCryptoImplementationInfo[] {
-    return uiOnly ? TWOCRYPTO_IMPLEMENTATIONS.filter((impl) => impl.availableInUI) : TWOCRYPTO_IMPLEMENTATIONS;
+export function getTwoCryptoImplementations(chainId?: number, uiOnly: boolean = false): TwoCryptoImplementationInfo[] {
+    let implementations = TWOCRYPTO_IMPLEMENTATIONS;
+    if (uiOnly) implementations = implementations.filter((impl) => impl.availableInUI);
+    if (chainId !== undefined) implementations = implementations.filter((impl) => impl.addresses[chainId] !== undefined);
+    return implementations;
 }
 

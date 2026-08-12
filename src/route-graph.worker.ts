@@ -213,6 +213,39 @@ export function routeGraphWorker() {
             }];
         }
 
+        // sDAI <-> DAI (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.dai] = {};
+            routerGraph[constants.COINS.dai][constants.COINS.sdai] = [{
+                poolId: "sDAI wrapper",
+                swapAddress: constants.COINS.sdai,
+                inputCoinAddress: constants.COINS.dai,
+                outputCoinAddress: constants.COINS.sdai,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.sdai] = {};
+            routerGraph[constants.COINS.sdai][constants.COINS.dai] = [{
+                poolId: "sDAI wrapper",
+                swapAddress: constants.COINS.sdai,
+                inputCoinAddress: constants.COINS.sdai,
+                outputCoinAddress: constants.COINS.dai,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
         // sreUSD <-> reUSD (Ethereum only)
         if (chainId === 1) {
             routerGraph[constants.COINS.reusd] = {};

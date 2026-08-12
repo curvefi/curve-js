@@ -56,7 +56,7 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     usdn: "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",  // USDN
 
     dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",  // DAI
-    sdai: "0x83F20F44975D03b1b09e64809B757c47f942BEe",  // sDAI
+    sdai: "0x83F20F44975D03b1b09e64809B757c47f942BEeA",  // sDAI
     usdc: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  // USDC
     syrupusdc: "0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b",  // syrupUSDC
     usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",  // USDT

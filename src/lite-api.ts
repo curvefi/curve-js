@@ -120,6 +120,15 @@ const API2_REGISTRY_TO_POOL_TYPE: IDict<IPoolType> = {
     factory_stable_ng: "factory-stable-ng",
     factory_twocrypto: "factory-twocrypto",
     factory_tricrypto: "factory-tricrypto",
+    // legacy registries — surfaced for api2-backed core chains (e.g. avalanche) whose
+    // data is not on prices.curve.finance. factory_v2 pools carry an implementation_address
+    // that is resolved against the chain's implementationABIDict, exactly like on prices/master.
+    // main & crypto are mapped only to feed the USD-price dict; those pools themselves are
+    // still built from static POOLS_DATA, not from the API.
+    factory_v2: "factory",
+    factory_crypto: "factory-crypto",
+    main: "main",
+    crypto: "crypto",
 };
 
 const _getApi2PoolsData = memoize(

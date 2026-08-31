@@ -409,10 +409,20 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
         56: "binance-smart-chain",
         100: 'xdai',
         137: 'polygon-pos',
+        146: 'sonic',
+        196: 'x-layer',
+        250: 'fantom',
         252: 'fraxtal',
+        324: 'zksync',
         999: 'hyperliquid',
+        1284: 'moonbeam',
+        2222: 'kava',
+        5000: 'mantle',
         8453: 'base',
+        42220: 'celo',
+        43114: 'avalanche',
         42161: 'arbitrum-one',
+        1313161554: 'aurora',
     }[this.chainId];
 
     const nativeTokenName = this.isLiteChain ? this.constants?.API_CONSTANTS?.nativeTokenName:{
@@ -421,10 +431,20 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
         56: 'binancecoin',
         100: 'xdai',
         137: 'matic-network',
+        146: 'sonic-3',
+        196: 'okb',
+        250: 'fantom',
         252: 'frax-share',
+        324: 'ethereum',
+        1284: 'moonbeam',
         999: 'hyperliquid',
+        2222: 'kava',
+        5000: 'mantle',
         8453: 'ethereum',
+        42220: 'celo',
+        43114: 'avalanche-2',
         42161: 'ethereum',
+        1313161554: 'ethereum',
     }[this.chainId] as string;
 
     if (chainName === undefined) {
@@ -548,6 +568,15 @@ export async function getGasPriceFromL2(this: Curve): Promise<number> {
     if(this.chainId === 42161) {
         return await getBaseFeeByLastBlock.call(this)
     }
+    if(this.chainId === 196) {
+        return await getGasPrice.call(this) // gwei
+    }
+    if(this.chainId === 324) {
+        return await getGasPrice.call(this) // gwei
+    }
+    if(this.chainId === 5000) {
+        return await getGasPrice.call(this) // gwei
+    }
     if(L2Networks.includes(this.chainId)) {
         const gasPrice = await this.contracts[this.constants.ALIASES.gas_oracle_blob].contract.gasPrice({"gasPrice":"0x2000000"});
         return Number(gasPrice);
@@ -558,6 +587,25 @@ export async function getGasPriceFromL2(this: Curve): Promise<number> {
 
 export async function getGasInfoForL2(this: Curve ): Promise<Record<string, number | null>> {
     if(this.chainId === 42161) {
+        const baseFee = await getBaseFeeByLastBlock.call(this)
+
+        return  {
+            maxFeePerGas: Number(((baseFee * 1.1) + 0.01).toFixed(2)),
+            maxPriorityFeePerGas: 0.01,
+        }
+    } else if(this.chainId === 196) {
+        const gasPrice = await getGasPrice.call(this)
+
+        return {
+            gasPrice,
+        }
+    } else if(this.chainId === 324) {
+        const gasPrice = await getGasPrice.call(this)
+
+        return {
+            gasPrice,
+        }
+    } else if(this.chainId === 5000) {
         const baseFee = await getBaseFeeByLastBlock.call(this)
 
         return  {
@@ -692,7 +740,7 @@ export async function getTVL(this: Curve, chainId = this.chainId): Promise<numbe
 }
 
 export async function getVolumeApiController(this: Curve, network: INetworkName): Promise<IVolumeAndAPYs> {
-    if(this.isLiteChain) {
+    if(this.isLiteChain && this.chainId !== 146) {
         throw Error('This method is not supported for the lite version')
     }
 
@@ -704,7 +752,7 @@ export async function getVolumeApiController(this: Curve, network: INetworkName)
 }
 
 export async function getVolume(this: Curve, chainId = this.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> {
-    if(this.isLiteChain) {
+    if(this.isLiteChain && this.chainId !== 146) {
         throw Error('This method is not supported for the lite version')
     }
 

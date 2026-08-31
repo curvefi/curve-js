@@ -17,9 +17,15 @@ import {
 } from "./lite-api.js";
 
 
+// Core chains that ARE fully configured in the library (static POOLS_DATA / ALIASES /
+// implementationABIDict) but whose live pool data is NOT indexed by prices.curve.finance.
+// Their factory pools live in api2 instead, so we fetch from there while keeping them core
+// (static main/crypto pools + on-chain reconcile + impl-ABI dict all keep working).
+const API2_BACKED_CORE_CHAINS: readonly INetworkName[] = ["avalanche"];
+
 const uncached_getPoolsFromApi = async (network: INetworkName, poolType: IPoolType, isLiteChain: boolean): Promise<IExtendedPoolDataFromApi> => {
-    if (!isLiteChain) return await getPoolsFromPricesApi(network, poolType);
-    return await getLitePoolsFromApi2(network, poolType);
+    if (isLiteChain || API2_BACKED_CORE_CHAINS.includes(network)) return await getLitePoolsFromApi2(network, poolType);
+    return await getPoolsFromPricesApi(network, poolType);
 }
 
 const getPoolTypes = (isLiteChain: boolean) => isLiteChain ? ["factory-twocrypto", "factory-tricrypto", "factory-stable-ng"] as const :

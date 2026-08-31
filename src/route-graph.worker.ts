@@ -15,6 +15,7 @@ export type IRouteGraphInput = {
 export function routeGraphWorker() {
     const GRAPH_MAX_EDGES = 3;
 
+    const CELO_CHAIN_ID = 42220;
     const ARC_CHAIN_ID = 5042; // native USDC is the same asset as its ERC-20 interface
     
     // Pools excluded from router
@@ -26,8 +27,8 @@ export function routeGraphWorker() {
         const routerGraph: IDict<IDict<IRouteStep[]>> = {}
         // Pool addresses we don't want to index when building routes
         const blacklistedPools = new Set((blacklist ?? []).map((a) => a.toLowerCase()));
-        // ETH <-> WETH (exclude Arc — native USDC = ERC-20 USDC)
-        if (chainId !== ARC_CHAIN_ID) {
+        // ETH <-> WETH (exclude Celo, Arc — native USDC = ERC-20 USDC)
+        if (chainId !== CELO_CHAIN_ID && chainId !== ARC_CHAIN_ID) {
             const wrapperAddress = constants.NATIVE_TOKEN.wrapperAddress || constants.NATIVE_TOKEN.wrappedAddress;
             
             routerGraph[constants.NATIVE_TOKEN.address] = {};
@@ -212,6 +213,39 @@ export function routeGraphWorker() {
             }];
         }
 
+        // sDAI <-> DAI (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.dai] = {};
+            routerGraph[constants.COINS.dai][constants.COINS.sdai] = [{
+                poolId: "sDAI wrapper",
+                swapAddress: constants.COINS.sdai,
+                inputCoinAddress: constants.COINS.dai,
+                outputCoinAddress: constants.COINS.sdai,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.sdai] = {};
+            routerGraph[constants.COINS.sdai][constants.COINS.dai] = [{
+                poolId: "sDAI wrapper",
+                swapAddress: constants.COINS.sdai,
+                inputCoinAddress: constants.COINS.sdai,
+                outputCoinAddress: constants.COINS.dai,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
         // sreUSD <-> reUSD (Ethereum only)
         if (chainId === 1) {
             routerGraph[constants.COINS.reusd] = {};
@@ -235,6 +269,105 @@ export function routeGraphWorker() {
                 swapAddress: constants.COINS.sreusd,
                 inputCoinAddress: constants.COINS.sreusd,
                 outputCoinAddress: constants.COINS.reusd,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
+        // sDOLA <-> DOLA (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.dola] = {};
+            routerGraph[constants.COINS.dola][constants.COINS.sdola] = [{
+                poolId: "sDOLA wrapper",
+                swapAddress: constants.COINS.sdola,
+                inputCoinAddress: constants.COINS.dola,
+                outputCoinAddress: constants.COINS.sdola,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.sdola] = {};
+            routerGraph[constants.COINS.sdola][constants.COINS.dola] = [{
+                poolId: "sDOLA wrapper",
+                swapAddress: constants.COINS.sdola,
+                inputCoinAddress: constants.COINS.sdola,
+                outputCoinAddress: constants.COINS.dola,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
+        // svZCHF <-> ZCHF (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.zchf] = {};
+            routerGraph[constants.COINS.zchf][constants.COINS.svzchf] = [{
+                poolId: "svZCHF wrapper",
+                swapAddress: constants.COINS.svzchf,
+                inputCoinAddress: constants.COINS.zchf,
+                outputCoinAddress: constants.COINS.svzchf,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.svzchf] = {};
+            routerGraph[constants.COINS.svzchf][constants.COINS.zchf] = [{
+                poolId: "svZCHF wrapper",
+                swapAddress: constants.COINS.svzchf,
+                inputCoinAddress: constants.COINS.svzchf,
+                outputCoinAddress: constants.COINS.zchf,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
+        // syrupUSDC <-> USDC (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.usdc] = {};
+            routerGraph[constants.COINS.usdc][constants.COINS.syrupusdc] = [{
+                poolId: "syrupUSDC wrapper",
+                swapAddress: constants.COINS.syrupusdc,
+                inputCoinAddress: constants.COINS.usdc,
+                outputCoinAddress: constants.COINS.syrupusdc,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.syrupusdc] = {};
+            routerGraph[constants.COINS.syrupusdc][constants.COINS.usdc] = [{
+                poolId: "syrupUSDC wrapper",
+                swapAddress: constants.COINS.syrupusdc,
+                inputCoinAddress: constants.COINS.syrupusdc,
+                outputCoinAddress: constants.COINS.usdc,
                 swapParams: [1, 0, 9, 0, 0],
                 poolAddress: constants.ZERO_ADDRESS,
                 basePool: constants.ZERO_ADDRESS,
@@ -304,6 +437,7 @@ export function routeGraphWorker() {
             if (blacklistedPools.has(poolAddress)) continue;
 
             const excludedUnderlyingSwaps = (poolId === 'ib' && chainId === 1) ||
+            (poolId === 'geist' && chainId === 250) ||
             (poolId === 'saave' && chainId === 1);
 
             // Wrapped coin <-> LP "swaps" (actually add_liquidity/remove_liquidity_one_coin)

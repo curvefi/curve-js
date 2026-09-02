@@ -18,9 +18,7 @@ import {
 import {Curve} from "./curve.js";
 import {
     _getCurveLiteNetworks,
-    _getFactoryAPYs,
     _getLiteNetworksData,
-    _getSubgraphData,
     _getVolumes,
 } from "./external-api.js";
 import {_getAllPoolsFromApi, _getUsdPricesFromApi} from "./cached.js";
@@ -730,7 +728,7 @@ export async function getNetworkConstants(this: Curve, chainId: IChainId | numbe
     } else {
         const NAME = getNetworkNameByChainId(chainId, await _getCurveLiteNetworks());
         if (NAME === "Unknown Network") throw Error(`Wrong chain id: ${chainId}`);
-        return  {... await _getLiteNetworksData(NAME), NAME, IS_LITE_CHAIN: true };
+        return  {... await _getLiteNetworksData(chainId), NAME, IS_LITE_CHAIN: true };
     }
 }
 
@@ -748,12 +746,6 @@ export async function getVolumeApiController(this: Curve, network: INetworkName)
 
     if(volumeNetworks.getVolumes.includes(this.chainId)) {
         return await _getVolumes(network);
-    }
-    if(volumeNetworks.getFactoryAPYs.includes(this.chainId)) {
-        return await _getFactoryAPYs(network);
-    }
-    if(volumeNetworks.getSubgraphData.includes(this.chainId)) {
-        return await _getSubgraphData(network);
     }
 
     throw Error(`Can't get volume for network: ${network}`);
@@ -873,8 +865,8 @@ export const getPoolName = (name: string): string => {
 
 export const isStableNgPool = (name: string): boolean => name.includes('factory-stable-ng')
 
-export const assetTypeNameHandler = (assetTypeName: string): REFERENCE_ASSET => {
-    if (assetTypeName.toUpperCase() === 'UNKNOWN') {
+export const assetTypeNameHandler = (assetTypeName: string | null): REFERENCE_ASSET => {
+    if (!assetTypeName || assetTypeName.toUpperCase() === 'UNKNOWN') {
         return 'OTHER';
     } else {
         return assetTypeName.toUpperCase() as REFERENCE_ASSET;

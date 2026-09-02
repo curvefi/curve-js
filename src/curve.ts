@@ -68,7 +68,7 @@ import {
     lowerCasePoolDataAddresses,
     parseUnits,
 } from "./constants/utils.js";
-import {_getHiddenPools, _getPoolFilters} from "./external-api.js";
+import {_getPoolFilters} from "./external-api.js";
 import {L2Networks} from "./constants/L2Networks.js";
 import {getTwocryptoFactoryPoolData} from "./factory/factory-twocrypto.js";
 import {
@@ -527,15 +527,11 @@ export class Curve implements ICurve {
     }
 
     async _filterHiddenPools(pools: IDict<IPoolData>, isFiltered = false): Promise<IDict<IPoolData>> {
-        const hiddenPoolsAll = await _getHiddenPools(this.isLiteChain);
-        const hiddenPools = hiddenPoolsAll[this.constants.NETWORK_NAME];
-        let filteredAddresses: Set<string>
-        if (isFiltered) {
-            const poolFilters = await _getPoolFilters();
-            filteredAddresses = new Set(poolFilters[this.constants.NETWORK_NAME]);
-        }
-        return Object.fromEntries(Object.entries(pools).filter(([id, pool]) =>
-            !hiddenPools?.includes(id) && !filteredAddresses?.has(pool.swap_address)
+        if (!isFiltered) return pools;
+        const poolFilters = await _getPoolFilters();
+        const filteredAddresses = new Set(poolFilters[this.constants.NETWORK_NAME]);
+        return Object.fromEntries(Object.entries(pools).filter(([, pool]) =>
+            !filteredAddresses.has(pool.swap_address)
         )) as IDict<IPoolData>;
     }
 

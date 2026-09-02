@@ -26,7 +26,7 @@ export interface IPoolData {
     deposit_address?: string,
     sCurveRewards_address?: string,
     reward_contract?: string,
-    implementation_address?: string,  // Only for testing
+    implementation_address?: string | null,  // Only for testing
     is_plain?: boolean,
     is_lending?: boolean,
     is_meta?: boolean,
@@ -101,7 +101,7 @@ export interface ICoinFromPoolDataApi {
     address: string,
     symbol: string,
     decimals: string,
-    usdPrice: number | string,
+    usdPrice: number | string | null,
 }
 
 export interface IReward {
@@ -125,14 +125,14 @@ export interface IPoolDataFromApi {
     id: string,
     name: string,
     symbol: string,
-    assetTypeName: string,
+    assetTypeName: string | null,
     address: string,
     isMetaPool: boolean,
     basePoolAddress?: string,
     lpTokenAddress?: string,
     gaugeAddress?: string,
-    implementation: string,
-    implementationAddress: string,
+    implementation: string | null,
+    implementationAddress: string | null,
     coins: ICoinFromPoolDataApi[],
     gaugeRewards: IRewardFromApi[],
     gaugeExtraRewards?: IRewardFromApi[],
@@ -192,25 +192,6 @@ export interface IProfit {
     token: string,
     symbol: string,
     price: number,
-}
-
-export interface IGaugesDataFromApi {
-    blockchainId: string;
-    gauge: string,
-    rootGauge?: string,
-    swap: string,
-    swap_token: string,
-    shortName: string,
-    gauge_controller: {
-        gauge_relative_weight: string,
-        get_gauge_weight: string,
-    },
-    poolUrls?: {
-        swap: string[],
-    }
-    is_killed?: boolean,
-    hasNoCrv?: boolean,
-    gaugeStatus?: Record<string, boolean> | null,
 }
 
 export interface IVotingGauge {

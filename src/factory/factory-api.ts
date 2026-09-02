@@ -19,6 +19,42 @@ import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stab
 import {type Curve} from "../curve";
 import { isYBPool } from "../constants/ybPools.js";
 
+const FACTORY_ALIAS_BY_TYPE: Record<IFactoryPoolType, string> = {
+    "factory": "factory",
+    "factory-crvusd": "crvusd_factory",
+    "factory-crypto": "crypto_factory",
+    "factory-twocrypto": "twocrypto_factory",
+    "factory-tricrypto": "tricrypto_factory",
+    "factory-stable-ng": "stable_ng_factory",
+};
+
+const ID_PREFIX_BY_FACTORY_TYPE: Record<IFactoryPoolType, string> = {
+    "factory": "factory-v2",
+    "factory-crvusd": "factory-crvusd",
+    "factory-crypto": "factory-crypto",
+    "factory-twocrypto": "factory-twocrypto",
+    "factory-tricrypto": "factory-tricrypto",
+    "factory-stable-ng": "factory-stable-ng",
+};
+
+async function reconcilePoolIdsWithChain(this: Curve, poolList: IPoolDataFromApi[], factoryType: IFactoryPoolType): Promise<IPoolDataFromApi[]> {
+    const factoryAddress = this.constants.ALIASES[FACTORY_ALIAS_BY_TYPE[factoryType]];
+    const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
+    const poolCount = Number(this.formatUnits(await this.contracts[factoryAddress].contract.pool_count(this.constantOptions), 0));
+
+    const calls = [];
+    for (let i = 0; i < poolCount; i++) calls.push(factoryMulticallContract.pool_list(i));
+    const addresses = (await this.multicallProvider.all(calls)) as string[];
+
+    const indexByAddress = new Map<string, number>();
+    addresses.forEach((address, i) => indexByAddress.set(address.toLowerCase(), i));
+
+    const prefix = ID_PREFIX_BY_FACTORY_TYPE[factoryType];
+    return poolList
+        .filter((pool) => indexByAddress.has(pool.address))
+        .map((pool) => ({ ...pool, id: `${prefix}-${indexByAddress.get(pool.address)}` }));
+}
+
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
         poolData.address = poolData.address.toLowerCase();
@@ -95,14 +131,15 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
 
     const implementationABIDict = this.constants.STABLE_FACTORY_CONSTANTS.implementationABIDict ?? {};
     let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType, this.isLiteChain)).poolData);
-    if (!isCrypto) rawPoolList = rawPoolList.filter((p) => is_ng || p.implementationAddress in implementationABIDict);
+    rawPoolList = await reconcilePoolIdsWithChain.call(this, rawPoolList, factoryType);
+    if (!isCrypto) rawPoolList = rawPoolList.filter((p) => is_ng || (!!p.implementationAddress && p.implementationAddress in implementationABIDict));
     // Filter duplications
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address);
     rawPoolList = rawPoolList.filter((p) => !mainAddresses.includes(p.address));
 
     const swapABIs = isCrypto ? [] : rawPoolList.map((pool: IPoolDataFromApi) => is_ng ?
         (pool.isMetaPool ? MetaStableSwapNGABI : PlainStableSwapNGABI) :
-        implementationABIDict[pool.implementationAddress]);
+        implementationABIDict[pool.implementationAddress as string]);
     setFactorySwapContracts.call(this, rawPoolList, swapABIs, factoryType);
     if (factoryType === "factory-crypto") setCryptoFactoryTokenContracts.call(this, rawPoolList);
     setFactoryGaugeContracts.call(this, rawPoolList);

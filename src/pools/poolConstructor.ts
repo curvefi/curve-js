@@ -273,8 +273,37 @@ export function getPool(this: Curve, poolIdOrAddress: string): PoolTemplate {
     return new Pool(poolId, this);
 }
 
+function resolveBasePoolAddress(data: IExternalPoolData): string | null {
+    if (!data.isMetaPool) return null;
+    if (data.basePoolAddress) return data.basePoolAddress.toLowerCase();
+    if (data.coins.length) return data.coins[data.coins.length - 1].address.toLowerCase();
+    return null;
+}
+
+function isPoolLoaded(this: Curve, address: string): boolean {
+    const a = address.toLowerCase();
+    return Object.values(this.getPoolsData()).some((pd) =>
+        pd.swap_address.toLowerCase() === a || pd.token_address.toLowerCase() === a);
+}
+
+export function getRequiredBasePools(this: Curve, data: IExternalPoolData): string[] {
+    const base = resolveBasePoolAddress(data);
+    return base && !isPoolLoaded.call(this, base) ? [base] : [];
+}
+
+export function isBasePoolsReady(this: Curve, data: IExternalPoolData): boolean {
+    return getRequiredBasePools.call(this, data).length === 0;
+}
+
 export function getPoolByData(this: Curve, data: IExternalPoolData): PoolTemplate {
     const id = (data.id ?? data.address).toLowerCase();
+
+    const missingBasePools = getRequiredBasePools.call(this, data);
+    if (missingBasePools.length) {
+        const err = new Error(`Pool ${id} is a meta pool whose base pool ${missingBasePools.join(", ")} is not initialized. Call getPoolByData for the base pool(s) first.`);
+        (err as Error & { missingBasePools: string[] }).missingBasePools = missingBasePools;
+        throw err;
+    }
 
     const rawPool: IPoolDataFromApi = {
         id,

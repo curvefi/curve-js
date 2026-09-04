@@ -373,20 +373,49 @@ import curve from "@curvefi/api";
 })()
 ```
 
-**Note on meta pools.** A meta pool is built on top of a base pool, and its descriptor does not
-carry the base pool's coins/decimals — so **the base pool must already be present in the instance**
-before you build the meta pool:
-- if the base is a plain/main pool (e.g. `3pool`), it is always available right after `init` — nothing to do;
-- if the base is itself a factory pool, build it first with its own `getPoolByData(...)` call (or load it via `fetchPools`).
+### Meta pools: base pool dependencies
 
-If the base pool is missing, `getPoolByData` throws:
-`Base pool "0x..." of meta pool <id> (<address>) is not loaded. Build or fetch the base pool before this one.`
+A meta pool is built on top of a base pool, and its descriptor does **not** carry the base pool's
+coins/decimals — so the base pool must already be present in the instance before you build the meta
+pool. If the base is a plain/main pool (e.g. `3pool`) it is always available right after `init`, but
+if the base is itself a factory pool you must build it first.
+
+Two helpers let the frontend resolve this without try/catch:
+
+- **`curve.isBasePoolsReady(data): boolean`** — `true` if the pool can be built right now (always `true` for non-meta pools).
+- **`curve.getRequiredBasePools(data): string[]`** — addresses of the base pools that still need to be built (empty ⇒ ready).
+
+The base pool address is derived from the descriptor (`basePoolAddress`, or the last coin for crypto
+meta pools). The frontend looks that address up in its own data, builds it, and re-checks:
 
 ```ts
-// meta pool whose base is another factory pool -> build the base first
-curve.getPoolByData(baseDescriptor);   // e.g. 'factory-stable-ng-43'
-curve.getPoolByData(metaDescriptor);   // e.g. 'factory-stable-ng-91', basePoolAddress = base.address
+// Recursively make sure every base pool of `data` is initialized, then build the pool.
+function ensurePool(data) {
+    if (!curve.isBasePoolsReady(data)) {
+        for (const baseAddress of curve.getRequiredBasePools(data)) {
+            const baseData = myDataSource.getByAddress(baseAddress); // your descriptor for the base pool
+            ensurePool(baseData);                                    // base may itself be a meta pool
+        }
+    }
+    return curve.getPoolByData(data);
+}
+
+const pool = ensurePool(metaDescriptor);
 ```
+
+The typical frontend loop:
+
+```ts
+if (!curve.isBasePoolsReady(desc)) {
+    const need = curve.getRequiredBasePools(desc);        // e.g. ['0x383e…']
+    need.forEach((addr) => curve.getPoolByData(myDataSource.getByAddress(addr)));
+    // curve.isBasePoolsReady(desc) === true now
+}
+const pool = curve.getPoolByData(desc);
+```
+
+As a safety net, if you call `getPoolByData` on a meta pool before its base is ready it throws an error
+carrying the missing addresses on `error.missingBasePools`.
 
 ### Pool fields
 ```ts

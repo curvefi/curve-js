@@ -160,6 +160,7 @@ export class Curve implements ICurve {
             TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
             STABLE_NG_FACTORY_POOLS_DATA: {},
+            EXTERNAL_POOLS_DATA: {},
             BASE_POOLS: {},
             LLAMMAS_DATA: {},
             COINS: {},
@@ -201,6 +202,7 @@ export class Curve implements ICurve {
             TWOCRYPTO_FACTORY_POOLS_DATA: {},
             TRICRYPTO_FACTORY_POOLS_DATA: {},
             STABLE_NG_FACTORY_POOLS_DATA: {},
+            EXTERNAL_POOLS_DATA: {},
             BASE_POOLS: {},
             LLAMMAS_DATA: {},
             COINS: {},
@@ -212,6 +214,8 @@ export class Curve implements ICurve {
 
         this.initContract = memoizedContract()
         this.initMulticallContract = memoizedMulticallContract()
+
+        let signerPromise: Promise<ethers.Signer | null> = Promise.resolve(null);
 
         // JsonRpc provider
         if (providerType.toLowerCase() === 'JsonRpc'.toLowerCase()) {
@@ -231,19 +235,15 @@ export class Curve implements ICurve {
             }
 
             if (providerSettings.privateKey) {
-                this.signer = new ethers.Wallet(providerSettings.privateKey, this.provider);
+                signerPromise = Promise.resolve(new ethers.Wallet(providerSettings.privateKey, this.provider));
             } else if (!providerSettings.url?.startsWith("https://rpc.gnosischain.com")) {
-                try {
-                    this.signer = await this.provider.getSigner();
-                } catch {
-                    this.signer = null;
-                }
+                signerPromise = this.provider.getSigner().catch(() => null);
             }
             // Web3 provider
         } else if (providerType.toLowerCase() === 'Web3'.toLowerCase()) {
             providerSettings = providerSettings as { externalProvider: ethers.Eip1193Provider };
             this.provider = new ethers.BrowserProvider(providerSettings.externalProvider);
-            this.signer = await this.provider.getSigner();
+            signerPromise = this.provider.getSigner();
             // Infura provider
         } else if (providerType.toLowerCase() === 'Infura'.toLowerCase()) {
             providerSettings = providerSettings as { network?: Networkish, apiKey?: string };
@@ -264,7 +264,11 @@ export class Curve implements ICurve {
             throw Error('Wrong providerType');
         }
 
-        const network = this.isNoRPC ? { chainId: options.chainId!, name: 'NoRPC' } : await this.provider.getNetwork();
+        const [signer, network] = await Promise.all([
+            signerPromise,
+            this.isNoRPC ? Promise.resolve({ chainId: options.chainId!, name: 'NoRPC' }) : this.provider.getNetwork(),
+        ]);
+        this.signer = signer;
         console.log("CURVE-JS IS CONNECTED TO NETWORK:", { name: network.name.toUpperCase(), chainId: Number(network.chainId) });
         this.chainId = Number(network.chainId) === 133 || Number(network.chainId) === 31337 ? 1 : Number(network.chainId) as IChainId;
 
@@ -310,22 +314,16 @@ export class Curve implements ICurve {
 
         this.multicallProvider = new MulticallProvider(this.chainId, this.provider);
 
-        if (this.signer) {
-            try {
-                this.signerAddress = await this.signer.getAddress();
-            } catch {
-                this.signer = null;
-            }
-        } else {
-            this.signerAddress = '';
-        }
-
         this.feeData = { gasPrice: options.gasPrice, maxFeePerGas: options.maxFeePerGas, maxPriorityFeePerGas: options.maxPriorityFeePerGas };
         if (options.poolsData) {
             _setPoolsFromApi(this.constants.NETWORK_NAME, this.isLiteChain, options.poolsData);
         }
 
-        await this.updateFeeData();
+        const [signerAddress] = await Promise.all([
+            this.signer ? this.signer.getAddress().catch(() => { this.signer = null; return ''; }) : Promise.resolve(''),
+            this.updateFeeData(),
+        ]);
+        this.signerAddress = signerAddress;
 
         for (const pool of Object.values({...this.constants.POOLS_DATA, ...this.constants.LLAMMAS_DATA})) {
             this.setContract(pool.swap_address, pool.swap_abi);
@@ -798,6 +796,7 @@ export class Curve implements ICurve {
         ...this.constants.STABLE_NG_FACTORY_POOLS_DATA,
         ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA,
         ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA,
+        ...this.constants.EXTERNAL_POOLS_DATA,
         ...this.constants.LLAMMAS_DATA,
     });
 

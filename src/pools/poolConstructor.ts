@@ -69,6 +69,9 @@ import {
 } from "./mixins/swapWrappedMixins.js";
 import {findAbiSignature, getCountArgsOfMethodByAbi, getPoolIdBySwapAddress} from "../utils.js";
 import {StatsPool} from "./subClasses/statsPool.js";
+import {lowerCasePoolDataAddresses} from "../constants/utils.js";
+import {buildFactoryPoolsData, lowerCasePoolDataAddresses as lowerCaseApiPoolAddresses} from "../factory/factory-api.js";
+import type {IExternalPoolData, IPoolDataFromApi} from "../interfaces.js";
 
 
 export function getPool(this: Curve, poolIdOrAddress: string): PoolTemplate {
@@ -268,4 +271,42 @@ export function getPool(this: Curve, poolIdOrAddress: string): PoolTemplate {
     }
 
     return new Pool(poolId, this);
+}
+
+export function getPoolByData(this: Curve, data: IExternalPoolData): PoolTemplate {
+    const id = (data.id ?? data.address).toLowerCase();
+
+    const rawPool: IPoolDataFromApi = {
+        id,
+        name: data.name ?? id,
+        symbol: data.symbol ?? "",
+        assetTypeName: data.assetTypeName ?? "unknown",
+        address: data.address,
+        isMetaPool: data.isMetaPool ?? false,
+        basePoolAddress: data.basePoolAddress,
+        lpTokenAddress: data.lpTokenAddress ?? data.address,
+        gaugeAddress: data.gaugeAddress,
+        implementation: "",
+        implementationAddress: data.implementationAddress ?? "",
+        coins: data.coins.map((c) => ({ address: c.address, symbol: c.symbol, decimals: String(c.decimals), usdPrice: 0 })),
+        gaugeRewards: data.gaugeRewards ?? [],
+        usdTotal: 0,
+        totalSupply: 0,
+        amplificationCoefficient: "0",
+        gaugeCrvApy: [null, null],
+    };
+
+    const rawPoolList = lowerCaseApiPoolAddresses([rawPool]);
+    const builtData = lowerCasePoolDataAddresses(buildFactoryPoolsData.call(this, data.poolType, rawPoolList));
+
+    if (!builtData[id]) {
+        throw new Error(`Could not resolve ABI for pool ${id} (poolType=${data.poolType}, implementation=${data.implementationAddress ?? "none"}). The implementation is unknown to curve for this poolType.`);
+    }
+
+    this.constants.EXTERNAL_POOLS_DATA = {
+        ...this.constants.EXTERNAL_POOLS_DATA,
+        ...builtData,
+    };
+
+    return getPool.call(this, id);
 }

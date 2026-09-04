@@ -325,6 +325,69 @@ import curve from "@curvefi/api";
 })()
 ````
 
+### Building a pool from external data (getPoolByData)
+
+`curve.getPoolByData(data)` builds a fully working pool from an externally supplied descriptor,
+without calling `fetchPools` first. Use it when the pool metadata comes from your own source
+(backend, cache, DB) instead of Curve's API. curve resolves all the ABIs (swap / gauge / zap / LP)
+itself from `poolType` + `implementationAddress` + `isMetaPool` — you don't pass any ABI.
+
+The descriptor (`IExternalPoolData`) mirrors the shape of the `getPools/{network}/{poolType}` API:
+
+```ts
+interface IExternalPoolData {
+    poolType: 'factory' | 'factory-crvusd' | 'factory-crypto' | 'factory-twocrypto' | 'factory-tricrypto' | 'factory-stable-ng',
+    address: string,                                                          // swap address
+    coins: { address: string, symbol: string, decimals: number | string }[],
+    id?: string,                                                              // registry handle; defaults to address
+    name?: string,
+    symbol?: string,
+    lpTokenAddress?: string,                                                  // separate LP token for old crypto pools; defaults to address
+    gaugeAddress?: string,
+    implementationAddress?: string,                                           // REQUIRED for 'factory' (old stable) and 'factory-tricrypto'
+    isMetaPool?: boolean,
+    basePoolAddress?: string,                                                 // REQUIRED when isMetaPool
+    assetTypeName?: string,
+}
+```
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0, maxFeePerGas: 0, maxPriorityFeePerGas: 0 });
+
+    const pool = curve.getPoolByData({
+        poolType: 'factory-stable-ng',
+        address: '0x...',
+        isMetaPool: false,
+        coins: [
+            { address: '0x...', symbol: 'USDC', decimals: 6 },
+            { address: '0x...', symbol: 'USDT', decimals: 6 },
+        ],
+    });
+
+    // From here the pool behaves exactly like one returned by curve.getPool(...)
+    pool.underlyingCoins;      // ['USDC', 'USDT']
+    await pool.deposit(['1', '1']);
+})()
+```
+
+**Note on meta pools.** A meta pool is built on top of a base pool, and its descriptor does not
+carry the base pool's coins/decimals — so **the base pool must already be present in the instance**
+before you build the meta pool:
+- if the base is a plain/main pool (e.g. `3pool`), it is always available right after `init` — nothing to do;
+- if the base is itself a factory pool, build it first with its own `getPoolByData(...)` call (or load it via `fetchPools`).
+
+If the base pool is missing, `getPoolByData` throws:
+`Base pool "0x..." of meta pool <id> (<address>) is not loaded. Build or fetch the base pool before this one.`
+
+```ts
+// meta pool whose base is another factory pool -> build the base first
+curve.getPoolByData(baseDescriptor);   // e.g. 'factory-stable-ng-43'
+curve.getPoolByData(metaDescriptor);   // e.g. 'factory-stable-ng-91', basePoolAddress = base.address
+```
+
 ### Pool fields
 ```ts
 import curve from "@curvefi/api";

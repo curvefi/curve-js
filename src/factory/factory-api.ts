@@ -160,6 +160,7 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
 
             if (factoryType !== "factory-tricrypto" && factoryType !== "factory-twocrypto" && basePoolId) {  // isMeta
                 const allPoolsData = {...this.getPoolsData(), ...FACTORY_POOLS_DATA};
+                if (!allPoolsData[basePoolId]) throw new Error(`Base pool "${basePoolId}" of meta pool ${pool.id} (${pool.address}) is not loaded. Build or fetch the base pool before this one.`);
                 const basePoolCoinNames = [...allPoolsData[basePoolId].underlying_coins];
                 const basePoolCoinAddresses = [...allPoolsData[basePoolId].underlying_coin_addresses];
                 const basePoolDecimals = [...allPoolsData[basePoolId].underlying_decimals];
@@ -219,6 +220,7 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
         } else if (pool.isMetaPool) {
             const allPoolsData = {...this.getPoolsData(), ...FACTORY_POOLS_DATA};
             const basePoolId = getPoolIdByAddress.call(this, rawPoolList, pool.basePoolAddress as string);
+            if (!allPoolsData[basePoolId]) throw new Error(`Base pool "${pool.basePoolAddress}" of meta pool ${pool.id} (${pool.address}) is not loaded. Build or fetch the base pool before this one.`);
             this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
 
             const basePoolCoinNames = allPoolsData[basePoolId]?.underlying_coins;

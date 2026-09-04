@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { PoolTemplate, getPool } from "./pools/index.js";
+import { PoolTemplate, getPool, getPoolByData, getRequiredBasePools, isBasePoolsReady } from "./pools/index.js";
 import {
     getUserPoolListByLiquidity,
     getUserPoolListByClaimable,
@@ -187,6 +187,9 @@ export const createCurve = () => {
         PoolTemplate: PoolTemplate.bind(_curve),
         getBasePools: getBasePools.bind(_curve),
         getPool: getPool.bind(_curve),
+        getPoolByData: getPoolByData.bind(_curve),
+        getRequiredBasePools: getRequiredBasePools.bind(_curve),
+        isBasePoolsReady: isBasePoolsReady.bind(_curve),
         getUsdRate: getUsdRate.bind(_curve),
         getGasPriceFromL1: getGasPriceFromL1.bind(_curve),
         getGasPriceFromL2: getGasPriceFromL2.bind(_curve),

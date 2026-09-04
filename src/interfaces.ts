@@ -66,6 +66,7 @@ export interface INetworkConstants {
     CRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
     TWOCRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
     TRICRYPTO_FACTORY_POOLS_DATA: IDict<IPoolData>,
+    EXTERNAL_POOLS_DATA?: IDict<IPoolData>,
     BASE_POOLS: IDict<number>,
     LLAMMAS_DATA: IDict<IPoolData>,
     COINS: IDict<string>,
@@ -145,6 +146,22 @@ export interface IPoolDataFromApi {
 export interface IPoolDataShort {
     id: string,
     address: string,
+}
+
+export interface IExternalPoolData {
+    poolType: IFactoryPoolType,
+    address: string,
+    coins: { address: string, symbol: string, decimals: number | string }[],
+    id?: string,
+    name?: string,
+    symbol?: string,
+    lpTokenAddress?: string,
+    gaugeAddress?: string,
+    implementationAddress?: string,
+    isMetaPool?: boolean,
+    basePoolAddress?: string,
+    assetTypeName?: string,
+    gaugeRewards?: IRewardFromApi[],
 }
 
 export type IRoutePoolData = Pick<IPoolData, 'is_lending' | 'wrapped_coin_addresses' | 'underlying_coin_addresses' | 'token_address'>;

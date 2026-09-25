@@ -121,7 +121,7 @@ export function routeFinderWorker() {
         return _removeDuplications(targetRoutesByTvl, targetRoutesByLength).map((r) => r.route);
     }
 
-    if (typeof addEventListener === 'undefined') {
+    if (typeof Worker === 'undefined') {
         return findRoutes; // for nodejs
     }
 

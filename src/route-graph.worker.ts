@@ -566,7 +566,7 @@ export function routeGraphWorker() {
         return routerGraph;
     }
 
-    if (typeof addEventListener === 'undefined') {
+    if (typeof Worker === 'undefined') {
         return createRouteGraph; // for nodejs
     }
 

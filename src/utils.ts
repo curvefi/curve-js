@@ -405,6 +405,11 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
     if (this.chainId === ARC_CHAIN_ID && (this.isEth(assetId) ||
         assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase())) return 1;
 
+    if (this.isEth(assetId)) {
+        const wrappedPrice = pricesFromApi[this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase()];
+        if (wrappedPrice) return wrappedPrice;
+    }
+
     let chainName = this.isLiteChain? await this.constants.NETWORK_NAME : {
         1: 'ethereum',
         10: 'optimistic-ethereum',

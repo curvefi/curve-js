@@ -48,30 +48,12 @@ export const abiInfoBuild = (address: string, method: string, abi: any): IMethod
     abi,
 });
 
-// Formatting numbers
-
-export const _cutZeros = (strn: string): string => {
-    return strn.replace(/(\.\d*[1-9])0+$/gi, '$1').replace(/\.0+$/gi, '');
-}
+// bignumber.js
 
 export const checkNumber = (n: number | string): number | string => {
     if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
-
     return n
 }
-
-export const formatNumber = (n: number | string, decimals = 18): string => {
-    if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
-    const [integer, fractional] = String(n).split(".");
-
-    return !fractional ? integer : integer + "." + fractional.slice(0, decimals);
-}
-
-export function parseUnits(n: number | string, decimals = 18): bigint {
-    return ethers.parseUnits(formatNumber(n, decimals), decimals);
-}
-
-// bignumber.js
 
 export const BN = (val: number | string): BigNumber => new BigNumber(checkNumber(val));
 
@@ -85,6 +67,19 @@ export const toStringFromBN = (bn: BigNumber, decimals = 18): string => {
 
 export const fromBN = (bn: BigNumber, decimals = 18): bigint => {
     return parseUnits(toStringFromBN(bn, decimals), decimals)
+}
+
+// Formatting numbers
+
+export const _cutZeros = (strn: string): string => {
+    return strn.replace(/(\.\d*[1-9])0+$/gi, '$1').replace(/\.0+$/gi, '');
+}
+
+export const formatNumber = (n: number | string, decimals = 18): string =>
+    BN(n).toFixed(decimals, BigNumber.ROUND_DOWN);
+
+export function parseUnits(n: number | string, decimals = 18): bigint {
+    return ethers.parseUnits(formatNumber(n, decimals), decimals);
 }
 
 // -------------------

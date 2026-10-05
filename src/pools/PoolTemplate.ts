@@ -1788,12 +1788,12 @@ export class PoolTemplate extends CorePool {
         const contractAddress = this.isCrypto && this.isMeta ? this.zap as string : this.address;
         const contract = this.curve.contracts[contractAddress].contract;
         if ('get_dy_underlying' in contract) {
-            return await contract.get_dy_underlying(i, j, _amount, this.curve.constantOptions)
+            return await contract.get_dy_underlying(i, j, _amount)
         } else {
             if ('get_dy(address,uint256,uint256,uint256)' in contract) {  // atricrypto3 based metapools
-                return await contract.get_dy(this.address, i, j, _amount, this.curve.constantOptions);
+                return await contract.get_dy(this.address, i, j, _amount);
             }
-            return await contract.get_dy(i, j, _amount, this.curve.constantOptions);
+            return await contract.get_dy(i, j, _amount);
         }
     }
 
@@ -1818,33 +1818,33 @@ export class PoolTemplate extends CorePool {
 
     async _swapRequired(i: number, j: number, _amount: bigint, isUnderlying: boolean): Promise<any> {
         if(this.isCrypto) {
-            if (this.isNg) return await this.curve.contracts[this.address].contract.get_dx(i, j, _amount, this.curve.constantOptions);
+            if (this.isNg) return await this.curve.contracts[this.address].contract.get_dx(i, j, _amount);
 
             const contract = this.curve.contracts[this.curve.constants.ALIASES.crypto_calc].contract;
             if(this.isMeta && isUnderlying) {
                 const basePool = new PoolTemplate(this.basePool, this.curve);
                 if(this.wrappedCoins.length === 3) {
-                    return await contract.get_dx_tricrypto_meta_underlying(this.address, i, j, _amount, this.wrappedCoins.length, basePool.address, basePool.lpToken, this.curve.constantOptions)
+                    return await contract.get_dx_tricrypto_meta_underlying(this.address, i, j, _amount, this.wrappedCoins.length, basePool.address, basePool.lpToken)
                 }
                 if(basePool.isFake) {
                     const secondPool = new PoolTemplate(basePool.basePool, this.curve)
-                    return await contract.get_dx_double_meta_underlying(this.address, i, j, _amount, basePool.address, basePool.zap, secondPool.address, secondPool.lpToken, this.curve.constantOptions)
+                    return await contract.get_dx_double_meta_underlying(this.address, i, j, _amount, basePool.address, basePool.zap, secondPool.address, secondPool.lpToken)
                 }
-                return await contract.get_dx_meta_underlying(this.address, i, j, _amount, this.underlyingCoins.length, basePool.address, basePool.lpToken, this.curve.constantOptions)
+                return await contract.get_dx_meta_underlying(this.address, i, j, _amount, this.underlyingCoins.length, basePool.address, basePool.lpToken)
             } else {
-                return await contract.get_dx(this.address, i, j, _amount, this.wrappedCoins.length, this.curve.constantOptions)
+                return await contract.get_dx(this.address, i, j, _amount, this.wrappedCoins.length)
             }
         } else {
             if (this.isNg) {
                 const contract = this.curve.contracts[this.address].contract;
                 if (this.isMeta) {
                     if (isUnderlying) {
-                        return await contract.get_dx_underlying(i, j, _amount, this.curve.constantOptions);
+                        return await contract.get_dx_underlying(i, j, _amount);
                     } else {
-                        return await contract.get_dx(i, j, _amount, this.curve.constantOptions);
+                        return await contract.get_dx(i, j, _amount);
                     }
                 } else {
-                    return await contract.get_dx(i, j, _amount, this.curve.constantOptions)
+                    return await contract.get_dx(i, j, _amount)
                 }
             }
 
@@ -1852,15 +1852,15 @@ export class PoolTemplate extends CorePool {
             if(this.isMeta) {
                 const basePool = new PoolTemplate(this.basePool, this.curve);
                 if(isUnderlying) {
-                    return await contract.get_dx_meta_underlying(this.address, i, j, _amount, this.underlyingCoins.length, basePool.address, basePool.lpToken, this.curve.constantOptions)
+                    return await contract.get_dx_meta_underlying(this.address, i, j, _amount, this.underlyingCoins.length, basePool.address, basePool.lpToken)
                 } else {
-                    return await contract.get_dx_meta(this.address, i, j, _amount, this.wrappedCoins.length, basePool.address, this.curve.constantOptions)
+                    return await contract.get_dx_meta(this.address, i, j, _amount, this.wrappedCoins.length, basePool.address)
                 }
             } else {
                 if(isUnderlying && this.isLending) {
-                    return await contract.get_dx_underlying(this.address, i, j, _amount, this.underlyingCoins.length, this.curve.constantOptions)
+                    return await contract.get_dx_underlying(this.address, i, j, _amount, this.underlyingCoins.length)
                 } else {
-                    return await contract.get_dx(this.address, i, j, _amount, this.wrappedCoins.length, this.curve.constantOptions)
+                    return await contract.get_dx(this.address, i, j, _amount, this.wrappedCoins.length)
                 }
             }
         }

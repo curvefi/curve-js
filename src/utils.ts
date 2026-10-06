@@ -916,12 +916,14 @@ export function log(fnName: string, ...args: unknown[]): void {
     }
 }
 
-export function runWorker<In extends { type: string }, Out>(code: string, syncFn: () => ((val: In) => Out) | undefined, inputData: In, timeout = 30000): Promise<Out> {
+export function runWorker<In extends { type: string }, Out>(workerFn: () => ((val: In) => Out) | undefined, inputData: In, timeout = 30000): Promise<Out> {
+    console.log('runWorker', workerFn.name, typeof Worker);
     if (typeof Worker === 'undefined') {
         // in nodejs run worker in main thread
-        return Promise.resolve(syncFn()!(inputData));
+        return Promise.resolve(workerFn()!(inputData));
     }
 
+    const code = `${workerFn.toString()}; ${workerFn.name}();`;
     const blob = new Blob([code], { type: 'application/javascript' });
     const blobUrl = URL.createObjectURL(blob);
     const worker = new Worker(blobUrl, {type: 'module'});
@@ -929,7 +931,7 @@ export function runWorker<In extends { type: string }, Out>(code: string, syncFn
         const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
         worker.onerror = (e) => {
             clearTimeout(timer);
-            console.error(code, inputData, e);
+            console.error(workerFn.name, inputData, e);
             reject(e);
         };
         worker.onmessage = (e) => {

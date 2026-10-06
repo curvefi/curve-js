@@ -28,8 +28,8 @@ import {
 import {getPool} from "./pools/index.js";
 import {_getAmplificationCoefficientsFromApi} from "./pools/utils.js";
 import {L2Networks} from "./constants/L2Networks.js";
-import {IRouterWorkerInput, routeFinderWorker, routeFinderWorkerCode} from "./route-finder.worker.js";
-import {IRouteGraphInput, routeGraphWorker, routeGraphWorkerCode} from "./route-graph.worker.js";
+import {IRouterWorkerInput, routeFinderWorker} from "./route-finder.worker.js";
+import {IRouteGraphInput, routeGraphWorker} from "./route-graph.worker.js";
 import {memoizeMethod} from "./constants/utils.js";
 import {YB_ASSETS} from "./constants/ybPools.js";
 
@@ -63,7 +63,7 @@ async function _buildRouteGraphImpl(this: Curve, chainId: IChainId, isLiteChain:
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi.call(this);
     const poolTvlDict: IDict<number> = await entriesToDictAsync(allPools, _getTVL.bind(this));
     const input: IRouteGraphInput = { constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict, blacklist: this.routerBlacklist };
-    return runWorker(routeGraphWorkerCode, routeGraphWorker, {type: 'createRouteGraph', ...input});
+    return runWorker(routeGraphWorker, {type: 'createRouteGraph', ...input});
 }
 
 async function _findRoutes(this: Curve, inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]> {
@@ -76,7 +76,7 @@ async function _findRoutes(this: Curve, inputCoinAddress: string, outputCoinAddr
     );
 
     const input: IRouterWorkerInput = {inputCoinAddress, outputCoinAddress, routerGraph, poolData, ybAssets: YB_ASSETS};
-    return runWorker(routeFinderWorkerCode, routeFinderWorker, {type: 'findRoutes', ...input});
+    return runWorker(routeFinderWorker, {type: 'findRoutes', ...input});
 }
 
 const _getRouteKey = (route: IRoute, inputCoinAddress: string, outputCoinAddress: string): string => {

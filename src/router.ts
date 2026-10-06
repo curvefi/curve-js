@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import {ethers, TransactionLike} from "ethers";
 import {type Curve, OLD_CHAINS} from "./curve.js";
-import {IChainId, IDict, IRoute, IRouteOutputAndCost, IRouteStep} from "./interfaces";
+import {IChainId, IDict, IPoolData, IRoute, IRouteOutputAndCost, IRouteStep} from "./interfaces";
 import {
     _cutZeros,
     _get_price_impact,
@@ -32,6 +32,7 @@ import {IRouterWorkerInput, routeFinderWorker} from "./route-finder.worker.js";
 import {IRouteGraphInput, routeGraphWorker} from "./route-graph.worker.js";
 import {memoizeMethod} from "./constants/utils.js";
 import {YB_ASSETS} from "./constants/ybPools.js";
+import {_getPoolTotalLiquidityFromApi} from "./cached.js";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
@@ -43,7 +44,16 @@ export function setRouterBlacklist(this: Curve, blacklist: string[]): void {
     delete (this as any)._getBestRoute;
 }
 
-async function _getTVL(this: Curve, poolId: string) { return Number(await getPool.call(this, poolId).stats.totalLiquidityMemoized()) }
+async function _getTVL(this: Curve, poolId: string, { is_crypto, is_llamma, swap_address }: IPoolData): Promise<number> {
+    // LLAMMA liquidity must be calculated on-chain, even when the API has an entry.
+    if (!is_llamma) {
+        const totalLiquidity = await _getPoolTotalLiquidityFromApi(
+            this.constants.NETWORK_NAME, poolId, swap_address, is_crypto ?? false, this.isLiteChain
+        );
+        if (totalLiquidity !== undefined) return Number(totalLiquidity);
+    }
+    return Number(await getPool.call(this, poolId).stats.totalLiquidityMemoized());
+}
 
 async function entriesToDictAsync<T, U>(entries: [string, T][], mapper: (key: string, value: T) => Promise<U>): Promise<IDict<U>> {
     const result: IDict<U> = {};

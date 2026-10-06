@@ -917,7 +917,6 @@ export function log(fnName: string, ...args: unknown[]): void {
 }
 
 export function runWorker<In extends { type: string }, Out>(workerFn: () => ((val: In) => Out) | undefined, inputData: In, timeout = 30000): Promise<Out> {
-    console.log('runWorker', workerFn.name, typeof Worker);
     if (typeof Worker === 'undefined') {
         // in nodejs run worker in main thread
         return Promise.resolve(workerFn()!(inputData));

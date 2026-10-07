@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import {ethers, TransactionLike} from "ethers";
 import {type Curve, OLD_CHAINS} from "./curve.js";
-import {IChainId, IDict, IRoute, IRouteOutputAndCost, IRouteStep} from "./interfaces";
+import {IChainId, IDict, IPoolData, IRoute, IRouteOutputAndCost, IRouteStep} from "./interfaces";
 import {
     _cutZeros,
     _get_price_impact,
@@ -28,10 +28,11 @@ import {
 import {getPool} from "./pools/index.js";
 import {_getAmplificationCoefficientsFromApi} from "./pools/utils.js";
 import {L2Networks} from "./constants/L2Networks.js";
-import {IRouterWorkerInput, routeFinderWorker, routeFinderWorkerCode} from "./route-finder.worker.js";
-import {IRouteGraphInput, routeGraphWorker, routeGraphWorkerCode} from "./route-graph.worker.js";
+import {IRouterWorkerInput, routeFinderWorker} from "./route-finder.worker.js";
+import {IRouteGraphInput, routeGraphWorker} from "./route-graph.worker.js";
 import {memoizeMethod} from "./constants/utils.js";
 import {YB_ASSETS} from "./constants/ybPools.js";
+import {_getPoolTotalLiquidityFromApi} from "./cached.js";
 
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
@@ -43,7 +44,16 @@ export function setRouterBlacklist(this: Curve, blacklist: string[]): void {
     delete (this as any)._getBestRoute;
 }
 
-async function _getTVL(this: Curve, poolId: string) { return Number(await getPool.call(this, poolId).stats.totalLiquidityMemoized()) }
+async function _getTVL(this: Curve, poolId: string, { is_crypto, is_llamma, swap_address }: IPoolData): Promise<number> {
+    // LLAMMA liquidity must be calculated on-chain, even when the API has an entry.
+    if (!is_llamma) {
+        const totalLiquidity = await _getPoolTotalLiquidityFromApi(
+            this.constants.NETWORK_NAME, poolId, swap_address, is_crypto ?? false, this.isLiteChain
+        );
+        if (totalLiquidity !== undefined) return Number(totalLiquidity);
+    }
+    return Number(await getPool.call(this, poolId).stats.totalLiquidityMemoized());
+}
 
 async function entriesToDictAsync<T, U>(entries: [string, T][], mapper: (key: string, value: T) => Promise<U>): Promise<IDict<U>> {
     const result: IDict<U> = {};
@@ -63,7 +73,7 @@ async function _buildRouteGraphImpl(this: Curve, chainId: IChainId, isLiteChain:
     const amplificationCoefficientDict = await _getAmplificationCoefficientsFromApi.call(this);
     const poolTvlDict: IDict<number> = await entriesToDictAsync(allPools, _getTVL.bind(this));
     const input: IRouteGraphInput = { constants, chainId, isLiteChain, allPools, amplificationCoefficientDict, poolTvlDict, blacklist: this.routerBlacklist };
-    return runWorker(routeGraphWorkerCode, routeGraphWorker, {type: 'createRouteGraph', ...input});
+    return runWorker(routeGraphWorker, {type: 'createRouteGraph', ...input});
 }
 
 async function _findRoutes(this: Curve, inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]> {
@@ -76,7 +86,7 @@ async function _findRoutes(this: Curve, inputCoinAddress: string, outputCoinAddr
     );
 
     const input: IRouterWorkerInput = {inputCoinAddress, outputCoinAddress, routerGraph, poolData, ybAssets: YB_ASSETS};
-    return runWorker(routeFinderWorkerCode, routeFinderWorker, {type: 'findRoutes', ...input});
+    return runWorker(routeFinderWorker, {type: 'findRoutes', ...input});
 }
 
 const _getRouteKey = (route: IRoute, inputCoinAddress: string, outputCoinAddress: string): string => {

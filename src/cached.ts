@@ -82,6 +82,16 @@ export const _getPoolsFromApi =
         return poolsDict[poolType]
     }
 
+export const _getPoolTotalLiquidityFromApi = async (
+    network: INetworkName, poolId: string, address: string, isCrypto: boolean, isLiteChain: boolean
+): Promise<string | undefined> => {
+    const poolType = poolId.startsWith("factory") ? poolId.replace(/-\d+$/, '').replace(/-v2$/, '') : isCrypto ? "crypto" : "main";
+    const {poolData} = await _getPoolsFromApi(network, poolType as IPoolType, isLiteChain);
+    const poolAddress = address.toLowerCase();
+    const poolEntry = poolData.find((data) => data.address.toLowerCase() === poolAddress);
+    return poolEntry ? String(poolEntry.usdTotal) : undefined;
+}
+
 export const _setPoolsFromApi =
     (network: INetworkName, isLiteChain: boolean, data: Record<IPoolType, IExtendedPoolDataFromApi>): void =>
         _getCachedData.set(createCache(data), network, isLiteChain)

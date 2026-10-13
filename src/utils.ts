@@ -736,23 +736,28 @@ export async function getNetworkConstants(this: Curve, chainId: IChainId | numbe
 
 export async function getTVL(this: Curve, chainId = this.chainId): Promise<number> {
     const networkConstants = await getNetworkConstants.call(this, chainId);
-    const allTypesExtendedPoolData = await _getAllPoolsFromApi(networkConstants.NAME, this.isLiteChain);
+    const allTypesExtendedPoolData = await _getAllPoolsFromApi(networkConstants.NAME, networkConstants.IS_LITE_CHAIN);
 
     return allTypesExtendedPoolData.reduce((sum, data) => sum + (data.tvl ?? data.tvlAll ?? 0), 0)
 }
 
-export async function getVolumeApiController(this: Curve, network: INetworkName): Promise<IVolumeAndAPYs> {
-    if(this.isLiteChain && this.chainId !== 146) {
+export async function getVolumeApiController(
+    this: Curve,
+    network: INetworkName,
+    chainId: IChainId = this.chainId,
+    isLiteChain = this.isLiteChain,
+): Promise<IVolumeAndAPYs> {
+    if(isLiteChain && chainId !== 146) {
         throw Error('This method is not supported for the lite version')
     }
 
-    if(volumeNetworks.getVolumes.includes(this.chainId)) {
+    if(volumeNetworks.getVolumes.includes(chainId)) {
         return await _getVolumes(network);
     }
-    if(volumeNetworks.getFactoryAPYs.includes(this.chainId)) {
+    if(volumeNetworks.getFactoryAPYs.includes(chainId)) {
         return await _getFactoryAPYs(network);
     }
-    if(volumeNetworks.getSubgraphData.includes(this.chainId)) {
+    if(volumeNetworks.getSubgraphData.includes(chainId)) {
         return await _getSubgraphData(network);
     }
 
@@ -760,12 +765,13 @@ export async function getVolumeApiController(this: Curve, network: INetworkName)
 }
 
 export async function getVolume(this: Curve, chainId = this.chainId): Promise<{ totalVolume: number, cryptoVolume: number, cryptoShare: number }> {
-    if(this.isLiteChain && this.chainId !== 146) {
-        throw Error('This method is not supported for the lite version')
-    }
-
     const networkConstants = await getNetworkConstants.call(this, chainId);
-    const { totalVolume, cryptoVolume, cryptoShare } = await getVolumeApiController.call(this, networkConstants.NAME);
+    const { totalVolume, cryptoVolume, cryptoShare } = await getVolumeApiController.call(
+        this,
+        networkConstants.NAME,
+        chainId,
+        networkConstants.IS_LITE_CHAIN,
+    );
     return { totalVolume, cryptoVolume, cryptoShare }
 }
 

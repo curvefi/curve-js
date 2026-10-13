@@ -425,8 +425,11 @@ export function routeGraphWorker() {
             const metaCoinAddresses = basePool ? basePool.underlying_coin_addresses.map((a: string) => a.toLowerCase()) : [];
             let swapAddress = poolData.is_fake ? poolData.deposit_address?.toLowerCase() as string : poolAddress;
 
-            const tvl = poolTvlDict[poolId] * tvlMultiplier;
-            // Skip empty pools
+            const rawTvl = poolTvlDict[poolId];
+            const tvl = rawTvl * tvlMultiplier;
+            // Never route through pools below $1k real TVL on mainnet
+            if (chainId === 1 && rawTvl < 1000) continue;
+            // Skip empty pools (effective TVL = real TVL * amplification coefficient)
             if (chainId === 1 && tvl < 1000) continue;
             if (chainId !== 1 && !isLiteChain && tvl < 100) continue;
             

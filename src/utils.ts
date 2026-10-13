@@ -46,30 +46,12 @@ export const abiInfoBuild = (address: string, method: string, abi: any): IMethod
     abi,
 });
 
-// Formatting numbers
-
-export const _cutZeros = (strn: string): string => {
-    return strn.replace(/(\.\d*[1-9])0+$/gi, '$1').replace(/\.0+$/gi, '');
-}
+// bignumber.js
 
 export const checkNumber = (n: number | string): number | string => {
     if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
-
     return n
 }
-
-export const formatNumber = (n: number | string, decimals = 18): string => {
-    if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
-    const [integer, fractional] = String(n).split(".");
-
-    return !fractional ? integer : integer + "." + fractional.slice(0, decimals);
-}
-
-export function parseUnits(n: number | string, decimals = 18): bigint {
-    return ethers.parseUnits(formatNumber(n, decimals), decimals);
-}
-
-// bignumber.js
 
 export const BN = (val: number | string): BigNumber => new BigNumber(checkNumber(val));
 
@@ -83,6 +65,19 @@ export const toStringFromBN = (bn: BigNumber, decimals = 18): string => {
 
 export const fromBN = (bn: BigNumber, decimals = 18): bigint => {
     return parseUnits(toStringFromBN(bn, decimals), decimals)
+}
+
+// Formatting numbers
+
+export const _cutZeros = (strn: string): string => {
+    return strn.replace(/(\.\d*[1-9])0+$/gi, '$1').replace(/\.0+$/gi, '');
+}
+
+export const formatNumber = (n: number | string, decimals = 18): string =>
+    BN(n).toFixed(decimals, BigNumber.ROUND_DOWN);
+
+export function parseUnits(n: number | string, decimals = 18): bigint {
+    return ethers.parseUnits(formatNumber(n, decimals), decimals);
 }
 
 // -------------------
@@ -402,6 +397,11 @@ export async function _getUsdRate(this: Curve, assetId: string): Promise<number>
 
     if (this.chainId === ARC_CHAIN_ID && (this.isEth(assetId) ||
         assetId.toLowerCase() === this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase())) return 1;
+
+    if (this.isEth(assetId)) {
+        const wrappedPrice = pricesFromApi[this.constants.NATIVE_TOKEN.wrappedAddress.toLowerCase()];
+        if (wrappedPrice) return wrappedPrice;
+    }
 
     let chainName = this.isLiteChain? await this.constants.NETWORK_NAME : {
         1: 'ethereum',
@@ -908,12 +908,13 @@ export function log(fnName: string, ...args: unknown[]): void {
     }
 }
 
-export function runWorker<In extends { type: string }, Out>(code: string, syncFn: () => ((val: In) => Out) | undefined, inputData: In, timeout = 30000): Promise<Out> {
+export function runWorker<In extends { type: string }, Out>(workerFn: () => ((val: In) => Out) | undefined, inputData: In, timeout = 30000): Promise<Out> {
     if (typeof Worker === 'undefined') {
         // in nodejs run worker in main thread
-        return Promise.resolve(syncFn()!(inputData));
+        return Promise.resolve(workerFn()!(inputData));
     }
 
+    const code = `${workerFn.toString()}; ${workerFn.name}();`;
     const blob = new Blob([code], { type: 'application/javascript' });
     const blobUrl = URL.createObjectURL(blob);
     const worker = new Worker(blobUrl, {type: 'module'});
@@ -921,7 +922,7 @@ export function runWorker<In extends { type: string }, Out>(code: string, syncFn
         const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
         worker.onerror = (e) => {
             clearTimeout(timer);
-            console.error(code, inputData, e);
+            console.error(workerFn.name, inputData, e);
             reject(e);
         };
         worker.onmessage = (e) => {

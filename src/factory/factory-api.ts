@@ -126,12 +126,17 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
 
 export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFactoryPoolType): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
+    let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType, this.isLiteChain)).poolData);
+    rawPoolList = await reconcilePoolIdsWithChain.call(this, rawPoolList, factoryType);
+    return buildFactoryPoolsData.call(this, factoryType, rawPoolList);
+}
+
+export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType, rawPoolListInput: IPoolDataFromApi[]): IDict<IPoolData> {
     const is_ng = ["factory-stable-ng", "factory-twocrypto", "factory-tricrypto"].includes(factoryType);
     const isCrypto = ["factory-crypto", "factory-twocrypto", "factory-tricrypto"].includes(factoryType);
 
     const implementationABIDict = this.constants.STABLE_FACTORY_CONSTANTS.implementationABIDict ?? {};
-    let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType, this.isLiteChain)).poolData);
-    rawPoolList = await reconcilePoolIdsWithChain.call(this, rawPoolList, factoryType);
+    let rawPoolList: IPoolDataFromApi[] = rawPoolListInput;
     if (!isCrypto) rawPoolList = rawPoolList.filter((p) => is_ng || (!!p.implementationAddress && p.implementationAddress in implementationABIDict));
     // Filter duplications
     const mainAddresses = Object.values(this.constants.POOLS_DATA).map((pool: IPoolData) => pool.swap_address);
@@ -191,7 +196,8 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
             const basePoolId = lpTokenBasePoolIdDict[coinAddresses[1]];
 
             if (factoryType !== "factory-tricrypto" && factoryType !== "factory-twocrypto" && basePoolId) {  // isMeta
-                const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
+                const allPoolsData = {...this.getPoolsData(), ...FACTORY_POOLS_DATA};
+                if (!allPoolsData[basePoolId]) throw new Error(`Base pool "${basePoolId}" of meta pool ${pool.id} (${pool.address}) is not loaded. Build or fetch the base pool before this one.`);
                 const basePoolCoinNames = [...allPoolsData[basePoolId].underlying_coins];
                 const basePoolCoinAddresses = [...allPoolsData[basePoolId].underlying_coin_addresses];
                 const basePoolDecimals = [...allPoolsData[basePoolId].underlying_decimals];
@@ -249,8 +255,9 @@ export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFact
                 };
             }
         } else if (pool.isMetaPool) {
-            const allPoolsData = {...this.constants.POOLS_DATA, ...FACTORY_POOLS_DATA};
+            const allPoolsData = {...this.getPoolsData(), ...FACTORY_POOLS_DATA};
             const basePoolId = getPoolIdByAddress.call(this, rawPoolList, pool.basePoolAddress as string);
+            if (!allPoolsData[basePoolId]) throw new Error(`Base pool "${pool.basePoolAddress}" of meta pool ${pool.id} (${pool.address}) is not loaded. Build or fetch the base pool before this one.`);
             this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
 
             const basePoolCoinNames = allPoolsData[basePoolId]?.underlying_coins;

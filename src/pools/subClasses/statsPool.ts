@@ -1,5 +1,5 @@
-import {IPoolType, IReward} from '../../interfaces.js';
-import {_getPoolsFromApi,_getCrvApyFromApi} from '../../cached.js';
+import {IReward} from '../../interfaces.js';
+import {_getPoolTotalLiquidityFromApi, _getCrvApyFromApi} from '../../cached.js';
 import {
     _getUsdRate,
     BN,
@@ -195,18 +195,10 @@ export class StatsPool implements IStatsPool {
         }
 
         if (useApi) {
-            const network = curve.constants.NETWORK_NAME;
-            let poolType = this.pool.isCrypto ? "crypto" : "main";
-            if (this.pool.id.startsWith("factory")) {
-                poolType = this.pool.id.replace(/-\d+$/, '');
-                poolType = poolType.replace(/-v2$/, '');
-            }
-            const poolsData = (await _getPoolsFromApi.call(curve, network, poolType as IPoolType, curve.isLiteChain)).poolData;
-
-            const poolEntry = poolsData.find((data) => data.address.toLowerCase() === this.pool.address.toLowerCase());
-            if (poolEntry) {
-                return String(poolEntry.usdTotal);
-            }
+            const totalLiquidity = await _getPoolTotalLiquidityFromApi(
+                curve.constants.NETWORK_NAME, this.pool.id, this.pool.address, this.pool.isCrypto, curve.isLiteChain
+            );
+            if (totalLiquidity !== undefined) return totalLiquidity;
         }
 
         const balances = await this.underlyingBalances();

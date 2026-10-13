@@ -566,7 +566,7 @@ export function routeGraphWorker() {
         return routerGraph;
     }
 
-    if (typeof addEventListener === 'undefined') {
+    if (typeof Worker === 'undefined') {
         return createRouteGraph; // for nodejs
     }
 
@@ -577,6 +577,3 @@ export function routeGraphWorker() {
         }
     });
 }
-
-// this is a workaround to avoid importing web-worker in the main bundle (nextjs will try to inject invalid hot-reloading code)
-export const routeGraphWorkerCode = `${routeGraphWorker.toString()}; ${routeGraphWorker.name}();`;

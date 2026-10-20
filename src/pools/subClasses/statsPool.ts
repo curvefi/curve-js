@@ -196,7 +196,7 @@ export class StatsPool implements IStatsPool {
 
         if (useApi) {
             const totalLiquidity = await _getPoolTotalLiquidityFromApi(
-                curve.constants.NETWORK_NAME, this.pool.id, this.pool.address, this.pool.isCrypto, curve.isLiteChain
+                curve.constants.NETWORK_NAME, this.pool.address, curve.isLiteChain
             );
             if (totalLiquidity !== undefined) return totalLiquidity;
         }

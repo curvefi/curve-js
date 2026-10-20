@@ -41,17 +41,6 @@ export const PRICES_POOL_TYPE_TO_LEGACY: Record<NonNullable<TPricesPoolType>, IP
     twocryptong: "factory-twocrypto",
 };
 
-const ID_PREFIX_BY_POOL_TYPE: Record<IPoolType, string> = {
-    "main": "main",
-    "crypto": "crypto",
-    "factory": "factory-v2",
-    "factory-crvusd": "factory-crvusd",
-    "factory-crypto": "factory-crypto",
-    "factory-twocrypto": "factory-twocrypto",
-    "factory-tricrypto": "factory-tricrypto",
-    "factory-stable-ng": "factory-stable-ng",
-};
-
 interface IPricesChainCoin {
     pool_index: number,
     symbol: string,
@@ -141,14 +130,11 @@ export const getGaugesOverview = async (): Promise<IPricesGauge[]> => {
     return gauges ?? [];
 };
 
-const getPoolId = (poolType: IPoolType, indexWithinType: number): string =>
-    `${ID_PREFIX_BY_POOL_TYPE[poolType]}-${indexWithinType}`;
-
-const adaptPoolFromPricesApi = (pool: IPricesChainPool, id: string, gaugeAddressByPoolAddress: Map<string, string>): IPoolDataFromApi => {
+const adaptPoolFromPricesApi = (pool: IPricesChainPool, gaugeAddressByPoolAddress: Map<string, string>): IPoolDataFromApi => {
     const coins = [...pool.coins].sort((a, b) => a.pool_index - b.pool_index).slice(0, pool.n_coins);
 
     return {
-        id,
+        id: pool.address.toLowerCase(),
         name: pool.name,
         symbol: pool.lp_token_symbol ?? pool.name,
         assetTypeName: null,
@@ -189,7 +175,7 @@ export const getPoolsFromPricesApi = async (network: INetworkName, poolType: IPo
         .filter((pool) => PRICES_POOL_TYPE_TO_LEGACY[pool.pool_type as NonNullable<TPricesPoolType>] === poolType)
         .sort((a, b) => a.creation_block_number - b.creation_block_number);
 
-    const poolData = poolsOfType.map((pool, i) => adaptPoolFromPricesApi(pool, getPoolId(poolType, i), gaugeAddressByPoolAddress));
+    const poolData = poolsOfType.map((pool) => adaptPoolFromPricesApi(pool, gaugeAddressByPoolAddress));
 
     return {
         poolData,

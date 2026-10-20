@@ -1,6 +1,6 @@
 import {type Curve} from "../../curve.js";
 import {GaugePool, IGaugePool} from "./gaugePool.js";
-import {IPoolData} from "../../interfaces";
+import {IFactoryPoolType, IPoolData} from "../../interfaces";
 
 export interface ICorePool {
     id: string;
@@ -24,6 +24,7 @@ export interface ICorePool {
     isMetaFactory: boolean;
     isNg: boolean;
     isLlamma: boolean;
+    factoryType: IFactoryPoolType | null;
     basePool: string;
     metaCoinIdx: number;
     underlyingCoins: string[];
@@ -58,6 +59,7 @@ export class CorePool implements ICorePool {
     isMetaFactory: boolean;
     isNg: boolean;
     isLlamma: boolean;
+    factoryType: IFactoryPoolType | null;
     basePool: string;
     metaCoinIdx: number;
     underlyingCoins: string[];
@@ -94,6 +96,7 @@ export class CorePool implements ICorePool {
         this.isMetaFactory = (this.isMeta && this.isFactory) || this.zap === '0xa79828df1850e8a3a3064576f380d90aecdd3359';
         this.isNg = poolData.is_ng || false;
         this.isLlamma = poolData.is_llamma || false;
+        this.factoryType = poolData.factory_type || null;
         this.basePool = poolData.base_pool || '';
         this.metaCoinIdx = this.isMeta ? poolData.meta_coin_idx ?? poolData.wrapped_coins.length - 1 : -1;
         this.underlyingCoins = poolData.underlying_coins;

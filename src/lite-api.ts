@@ -140,8 +140,8 @@ const _getApi2PoolsData = memoize(
     }
 );
 
-const adaptLitePool = (pool: IApi2Pool, poolType: IPoolType): IPoolDataFromApi => ({
-    id: pool.id.replace(pool.registry_id, poolType),
+const adaptLitePool = (pool: IApi2Pool): IPoolDataFromApi => ({
+    id: pool.address.toLowerCase(),
     name: pool.name,
     symbol: pool.symbol,
     assetTypeName: null,
@@ -180,7 +180,7 @@ export const getLitePoolsFromApi2 = async (network: INetworkName, poolType: IPoo
 
     const { pool_data, tvl } = await _getApi2PoolsData(chainId);
     const poolsOfType = (pool_data ?? []).filter((pool) => API2_REGISTRY_TO_POOL_TYPE[pool.registry_id] === poolType);
-    const poolData = poolsOfType.map((pool) => adaptLitePool(pool, poolType));
+    const poolData = poolsOfType.map((pool) => adaptLitePool(pool));
 
     return {
         poolData,

@@ -386,7 +386,7 @@ export const basePoolIdZapDictArbitrum: IDict<{ address: string, ABI: any }> = {
         address: "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2".toLowerCase(),
         ABI: MetaZapFantomABI,
     },
-    "factory-v2-41": {
+    "0xc9b8a3fdecb9d5b218d02555a8baf332e5b740d5": {
         address: "0x58AC91f5BE7dC0c35b24B96B19BAc55FBB8E705e".toLowerCase(),
         ABI: MetaZapFantomABI,
     },
@@ -397,7 +397,7 @@ export const basePoolIdZapDictOptimism: IDict<{ address: string, ABI: any }> = {
         address: "0x167e42a1c7ab4be03764a2222aac57f5f6754411".toLowerCase(),
         ABI: factoryDepositABI,
     },
-    "factory-v2-16": {
+    "0x29a3d66b30bc4ad674a4fdaf27578b64f6afbfe7": {
         address: "0x4244eB811D6e0Ef302326675207A95113dB4E1F8".toLowerCase(),
         ABI: MetaZapFantomABI,
     },

@@ -15,7 +15,7 @@ async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string)
     const poolCount = Number(this.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     for (let i = 1; i <= poolCount; i++) {
         const address: string = await factoryContract.pool_list(poolCount - i);
-        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-tricrypto-${poolCount - i}`
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return address.toLowerCase()
     }
 
     throw Error("Unknown pool")
@@ -33,7 +33,7 @@ async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): P
     if (calls.length === 0) return [[], []];
 
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
-        (addr, i) => ({ id: `factory-tricrypto-${fromIdx + i}`, address: addr.toLowerCase()})
+        (addr) => ({ id: addr.toLowerCase(), address: addr.toLowerCase()})
     );
 
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
@@ -238,6 +238,7 @@ export async function getTricryptoFactoryPoolData(this: ICurve, fromIdx = 0, swa
             swap_abi: isETHEnabled ? tricryptoFactorySwapABI : tricryptoFactoryEthDisabledSwapABI,
             gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
             is_ng: true,
+            factory_type: "factory-tricrypto",
         };
     }
 

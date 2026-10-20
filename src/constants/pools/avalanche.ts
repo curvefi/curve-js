@@ -145,7 +145,7 @@ export const POOLS_DATA_AVALANCHE: IDict<IPoolData> = lowerCasePoolDataAddresses
         deposit_address: '0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db',
         is_meta: true,
         is_crypto: true,
-        base_pool: 'factory-v2-99',
+        base_pool: '0x0974d9d3bc463fa17497aafc3a87535553298fbe',
         meta_coin_idx: 0,
         underlying_coins: ['USDC', 'USDt', 'BTC.b', 'AVAX'],
         wrapped_coins: ['2CRV', 'BTC.b', 'WAVAX'],

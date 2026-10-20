@@ -423,7 +423,7 @@ export class PoolTemplate extends CorePool {
         const multicallContract = this.curve.contracts[this.address].multicallContract;
         if(this.isCrypto || this.id === 'wsteth') {
             if(this.curve.isLiteChain) {
-                const prices = this.id.includes('twocrypto')
+                const prices = this.factoryType === 'factory-twocrypto'
                     ? [
                         1,
                         Number(await this.curve.contracts[this.address].contract.price_oracle()) / (10 ** 18),
@@ -1451,7 +1451,7 @@ export class PoolTemplate extends CorePool {
         const multicallContract = this.curve.contracts[this.address].multicallContract;
         if(this.isCrypto || this.id === 'wsteth') {
             if(this.curve.isLiteChain) {
-                const prices = this.id.includes('twocrypto')
+                const prices = this.factoryType === 'factory-twocrypto'
                     ? [
                         1,
                         Number(await this.curve.contracts[this.address].contract.price_oracle()) / (10 ** 18),
@@ -1584,7 +1584,7 @@ export class PoolTemplate extends CorePool {
         const multicallContract = this.curve.contracts[this.address].multicallContract;
         if(this.isCrypto || this.id === 'wsteth') {
             if(this.curve.isLiteChain) {
-                const prices = this.id.includes('twocrypto')
+                const prices = this.factoryType === 'factory-twocrypto'
                     ? [
                         1,
                         Number(await this.curve.contracts[this.address].contract.price_oracle()) / (10 ** 18),

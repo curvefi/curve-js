@@ -1,5 +1,5 @@
 import {Contract as MulticallContract} from "@curvefi/ethcall";
-import {ICurve, IDict, IPoolData, IPoolDataShort, REFERENCE_ASSET} from "../interfaces";
+import {ICurve, IDict, IFactoryPoolType, IPoolData, IPoolDataShort, REFERENCE_ASSET} from "../interfaces";
 import ERC20ABI from "../constants/abis/ERC20.json" with {type: "json"};
 import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with {type: "json"};
 import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with {type: "json"};
@@ -7,7 +7,7 @@ import factoryGaugeABI from "../constants/abis/gauge_factory.json" with {type: "
 import gaugeChildABI from "../constants/abis/gauge_child.json" with {type: "json"};
 import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with {type: "json"};
 import {getPoolIdByAddress, setFactoryZapContracts} from "./common.js";
-import {getPoolName, isStableNgPool} from "../utils.js";
+import {getPoolName} from "../utils.js";
 import {formatUnits} from "../constants/utils.js";
 import {Curve} from "../curve.js";
 
@@ -60,12 +60,10 @@ export async function getBasePools(this: Curve, factoryAddress: string, rawSwapA
 async function getRecentlyCreatedPoolId(this: ICurve, swapAddress: string, factoryAddress: string): Promise<string> {
     const factoryContract = this.contracts[factoryAddress].contract;
 
-    const prefix = factoryAddress === this.constants.ALIASES.factory? 'factory-v2' : 'factory-stable-ng'
-
     const poolCount = Number(this.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     for (let i = 1; i <= poolCount; i++) {
         const address: string = await factoryContract.pool_list(poolCount - i);
-        if (address.toLowerCase() === swapAddress.toLowerCase()) return `${prefix}-${poolCount - i}`
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return address.toLowerCase()
     }
 
     throw Error("Unknown pool")
@@ -84,10 +82,8 @@ async function getFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0, factoryA
     }
     if (calls.length === 0) return [[], []];
 
-    const prefix = factoryAddress === this.constants.ALIASES.factory ? "factory-v2-" :
-        factoryAddress === this.constants.ALIASES.crvusd_factory ? "factory-crvusd-" : "factory-stable-ng-";
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
-        (addr, i) => ({ id: prefix + (fromIdx + i), address: addr.toLowerCase()})
+        (addr) => ({ id: addr.toLowerCase(), address: addr.toLowerCase()})
     );
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
     const blacklist = BLACK_LIST[this.chainId] ?? [];
@@ -257,6 +253,8 @@ export async function getFactoryPoolData(this: Curve, fromIdx = 0, swapAddress?:
     if (rawPoolIds.length === 0) return {};
 
     const is_ng = factoryAddress === this.constants.ALIASES.stable_ng_factory;
+    const factory_type: IFactoryPoolType = factoryAddress === this.constants.ALIASES.crvusd_factory ? "factory-crvusd" :
+        is_ng ? "factory-stable-ng" : "factory";
     const [rawImplementations, rawGauges, rawOldGauges, rawReferenceAssets, rawPoolSymbols, rawPoolNames, rawIsMeta, rawCoinAddresses] =
         await getPoolsData.call(this, rawSwapAddresses, factoryAddress);
     const poolIds: string[] = [];
@@ -325,6 +323,7 @@ export async function getFactoryPoolData(this: Curve, fromIdx = 0, swapAddress?:
                 swap_abi: swapABIs[i],
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 is_ng,
+                factory_type,
             };
         } else {
             const allPoolsData = {...this.constants.POOLS_DATA, ...this.constants.FACTORY_POOLS_DATA, ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...FACTORY_POOLS_DATA};
@@ -340,7 +339,7 @@ export async function getFactoryPoolData(this: Curve, fromIdx = 0, swapAddress?:
 
             let deposit_address = this.constants.STABLE_FACTORY_CONSTANTS.stableNgBasePoolZap ?? this.constants.ZERO_ADDRESS;
             let deposit_abi = StableNgBasePoolZapABI;
-            if (isStableNgPool(basePools.ids[i])) {
+            if (allPoolsData[basePools.ids[i]]?.is_ng) {
                 this.setContract(deposit_address, StableNgBasePoolZapABI);
             } else {
                 deposit_address = basePoolIdZapDict[basePools.ids[i]].address;
@@ -370,6 +369,7 @@ export async function getFactoryPoolData(this: Curve, fromIdx = 0, swapAddress?:
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 deposit_abi,
                 is_ng,
+                factory_type,
             };
         }
     }

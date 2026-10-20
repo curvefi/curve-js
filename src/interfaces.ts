@@ -35,6 +35,7 @@ export interface IPoolData {
     is_factory?: boolean,
     is_llamma?: boolean,
     is_ng?: boolean,
+    factory_type?: IFactoryPoolType,
     base_pool?: string,
     meta_coin_idx?: number,
     underlying_coins: string[],

@@ -14,7 +14,7 @@ async function getRecentlyCreatedCryptoPoolId(this: ICurve, swapAddress: string)
     const poolCount = Number(this.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
     for (let i = 1; i <= poolCount; i++) {
         const address: string = await factoryContract.pool_list(poolCount - i);
-        if (address.toLowerCase() === swapAddress.toLowerCase()) return `factory-crypto-${poolCount - i}`
+        if (address.toLowerCase() === swapAddress.toLowerCase()) return address.toLowerCase()
     }
 
     throw Error("Unknown pool")
@@ -32,7 +32,7 @@ async function getCryptoFactoryIdsAndSwapAddresses(this: ICurve, fromIdx = 0): P
     if (calls.length === 0) return [[], []];
 
     let factories: { id: string, address: string}[] = (await this.multicallProvider.all(calls) as string[]).map(
-        (addr, i) => ({ id: `factory-crypto-${fromIdx + i}`, address: addr.toLowerCase()})
+        (addr) => ({ id: addr.toLowerCase(), address: addr.toLowerCase()})
     );
 
     const swapAddresses = Object.values(this.constants.POOLS_DATA as IDict<IPoolData>).map((pool: IPoolData) => pool.swap_address.toLowerCase());
@@ -277,6 +277,7 @@ export async function getCryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAd
                 swap_abi: cryptoFactorySwapABI,
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 deposit_abi: basePoolZap.ABI,
+                factory_type: "factory-crypto",
             };
         } else {
             CRYPTO_FACTORY_POOLS_DATA[poolIds[i]] = {
@@ -298,6 +299,7 @@ export async function getCryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAd
                 wrapped_decimals: [...coinAddresses[i].map((addr) => coinAddressDecimalsDict[addr])],
                 swap_abi: cryptoFactorySwapABI,
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
+                factory_type: "factory-crypto",
             };
         }
     }

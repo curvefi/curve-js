@@ -12,48 +12,12 @@ import tricryptoFactoryEthDisabledSwapABI
     from "../constants/abis/factory-tricrypto/factory-tricrypto-pool-eth-disabled.json" with {type: "json"};
 import {getPoolIdByAddress, setFactoryZapContracts} from "./common.js";
 import {_getPoolsFromApi} from "../cached.js";
-import {assetTypeNameHandler, getPoolName, isStableNgPool} from "../utils.js";
+import {assetTypeNameHandler, getPoolName} from "../utils.js";
 import StableNgBasePoolZapABI from "../constants/abis/stable-ng-base-pool-zap.json" with {type: "json"};
 import MetaStableSwapNGABI from "../constants/abis/factory-stable-ng/meta-stableswap-ng.json" with {type: "json"};
 import PlainStableSwapNGABI from "../constants/abis/factory-stable-ng/plain-stableswap-ng.json" with {type: "json"};
 import {type Curve} from "../curve";
 import { isYBPool } from "../constants/ybPools.js";
-
-const FACTORY_ALIAS_BY_TYPE: Record<IFactoryPoolType, string> = {
-    "factory": "factory",
-    "factory-crvusd": "crvusd_factory",
-    "factory-crypto": "crypto_factory",
-    "factory-twocrypto": "twocrypto_factory",
-    "factory-tricrypto": "tricrypto_factory",
-    "factory-stable-ng": "stable_ng_factory",
-};
-
-const ID_PREFIX_BY_FACTORY_TYPE: Record<IFactoryPoolType, string> = {
-    "factory": "factory-v2",
-    "factory-crvusd": "factory-crvusd",
-    "factory-crypto": "factory-crypto",
-    "factory-twocrypto": "factory-twocrypto",
-    "factory-tricrypto": "factory-tricrypto",
-    "factory-stable-ng": "factory-stable-ng",
-};
-
-async function reconcilePoolIdsWithChain(this: Curve, poolList: IPoolDataFromApi[], factoryType: IFactoryPoolType): Promise<IPoolDataFromApi[]> {
-    const factoryAddress = this.constants.ALIASES[FACTORY_ALIAS_BY_TYPE[factoryType]];
-    const factoryMulticallContract = this.contracts[factoryAddress].multicallContract;
-    const poolCount = Number(this.formatUnits(await this.contracts[factoryAddress].contract.pool_count(this.constantOptions), 0));
-
-    const calls = [];
-    for (let i = 0; i < poolCount; i++) calls.push(factoryMulticallContract.pool_list(i));
-    const addresses = (await this.multicallProvider.all(calls)) as string[];
-
-    const indexByAddress = new Map<string, number>();
-    addresses.forEach((address, i) => indexByAddress.set(address.toLowerCase(), i));
-
-    const prefix = ID_PREFIX_BY_FACTORY_TYPE[factoryType];
-    return poolList
-        .filter((pool) => indexByAddress.has(pool.address))
-        .map((pool) => ({ ...pool, id: `${prefix}-${indexByAddress.get(pool.address)}` }));
-}
 
 export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPoolDataFromApi[] => {
     for (const poolData of poolsData) {
@@ -126,8 +90,7 @@ function setFactoryCoinsContracts(this: ICurve, rawPoolList: IPoolDataFromApi[])
 
 export async function getFactoryPoolsDataFromApi(this: Curve, factoryType: IFactoryPoolType): Promise<IDict<IPoolData>> {
     const network = this.constants.NETWORK_NAME;
-    let rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType, this.isLiteChain)).poolData);
-    rawPoolList = await reconcilePoolIdsWithChain.call(this, rawPoolList, factoryType);
+    const rawPoolList: IPoolDataFromApi[] = lowerCasePoolDataAddresses((await _getPoolsFromApi(network, factoryType, this.isLiteChain)).poolData);
     return buildFactoryPoolsData.call(this, factoryType, rawPoolList);
 }
 
@@ -229,6 +192,7 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
                     deposit_abi: basePoolZap.ABI,
                     in_api: true,
                     is_ng,
+                    factory_type: factoryType,
                 };
             } else {
                 FACTORY_POOLS_DATA[pool.id] = {
@@ -252,6 +216,7 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
                     gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                     in_api: true,
                     is_ng,
+                    factory_type: factoryType,
                 };
             }
         } else if (pool.isMetaPool) {
@@ -268,7 +233,7 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
 
             let deposit_address = this.constants.STABLE_FACTORY_CONSTANTS.stableNgBasePoolZap ?? this.constants.ZERO_ADDRESS;
             let deposit_abi = StableNgBasePoolZapABI;
-            if (isStableNgPool(basePoolId)) {
+            if (allPoolsData[basePoolId].is_ng) {
                 this.setContract(deposit_address, StableNgBasePoolZapABI);
             } else {
                 deposit_address = basePoolIdZapDict[basePoolId].address;
@@ -299,6 +264,7 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
                 deposit_abi,
                 in_api: true,
                 is_ng,
+                factory_type: factoryType,
             };
         } else {
             FACTORY_POOLS_DATA[pool.id] = {
@@ -322,6 +288,7 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
                 gauge_abi: this.chainId === 1 ? factoryGaugeABI : gaugeChildABI,
                 in_api: true,
                 is_ng,
+                factory_type: factoryType,
             };
         }
     })

@@ -44,11 +44,11 @@ export function setRouterBlacklist(this: Curve, blacklist: string[]): void {
     delete (this as any)._getBestRoute;
 }
 
-async function _getTVL(this: Curve, poolId: string, { is_crypto, is_llamma, swap_address }: IPoolData): Promise<number> {
+async function _getTVL(this: Curve, poolId: string, { is_llamma, swap_address }: IPoolData): Promise<number> {
     // LLAMMA liquidity must be calculated on-chain, even when the API has an entry.
     if (!is_llamma) {
         const totalLiquidity = await _getPoolTotalLiquidityFromApi(
-            this.constants.NETWORK_NAME, poolId, swap_address, is_crypto ?? false, this.isLiteChain
+            this.constants.NETWORK_NAME, swap_address, this.isLiteChain
         );
         if (totalLiquidity !== undefined) return Number(totalLiquidity);
     }

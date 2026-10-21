@@ -22,3 +22,9 @@ export function getPoolIdByAddress(this: Curve, poolList: IPoolDataShort[] , add
         return getPoolIdBySwapAddress.call(this, address.toLowerCase())
     }
 }
+
+export async function getLastFactoryPoolIndex(this: Curve, factoryAddress: string): Promise<number> {
+    const factoryContract = this.contracts[factoryAddress].contract;
+    const poolCount = Number(this.formatUnits(await factoryContract.pool_count(this.constantOptions), 0));
+    return poolCount === 0 ? 0 : poolCount - 1;
+}

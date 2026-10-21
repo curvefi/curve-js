@@ -652,61 +652,61 @@ export class Curve implements ICurve {
     fetchNewFactoryPools = async (): Promise<string[]> => {
         if (!("factory" in this.constants.ALIASES)) return [];
 
-        const currentPools = this.constants.FACTORY_POOLS_DATA;
         const fromIdx = await getLastFactoryPoolIndex.call(this, this.constants.ALIASES.factory);
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, fromIdx));
-        this.constants.FACTORY_POOLS_DATA = { ...currentPools, ...poolData };
+        const newPoolIds = Object.keys(poolData).filter((id) => !(id in this.constants.FACTORY_POOLS_DATA));
+        this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
-        return Object.keys(poolData).filter((id) => !(id in currentPools))
+        return newPoolIds
     }
 
     fetchNewCryptoFactoryPools = async (): Promise<string[]> => {
         if (!("crypto_factory" in this.constants.ALIASES)) return [];
 
-        const currentPools = this.constants.CRYPTO_FACTORY_POOLS_DATA;
         const fromIdx = await getLastFactoryPoolIndex.call(this, this.constants.ALIASES.crypto_factory);
         const poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, fromIdx));
-        this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...currentPools, ...poolData };
+        const newPoolIds = Object.keys(poolData).filter((id) => !(id in this.constants.CRYPTO_FACTORY_POOLS_DATA));
+        this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
-        return Object.keys(poolData).filter((id) => !(id in currentPools))
+        return newPoolIds
     }
 
     fetchNewStableNgFactoryPools = async (): Promise<string[]> => {
         if (!("stable_ng_factory" in this.constants.ALIASES)) return [];
 
-        const currentPools = this.constants.STABLE_NG_FACTORY_POOLS_DATA;
         const fromIdx = await getLastFactoryPoolIndex.call(this, this.constants.ALIASES.stable_ng_factory);
         const poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, fromIdx, undefined, this.constants.ALIASES.stable_ng_factory));
-        this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...currentPools, ...poolData };
+        const newPoolIds = Object.keys(poolData).filter((id) => !(id in this.constants.STABLE_NG_FACTORY_POOLS_DATA));
+        this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
 
-        return Object.keys(poolData).filter((id) => !(id in currentPools))
+        return newPoolIds
     }
 
     fetchNewTwocryptoFactoryPools = async (): Promise<string[]> => {
         if (!("twocrypto_factory" in this.constants.ALIASES)) return [];
 
-        const currentPools = this.constants.TWOCRYPTO_FACTORY_POOLS_DATA;
         const fromIdx = await getLastFactoryPoolIndex.call(this, this.constants.ALIASES.twocrypto_factory);
         const poolData = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this, fromIdx));
-        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...currentPools, ...poolData };
+        const newPoolIds = Object.keys(poolData).filter((id) => !(id in this.constants.TWOCRYPTO_FACTORY_POOLS_DATA));
+        this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
-        return Object.keys(poolData).filter((id) => !(id in currentPools))
+        return newPoolIds
     }
 
     fetchNewTricryptoFactoryPools = async (): Promise<string[]> => {
         if (!("tricrypto_factory" in this.constants.ALIASES)) return [];
 
-        const currentPools = this.constants.TRICRYPTO_FACTORY_POOLS_DATA;
         const fromIdx = await getLastFactoryPoolIndex.call(this, this.constants.ALIASES.tricrypto_factory);
         const poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, fromIdx));
-        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...currentPools, ...poolData };
+        const newPoolIds = Object.keys(poolData).filter((id) => !(id in this.constants.TRICRYPTO_FACTORY_POOLS_DATA));
+        this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
-        return Object.keys(poolData).filter((id) => !(id in currentPools))
+        return newPoolIds
     }
 
     fetchRecentlyDeployedFactoryPool = async (poolAddress: string): Promise<string> => {

@@ -35,6 +35,30 @@ export const POOLS_DATA_ARBITRUM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         swap_abi: twopoolSwapABI,
         gauge_abi: gaugeChildABI,
     },
+    fraxbp: {
+        name: "fraxbp",
+        full_name: "fraxbp",
+        symbol: "fraxbp",
+        reference_asset: "USD",
+        swap_address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
+        token_address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
+        gauge_address: '0x95285Ea6fF14F80A2fD3989a6bAb993Bd6b5fA13',
+        is_plain: true,
+        underlying_coins: ['FRAX', 'USDC.e'],
+        wrapped_coins: ['FRAX', 'USDC.e'],
+        underlying_coin_addresses: [
+            '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+            '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        ],
+        wrapped_coin_addresses: [
+            '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+            '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        ],
+        underlying_decimals: [18, 6],
+        wrapped_decimals: [18, 6],
+        swap_abi: twopoolSwapABI,
+        gauge_abi: gaugeChildABI,
+    },
 
     tricrypto: {
         name: "tricrypto",

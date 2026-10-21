@@ -1,6 +1,7 @@
 import { IDict, IPoolData } from "../../interfaces";
 import { lowerCasePoolDataAddresses } from "../utils.js";
 import tripoolSwapABI from '../abis/3pool-optimism/swap.json' with { type: 'json' };
+import twopoolSwapABI from '../abis/2pool/swap.json' with { type: 'json' };
 import wstETHSwapABI from '../abis/wsteth/swap.json' with { type: 'json' };
 import gaugeChildABI from '../abis/gauge_child.json' with { type: 'json' };
 
@@ -29,6 +30,30 @@ export const POOLS_DATA_OPTIMISM: IDict<IPoolData> = lowerCasePoolDataAddresses(
         underlying_decimals: [18, 6, 6],
         wrapped_decimals: [18, 6, 6],
         swap_abi: tripoolSwapABI,
+        gauge_abi: gaugeChildABI,
+    },
+    fraxbp: {
+        name: "fraxbp",
+        full_name: "fraxbp",
+        symbol: "fraxbp",
+        reference_asset: 'USD',
+        is_plain: true,
+        swap_address: '0x29A3d66B30Bc4AD674A4FDAF27578B64f6afbFe7',
+        token_address: '0x29A3d66B30Bc4AD674A4FDAF27578B64f6afbFe7',
+        gauge_address: '0x4B960396011A914B4ccCC3b33DFEE83A97A9D766',
+        underlying_coins: ['FRAX', 'USDC.e'],
+        wrapped_coins: ['FRAX', 'USDC.e'],
+        underlying_coin_addresses: [
+            '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
+            '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+        ],
+        wrapped_coin_addresses: [
+            '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
+            '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+        ],
+        underlying_decimals: [18, 6],
+        wrapped_decimals: [18, 6],
+        swap_abi: twopoolSwapABI,
         gauge_abi: gaugeChildABI,
     },
     wsteth: {

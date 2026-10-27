@@ -17,6 +17,7 @@ export type TPricesPoolType =
     | "factory_tricrypto"
     | "stableswapng"
     | "twocryptong"
+    | "fxswap"
     | null;
 
 export const LEGACY_POOL_TYPES: readonly IPoolType[] = [
@@ -39,6 +40,7 @@ export const PRICES_POOL_TYPE_TO_LEGACY: Record<NonNullable<TPricesPoolType>, IP
     factory_tricrypto: "factory-tricrypto",
     stableswapng: "factory-stable-ng",
     twocryptong: "factory-twocrypto",
+    fxswap: "factory-twocrypto",
 };
 
 interface IPricesChainCoin {
@@ -161,6 +163,7 @@ const adaptPoolFromPricesApi = (pool: IPricesChainPool, gaugeAddressByPoolAddres
         totalSupply: (pool.lp_token_supply ?? 0) * 1e18,
         amplificationCoefficient: pool.amplification_coefficient != null ? String(pool.amplification_coefficient) : "0",
         gaugeCrvApy: [null, null],
+        isFxSwap: pool.pool_type === "fxswap",
     };
 };
 
@@ -184,7 +187,7 @@ export const getPoolsFromPricesApi = async (network: INetworkName, poolType: IPo
     };
 };
 
-const CRYPTO_POOL_TYPES: readonly TPricesPoolType[] = ["crypto", "factory_crypto", "factory_tricrypto", "twocryptong"];
+const CRYPTO_POOL_TYPES: readonly TPricesPoolType[] = ["crypto", "factory_crypto", "factory_tricrypto", "twocryptong", "fxswap"];
 
 export const getVolumesFromPricesApi = async (network: INetworkName): Promise<IVolumeAndAPYs> => {
     const chainData = await _getPricesChainData(network);

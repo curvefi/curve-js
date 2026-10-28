@@ -40,7 +40,7 @@ export const lowerCasePoolDataAddresses = (poolsData: IPoolDataFromApi[]): IPool
 function getSwapAbiByFactoryType(this: ICurve, factoryType: IFactoryPoolType, pool: IPoolDataFromApi) {
     const isETHEnabled = pool.implementationAddress === this.constants.CRYPTO_FACTORY_CONSTANTS.tricryptoDeployImplementations?.amm_native_transfers_enabled;
     
-    if (factoryType === "factory-twocrypto" && isYBPool(pool.address)) {
+    if (factoryType === "factory-twocrypto" && (pool.isFxSwap || isYBPool(pool.address))) {
         return ybTwocryptoPoolABI;
     }
     

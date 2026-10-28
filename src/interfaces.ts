@@ -142,6 +142,7 @@ export interface IPoolDataFromApi {
     totalSupply: number,
     amplificationCoefficient: string,
     gaugeCrvApy: [number | null, number | null],
+    isFxSwap?: boolean,
 }
 
 export interface IPoolDataShort {

@@ -178,6 +178,7 @@ export const createCurve = () => {
         setCustomFeeData: _curve.setCustomFeeData.bind(_curve),
         setGasStrategy: _curve.setGasStrategy.bind(_curve),
         getPoolList: _curve.getPoolList.bind(_curve),
+        getPoolsData: _curve.getPoolsData.bind(_curve),
         getMainPoolList: _curve.getMainPoolList.bind(_curve),
         getUserPoolListByLiquidity: getUserPoolListByLiquidity.bind(_curve),
         getUserPoolListByClaimable: getUserPoolListByClaimable.bind(_curve),

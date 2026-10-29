@@ -1037,7 +1037,7 @@ export class PoolTemplate extends CorePool {
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
         const gaugeContract = this.curve.contracts[this.gauge.address].contract;
-        const rewardTokens = await this.rewardTokens();
+        const rewardTokens = await this.rewardTokens(false);
         const rewards = [];
         if ('claimable_reward(address,address)' in gaugeContract) {
             for (const rewardToken of rewardTokens) {

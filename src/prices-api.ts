@@ -122,7 +122,7 @@ const getGaugeAddressByPoolAddress = async (network: INetworkName): Promise<Map<
     const { gauges } = await _getGaugesOverview();
     const map = new Map<string, string>();
     for (const gauge of gauges ?? []) {
-        if (gauge.pool?.chain === network) map.set(gauge.pool.address.toLowerCase(), gauge.address.toLowerCase());
+        if (gauge.pool?.chain === network) map.set(gauge.pool.address.toLowerCase(), (gauge.effective_address ?? gauge.address).toLowerCase());
     }
     return map;
 };

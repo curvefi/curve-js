@@ -8,3 +8,4 @@ test/temp.test.ts
 test/rpcUrls.test.ts
 cache/
 .DS_Store
+.env

@@ -467,99 +467,12 @@
   {
     "inputs": [
       {
-        "name": "i",
-        "type": "uint256"
-      },
-      {
-        "name": "j",
-        "type": "uint256"
-      },
-      {
-        "name": "dx",
-        "type": "uint256"
-      },
-      {
-        "name": "min_dy",
-        "type": "uint256"
-      },
-      {
-        "name": "receiver",
-        "type": "address"
-      }
-    ],
-    "name": "exchange_received",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "name": "amounts",
         "type": "uint256[2]"
       },
       {
         "name": "min_mint_amount",
         "type": "uint256"
-      }
-    ],
-    "name": "add_liquidity",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "amounts",
-        "type": "uint256[2]"
-      },
-      {
-        "name": "min_mint_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "receiver",
-        "type": "address"
-      }
-    ],
-    "name": "add_liquidity",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "amounts",
-        "type": "uint256[2]"
-      },
-      {
-        "name": "min_mint_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "name": "donation",
-        "type": "bool"
       }
     ],
     "name": "add_liquidity",
@@ -581,31 +494,6 @@
       {
         "name": "min_amounts",
         "type": "uint256[2]"
-      }
-    ],
-    "name": "remove_liquidity",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256[2]"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "name": "min_amounts",
-        "type": "uint256[2]"
-      },
-      {
-        "name": "receiver",
-        "type": "address"
       }
     ],
     "name": "remove_liquidity",
@@ -650,39 +538,6 @@
   {
     "inputs": [
       {
-        "name": "token_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "i",
-        "type": "uint256"
-      },
-      {
-        "name": "amount_i",
-        "type": "uint256"
-      },
-      {
-        "name": "min_amount_j",
-        "type": "uint256"
-      },
-      {
-        "name": "receiver",
-        "type": "address"
-      }
-    ],
-    "name": "remove_liquidity_fixed_out",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "name": "lp_token_amount",
         "type": "uint256"
       },
@@ -693,35 +548,6 @@
       {
         "name": "min_amount",
         "type": "uint256"
-      }
-    ],
-    "name": "remove_liquidity_one_coin",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "lp_token_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "i",
-        "type": "uint256"
-      },
-      {
-        "name": "min_amount",
-        "type": "uint256"
-      },
-      {
-        "name": "receiver",
-        "type": "address"
       }
     ],
     "name": "remove_liquidity_one_coin",
@@ -955,35 +781,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "name": "i",
-        "type": "uint256"
-      },
-      {
-        "name": "j",
-        "type": "uint256"
-      },
-      {
-        "name": "dy",
-        "type": "uint256"
-      },
-      {
-        "name": "n_iter",
-        "type": "uint256"
-      }
-    ],
-    "name": "get_dx",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "lp_price",
     "outputs": [
@@ -1052,60 +849,6 @@
       {
         "name": "xp",
         "type": "uint256[2]"
-      }
-    ],
-    "name": "calc_token_fee",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "amounts",
-        "type": "uint256[2]"
-      },
-      {
-        "name": "xp",
-        "type": "uint256[2]"
-      },
-      {
-        "name": "donation",
-        "type": "bool"
-      }
-    ],
-    "name": "calc_token_fee",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "amounts",
-        "type": "uint256[2]"
-      },
-      {
-        "name": "xp",
-        "type": "uint256[2]"
-      },
-      {
-        "name": "donation",
-        "type": "bool"
-      },
-      {
-        "name": "deposit",
-        "type": "bool"
       }
     ],
     "name": "calc_token_fee",

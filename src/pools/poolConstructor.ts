@@ -69,7 +69,7 @@ import {
 } from "./mixins/swapWrappedMixins.js";
 import {findAbiSignature, getCountArgsOfMethodByAbi, getPoolIdBySwapAddress} from "../utils.js";
 import {StatsPool} from "./subClasses/statsPool.js";
-import {lowerCasePoolDataAddresses} from "../constants/utils.js";
+import {extractDecimals, lowerCasePoolDataAddresses} from "../constants/utils.js";
 import {buildFactoryPoolsData, lowerCasePoolDataAddresses as lowerCaseApiPoolAddresses} from "../factory/factory-api.js";
 import type {IExternalPoolData, IPoolDataFromApi} from "../interfaces.js";
 
@@ -336,6 +336,8 @@ export function getPoolByData(this: Curve, data: IExternalPoolData): PoolTemplat
         ...this.constants.EXTERNAL_POOLS_DATA,
         ...builtData,
     };
+
+    this.constants.DECIMALS = Object.assign(Object.assign({}, this.constants.DECIMALS), extractDecimals(builtData));
 
     return getPool.call(this, id);
 }

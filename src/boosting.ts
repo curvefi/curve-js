@@ -80,7 +80,7 @@ export async function _getUserBoosts(
         checkedPools.map((pool, index): [BoostPool, string] => {
             const workingBalanceBN = toBN(response[2 * index]);
             const balanceBN = toBN(response[(2 * index) + 1]);
-            const boostBN = workingBalanceBN.div(0.4).div(balanceBN);
+            const boostBN = balanceBN.gt(0) ? workingBalanceBN.div(0.4).div(balanceBN) : toBN(BigInt(0), 0);
 
             if (boostBN.lt(1)) return [pool, '1.0'];
             if (boostBN.gt(2.5)) return [pool, '2.5'];

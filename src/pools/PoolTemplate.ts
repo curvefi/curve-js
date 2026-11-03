@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
 import {getGaugesOverview} from '../prices-api.js';
 import {_getPoolFilters} from '../external-api.js';
+import {_getGaugeBoostStatus, _getUserBoosts} from "../boosting.js";
 import {
     _cutZeros,
     _ensureAllowance,
@@ -130,10 +131,9 @@ export class PoolTemplate extends CorePool {
     }
 
     public rewardsOnly(): boolean {
-        if (this.curve.chainId === 2222 || this.curve.chainId === 324) return true;  // TODO remove this for Kava and ZkSync
-        if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
-        return !findAbiFunction(this.curve.contracts[this.gauge.address].abi, 'inflation_rate')
-            .find((func) => ['', 'uint256'].includes(func.inputs.map((a) => `${a.type}`).join(',')))
+        const { hasGauge, rewardsOnly } = _getGaugeBoostStatus.call(this.curve, this.gauge.address);
+        if (!hasGauge && !rewardsOnly) throw Error(`${this.name} doesn't have gauge`);
+        return rewardsOnly;
     }
 
     public _calcTokenApy = async (futureWorkingSupplyBN: BigNumber | null = null): Promise<[baseApy: number, boostedApy: number]> => {
@@ -759,22 +759,11 @@ export class PoolTemplate extends CorePool {
     }
 
 
-    public userBoost = async (address = ""): Promise<string> => {
-        if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) throw Error(`${this.name} doesn't have gauge`);
-        if (this.rewardsOnly()) throw Error(`${this.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
-        address = _getAddress.call(this.curve, address)
-
-        const gaugeContract = this.curve.contracts[this.gauge.address].multicallContract;
-        const [workingBalanceBN, balanceBN] = (await this.curve.multicallProvider.all([
-            gaugeContract.working_balances(address),
-            gaugeContract.balanceOf(address),
-        ]) as bigint[]).map((value: bigint) => toBN(value));
-
-        const boostBN = workingBalanceBN.div(0.4).div(balanceBN);
-        if (boostBN.lt(1)) return '1.0';
-        if (boostBN.gt(2.5)) return '2.5';
-
-        return boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')
+    public userBoost = async (userAddress = ""): Promise<string> => {
+        return (await _getUserBoosts.call(this.curve, [{
+            name: this.name,
+            gauge_address: this.gauge.address,
+        }], userAddress, true))[0] as string;
     }
 
     private _userFutureBoostAndWorkingSupply = async (address: string): Promise<[BigNumber, BigNumber]> => {

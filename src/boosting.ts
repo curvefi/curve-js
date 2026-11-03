@@ -1,17 +1,20 @@
 import {Contract} from "ethers";
 import BigNumber from "bignumber.js";
 import {type Curve} from "./curve.js";
-import {IChainId, IDict} from "./interfaces";
+import {IChainId, IDict, IPoolData} from "./interfaces";
 import feeDistributorViewABI from "./constants/abis/fee_distributor_view.json" with {type: "json"};
 import feeDistributorCrvUSDViewABI from "./constants/abis/fee_distributor_crvusd_view.json" with {type: "json"};
 import {
     _ensureAllowance,
+    _getAddress,
     _getBalances,
     _prepareAddresses,
     BN,
     DIGas,
     ensureAllowance,
     ensureAllowanceEstimateGas,
+    findAbiFunction,
+    getPoolIdBySwapAddress,
     hasAllowance,
     mulBy1_3,
     parseUnits,
@@ -20,6 +23,95 @@ import {
     toStringFromBN,
 } from "./utils.js";
 import {_generateBoostingProof} from './external-api.js';
+
+type BoostPool = Pick<IPoolData, "name" | "gauge_address">;
+
+export function _getGaugeBoostStatus(
+    this: Curve,
+    gaugeAddress: string
+): { hasGauge: boolean; rewardsOnly: boolean } {
+    const hasGauge = gaugeAddress !== this.constants.ZERO_ADDRESS;
+    // TODO remove the Kava and ZkSync exceptions
+    const rewardsOnly = this.chainId === 2222 || this.chainId === 324 ||
+        (hasGauge && !findAbiFunction(this.contracts[gaugeAddress].abi, 'inflation_rate')
+            .find((func) => ['', 'uint256'].includes(
+                func.inputs.map((input) => `${input.type}`).join(',')
+            )));
+
+    return { hasGauge, rewardsOnly };
+}
+
+export async function _getUserBoosts(
+    this: Curve,
+    pools: BoostPool[],
+    userAddress = "",
+    throwOnError = true
+): Promise<(string | null)[]> {
+    const checkedPools = pools.map((pool) => {
+        try {
+            const { hasGauge, rewardsOnly } = _getGaugeBoostStatus.call(this, pool.gauge_address);
+
+            if (!hasGauge) throw Error(`${pool.name} doesn't have gauge`);
+            if (rewardsOnly) throw Error(`${pool.name} has Rewards-Only Gauge. Use stats.rewardsApy instead`);
+
+            return pool;
+        } catch (error) {
+            if (throwOnError) throw error;
+            return null;
+        }
+    }).filter((pool) => pool !== null);
+
+    userAddress = _getAddress.call(this, userAddress);
+
+    const calls = checkedPools.flatMap((pool) => {
+        const gaugeContract = this.contracts[pool.gauge_address].multicallContract;
+        return [
+            gaugeContract.working_balances(userAddress),
+            gaugeContract.balanceOf(userAddress),
+        ];
+    });
+
+    const response = calls.length > 0
+        ? await this.multicallProvider.all<bigint>(calls)
+        : [];
+
+    // Creating a Map because not all pools may have a boost value, and we want to return null for those that don't.
+    const boostsByPool = new Map(
+        checkedPools.map((pool, index): [BoostPool, string] => {
+            const workingBalanceBN = toBN(response[2 * index]);
+            const balanceBN = toBN(response[(2 * index) + 1]);
+            const boostBN = workingBalanceBN.div(0.4).div(balanceBN);
+
+            if (boostBN.lt(1)) return [pool, '1.0'];
+            if (boostBN.gt(2.5)) return [pool, '2.5'];
+
+            return [pool, boostBN.toFixed(4).replace(/([0-9])0+$/, '$1')];
+        })
+    );
+
+    return pools.map((pool) => boostsByPool.get(pool) ?? null);
+}
+
+export async function getUserBoosts(
+    this: Curve,
+    pools: string[],
+    userAddress = "",
+    throwOnError = true
+): Promise<IDict<string | null>> {
+    if (pools.length === 0) return {};
+
+    const poolsData = this.getPoolsData();
+    const boosts = await _getUserBoosts.call(
+        this,
+        pools.map((poolAddress) => poolsData[getPoolIdBySwapAddress.call(this, poolAddress)]),
+        userAddress,
+        throwOnError
+    );
+
+    return Object.fromEntries(
+        pools.map((poolAddress, index) => [poolAddress, boosts[index]])
+    );
+}
 
 export async function getCrv(this: Curve, ...addresses: string[] | string[][]): Promise<IDict<string> | string> {
     addresses = _prepareAddresses.call(this, addresses);

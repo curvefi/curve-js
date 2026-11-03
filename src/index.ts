@@ -42,6 +42,7 @@ import {
 import { Curve } from "./curve.js";
 import {
     getCrv,
+    getUserBoosts,
     getLockedAmountAndUnlockTime,
     getVeCrv,
     getVeCrvPct,
@@ -330,6 +331,7 @@ export const createCurve = () => {
         },
         boosting: {
             getCrv: getCrv.bind(_curve),
+            getUserBoosts: getUserBoosts.bind(_curve),
             getLockedAmountAndUnlockTime: getLockedAmountAndUnlockTime.bind(_curve),
             getVeCrv: getVeCrv.bind(_curve),
             getVeCrvPct: getVeCrvPct.bind(_curve),

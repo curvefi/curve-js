@@ -101,16 +101,10 @@ export async function getUserBoosts(
     if (pools.length === 0) return {};
 
     const poolsData = this.getPoolsData();
-    const boosts = await _getUserBoosts.call(
-        this,
-        pools.map((poolAddress) => poolsData[getPoolIdBySwapAddress.call(this, poolAddress)]),
-        userAddress,
-        throwOnError
-    );
-
-    return Object.fromEntries(
-        pools.map((poolAddress, index) => [poolAddress, boosts[index]])
-    );
+    const poolIds = pools.map((poolAddress) => getPoolIdBySwapAddress.call(this, poolAddress));
+    if (poolIds.some((poolId) => !poolId)) throw new Error("One or more pool addresses doesn't have pool data");
+    const boosts = await _getUserBoosts.call(this, poolIds.map((poolId) => poolsData[poolId]), userAddress, throwOnError);
+    return Object.fromEntries(pools.map((poolAddress, index) => [poolAddress, boosts[index]]));
 }
 
 export async function getCrv(this: Curve, ...addresses: string[] | string[][]): Promise<IDict<string> | string> {

@@ -103,6 +103,7 @@ export interface IPricesGauge {
     is_killed: boolean,
     gauge_weight: string,
     gauge_relative_weight: number,
+    gauge_type: string,
 }
 
 interface IPricesGaugesOverviewResponse {
@@ -122,7 +123,8 @@ const getGaugeAddressByPoolAddress = async (network: INetworkName): Promise<Map<
     const { gauges } = await _getGaugesOverview();
     const map = new Map<string, string>();
     for (const gauge of gauges ?? []) {
-        if (gauge.pool?.chain === network) map.set(gauge.pool.address.toLowerCase(), (gauge.effective_address ?? gauge.address).toLowerCase());
+        if (gauge.pool?.chain !== network || gauge.gauge_type !== "Liquidity") continue;
+        map.set(gauge.pool.address.toLowerCase(), (gauge.effective_address ?? gauge.address).toLowerCase());
     }
     return map;
 };

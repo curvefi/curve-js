@@ -102,8 +102,14 @@ export async function getUserBoosts(
 
     const poolsData = this.getPoolsData();
     const poolIds = pools.map((poolAddress) => getPoolIdBySwapAddress.call(this, poolAddress));
-    if (poolIds.some((poolId) => !poolId)) throw new Error("One or more pool addresses doesn't have pool data");
-    const boosts = await _getUserBoosts.call(this, poolIds.map((poolId) => poolsData[poolId]), userAddress, throwOnError);
+    const boosts = await _getUserBoosts.call(
+        this,
+        // If a pool id is empty, the inner function will throw an error when throwOnError is true.
+        // If throwOnError is false, we will consider the pool as having no gauge and thus no boost.
+        poolIds.map((poolId, index) => poolsData[poolId] ?? { name: pools[index], gauge_address: this.constants.ZERO_ADDRESS }),
+        userAddress,
+        throwOnError
+    );
     return Object.fromEntries(pools.map((poolAddress, index) => [poolAddress, boosts[index]]));
 }
 

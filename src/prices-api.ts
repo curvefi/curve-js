@@ -104,6 +104,7 @@ export interface IPricesGauge {
     gauge_weight: string,
     gauge_relative_weight: number,
     gauge_type: string,
+    creation_date: string,
 }
 
 interface IPricesGaugesOverviewResponse {
@@ -121,14 +122,18 @@ const _getGaugesOverview = memoize(
 
 const getGaugeAddressByPoolAddress = async (network: INetworkName): Promise<Map<string, string>> => {
     const { gauges } = await _getGaugesOverview();
-    const map = new Map<string, string>();
+    const newestGaugeByPoolAddress = new Map<string, IPricesGauge>();
     for (const gauge of gauges ?? []) {
         // LMCallback gauges reward LlamaLend borrowers who use this pool's LP token as collateral.
         // LPs can't stake in them, so they must not replace the pool's real gauge.
         if (gauge.pool?.chain !== network || gauge.gauge_type === "LMCallback") continue;
-        map.set(gauge.pool.address.toLowerCase(), (gauge.effective_address ?? gauge.address).toLowerCase());
+        const poolAddress = gauge.pool.address.toLowerCase();
+        const current = newestGaugeByPoolAddress.get(poolAddress);
+        // A pool can have several gauges when one was redeployed, keep the newest instead of relying on API order.
+        if (!current || gauge.creation_date > current.creation_date) newestGaugeByPoolAddress.set(poolAddress, gauge);
     }
-    return map;
+    return new Map(Array.from(newestGaugeByPoolAddress, ([poolAddress, gauge]) =>
+        [poolAddress, (gauge.effective_address ?? gauge.address).toLowerCase()] as const));
 };
 
 export const getGaugesOverview = async (): Promise<IPricesGauge[]> => {

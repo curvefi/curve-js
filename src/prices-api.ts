@@ -123,7 +123,9 @@ const getGaugeAddressByPoolAddress = async (network: INetworkName): Promise<Map<
     const { gauges } = await _getGaugesOverview();
     const map = new Map<string, string>();
     for (const gauge of gauges ?? []) {
-        if (gauge.pool?.chain !== network || gauge.gauge_type !== "Liquidity") continue;
+        // LMCallback gauges reward LlamaLend borrowers who use this pool's LP token as collateral.
+        // LPs can't stake in them, so they must not replace the pool's real gauge.
+        if (gauge.pool?.chain !== network || gauge.gauge_type === "LMCallback") continue;
         map.set(gauge.pool.address.toLowerCase(), (gauge.effective_address ?? gauge.address).toLowerCase());
     }
     return map;

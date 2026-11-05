@@ -1986,6 +1986,28 @@ import curve from "@curvefi/api";
 })()
 ```
 
+### Fetch a single pool by address from blockchain
+
+`curve.fetchPoolByAddress` fetches one factory pool by its swap address using only RPC (no API).
+It auto-detects which factory the pool belongs to, so you don't need to know the pool type in
+advance, and merges the pool into the corresponding pool data. It returns the pool id (which can
+be passed to `curve.getPool`). If the pool is already loaded it returns its id without any RPC call,
+and it throws if the address doesn't belong to any known factory.
+
+```ts
+import curve from "@curvefi/api";
+
+(async () => {
+    await curve.init('JsonRpc', {}, { gasPrice: 0 });
+
+    const poolId = await curve.fetchPoolByAddress("0xffb7f90354c496210c471459133da2e452d8138a");
+    // 0xffb7f90354c496210c471459133da2e452d8138a
+
+    const pool = curve.getPool(poolId);
+    // pool.name === "SWAN/WETH"
+})()
+```
+
 ### Deploy stable plain pool
 
 ```ts

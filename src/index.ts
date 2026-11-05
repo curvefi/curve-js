@@ -212,6 +212,7 @@ export const createCurve = () => {
         getNetworkConstants: _curve.getNetworkConstants.bind(_curve),
         getIsLiteChain: _curve.getIsLiteChain.bind(_curve),
         isNoRPC: _curve.isNoRPC,
+        fetchPoolByAddress: _curve.fetchPoolByAddress.bind(_curve),
         factory: {
             fetchPools: _curve.fetchFactoryPools.bind(_curve),
             fetchNewPools: _curve.fetchNewFactoryPools.bind(_curve),

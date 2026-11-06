@@ -221,8 +221,16 @@ export function buildFactoryPoolsData(this: Curve, factoryType: IFactoryPoolType
             }
         } else if (pool.isMetaPool) {
             const allPoolsData = {...this.getPoolsData(), ...FACTORY_POOLS_DATA};
-            const basePoolId = getPoolIdByAddress.call(this, rawPoolList, pool.basePoolAddress as string);
-            if (!allPoolsData[basePoolId]) throw new Error(`Base pool "${pool.basePoolAddress}" of meta pool ${pool.id} (${pool.address}) is not loaded. Build or fetch the base pool before this one.`);
+
+            if (!pool.basePoolAddress) {
+                console.warn(`Skipping meta pool ${pool.id} (${pool.address}): base pool address is missing in API data.`);
+                return;
+            }
+            const basePoolId = getPoolIdByAddress.call(this, rawPoolList, pool.basePoolAddress);
+            if (!allPoolsData[basePoolId]) {
+                console.warn(`Skipping meta pool ${pool.id} (${pool.address}): base pool "${pool.basePoolAddress}" is not loaded.`);
+                return;
+            }
             this.constants.BASE_POOLS[basePoolId] = this.constants.BASE_POOLS[basePoolId] ? this.constants.BASE_POOLS[basePoolId] + 1: 1;
 
             const basePoolCoinNames = allPoolsData[basePoolId]?.underlying_coins;

@@ -192,9 +192,9 @@ async function getCoinsData(
     return [tokenSymbols, tokenNames, coinAddrNamesDict, coinAddrDecimalsDict]
 }
 
-export async function getTwocryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string): Promise<IDict<IPoolData>> {
+export async function getTwocryptoFactoryPoolData(this: ICurve, fromIdx = 0, swapAddress?: string, skipRecentlyCreatedCheck = false): Promise<IDict<IPoolData>> {
     const [poolIds, swapAddresses] = swapAddress ?
-        [[await getRecentlyCreatedCryptoPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
+        [[skipRecentlyCreatedCheck ? swapAddress.toLowerCase() : await getRecentlyCreatedCryptoPoolId.call(this, swapAddress)], [swapAddress.toLowerCase()]]
         : await getTwocryptoFactoryIdsAndSwapAddresses.call(this, fromIdx);
     if (poolIds.length === 0) return {};
 

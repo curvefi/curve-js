@@ -246,9 +246,9 @@ async function getCoinsData(
 }
 
 
-export async function getFactoryPoolData(this: Curve, fromIdx = 0, swapAddress?: string, factoryAddress = this.constants.ALIASES.factory): Promise<IDict<IPoolData>> {
+export async function getFactoryPoolData(this: Curve, fromIdx = 0, swapAddress?: string, factoryAddress = this.constants.ALIASES.factory, skipRecentlyCreatedCheck = false): Promise<IDict<IPoolData>> {
     const [rawPoolIds, rawSwapAddresses] = swapAddress ?
-        [[await getRecentlyCreatedPoolId.call(this, swapAddress, factoryAddress)], [swapAddress.toLowerCase()]]
+        [[skipRecentlyCreatedCheck ? swapAddress.toLowerCase() : await getRecentlyCreatedPoolId.call(this, swapAddress, factoryAddress)], [swapAddress.toLowerCase()]]
         : await getFactoryIdsAndSwapAddresses.call(this, fromIdx, factoryAddress);
     if (rawPoolIds.length === 0) return {};
 

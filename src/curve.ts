@@ -759,6 +759,98 @@ export class Curve implements ICurve {
         return Object.keys(poolData)[0]  // id
     }
 
+    private _getRpcFactoryDescriptors(): { kind: IFactoryPoolType, factoryAddress: string }[] {
+        const aliases = this.constants.ALIASES;
+        const descriptors: { kind: IFactoryPoolType, alias: string }[] = [
+            { kind: "factory-stable-ng", alias: "stable_ng_factory" },
+            { kind: "factory", alias: "factory" },
+            { kind: "factory-crvusd", alias: "crvusd_factory" },
+            { kind: "factory-crypto", alias: "crypto_factory" },
+            { kind: "factory-twocrypto", alias: "twocrypto_factory" },
+            { kind: "factory-tricrypto", alias: "tricrypto_factory" },
+        ];
+        return descriptors
+            .filter((d) => (d.alias in aliases) && aliases[d.alias] !== this.constants.ZERO_ADDRESS)
+            .map((d) => ({ kind: d.kind, factoryAddress: aliases[d.alias] }));
+    }
+
+    private async _detectPoolFactory(poolAddress: string): Promise<{ kind: IFactoryPoolType, factoryAddress: string } | null> {
+        const descriptors = this._getRpcFactoryDescriptors();
+        const matches = await Promise.all(descriptors.map(async (d) => {
+            const contract = this.contracts[d.factoryAddress]?.contract;
+            if (!contract) return null;
+            try {
+                const coins: string[] = await contract.get_coins(poolAddress, this.constantOptions);
+                return coins.some((c) => c !== this.constants.ZERO_ADDRESS) ? d : null;
+            } catch {
+                return null;
+            }
+        }));
+        return matches.find(Boolean) ?? null;
+    }
+
+    private _findLoadedFactoryPoolId(swapAddress: string): string | null {
+        const dicts = [
+            this.constants.FACTORY_POOLS_DATA,
+            this.constants.CRVUSD_FACTORY_POOLS_DATA,
+            this.constants.STABLE_NG_FACTORY_POOLS_DATA,
+            this.constants.CRYPTO_FACTORY_POOLS_DATA,
+            this.constants.TWOCRYPTO_FACTORY_POOLS_DATA,
+            this.constants.TRICRYPTO_FACTORY_POOLS_DATA,
+        ];
+        for (const dict of dicts) if (swapAddress in dict) return swapAddress;
+        return null;
+    }
+
+    fetchPoolByAddress = async (poolAddress: string): Promise<string> => {
+        if (this.isNoRPC) throw Error("curve.fetchPoolByAddress requires an RPC connection");
+        const swapAddress = poolAddress.toLowerCase();
+
+        const loaded = this._findLoadedFactoryPoolId(swapAddress);
+        if (loaded) return loaded;
+
+        const descriptor = await this._detectPoolFactory(swapAddress);
+        if (!descriptor) throw Error(`Pool ${poolAddress} does not belong to any known factory`);
+
+        let poolData: IDict<IPoolData>;
+        switch (descriptor.kind) {
+            case "factory":
+                poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, swapAddress, descriptor.factoryAddress, true));
+                this.constants.FACTORY_POOLS_DATA = { ...this.constants.FACTORY_POOLS_DATA, ...poolData };
+                this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
+                break;
+            case "factory-crvusd":
+                poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, swapAddress, descriptor.factoryAddress, true));
+                this.constants.CRVUSD_FACTORY_POOLS_DATA = { ...this.constants.CRVUSD_FACTORY_POOLS_DATA, ...poolData };
+                this._updateDecimalsAndGauges(this.constants.CRVUSD_FACTORY_POOLS_DATA);
+                break;
+            case "factory-stable-ng":
+                poolData = lowerCasePoolDataAddresses(await getFactoryPoolData.call(this, 0, swapAddress, descriptor.factoryAddress, true));
+                this.constants.STABLE_NG_FACTORY_POOLS_DATA = { ...this.constants.STABLE_NG_FACTORY_POOLS_DATA, ...poolData };
+                this._updateDecimalsAndGauges(this.constants.STABLE_NG_FACTORY_POOLS_DATA);
+                break;
+            case "factory-crypto":
+                poolData = lowerCasePoolDataAddresses(await getCryptoFactoryPoolData.call(this, 0, swapAddress, true));
+                this.constants.CRYPTO_FACTORY_POOLS_DATA = { ...this.constants.CRYPTO_FACTORY_POOLS_DATA, ...poolData };
+                this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
+                break;
+            case "factory-twocrypto":
+                poolData = lowerCasePoolDataAddresses(await getTwocryptoFactoryPoolData.call(this, 0, swapAddress, true));
+                this.constants.TWOCRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TWOCRYPTO_FACTORY_POOLS_DATA, ...poolData };
+                this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
+                break;
+            case "factory-tricrypto":
+                poolData = lowerCasePoolDataAddresses(await getTricryptoFactoryPoolData.call(this, 0, swapAddress, true));
+                this.constants.TRICRYPTO_FACTORY_POOLS_DATA = { ...this.constants.TRICRYPTO_FACTORY_POOLS_DATA, ...poolData };
+                this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
+                break;
+        }
+
+        const id = Object.keys(poolData)[0];
+        if (!id) throw Error(`Pool ${poolAddress} could not be loaded (unsupported implementation)`);
+        return id;
+    }
+
     getMainPoolList = (): string[] => Object.keys(this.constants.POOLS_DATA);
 
     getFactoryPoolList = (): string[] => Object.keys(this.constants.FACTORY_POOLS_DATA);

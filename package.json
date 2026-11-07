@@ -18,6 +18,7 @@
   },
   "scripts": {
     "build": "rm -rf lib && tsc --project tsconfig.build.json",
+    "test:cache": "npm run build && node --experimental-test-module-mocks --test test/cached.test.mjs",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --fix",
     "watch": "tsc --watch",

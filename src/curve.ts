@@ -116,6 +116,7 @@ export type ContractItem = { contract: Contract, multicallContract: MulticallCon
 export class Curve implements ICurve {
     provider: ethers.BrowserProvider | ethers.JsonRpcProvider;
     isNoRPC: boolean;
+    apiOnlyMetadata: boolean;
     multicallProvider: MulticallProvider;
     signer: ethers.Signer | null;
     signerAddress: string;
@@ -136,6 +137,7 @@ export class Curve implements ICurve {
         this.provider = null!;
         this.signer = null;
         this.isNoRPC = false;
+        this.apiOnlyMetadata = false;
         this.signerAddress = '';
         this.chainId = 1;
         this.isLiteChain = false;
@@ -175,11 +177,12 @@ export class Curve implements ICurve {
     async init(
         providerType: 'JsonRpc' | 'Web3' | 'Infura' | 'Alchemy' | 'NoRPC',
         providerSettings: { url?: string, privateKey?: string, batchMaxCount? : number } | { externalProvider: ethers.Eip1193Provider } | { network?: Networkish, apiKey?: string } | 'NoRPC',
-        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, gasStrategy?: IGasStrategy, chainId?: number, poolsData?: Record<IPoolType, IExtendedPoolDataFromApi> } = {} // gasPrice in Gwei
+        options: { gasPrice?: number, maxFeePerGas?: number, maxPriorityFeePerGas?: number, gasStrategy?: IGasStrategy, chainId?: number, poolsData?: Record<IPoolType, IExtendedPoolDataFromApi>, apiOnlyMetadata?: boolean } = {} // gasPrice in Gwei
     ): Promise<void> {
         this.provider = null!;
         this.signer = null;
         this.isNoRPC = false;
+        this.apiOnlyMetadata = options.apiOnlyMetadata ?? false;
         this.signerAddress = '';
         this.chainId = 1;
         this.multicallProvider = null!;
@@ -550,7 +553,7 @@ export class Curve implements ICurve {
         this.constants.FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.FACTORY_POOLS_DATA);
 
-        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = this.isNoRPC ? null : await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory"] = (this.isNoRPC || this.apiOnlyMetadata) ? null : await this.contracts[this.constants.ALIASES.factory].contract.gauge_implementation(this.constantOptions);
     }
 
     fetchCrvusdFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
@@ -584,7 +587,7 @@ export class Curve implements ICurve {
         this.constants.CRYPTO_FACTORY_POOLS_DATA = await this._filterHiddenPools(this.constants.CRYPTO_FACTORY_POOLS_DATA, isFiltered);
         this._updateDecimalsAndGauges(this.constants.CRYPTO_FACTORY_POOLS_DATA);
 
-        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = this.isNoRPC? null : await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
+        this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-crypto"] = (this.isNoRPC || this.apiOnlyMetadata) ? null : await this.contracts[this.constants.ALIASES.crypto_factory].contract.gauge_implementation(this.constantOptions);
     }
 
     fetchStableNgFactoryPools = async (useApi = true, isFiltered = false): Promise<void> => {
@@ -618,10 +621,10 @@ export class Curve implements ICurve {
         this._updateDecimalsAndGauges(this.constants.TWOCRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = this.isNoRPC ? null :
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = (this.isNoRPC || this.apiOnlyMetadata) ? null :
                 await this.contracts[this.constants.ALIASES.twocrypto_factory].contract.gauge_implementation(this.constantOptions);
         } else {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = this.isNoRPC ? null :
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-twocrypto"] = (this.isNoRPC || this.apiOnlyMetadata) ? null :
                 await this.contracts[this.constants.ALIASES.child_gauge_factory].contract.get_implementation(this.constantOptions);
         }
     }
@@ -641,10 +644,10 @@ export class Curve implements ICurve {
         this._updateDecimalsAndGauges(this.constants.TRICRYPTO_FACTORY_POOLS_DATA);
 
         if (this.chainId === 1) {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = this.isNoRPC ? null :
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = (this.isNoRPC || this.apiOnlyMetadata) ? null :
                 await this.contracts[this.constants.ALIASES.tricrypto_factory].contract.gauge_implementation(this.constantOptions);
         } else {
-            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = this.isNoRPC ? null :
+            this.constants.FACTORY_GAUGE_IMPLEMENTATIONS["factory-tricrypto"] = (this.isNoRPC || this.apiOnlyMetadata) ? null :
                 await this.contracts[this.constants.ALIASES.child_gauge_factory].contract.get_implementation(this.constantOptions);
         }
     }

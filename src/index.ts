@@ -170,6 +170,7 @@ export const createCurve = () => {
         this.signerAddress = _curve.signerAddress;
         this.chainId = _curve.chainId;
         this.isNoRPC = _curve.isNoRPC;
+        this.apiOnlyMetadata = _curve.apiOnlyMetadata;
     }
 
     return {
@@ -213,6 +214,7 @@ export const createCurve = () => {
         getIsLiteChain: _curve.getIsLiteChain.bind(_curve),
         isNoRPC: _curve.isNoRPC,
         fetchPoolByAddress: _curve.fetchPoolByAddress.bind(_curve),
+        apiOnlyMetadata: _curve.apiOnlyMetadata,
         factory: {
             fetchPools: _curve.fetchFactoryPools.bind(_curve),
             fetchNewPools: _curve.fetchNewFactoryPools.bind(_curve),

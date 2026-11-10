@@ -24,7 +24,10 @@ import curve from "@curvefi/api";
 
     // 4. Without RPC
     await curve.init('NoRPC', {chainId: 1, networkName: 'ETHEREUM'});
-    
+
+    // 5. API-only metadata (RPC stays live for quotes/routing)
+    await curve.init('JsonRpc', { url: <RPC_URL> }, { chainId: 1, apiOnlyMetadata: true });
+
     // Fetch factory pools
     await curve.factory.fetchPools();
     await curve.crvUSDFactory.fetchPools();
@@ -37,6 +40,10 @@ import curve from "@curvefi/api";
 **Note 1.** ```chainId``` parameter is optional, but you must specify it in the case you use Metamask on localhost network, because Metamask has that [bug](https://hardhat.org/metamask-issue.html)
 
 **Note 2.** Web3 init requires the address. Therefore, it can be initialized only after receiving the address.
+
+**Note 3.** ```apiOnlyMetadata``` (default ```false```) makes the library source pool metadata and TVL **exclusively from the HTTP APIs**, with no on-chain reads during `fetchPools` or route-graph building. Unlike `NoRPC`, the RPC provider stays live and is still used for user-facing quotes/routing — this is intended for backends that want to avoid hammering RPC nodes (e.g. rate-limited public endpoints) while initializing and listing pools. Two effects to be aware of:
+- Factory gauge implementations are not read on-chain (`gaugeImplementation()` returns the zero address).
+- Pools with no TVL in the API — including LLAMMAs, whose TVL is on-chain-only — are treated as 0 liquidity and therefore **excluded from the route graph**, instead of falling back to on-chain liquidity reads.
 
 **Wrong ❌️**
 ```tsx

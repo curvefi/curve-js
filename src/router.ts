@@ -52,6 +52,8 @@ async function _getTVL(this: Curve, poolId: string, { is_llamma, swap_address }:
         );
         if (totalLiquidity !== undefined) return Number(totalLiquidity);
     }
+
+    if (this.apiOnlyMetadata) return 0;
     return Number(await getPool.call(this, poolId).stats.totalLiquidityMemoized());
 }
 

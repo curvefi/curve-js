@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
+import { isError } from "ethers";
 import memoize from "memoizee";
-import {getGaugesOverview} from '../prices-api.js';
+import {getGaugesOverview, IPricesGauge} from '../prices-api.js';
 import {_getPoolFilters} from '../external-api.js';
 import {_getGaugeBoostStatus, _getUserBoosts} from "../boosting.js";
 import {
@@ -38,7 +39,8 @@ import {checkVyperVulnerability} from "./utils.js";
 
 
 export class PoolTemplate extends CorePool {
-    isGaugeKilled: () => Promise<boolean>;
+    isGaugeKilled: () => Promise<boolean | null>;
+    isGaugeRegistered: () => Promise<boolean | null>;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         deposit: (amounts: (number | string)[], slippage?: number) => Promise<number | number[]>,
@@ -84,6 +86,7 @@ export class PoolTemplate extends CorePool {
         this.stats = new StatsPool(this);
         this.wallet = new WalletPool(this);
         this.isGaugeKilled = this.getIsGaugeKilled.bind(this);
+        this.isGaugeRegistered = this.getIsGaugeRegistered.bind(this);
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),
@@ -2148,10 +2151,58 @@ export class PoolTemplate extends CorePool {
         return await Promise.all(promises)
     }
 
-    private async getIsGaugeKilled(): Promise<boolean> {
-        const gauges = await getGaugesOverview();
-        const gauge = gauges.find((g) => g.address.toLowerCase() === this.gauge.address.toLowerCase());
+    // null = unknown (not in the API and no on-chain fallback reachable); never treat it as false.
+    private async getIsGaugeKilled(): Promise<boolean | null> {
+        if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
+        const gauge = await this._getApiGauge();
+        if (gauge) return gauge.is_killed;
+        // The GaugeController and root gauge live on Ethereum, so on-chain is reachable only on mainnet.
+        if (this.curve.chainId === 1) return await this._isGaugeKilledOnchain();
+        return null;
+    }
 
-        return gauge?.is_killed ?? false;
+    // Whether the gauge is registered in the GaugeController (required for CRV emissions).
+    // null = unknown; never treat it as false.
+    private async getIsGaugeRegistered(): Promise<boolean | null> {
+        if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
+        const gauge = await this._getApiGauge();
+        if (gauge) return gauge.is_approved;
+        if (this.curve.chainId === 1) return await this._isGaugeRegisteredOnchain();
+        return null;
+    }
+
+    private async _getApiGauge(): Promise<IPricesGauge | null> {
+        const gaugeAddress = this.gauge.address.toLowerCase();
+        try {
+            const gauges = await getGaugesOverview();
+            return gauges.find((g) => g.address.toLowerCase() === gaugeAddress) ?? null;
+        } catch {
+            return null;
+        }
+    }
+
+    private async _isGaugeKilledOnchain(): Promise<boolean | null> {
+        const gaugeContract = this.curve.contracts[this.gauge.address];
+        if (!gaugeContract || findAbiFunction(gaugeContract.abi, 'is_killed').length === 0) return null;
+        try {
+            return await gaugeContract.contract.is_killed(this.curve.constantOptions);
+        } catch {
+            return null;
+        }
+    }
+
+    private async _isGaugeRegisteredOnchain(): Promise<boolean | null> {
+        const gaugeController = this.curve.contracts[this.curve.constants.ALIASES.gauge_controller];
+        if (!gaugeController) return null;
+        try {
+            // gauge_types reverts only for a gauge that was never added to the controller
+            await gaugeController.contract.gauge_types(this.gauge.address, this.curve.constantOptions);
+            return true;
+        } catch (e) {
+            // a contract revert / empty return confirms "not registered"; a network error means
+            // we can't tell, so stay at null rather than claiming false
+            if (isError(e, "CALL_EXCEPTION") || isError(e, "BAD_DATA")) return false;
+            return null;
+        }
     }
 }

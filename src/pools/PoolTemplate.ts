@@ -2156,13 +2156,11 @@ export class PoolTemplate extends CorePool {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
         const gauge = await this._getApiGauge();
         if (gauge) return gauge.is_killed;
-        // The GaugeController and root gauge live on Ethereum, so on-chain is reachable only on mainnet.
+        // on-chain fallback is reachable only on mainnet (GaugeController lives on Ethereum)
         if (this.curve.chainId === 1) return await this._isGaugeKilledOnchain();
         return null;
     }
 
-    // Whether the gauge is registered in the GaugeController (required for CRV emissions).
-    // null = unknown; never treat it as false.
     private async getIsGaugeRegistered(): Promise<boolean | null> {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
         const gauge = await this._getApiGauge();
@@ -2195,12 +2193,10 @@ export class PoolTemplate extends CorePool {
         const gaugeController = this.curve.contracts[this.curve.constants.ALIASES.gauge_controller];
         if (!gaugeController) return null;
         try {
-            // gauge_types reverts only for a gauge that was never added to the controller
             await gaugeController.contract.gauge_types(this.gauge.address, this.curve.constantOptions);
             return true;
         } catch (e) {
-            // a contract revert / empty return confirms "not registered"; a network error means
-            // we can't tell, so stay at null rather than claiming false
+            // gauge_types reverts for an unregistered gauge; a network error stays null, not false
             if (isError(e, "CALL_EXCEPTION") || isError(e, "BAD_DATA")) return false;
             return null;
         }

@@ -500,7 +500,9 @@ import curve from "@curvefi/api";
     pool.inApi;
     // true
     await pool.isGaugeKilled();
-    // false
+    // false — or null if the status can't be determined
+    await pool.isGaugeRegistered();
+    // true — gauge is registered in the GaugeController (prerequisite for CRV emissions); null if unknown
 })()
 ````
 

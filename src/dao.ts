@@ -1,7 +1,7 @@
 import { type Curve} from "./curve.js";
 import {Contract} from "ethers";
 import {_getDaoProposal, _getDaoProposalList} from './external-api.js';
-import {getGaugesOverview, IPricesGauge} from './prices-api.js';
+import {getGaugesOverview} from './prices-api.js';
 import {
     _getAddress,
     BN,
@@ -220,12 +220,6 @@ export async function claimFees(this: Curve, address = ""): Promise<string> {
 
 const toRelativeWeightPct = (gaugeRelativeWeight: number): string => (gaugeRelativeWeight * 100).toString();
 
-const assertHasNoRootGaugeGap = (gauge: IPricesGauge): void => {
-    if (gauge.pool?.chain && gauge.pool.chain !== 'ethereum') {
-        throw Error(`Cannot resolve mainnet root gauge for L2 gauge ${gauge.address} (chain: ${gauge.pool.chain}) - prices.curve.finance API doesn't provide a root-gauge field yet`);
-    }
-};
-
 export async function getVotingGaugeList(this: Curve): Promise<IVotingGauge[]> {
     if (this.chainId !== 1) throw Error("Ethereum-only method")
     const gaugeData = await getGaugesOverview();
@@ -257,7 +251,6 @@ export async function userGaugeVotes(this: Curve, address = ""): Promise<{ gauge
     const gaugeData = await getGaugesOverview();
     const calls: any[] = [veMulticallContract.balanceOf(address)];
     for (const gauge of gaugeData) {
-        assertHasNoRootGaugeGap(gauge);
         calls.push(gcMulticallContract.vote_user_slopes(address, gauge.address));
     }
     const [veCrvBalance, ...votes] = await this.multicallProvider.all(calls) as [bigint, bigint[]];

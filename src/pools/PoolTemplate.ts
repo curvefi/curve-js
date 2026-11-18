@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { isError } from "ethers";
 import memoize from "memoizee";
-import {getGaugesOverview, IPricesGauge} from '../prices-api.js';
+import {getGaugesOverview} from '../prices-api.js';
 import {_getPoolFilters} from '../external-api.js';
 import {_getGaugeBoostStatus, _getUserBoosts} from "../boosting.js";
 import {
@@ -2151,54 +2151,55 @@ export class PoolTemplate extends CorePool {
         return await Promise.all(promises)
     }
 
-    // null = unknown (not in the API and no on-chain fallback reachable); never treat it as false.
     private async getIsGaugeKilled(): Promise<boolean | null> {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
-        const gauge = await this._getApiGauge();
-        if (gauge) return gauge.is_killed;
-        // on-chain fallback is reachable only on mainnet (GaugeController lives on Ethereum)
-        if (this.curve.chainId === 1) return await this._isGaugeKilledOnchain();
-        return null;
+        const target = this.gauge.address.toLowerCase();
+
+        try {
+            const gauges = await getGaugesOverview();
+            const gauge = gauges.find((g) => g.address.toLowerCase() === target);
+            if (gauge) return gauge.is_killed;
+        } catch (e) {
+            if (this.curve.chainId !== 1) throw e;
+        }
+
+        if (this.curve.chainId === 1) return this._isGaugeKilledOnchain();
+        throw new Error(`Cannot determine killed status of gauge ${this.gauge.address}: not indexed by the prices API and on-chain reads require Ethereum`);
     }
 
     private async getIsGaugeRegistered(): Promise<boolean | null> {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
-        const gauge = await this._getApiGauge();
-        if (gauge) return gauge.is_approved;
-        if (this.curve.chainId === 1) return await this._isGaugeRegisteredOnchain();
-        return null;
-    }
+        const target = this.gauge.address.toLowerCase();
 
-    private async _getApiGauge(): Promise<IPricesGauge | null> {
-        const gaugeAddress = this.gauge.address.toLowerCase();
         try {
             const gauges = await getGaugesOverview();
-            return gauges.find((g) => g.address.toLowerCase() === gaugeAddress) ?? null;
-        } catch {
-            return null;
+            const gauge = gauges.find((g) => g.address.toLowerCase() === target);
+            if (gauge) return gauge.is_approved;
+        } catch (e) {
+            if (this.curve.chainId !== 1) throw e;
         }
+
+        if (this.curve.chainId === 1) return this._isGaugeRegisteredOnchain();
+        throw new Error(`Cannot determine registration of gauge ${this.gauge.address}: not indexed by the prices API and on-chain reads require Ethereum`);
     }
 
-    private async _isGaugeKilledOnchain(): Promise<boolean | null> {
+    private async _isGaugeKilledOnchain(): Promise<boolean> {
         const gaugeContract = this.curve.contracts[this.gauge.address];
-        if (!gaugeContract || findAbiFunction(gaugeContract.abi, 'is_killed').length === 0) return null;
-        try {
-            return await gaugeContract.contract.is_killed(this.curve.constantOptions);
-        } catch {
-            return null;
+        if (!gaugeContract || findAbiFunction(gaugeContract.abi, 'is_killed').length === 0) {
+            throw new Error(`Gauge ${this.gauge.address} has no is_killed() method`);
         }
+        return await gaugeContract.contract.is_killed(this.curve.constantOptions);
     }
 
-    private async _isGaugeRegisteredOnchain(): Promise<boolean | null> {
+    private async _isGaugeRegisteredOnchain(): Promise<boolean> {
         const gaugeController = this.curve.contracts[this.curve.constants.ALIASES.gauge_controller];
-        if (!gaugeController) return null;
+        if (!gaugeController) throw new Error("GaugeController contract is not available");
         try {
             await gaugeController.contract.gauge_types(this.gauge.address, this.curve.constantOptions);
             return true;
         } catch (e) {
-            // gauge_types reverts for an unregistered gauge; a network error stays null, not false
             if (isError(e, "CALL_EXCEPTION") || isError(e, "BAD_DATA")) return false;
-            return null;
+            throw e;
         }
     }
 }

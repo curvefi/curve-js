@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
+import { isError } from "ethers";
 import memoize from "memoizee";
-import {getGaugesOverview} from '../prices-api.js';
+import {getGaugesOverview, IPricesGauge} from '../prices-api.js';
 import {_getPoolFilters} from '../external-api.js';
 import {_getGaugeBoostStatus, _getUserBoosts} from "../boosting.js";
 import {
@@ -38,7 +39,8 @@ import {checkVyperVulnerability} from "./utils.js";
 
 
 export class PoolTemplate extends CorePool {
-    isGaugeKilled: () => Promise<boolean>;
+    isGaugeKilled: () => Promise<boolean | null>;
+    isGaugeRegistered: () => Promise<boolean | null>;
     estimateGas: {
         depositApprove: (amounts: (number | string)[]) => Promise<number | number[]>,
         deposit: (amounts: (number | string)[], slippage?: number) => Promise<number | number[]>,
@@ -84,6 +86,7 @@ export class PoolTemplate extends CorePool {
         this.stats = new StatsPool(this);
         this.wallet = new WalletPool(this);
         this.isGaugeKilled = this.getIsGaugeKilled.bind(this);
+        this.isGaugeRegistered = this.getIsGaugeRegistered.bind(this);
         this.estimateGas = {
             depositApprove: this.depositApproveEstimateGas.bind(this),
             deposit: this.depositEstimateGas.bind(this),
@@ -2148,10 +2151,58 @@ export class PoolTemplate extends CorePool {
         return await Promise.all(promises)
     }
 
-    private async getIsGaugeKilled(): Promise<boolean> {
-        const gauges = await getGaugesOverview();
-        const gauge = gauges.find((g) => g.address.toLowerCase() === this.gauge.address.toLowerCase());
+    private async getIsGaugeKilled(): Promise<boolean | null> {
+        if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
+        try {
+            const gauge = await this._findApiGauge();
+            if (gauge) return gauge.is_killed;
+        } catch (e) {
+            if (this.curve.chainId !== 1) throw e;
+        }
 
-        return gauge?.is_killed ?? false;
+        if (this.curve.chainId === 1) return this._isGaugeKilledOnchain();
+        throw new Error(`Cannot determine killed status of gauge ${this.gauge.address}: not indexed by the prices API and on-chain reads require Ethereum`);
+    }
+
+    private async getIsGaugeRegistered(): Promise<boolean | null> {
+        if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
+        try {
+            const gauge = await this._findApiGauge();
+            if (gauge) return gauge.is_approved;
+        } catch (e) {
+            if (this.curve.chainId !== 1) throw e;
+        }
+
+        if (this.curve.chainId === 1) return this._isGaugeRegisteredOnchain();
+        throw new Error(`Cannot determine registration of gauge ${this.gauge.address}: not indexed by the prices API and on-chain reads require Ethereum`);
+    }
+
+    // On sidechains the prices API keys the row by the Ethereum root gauge; the pool's child gauge is `effective_address`.
+    // Child gauge addresses can collide with gauges on other chains, so the row must also belong to this network.
+    private async _findApiGauge(): Promise<IPricesGauge | undefined> {
+        const target = this.gauge.address.toLowerCase();
+        const gauges = await getGaugesOverview();
+        return gauges.find((g) =>
+            g.pool?.chain === this.curve.constants.NETWORK_NAME && (g.effective_address ?? g.address).toLowerCase() === target);
+    }
+
+    private async _isGaugeKilledOnchain(): Promise<boolean> {
+        const gaugeContract = this.curve.contracts[this.gauge.address];
+        if (!gaugeContract || findAbiFunction(gaugeContract.abi, 'is_killed').length === 0) {
+            throw new Error(`Gauge ${this.gauge.address} has no is_killed() method`);
+        }
+        return await gaugeContract.contract.is_killed(this.curve.constantOptions);
+    }
+
+    private async _isGaugeRegisteredOnchain(): Promise<boolean> {
+        const gaugeController = this.curve.contracts[this.curve.constants.ALIASES.gauge_controller];
+        if (!gaugeController) throw new Error("GaugeController contract is not available");
+        try {
+            await gaugeController.contract.gauge_types(this.gauge.address, this.curve.constantOptions);
+            return true;
+        } catch (e) {
+            if (isError(e, "CALL_EXCEPTION") || isError(e, "BAD_DATA")) return false;
+            throw e;
+        }
     }
 }

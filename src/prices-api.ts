@@ -101,6 +101,7 @@ export interface IPricesGauge {
     lp_token: string,
     pool: { address: string, name: string, chain: string } | null,
     is_killed: boolean,
+    is_approved: boolean,
     gauge_weight: string,
     gauge_relative_weight: number,
     gauge_type: string,

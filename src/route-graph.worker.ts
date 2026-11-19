@@ -396,6 +396,39 @@ export function routeGraphWorker() {
             }];
         }
 
+        // wOUSD <-> OUSD (Ethereum only)
+        if (chainId === 1) {
+            routerGraph[constants.COINS.ousd] = {};
+            routerGraph[constants.COINS.ousd][constants.COINS.wousd] = [{
+                poolId: "wOUSD wrapper",
+                swapAddress: constants.COINS.wousd,
+                inputCoinAddress: constants.COINS.ousd,
+                outputCoinAddress: constants.COINS.wousd,
+                swapParams: [0, 1, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+
+            routerGraph[constants.COINS.wousd] = {};
+            routerGraph[constants.COINS.wousd][constants.COINS.ousd] = [{
+                poolId: "wOUSD wrapper",
+                swapAddress: constants.COINS.wousd,
+                inputCoinAddress: constants.COINS.wousd,
+                outputCoinAddress: constants.COINS.ousd,
+                swapParams: [1, 0, 9, 0, 0],
+                poolAddress: constants.ZERO_ADDRESS,
+                basePool: constants.ZERO_ADDRESS,
+                baseToken: constants.ZERO_ADDRESS,
+                secondBasePool: constants.ZERO_ADDRESS,
+                secondBaseToken: constants.ZERO_ADDRESS,
+                tvl: Infinity,
+            }];
+        }
+
         const start = Date.now();
         for (const poolItem of allPools) {
             const poolId = poolItem[0], poolData = poolItem[1];

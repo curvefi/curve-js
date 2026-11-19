@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { isError } from "ethers";
 import memoize from "memoizee";
-import {getGaugesOverview} from '../prices-api.js';
+import {getGaugesOverview, IPricesGauge} from '../prices-api.js';
 import {_getPoolFilters} from '../external-api.js';
 import {_getGaugeBoostStatus, _getUserBoosts} from "../boosting.js";
 import {
@@ -2153,11 +2153,8 @@ export class PoolTemplate extends CorePool {
 
     private async getIsGaugeKilled(): Promise<boolean | null> {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
-        const target = this.gauge.address.toLowerCase();
-
         try {
-            const gauges = await getGaugesOverview();
-            const gauge = gauges.find((g) => g.address.toLowerCase() === target);
+            const gauge = await this._findApiGauge();
             if (gauge) return gauge.is_killed;
         } catch (e) {
             if (this.curve.chainId !== 1) throw e;
@@ -2169,11 +2166,8 @@ export class PoolTemplate extends CorePool {
 
     private async getIsGaugeRegistered(): Promise<boolean | null> {
         if (this.gauge.address === this.curve.constants.ZERO_ADDRESS) return null;
-        const target = this.gauge.address.toLowerCase();
-
         try {
-            const gauges = await getGaugesOverview();
-            const gauge = gauges.find((g) => g.address.toLowerCase() === target);
+            const gauge = await this._findApiGauge();
             if (gauge) return gauge.is_approved;
         } catch (e) {
             if (this.curve.chainId !== 1) throw e;
@@ -2181,6 +2175,15 @@ export class PoolTemplate extends CorePool {
 
         if (this.curve.chainId === 1) return this._isGaugeRegisteredOnchain();
         throw new Error(`Cannot determine registration of gauge ${this.gauge.address}: not indexed by the prices API and on-chain reads require Ethereum`);
+    }
+
+    // On sidechains the prices API keys the row by the Ethereum root gauge; the pool's child gauge is `effective_address`.
+    // Child gauge addresses can collide with gauges on other chains, so the row must also belong to this network.
+    private async _findApiGauge(): Promise<IPricesGauge | undefined> {
+        const target = this.gauge.address.toLowerCase();
+        const gauges = await getGaugesOverview();
+        return gauges.find((g) =>
+            g.pool?.chain === this.curve.constants.NETWORK_NAME && (g.effective_address ?? g.address).toLowerCase() === target);
     }
 
     private async _isGaugeKilledOnchain(): Promise<boolean> {

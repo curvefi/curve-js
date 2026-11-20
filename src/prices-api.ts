@@ -1,5 +1,7 @@
 import memoize from "memoizee";
 import {
+    IDaoProposal,
+    IDaoProposalListItem,
     IExtendedPoolDataFromApi,
     IPoolDataFromApi,
     IPoolType,
@@ -225,3 +227,82 @@ export const getVolumesFromPricesApi = async (network: INetworkName): Promise<IV
         cryptoShare: totalVolume ? (cryptoVolume / totalVolume) * 100 : 0,
     };
 };
+
+// --- DAO proposals ---
+
+interface IPricesDaoProposal {
+    vote_id: number,
+    vote_type: "parameter" | "ownership",
+    creator: string,
+    start_date: number,
+    snapshot_block: number,
+    ipfs_metadata: string,
+    metadata: string,
+    votes_for: string,
+    votes_against: string,
+    vote_count: number,
+    support_required: string,
+    min_accept_quorum: string,
+    total_supply: string,
+    executed: boolean,
+    transaction_hash: string,
+}
+
+interface IPricesDaoProposalDetails extends IPricesDaoProposal {
+    creator_voting_power: string,
+    script: string,
+    votes: { voter: string, supports: boolean, voting_power: string, transaction_hash: string }[],
+}
+
+const PRICES_PROPOSALS_URL = "https://prices.curve.finance/v1/dao/proposals";
+const PRICES_PROPOSALS_PAGE_SIZE = 100; // the largest page the API accepts
+
+const parseDaoProposal = (proposal: IPricesDaoProposal): IDaoProposalListItem => ({
+    voteId: proposal.vote_id,
+    voteType: proposal.vote_type.toUpperCase() as IDaoProposalListItem["voteType"],
+    creator: proposal.creator,
+    startDate: proposal.start_date,
+    snapshotBlock: proposal.snapshot_block,
+    ipfsMetadata: proposal.ipfs_metadata,
+    metadata: proposal.metadata,
+    votesFor: proposal.votes_for,
+    votesAgainst: proposal.votes_against,
+    voteCount: proposal.vote_count,
+    supportRequired: proposal.support_required,
+    minAcceptQuorum: proposal.min_accept_quorum,
+    totalSupply: proposal.total_supply,
+    executed: proposal.executed,
+});
+
+const fetchDaoProposalsPage = async (page: number): Promise<{ count: number, proposals: IPricesDaoProposal[] }> => {
+    const { count, proposals } = await fetchJson(`${PRICES_PROPOSALS_URL}?pagination=${PRICES_PROPOSALS_PAGE_SIZE}&page=${page}`);
+    if (!Array.isArray(proposals)) throw Error(`Unexpected response for DAO proposals page ${page}`);
+    return { count, proposals };
+}
+
+export async function getDaoProposalListFromPricesApi(): Promise<IDaoProposalListItem[]> {
+    const firstPage = await fetchDaoProposalsPage(1);
+    const pageCount = Math.ceil(firstPage.count / PRICES_PROPOSALS_PAGE_SIZE);
+    const otherPages = await Promise.all(
+        Array.from({ length: Math.max(pageCount - 1, 0) }, (_, i) => fetchDaoProposalsPage(i + 2))
+    );
+    return [firstPage, ...otherPages].flatMap(({ proposals }) => proposals.map(parseDaoProposal));
+}
+
+export async function getDaoProposalFromPricesApi(type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> {
+    const proposal: IPricesDaoProposalDetails = await fetchJson(`${PRICES_PROPOSALS_URL}/details/${type.toLowerCase()}/${id}`);
+    if (proposal.vote_id === undefined) throw Error(`DAO proposal ${type} ${id} not found`);
+    return {
+        ...parseDaoProposal(proposal),
+        tx: proposal.transaction_hash,
+        creatorVotingPower: Number(proposal.creator_voting_power),
+        script: proposal.script,
+        votes: (proposal.votes ?? []).map((vote) => ({
+            tx: vote.transaction_hash,
+            voteId: proposal.vote_id,
+            voter: vote.voter,
+            supports: vote.supports,
+            stake: Number(vote.voting_power),
+        })),
+    };
+}

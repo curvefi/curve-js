@@ -66,15 +66,16 @@ export const lowerCaseKeys = (dict: IDict<any>): IDict<any> => {
 
 /**
  * Memoizes a method of an object by binding it to this when needed.
- * The memoized method will cache the result for 5 minutes.
+ * By default, the memoized method will cache the result for 5 minutes.
  * @param obj The object to which the method belongs.
  * @param name The name of the method to memoize. It must be unique within the object.
  * @param method The method to memoize. It must be a function that returns a Promise.
+ * @param maxAge Cache lifetime in milliseconds. `0` disables caching (memoizee itself treats `0` as "never expire").
  * @returns The memoized method.
  */
-export const memoizeMethod = <Obj extends object, Method extends (this: Obj, ...params: any[]) => Promise<unknown>>(obj: Obj, name: string, method: Method) => {
+export const memoizeMethod = <Obj extends object, Method extends (this: Obj, ...params: any[]) => Promise<unknown>>(obj: Obj, name: string, method: Method, maxAge = 5 * 60 * 1000 /* 5m */) => {
     if (!(name in obj)) {
-        (obj as any)[name] = memoize(method.bind(obj), { promise: true, maxAge: 5 * 60 * 1000 /* 5m */ });
+        (obj as any)[name] = maxAge > 0 ? memoize(method.bind(obj), { promise: true, maxAge }) : method.bind(obj);
     }
     return (obj as any)[name] as Method;
 }

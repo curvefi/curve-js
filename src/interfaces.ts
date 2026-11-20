@@ -190,6 +190,11 @@ export interface IRouteStep {
 
 export type IRoute = IRouteStep[];
 
+export interface IRouterCacheOptions {
+    routesMaxAge?: number, // ms, route graph and best route cache. 0 disables caching
+    outputMaxAge?: number, // ms, route output (get_dy) cache. 0 disables caching
+}
+
 export interface IRouteTvl {
     route: IRoute,
     minTvl: number,

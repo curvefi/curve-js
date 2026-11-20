@@ -1560,6 +1560,20 @@ import curve from "@curvefi/api";
 })()
 ```
 
+### Router cache
+
+The route graph, best routes and route outputs are cached for 5 minutes by default.
+You can clear the cache or change its lifetime, e.g. after a swap changes pool balances or when resetting a forked node in tests.
+
+```ts
+// Drop cached route graph, best routes and outputs
+curve.router.clearCache();
+
+// Set cache lifetimes in milliseconds (0 disables caching). Omitted options keep their current value.
+// This also clears the current router cache.
+curve.router.setCacheOptions({ routesMaxAge: 60 * 1000, outputMaxAge: 0 });
+```
+
 ## FastBridge
 
 FastBridge allows bridging crvUSD from L2 networks (Arbitrum, Optimism, Fraxtal) to Ethereum mainnet.

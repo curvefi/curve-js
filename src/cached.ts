@@ -45,10 +45,10 @@ const memoize = <TResult, TParams extends any[], TFunc extends (...args: TParams
         setCache(key, promise);
         try {
             const result = await promise;
-            scheduleCleanup(key)
+            if (cache[key] === promise) scheduleCleanup(key)
             return result;
         } catch (e) {
-            delete cache[key];
+            if (cache[key] === promise) delete cache[key];
             throw e;
         }
     };

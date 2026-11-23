@@ -9,7 +9,12 @@ import {
     IPoolType,
     IVolumeAndAPYs,
 } from "./interfaces";
-import { getPoolsFromPricesApi, getVolumesFromPricesApi } from "./prices-api.js";
+import {
+    getDaoProposalFromPricesApi,
+    getDaoProposalListFromPricesApi,
+    getPoolsFromPricesApi,
+    getVolumesFromPricesApi,
+} from "./prices-api.js";
 import {
     getLiteDeploymentFromApi2,
     getLiteNetworksFromApi2,
@@ -168,18 +173,15 @@ export const _generateBoostingProof = memoize(
 
 // --- DAO ---
 
-export const _getDaoProposalList = memoize(async (): Promise<IDaoProposalListItem[]> => {
-    const url = "https://api-py.llama.airforce/curve/v1/dao/proposals";
-    const {proposals} = await fetchJson(url);
-    return proposals;
-},
+export const _getDaoProposalList = memoize((): Promise<IDaoProposalListItem[]> =>
+    getDaoProposalListFromPricesApi(),
 {
     promise: true,
     maxAge: 5 * 60 * 1000, // 5m
 })
 
 export const _getDaoProposal = memoize((type: "PARAMETER" | "OWNERSHIP", id: number): Promise<IDaoProposal> =>
-    fetchJson(`https://api-py.llama.airforce/curve/v1/dao/proposals/${type.toLowerCase()}/${id}`),
+    getDaoProposalFromPricesApi(type, id),
 {
     promise: true,
     maxAge: 5 * 60 * 1000, // 5m

@@ -11,6 +11,7 @@ import {
 } from "ethers";
 import {Contract as MulticallContract, Provider as MulticallProvider} from "@curvefi/ethcall";
 import {NETWORK_CONSTANTS} from "./constants/network_constants.js";
+import {STANDALONE_WRAPPERS} from "./constants/standaloneWrappers.js";
 import {CRYPTO_FACTORY_CONSTANTS, STABLE_FACTORY_CONSTANTS} from "./constants/factory/index.js";
 import {getFactoryPoolData} from "./factory/factory.js";
 import {getLastFactoryPoolIndex} from "./factory/common.js";
@@ -383,8 +384,12 @@ export class Curve implements ICurve {
 
         this.setContract(this.constants.ALIASES.crv, ERC20Abi);
         this.constants.DECIMALS[this.constants.ALIASES.crv] = 18;
-        this.setContract(this.constants.COINS.scrvusd, ERC20Abi);
-        this.constants.DECIMALS[this.constants.COINS.scrvusd] = 18;
+
+        for (const { address, decimals } of Object.values(STANDALONE_WRAPPERS[this.chainId] ?? {})) {
+            const coinAddress = address.toLowerCase();
+            this.setContract(coinAddress, ERC20Abi);
+            this.constants.DECIMALS[coinAddress] = decimals;
+        }
 
         if (this.constants.ALIASES.fast_bridge) {
             this.setContract(this.constants.ALIASES.fast_bridge, fastBridgeABI);

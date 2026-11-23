@@ -1,4 +1,5 @@
 import { lowerCaseValues } from "../utils.js";
+import { standaloneWrapperAddresses } from "../standaloneWrappers.js";
 
 
 export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
@@ -9,18 +10,14 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     '3crv': "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",  // 3CRV
 
     crvusd: "0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E",
-    scrvusd: "0x0655977FEb2f289A4aB78af67BAB0d17aAb84367",
 
     usde: "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
     susde: "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497",
     usds: "0xdc035d45d973e3ec169d2276ddab16f1e407384f",
     susds: "0xa3931d71877c0e7a3148cb7eb4463524fec27fbd",
     reusd: "0x57aB1E0003F623289CD798B1824Be09a793e4Bec",
-    sreusd: "0x557AB1e003951A73c12D16F0fEA8490E39C33C35",
     dola: "0x865377367054516e17014CcdED1e7d814EDC9ce4",
     sdola: "0xb45ad160634c528Cc3D2926d9807104FA3157305",
-    ousd: "0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86",
-    wousd: "0xd2af830e8cbdfed6cc11bab697bb25496ed6fa62",
 
     ycdai: "0x99d1Fa417f94dcD62BfE781a1213c092a47041Bc",  // pax/yDAI
     ycusdc: "0x9777d7E2b60bB01759D0E2f8be2095df444cb07E",  // pax/yUSDC
@@ -60,7 +57,6 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",  // DAI
     sdai: "0x83F20F44975D03b1b09e64809B757c47f942BEeA",  // sDAI
     usdc: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  // USDC
-    syrupusdc: "0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b",  // syrupUSDC
     usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",  // USDT
     susd: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",  // sUSD
 
@@ -118,8 +114,8 @@ export const COINS_ETHEREUM: { [index: string]: string } = lowerCaseValues({
     spell: "0x090185f2135308bad17527004364ebcc2d37e5f6", // SPELL
     t: "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5", // T
     xaut: "0x68749665ff8d2d112fa859aa293f07a622782f38", // XAUt
-    zchf: "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB", // ZCHF
-    svzchf: "0xE5F130253fF137f9917C0107659A4c5262abf6b0", // svZCHF
+
+    ...standaloneWrapperAddresses(1),
 });
 
 export const cTokensEthereum = [

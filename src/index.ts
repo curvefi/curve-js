@@ -26,6 +26,8 @@ import {
     swapFromCalldata,
     swapFromCalldataEstimateGas,
     setRouterBlacklist,
+    clearRouterCache,
+    setRouterCacheOptions,
 } from "./router.js";
 import {
     isSupported,
@@ -377,6 +379,8 @@ export const createCurve = () => {
             getBestRouteAndOutput: getBestRouteAndOutput.bind(_curve),
             getArgs: getArgs.bind(_curve),
             setBlacklist: setRouterBlacklist.bind(_curve),
+            clearCache: clearRouterCache.bind(_curve),
+            setCacheOptions: setRouterCacheOptions.bind(_curve),
             expected: swapExpected.bind(_curve),
             required: swapRequired.bind(_curve),
             priceImpact: swapPriceImpact.bind(_curve),
@@ -467,4 +471,4 @@ export const createCurve = () => {
 }
 
 export default createCurve();
-export type { IGasStrategy } from "./interfaces.js";
+export type { IGasStrategy, IRouterCacheOptions } from "./interfaces.js";

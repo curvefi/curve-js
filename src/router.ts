@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import {ethers, TransactionLike} from "ethers";
 import {type Curve, OLD_CHAINS} from "./curve.js";
-import {IChainId, IDict, IPoolData, IRoute, IRouteOutputAndCost, IRouteStep} from "./interfaces";
+import {IChainId, IDict, IPoolData, IRoute, IRouteOutputAndCost, IRouteStep, IRouterCacheOptions} from "./interfaces";
 import {
     _cutZeros,
     _get_price_impact,
@@ -37,11 +37,42 @@ import {_getPoolTotalLiquidityFromApi} from "./cached.js";
 const MAX_STEPS = 5;
 const ROUTE_LENGTH = (MAX_STEPS * 2) + 1;
 
+const ROUTES_MEMOIZED_METHODS = ['_buildRouteGraph', '_getBestRoute'];
+const OUTPUT_MEMOIZED_METHODS = ['_getOutputForRoute'];
+
+function _dropMemoizedMethods(this: Curve, names: string[]): void {
+    for (const name of names) delete (this as any)[name];
+}
+
 export function setRouterBlacklist(this: Curve, blacklist: string[]): void {
     this.routerBlacklist = (blacklist ?? []).map((a) => a.toLowerCase());
     // Drop the memoized route graph / routes so they get rebuilt with the new blacklist
-    delete (this as any)._buildRouteGraph;
-    delete (this as any)._getBestRoute;
+    _dropMemoizedMethods.call(this, ROUTES_MEMOIZED_METHODS);
+}
+
+/**
+ * Drops the memoized route graph, best routes and route outputs,
+ * so the next call fetches fresh on-chain/API data.
+ */
+export function clearRouterCache(this: Curve): void {
+    _dropMemoizedMethods.call(this, [...ROUTES_MEMOIZED_METHODS, ...OUTPUT_MEMOIZED_METHODS]);
+}
+
+/**
+ * Sets the router cache lifetimes in milliseconds. `0` disables the corresponding cache.
+ * Omitted options keep their current value. The router cache is cleared so new values apply immediately.
+ */
+export function setRouterCacheOptions(this: Curve, options: IRouterCacheOptions): void {
+    for (const [key, value] of Object.entries(options ?? {})) {
+        if (!['routesMaxAge', 'outputMaxAge'].includes(key)) throw Error(`Unknown router cache option: ${key}`);
+        if (value === undefined) continue;
+        if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) throw Error(`${key} must be a non-negative finite number of milliseconds`);
+    }
+    this.routerCacheOptions = {
+        routesMaxAge: options?.routesMaxAge ?? this.routerCacheOptions.routesMaxAge,
+        outputMaxAge: options?.outputMaxAge ?? this.routerCacheOptions.outputMaxAge,
+    };
+    clearRouterCache.call(this);
 }
 
 async function _getTVL(this: Curve, poolId: string, { is_llamma, swap_address }: IPoolData): Promise<number> {
@@ -79,7 +110,7 @@ async function _buildRouteGraphImpl(this: Curve, chainId: IChainId, isLiteChain:
 }
 
 async function _findRoutes(this: Curve, inputCoinAddress: string, outputCoinAddress: string): Promise<IRoute[]> {
-    const _buildRouteGraph = memoizeMethod(this, '_buildRouteGraph', _buildRouteGraphImpl);
+    const _buildRouteGraph = memoizeMethod(this, '_buildRouteGraph', _buildRouteGraphImpl, this.routerCacheOptions.routesMaxAge);
     const routerGraph = await _buildRouteGraph.call(this, this.chainId, this.isLiteChain); // It's important to pass chainId to not use cache from another network
     // extract only the fields we need for the worker
     const poolData = mapDict(
@@ -297,7 +328,7 @@ async function _getBestRouteImpl(this: Curve, inputCoinAddress: string, outputCo
 }
 
 async function _getBestRoute(this: Curve, inputCoinAddress: string, outputCoinAddress: string, amount: number | string): Promise<IRoute> {
-    return memoizeMethod(this, '_getBestRoute', _getBestRouteImpl).call(this, inputCoinAddress, outputCoinAddress, amount);
+    return memoizeMethod(this, '_getBestRoute', _getBestRouteImpl, this.routerCacheOptions.routesMaxAge).call(this, inputCoinAddress, outputCoinAddress, amount);
 }
 
 async function _getOutputForRouteImpl(this: Curve, route: IRoute, _amount: bigint): Promise<bigint> {
@@ -311,7 +342,7 @@ async function _getOutputForRouteImpl(this: Curve, route: IRoute, _amount: bigin
 }
 
 async function _getOutputForRoute(this: Curve, route: IRoute, _amount: bigint): Promise<bigint> {
-    return memoizeMethod(this, '_getOutputForRoute', _getOutputForRouteImpl).call(this, route, _amount);
+    return memoizeMethod(this, '_getOutputForRoute', _getOutputForRouteImpl, this.routerCacheOptions.outputMaxAge).call(this, route, _amount);
 }
 
 const _routesCache: IDict<{ route: IRoute, output: string, timestamp: number }> = {};
@@ -326,10 +357,10 @@ export async function getBestRouteAndOutput(this: Curve, inputCoin: string, outp
     const [inputCoinAddress, outputCoinAddress] = _getCoinAddresses.call(this, inputCoin, outputCoin);
     const [inputCoinDecimals, outputCoinDecimals] = _getCoinDecimals.call(this, inputCoinAddress, outputCoinAddress);
 
-    const route = await _getBestRoute.call(this, inputCoinAddress, outputCoinAddress, amount); // 5 minutes cache
+    const route = await _getBestRoute.call(this, inputCoinAddress, outputCoinAddress, amount); // routerCacheOptions.routesMaxAge, 5 minutes by default
     if (route.length === 0) return { route, output: '0.0' };
 
-    const _output = await _getOutputForRoute.call(this, route, parseUnits(amount, inputCoinDecimals)); // 15 seconds cache, so we call it to get fresh output estimation
+    const _output = await _getOutputForRoute.call(this, route, parseUnits(amount, inputCoinDecimals)); // routerCacheOptions.outputMaxAge, 5 minutes by default
     _routesCache[`${inputCoinAddress}-${outputCoinAddress}-${amount}`] = {
         route,
         output: this.formatUnits(_output + BigInt(1), outputCoinDecimals),

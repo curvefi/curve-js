@@ -29,6 +29,7 @@ import {
     INetworkConstants,
     IPoolData,
     IPoolType,
+    IRouterCacheOptions,
 } from "./interfaces";
 import ERC20Abi from './constants/abis/ERC20.json' with {type: 'json'};
 import cERC20Abi from './constants/abis/cERC20.json' with {type: 'json'};
@@ -133,6 +134,7 @@ export class Curve implements ICurve {
     nativeTokenAddress: string;
     poolAddressMapCache: IDict<string> | null;
     routerBlacklist: string[];
+    routerCacheOptions: Required<IRouterCacheOptions>;
 
     constructor() {
         this.provider = null!;
@@ -151,6 +153,7 @@ export class Curve implements ICurve {
         this.nativeTokenAddress = NETWORK_CONSTANTS[1].NATIVE_COIN.address;
         this.poolAddressMapCache = null;
         this.routerBlacklist = [];
+        this.routerCacheOptions = { routesMaxAge: 5 * 60 * 1000, outputMaxAge: 5 * 60 * 1000 }; // 5m
         this.constants = {
             NATIVE_TOKEN: NETWORK_CONSTANTS[1].NATIVE_COIN,
             NETWORK_NAME: 'ethereum',

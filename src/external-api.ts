@@ -153,6 +153,24 @@ export const _getPoolFilters = memoize(
     }
 )
 
+export const _getResettableApprovalTokens = memoize(
+    async (network: INetworkName): Promise<Set<string>> => {
+        try {
+            const url = `https://prices.curve.finance/v1/tokens/${network}/resettable_approval`;
+            const response = await fetch(url, { headers: { accept: "application/json" } });
+            if (response.status !== 200) return new Set();
+            const { data } = await response.json() as { data: string[] };
+            return new Set((data ?? []).map((address) => address.toLowerCase()));
+        } catch {
+            return new Set();
+        }
+    },
+    {
+        promise: true,
+        maxAge: 10 * 60 * 1000, // 10m
+    }
+)
+
 export const _generateBoostingProof = memoize(
     async (block: number, address: string): Promise<{ block_header_rlp: string, proof_rlp: string }> => {
         const url = `https://prices.curve.finance/v1/general/get_merkle_proof?block=${block}&account_address=${address}`;

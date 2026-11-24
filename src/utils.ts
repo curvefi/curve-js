@@ -19,6 +19,7 @@ import {Curve} from "./curve.js";
 import {
     _getCurveLiteNetworks,
     _getLiteNetworksData,
+    _getResettableApprovalTokens,
     _getVolumes,
 } from "./external-api.js";
 import {_getAllPoolsFromApi, _getUsdPricesFromApi} from "./cached.js";
@@ -244,9 +245,22 @@ export async function hasAllowance(this: Curve, coins: string[], amounts: (numbe
     return _allowance.map((a, i) => a >= _amounts[i]).reduce((a, b) => a && b);
 }
 
+async function _approveRequiresReset(this: Curve, contract: Contract, coin: string, spender: string, _currentAllowance: bigint, _approveAmount: bigint, resettable: Set<string>): Promise<boolean> {
+    if (_currentAllowance === parseUnits("0")) return false;
+    if (resettable.has(coin.toLowerCase())) return true;
+
+    try {
+        await contract.approve.staticCall(spender, _approveAmount, this.constantOptions);
+        return false;
+    } catch {
+        return true;
+    }
+}
+
 export async function _ensureAllowance(this: Curve, coins: string[], amounts: bigint[], spender: string, isMax = true): Promise<string[]> {
     const address = this.signerAddress;
     const allowance: bigint[] = await _getAllowance.call(this, coins, address, spender);
+    const resettable = await _getResettableApprovalTokens(this.constants.NETWORK_NAME);
 
     const txHashes: string[] = []
     for (let i = 0; i < allowance.length; i++) {
@@ -255,7 +269,7 @@ export async function _ensureAllowance(this: Curve, coins: string[], amounts: bi
             const _approveAmount = isMax ? MAX_ALLOWANCE : amounts[i];
             await this.updateFeeData();
 
-            if (allowance[i] > parseUnits("0")) {
+            if (await _approveRequiresReset.call(this, contract, coins[i], spender, allowance[i], _approveAmount, resettable)) {
                 const gasLimit = mulBy1_3(DIGas(await contract.approve.estimateGas(spender, parseUnits("0"), this.constantOptions)));
                 const resetTx = await contract.approve(spender, parseUnits("0"), { ...this.options, gasLimit });
                 txHashes.push(resetTx.hash);
@@ -279,20 +293,15 @@ export async function ensureAllowanceEstimateGas(this: Curve, coins: string[], a
     const _amounts = amounts.map((a, i) => parseUnits(a, decimals[i]));
     const address = this.signerAddress;
     const _allowance: bigint[] = await _getAllowance.call(this, coinAddresses, address, spender);
+    const resettable = await _getResettableApprovalTokens(this.constants.NETWORK_NAME);
 
     let gas = [0,0];
     for (let i = 0; i < _allowance.length; i++) {
         if (_allowance[i] < _amounts[i]) {
             const contract = this.contracts[coinAddresses[i]].contract;
             const _approveAmount = isMax ? MAX_ALLOWANCE : _amounts[i];
-            if (_allowance[i] > parseUnits("0")) {
-                let currentGas = smartNumber(await contract.approve.estimateGas(spender, parseUnits("0"), this.constantOptions));
-                // For some coins (crv for example ) we can't estimate the second tx gas (approve: 0 --> amount), so we assume it will cost the same amount of gas
-                if (typeof currentGas === "number") {
-                    currentGas = currentGas * 2;
-                } else {
-                    currentGas = currentGas.map((g) => g * 2)
-                }
+            if (await _approveRequiresReset.call(this, contract, coinAddresses[i], spender, _allowance[i], _approveAmount, resettable)) {
+                const currentGas = smartNumber(await contract.approve.estimateGas(spender, parseUnits("0"), this.constantOptions));
                 gas = gasSum(gas, currentGas);
             } else {
                 const currentGas = smartNumber(await contract.approve.estimateGas(spender, _approveAmount, this.constantOptions));
